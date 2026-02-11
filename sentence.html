@@ -30,6 +30,46 @@
     .pill { display:inline-block; padding:3px 8px; border-radius:999px; background:#f0f4ff; color:#2b7cff; font-size:12px; border:1px solid #d6e4ff; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
     .pre { white-space: pre-wrap; }
+
+    /* ===== スマホ向け可読性アップ ===== */
+
+/* 問題文 */
+#question {
+  font-size: 20px;       /* ←ここが一番効く */
+  line-height: 1.6;
+}
+
+/* 選択肢ボタン */
+#choices button {
+  font-size: 18px;
+  padding: 14px 12px;
+  margin: 8px 0;
+  border-radius: 10px;
+}
+
+/* ヒント */
+#hintArea {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* 正誤表示 */
+#result {
+  font-size: 18px;
+}
+
+/* 解説（全文訳・選択肢の意味） */
+#detail {
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* 問題番号などのメタ情報 */
+#qMeta,
+#stats {
+  font-size: 14px;
+}
+
   </style>
 </head>
 <body>
