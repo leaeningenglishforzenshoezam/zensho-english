@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>英→日 4択テスト</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
+    }
+    .container {
+      max-width: 520px;
+      margin: 20px auto;
+      padding: 0 12px;
+    }
+    button {
+      padding: 10px 12px;
+      margin-top: 6px;
+    }
+    .box {
+      border: 1px solid #ccc;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+    }
+    .muted {
+      color: #666;
+      font-size: 14px;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    select, input {
+      padding: 8px;
+    }
+    .btnwide {
+      width: 100%;
+    }
+    ul {
+      padding-left: 18px;
+    }
+    li {
+      margin: 6px 0;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+  <!-- ナビ -->
+  <div style="margin-bottom:12px;">
+    <a href="index.html">← ホーム</a> |
+    <a href="study.html">暗記</a> |
+    <a href="quiz_jaen.html">日→英クイズ</a> |
+     <a href="sentence.html">１級大問９演習</a>
+    <a href="list.html">一覧</a>
+  </div>
+  <div id="levelBadge" style="font-size:14px; color:#555; margin-bottom:6px;"></div>
+
+
+  <!-- ===== 設定トグル＋要約 ===== -->
+  <button id="toggleSettings">▶ 設定</button>
+  <div id="settingsSummary" class="muted" style="margin-bottom:8px;"></div>
+
+  <!-- ===== 設定エリア（折りたたみ） ===== -->
+  <div id="setupBox" class="box">
+  <div id="settingsArea">
+  <div style="font-weight:bold; margin-bottom:8px;">出題設定（英→日）</div>
+
+  <div class="row" style="margin-bottom:10px;">
+    <label style="font-weight:600;">Block:</label>
+    <select id="blockSelect"></select>
+    <button id="applyBlock" type="button">このBlockを範囲に反映</button>
+  </div>
+
+  <div id="blockStats" class="muted" style="margin-bottom:10px;"></div>
+
+  <div style="margin-bottom:10px;">
+    <label>出題範囲（番号）:</label><br>
+    <input id="rangeStart" type="number" min="1" value="1" style="width:90px;"> 〜
+    <input id="rangeEnd" type="number" min="1" value="144" style="width:90px;">
+  </div>
+
+  <div style="margin-bottom:10px;">
+    <label>出題数:</label><br>
+    <input id="limitCount" type="number" min="1" value="10" style="width:90px;"> 問
+  </div>
+
+  <!-- ★出題モード（3択） -->
+  <div style="margin-bottom:10px;">
+    <label>出題モード:</label><br>
+    <select id="modeSelect">
+      <option value="order">順番に出題（続きから）</option>
+      <option value="random">ランダムで出題</option>
+      <option value="weak">ニガテ順に出題</option>
+    </select>
+  </div>
+
+  <!-- ★順番モードの続きリセット（ここが出てないはず） -->
+  <div style="margin-bottom:10px;">
+    <button id="resetOrderCursor" type="button">🔄 順番モードの続きからをリセット</button>
+    <div class="muted" style="margin-top:6px;">
+      ※今の出題範囲（番号）に対して、順番の開始位置を先頭に戻します。
+    </div>
+  </div>
+
+  <div style="margin-bottom:10px;">
+    <label>
+      <input id="weakMode" type="checkbox">
+      弱点モード（間違えた単語を優先）
+    </label>
+    <button id="clearWeak" type="button" style="margin-left:8px;">弱点を全消去</button>
+    <div id="weakInfo" class="muted" style="margin-top:6px;"></div>
+  </div>
+    </div>
+     <!-- ★ これで問題を作成（設定の一部） -->
+      <button id="startTest" type="button" class="btnwide">
+        この条件でテスト開始
+      </button>
+  </div>
+
+  <!-- ===== 問題エリア ===== -->
+  <div id="playBox" class="box">
+    <div id="stats" style="margin-bottom:8px;"></div>
+    <div id="qMeta" class="muted" style="margin-bottom:8px;"></div>
+
+    <div id="question" style="font-size:22px; margin-bottom:10px;">
+      テスト未開始
+    </div>
+
+    <div style="margin-bottom:10px;">
+      <button id="speakQ" type="button">🔊 発音</button>
+      <label style="margin-left:10px;">
+        <input id="autoSpeakQ" type="checkbox"> 自動発音
+      </label>
+    </div>
+
+    <div id="choices"></div>
+
+    <div id="result" style="margin-top:10px; font-size:18px;"></div>
+
+    <button id="nextQ" type="button" class="btnwide" style="margin-top:12px;">
+      次の問題
+    </button>
+    <button id="resetQuiz" type="button" class="btnwide" style="margin-top:8px;">
+      今回の成績リセット
+    </button>
+  </div>
+
+  <!-- ===== 結果画面 ===== -->
+  <div id="summaryBox" class="box" style="display:none;">
+    <div style="font-weight:700; margin-bottom:6px;">今回の結果</div>
+
+    <div id="finalScore" style="font-size:18px; margin-bottom:8px;"></div>
+    <div id="finalBlockLine" class="muted" style="margin-bottom:10px;"></div>
+
+    <div class="row" style="margin-bottom:10px;">
+      <button id="goStudyBlock" type="button">このBlockを暗記する</button>
+      <button id="goWeakReview" type="button">弱点モードで復習</button>
+    </div>
+
+    <div class="box">
+      <div style="font-weight:700;">今回出た単語一覧</div>
+      <ul id="askedList"></ul>
+    </div>
+
+    <div class="box">
+      <div style="font-weight:700;">間違えた単語一覧</div>
+      <ul id="wrongList"></ul>
+    </div>
+
+    <button id="backToSetup" type="button" class="btnwide">
+      設定画面に戻る
+    </button>
+  </div>
+
+</div>
+
+<!-- JS（順番重要） -->
+<script src="words_1kyu.js"></script>
+<script src="blocks_1kyu.js"></script>
+<script src="words_2kyu.js"></script>
+<script src="blocks_2kyu.js"></script>
+<script src="dataset.js"></script>
+<script src="global_stats.js"></script>
+<script src="quiz.js"></script>
+
+
+</body>
+</html>

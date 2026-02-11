@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>今日のおすすめ</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif; background:#f7f7f7; margin:0; }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 18px 12px 30px; }
+    .card { background:#fff; border:1px solid #ddd; border-radius:12px; padding:14px; margin:12px 0; }
+    .muted { color:#666; font-size:14px; line-height:1.5; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; }
+    .btn { width:100%; padding:12px 14px; border:0; border-radius:10px; font-size:16px; cursor:pointer; }
+    .primary { background:#2b7cff; color:#fff; }
+    .gray { background:#efefef; color:#111; }
+    .small { font-size:13px; }
+    input { padding:8px; width:90px; }
+    a { color:#2b7cff; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div style="margin-bottom:10px;">
+        <a href="index.html">← ホーム</a>
+      </div>
+
+      <div id="levelBadge" class="muted"></div>
+
+      <h2 style="margin:8px 0 6px;">今日のおすすめ</h2>
+      <div class="muted">
+        横断記録（暗記/英→日/日→英）から、今いちばん優先度が高いBlockを自動で選びます。
+      </div>
+
+      <div style="margin-top:10px;" class="row">
+        <div class="muted small">合格ライン</div>
+        <input id="passLine" type="number" min="0" max="100" value="80">
+        <button class="btn gray" id="reroll" style="width:auto;">再計算</button>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <div class="muted" id="pickInfo">選定中...</div>
+        <div class="muted small" id="pickDetail" style="margin-top:6px;"></div>
+      </div>
+
+      <button class="btn primary" id="startEnja">▶ 英→日で復習開始（弱点＋ニガテ順）</button>
+      <button class="btn primary" id="startJaen" style="margin-top:10px;">▶ 日→英で復習開始（弱点＋ニガテ順）</button>
+
+      <div class="row" style="margin-top:10px;">
+        <button class="btn gray" id="goStudy" style="flex:1;">暗記（このBlock）</button>
+        <button class="btn gray" id="goProgress" style="flex:1;">進捗を見る</button>
+      </div>
+
+      <div class="muted small" style="margin-top:10px;">
+        ※クイズは「Block範囲」「弱点ON」「モード=weak」「自動開始」で飛びます。
+      </div>
+    </div>
+  </div>
+
+  <!-- データセット読み込み（あなたの構成に合わせる） -->
+  <script src="words_1kyu.js"></script>
+  <script src="blocks_1kyu.js"></script>
+  <script src="words_2kyu.js"></script>
+  <script src="blocks_2kyu.js"></script>
+  <script src="dataset.js"></script>
+
+  <script src="recommended.js"></script>
+</body>
+</html>

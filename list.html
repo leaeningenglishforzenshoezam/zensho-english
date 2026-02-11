@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>単語一覧（番号つき）</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif; }
+    .container { max-width: 700px; margin: 20px auto; padding: 0 12px; }
+    .block { border: 1px solid #ddd; border-radius: 10px; padding: 12px; margin: 12px 0; }
+    .block h2 { margin: 0 0 8px; font-size: 18px; }
+    .row { display: flex; gap: 10px; padding: 6px 0; border-bottom: 1px dashed #eee; }
+    .row:last-child { border-bottom: none; }
+    .no { width: 64px; color: #666; }
+    .en { width: 180px; font-weight: 600; }
+    .ja { flex: 1; }
+    .toplinks a { margin-right: 10px; }
+    .note { color: #666; font-size: 13px; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="toplinks" style="margin-bottom:12px;">
+      <a href="index.html">← ホーム</a>
+      <a href="study.html">暗記</a>
+      <a href="quiz.html">英→日クイズ</a>
+      <a href="quiz_jaen.html">日→英クイズ</a>
+      <a href="sentence.html">１級大問９演習</a>
+
+    </div>
+    <div id="levelBadge" style="font-size:14px; color:#555; margin-bottom:6px;"></div>
+
+
+    <h1 style="margin:0 0 6px;">単語一覧（番号つき）</h1>
+    <div class="note">Blockは番号範囲で区切っています（Block 1: 1〜72 / Block 2: 73〜144）。</div>
+
+    <div id="listArea"></div>
+  </div>
+
+  <script src="words.js"></script>
+  <script>
+    const words = window.WORDS || [];
+
+    function blockOfNo(no) {
+      if (no >= 1 && no <= 72) return 1;
+      if (no >= 73 && no <= 144) return 2;
+      return 0;
+    }
+
+    function blockRange(block) {
+      if (block === 1) return { start: 1, end: 72 };
+      if (block === 2) return { start: 73, end: 144 };
+      return null;
+    }
+
+    const area = document.getElementById("listArea");
+
+    [1, 2].forEach(block => {
+      const r = blockRange(block);
+      if (!r) return;
+
+      const box = document.createElement("div");
+      box.className = "block";
+
+      const h = document.createElement("h2");
+      h.textContent = `Block ${block}（${r.start}〜${r.end}）`;
+      box.appendChild(h);
+
+      for (let i = r.start; i <= r.end; i++) {
+        const w = words[i - 1];
+        if (!w) continue;
+
+        const row = document.createElement("div");
+        row.className = "row";
+
+        const no = document.createElement("div");
+        no.className = "no";
+        no.textContent = `${i}.`;
+        row.appendChild(no);
+
+        const en = document.createElement("div");
+        en.className = "en";
+        en.textContent = w.en;
+        row.appendChild(en);
+
+        const ja = document.createElement("div");
+        ja.className = "ja";
+        ja.textContent = w.ja;
+        row.appendChild(ja);
+
+        box.appendChild(row);
+      }
+
+      area.appendChild(box);
+    });
+  </script>
+<script src="words_1kyu.js"></script>
+<script src="blocks_1kyu.js"></script>
+<script src="words_2kyu.js"></script>
+<script src="blocks_2kyu.js"></script>
+<script src="dataset.js"></script>
+<script src="quiz.js"></script>
+
+</body>
+</html>

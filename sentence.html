@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>大問9演習（固定問題・4択）</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif; background:#f7f7f7; margin:0; }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 16px 12px 24px; }
+    .topnav a { margin-right: 10px; color:#2b7cff; text-decoration:none; font-size:14px; }
+    .card { background:#fff; border:1px solid #ddd; border-radius:12px; padding:14px; margin: 12px 0; }
+    .muted { color:#666; font-size: 13px; }
+    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:space-between; }
+    button { padding:10px 12px; border-radius:10px; border:1px solid #ddd; background:#fff; cursor:pointer; }
+    button.primary { background:#2b7cff; border-color:#2b7cff; color:#fff; }
+    button.danger { background:#b00020; border-color:#b00020; color:#fff; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #question { font-size: 18px; line-height: 1.7; }
+    .choices button { width:100%; margin:8px 0; text-align:left; }
+    .ok { color:#0a7a2f; font-weight:700; }
+    .ng { color:#b00020; font-weight:700; }
+    .hr { height:1px; background:#eee; margin:12px 0; }
+    ul { padding-left: 18px; }
+    select, input[type="number"] { padding:10px 10px; border-radius:10px; border:1px solid #ddd; }
+    label { font-size: 14px; }
+
+    table { width:100%; border-collapse: collapse; }
+    th, td { border-top: 1px solid #eee; padding: 10px 8px; vertical-align: top; font-size: 14px; }
+    th { text-align:left; background:#fafafa; }
+    .pill { display:inline-block; padding:3px 8px; border-radius:999px; background:#f0f4ff; color:#2b7cff; font-size:12px; border:1px solid #d6e4ff; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+    .pre { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="topnav" style="margin:8px 0 4px;">
+      <a href="index.html">← ホーム</a>
+      <a href="study.html">覚える</a>
+      <a href="quiz.html">英→日クイズ</a>
+      <a href="quiz_jaen.html">日→英クイズ</a>
+      <a href="progress.html">ブロック進捗</a>
+    </div>
+
+    <!-- 設定 -->
+    <div class="card" id="setupBox">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:700;">大問9演習（固定問題）</div>
+          <div class="muted" style="margin-top:4px;">ブロック・問題数・出題順を選んで開始できます。</div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="row" style="justify-content:flex-start;">
+        <div>
+          <div class="muted">ブロック</div>
+          <select id="blockSelect"></select>
+        </div>
+
+        <div>
+          <div class="muted">問題数</div>
+          <input id="countInput" type="number" min="1" step="1" value="20" style="width:120px;" />
+        </div>
+
+        <div style="padding-top:22px;">
+          <label><input id="randomOrder" type="checkbox" /> ランダム出題</label>
+        </div>
+      </div>
+
+      <div class="muted" id="poolInfo" style="margin-top:10px;"></div>
+
+      <div class="row" style="justify-content:flex-start; margin-top:12px;">
+        <button id="startBtn" class="primary" type="button">開始</button>
+        <button id="startWeakBtn" type="button">ニガテだけ解く</button>
+        <button id="clearWeakBtn" class="danger" type="button">ニガテ消去</button>
+      </div>
+
+      <div class="muted" id="weakInfo" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- 演習画面 -->
+    <div class="card" id="playBox" style="display:none;">
+      <div class="row">
+        <div id="stats" class="muted"></div>
+        <div style="display:flex; gap:8px;">
+          <button id="hintBtn" type="button">ヒント</button>
+          <button id="nextQ" class="primary" type="button" disabled>次へ</button>
+          <button id="backBtn" type="button">設定へ戻る</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div id="question">読み込み中…</div>
+      <div id="qMeta" class="muted" style="margin-top:8px;"></div>
+
+      <div id="hintArea" class="muted" style="margin-top:10px; display:none;"></div>
+
+      <div class="choices" id="choices"></div>
+
+      <div id="result" style="margin-top:10px;"></div>
+      <div id="detail" class="muted" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- 結果画面 -->
+    <div class="card" id="summaryBox" style="display:none;">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:700;">今回の結果</div>
+          <div class="muted" id="summaryLine" style="margin-top:4px;"></div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button id="continueBtn" class="primary" type="button">続き（次セット）</button>
+          <button id="retryWeakBtn" type="button">チェックしたニガテを解く</button>
+          <button id="summaryBackBtn" type="button">設定へ戻る</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="muted" style="margin-bottom:8px;">
+        間違えた問題だけ表示しています。右端にチェックを入れたものは「ニガテ問題」として保存され、あとでまとめて解けます。
+      </div>
+
+      <div id="wrongEmpty" class="muted" style="display:none;">間違いなし！</div>
+
+      <div style="overflow:auto;">
+        <table id="wrongTable" style="display:none;">
+          <thead>
+            <tr>
+              <th style="width:52px;">#</th>
+              <th>英文 / 日本語訳</th>
+              <th style="width:180px;">あなたの解答 / 正答</th>
+              <th style="width:90px;">ニガテ</th>
+            </tr>
+          </thead>
+          <tbody id="wrongTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 単語データ（あなたの既存構成に合わせて読み込み） -->
+  <script src="words_1kyu.js"></script>
+  <script src="blocks_1kyu.js"></script>
+  <script>
+    // ※あなたの現状の正解構成（直った版）
+    window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
+    if (window.ACTIVE_LEVEL === "1") {
+      window.WORDS = window.WORDS_1KYU || [];
+      window.BLOCKS = window.BLOCKS_1KYU || [];
+    }
+  </script>
+  <script src="words_2kyu.js"></script>
+  <script src="blocks_2kyu.js"></script>
+  <script src="word_extra.js"></script>
+  <script>
+    // 2級を選んでいる時はここで差し替え（存在するなら）
+    if (window.ACTIVE_LEVEL === "2") {
+      window.WORDS = window.WORDS_2KYU || [];
+      window.BLOCKS = window.BLOCKS_2KYU || [];
+    }
+  </script>
+
+  <!-- 固定問題データ -->
+  <script src="sentence_fixed.js"></script>
+
+  <!-- 出題ロジック -->
+  <script src="sentence.js"></script>
+</body>
+</html>

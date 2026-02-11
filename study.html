@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>暗記（英→日）</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif; }
+    .container { max-width: 560px; margin: 20px auto; padding: 0 12px; }
+    button { padding: 10px 12px; }
+    #word { font-size: 28px; font-weight: 700; margin: 10px 0; }
+    #meaning { font-size: 20px; margin: 10px 0; }
+    .hidden { display: none; }
+    .box { border: 1px solid #ddd; border-radius: 12px; padding: 12px; margin: 12px 0; }
+    .muted { color: #666; font-size: 14px; }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .row-tight { display:flex; gap:10px; align-items:center; }
+    .row-tight button { flex: 1; }
+    select, input { padding: 8px; }
+    a { margin-right: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div style="margin-bottom:12px;">
+      <a href="index.html">← ホーム</a>
+      <a href="quiz.html">英→日クイズ</a>
+      <a href="quiz_jaen.html">日→英クイズ</a>
+      <a href="sentence.html">１級大問９演習</a>
+      <a href="list.html">番号つき一覧</a>
+    </div>
+
+    <div id="levelBadge" style="font-size:14px; color:#555; margin-bottom:8px;"></div>
+
+    <div class="box">
+      <div class="row">
+        <div style="font-weight:700;">学習Block</div>
+        <select id="blockSelect"></select>
+        <button id="applyBlock" type="button">このBlockで学習</button>
+      </div>
+      <div id="blockInfo" class="muted" style="margin-top:6px;"></div>
+      <div id="blockRate" class="muted" style="margin-top:4px;"></div>
+    </div>
+
+    <div id="word">---</div>
+
+    <div class="row" style="margin: 8px 0;">
+      <button id="speakBtn" type="button">🔊 発音</button>
+      <label style="margin-left:6px;">
+        <input id="autoSpeak" type="checkbox"> 自動発音
+      </label>
+    </div>
+
+    <!-- ここ：1ボタン化するので showMeaning / nextWord をやめて unifiedBtn だけにする -->
+    <div class="row-tight" style="margin: 10px 0;">
+      <button id="unifiedBtn" type="button">意味を見る</button>
+    </div>
+
+    <div id="meaning" class="hidden">---</div>
+
+    <div class="box">
+      <div id="progress" class="muted"></div>
+      <button id="toggleMode" type="button" style="margin-top:8px;">ランダム出題：OFF</button>
+      <div id="randomCount" class="muted" style="display:none; margin-top:6px;"></div>
+
+      <div style="margin-top:10px;">
+        <label>今日の目標（ランダム学習の回数）</label><br>
+        <input id="targetInput" type="number" min="1" value="20" style="width:100px;">
+        <div id="targetStatus" class="muted" style="display:none; margin-top:6px;">目標達成！</div>
+      </div>
+
+      <button id="resetBtn" type="button" style="margin-top:12px;">学習状況リセット</button>
+    </div>
+
+  </div>
+
+  <script src="words_1kyu.js"></script>
+  <script src="blocks_1kyu.js"></script>
+  <script src="words_2kyu.js"></script>
+  <script src="blocks_2kyu.js"></script>
+  <script src="dataset.js"></script>
+  <script src="global_stats.js"></script>
+  <script src="study.js"></script>
+</body>
+</html>

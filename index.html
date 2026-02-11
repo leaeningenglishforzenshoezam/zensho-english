@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>語彙学習ホーム</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f7f7f7;
+    }
+    .wrap {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 22px 16px 30px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    h1 {
+      font-size: 20px;
+      margin: 0 0 6px;
+    }
+    .sub {
+      font-size: 14px;
+      color: #444;
+      margin: 0 0 12px;
+      line-height: 1.5;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 12px 14px;
+      border: 0;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    .btn.primary { background: #2b7cff; color: white; }
+    .btn.gray { background: #efefef; color: #111; }
+    .row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .row .btn { margin: 0; }
+    .mini {
+      font-size: 13px;
+      color: #555;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+    .footer {
+      font-size: 12px;
+      color: #666;
+      margin-top: 16px;
+      line-height: 1.5;
+    }
+    a { color: #2b7cff; text-decoration: none; }
+
+    .levelBox {
+      text-align: center;
+    }
+    .levelTitle {
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .levelRow {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .levelBtn {
+      width: 140px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      background: #fff;
+      cursor: pointer;
+    }
+    .levelBtn.active {
+      border-color: #2b7cff;
+      background: #eaf2ff;
+      font-weight: 700;
+    }
+    #currentLevelInfo {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div class="card levelBox">
+      <div class="levelTitle">学習レベルを選択</div>
+      <div class="levelRow">
+        <button id="selectLevel1" class="levelBtn">全商英検 1級</button>
+        <button id="selectLevel2" class="levelBtn">全商英検 2級</button>
+      </div>
+      <div id="currentLevelInfo"></div>
+    </div>
+
+    <div class="card">
+      <h1>語彙学習</h1>
+      <p class="sub">
+        まずは「覚える」→「クイズ」→「弱点を潰す」の流れがおすすめです。
+      </p>
+
+      <button class="btn primary" id="goStudy">▶ 覚える（暗記）</button>
+      <button class="btn primary" id="goQuiz">▶ クイズで確認（英→日）</button>
+      <button class="btn primary" id="goQuizJaEn">▶ クイズで確認（日→英）</button>
+      <button class="btn primary" id="goSentence">▶ 大問9演習（例文穴埋め）</button>
+      <button class="btn primary" id="goProgress">▶ ブロック進捗を見る</button>
+
+      <div class="row">
+        <button class="btn gray" id="goRecommended">今日のおすすめ</button>
+        <button class="btn gray" id="resetAll">データ初期化</button>
+      </div>
+
+      <div class="mini" id="status"></div>
+    </div>
+
+    <div class="card">
+      <div class="sub" style="margin:0;">
+    
+      </div>
+      <div class="footer">
+        ・覚える：自動発音やランダムを使って回す<br>
+        ・クイズ：弱点モードONで復習効率アップ<br>
+        ・今日のおすすめ：すぐ始めたい人向け
+      </div>
+      <div class="footer" style="margin-top:10px;">
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSfQMt0jC7aal_Rxvqxn_TkjT-pQZw1Ohf_V3v82Z6FWKLW39Q/viewform?usp=publish-editor"
+       target="_blank" rel="noopener">
+      ご意見・改善要望はこちら
+    </a>
+  </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ===== レベル（1級/2級） =====
+    const LEVEL_KEY = "zensho_level_v1";
+
+    const btn1 = document.getElementById("selectLevel1");
+    const btn2 = document.getElementById("selectLevel2");
+    const info = document.getElementById("currentLevelInfo");
+
+    function getLevel() {
+      return localStorage.getItem(LEVEL_KEY) || "1";
+    }
+
+    function setLevel(lv) {
+      localStorage.setItem(LEVEL_KEY, String(lv));
+      renderLevel();
+      updateStatus();
+    }
+
+    function renderLevel() {
+      const lv = getLevel();
+      info.textContent = `現在の設定：全商英検 ${lv}級`;
+      btn1.classList.toggle("active", lv === "1");
+      btn2.classList.toggle("active", lv === "2");
+    }
+
+    btn1.addEventListener("click", () => setLevel("1"));
+    btn2.addEventListener("click", () => setLevel("2"));
+
+    // ===== 保存キー（級ごとに分ける）=====
+    function keyFor(base) {
+      return `${base}_lv${getLevel()}`;
+    }
+
+    // ★ここが重要：今あなたが使っている最新キーに合わせる
+    // - study.js（暗記）: zensho_vocab_state_v3 を想定
+    // - quiz.js（英→日）: WEAK_KEY は v2
+    // - quiz_jaen.js（日→英）: WEAK_KEY は v3
+    // - 出題履歴（SEEN_KEY）は使っていないなら 0 表示でもOK
+    function keys() {
+      return {
+        STUDY_KEY: keyFor("zensho_vocab_state_v3"),
+
+        WEAK_ENJA_KEY: keyFor("zensho_quiz_weak_points_enja_v2"),
+        WEAK_JAEN_KEY: keyFor("zensho_quiz_weak_points_jaen_v3"),
+
+        SEEN_KEY: keyFor("zensho_quiz_seen_counts_v1")
+      };
+    }
+
+    function safeParse(key) {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      try { return JSON.parse(raw); } catch { return null; }
+    }
+
+    function updateStatus() {
+      const { STUDY_KEY, WEAK_ENJA_KEY, WEAK_JAEN_KEY, SEEN_KEY } = keys();
+
+      const s = safeParse(STUDY_KEY);
+      const weakEnja = safeParse(WEAK_ENJA_KEY);
+      const weakJaen = safeParse(WEAK_JAEN_KEY);
+      const seen = safeParse(SEEN_KEY);
+
+      const idx = s?.index ?? 0;
+      const isRandom = s?.isRandom ?? false;
+      const randomCount = s?.randomCount ?? 0;
+      const autoSpeak = s?.autoSpeak ?? false;
+
+      const weakEnjaCount = weakEnja ? Object.keys(weakEnja).length : 0;
+      const weakJaenCount = weakJaen ? Object.keys(weakJaen).length : 0;
+      const seenCount = seen ? Object.keys(seen).length : 0;
+
+      const lv = getLevel();
+      const lines = [];
+      lines.push(`【${lv}級】暗記：${idx + 1}番目から再開（ランダム：${isRandom ? "ON" : "OFF"} / ランダム回数：${randomCount} / 自動発音：${autoSpeak ? "ON" : "OFF"}）`);
+      lines.push(`【${lv}級】弱点：英→日 ${weakEnjaCount}語 / 日→英 ${weakJaenCount}語 / 出題履歴 ${seenCount}語`);
+
+      document.getElementById("status").textContent = lines.join("｜");
+    }
+
+    // ===== 画面遷移 =====
+    document.getElementById("goStudy").addEventListener("click", () => {
+      location.href = "study.html";
+    });
+    document.getElementById("goQuiz").addEventListener("click", () => {
+      location.href = "quiz.html";
+    });
+    document.getElementById("goQuizJaEn").addEventListener("click", () => {
+      location.href = "quiz_jaen.html";
+    });
+    document.getElementById("goProgress").addEventListener("click", () => {
+      location.href = "progress.html";
+    });
+
+    document.getElementById("goSentence").addEventListener("click", () => {
+  location.href = "sentence.html";
+});
+    document.getElementById("goRecommended").addEventListener("click", () => {
+      location.href = "recommended.html";
+    });
+
+    document.getElementById("resetAll").addEventListener("click", () => {
+      const { STUDY_KEY, WEAK_ENJA_KEY, WEAK_JAEN_KEY, SEEN_KEY } = keys();
+      const lv = getLevel();
+      if (!confirm(`【${lv}級】の暗記・クイズ保存データを初期化しますか？`)) return;
+
+      localStorage.removeItem(STUDY_KEY);
+      localStorage.removeItem(WEAK_ENJA_KEY);
+      localStorage.removeItem(WEAK_JAEN_KEY);
+      localStorage.removeItem(SEEN_KEY);
+
+      alert("初期化しました。");
+      updateStatus();
+    });
+
+    // 起動
+    renderLevel();
+    updateStatus();
+  </script>
+</body>
+</html>

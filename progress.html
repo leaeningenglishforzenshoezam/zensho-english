@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ブロック進捗</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif; background:#f7f7f7; margin:0; }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 18px 12px 28px; }
+    .card { background:#fff; border:1px solid #ddd; border-radius:12px; padding:14px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
+    h1 { margin: 0 0 8px; font-size: 20px; }
+    .muted { color:#666; font-size: 13px; line-height: 1.5; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    button { padding: 10px 12px; border:0; border-radius:10px; cursor:pointer; }
+    .btn { background:#efefef; color:#111; }
+    .btn.primary { background:#2b7cff; color:#fff; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { border-top:1px solid #eee; padding:10px 8px; text-align:left; vertical-align:top; }
+    th { font-size: 13px; color:#444; }
+    td { font-size: 14px; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; background:#f0f4ff; color:#2b7cff; }
+    .ok { color:#0a7f2e; font-weight:700; }
+    .ng { color:#b00020; font-weight:700; }
+    .small { font-size:12px; color:#666; }
+    .right { text-align:right; }
+    input { padding: 8px; border:1px solid #ddd; border-radius:10px; width: 120px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <h1>ブロック進捗</h1>
+          <div class="muted">暗記（意味→次へで完了）＋英→日＋日→英の横断記録をまとめて表示します。</div>
+        </div>
+        <div class="row">
+          <a href="index.html">← ホーム</a>
+          <span id="levelBadge" class="pill"></span>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <button id="lv1" class="btn">全商英検 1級</button>
+        <button id="lv2" class="btn">全商英検 2級</button>
+        <button id="refresh" class="btn">更新</button>
+        <button id="resetGlobal" class="btn" style="margin-left:auto;">この級の横断記録を全消去</button>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <div class="muted">合格ライン（クイズ正答率）</div>
+        <input id="passLine" type="number" min="1" max="100" value="80" />
+        <div class="muted">%</div>
+      </div>
+
+      <div id="summary" class="muted" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between; margin-bottom:8px;">
+        <div style="font-weight:700;">ブロック別の一覧</div>
+        <div class="small">※ クイズ正答率は「英→日」「日→英」それぞれ別に出します</div>
+      </div>
+
+      <div style="overflow:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:110px;">Block</th>
+              <th style="width:120px;">範囲</th>
+              <th>暗記</th>
+              <th>英→日</th>
+              <th>日→英</th>
+              <th>例文穴埋め</th>
+              <th class="right" style="width:110px;">判定</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="muted" style="margin-top:10px;">
+        判定は「英→日」または「日→英」のどちらかが合格ライン以上ならOK扱いにしています（厳しめにしたければ変更できます）。
+      </div>
+    </div>
+  </div>
+
+  <script src="words_1kyu.js"></script>
+  <script src="blocks_1kyu.js"></script>
+  <script src="words_2kyu.js"></script>
+  <script src="blocks_2kyu.js"></script>
+  <script src="dataset.js"></script>
+  <script src="global_stats.js"></script>
+  <script src="progress.js"></script>
+</body>
+</html>
