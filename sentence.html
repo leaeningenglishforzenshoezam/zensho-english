@@ -5,73 +5,102 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>大問9演習（固定問題・4択）</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif; background:#f7f7f7; margin:0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
+      background:#f7f7f7;
+      margin:0;
+    }
     .wrap { max-width: 760px; margin: 0 auto; padding: 16px 12px 24px; }
     .topnav a { margin-right: 10px; color:#2b7cff; text-decoration:none; font-size:14px; }
     .card { background:#fff; border:1px solid #ddd; border-radius:12px; padding:14px; margin: 12px 0; }
     .muted { color:#666; font-size: 13px; }
     .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:space-between; }
+
     button { padding:10px 12px; border-radius:10px; border:1px solid #ddd; background:#fff; cursor:pointer; }
     button.primary { background:#2b7cff; border-color:#2b7cff; color:#fff; }
     button.danger { background:#b00020; border-color:#b00020; color:#fff; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    #question { font-size: 18px; line-height: 1.7; }
-    .choices button { width:100%; margin:8px 0; text-align:left; }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+
     .ok { color:#0a7a2f; font-weight:700; }
     .ng { color:#b00020; font-weight:700; }
+
     .hr { height:1px; background:#eee; margin:12px 0; }
-    ul { padding-left: 18px; }
+
     select, input[type="number"] { padding:10px 10px; border-radius:10px; border:1px solid #ddd; }
     label { font-size: 14px; }
 
     table { width:100%; border-collapse: collapse; }
     th, td { border-top: 1px solid #eee; padding: 10px 8px; vertical-align: top; font-size: 14px; }
     th { text-align:left; background:#fafafa; }
+
     .pill { display:inline-block; padding:3px 8px; border-radius:999px; background:#f0f4ff; color:#2b7cff; font-size:12px; border:1px solid #d6e4ff; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
     .pre { white-space: pre-wrap; }
 
     /* ===== スマホ向け可読性アップ ===== */
+    #question { font-size: 22px; line-height: 1.65; margin-top: 4px; }
+    #qMeta, #stats { font-size: 14px; }
+    #hintArea { font-size: 16px; line-height: 1.6; }
+    #result { font-size: 18px; }
+    #detail { font-size: 15px; line-height: 1.7; }
 
-/* 問題文 */
-#question {
-  font-size: 20px;       /* ←ここが一番効く */
-  line-height: 1.6;
-}
+    /* 選択肢：2×2 */
+    #choices {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    #choices button {
+      width: 100%;
+      text-align: left;
+      font-size: 18px;
+      padding: 14px 12px;
+      border-radius: 10px;
+    }
+    @media (max-width: 340px) {
+      #choices { grid-template-columns: 1fr; }
+    }
+    #choices button.correct {
+      background: #2ecc71;
+      color: #fff;
+      border: 1px solid #27ae60;
+    }
+    #choices button.wrong {
+      background: #e74c3c;
+      color: #fff;
+      border: 1px solid #c0392b;
+    }
+    #choices button:disabled { opacity: 0.92; }
 
-/* 選択肢ボタン */
-#choices button {
-  font-size: 18px;
-  padding: 14px 12px;
-  margin: 8px 0;
-  border-radius: 10px;
-}
-
-/* ヒント */
-#hintArea {
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-/* 正誤表示 */
-#result {
-  font-size: 18px;
-}
-
-/* 解説（全文訳・選択肢の意味） */
-#detail {
-  font-size: 15px;
-  line-height: 1.7;
-}
-
-/* 問題番号などのメタ情報 */
-#qMeta,
-#stats {
-  font-size: 14px;
-}
-
+    /* ===== ニガテ管理UI ===== */
+    .weakBox {
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+      background: #fafafa;
+    }
+    .weakHead {
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom: 8px;
+    }
+    .weakList {
+      margin: 0;
+      padding-left: 18px;
+      max-height: 220px;
+      overflow: auto;
+    }
+    .weakList li { margin: 6px 0; }
+    .weakActions { display:flex; gap:8px; flex-wrap:wrap; }
+    .miniBtn { padding: 6px 10px; border-radius: 10px; font-size: 13px; }
   </style>
 </head>
+
 <body>
   <div class="wrap">
 
@@ -115,10 +144,40 @@
       <div class="row" style="justify-content:flex-start; margin-top:12px;">
         <button id="startBtn" class="primary" type="button">開始</button>
         <button id="startWeakBtn" type="button">ニガテだけ解く</button>
-        <button id="clearWeakBtn" class="danger" type="button">ニガテ消去</button>
+        <button id="clearWeakBtn" class="danger" type="button">ニガテ全消去</button>
       </div>
 
       <div class="muted" id="weakInfo" style="margin-top:10px;"></div>
+
+      <!-- ★追加：ニガテ管理 -->
+      <div class="weakBox">
+        <div class="weakHead">
+          <div>
+            <div style="font-weight:700;">ニガテ管理</div>
+            <div class="muted" style="margin-top:4px;">
+              「手動ニガテ（ピン留め）」は正解しても残ります。<br>
+              チェックOFFは<strong>完全削除</strong>（自動も手動も消えます）。
+            </div>
+          </div>
+          <div class="weakActions">
+            <button id="refreshWeakView" type="button" class="miniBtn">一覧更新</button>
+          </div>
+        </div>
+
+        <div class="row" style="justify-content:flex-start;">
+          <div style="flex:1; min-width:260px;">
+            <div class="muted" style="margin-bottom:6px;">自動ニガテ（間違いで自動追加 / 正解で自動解除）</div>
+            <ul id="weakAutoList" class="weakList"></ul>
+            <div id="weakAutoEmpty" class="muted" style="display:none; margin-top:6px;">なし</div>
+          </div>
+
+          <div style="flex:1; min-width:260px;">
+            <div class="muted" style="margin-bottom:6px;">手動ニガテ（ピン留め：正解しても残る）</div>
+            <ul id="weakPinList" class="weakList"></ul>
+            <div id="weakPinEmpty" class="muted" style="display:none; margin-top:6px;">なし</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 演習画面 -->
@@ -139,7 +198,7 @@
 
       <div id="hintArea" class="muted" style="margin-top:10px; display:none;"></div>
 
-      <div class="choices" id="choices"></div>
+      <div id="choices"></div>
 
       <div id="result" style="margin-top:10px;"></div>
       <div id="detail" class="muted" style="margin-top:10px;"></div>
@@ -154,7 +213,7 @@
         </div>
         <div style="display:flex; gap:8px;">
           <button id="continueBtn" class="primary" type="button">続き（次セット）</button>
-          <button id="retryWeakBtn" type="button">チェックしたニガテを解く</button>
+          <button id="retryWeakBtn" type="button">ニガテだけ解く</button>
           <button id="summaryBackBtn" type="button">設定へ戻る</button>
         </div>
       </div>
@@ -162,7 +221,8 @@
       <div class="hr"></div>
 
       <div class="muted" style="margin-bottom:8px;">
-        間違えた問題だけ表示しています。右端にチェックを入れたものは「ニガテ問題」として保存され、あとでまとめて解けます。
+        間違えた問題だけ表示しています。右端のチェックは「手動ニガテ（ピン留め）」です。<br>
+        チェックOFFは<strong>完全削除</strong>（自動も手動も消えます）。
       </div>
 
       <div id="wrongEmpty" class="muted" style="display:none;">間違いなし！</div>
@@ -174,7 +234,7 @@
               <th style="width:52px;">#</th>
               <th>英文 / 日本語訳</th>
               <th style="width:180px;">あなたの解答 / 正答</th>
-              <th style="width:90px;">ニガテ</th>
+              <th style="width:110px;">手動ニガテ</th>
             </tr>
           </thead>
           <tbody id="wrongTbody"></tbody>
@@ -184,25 +244,27 @@
 
   </div>
 
-  <!-- 単語データ（あなたの既存構成に合わせて読み込み） -->
+  <!-- 単語データ -->
   <script src="words_1kyu.js"></script>
   <script src="blocks_1kyu.js"></script>
   <script>
-    // ※あなたの現状の正解構成（直った版）
     window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
     if (window.ACTIVE_LEVEL === "1") {
       window.WORDS = window.WORDS_1KYU || [];
       window.BLOCKS = window.BLOCKS_1KYU || [];
+      window.WORDS_1KYU = window.WORDS_1KYU || [];
+      window.BLOCKS_1KYU = window.BLOCKS_1KYU || [];
     }
   </script>
   <script src="words_2kyu.js"></script>
   <script src="blocks_2kyu.js"></script>
   <script src="word_extra.js"></script>
   <script>
-    // 2級を選んでいる時はここで差し替え（存在するなら）
     if (window.ACTIVE_LEVEL === "2") {
       window.WORDS = window.WORDS_2KYU || [];
       window.BLOCKS = window.BLOCKS_2KYU || [];
+      window.WORDS_2KYU = window.WORDS_2KYU || [];
+      window.BLOCKS_2KYU = window.BLOCKS_2KYU || [];
     }
   </script>
 
