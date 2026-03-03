@@ -1,4 +1,6 @@
 // quiz_jaen.js（日→英）完全版：Block＋3モード＋順番続き＋順番リセット＋結果画面＋結果ボタン＋URLパラメータ＋「級ごとに保存」対応
+// ★追加：正解=緑/不正解=赤、正解ピンポン/不正解ブッブー、1問1回だけ押せる（連打防止）
+
 document.addEventListener("DOMContentLoaded", () => {
   const words = window.WORDS || [];
   const blocks = window.BLOCKS || [];
@@ -87,6 +89,82 @@ document.addEventListener("DOMContentLoaded", () => {
     u.lang = "en-US";
     u.rate = 0.9;
     window.speechSynthesis.speak(u);
+  }
+
+  // ===== 効果音（ファイル不要）=====
+  let _audioCtx = null;
+  function getAudioCtx() {
+    if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return _audioCtx;
+  }
+  function ensureAudioReady() {
+    // iPhone等は「ユーザー操作後に resume」が必要なことがある
+    try {
+      const ctx = getAudioCtx();
+      if (ctx.state === "suspended") ctx.resume();
+    } catch {}
+  }
+
+  // ピンポン（高い音2回）
+  function playCorrectSound() {
+    try {
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = "sine";
+      osc1.frequency.setValueAtTime(880, now);
+      gain1.gain.setValueAtTime(0.0001, now);
+      gain1.gain.exponentialRampToValueAtTime(0.25, now + 0.01);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+      osc1.connect(gain1).connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.13);
+
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(1175, now + 0.14);
+      gain2.gain.setValueAtTime(0.0001, now + 0.14);
+      gain2.gain.exponentialRampToValueAtTime(0.25, now + 0.15);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.26);
+      osc2.connect(gain2).connect(ctx.destination);
+      osc2.start(now + 0.14);
+      osc2.stop(now + 0.27);
+    } catch {}
+  }
+
+  // ブッブー（低い音）
+  function playWrongSound() {
+    try {
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(160, now);
+      osc.frequency.linearRampToValueAtTime(120, now + 0.25);
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.35, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.36);
+    } catch {}
+  }
+
+  function lockChoices() {
+    document.querySelectorAll("#choices button").forEach(b => { b.disabled = true; });
+  }
+
+  function markCorrectButtonGreen() {
+    document.querySelectorAll("#choices button").forEach(b => {
+      if (current && b.textContent === current.en) b.classList.add("correct");
+    });
   }
 
   // ===== Utility =====
@@ -191,7 +269,8 @@ document.addEventListener("DOMContentLoaded", () => {
     statsMap[k].attempted += 1;
     if (isCorrect) statsMap[k].correct += 1;
     saveBlockStats();
-        // ===== ここから追加：横断の共通記録（レベル別）=====
+
+    // ===== ここから追加：横断の共通記録（レベル別）=====
     const lv = window.ACTIVE_LEVEL || "1";
     const GLOBAL_BLOCK_KEY = `zensho_block_global_lv${lv}_v1`;
     const g = JSON.parse(localStorage.getItem(GLOBAL_BLOCK_KEY) || '{"byBlock":{}}');
@@ -201,7 +280,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isCorrect) g.byBlock[k2].quizCorrectJaEn += 1;
     localStorage.setItem(GLOBAL_BLOCK_KEY, JSON.stringify(g));
     // ===== 追加ここまで =====
-
   }
   function getBlockAccText(blockId) {
     const k = String(blockId);
@@ -529,43 +607,64 @@ document.addEventListener("DOMContentLoaded", () => {
     current.choices.forEach(text => {
       const btn = document.createElement("button");
       btn.textContent = text;
-      btn.style.display = "block";
-      btn.style.width = "100%";
-      btn.style.margin = "8px 0";
-      btn.addEventListener("click", () => handleChoice(text));
+
+      // ★クリックで効果音を鳴らせるように準備してから判定
+      btn.addEventListener("click", () => {
+        ensureAudioReady();
+        handleChoice(text, btn);
+      });
+
       choicesEl.appendChild(btn);
     });
   }
 
-  function handleChoice(choiceText) {
+  function handleChoice(choiceText, clickedBtn) {
     if (answeredThisQuestion) return;
     answeredThisQuestion = true;
 
     session.answered++;
 
     const correct = (choiceText === current.en);
+
+    // ★見た目（色）＋効果音
     if (correct) {
+      clickedBtn.classList.add("correct");
+      playCorrectSound();
+
       session.correct++;
       resultEl.textContent = "⭕️ 正解！";
+
       const p = getPoint(current.en);
       if (p > 0) {
         setPoint(current.en, p - 1);
         saveWeakPoints();
       }
     } else {
+      clickedBtn.classList.add("wrong");
+      playWrongSound();
+
       resultEl.textContent = `❌ 不正解。正解は「${current.en}」`;
+
+      // 不正解のとき、正解のボタンも緑で見せる
+      markCorrectButtonGreen();
+
       setPoint(current.en, getPoint(current.en) + 2);
       saveWeakPoints();
+
       if (!wrongMap[current.en]) {
         wrongMap[current.en] = { no: current.no, ja: current.ja, en: current.en, blockId: current.blockId };
       }
     }
-if (window.GlobalStats && current.blockId) {
-  window.GlobalStats.addQuizJaEn(current.blockId, correct);
-}
 
+    // ★連打防止：全部押せなくする
+    lockChoices();
+
+    if (window.GlobalStats && current.blockId) {
+      window.GlobalStats.addQuizJaEn(current.blockId, correct);
+    }
     if (current.blockId) addBlockResult(current.blockId, correct);
 
+    // ★あなたの仕様のまま：解答後に英語を読む
     if (autoSpeakQ) speakEnglish(current.en);
 
     renderStats();
