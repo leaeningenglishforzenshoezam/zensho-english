@@ -1,6 +1,11 @@
 // sentence.js（丸ごと置き換え）
 // 固定問題（window.SENTENCE_FIXED）だけで動く版
-// 追加仕様：ニガテ演習で正解した問題は自動でニガテから外す（自動管理）
+// 仕様：
+// - ニガテは「自動（間違いで入る）」「手動（ピン留め）」の2種類
+// - ニガテ演習は「自動＋手動」の両方が対象
+// - ニガテ演習で正解：自動は外れる / 手動（ピン留め）は残る
+// - 手動チェックOFFは「弱点から完全削除」（自動も手動も消える）
+// - 設定画面に「ニガテ管理」セクション（自動/手動を一覧表示、そこで操作）
 
 document.addEventListener("DOMContentLoaded", () => {
   // ===== DOM =====
@@ -38,6 +43,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const wrongTable = document.getElementById("wrongTable");
   const wrongTbody = document.getElementById("wrongTbody");
 
+  // ★追加：ニガテ管理
+  const refreshWeakViewBtn = document.getElementById("refreshWeakView");
+  const weakAutoListEl = document.getElementById("weakAutoList");
+  const weakPinListEl = document.getElementById("weakPinList");
+  const weakAutoEmptyEl = document.getElementById("weakAutoEmpty");
+  const weakPinEmptyEl = document.getElementById("weakPinEmpty");
+
   function must(el, id){ if(!el) throw new Error(`sentence.html に #${id} が見つかりません`); }
   [
     [setupBox,"setupBox"],[playBox,"playBox"],[summaryBox,"summaryBox"],
@@ -47,7 +59,9 @@ document.addEventListener("DOMContentLoaded", () => {
     [statsEl,"stats"],[hintBtn,"hintBtn"],[nextBtn,"nextQ"],
     [questionEl,"question"],[qMetaEl,"qMeta"],[hintArea,"hintArea"],[choicesEl,"choices"],
     [resultEl,"result"],[detailEl,"detail"],
-    [summaryLine,"summaryLine"],[wrongEmpty,"wrongEmpty"],[wrongTable,"wrongTable"],[wrongTbody,"wrongTbody"]
+    [summaryLine,"summaryLine"],[wrongEmpty,"wrongEmpty"],[wrongTable,"wrongTable"],[wrongTbody,"wrongTbody"],
+    [refreshWeakViewBtn,"refreshWeakView"],[weakAutoListEl,"weakAutoList"],[weakPinListEl,"weakPinList"],
+    [weakAutoEmptyEl,"weakAutoEmpty"],[weakPinEmptyEl,"weakPinEmpty"],
   ].forEach(([el,id]) => must(el,id));
 
   // ===== DATA =====
@@ -64,7 +78,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const norm = (s) => String(s || "").trim().toLowerCase();
 
   // ===== LocalStorage keys =====
-  const WEAK_KEY = `zensho_sentence_fixed_weak_lv${lv}`; // { [questionId]: true }
+  // ★弱点の形式： { [questionId]: { auto: true/false, pin: true/false } }
+  const WEAK_KEY = `zensho_sentence_fixed_weak_v2_lv${lv}`;
   const ORDER_CURSOR_KEY = `zensho_sentence_fixed_order_cursor_lv${lv}`; // { [blockValue]: cursorIndex }
 
   function safeParse(key) {
@@ -111,6 +126,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }))
     .filter(q => q.id && q.en && q.ja && q.choices.length === 4);
 
+  // id -> question
+  const fixedById = new Map();
+  for (const q of fixed) fixedById.set(String(q.id), q);
+
   // ===== UTIL =====
   function shuffle(arr){
     const a=[...arr];
@@ -149,6 +168,76 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/&/g,"&amp;")
       .replace(/</g,"&lt;")
       .replace(/>/g,"&gt;");
+  }
+
+  // ===== 効果音（ファイル不要）=====
+  let _audioCtx = null;
+  function getAudioCtx() {
+    if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return _audioCtx;
+  }
+  function ensureAudioReady() {
+    try {
+      const ctx = getAudioCtx();
+      if (ctx.state === "suspended") ctx.resume();
+    } catch {}
+  }
+  function playCorrectSound() {
+    try {
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = "sine";
+      osc1.frequency.setValueAtTime(880, now);
+      gain1.gain.setValueAtTime(0.0001, now);
+      gain1.gain.exponentialRampToValueAtTime(0.25, now + 0.01);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+      osc1.connect(gain1).connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.13);
+
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(1175, now + 0.14);
+      gain2.gain.setValueAtTime(0.0001, now + 0.14);
+      gain2.gain.exponentialRampToValueAtTime(0.25, now + 0.15);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.26);
+      osc2.connect(gain2).connect(ctx.destination);
+      osc2.start(now + 0.14);
+      osc2.stop(now + 0.27);
+    } catch {}
+  }
+  function playWrongSound() {
+    try {
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(160, now);
+      osc.frequency.linearRampToValueAtTime(120, now + 0.25);
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.35, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.36);
+    } catch {}
+  }
+
+  function lockChoices() {
+    document.querySelectorAll("#choices button").forEach(b => { b.disabled = true; });
+  }
+  function markCorrectButtonGreen(correctNorm) {
+    document.querySelectorAll("#choices button").forEach(b => {
+      if (norm(b.textContent) === correctNorm) b.classList.add("correct");
+    });
   }
 
   // ===== 活用形→基本形 推定 =====
@@ -214,27 +303,75 @@ document.addEventListener("DOMContentLoaded", () => {
     return "(未登録)";
   }
 
-  // ===== weak store =====
-  function loadWeakSet(){
+  // ===== 弱点ストア（auto/pin）=====
+  function loadWeakMap(){
     const obj = safeParse(WEAK_KEY);
-    const s = new Set();
-    if (obj && typeof obj === "object") {
-      for (const k of Object.keys(obj)) s.add(String(k));
+    if (!obj || typeof obj !== "object") return {};
+    const out = {};
+    for (const k of Object.keys(obj)) {
+      const v = obj[k];
+      if (v && typeof v === "object") {
+        out[String(k)] = { auto: !!v.auto, pin: !!v.pin };
+      } else {
+        // 旧形式（true）などが混じっても壊れないように：自動扱いにして復元
+        out[String(k)] = { auto: true, pin: false };
+      }
     }
-    return s;
-  }
-  function saveWeakSet(set){
-    const obj = {};
-    for (const id of set) obj[String(id)] = true;
-    localStorage.setItem(WEAK_KEY, JSON.stringify(obj));
+    return out;
   }
 
-  // 追加：ニガテ削除（正解したら自動で外す）
-  function removeWeakId(id){
-    const weakSet = loadWeakSet();
-    if (!weakSet.has(String(id))) return;
-    weakSet.delete(String(id));
-    saveWeakSet(weakSet);
+  function saveWeakMap(map){
+    localStorage.setItem(WEAK_KEY, JSON.stringify(map));
+  }
+
+  function addAutoWeak(id){
+    const map = loadWeakMap();
+    const k = String(id);
+    if (!map[k]) map[k] = { auto: true, pin: false };
+    map[k].auto = true;
+    saveWeakMap(map);
+  }
+
+  function setPinned(id, on){
+    const map = loadWeakMap();
+    const k = String(id);
+
+    if (on) {
+      if (!map[k]) map[k] = { auto: false, pin: true };
+      map[k].pin = true;
+      saveWeakMap(map);
+      return;
+    }
+
+    // ★仕様C-2：OFF＝完全削除（自動も手動も消す）
+    if (map[k]) {
+      delete map[k];
+      saveWeakMap(map);
+    }
+  }
+
+  function removeAutoIfNotPinned(id){
+    const map = loadWeakMap();
+    const k = String(id);
+    if (!map[k]) return;
+
+    // pinなら残す
+    if (map[k].pin) return;
+
+    // autoを外す＝完全削除（autoしかないはず）
+    delete map[k];
+    saveWeakMap(map);
+  }
+
+  function weakCounts(){
+    const map = loadWeakMap();
+    let autoOnly = 0;
+    let pinned = 0;
+    for (const k of Object.keys(map)) {
+      if (map[k].pin) pinned++;
+      else autoOnly++;
+    }
+    return { autoOnly, pinned, total: autoOnly + pinned };
   }
 
   // ===== order cursor store (per block) =====
@@ -294,10 +431,115 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateWeakInfo(){
-    const weakSet = loadWeakSet();
-    weakInfo.textContent = `保存済みニガテ：${weakSet.size}問（ニガテ演習で正解すると自動で外れます）`;
-    startWeakBtn.disabled = (weakSet.size === 0);
-    retryWeakBtn.disabled = (weakSet.size === 0);
+    const c = weakCounts();
+    weakInfo.textContent = `ニガテ：合計 ${c.total}（自動 ${c.autoOnly} / 手動 ${c.pinned}）`;
+    startWeakBtn.disabled = (c.total === 0);
+    retryWeakBtn.disabled = (c.total === 0);
+  }
+
+  // ===== ニガテ管理セクション（設定画面）=====
+  function renderWeakManagement(){
+    const map = loadWeakMap();
+
+    const autoIds = [];
+    const pinIds = [];
+
+    for (const id of Object.keys(map)) {
+      const st = map[id];
+      if (st.pin) pinIds.push(id);
+      else autoIds.push(id);
+    }
+
+    // 表示順：ID昇順（見やすさ）
+    autoIds.sort((a,b) => Number(a) - Number(b));
+    pinIds.sort((a,b) => Number(a) - Number(b));
+
+    weakAutoListEl.innerHTML = "";
+    weakPinListEl.innerHTML = "";
+
+    if (autoIds.length === 0) weakAutoEmptyEl.style.display = "block";
+    else weakAutoEmptyEl.style.display = "none";
+
+    if (pinIds.length === 0) weakPinEmptyEl.style.display = "block";
+    else weakPinEmptyEl.style.display = "none";
+
+    // 自動ニガテ一覧：ピン留めON/完全削除
+    for (const id of autoIds) {
+      const q = fixedById.get(String(id));
+      const li = document.createElement("li");
+
+      const title = q ? q.en : `（問題ID: ${id}）`;
+      const small = q ? ` / ${q.ja}` : "";
+
+      li.innerHTML = `<span class="mono">${escapeHtml(title)}</span><span class="muted">${escapeHtml(small)}</span>`;
+
+      const btnWrap = document.createElement("div");
+      btnWrap.style.marginTop = "6px";
+      btnWrap.style.display = "flex";
+      btnWrap.style.gap = "8px";
+      btnWrap.style.flexWrap = "wrap";
+
+      const pinBtn = document.createElement("button");
+      pinBtn.type = "button";
+      pinBtn.className = "miniBtn";
+      pinBtn.textContent = "ピン留めON";
+      pinBtn.addEventListener("click", () => {
+        setPinned(id, true);
+        updateWeakInfo();
+        renderWeakManagement();
+      });
+
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "miniBtn";
+      delBtn.textContent = "完全削除";
+      delBtn.addEventListener("click", () => {
+        setPinned(id, false); // C-2：OFF＝完全削除
+        updateWeakInfo();
+        renderWeakManagement();
+      });
+
+      btnWrap.appendChild(pinBtn);
+      btnWrap.appendChild(delBtn);
+      li.appendChild(btnWrap);
+
+      weakAutoListEl.appendChild(li);
+    }
+
+    // 手動ニガテ（ピン留め）一覧：ピン留めOFF（＝完全削除）
+    for (const id of pinIds) {
+      const q = fixedById.get(String(id));
+      const li = document.createElement("li");
+
+      const title = q ? q.en : `（問題ID: ${id}）`;
+      const small = q ? ` / ${q.ja}` : "";
+
+      const label = document.createElement("label");
+      label.style.display = "flex";
+      label.style.alignItems = "center";
+      label.style.gap = "8px";
+
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.checked = true;
+      chk.addEventListener("change", () => {
+        // OFF＝完全削除
+        if (!chk.checked) {
+          setPinned(id, false);
+          updateWeakInfo();
+          renderWeakManagement();
+        }
+      });
+
+      const span = document.createElement("span");
+      span.innerHTML = `<span class="mono">${escapeHtml(title)}</span><span class="muted">${escapeHtml(small)}</span>`;
+
+      label.appendChild(chk);
+      label.appendChild(span);
+
+      li.appendChild(label);
+      weakPinListEl.appendChild(li);
+    }
   }
 
   // ===== QUIZ STATE =====
@@ -316,7 +558,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let current = null;
   let answeredThis = false;
 
-  // ログ（結果表示用）
   let askedLog = [];
 
   function resetUIForNewQuestion(){
@@ -327,6 +568,11 @@ document.addEventListener("DOMContentLoaded", () => {
     hintArea.textContent = "";
     setHintVisible(false);
     hintBtn.disabled = false;
+
+    document.querySelectorAll("#choices button").forEach(b => {
+      b.classList.remove("correct", "wrong");
+      b.disabled = false;
+    });
   }
 
   function currentCorrectChoiceNorm(){
@@ -341,10 +587,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderQuestion(){
-    // ニガテモードは「保存済みニガテが0になったら即終了」
+    // ニガテモード：弱点が0になったら即終了
     if (session.mode === "weak") {
-      const weakSet = loadWeakSet();
-      if (weakSet.size === 0) {
+      const c = weakCounts();
+      if (c.total === 0) {
         finishSession(true);
         return;
       }
@@ -366,23 +612,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     resetUIForNewQuestion();
 
-    // ニガテモード：毎回「現在の弱点集合」から order を作り直してもいいが、重いので最小限にする。
-    // ここでは「出題直前に、order の先頭がすでに外れていればスキップ」する方式にする。
+    // ニガテモード：orderから「消えた弱点」を掃除
     if (session.mode === "weak") {
-      const weakSet = loadWeakSet();
-      // order から弱点に残ってない問題を掃除（先頭から）
+      const map = loadWeakMap();
+
       while (session.cursor < session.order.length) {
         const qIndex = session.order[session.cursor];
         const qId = fixed[qIndex]?.id;
-        if (qId && weakSet.has(String(qId))) break;
+        if (qId && map[String(qId)]) break;
         session.cursor++;
       }
-      // もう出題できるものがない
+
       if (session.cursor >= session.order.length) {
-        // まだ弱点が残ってる可能性があるので、残りから新orderを再構築
-        const ids = Array.from(weakSet);
-        const eligible = [];
+        // 再構築
+        const ids = Object.keys(map);
         const idSet = new Set(ids.map(String));
+        const eligible = [];
         for (let i = 0; i < fixed.length; i++) {
           if (idSet.has(fixed[i].id)) eligible.push(i);
         }
@@ -398,7 +643,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const qIndex = session.order[session.cursor % session.order.length];
     session.cursor++;
 
-    // 順番モードの続き保存（通常のみ）
+    // 順番の続き保存（通常のみ）
     if (!session.random && session.mode === "normal") {
       saveCursor(session.blockValue, session.cursor % session.order.length);
     }
@@ -409,9 +654,8 @@ document.addEventListener("DOMContentLoaded", () => {
     qMetaEl.textContent =
       `問題 ${session.answered + 1} / ${session.limit}` +
       `  ${session.random ? "・ランダム" : "・順番"}` +
-      `  ${session.mode === "weak" ? "・ニガテ（正解で自動解除）" : ""}`;
+      `  ${session.mode === "weak" ? "・ニガテ（自動は正解で解除／手動は残る）" : ""}`;
 
-    // 選択肢は毎回シャッフル
     const shownChoices = shuffle(current.choices);
     current._shownChoices = shownChoices;
 
@@ -419,7 +663,12 @@ document.addEventListener("DOMContentLoaded", () => {
     for (const c of shownChoices) {
       const btn = document.createElement("button");
       btn.textContent = c;
-      btn.addEventListener("click", () => handleChoice(c));
+
+      btn.addEventListener("click", () => {
+        ensureAudioReady();
+        handleChoice(c, btn);
+      });
+
       choicesEl.appendChild(btn);
     }
 
@@ -440,7 +689,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return lines.join("\n");
   }
 
-  function handleChoice(choice){
+  function handleChoice(choice, clickedBtn){
     if (answeredThis) return;
     answeredThis = true;
 
@@ -448,19 +697,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const isCorrect = (norm(choice) === correctChoiceNorm);
 
     session.answered += 1;
+
     if (isCorrect) {
       session.correct += 1;
       resultEl.innerHTML = `<span class="ok">⭕️ 正解！</span>`;
+      clickedBtn.classList.add("correct");
+      playCorrectSound();
     } else {
       const show = (current._shownChoices || current.choices).find(x => norm(x) === correctChoiceNorm) || current.choices[0];
       resultEl.innerHTML = `<span class="ng">❌ 不正解。</span> 正解は「${show}」`;
+      clickedBtn.classList.add("wrong");
+      playWrongSound();
+      markCorrectButtonGreen(correctChoiceNorm);
+
+      // ★通常演習で間違えたら「自動ニガテ」に入れる
+      addAutoWeak(current.id);
+      updateWeakInfo();
+      renderWeakManagement();
     }
 
-    // ★ニガテ自動解除：ニガテ演習で正解なら、即WEAKから削除
+    // ★ニガテ演習：正解したら「自動のみ」は外す（ピン留めは残す）
     if (session.mode === "weak" && isCorrect) {
-      removeWeakId(current.id);
+      removeAutoIfNotPinned(current.id);
       updateWeakInfo();
+      renderWeakManagement();
     }
+
+    // ★連打防止
+    lockChoices();
 
     // 解説
     const fullJa = String(current.ja || "").trim();
@@ -496,12 +760,20 @@ document.addEventListener("DOMContentLoaded", () => {
     return `Block ${v}`;
   }
 
+  function isPinned(id){
+    const map = loadWeakMap();
+    const st = map[String(id)];
+    return !!(st && st.pin);
+  }
+
   function renderSummary(autoCleared){
     const wrongs = askedLog.filter(x => !x.isCorrect);
+    const c = weakCounts();
 
-    const tail = autoCleared ? "（ニガテを全て解消！）" : "";
+    const tail = autoCleared ? "（ニガテが0になりました）" : "";
     summaryLine.textContent =
-      `結果：${session.correct} / ${session.limit}（${session.mode === "weak" ? "ニガテ演習" : "通常演習"}｜${session.random ? "ランダム" : "順番"}｜${blockSelectLabel(session.blockValue)}）${tail}`;
+      `結果：${session.correct} / ${session.limit}（${session.mode === "weak" ? "ニガテ演習" : "通常演習"}｜${session.random ? "ランダム" : "順番"}｜${blockSelectLabel(session.blockValue)}）` +
+      `｜ニガテ合計 ${c.total}（自動 ${c.autoOnly} / 手動 ${c.pinned}）${tail}`;
 
     wrongTbody.innerHTML = "";
 
@@ -533,9 +805,36 @@ document.addEventListener("DOMContentLoaded", () => {
         `<div style="margin-top:6px;">正答：<span class="pill mono">${escapeHtml(w.correctChoice)}</span></div>`;
       tr.appendChild(tdAns);
 
-      // 自動管理なのでチェックは「表示だけ」扱い（UIは壊さずにそのまま）
+      // ★手動ニガテ（ピン留め）チェック
       const tdChk = document.createElement("td");
-      tdChk.innerHTML = `<span class="muted">自動</span>`;
+      const label = document.createElement("label");
+      label.style.display = "flex";
+      label.style.alignItems = "center";
+      label.style.gap = "8px";
+
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.checked = isPinned(w.qId);
+
+      chk.addEventListener("change", () => {
+        if (chk.checked) {
+          setPinned(w.qId, true);
+        } else {
+          // C-2：OFF＝完全削除（自動も手動も消す）
+          setPinned(w.qId, false);
+        }
+        updateWeakInfo();
+        renderWeakManagement();
+        renderSummary(false); // 表示も更新
+      });
+
+      const span = document.createElement("span");
+      span.className = "muted";
+      span.textContent = "ピン";
+
+      label.appendChild(chk);
+      label.appendChild(span);
+      tdChk.appendChild(label);
       tr.appendChild(tdChk);
 
       wrongTbody.appendChild(tr);
@@ -548,7 +847,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 「続き」は通常のみ
     continueBtn.disabled = (session.mode === "weak");
-    retryWeakBtn.disabled = (loadWeakSet().size === 0);
+    retryWeakBtn.disabled = (weakCounts().total === 0);
   }
 
   // ===== build sessions =====
@@ -582,10 +881,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function startWeakSession(){
-    const weakSet = loadWeakSet();
-    const idSet = new Set(Array.from(weakSet).map(String));
+    const map = loadWeakMap();
+    const ids = Object.keys(map);
 
     const eligible = [];
+    const idSet = new Set(ids.map(String));
     for (let i = 0; i < fixed.length; i++) {
       if (idSet.has(fixed[i].id)) eligible.push(i);
     }
@@ -593,6 +893,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (eligible.length === 0) {
       alert("ニガテ問題がありません。");
       updateWeakInfo();
+      renderWeakManagement();
       return;
     }
 
@@ -617,48 +918,56 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ===== EVENTS =====
-  blockSelect.addEventListener("change", updatePoolInfo);
-  countInput.addEventListener("input", updatePoolInfo);
-  randomOrder.addEventListener("change", updatePoolInfo);
+  blockSelect.addEventListener("change", () => {
+    updatePoolInfo();
+  });
+  countInput.addEventListener("input", () => {
+    updatePoolInfo();
+  });
+  randomOrder.addEventListener("change", () => {
+    updatePoolInfo();
+  });
 
   startBtn.addEventListener("click", startNormalSession);
 
   startWeakBtn.addEventListener("click", () => {
-    const weakSet = loadWeakSet();
-    if (weakSet.size === 0) {
-      alert("ニガテ問題がまだありません。まず通常演習で間違えた問題を登録してください。");
+    if (weakCounts().total === 0) {
+      alert("ニガテ問題がありません。まず通常演習で間違えた問題を作るか、結果画面でピン留めしてください。");
       return;
     }
     startWeakSession();
   });
 
   clearWeakBtn.addEventListener("click", () => {
-    if (!confirm("保存済みニガテ問題をすべて消しますか？")) return;
+    if (!confirm("ニガテをすべて消しますか？（自動・手動どちらも全消去）")) return;
     localStorage.removeItem(WEAK_KEY);
     updateWeakInfo();
+    renderWeakManagement();
   });
 
   backBtn.addEventListener("click", () => {
     showSetup();
     updatePoolInfo();
     updateWeakInfo();
+    renderWeakManagement();
   });
 
   summaryBackBtn.addEventListener("click", () => {
     showSetup();
     updatePoolInfo();
     updateWeakInfo();
+    renderWeakManagement();
   });
 
   continueBtn.addEventListener("click", () => {
-    // 設定は維持したまま次セットへ（順番なら続きから）
     startNormalSession();
   });
 
   retryWeakBtn.addEventListener("click", () => {
-    if (loadWeakSet().size === 0) {
+    if (weakCounts().total === 0) {
       alert("ニガテがありません。");
       updateWeakInfo();
+      renderWeakManagement();
       return;
     }
     startWeakSession();
@@ -670,11 +979,18 @@ document.addEventListener("DOMContentLoaded", () => {
     renderQuestion();
   });
 
+  refreshWeakViewBtn.addEventListener("click", () => {
+    updateWeakInfo();
+    renderWeakManagement();
+    alert("ニガテ一覧を更新しました。");
+  });
+
   // ===== INIT =====
   function init(){
     renderBlockSelect();
     updatePoolInfo();
     updateWeakInfo();
+    renderWeakManagement();
     showSetup();
   }
   init();
