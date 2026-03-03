@@ -4,139 +4,229 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>日→英 4択テスト</title>
+
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif; }
-    .container { max-width: 520px; margin: 20px auto; padding: 0 12px; }
-    button { padding: 10px 12px; margin-top: 6px; }
-    .box { border:1px solid #ccc; padding:12px; border-radius:10px; margin-bottom:14px; }
-    .muted { color:#666; font-size:14px; }
-    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    select, input { padding: 8px; }
-    .listbox { border:1px solid #ddd; border-radius:10px; padding:10px; margin-top:10px; background:#fafafa; }
-    .btnwide { width: 100%; }
-    ul { padding-left: 18px; }
-    li { margin: 6px 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 0 12px;
+    }
+
+    button {
+      padding: 10px 12px;
+      margin-top: 6px;
+    }
+
+    .box {
+      border: 1px solid #ccc;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+    }
+
+    .muted {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    select, input {
+      padding: 8px;
+    }
+
+    .btnwide {
+      width: 100%;
+    }
+
+    ul {
+      padding-left: 18px;
+    }
+
+    li {
+      margin: 6px 0;
+    }
+
+    /* 問題文を少し大きく */
+    #question {
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+
+    /* 選択肢を2×2にする */
+    #choices {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    /* 選択肢ボタンを大きく・押しやすく */
+    #choices button {
+      width: 100%;
+      font-size: 20px;
+      padding: 16px;
+      border-radius: 10px;
+    }
+
+    /* 画面が極端に小さい場合だけ1列 */
+    @media (max-width: 340px) {
+      #choices {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ===== 正解/不正解の色 ===== */
+    #choices button.correct {
+      background: #2ecc71;
+      color: #fff;
+      border: 1px solid #27ae60;
+    }
+
+    #choices button.wrong {
+      background: #e74c3c;
+      color: #fff;
+      border: 1px solid #c0392b;
+    }
+
+    #choices button:disabled {
+      opacity: 0.9;
+    }
   </style>
 </head>
+
 <body>
-  <div class="container">
+<div class="container">
 
-    <div style="margin-bottom:12px;">
-      <a href="index.html">← ホーム</a>　|　<a href="study.html">暗記</a>　|　<a href="quiz.html">英→日クイズ</a>　|　<a href="list.html">一覧</a> 
-      <a href="sentence.html">１級大問９演習</a>
-    </div>
-
-    <div id="levelBadge" style="font-size:14px; color:#555; margin-bottom:8px;"></div>
-
-    <button id="toggleSettings">▶ 設定</button>
-    <div id="settingsSummary" style="font-size:14px; color:#555; margin-bottom:6px;"></div>
-
-    <div class="box">
-      <div id="settingsArea">
-        <div style="font-weight:bold; margin-bottom:8px;">出題設定（日→英）</div>
-
-        <div class="row" style="margin-bottom:10px;">
-          <label style="font-weight:600;">Block:</label>
-          <select id="blockSelect"></select>
-          <button id="applyBlock" type="button">このBlockを範囲に反映</button>
-        </div>
-        <div id="blockStats" class="muted" style="margin-bottom:10px;"></div>
-
-        <div style="margin-bottom:10px;">
-          <label>出題範囲（番号）:</label><br>
-          <input id="rangeStart" type="number" min="1" value="1" style="width:90px;"> 〜
-          <input id="rangeEnd" type="number" min="1" value="999" style="width:90px;"> 番
-        </div>
-
-        <div style="margin-bottom:10px;">
-          <label>出題数:</label><br>
-          <input id="limitCount" type="number" min="1" value="10" style="width:90px;"> 問
-        </div>
-
-        <div style="margin-bottom:10px;">
-          <label>出題モード:</label><br>
-          <select id="modeSelect">
-            <option value="order">順番に出題（続きから）</option>
-            <option value="random">ランダムで出題</option>
-            <option value="weak">ニガテ順に出題</option>
-          </select>
-          <button id="resetOrderCursor" type="button" style="margin-left:8px;">順番の続きリセット</button>
-        </div>
-
-        <div style="margin-bottom:10px;">
-          <label>
-            <input id="weakMode" type="checkbox">
-            弱点モード（間違えた単語を優先）
-          </label>
-          <button id="clearWeak" type="button" style="margin-left:8px;">弱点を全消去</button>
-          <div id="weakInfo" class="muted" style="margin-top:6px;"></div>
-        </div>
-
-       
-</div>
-
-        <button id="startTest" type="button" class="btnwide">この条件でテスト開始</button>
-      </div>
-      
-       <div style="margin-bottom:10px;">
-          <label>
-            <input id="autoSpeakQ" type="checkbox">
-            自動発音（解答後に正解の英語を読む）
-          </label>
-        
-    </div>
-      
-    <div id="playBox" class="box">
-      <div id="stats" style="margin-bottom:10px;"></div>
-      <div id="qMeta" class="muted" style="margin:6px 0 10px;"></div>
-
-      <div id="question" style="font-size:22px; margin-bottom:8px;">テスト未開始</div>
-
-      <div style="margin-bottom:10px;">
-        <button id="speakQ" type="button">🔊 発音</button>
-      </div>
-
-      <div id="choices"></div>
-      <div id="result" style="margin-top:10px; font-size:18px;"></div>
-
-      <button id="nextQ" type="button" class="btnwide" style="margin-top:12px;">次の問題</button>
-      <button id="resetQuiz" type="button" class="btnwide" style="margin-top:8px;">今回の成績リセット</button>
-    </div>
-
-    <div id="summaryBox" class="box" style="display:none;">
-      <div style="font-weight:700; margin-bottom:6px;">今回の結果</div>
-      <div id="finalScore" style="font-size:18px; margin-bottom:8px;"></div>
-      <div id="finalBlockLine" class="muted"></div>
-
-      <div class="row" style="margin-top:12px;">
-        <button id="goStudyBlock" type="button">このBlockを暗記する</button>
-        <button id="goWeakReview" type="button">このBlockを弱点モードで復習</button>
-      </div>
-
-      <div class="listbox">
-        <div style="font-weight:700;">今回出た単語一覧</div>
-        <div class="muted" style="margin-top:4px;">形式：番号｜日本語 → 英語</div>
-        <ul id="askedList"></ul>
-      </div>
-
-      <div class="listbox">
-        <div style="font-weight:700;">間違えた単語一覧</div>
-        <div class="muted" style="margin-top:4px;">間違えたものだけ（重複なし）</div>
-        <ul id="wrongList"></ul>
-      </div>
-
-      <button id="backToSetup" type="button" class="btnwide" style="margin-top:12px;">設定画面に戻る</button>
-    </div>
-
+  <div style="margin-bottom:12px;">
+    <a href="index.html">← ホーム</a> |
+    <a href="study.html">暗記</a> |
+    <a href="quiz.html">英→日クイズ</a> |
+    <a href="sentence.html">１級大問９演習</a> |
+    <a href="list.html">一覧</a>
   </div>
 
-  <!-- ここが重要：dataset.js →（WORDS/BLOCKSが決まる）→ quiz_jaen.js -->
-  <script src="words_1kyu.js"></script>
-  <script src="blocks_1kyu.js"></script>
-  <script src="words_2kyu.js"></script>
-  <script src="blocks_2kyu.js"></script>
-  <script src="dataset.js"></script>
-  <script src="global_stats.js"></script> 
-  <script src="quiz_jaen.js"></script>
+  <div id="levelBadge" style="font-size:14px; color:#555; margin-bottom:6px;"></div>
+
+  <button id="toggleSettings">▶ 設定</button>
+  <div id="settingsSummary" class="muted" style="margin-bottom:8px;"></div>
+
+  <div id="setupBox" class="box">
+    <div id="settingsArea">
+      <div style="font-weight:bold; margin-bottom:8px;">出題設定（日→英）</div>
+
+      <div class="row" style="margin-bottom:10px;">
+        <label style="font-weight:600;">Block:</label>
+        <select id="blockSelect"></select>
+        <button id="applyBlock" type="button">このBlockを範囲に反映</button>
+      </div>
+
+      <div id="blockStats" class="muted" style="margin-bottom:10px;"></div>
+
+      <div style="margin-bottom:10px;">
+        <label>出題範囲（番号）:</label><br>
+        <input id="rangeStart" type="number" min="1" value="1" style="width:90px;"> 〜
+        <input id="rangeEnd" type="number" min="1" value="144" style="width:90px;">
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <label>出題数:</label><br>
+        <input id="limitCount" type="number" min="1" value="10" style="width:90px;"> 問
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <label>出題モード:</label><br>
+        <select id="modeSelect">
+          <option value="order">順番に出題（続きから）</option>
+          <option value="random">ランダムで出題</option>
+          <option value="weak">ニガテ順に出題</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <button id="resetOrderCursor" type="button">🔄 順番モードの続きからをリセット</button>
+        <div class="muted" style="margin-top:6px;">
+          ※今の出題範囲（番号）に対して、順番の開始位置を先頭に戻します。
+        </div>
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <label>
+          <input id="weakMode" type="checkbox">
+          弱点モード（間違えた単語を優先）
+        </label>
+        <button id="clearWeak" type="button" style="margin-left:8px;">弱点を全消去</button>
+        <div id="weakInfo" class="muted" style="margin-top:6px;"></div>
+      </div>
+    </div>
+
+    <button id="startTest" type="button" class="btnwide">
+      この条件でテスト開始
+    </button>
+  </div>
+
+  <div id="playBox" class="box">
+    <div id="stats" style="margin-bottom:8px;"></div>
+    <div id="qMeta" class="muted" style="margin-bottom:8px;"></div>
+
+    <div id="question">テスト未開始</div>
+
+    <div style="margin-bottom:10px;">
+      <button id="speakQ" type="button">🔊 発音</button>
+      <label style="margin-left:10px;">
+        <input id="autoSpeakQ" type="checkbox"> 自動発音
+      </label>
+    </div>
+
+    <div id="choices"></div>
+
+    <div id="result" style="margin-top:10px; font-size:18px;"></div>
+
+    <button id="nextQ" type="button" class="btnwide" style="margin-top:12px;">次の問題</button>
+    <button id="resetQuiz" type="button" class="btnwide" style="margin-top:8px;">今回の成績リセット</button>
+  </div>
+
+  <div id="summaryBox" class="box" style="display:none;">
+    <div style="font-weight:700; margin-bottom:6px;">今回の結果</div>
+
+    <div id="finalScore" style="font-size:18px; margin-bottom:8px;"></div>
+    <div id="finalBlockLine" class="muted" style="margin-bottom:10px;"></div>
+
+    <div class="row" style="margin-bottom:10px;">
+      <button id="goStudyBlock" type="button">このBlockを暗記する</button>
+      <button id="goWeakReview" type="button">弱点モードで復習</button>
+    </div>
+
+    <div class="box">
+      <div style="font-weight:700;">今回出た単語一覧</div>
+      <ul id="askedList"></ul>
+    </div>
+
+    <div class="box">
+      <div style="font-weight:700;">間違えた単語一覧</div>
+      <ul id="wrongList"></ul>
+    </div>
+
+    <button id="backToSetup" type="button" class="btnwide">設定画面に戻る</button>
+  </div>
+
+</div>
+
+<script src="words_1kyu.js"></script>
+<script src="blocks_1kyu.js"></script>
+<script src="words_2kyu.js"></script>
+<script src="blocks_2kyu.js"></script>
+<script src="dataset.js"></script>
+<script src="global_stats.js"></script>
+<script src="quiz_jaen.js"></script>
+
 </body>
 </html>
