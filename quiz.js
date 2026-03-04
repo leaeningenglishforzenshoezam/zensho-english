@@ -236,7 +236,23 @@ document.addEventListener("DOMContentLoaded", () => {
   function weakCount() {
     return Object.keys(weakPoints).length;
   }
+  // ===== sentence（語句補充）から英→日の弱点に加点する窓口 =====
+  // sentence.js から window.addWeakFromSentenceToEnJa(word, +1) で呼ばれます
+  window.addWeakFromSentenceToEnJa = (en, weight = 1) => {
+    try {
+      const w = String(en || "").trim().toLowerCase();
+      let add = Number(weight);
+      if (!w) return;
+      if (!Number.isFinite(add) || add <= 0) add = 1;
 
+      // 既存の弱点ポイントに +add
+      setPoint(w, getPoint(w) + add);
+      saveWeakPoints();
+    } catch (e) {
+      // 失敗してもクイズ自体は止めない
+      console.warn("addWeakFromSentenceToEnJa failed:", e);
+    }
+  };
   // ===== 順番モードの「続き」（級別）=====
   function loadOrderCursor(start, end) {
     const raw = localStorage.getItem(ORDER_CURSOR_KEY);
