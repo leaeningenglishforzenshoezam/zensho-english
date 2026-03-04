@@ -118,6 +118,7 @@
         まずは「覚える」→「クイズ」→「弱点を潰す」の流れがおすすめです。
       </p>
 
+      <button class="btn primary" id="goWordList">▶ 単語一覧（番号つき）</button>
       <button class="btn primary" id="goStudy">▶ 覚える（暗記）</button>
       <button class="btn primary" id="goQuiz">▶ クイズで確認（英→日）</button>
       <button class="btn primary" id="goQuizJaEn">▶ クイズで確認（日→英）</button>
@@ -232,6 +233,10 @@
     }
 
     // ===== 画面遷移 =====
+    
+    document.getElementById("goWordList").addEventListener("click", () => {
+      location.href = "list.html";
+    });
     document.getElementById("goStudy").addEventListener("click", () => {
       location.href = "study.html";
     });
