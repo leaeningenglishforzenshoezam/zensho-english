@@ -5,101 +5,521 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>単語一覧（番号つき）</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif; }
-    .container { max-width: 700px; margin: 20px auto; padding: 0 12px; }
-    .block { border: 1px solid #ddd; border-radius: 10px; padding: 12px; margin: 12px 0; }
-    .block h2 { margin: 0 0 8px; font-size: 18px; }
-    .row { display: flex; gap: 10px; padding: 6px 0; border-bottom: 1px dashed #eee; }
-    .row:last-child { border-bottom: none; }
-    .no { width: 64px; color: #666; }
-    .en { width: 180px; font-weight: 600; }
-    .ja { flex: 1; }
-    .toplinks a { margin-right: 10px; }
-    .note { color: #666; font-size: 13px; margin-top: 6px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif; background:#f7f7f7; margin:0; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 16px 12px 24px; }
+    .topnav a { margin-right: 10px; color:#2b7cff; text-decoration:none; font-size:14px; }
+    .card { background:#fff; border:1px solid #ddd; border-radius:12px; padding:14px; margin: 12px 0; }
+    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .muted { color:#666; font-size:13px; }
+    .hr { height:1px; background:#eee; margin:12px 0; }
+
+    select, input[type="text"] { padding:10px 10px; border-radius:10px; border:1px solid #ddd; }
+    label { font-size:14px; }
+
+    table { width:100%; border-collapse: collapse; table-layout: fixed; }
+    th, td { border-top: 1px solid #eee; padding: 10px 8px; vertical-align: top; }
+    th { text-align:left; background:#fafafa; font-size:14px; white-space:nowrap; }
+    td { font-size:15px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+
+   /* ① 表ヘッダー固定（強化版） */
+thead th{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fafafa;
+}
+
+    /* 列幅：日本語を広くするために、他を少し固定幅に */
+    th.wNo { width:72px; }
+    th.wBlock { width:92px; }
+    th.wEn { width:190px; }
+    th.wWeak { width:170px; }
+    th.wAct { width:260px; }
+
+    td.colJa { line-height: 1.55; }
+
+    .badge {
+      display:inline-block; padding:3px 8px; border-radius:999px;
+      font-size:12px; border:1px solid #ddd; background:#fafafa; color:#333;
+      white-space:nowrap;
+    }
+    .badgeWeak { background:#fff3cd; border-color:#ffeeba; color:#856404; }
+
+    .btnMini {
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid #ddd;
+      background:#fff;
+      cursor:pointer;
+      font-size:13px;
+      white-space:nowrap;
+    }
+    .btnMini.primary { background:#2b7cff; border-color:#2b7cff; color:#fff; }
+    .btnMini.danger { background:#b00020; border-color:#b00020; color:#fff; }
+
+    .btnGroup { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
+    /* ブロック境界の見出し行 */
+    .blockRow td{
+      background:#f4f7ff;
+      border-top:1px solid #d6e4ff;
+      color:#204a9a;
+      font-weight:700;
+      padding:10px 10px;
+    }
+    .blockRow .sub{
+      font-weight:400;
+      color:#355aa8;
+      margin-left:10px;
+      font-size:13px;
+    }
+
+    /* マスク */
+    .masked {
+      position: relative;
+      color: transparent !important;
+      text-shadow: none !important;
+      user-select: none;
+      cursor: pointer;
+    }
+    .masked::before{
+      content:"";
+      position:absolute;
+      inset: 4px;
+      border-radius: 8px;
+      background:
+        repeating-linear-gradient(
+          135deg,
+          rgba(170,170,170,0.30) 0px,
+          rgba(170,170,170,0.30) 8px,
+          rgba(240,240,240,0.80) 8px,
+          rgba(240,240,240,0.80) 16px
+        );
+      border: 1px solid rgba(0,0,0,0.06);
+      pointer-events: none;
+    }
+    .masked::after{
+      content:"タップで表示";
+      position:absolute;
+      right:10px;
+      top:50%;
+      transform: translateY(-50%);
+      font-size:12px;
+      color:#666;
+      pointer-events:none;
+      background: rgba(255,255,255,0.75);
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+    .revealed{
+      color: inherit !important;
+      user-select: text;
+      cursor: pointer;
+    }
+    .revealed::before,
+    .revealed::after{
+      display:none !important;
+    }
+
+    @media (max-width: 680px) {
+      th.wAct { width: 220px; }
+      th.wEn { width: 165px; }
+      td { font-size:16px; }
+      th { font-size:13px; }
+      .btnMini { font-size:12px; padding:8px 9px; }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="toplinks" style="margin-bottom:12px;">
+  <div class="wrap">
+
+    <div class="topnav" style="margin:8px 0 4px;">
       <a href="index.html">← ホーム</a>
-      <a href="study.html">暗記</a>
+      <a href="study.html">覚える</a>
       <a href="quiz.html">英→日クイズ</a>
       <a href="quiz_jaen.html">日→英クイズ</a>
-      <a href="sentence.html">１級大問９演習</a>
-
+      <a href="sentence.html">短文穴埋め</a>
+      <a href="progress.html">ブロック進捗</a>
     </div>
-    <div id="levelBadge" style="font-size:14px; color:#555; margin-bottom:6px;"></div>
 
+    <div class="card">
+      <div style="font-size:18px; font-weight:700;">単語一覧（番号つき）</div>
+      <div class="muted" id="lvLine" style="margin-top:4px;"></div>
 
-    <h1 style="margin:0 0 6px;">単語一覧（番号つき）</h1>
-    <div class="note">Blockは番号範囲で区切っています（Block 1: 1〜72 / Block 2: 73〜144）。</div>
+      <div class="hr"></div>
 
-    <div id="listArea"></div>
+      <div class="row">
+        <div>
+          <div class="muted">Block</div>
+          <select id="blockSelect"></select>
+        </div>
+
+        <div style="flex:1; min-width:220px;">
+          <div class="muted">検索（英語 or 日本語）</div>
+          <input id="searchInput" type="text" placeholder="例: ability / 能力" style="width:100%;" />
+        </div>
+
+        <div>
+          <div class="muted">並び替え</div>
+          <select id="sortSelect">
+            <option value="no">番号順</option>
+            <option value="weak">苦手強い順（英→日）</option>
+          </select>
+        </div>
+
+        <div style="padding-top:22px;">
+          <label><input id="onlyWeak" type="checkbox" /> 苦手だけ</label>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <label><input id="toggleEn" type="checkbox" checked /> 英語を表示（マスク切替）</label>
+        <label><input id="toggleJa" type="checkbox" checked /> 日本語を表示（マスク切替）</label>
+      </div>
+
+      <div class="muted" id="countLine" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="card">
+      <div style="overflow-x:auto; overflow-y:visible;"></div>
+        <table>
+          <thead>
+            <tr>
+              <th class="wNo">番号</th>
+              <th class="wBlock">Block</th>
+              <th class="wEn">英語</th>
+              <th>日本語</th>
+              <th class="wWeak">苦手（英→日）</th>
+              <th class="wAct">操作</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
-  <script src="words.js"></script>
+  <!-- 単語データ -->
+  <script src="words_1kyu.js"></script>
+  <script src="blocks_1kyu.js"></script>
   <script>
-    const words = window.WORDS || [];
-
-    function blockOfNo(no) {
-      if (no >= 1 && no <= 72) return 1;
-      if (no >= 73 && no <= 144) return 2;
-      return 0;
+    window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
+    if (window.ACTIVE_LEVEL === "1") {
+      window.WORDS = window.WORDS_1KYU || [];
+      window.BLOCKS = window.BLOCKS_1KYU || [];
     }
-
-    function blockRange(block) {
-      if (block === 1) return { start: 1, end: 72 };
-      if (block === 2) return { start: 73, end: 144 };
-      return null;
+  </script>
+  <script src="words_2kyu.js"></script>
+  <script src="blocks_2kyu.js"></script>
+  <script>
+    if (window.ACTIVE_LEVEL === "2") {
+      window.WORDS = window.WORDS_2KYU || [];
+      window.BLOCKS = window.BLOCKS_2KYU || [];
     }
+  </script>
 
-    const area = document.getElementById("listArea");
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const words = window.WORDS || [];
+      const blocks = window.BLOCKS || [];
+      const LV = localStorage.getItem("zensho_level_v1") || "1";
 
-    [1, 2].forEach(block => {
-      const r = blockRange(block);
-      if (!r) return;
+      const tbody = document.getElementById("tbody");
+      const blockSelect = document.getElementById("blockSelect");
+      const searchInput = document.getElementById("searchInput");
+      const onlyWeak = document.getElementById("onlyWeak");
+      const sortSelect = document.getElementById("sortSelect");
+      const countLine = document.getElementById("countLine");
+      const lvLine = document.getElementById("lvLine");
 
-      const box = document.createElement("div");
-      box.className = "block";
+      const toggleEn = document.getElementById("toggleEn");
+      const toggleJa = document.getElementById("toggleJa");
 
-      const h = document.createElement("h2");
-      h.textContent = `Block ${block}（${r.start}〜${r.end}）`;
-      box.appendChild(h);
+      lvLine.textContent = `${LV}級｜全 ${words.length}語`;
 
-      for (let i = r.start; i <= r.end; i++) {
-        const w = words[i - 1];
-        if (!w) continue;
+      function norm(s){ return String(s || "").trim().toLowerCase(); }
 
-        const row = document.createElement("div");
-        row.className = "row";
-
-        const no = document.createElement("div");
-        no.className = "no";
-        no.textContent = `${i}.`;
-        row.appendChild(no);
-
-        const en = document.createElement("div");
-        en.className = "en";
-        en.textContent = w.en;
-        row.appendChild(en);
-
-        const ja = document.createElement("div");
-        ja.className = "ja";
-        ja.textContent = w.ja;
-        row.appendChild(ja);
-
-        box.appendChild(row);
+      function safeParse(key){
+        const raw = localStorage.getItem(key);
+        if (!raw) return {};
+        try {
+          const obj = JSON.parse(raw);
+          return (obj && typeof obj === "object") ? obj : {};
+        } catch {
+          return {};
+        }
+      }
+      function saveObj(key, obj){
+        localStorage.setItem(key, JSON.stringify(obj));
       }
 
-      area.appendChild(box);
+      const WEAK_ENJA_KEY = `zensho_quiz_weak_points_enja_v2_lv${LV}`;
+
+      function loadWeakEnJa(){
+        return safeParse(WEAK_ENJA_KEY);
+      }
+      function getWeakPoint(weakObj, en){
+        const k = norm(en);
+        const v = weakObj[k];
+        return (typeof v === "number") ? v : 0;
+      }
+      function incWeak(en, delta){
+        const obj = loadWeakEnJa();
+        const k = norm(en);
+        const now = (typeof obj[k] === "number") ? obj[k] : 0;
+        const next = Math.max(0, now + delta);
+        if (next <= 0) delete obj[k];
+        else obj[k] = next;
+        saveObj(WEAK_ENJA_KEY, obj);
+      }
+      function clearWeak(en){
+        const obj = loadWeakEnJa();
+        const k = norm(en);
+        delete obj[k];
+        saveObj(WEAK_ENJA_KEY, obj);
+      }
+
+      function speakEnglish(text) {
+        if (!("speechSynthesis" in window)) {
+          alert("この端末では音声読み上げに対応していません。");
+          return;
+        }
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(String(text || ""));
+        u.lang = "en-US";
+        u.rate = 0.9;
+        window.speechSynthesis.speak(u);
+      }
+
+      function getBlockByNo(no){
+        const n = Number(no);
+        return blocks.find(b => n >= Number(b.start) && n <= Number(b.end)) || null;
+      }
+
+      function renderBlockSelect(){
+        blockSelect.innerHTML = "";
+        const optAll = document.createElement("option");
+        optAll.value = "all";
+        optAll.textContent = `全範囲（1〜${words.length}）`;
+        blockSelect.appendChild(optAll);
+
+        for (const b of blocks) {
+          const opt = document.createElement("option");
+          opt.value = String(b.id);
+          opt.textContent = `Block ${b.id}（${b.start}〜${b.end}）`;
+          blockSelect.appendChild(opt);
+        }
+        blockSelect.value = "all";
+      }
+
+      function inSelectedBlock(no){
+        const v = blockSelect.value;
+        if (v === "all") return true;
+        const b = blocks.find(x => String(x.id) === String(v));
+        if (!b) return true;
+        return no >= Number(b.start) && no <= Number(b.end);
+      }
+
+      // チェックでマスクONにしたら「全部再マスク（revealedリセット）」する
+      function applyMaskByToggles(){
+        const maskEn = !toggleEn.checked;
+        const maskJa = !toggleJa.checked;
+
+        document.querySelectorAll(".colEn").forEach(td => {
+          if (maskEn) {
+            td.classList.remove("revealed");
+            td.classList.add("masked");
+          } else {
+            td.classList.remove("masked");
+            td.classList.remove("revealed");
+          }
+        });
+
+        document.querySelectorAll(".colJa").forEach(td => {
+          if (maskJa) {
+            td.classList.remove("revealed");
+            td.classList.add("masked");
+          } else {
+            td.classList.remove("masked");
+            td.classList.remove("revealed");
+          }
+        });
+      }
+
+      // マスク中のセルの挙動：
+      // - masked をタップ：revealed にして表示（発音しない）
+      // - revealed をタップ：発音する（英語を読む）
+      function attachMaskBehavior(td, col, getEnForThisRow){
+        td.addEventListener("click", (e) => {
+          const maskedMode = (col === "en") ? (!toggleEn.checked) : (!toggleJa.checked);
+          if (!maskedMode) return; // 表示ONなら行クリックが担当
+
+          // マスク中は、行クリック発音を止める（セル側で制御）
+          e.stopPropagation();
+
+          if (td.classList.contains("revealed")) {
+            // ★ここが要望：revealed をタップしたら発音
+            speakEnglish(getEnForThisRow());
+            return;
+          }
+
+          // masked をタップしたら表示（revealed）
+          td.classList.add("revealed");
+          td.classList.remove("masked");
+        });
+      }
+
+      function render(){
+        const weakObj = loadWeakEnJa();
+        const q = norm(searchInput.value);
+        const wantWeakOnly = !!onlyWeak.checked;
+        const sortMode = String(sortSelect.value || "no");
+
+        const rows = [];
+        for (let i = 0; i < words.length; i++) {
+          const no = i + 1;
+          if (!inSelectedBlock(no)) continue;
+
+          const en = String(words[i].en || "");
+          const ja = String(words[i].ja || "");
+          const p = getWeakPoint(weakObj, en);
+          const isWeak = (p > 0);
+
+          if (wantWeakOnly && !isWeak) continue;
+
+          if (q) {
+            const hit = norm(en).includes(q) || norm(ja).includes(q);
+            if (!hit) continue;
+          }
+
+          const b = getBlockByNo(no);
+          rows.push({
+            no, en, ja, p,
+            blockId: b ? Number(b.id) : 0,
+            blockStart: b ? Number(b.start) : 0,
+            blockEnd: b ? Number(b.end) : 0
+          });
+        }
+
+        if (sortMode === "weak") rows.sort((a, b) => (b.p - a.p) || (a.no - b.no));
+        else rows.sort((a, b) => a.no - b.no);
+
+        tbody.innerHTML = "";
+
+        let lastBlockId = null;
+
+        for (const r of rows) {
+          if (sortMode === "no") {
+            if (r.blockId && r.blockId !== lastBlockId) {
+              const trB = document.createElement("tr");
+              trB.className = "blockRow";
+              const tdB = document.createElement("td");
+              tdB.colSpan = 6;
+              tdB.innerHTML = `Block ${r.blockId} ここから <span class="sub">（${r.blockStart}〜${r.blockEnd}）</span>`;
+              trB.appendChild(tdB);
+              tbody.appendChild(trB);
+              lastBlockId = r.blockId;
+            }
+          }
+
+          const tr = document.createElement("tr");
+
+          // 行タップで発音（ボタンと、マスク中セルは除外）
+          tr.addEventListener("click", (e) => {
+            if (e.target.closest("button")) return;
+            speakEnglish(r.en);
+          });
+
+          const tdNo = document.createElement("td");
+          tdNo.textContent = String(r.no);
+          tr.appendChild(tdNo);
+
+          const tdBlock = document.createElement("td");
+          tdBlock.innerHTML = r.blockId ? `<span class="badge">B${r.blockId}</span>` : `<span class="badge">—</span>`;
+          tr.appendChild(tdBlock);
+
+          const tdEn = document.createElement("td");
+          tdEn.className = "mono colEn";
+          tdEn.textContent = r.en;
+          attachMaskBehavior(tdEn, "en", () => r.en);
+          tr.appendChild(tdEn);
+
+          const tdJa = document.createElement("td");
+          tdJa.className = "colJa colJa";
+          tdJa.textContent = r.ja;
+          attachMaskBehavior(tdJa, "ja", () => r.en);
+          tr.appendChild(tdJa);
+
+          const tdWeak = document.createElement("td");
+          tdWeak.innerHTML = (r.p > 0)
+            ? `<span class="badge badgeWeak">弱点 ${r.p}</span>`
+            : `<span class="badge">弱点なし</span>`;
+          tr.appendChild(tdWeak);
+
+          const tdAct = document.createElement("td");
+          const g = document.createElement("div");
+          g.className = "btnGroup";
+
+          const speakBtn = document.createElement("button");
+          speakBtn.className = "btnMini";
+          speakBtn.type = "button";
+          speakBtn.textContent = "🔊 発音";
+          speakBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            speakEnglish(r.en);
+          });
+          g.appendChild(speakBtn);
+
+          const addBtn = document.createElement("button");
+          addBtn.className = "btnMini primary";
+          addBtn.type = "button";
+          addBtn.textContent = "+ 苦手";
+          addBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            incWeak(r.en, 1);
+            render();
+            applyMaskByToggles();
+          });
+          g.appendChild(addBtn);
+
+          const clearBtn = document.createElement("button");
+          clearBtn.className = "btnMini danger";
+          clearBtn.type = "button";
+          clearBtn.textContent = "解除";
+          clearBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            clearWeak(r.en);
+            render();
+            applyMaskByToggles();
+          });
+          g.appendChild(clearBtn);
+
+          tdAct.appendChild(g);
+          tr.appendChild(tdAct);
+
+          tbody.appendChild(tr);
+        }
+
+        countLine.textContent = `表示：${rows.length}語`;
+
+        // 列トグル反映
+        applyMaskByToggles();
+      }
+
+      renderBlockSelect();
+      render();
+
+      blockSelect.addEventListener("change", render);
+      searchInput.addEventListener("input", render);
+      onlyWeak.addEventListener("change", render);
+      sortSelect.addEventListener("change", render);
+
+      toggleEn.addEventListener("change", applyMaskByToggles);
+      toggleJa.addEventListener("change", applyMaskByToggles);
     });
   </script>
-<script src="words_1kyu.js"></script>
-<script src="blocks_1kyu.js"></script>
-<script src="words_2kyu.js"></script>
-<script src="blocks_2kyu.js"></script>
-<script src="dataset.js"></script>
-<script src="quiz.js"></script>
-
 </body>
 </html>
