@@ -1,6 +1,7 @@
 // words_1kyu.js
 // 全商英検1級 語彙（英→日） 499語
 window.WORDS_1KYU = [
+  { en: "absence", ja: "欠席" },
   { en: "absolute", ja: "絶対的な" },
   { en: "account", ja: "勘定、説明" },
   { en: "acid", ja: "酸" },
