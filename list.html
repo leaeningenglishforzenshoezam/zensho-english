@@ -22,13 +22,13 @@
     td { font-size:15px; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
 
-   /* ① 表ヘッダー固定（強化版） */
-thead th{
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: #fafafa;
-}
+    /* ① 表ヘッダー固定（強化版） */
+    thead th{
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #fafafa;
+    }
 
     /* 列幅：日本語を広くするために、他を少し固定幅に */
     th.wNo { width:72px; }
@@ -123,12 +123,97 @@ thead th{
       display:none !important;
     }
 
+    /* テーブルを包む（PCでは横スクロールも保険で残す） */
+    .tableWrap { overflow-x:auto; overflow-y:visible; }
+
     @media (max-width: 680px) {
       th.wAct { width: 220px; }
       th.wEn { width: 165px; }
       td { font-size:16px; }
       th { font-size:13px; }
       .btnMini { font-size:12px; padding:8px 9px; }
+
+      /* ===== スマホ：テーブルをカード表示に変換（JS変更なし） ===== */
+
+      /* ヘッダーは隠す（stickyも無効化） */
+      thead { display:none; }
+      thead th { position: static; }
+
+      /* 表構造をブロック化 */
+      table, tbody, tr, td { display:block; width:100%; }
+      table { table-layout: auto; }
+
+      tr {
+        background:#fff;
+        border:1px solid #e6e6e6;
+        border-radius:12px;
+        margin:12px 0;
+        padding:10px 12px;
+        box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+      }
+
+      /* もともとのセル境界線は消す */
+      td { border-top:none; padding:6px 0; font-size:16px; }
+
+      /* それぞれのセルを「ラベル: 値」形式で表示する */
+      td::before{
+        display:inline-block;
+        min-width: 5.5em;
+        margin-right: 10px;
+        color:#666;
+        font-size:12px;
+        font-weight:600;
+        vertical-align: top;
+      }
+
+      /* 何列目が何かをCSSだけで判別してラベルを付ける */
+      tr td:nth-child(1)::before { content:"番号"; }
+      tr td:nth-child(2)::before { content:"Block"; }
+      tr td:nth-child(3)::before { content:"英語"; }
+      tr td:nth-child(4)::before { content:"日本語"; }
+      tr td:nth-child(5)::before { content:"苦手"; }
+      tr td:nth-child(6)::before { content:"操作"; }
+
+      /* 日本語は最重要：大きく、行間広く、折り返し強化 */
+      td.colJa{
+        font-size:18px;
+        line-height:1.8;
+        overflow-wrap:anywhere;
+        word-break: break-word;
+      }
+
+      /* 英語も折り返しOK */
+      td.colEn{
+        overflow-wrap:anywhere;
+        word-break: break-word;
+      }
+
+      /* 操作ボタン：横並び＆折り返し */
+      td:nth-child(6) .btnGroup{
+        display:flex;
+        gap:8px;
+        flex-wrap:wrap;
+        justify-content:flex-start;
+      }
+      .btnMini{ font-size:13px; padding:10px 12px; border-radius:12px; }
+
+      /* ブロック見出し行はカード化しない（そのまま帯で表示） */
+      .blockRow{
+        display:block;
+        background:#f4f7ff;
+        border:1px solid #d6e4ff;
+        border-radius:12px;
+        margin:14px 0 6px;
+        padding:10px 12px;
+        box-shadow:none;
+      }
+      .blockRow td{
+        display:block;
+        padding:0;
+        border-top:none;
+        background:transparent;
+      }
+      .blockRow td::before{ content:none; } /* ラベル不要 */
     }
   </style>
 </head>
@@ -183,7 +268,7 @@ thead th{
     </div>
 
     <div class="card">
-      <div style="overflow-x:auto; overflow-y:visible;"></div>
+      <div class="tableWrap">
         <table>
           <thead>
             <tr>
@@ -361,12 +446,10 @@ thead th{
           e.stopPropagation();
 
           if (td.classList.contains("revealed")) {
-            // ★ここが要望：revealed をタップしたら発音
             speakEnglish(getEnForThisRow());
             return;
           }
 
-          // masked をタップしたら表示（revealed）
           td.classList.add("revealed");
           td.classList.remove("masked");
         });
@@ -448,7 +531,7 @@ thead th{
           tr.appendChild(tdEn);
 
           const tdJa = document.createElement("td");
-          tdJa.className = "colJa colJa";
+          tdJa.className = "colJa";
           tdJa.textContent = r.ja;
           attachMaskBehavior(tdJa, "ja", () => r.en);
           tr.appendChild(tdJa);
