@@ -11,5 +11,5 @@ window.BLOCKS_1KYU = [
   { id: 7, name: "Block 7（301〜350）", start: 301, end: 350 },
   { id: 8, name: "Block 8（351〜400）", start: 351, end: 400 },
   { id: 9, name: "Block 9（401〜450）", start: 401, end: 450 },
-  { id: 10, name: "Block 10（451〜499）", start: 451, end: 499 }
+  { id: 10, name: "Block 10（451〜500）", start: 451, end: 500 }
 ];
