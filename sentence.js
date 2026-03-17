@@ -1,110 +1,180 @@
 // sentence.js（丸ごと置き換え）
 // 固定問題（window.SENTENCE_FIXED）だけで動く版
-// 追加仕様：
-// - 音読（読み上げ）は () を削除した文字列で行う
+// - 音読（読み上げ）は通常時は () を削除した文字列で行う
+// - 正解表示後の読み上げは、正解語を () に入れた完成文で行う
 // - 出題順：先頭から / 続きから / ランダム
 // - 自動読み上げ：チェックONなら問題表示時に自動で読む（設定は保存）
-// - 語句補充で不正解になった「正解語(answer)」だけを 英→日クイズの弱点に +1 連携（localStorageへ直接）
+// - 正解表示後も、自動読み上げONなら完成文を1回自動で読む
+// - 語句補充で不正解になった「正解語(answer)」だけを 英→日クイズの弱点に +1 連携
 // - ニガテ：自動（間違いで入る）＋手動（ピン留め）
 // - ニガテ演習は「自動＋手動」
 // - ニガテ演習で正解：自動は解除 / 手動は残る
 // - 手動チェックOFFは「完全削除」（自動も手動も消す）
+// ★学習ログ（ホーム用）に 1問ごとに加算
+// ★ゴイモン：大問9正解で ぶんみゃく +1
+// ★ゴイモン表示は折りたたみ式
+// ★進化演出は goimon.js の共通演出を利用
+// ★追加：Block横断記録に sentenceAttempted / sentenceCorrect を保存
 
 document.addEventListener("DOMContentLoaded", () => {
-  // ===== DOM =====
-  const setupBox   = document.getElementById("setupBox");
-  const playBox    = document.getElementById("playBox");
+  function addLearningLog(isCorrect) {
+    try {
+      if (typeof window.zenshoLogAdd === "function") {
+        window.zenshoLogAdd("sentence", !!isCorrect);
+      }
+    } catch {}
+  }
+
+  const setupBox = document.getElementById("setupBox");
+  const playBox = document.getElementById("playBox");
   const summaryBox = document.getElementById("summaryBox");
 
-  const startBtn   = document.getElementById("startBtn");
+  const startBtn = document.getElementById("startBtn");
   const startWeakBtn = document.getElementById("startWeakBtn");
   const clearWeakBtn = document.getElementById("clearWeakBtn");
 
-  const backBtn    = document.getElementById("backBtn");
+  const backBtn = document.getElementById("backBtn");
   const summaryBackBtn = document.getElementById("summaryBackBtn");
   const continueBtn = document.getElementById("continueBtn");
   const retryWeakBtn = document.getElementById("retryWeakBtn");
 
-  const blockSelect= document.getElementById("blockSelect");
+  const blockSelect = document.getElementById("blockSelect");
   const countInput = document.getElementById("countInput");
-  const orderModeEl= document.getElementById("orderMode");
+  const orderModeEl = document.getElementById("orderMode");
   const autoReadEl = document.getElementById("autoRead");
-  const poolInfo   = document.getElementById("poolInfo");
-  const weakInfo   = document.getElementById("weakInfo");
+  const poolInfo = document.getElementById("poolInfo");
+  const weakInfo = document.getElementById("weakInfo");
 
-  const statsEl    = document.getElementById("stats");
-  const readBtn    = document.getElementById("readBtn");
-  const hintBtn    = document.getElementById("hintBtn");
-  const nextBtn    = document.getElementById("nextQ");
+  const statsEl = document.getElementById("stats");
+  const readBtn = document.getElementById("readBtn");
+  const hintBtn = document.getElementById("hintBtn");
+  const nextBtn = document.getElementById("nextQ");
   const questionEl = document.getElementById("question");
-  const qMetaEl    = document.getElementById("qMeta");
-  const hintArea   = document.getElementById("hintArea");
-  const choicesEl  = document.getElementById("choices");
-  const resultEl   = document.getElementById("result");
-  const detailEl   = document.getElementById("detail");
+  const qMetaEl = document.getElementById("qMeta");
+  const hintArea = document.getElementById("hintArea");
+  const choicesEl = document.getElementById("choices");
+  const resultEl = document.getElementById("result");
+  const detailEl = document.getElementById("detail");
 
   const summaryLine = document.getElementById("summaryLine");
   const wrongEmpty = document.getElementById("wrongEmpty");
   const wrongTable = document.getElementById("wrongTable");
   const wrongTbody = document.getElementById("wrongTbody");
 
-  // ニガテ管理
   const refreshWeakViewBtn = document.getElementById("refreshWeakView");
   const weakAutoListEl = document.getElementById("weakAutoList");
   const weakPinListEl = document.getElementById("weakPinList");
   const weakAutoEmptyEl = document.getElementById("weakAutoEmpty");
   const weakPinEmptyEl = document.getElementById("weakPinEmpty");
 
-  function must(el, id){ if(!el) throw new Error(`sentence.html に #${id} が見つかりません`); }
-  [
-    [setupBox,"setupBox"],[playBox,"playBox"],[summaryBox,"summaryBox"],
-    [startBtn,"startBtn"],[startWeakBtn,"startWeakBtn"],[clearWeakBtn,"clearWeakBtn"],
-    [backBtn,"backBtn"],[summaryBackBtn,"summaryBackBtn"],[continueBtn,"continueBtn"],[retryWeakBtn,"retryWeakBtn"],
-    [blockSelect,"blockSelect"],[countInput,"countInput"],[orderModeEl,"orderMode"],[autoReadEl,"autoRead"],
-    [poolInfo,"poolInfo"],[weakInfo,"weakInfo"],
-    [statsEl,"stats"],[readBtn,"readBtn"],[hintBtn,"hintBtn"],[nextBtn,"nextQ"],
-    [questionEl,"question"],[qMetaEl,"qMeta"],[hintArea,"hintArea"],[choicesEl,"choices"],
-    [resultEl,"result"],[detailEl,"detail"],
-    [summaryLine,"summaryLine"],[wrongEmpty,"wrongEmpty"],[wrongTable,"wrongTable"],[wrongTbody,"wrongTbody"],
-    [refreshWeakViewBtn,"refreshWeakView"],[weakAutoListEl,"weakAutoList"],[weakPinListEl,"weakPinList"],
-    [weakAutoEmptyEl,"weakAutoEmpty"],[weakPinEmptyEl,"weakPinEmpty"],
-  ].forEach(([el,id]) => must(el,id));
+  const levelBadgeEl = document.getElementById("levelBadge");
 
-  // ===== DATA =====
+  const toggleGoimonBtn = document.getElementById("toggleGoimon");
+  const goimonCardEl = document.getElementById("goimonCard");
+  const evolutionNoticeBtn = document.getElementById("evolutionNoticeBtn");
+
+  function must(el, id) {
+    if (!el) throw new Error(`sentence.html に #${id} が見つかりません`);
+  }
+
+  [
+    [setupBox, "setupBox"],
+    [playBox, "playBox"],
+    [summaryBox, "summaryBox"],
+    [startBtn, "startBtn"],
+    [startWeakBtn, "startWeakBtn"],
+    [clearWeakBtn, "clearWeakBtn"],
+    [backBtn, "backBtn"],
+    [summaryBackBtn, "summaryBackBtn"],
+    [continueBtn, "continueBtn"],
+    [retryWeakBtn, "retryWeakBtn"],
+    [blockSelect, "blockSelect"],
+    [countInput, "countInput"],
+    [orderModeEl, "orderMode"],
+    [autoReadEl, "autoRead"],
+    [poolInfo, "poolInfo"],
+    [weakInfo, "weakInfo"],
+    [statsEl, "stats"],
+    [readBtn, "readBtn"],
+    [hintBtn, "hintBtn"],
+    [nextBtn, "nextQ"],
+    [questionEl, "question"],
+    [qMetaEl, "qMeta"],
+    [hintArea, "hintArea"],
+    [choicesEl, "choices"],
+    [resultEl, "result"],
+    [detailEl, "detail"],
+    [summaryLine, "summaryLine"],
+    [wrongEmpty, "wrongEmpty"],
+    [wrongTable, "wrongTable"],
+    [wrongTbody, "wrongTbody"],
+    [refreshWeakViewBtn, "refreshWeakView"],
+    [weakAutoListEl, "weakAutoList"],
+    [weakPinListEl, "weakPinList"],
+    [weakAutoEmptyEl, "weakAutoEmpty"],
+    [weakPinEmptyEl, "weakPinEmpty"],
+    [levelBadgeEl, "levelBadge"],
+    [toggleGoimonBtn, "toggleGoimon"],
+    [goimonCardEl, "goimonCard"],
+    [evolutionNoticeBtn, "evolutionNoticeBtn"]
+  ].forEach(([el, id]) => must(el, id));
+
   const fixedRaw = window.SENTENCE_FIXED || [];
   const lv = String(window.ACTIVE_LEVEL || localStorage.getItem("zensho_level_v1") || "1");
+  const GOIMON_UI_KEY = `zensho_sentence_goimon_ui_v1_lv${lv}`;
+  const GLOBAL_BLOCK_KEY = `zensho_block_global_lv${lv}_v1`;
 
-  // 意味参照の優先順：1kyu → 2kyu → extra
+  if (levelBadgeEl) {
+    levelBadgeEl.textContent = `現在：全商英検 ${lv}級（大問9演習）`;
+  }
+
   const WORDS_1 = window.WORDS_1KYU || [];
   const WORDS_2 = window.WORDS_2KYU || [];
-  const EXTRA  = window.EXTRA_WORDS || [];
-  const words  = window.WORDS || [];
+  const EXTRA = window.EXTRA_WORDS || [];
+  const words = window.WORDS || [];
   const blocks = window.BLOCKS || [];
 
   const norm = (s) => String(s || "").trim().toLowerCase();
 
-  // ===== LocalStorage keys =====
-  // 弱点： { [questionId]: { auto: true/false, pin: true/false } }
   const WEAK_KEY = `zensho_sentence_fixed_weak_v2_lv${lv}`;
-  const ORDER_CURSOR_KEY = `zensho_sentence_fixed_order_cursor_lv${lv}`; // { [blockValue]: cursorIndex }
-  const SETTINGS_KEY = `zensho_sentence_fixed_settings_v1_lv${lv}`; // { autoRead: true/false }
+  const ORDER_CURSOR_KEY = `zensho_sentence_fixed_order_cursor_lv${lv}`;
+  const SETTINGS_KEY = `zensho_sentence_fixed_settings_v1_lv${lv}`;
 
   function safeParse(key) {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
-    try { return JSON.parse(raw); } catch { return null; }
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
   }
 
-  function loadSettings(){
+  function loadSettings() {
     const s = safeParse(SETTINGS_KEY);
     return { autoRead: !!s?.autoRead };
   }
-  function saveSettings(obj){
+
+  function saveSettings(obj) {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify({ autoRead: !!obj.autoRead }));
   }
 
-  // ===== meaning maps (priority) =====
-  function buildMeaningMapFrom(list){
+  function addSentenceGoimonProgress() {
+    try {
+      if (!window.GoimonUI || typeof window.GoimonUI.addSentenceCorrect !== "function") return;
+      window.GoimonUI.addSentenceCorrect();
+
+      if (typeof window.renderSentenceGoimonMini === "function") {
+        window.renderSentenceGoimonMini();
+      }
+
+      renderEvolutionNotice();
+    } catch (e) {
+      console.warn("addSentenceGoimonProgress failed:", e);
+    }
+  }
+
+  function buildMeaningMapFrom(list) {
     const map = new Map();
     for (const w of (list || [])) {
       const en = norm(w?.en);
@@ -113,87 +183,170 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     return map;
   }
+
   const map1 = buildMeaningMapFrom(WORDS_1);
   const map2 = buildMeaningMapFrom(WORDS_2);
   const mapE = buildMeaningMapFrom(EXTRA);
 
-  function lookupMeaningBase(wordLower){
+  function lookupMeaningBase(wordLower) {
     if (!wordLower) return "";
     return map1.get(wordLower) || map2.get(wordLower) || mapE.get(wordLower) || "";
   }
 
-  // WORDS index（answer→語彙番号）: ブロック判定用（WORDS=現在レベル）
   const wordIndexMap = new Map();
   for (let i = 0; i < words.length; i++) {
     const en = norm(words[i]?.en);
     if (en && !wordIndexMap.has(en)) wordIndexMap.set(en, i);
   }
 
-  // 固定問題整形
+  function getBlockByWordIndex(idx) {
+    if (!Number.isFinite(idx)) return null;
+    const no = idx + 1;
+    return blocks.find(b => no >= Number(b.start) && no <= Number(b.end)) || null;
+  }
+
+  function loadGlobal() {
+    const raw = localStorage.getItem(GLOBAL_BLOCK_KEY);
+    if (!raw) return { byBlock: {} };
+    try {
+      const obj = JSON.parse(raw);
+      if (obj && typeof obj === "object" && obj.byBlock && typeof obj.byBlock === "object") {
+        return obj;
+      }
+    } catch {}
+    return { byBlock: {} };
+  }
+
+  function saveGlobal(g) {
+    localStorage.setItem(GLOBAL_BLOCK_KEY, JSON.stringify(g));
+  }
+
+  function addGlobalSentence(blockId, isCorrect) {
+    if (!blockId) return;
+
+    const g = loadGlobal();
+    if (!g.byBlock) g.byBlock = {};
+
+    const k = String(blockId);
+    if (!g.byBlock[k]) {
+      g.byBlock[k] = {
+        studyDone: 0,
+        quizAttempted: 0,
+        quizCorrect: 0,
+        quizAttemptedJaEn: 0,
+        quizCorrectJaEn: 0,
+        accentAttempted: 0,
+        accentCorrect: 0,
+        sentenceAttempted: 0,
+        sentenceCorrect: 0,
+        audioAttempted: 0,
+        audioCorrect: 0
+      };
+    }
+
+    if (!Number.isFinite(g.byBlock[k].sentenceAttempted)) g.byBlock[k].sentenceAttempted = 0;
+    if (!Number.isFinite(g.byBlock[k].sentenceCorrect)) g.byBlock[k].sentenceCorrect = 0;
+
+    g.byBlock[k].sentenceAttempted += 1;
+    if (isCorrect) g.byBlock[k].sentenceCorrect += 1;
+
+    saveGlobal(g);
+  }
+
   const fixed = fixedRaw
-    .map(q => ({
-      id: String(q.id || ""),
-      answer: norm(q.answer),
-      en: String(q.en || ""),
-      ja: String(q.ja || q.hint || ""),
-      note: String(q.note || ""),
-      choices: Array.isArray(q.choices) ? q.choices.map(x => String(x)) : [],
-    }))
+    .map(q => {
+      const answerNorm = norm(q.answer);
+      const wordIdx = wordIndexMap.get(answerNorm);
+      const block = getBlockByWordIndex(wordIdx);
+      return {
+        id: String(q.id || ""),
+        answer: answerNorm,
+        en: String(q.en || ""),
+        ja: String(q.ja || q.hint || ""),
+        note: String(q.note || ""),
+        choices: Array.isArray(q.choices) ? q.choices.map(x => String(x)) : [],
+        wordIndex: Number.isFinite(wordIdx) ? wordIdx : -1,
+        blockId: block ? Number(block.id) : 0
+      };
+    })
     .filter(q => q.id && q.en && q.ja && q.choices.length === 4);
 
   const fixedById = new Map();
   for (const q of fixed) fixedById.set(String(q.id), q);
 
-  // ===== UTIL =====
-  function shuffle(arr){
-    const a=[...arr];
-    for(let i=a.length-1;i>0;i--){
-      const j=Math.floor(Math.random()*(i+1));
-      [a[i],a[j]]=[a[j],a[i]];
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
     }
     return a;
   }
-  function showSetup(){
+
+  function showSetup() {
     setupBox.style.display = "block";
     playBox.style.display = "none";
     summaryBox.style.display = "none";
   }
-  function showPlay(){
+
+  function showPlay() {
     setupBox.style.display = "none";
     playBox.style.display = "block";
     summaryBox.style.display = "none";
   }
-  function showSummary(){
+
+  function showSummary() {
     setupBox.style.display = "none";
     playBox.style.display = "none";
     summaryBox.style.display = "block";
   }
-  function setHintVisible(on){
+
+  function setHintVisible(on) {
     hintArea.style.display = on ? "block" : "none";
   }
-  function stripAnswerInJaForHint(ja){
+
+  function stripAnswerInJaForHint(ja) {
     return String(ja || "")
       .replace(/「[^」]*」/g, "「」")
       .replace(/\s{2,}/g, " ")
       .trim();
   }
-  function escapeHtml(s){
+
+  function escapeHtml(s) {
     return String(s)
-      .replace(/&/g,"&amp;")
-      .replace(/</g,"&lt;")
-      .replace(/>/g,"&gt;");
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
   }
 
-  // ===== 音読（英文）=====
-  function sanitizeForSpeech(text){
+  function sanitizeForQuestionSpeech(text) {
     let t = String(text || "");
     t = t.replace(/\([^)]*\)/g, " ");
+    t = t.replace(/（[^）]*）/g, " ");
     t = t.replace(/\s{2,}/g, " ").trim();
     return t;
   }
-  function speakEnglish(text){
+
+  function buildAnswerFilledSpeechText(text, answer) {
+    const ans = String(answer || "").trim();
+    let t = String(text || "");
+
+    if (!ans) return sanitizeForQuestionSpeech(t);
+
+    const replaced = t
+      .replace(/\([^)]*\)/g, `(${ans})`)
+      .replace(/（[^）]*）/g, `(${ans})`);
+
+    if (replaced !== t) {
+      return replaced.replace(/\s{2,}/g, " ").trim();
+    }
+
+    return `${sanitizeForQuestionSpeech(t)} (${ans})`.replace(/\s{2,}/g, " ").trim();
+  }
+
+  function speakEnglish(text) {
     if (!("speechSynthesis" in window)) return;
-    const t = sanitizeForSpeech(text);
+    const t = String(text || "").trim();
     if (!t) return;
 
     window.speechSynthesis.cancel();
@@ -203,18 +356,20 @@ document.addEventListener("DOMContentLoaded", () => {
     window.speechSynthesis.speak(u);
   }
 
-  // ===== 効果音（ファイル不要）=====
   let _audioCtx = null;
+
   function getAudioCtx() {
     if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     return _audioCtx;
   }
+
   function ensureAudioReady() {
     try {
       const ctx = getAudioCtx();
       if (ctx.state === "suspended") ctx.resume();
     } catch {}
   }
+
   function playCorrectSound() {
     try {
       const ctx = getAudioCtx();
@@ -243,6 +398,7 @@ document.addEventListener("DOMContentLoaded", () => {
       osc2.stop(now + 0.27);
     } catch {}
   }
+
   function playWrongSound() {
     try {
       const ctx = getAudioCtx();
@@ -265,39 +421,36 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function lockChoices() {
-    document.querySelectorAll("#choices button").forEach(b => { b.disabled = true; });
+    document.querySelectorAll("#choices button").forEach(b => {
+      b.disabled = true;
+    });
   }
+
   function markCorrectButtonGreen(correctNorm) {
     document.querySelectorAll("#choices button").forEach(b => {
       if (norm(b.textContent) === correctNorm) b.classList.add("correct");
     });
   }
 
-  // ===== 活用形→基本形 推定 =====
   const IRREGULAR = new Map([
-    ["bound","bind"],["woven","weave"],["wove","weave"],
-    ["written","write"],["wrote","write"],
-    ["spoken","speak"],["spoke","speak"],
-    ["broken","break"],["broke","break"],
-    ["taken","take"],["took","take"],["dropped","drop"],
-    ["given","give"],["gave","give"],["stirred","stir"],
-    ["made","make"],
-    ["ran","run"],
-    ["gone","go"],["went","go"],
-    ["seen","see"],["saw","see"],
-    ["known","know"],["knew","know"],
-    ["felt","feel"],["left","leave"],["lost","lose"],["paid","pay"],
-    ["kept","keep"],["held","hold"],["built","build"],["bought","buy"],
-    ["caught","catch"],["taught","teach"],["thought","think"],
-    ["found","find"],["said","say"],["sent","send"],["spent","spend"],
-    ["stood","stand"],["told","tell"],["understood","understand"],
-    ["worn","wear"],["wore","wear"],
-    ["cut","cut"],["put","put"],["set","set"],["hit","hit"],["hurt","hurt"],
+    ["bound", "bind"], ["woven", "weave"], ["wove", "weave"], ["occurred", "occur"],
+    ["written", "write"], ["wrote", "write"], ["drove", "drive"], ["driven", "drive"],
+    ["spoken", "speak"], ["spoke", "speak"], ["broken", "break"], ["broke", "break"],
+    ["taken", "take"], ["took", "take"], ["dropped", "drop"], ["given", "give"], ["gave", "give"],
+    ["stirred", "stir"], ["made", "make"], ["ran", "run"], ["gone", "go"], ["went", "go"],
+    ["seen", "see"], ["saw", "see"], ["known", "know"], ["knew", "know"], ["felt", "feel"],
+    ["left", "leave"], ["lost", "lose"], ["paid", "pay"], ["kept", "keep"], ["held", "hold"],
+    ["built", "build"], ["bought", "buy"], ["caught", "catch"], ["taught", "teach"],
+    ["thought", "think"], ["found", "find"], ["said", "say"], ["sent", "send"], ["spent", "spend"],
+    ["stood", "stand"], ["told", "tell"], ["understood", "understand"], ["worn", "wear"],
+    ["wore", "wear"], ["cut", "cut"], ["put", "put"], ["set", "set"], ["hit", "hit"], ["hurt", "hurt"]
   ]);
 
-  function CAZ(x){ return String(x||"").trim().toLowerCase().replace(/[^a-z]/g,""); }
+  function CAZ(x) {
+    return String(x || "").trim().toLowerCase().replace(/[^a-z]/g, "");
+  }
 
-  function guessBaseForms(w){
+  function guessBaseForms(w) {
     const s = CAZ(w);
     const cand = [];
     if (!s) return cand;
@@ -308,20 +461,20 @@ document.addEventListener("DOMContentLoaded", () => {
     cand.push(s);
 
     if (s.endsWith("ied")) cand.push(s.slice(0, -3) + "y");
-    if (s.endsWith("ed"))  cand.push(s.slice(0, -2));
-    if (s.endsWith("ed"))  cand.push(s.slice(0, -1));
+    if (s.endsWith("ed")) cand.push(s.slice(0, -2));
+    if (s.endsWith("ed")) cand.push(s.slice(0, -1));
 
-    if (s.endsWith("ing"))  cand.push(s.slice(0, -3));
-    if (s.endsWith("ing"))  cand.push(s.slice(0, -3) + "e");
+    if (s.endsWith("ing")) cand.push(s.slice(0, -3));
+    if (s.endsWith("ing")) cand.push(s.slice(0, -3) + "e");
 
     if (s.endsWith("ies")) cand.push(s.slice(0, -3) + "y");
-    if (s.endsWith("es"))  cand.push(s.slice(0, -2));
-    if (s.endsWith("s"))   cand.push(s.slice(0, -1));
+    if (s.endsWith("es")) cand.push(s.slice(0, -2));
+    if (s.endsWith("s")) cand.push(s.slice(0, -1));
 
     return Array.from(new Set(cand)).filter(Boolean);
   }
 
-  function meaningForForm(word){
+  function meaningForForm(word) {
     const w = CAZ(word);
     if (!w) return "(未登録)";
 
@@ -336,8 +489,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return "(未登録)";
   }
 
-  // ===== 弱点ストア（auto/pin）=====
-  function loadWeakMap(){
+  function loadWeakMap() {
     const obj = safeParse(WEAK_KEY);
     if (!obj || typeof obj !== "object") return {};
     const out = {};
@@ -348,17 +500,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     return out;
   }
-  function saveWeakMap(map){
+
+  function saveWeakMap(map) {
     localStorage.setItem(WEAK_KEY, JSON.stringify(map));
   }
-  function addAutoWeak(id){
+
+  function addAutoWeak(id) {
     const map = loadWeakMap();
     const k = String(id);
     if (!map[k]) map[k] = { auto: true, pin: false };
     map[k].auto = true;
     saveWeakMap(map);
   }
-  function setPinned(id, on){
+
+  function setPinned(id, on) {
     const map = loadWeakMap();
     const k = String(id);
     if (on) {
@@ -367,13 +522,13 @@ document.addEventListener("DOMContentLoaded", () => {
       saveWeakMap(map);
       return;
     }
-    // OFF＝完全削除（自動も手動も消す）
     if (map[k]) {
       delete map[k];
       saveWeakMap(map);
     }
   }
-  function removeAutoIfNotPinned(id){
+
+  function removeAutoIfNotPinned(id) {
     const map = loadWeakMap();
     const k = String(id);
     if (!map[k]) return;
@@ -381,7 +536,8 @@ document.addEventListener("DOMContentLoaded", () => {
     delete map[k];
     saveWeakMap(map);
   }
-  function weakCounts(){
+
+  function weakCounts() {
     const map = loadWeakMap();
     let autoOnly = 0;
     let pinned = 0;
@@ -392,20 +548,19 @@ document.addEventListener("DOMContentLoaded", () => {
     return { autoOnly, pinned, total: autoOnly + pinned };
   }
 
-  // ===== order cursor store (per block) =====
-  function loadCursor(blockValue){
+  function loadCursor(blockValue) {
     const obj = safeParse(ORDER_CURSOR_KEY);
     const v = obj?.[String(blockValue)];
     return Number.isFinite(v) ? v : 0;
   }
-  function saveCursor(blockValue, cursor){
+
+  function saveCursor(blockValue, cursor) {
     const obj = safeParse(ORDER_CURSOR_KEY) || {};
     obj[String(blockValue)] = cursor;
     localStorage.setItem(ORDER_CURSOR_KEY, JSON.stringify(obj));
   }
 
-  // ===== block UI =====
-  function renderBlockSelect(){
+  function renderBlockSelect() {
     blockSelect.innerHTML = "";
     const optAll = document.createElement("option");
     optAll.value = "all";
@@ -418,10 +573,11 @@ document.addEventListener("DOMContentLoaded", () => {
       opt.textContent = `Block ${b.id}（${b.start}〜${b.end}）`;
       blockSelect.appendChild(opt);
     }
+
     blockSelect.value = "all";
   }
 
-  function getRangeByBlockValue(v){
+  function getRangeByBlockValue(v) {
     if (v === "all") return [0, Math.max(0, words.length - 1)];
     const b = blocks.find(x => String(x.id) === String(v));
     if (!b) return [0, Math.max(0, words.length - 1)];
@@ -430,32 +586,31 @@ document.addEventListener("DOMContentLoaded", () => {
     return [s, e];
   }
 
-  function buildEligibleQuestionsByRange(startIdx, endIdx){
+  function buildEligibleQuestionsByRange(startIdx, endIdx) {
     const list = [];
     for (let i = 0; i < fixed.length; i++) {
-      const a = fixed[i].answer;
-      const idx = wordIndexMap.get(a);
-      if (idx == null) continue;
+      const idx = fixed[i].wordIndex;
+      if (!Number.isFinite(idx) || idx < 0) continue;
       if (idx < startIdx || idx > endIdx) continue;
       list.push(i);
     }
     return list;
   }
 
-  function updatePoolInfo(){
-    const [s,e] = getRangeByBlockValue(blockSelect.value);
-    const eligible = buildEligibleQuestionsByRange(s,e);
+  function updatePoolInfo() {
+    const [s, e] = getRangeByBlockValue(blockSelect.value);
+    const eligible = buildEligibleQuestionsByRange(s, e);
     poolInfo.textContent = `この設定で出題可能：${eligible.length}問`;
   }
 
-  function updateWeakInfo(){
+  function updateWeakInfo() {
     const c = weakCounts();
     weakInfo.textContent = `ニガテ：合計 ${c.total}（自動 ${c.autoOnly} / 手動 ${c.pinned}）`;
     startWeakBtn.disabled = (c.total === 0);
     retryWeakBtn.disabled = (c.total === 0);
   }
 
-  function renderWeakManagement(){
+  function renderWeakManagement() {
     const map = loadWeakMap();
     const autoIds = [];
     const pinIds = [];
@@ -466,8 +621,8 @@ document.addEventListener("DOMContentLoaded", () => {
       else autoIds.push(id);
     }
 
-    autoIds.sort((a,b) => Number(a) - Number(b));
-    pinIds.sort((a,b) => Number(a) - Number(b));
+    autoIds.sort((a, b) => Number(a) - Number(b));
+    pinIds.sort((a, b) => Number(a) - Number(b));
 
     weakAutoListEl.innerHTML = "";
     weakPinListEl.innerHTML = "";
@@ -547,8 +702,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ===== 英→日クイズ弱点へ +1（sentence側からlocalStorageへ直接）=====
-  function pushWeakToEnJa(answerWordLower, weight){
+  function pushWeakToEnJa(answerWordLower, weight) {
     const w = String(answerWordLower || "").trim().toLowerCase();
     let add = Number(weight);
     if (!w) return;
@@ -570,9 +724,8 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(WEAK_KEY_ENJA, JSON.stringify(obj));
   }
 
-  // ===== QUIZ STATE =====
   let session = {
-    mode: "normal",     // normal / weak
+    mode: "normal",
     blockValue: "all",
     eligible: [],
     order: [],
@@ -580,15 +733,15 @@ document.addEventListener("DOMContentLoaded", () => {
     limit: 20,
     answered: 0,
     correct: 0,
-    orderMode: "continue", // start / continue / random / weak
-    autoRead: false,
+    orderMode: "continue",
+    autoRead: false
   };
 
   let current = null;
   let answeredThis = false;
   let askedLog = [];
 
-  function resetUIForNewQuestion(){
+  function resetUIForNewQuestion() {
     answeredThis = false;
     nextBtn.disabled = true;
     resultEl.textContent = "";
@@ -603,25 +756,41 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function currentCorrectChoiceNorm(){
+  function currentCorrectChoiceNorm() {
     const ans = current.answer;
     const inChoices = current.choices.map(norm).includes(ans);
     if (ans && inChoices) return ans;
     return norm(current.choices[0] || "");
   }
 
-  function renderStats(){
+  function currentCorrectChoiceShown() {
+    const correctNorm = currentCorrectChoiceNorm();
+    return (current._shownChoices || current.choices).find(x => norm(x) === correctNorm) || current.choices[0] || current.answer || "";
+  }
+
+  function speakCurrentQuestionVersion() {
+    if (!current) return;
+    speakEnglish(sanitizeForQuestionSpeech(current.en));
+  }
+
+  function speakCurrentAnsweredVersion() {
+    if (!current) return;
+    const correctShown = currentCorrectChoiceShown();
+    speakEnglish(buildAnswerFilledSpeechText(current.en, correctShown));
+  }
+
+  function renderStats() {
     statsEl.textContent = `今回：${session.answered}/${session.limit}（正解 ${session.correct}）`;
   }
 
-  function orderModeText(){
+  function orderModeText() {
     if (session.mode === "weak") return "ニガテ";
     if (session.orderMode === "start") return "先頭";
     if (session.orderMode === "continue") return "続き";
     return "ランダム";
   }
 
-  function renderQuestion(){
+  function renderQuestion() {
     if (session.mode === "weak") {
       const c = weakCounts();
       if (c.total === 0) {
@@ -654,6 +823,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (qId && map[String(qId)]) break;
         session.cursor++;
       }
+
       if (session.cursor >= session.order.length) {
         const map2 = loadWeakMap();
         const ids = Object.keys(map2);
@@ -664,6 +834,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         session.order = shuffle(eligible);
         session.cursor = 0;
+
         if (session.order.length === 0) {
           finishSession(true);
           return;
@@ -680,10 +851,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     current = fixed[qIndex];
 
+    const blockText = current.blockId ? `Block ${current.blockId}` : "Block ?";
     questionEl.textContent = current.en;
     qMetaEl.textContent =
       `問題 ${session.answered + 1} / ${session.limit}` +
       ` ・${orderModeText()}` +
+      ` ・${blockText}` +
       ` ・${session.mode === "weak" ? "自動は正解で解除／手動は残る" : ""}` +
       ` ・自動読み上げ:${session.autoRead ? "ON" : "OFF"}`;
 
@@ -702,15 +875,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     renderStats();
+    renderEvolutionNotice();
 
-    // ★自動読み上げ（問題表示時）
     if (session.autoRead) {
-      // iOS対策：ここで例外が出ても進行は止めない
-      try { speakEnglish(current.en); } catch {}
+      try {
+        speakCurrentQuestionVersion();
+      } catch {}
     }
   }
 
-  function showHint(){
+  function showHint() {
     if (!current) return;
     const h = stripAnswerInJaForHint(current.ja);
     hintArea.textContent = h ? `ヒント：${h}` : "ヒント：（なし）";
@@ -718,13 +892,13 @@ document.addEventListener("DOMContentLoaded", () => {
     hintBtn.disabled = true;
   }
 
-  function buildChoiceMeanings(choices){
+  function buildChoiceMeanings(choices) {
     const lines = [];
     for (const c of choices) lines.push(`・${c}：${meaningForForm(c)}`);
     return lines.join("\n");
   }
 
-  function handleChoice(choice, clickedBtn){
+  function handleChoice(choice, clickedBtn) {
     if (answeredThis) return;
     answeredThis = true;
 
@@ -732,14 +906,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const isCorrect = (norm(choice) === correctChoiceNorm);
 
     session.answered += 1;
+    addLearningLog(isCorrect);
+
+    const weakMapBefore = loadWeakMap();
+    const wasWeak = !!weakMapBefore[String(current.id)];
 
     if (isCorrect) {
       session.correct += 1;
       resultEl.innerHTML = `<span class="ok">⭕️ 正解！</span>`;
       clickedBtn.classList.add("correct");
       playCorrectSound();
+
+      addSentenceGoimonProgress();
     } else {
-      const show = (current._shownChoices || current.choices).find(x => norm(x) === correctChoiceNorm) || current.choices[0];
+      const show = currentCorrectChoiceShown();
       resultEl.innerHTML = `<span class="ng">❌ 不正解。</span> 正解は「${show}」`;
       clickedBtn.classList.add("wrong");
       playWrongSound();
@@ -752,7 +932,11 @@ document.addEventListener("DOMContentLoaded", () => {
       renderWeakManagement();
     }
 
-    if (session.mode === "weak" && isCorrect) {
+    if (current.blockId) {
+      addGlobalSentence(current.blockId, isCorrect);
+    }
+
+    if (session.mode === "weak" && isCorrect && wasWeak) {
       removeAutoIfNotPinned(current.id);
       updateWeakInfo();
       renderWeakManagement();
@@ -770,34 +954,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
     detailEl.innerHTML = `<pre class="pre">${escapeHtml(text)}</pre>`;
 
-    const correctShown = (current._shownChoices || current.choices).find(x => norm(x) === correctChoiceNorm) || current.choices[0];
+    const correctShown = currentCorrectChoiceShown();
     askedLog.push({
       qId: current.id,
       en: current.en,
       ja: current.ja,
       yourChoice: String(choice),
       correctChoice: String(correctShown),
-      isCorrect
+      isCorrect,
+      blockId: current.blockId
     });
 
     nextBtn.disabled = false;
     hintBtn.disabled = true;
     setHintVisible(false);
     renderStats();
+    renderEvolutionNotice();
+
+    if (session.autoRead) {
+      try {
+        setTimeout(() => {
+          speakCurrentAnsweredVersion();
+        }, 250);
+      } catch {}
+    }
   }
 
-  function blockSelectLabel(v){
+  function blockSelectLabel(v) {
     if (v === "all") return "全範囲";
     return `Block ${v}`;
   }
 
-  function isPinned(id){
+  function isPinned(id) {
     const map = loadWeakMap();
     const st = map[String(id)];
     return !!(st && st.pin);
   }
 
-  function renderSummary(autoCleared){
+  function renderSummary(autoCleared) {
     const wrongs = askedLog.filter(x => !x.isCorrect);
     const c = weakCounts();
     const tail = autoCleared ? "（ニガテが0になりました）" : "";
@@ -815,6 +1009,7 @@ document.addEventListener("DOMContentLoaded", () => {
       wrongTable.style.display = "none";
       return;
     }
+
     wrongEmpty.style.display = "none";
     wrongTable.style.display = "table";
 
@@ -869,7 +1064,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function finishSession(autoCleared){
+  function finishSession(autoCleared) {
     showSummary();
     renderSummary(autoCleared);
 
@@ -877,9 +1072,9 @@ document.addEventListener("DOMContentLoaded", () => {
     retryWeakBtn.disabled = (weakCounts().total === 0);
   }
 
-  function startNormalSession(){
-    const [s,e] = getRangeByBlockValue(blockSelect.value);
-    const eligible = buildEligibleQuestionsByRange(s,e);
+  function startNormalSession() {
+    const [s, e] = getRangeByBlockValue(blockSelect.value);
+    const eligible = buildEligibleQuestionsByRange(s, e);
 
     let limit = Number(countInput.value);
     if (!Number.isFinite(limit) || limit < 1) limit = 20;
@@ -907,7 +1102,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // 自動読み上げ設定反映
     session.autoRead = !!autoReadEl.checked;
 
     askedLog = [];
@@ -915,7 +1109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderQuestion();
   }
 
-  function startWeakSession(){
+  function startWeakSession() {
     const map = loadWeakMap();
     const ids = Object.keys(map);
 
@@ -946,7 +1140,6 @@ document.addEventListener("DOMContentLoaded", () => {
     session.orderMode = "weak";
     session.order = shuffle(eligible);
     session.cursor = 0;
-
     session.autoRead = !!autoReadEl.checked;
 
     askedLog = [];
@@ -954,7 +1147,79 @@ document.addEventListener("DOMContentLoaded", () => {
     renderQuestion();
   }
 
-  // ===== EVENTS =====
+  function loadGoimonUiState() {
+    return safeParse(GOIMON_UI_KEY) || { open: false };
+  }
+
+  let goimonUi = loadGoimonUiState();
+
+  function saveGoimonUiState() {
+    localStorage.setItem(GOIMON_UI_KEY, JSON.stringify(goimonUi));
+  }
+
+  function renderGoimonVisibility() {
+    if (goimonUi.open) {
+      goimonCardEl.classList.remove("hidden");
+      toggleGoimonBtn.textContent = "ゴイモンを閉じる";
+    } else {
+      goimonCardEl.classList.add("hidden");
+      toggleGoimonBtn.textContent = "ゴイモンの様子を見る";
+    }
+  }
+
+  function renderEvolutionNotice() {
+    try {
+      if (window.GoimonUI && typeof window.GoimonUI.renderEvolutionNoticeButton === "function") {
+        window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
+        return;
+      }
+
+      if (!window.GoimonUI || typeof window.GoimonUI.loadCurrent !== "function") return;
+      const g = window.GoimonUI.loadCurrent();
+      if (!g) return;
+      if (g.pendingEvolution) evolutionNoticeBtn.classList.remove("hidden");
+      else evolutionNoticeBtn.classList.add("hidden");
+    } catch {}
+  }
+
+  function openSharedEvolution() {
+    try {
+      if (window.GoimonUI && typeof window.GoimonUI.openEvolutionOverlay === "function") {
+        window.GoimonUI.openEvolutionOverlay({
+          onComplete: () => {
+            if (typeof window.renderSentenceGoimonMini === "function") {
+              window.renderSentenceGoimonMini();
+            }
+            renderEvolutionNotice();
+          }
+        });
+        return;
+      }
+
+      if (window.GoimonUI && typeof window.GoimonUI.playPendingEvolutionSequence === "function") {
+        window.GoimonUI.playPendingEvolutionSequence({
+          onComplete: () => {
+            if (typeof window.renderSentenceGoimonMini === "function") {
+              window.renderSentenceGoimonMini();
+            }
+            renderEvolutionNotice();
+          }
+        });
+        return;
+      }
+
+      if (window.GoimonUI && typeof window.GoimonUI.confirmEvolution === "function") {
+        window.GoimonUI.confirmEvolution();
+        if (typeof window.renderSentenceGoimonMini === "function") {
+          window.renderSentenceGoimonMini();
+        }
+        renderEvolutionNotice();
+      }
+    } catch (e) {
+      console.warn("openSharedEvolution failed:", e);
+    }
+  }
+
   blockSelect.addEventListener("change", updatePoolInfo);
   countInput.addEventListener("input", updatePoolInfo);
   orderModeEl.addEventListener("change", updatePoolInfo);
@@ -1009,7 +1274,8 @@ document.addEventListener("DOMContentLoaded", () => {
   readBtn.addEventListener("click", () => {
     if (!current) return;
     ensureAudioReady();
-    speakEnglish(current.en);
+    if (answeredThis) speakCurrentAnsweredVersion();
+    else speakCurrentQuestionVersion();
   });
 
   hintBtn.addEventListener("click", showHint);
@@ -1025,8 +1291,21 @@ document.addEventListener("DOMContentLoaded", () => {
     alert("ニガテ一覧を更新しました。");
   });
 
-  function init(){
-    // 初期：保存した設定をUIへ反映
+  toggleGoimonBtn.addEventListener("click", () => {
+    goimonUi.open = !goimonUi.open;
+    saveGoimonUiState();
+    renderGoimonVisibility();
+  });
+
+  evolutionNoticeBtn.addEventListener("click", () => {
+    openSharedEvolution();
+  });
+
+  function init() {
+    if (window.GoimonUI && typeof window.GoimonUI.ensureEvolutionUIReady === "function") {
+      window.GoimonUI.ensureEvolutionUIReady();
+    }
+
     const s = loadSettings();
     autoReadEl.checked = !!s.autoRead;
 
@@ -1034,7 +1313,14 @@ document.addEventListener("DOMContentLoaded", () => {
     updatePoolInfo();
     updateWeakInfo();
     renderWeakManagement();
+    renderGoimonVisibility();
+    renderEvolutionNotice();
     showSetup();
+
+    if (typeof window.renderSentenceGoimonMini === "function") {
+      window.renderSentenceGoimonMini();
+    }
   }
+
   init();
 });
