@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>アクセント演習（全商英検）</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
+      background:#f7f7f7;
+      margin:0;
+      color:#111;
+    }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px 12px 28px;
+    }
+
+    .card {
+      background:#fff;
+      border:1px solid #ddd;
+      border-radius:12px;
+      padding:14px;
+      margin: 12px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .muted {
+      color:#666;
+      font-size: 13px;
+    }
+
+    .row {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:space-between;
+    }
+
+    button {
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid #ddd;
+      background:#fff;
+      cursor:pointer;
+    }
+
+    button.primary {
+      background:#2b7cff;
+      border-color:#2b7cff;
+      color:#fff;
+      font-weight:700;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    select, input[type="number"] {
+      padding:10px 10px;
+      border-radius:10px;
+      border:1px solid #ddd;
+      font-size: 16px;
+    }
+
+    .topNavBox {
+      margin-bottom: 12px;
+    }
+
+    .topNavTitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .topNav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .topNav a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      color: #111;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .topNav a.active {
+      background: #eaf2ff;
+      border-color: #2b7cff;
+      color: #1251b5;
+      font-weight: 700;
+    }
+
+    #levelBadge {
+      font-size:14px;
+      color:#555;
+      margin: 6px 0 10px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .goimonToggleBox {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .goimonToggleBtn {
+      background: #f9fbff;
+      border: 1px solid #d6e5ff;
+      color: #234f97;
+      font-weight: 700;
+    }
+
+    .evoNoticeBtn {
+      background: linear-gradient(180deg, #fff6d6 0%, #ffe8a3 100%);
+      border: 1px solid #f1d48a;
+      color: #7a5200;
+      font-weight: 900;
+      position: relative;
+      animation: noticePulse 1.8s ease-in-out infinite;
+      box-shadow: 0 0 0 rgba(255, 214, 102, 0.0);
+    }
+
+    .evoNoticeBtn::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 14px;
+      border: 2px solid rgba(255, 214, 102, 0.35);
+      animation: noticeRing 1.8s ease-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes noticePulse {
+      0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(255,214,102,0); }
+      50% { transform: translateY(-1px) scale(1.02); box-shadow: 0 6px 18px rgba(255,214,102,0.35); }
+    }
+
+    @keyframes noticeRing {
+      0% { transform: scale(0.96); opacity: 0.75; }
+      100% { transform: scale(1.12); opacity: 0; }
+    }
+
+    .miniGoimonCard {
+      border: 1px solid #f0e3c7;
+      background: #fffaf2;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .miniGoimonHead {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .miniGoimonTitle {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .miniGoimonSub {
+      font-size: 12px;
+      color: #666;
+      margin: 4px 0 0;
+      line-height: 1.4;
+    }
+
+    .miniGoimonStage {
+      text-align: right;
+      flex: 0 0 auto;
+    }
+
+    .miniGoimonStageLabel {
+      font-size: 11px;
+      color: #8a6a2d;
+      margin-bottom: 2px;
+    }
+
+    .miniGoimonStageValue {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .miniGoimonBody {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .miniGoimonImageWrap {
+      width: 88px;
+      height: 88px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid #eddcb8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    .miniGoimonImageWrap img {
+      max-width: 76px;
+      max-height: 76px;
+      display: block;
+    }
+
+    .miniGoimonInfo {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .miniGoimonName {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0 0 4px;
+    }
+
+    .miniGoimonMeta {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    .miniGoimonDesc {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .goimonPointGuide {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    #word {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      margin: 6px 0 4px;
+    }
+
+    #syllables {
+      font-size: 18px;
+      line-height: 1.6;
+      margin: 6px 0 10px;
+    }
+
+    #qMeta, #stats {
+      font-size: 14px;
+    }
+
+    #result {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+
+    .ok {
+      color:#0a7a2f;
+      font-weight:800;
+    }
+
+    .ng {
+      color:#b00020;
+      font-weight:800;
+    }
+
+    .choicesGrid {
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top: 10px;
+    }
+
+    .choicesGrid button {
+      width:100%;
+      padding:14px 12px;
+      font-size:18px;
+      border-radius:12px;
+    }
+
+    .choicesGrid button.correct {
+      background:#0a7a2f;
+      border-color:#0a7a2f;
+      color:#fff;
+    }
+
+    .choicesGrid button.wrong {
+      background:#b00020;
+      border-color:#b00020;
+      color:#fff;
+    }
+
+    .hr {
+      height:1px;
+      background:#eee;
+      margin:12px 0;
+    }
+
+    .pre {
+      white-space: pre-wrap;
+    }
+
+    .errorBox {
+      background:#fff2f2;
+      border:1px solid #ffcccc;
+      color:#a40000;
+      padding:12px;
+      border-radius:12px;
+      margin: 12px 0;
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    @media (max-width: 480px) {
+      .wrap {
+        padding: 12px 10px 24px;
+      }
+
+      #word {
+        font-size: 24px;
+      }
+
+      #syllables {
+        font-size: 17px;
+      }
+
+      .choicesGrid button {
+        font-size: 17px;
+        padding: 14px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="card topNavBox">
+      <div class="topNavTitle">学習ページ移動</div>
+      <div class="topNav">
+        <a href="index.html">ホーム</a>
+        <a href="study.html">暗記</a>
+        <a href="quiz.html">英→日</a>
+        <a href="quiz_jaen.html">日→英</a>
+        <a href="accent.html" class="active">アクセント</a>
+        <a href="sentence.html">大問9</a>
+        <a href="list.html">一覧</a>
+        <a href="progress.html">進捗</a>
+      </div>
+    </div>
+
+    <div id="levelBadge"></div>
+    <div id="errorArea"></div>
+
+    <div class="goimonToggleBox">
+      <button id="toggleGoimon" type="button" class="goimonToggleBtn">ゴイモンの様子を見る</button>
+      <button id="evolutionNoticeBtn" type="button" class="evoNoticeBtn hidden">あれ、ゴイモンの様子が…！？</button>
+    </div>
+
+    <div id="goimonCard" class="miniGoimonCard hidden">
+      <div class="miniGoimonHead">
+        <div>
+          <div class="miniGoimonTitle">現在のゴイモン</div>
+          <div class="miniGoimonSub">このページでは、アクセント演習の正解でゴイモンの「おんかん」が育ちます。</div>
+        </div>
+        <div class="miniGoimonStage">
+          <div class="miniGoimonStageLabel">現在の段階</div>
+          <div class="miniGoimonStageValue" id="accentGoimonStage">たまご期</div>
+        </div>
+      </div>
+
+      <div class="miniGoimonBody">
+        <div class="miniGoimonImageWrap">
+          <img id="accentGoimonImage" src="images/goimon/goimon_egg.png" alt="ゴイモン" />
+        </div>
+        <div class="miniGoimonInfo">
+          <div class="miniGoimonName" id="accentGoimonName">なごみ系のたまご</div>
+          <div class="miniGoimonMeta" id="accentGoimonMeta">Lv 1 / 0 pt</div>
+          <div class="miniGoimonDesc" id="accentGoimonDesc">まずは学習してゴイモンを育てよう。</div>
+        </div>
+      </div>
+
+      <div class="goimonPointGuide">
+        正解：おんかん +1 ／ 間違えてもゴイモンは減りません
+      </div>
+    </div>
+
+    <div class="card" id="setupBox">
+      <div class="row" style="justify-content:flex-start;">
+        <div>
+          <div style="font-size:18px; font-weight:800;">アクセント演習（大問1風）</div>
+          <div class="muted" style="margin-top:4px;">
+            音節区切りを見て、第一強勢の位置を選びます。
+          </div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="row" style="justify-content:flex-start;">
+        <div>
+          <div class="muted">Block</div>
+          <select id="blockSelect"></select>
+        </div>
+
+        <div style="padding-top:22px;">
+          <button id="applyBlock" type="button">このBlockを範囲に反映</button>
+        </div>
+
+        <div id="blockStats" class="muted" style="padding-top:26px;"></div>
+      </div>
+
+      <div class="row" style="justify-content:flex-start; margin-top:10px;">
+        <div>
+          <div class="muted">出題範囲（番号）</div>
+          <div>
+            <input id="rangeStart" type="number" min="1" value="1" style="width:110px;"> 〜
+            <input id="rangeEnd" type="number" min="1" value="500" style="width:110px;">
+          </div>
+        </div>
+
+        <div>
+          <div class="muted">出題数</div>
+          <input id="limitCount" type="number" min="1" value="10" style="width:110px;">
+        </div>
+
+        <div>
+          <div class="muted">出題順</div>
+          <select id="modeSelect">
+            <option value="head">先頭から</option>
+            <option value="continue">続きから</option>
+            <option value="random">ランダム</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row" style="justify-content:flex-start; margin-top:10px;">
+        <label style="font-size:14px;">
+          <input id="autoSpeakAfter" type="checkbox">
+          解答後に自動発音（英語）
+        </label>
+
+        <button id="resetCursor" type="button">🔄 続きからをリセット</button>
+      </div>
+
+      <div class="row" style="justify-content:flex-start; margin-top:12px;">
+        <button id="startBtn" class="primary" type="button">開始</button>
+      </div>
+
+      <div id="setupInfo" class="muted" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="card" id="playBox" style="display:none;">
+      <div class="row">
+        <div>
+          <div id="stats" class="muted"></div>
+          <div id="qMeta" class="muted" style="margin-top:4px;"></div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button id="speakBtn" type="button">🔊 発音</button>
+          <button id="nextBtn" class="primary" type="button" disabled>次へ</button>
+          <button id="backBtn" type="button">設定へ</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div id="word">…</div>
+      <div id="syllables" class="muted"></div>
+
+      <div id="choices" class="choicesGrid"></div>
+
+      <div id="result"></div>
+      <div id="detail" class="muted" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="card" id="summaryBox" style="display:none;">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:800;">今回の結果</div>
+          <div id="summaryLine" class="muted" style="margin-top:4px;"></div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button id="retryBtn" class="primary" type="button">同じ条件でもう一回</button>
+          <button id="summaryBackBtn" type="button">設定へ</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="muted" style="margin-bottom:8px;">間違えた問題だけ表示します。</div>
+      <div id="wrongEmpty" class="muted" style="display:none;">間違いなし！</div>
+      <div id="wrongList" class="muted"></div>
+    </div>
+
+  </div>
+
+  <script src="words_1kyu.js"></script>
+  <script src="blocks_1kyu.js"></script>
+
+  <script>
+    window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
+    if (window.ACTIVE_LEVEL === "1") {
+      window.WORDS = window.WORDS_1KYU || [];
+      window.BLOCKS = window.BLOCKS_1KYU || [];
+    }
+  </script>
+
+  <script src="words_2kyu.js"></script>
+  <script src="blocks_2kyu.js"></script>
+  <script>
+    if (window.ACTIVE_LEVEL === "2") {
+      window.WORDS = window.WORDS_2KYU || [];
+      window.BLOCKS = window.BLOCKS_2KYU || [];
+    }
+  </script>
+
+  <script src="accent_1kyu.js"></script>
+  <script src="accent_2kyu.js"></script>
+
+  <script src="learning_log.js"></script>
+  <script src="goimon.js"></script>
+
+  <script>
+    (function () {
+      if (!window.GoimonUI || !window.GoimonUI.loadCurrent) return;
+
+      function renderAccentGoimonMini() {
+        const g = window.GoimonUI.loadCurrent();
+        if (!g) return;
+
+        const stageMap = {
+          egg: "たまご期",
+          child: "幼体",
+          growth: "成長体",
+          mid: "中級体",
+          final: "上級体"
+        };
+        const typeMap = {
+          nagomi: "なごみ系",
+          hirameki: "ひらめき系",
+          tsumugi: "つむぎ系",
+          yomitoki: "よみとき系",
+          shirabe: "しらべ系",
+          hibiki: "ひびき系",
+          kotonoha: "ことのは系",
+          mr_uno: "MR.UNO"
+        };
+        const descMap = {
+          nagomi: "バランスよく育つ、やさしい守護神獣タイプ。",
+          hirameki: "知性とひらめきが伸びる、啓示神獣タイプ。",
+          tsumugi: "ことばと感情があふれる、表現神獣タイプ。",
+          yomitoki: "読む・見抜く力が育つ、解読神獣タイプ。",
+          shirabe: "音・響き・共鳴をまとう、音楽神獣タイプ。",
+          hibiki: "知性と音感が響き合う、共鳴神獣タイプ。",
+          kotonoha: "ことばと文脈を束ねる、言霊神獣タイプ。",
+          mr_uno: "特別に解放された、学びを導く隠しルート。"
+        };
+
+        const stageLabel = stageMap[g.stage] || "たまご期";
+        const typeLabel = (g.stage === "egg")
+          ? (g.specialRoute === "mr_uno" ? "MR.UNOルート" : "なごみ系")
+          : (typeMap[g.type] || "なごみ系");
+
+        const displayName = (window.GoimonUI && typeof window.GoimonUI.getGoimonPrimaryName === "function")
+          ? window.GoimonUI.getGoimonPrimaryName(g)
+          : ((g.stage === "egg") ? "なごみ系のたまご" : `${typeLabel} / ${stageLabel}`);
+
+        const desc = g.stage === "egg" && g.specialRoute === "mr_uno"
+          ? "隠し分岐を選択中です。次の進化から MR.UNO として育ちます。"
+          : (descMap[g.type] || "学習に応じて成長し、進化していきます。");
+
+        const setText = (id, value) => {
+          const target = document.getElementById(id);
+          if (target) target.textContent = value;
+        };
+
+        const pt = Number(g.totalPoints || 0);
+        const ptText = Number.isInteger(pt) ? String(pt) : pt.toFixed(1);
+
+        setText("accentGoimonStage", stageLabel);
+        setText("accentGoimonName", displayName);
+        setText("accentGoimonMeta", `Lv ${g.level} / ${ptText} pt`);
+        setText("accentGoimonDesc", desc);
+
+        const img = document.getElementById("accentGoimonImage");
+        if (img) {
+          img.src = g.imageKey;
+          img.alt = displayName;
+        }
+
+        if (window.GoimonUI && typeof window.GoimonUI.renderEvolutionNoticeButton === "function") {
+          window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
+        }
+      }
+
+      renderAccentGoimonMini();
+      window.renderAccentGoimonMini = renderAccentGoimonMini;
+    })();
+  </script>
+
+  <script src="accent.js"></script>
+</body>
+</html>
