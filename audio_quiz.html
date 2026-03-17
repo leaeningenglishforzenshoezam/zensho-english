@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>音声→意味クイズ</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
+      margin: 0;
+      background: #f7f7f7;
+      color: #111;
+    }
+    .wrap {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 20px 14px 30px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    h1 {
+      font-size: 20px;
+      margin: 0 0 8px;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 0 0 10px;
+    }
+    .sub {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.6;
+      margin: 0 0 12px;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: 10px 0;
+    }
+    .label {
+      font-size: 13px;
+      color: #444;
+      min-width: 80px;
+    }
+    select, input[type="number"] {
+      flex: 1 1 180px;
+      min-width: 0;
+      padding: 10px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 10px;
+      font-size: 15px;
+      background: #fff;
+      box-sizing: border-box;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 12px 14px;
+      border: 0;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    .btn.primary { background: #2b7cff; color: #fff; }
+    .btn.gray { background: #efefef; color: #111; }
+    .btn.goimon {
+      background: #fff8ef;
+      color: #9a5a00;
+      border: 1px solid #f1d39d;
+      font-weight: 800;
+    }
+    .btn.soft {
+      background: #f5f8ff;
+      color: #234b92;
+      border: 1px solid #cddcff;
+      font-weight: 700;
+    }
+    .smallBtn {
+      appearance: none;
+      border: 1px solid #ddd;
+      background: #fff;
+      color: #111;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .muted {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+    .hidden { display: none !important; }
+
+    .topNavBox {
+      margin-bottom: 12px;
+    }
+    .topNavTitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .topNav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .topNav a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      color: #111;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    .topNav a.active {
+      background: #eaf2ff;
+      border-color: #2b7cff;
+      color: #1251b5;
+      font-weight: 700;
+    }
+
+    .goimonMiniCard {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 10px;
+      padding: 12px;
+      border: 1px solid #eee6d7;
+      border-radius: 12px;
+      background: #fff;
+    }
+    .goimonMiniImageWrap {
+      width: 78px;
+      height: 78px;
+      border-radius: 12px;
+      background: #fffaf1;
+      border: 1px solid #f1e2c6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+    .goimonMiniImageWrap img {
+      max-width: 68px;
+      max-height: 68px;
+      display: block;
+    }
+    .goimonMiniName {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+    .goimonMiniMeta {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 4px;
+    }
+    .goimonMiniSub {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .noticeBtn {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 1px solid #f0cf7f;
+      background: linear-gradient(180deg, #fffaf0 0%, #fff5db 100%);
+      color: #7d4d00;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .statusBar {
+      font-size: 14px;
+      color: #444;
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+    .qBox {
+      border: 1px solid #e7edf8;
+      background: #fafcff;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .listenLead {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .listenSub {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+    .bigPlayBtn {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid #cfe0ff;
+      background: #eef5ff;
+      color: #214489;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .choices {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .choices button {
+      width: 100%;
+      text-align: left;
+      padding: 14px 14px;
+      border-radius: 12px;
+      border: 1px solid #dcdcdc;
+      background: #fff;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .choices button.correct {
+      background: #eaf8ea;
+      border-color: #8dc78d;
+    }
+    .choices button.wrong {
+      background: #fff0f0;
+      border-color: #de8e8e;
+    }
+    .result {
+      margin-top: 14px;
+      font-size: 18px;
+      font-weight: 800;
+      min-height: 32px;
+    }
+    .ok { color: #157915; }
+    .ng { color: #c53333; }
+
+    #detail {
+      min-height: 122px;
+      margin-top: 4px;
+    }
+
+    .detailCard {
+      margin-top: 12px;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      background: #fafafa;
+      padding: 14px;
+      line-height: 1.7;
+    }
+    .detailTitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 6px;
+    }
+    .detailMain {
+      font-size: 24px;
+      font-weight: 900;
+      word-break: break-word;
+      margin-bottom: 8px;
+    }
+    .detailSub {
+      font-size: 16px;
+      color: #333;
+    }
+
+    .summaryLine {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+    .wrongList {
+      margin-top: 10px;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      background: #fff;
+      padding: 12px;
+    }
+    .wrongRow {
+      padding: 10px 0;
+      border-top: 1px solid #eee;
+      line-height: 1.6;
+    }
+    .wrongRow:first-child { border-top: none; }
+
+    .errorBox {
+      background: #fff0f0;
+      border: 1px solid #efb2b2;
+      color: #8f1e1e;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 480px) {
+      #detail {
+        min-height: 116px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card topNavBox">
+      <div class="topNavTitle">学習ページ移動</div>
+      <div class="topNav">
+        <a href="index.html">ホーム</a>
+        <a href="study.html">暗記</a>
+        <a href="quiz.html">英→日</a>
+        <a href="quiz_jaen.html">日→英</a>
+        <a href="accent.html">アクセント</a>
+        <a href="sentence.html">大問9</a>
+        <a href="audio_quiz.html" class="active">音声→意味</a>
+        <a href="list.html">一覧</a>
+        <a href="progress.html">進捗</a>
+      </div>
+    </div>
+
+    <div id="errorArea"></div>
+
+    <div class="card">
+      <h1>音声→意味クイズ</h1>
+      <p class="sub">
+        英単語を音で聞いて、日本語の意味を4択で選びます。<br>
+        正解すると、ゴイモンの <strong>おんかん +0.5 / ちえ +0.5</strong> が伸びます。
+      </p>
+      <div id="levelBadge" class="muted"></div>
+    </div>
+
+    <div class="card">
+      <button class="btn goimon" id="toggleGoimon">ゴイモンの様子を見る</button>
+
+      <div id="goimonCard" class="hidden">
+        <div class="goimonMiniCard">
+          <div class="goimonMiniImageWrap">
+            <img id="audioGoimonImage" src="images/goimon/goimon_egg.png" alt="ゴイモン" />
+          </div>
+          <div>
+            <div class="goimonMiniName" id="audioGoimonName">なごみ系のたまご</div>
+            <div class="goimonMiniMeta" id="audioGoimonMeta">Lv 1 / 0 pt</div>
+            <div class="goimonMiniSub" id="audioGoimonSub">学習に応じて成長し、進化していきます。</div>
+          </div>
+        </div>
+      </div>
+
+      <button id="evolutionNoticeBtn" class="noticeBtn hidden">✨ ゴイモンが進化できるようです</button>
+    </div>
+
+    <div class="card" id="setupBox">
+      <h2>出題設定</h2>
+
+      <div class="row">
+        <div class="label">範囲</div>
+        <select id="blockSelect"></select>
+        <button class="smallBtn" id="applyBlock">Block反映</button>
+      </div>
+
+      <div class="row">
+        <div class="label">開始</div>
+        <input id="rangeStart" type="number" min="1" value="1" />
+      </div>
+
+      <div class="row">
+        <div class="label">終了</div>
+        <input id="rangeEnd" type="number" min="1" value="100" />
+      </div>
+
+      <div class="row">
+        <div class="label">問題数</div>
+        <input id="limitCount" type="number" min="1" value="10" />
+      </div>
+
+      <div class="row">
+        <div class="label">出題順</div>
+        <select id="modeSelect">
+          <option value="head">先頭から</option>
+          <option value="continue">続きから</option>
+          <option value="random">ランダム</option>
+          <option value="weak">苦手</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <label style="display:flex; align-items:center; gap:8px; font-size:14px;">
+          <input id="autoPlay" type="checkbox" />
+          問題表示時に自動再生する
+        </label>
+      </div>
+
+      <div class="row">
+        <button class="smallBtn" id="resetCursor">続き位置をリセット</button>
+      </div>
+
+      <div id="blockStats" class="muted" style="margin-top:8px;"></div>
+      <div id="setupInfo" class="muted" style="margin-top:8px;"></div>
+
+      <button class="btn primary" id="startBtn">開始する</button>
+    </div>
+
+    <div class="card hidden" id="playBox">
+      <div id="stats" class="statusBar"></div>
+      <div id="qMeta" class="muted" style="margin-bottom:8px;"></div>
+
+      <div class="qBox">
+        <div class="listenLead">音声を聞いて意味を選ぼう</div>
+        <div class="listenSub">英単語はまだ表示されません。音を手がかりに、日本語の意味を選んでください。</div>
+        <button class="bigPlayBtn" id="speakBtn">▶ 音声を聞く</button>
+      </div>
+
+      <div id="choices" class="choices"></div>
+
+      <div id="result" class="result"></div>
+      <div id="detail"></div>
+
+      <button class="btn soft" id="nextBtn" disabled>次の問題へ</button>
+      <button class="btn gray" id="backBtn">設定に戻る</button>
+    </div>
+
+    <div class="card hidden" id="summaryBox">
+      <div id="summaryLine" class="summaryLine"></div>
+      <div id="wrongEmpty" class="muted">今回の誤答はありません。</div>
+      <div id="wrongList" class="wrongList"></div>
+
+      <button class="btn primary" id="retryBtn">同じ設定でもう一度</button>
+      <button class="btn gray" id="summaryBackBtn">設定に戻る</button>
+    </div>
+  </div>
+
+  <script src="words_1kyu.js"></script>
+  <script src="blocks_1kyu.js"></script>
+  <script>
+    window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
+    if (window.ACTIVE_LEVEL === "1") {
+      window.WORDS = window.WORDS_1KYU || [];
+      window.BLOCKS = window.BLOCKS_1KYU || [];
+    }
+  </script>
+
+  <script src="words_2kyu.js"></script>
+  <script src="blocks_2kyu.js"></script>
+  <script>
+    if (window.ACTIVE_LEVEL === "2") {
+      window.WORDS = window.WORDS_2KYU || [];
+      window.BLOCKS = window.BLOCKS_2KYU || [];
+    }
+  </script>
+
+  <script src="goimon.js"></script>
+
+  <script>
+    (function () {
+      function roundGoimonPoint(value) {
+        return Math.round((Number(value || 0) + Number.EPSILON) * 10) / 10;
+      }
+
+      function formatGoimonPoint(value) {
+        const n = roundGoimonPoint(value);
+        return Number.isInteger(n) ? String(n) : n.toFixed(1);
+      }
+
+      function renderAudioGoimonMini() {
+        if (!window.GoimonUI || !window.GoimonUI.loadCurrent) return;
+        const g = window.GoimonUI.loadCurrent();
+        if (!g) return;
+
+        const displayName = (window.GoimonUI && typeof window.GoimonUI.getGoimonPrimaryName === "function")
+          ? window.GoimonUI.getGoimonPrimaryName(g)
+          : "ゴイモン";
+
+        const desc = (window.GoimonUI && typeof window.GoimonUI.getDisplayDescription === "function")
+          ? window.GoimonUI.getDisplayDescription(g)
+          : "学習に応じて成長し、進化していきます。";
+
+        const ptText = (window.GoimonUI && typeof window.GoimonUI.formatPoint === "function")
+          ? window.GoimonUI.formatPoint(g.totalPoints || 0)
+          : formatGoimonPoint(g.totalPoints || 0);
+
+        const nameEl = document.getElementById("audioGoimonName");
+        const metaEl = document.getElementById("audioGoimonMeta");
+        const subEl = document.getElementById("audioGoimonSub");
+        const imgEl = document.getElementById("audioGoimonImage");
+
+        if (nameEl) nameEl.textContent = displayName;
+        if (metaEl) metaEl.textContent = `Lv ${g.level} / ${ptText} pt`;
+        if (subEl) subEl.textContent = desc;
+        if (imgEl) {
+          imgEl.src = g.imageKey || "images/goimon/goimon_egg.png";
+          imgEl.alt = displayName;
+        }
+
+        if (window.GoimonUI && typeof window.GoimonUI.renderEvolutionNoticeButton === "function") {
+          window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
+        }
+      }
+
+      window.renderAudioGoimonMini = renderAudioGoimonMini;
+      renderAudioGoimonMini();
+    })();
+  </script>
+
+  <script src="audio_quiz.js"></script>
+</body>
+</html>
