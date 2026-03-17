@@ -1971,3 +1971,27 @@ a {
     line-height: 1.65;
   }
 }
+@media (max-width: 768px) {
+  .goimonDexBody {
+    display: block !important;
+  }
+
+  .goimonDexEntry {
+    display: none !important;
+  }
+
+  .goimonDexTree {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .goimonDexStageRow {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .goimonDexStageRow {
+    grid-template-columns: 1fr !important;
+  }
+}
