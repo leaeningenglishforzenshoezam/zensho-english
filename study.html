@@ -5,33 +5,641 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>暗記（英→日）</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif; }
-    .container { max-width: 560px; margin: 20px auto; padding: 0 12px; }
-    button { padding: 10px 12px; }
-    #word { font-size: 28px; font-weight: 700; margin: 10px 0; }
-    #meaning { font-size: 20px; margin: 10px 0; }
-    .hidden { display: none; }
-    .box { border: 1px solid #ddd; border-radius: 12px; padding: 12px; margin: 12px 0; }
-    .muted { color: #666; font-size: 14px; }
-    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .row-tight { display:flex; gap:10px; align-items:center; }
-    .row-tight button { flex: 1; }
-    select, input { padding: 8px; }
-    a { margin-right: 10px; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
+      margin: 0;
+      background: #f7f7f7;
+      color: #111;
+    }
+
+    .container {
+      max-width: 560px;
+      margin: 20px auto;
+      padding: 0 12px 24px;
+    }
+
+    button {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .box {
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 12px;
+      margin: 12px 0;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .muted {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .row-tight {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .row-tight button {
+      flex: 1;
+    }
+
+    select, input {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    #word {
+      font-size: 28px;
+      font-weight: 800;
+      margin: 12px 0 8px;
+      line-height: 1.3;
+    }
+
+    #meaning {
+      font-size: 22px;
+      margin: 10px 0;
+      line-height: 1.5;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .topNavBox {
+      margin-bottom: 12px;
+    }
+
+    .topNavTitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .topNav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .topNav a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      color: #111;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .topNav a.active {
+      background: #eaf2ff;
+      border-color: #2b7cff;
+      color: #1251b5;
+      font-weight: 700;
+    }
+
+    #levelBadge {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    .goimonToggleBox {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .goimonToggleBtn {
+      background: #f9fbff;
+      border: 1px solid #d6e5ff;
+      color: #234f97;
+      font-weight: 700;
+    }
+
+    .evoNoticeBtn {
+      background: linear-gradient(180deg, #fff6d6 0%, #ffe8a3 100%);
+      border: 1px solid #f1d48a;
+      color: #7a5200;
+      font-weight: 900;
+      position: relative;
+      animation: noticePulse 1.8s ease-in-out infinite;
+      box-shadow: 0 0 0 rgba(255, 214, 102, 0.0);
+    }
+
+    .evoNoticeBtn::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 14px;
+      border: 2px solid rgba(255, 214, 102, 0.35);
+      animation: noticeRing 1.8s ease-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes noticePulse {
+      0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(255,214,102,0); }
+      50% { transform: translateY(-1px) scale(1.02); box-shadow: 0 6px 18px rgba(255,214,102,0.35); }
+    }
+
+    @keyframes noticeRing {
+      0% { transform: scale(0.96); opacity: 0.75; }
+      100% { transform: scale(1.12); opacity: 0; }
+    }
+
+    .goimonMiniCard {
+      border: 1px solid #dbe8ff;
+      background: #f7faff;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .goimonMiniHead {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .goimonMiniImageWrap {
+      width: 96px;
+      height: 96px;
+      flex: 0 0 96px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid #dbe8ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .goimonMiniImage {
+      width: 86px;
+      height: 86px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .goimonMiniInfo {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .goimonMiniTitle {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0 0 4px;
+    }
+
+    .goimonMiniName {
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin: 0 0 6px;
+    }
+
+    .goimonMiniMeta {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .goimonMiniValueBox {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .goimonMiniValueLabel {
+      font-size: 12px;
+      color: #4c6ea8;
+      margin-bottom: 2px;
+    }
+
+    .goimonMiniValue {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1;
+      color: #111;
+    }
+
+    .goimonMiniUnit {
+      font-size: 12px;
+      font-weight: 700;
+      color: #555;
+      margin-left: 2px;
+    }
+
+    .goimonMiniGuide {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .mainButton {
+      background: #2b7cff;
+      border-color: #2b7cff;
+      color: #fff;
+      font-weight: 700;
+      font-size: 18px;
+      padding: 14px 12px;
+    }
+
+    .modalBackdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 12, 22, 0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 999;
+      overflow: hidden;
+    }
+
+    .modalBackdrop.show {
+      display: flex;
+    }
+
+    .modalBackdrop::before,
+    .modalBackdrop::after {
+      content: "";
+      position: absolute;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      filter: blur(28px);
+      opacity: 0.24;
+      pointer-events: none;
+      transition: background 0.3s ease;
+    }
+
+    .modalBackdrop::before {
+      top: -120px;
+      left: -80px;
+    }
+
+    .modalBackdrop::after {
+      right: -120px;
+      bottom: -100px;
+    }
+
+    .modalBackdrop.theme-nagomi::before,
+    .modalBackdrop.theme-nagomi::after {
+      background: radial-gradient(circle, #ffe7a8 0%, #ffd369 45%, transparent 70%);
+    }
+
+    .modalBackdrop.theme-hirameki::before,
+    .modalBackdrop.theme-hirameki::after {
+      background: radial-gradient(circle, #cce3ff 0%, #7fb3ff 45%, transparent 70%);
+    }
+
+    .modalBackdrop.theme-yomitoki::before,
+    .modalBackdrop.theme-yomitoki::after {
+      background: radial-gradient(circle, #d6d3ff 0%, #9a8cff 45%, transparent 70%);
+    }
+
+    .modalBackdrop.theme-shirabe::before,
+    .modalBackdrop.theme-shirabe::after {
+      background: radial-gradient(circle, #ccfff0 0%, #76e3c2 45%, transparent 70%);
+    }
+
+    .modalBackdrop.theme-tsumugi::before,
+    .modalBackdrop.theme-tsumugi::after {
+      background: radial-gradient(circle, #ffd6ef 0%, #ff8fd1 45%, transparent 70%);
+    }
+
+    .modalCard {
+      position: relative;
+      width: 100%;
+      max-width: 460px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,255,0.98) 100%);
+      border-radius: 22px;
+      padding: 20px 18px 18px;
+      box-shadow: 0 18px 56px rgba(0,0,0,0.28);
+      text-align: center;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .evoSparkField {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .evoSpark {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.95);
+      box-shadow: 0 0 10px rgba(255,255,255,0.9);
+      animation: sparkFloat linear infinite;
+      opacity: 0.9;
+    }
+
+    .evoSpark.s1 { left: 12%; bottom: -10px; animation-duration: 4.2s; animation-delay: 0s; }
+    .evoSpark.s2 { left: 28%; bottom: -14px; animation-duration: 5.0s; animation-delay: 0.6s; }
+    .evoSpark.s3 { left: 44%; bottom: -12px; animation-duration: 4.5s; animation-delay: 1.2s; }
+    .evoSpark.s4 { left: 60%; bottom: -16px; animation-duration: 5.4s; animation-delay: 0.9s; }
+    .evoSpark.s5 { left: 74%; bottom: -9px;  animation-duration: 4.8s; animation-delay: 1.8s; }
+    .evoSpark.s6 { left: 86%; bottom: -11px; animation-duration: 5.2s; animation-delay: 0.2s; }
+
+    @keyframes sparkFloat {
+      0% { transform: translateY(0) scale(0.5); opacity: 0; }
+      12% { opacity: 1; }
+      100% { transform: translateY(-340px) scale(1.2); opacity: 0; }
+    }
+
+    .evoLead {
+      font-size: 24px;
+      font-weight: 900;
+      margin: 4px 0 10px;
+      line-height: 1.35;
+      position: relative;
+      z-index: 2;
+    }
+
+    .evoSub {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 12px;
+      line-height: 1.6;
+      position: relative;
+      z-index: 2;
+    }
+
+    .evoStageWrap {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .evoHalo {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,242,179,0.85) 35%, rgba(255,220,120,0.28) 60%, rgba(255,220,120,0) 75%);
+      animation: haloPulse 2.2s ease-in-out infinite;
+      filter: blur(1px);
+    }
+
+    @keyframes haloPulse {
+      0%, 100% { transform: scale(0.96); opacity: 0.75; }
+      50% { transform: scale(1.08); opacity: 1; }
+    }
+
+    .evoRing {
+      position: absolute;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 214, 102, 0.45);
+      animation: ringSpin linear infinite;
+    }
+
+    .evoRing.r1 {
+      width: 172px;
+      height: 172px;
+      animation-duration: 8s;
+    }
+
+    .evoRing.r2 {
+      width: 206px;
+      height: 206px;
+      border-color: rgba(255,255,255,0.55);
+      animation-duration: 12s;
+      animation-direction: reverse;
+    }
+
+    @keyframes ringSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .evoImageWrap {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      animation: evoFloat 2.4s ease-in-out infinite;
+      transition: transform 0.35s ease, filter 0.35s ease, opacity 0.35s ease;
+    }
+
+    @keyframes evoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .evoImageWrap.flash {
+      transform: scale(1.08);
+      filter: brightness(1.8);
+    }
+
+    .evoImageWrap.reveal {
+      animation: none;
+      transform: scale(1.12);
+    }
+
+    .evoImage {
+      width: 138px;
+      height: 138px;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.18));
+    }
+
+    .evoFlash {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.92) 30%, rgba(255,248,216,0.65) 60%, rgba(255,248,216,0) 78%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease;
+      z-index: 3;
+    }
+
+    .evoFlash.show {
+      opacity: 1;
+    }
+
+    .evoPhaseText {
+      font-size: 17px;
+      font-weight: 800;
+      margin: 8px 0 10px;
+      min-height: 28px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .evoResultName {
+      font-size: 22px;
+      font-weight: 900;
+      line-height: 1.4;
+      min-height: 34px;
+      margin: 4px 0 12px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .evoResultName.show {
+      animation: resultPop 0.42s ease;
+    }
+
+    @keyframes resultPop {
+      0% { transform: scale(0.82); opacity: 0; }
+      70% { transform: scale(1.06); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .evoActions {
+      display: flex;
+      gap: 10px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .evoActions button {
+      flex: 1;
+    }
+
+    .evoPrimary {
+      background: #ffcc4d;
+      border-color: #ffcc4d;
+      color: #5b3d00;
+      font-weight: 900;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        margin: 14px auto;
+        padding: 0 10px 20px;
+      }
+
+      #word {
+        font-size: 26px;
+      }
+
+      #meaning {
+        font-size: 20px;
+      }
+
+      .goimonMiniImageWrap {
+        width: 84px;
+        height: 84px;
+        flex-basis: 84px;
+      }
+
+      .goimonMiniImage {
+        width: 74px;
+        height: 74px;
+      }
+
+      .goimonMiniName {
+        font-size: 20px;
+      }
+
+      .goimonMiniValue {
+        font-size: 24px;
+      }
+
+      .evoLead {
+        font-size: 21px;
+      }
+
+      .evoStageWrap {
+        width: 200px;
+        height: 200px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
 
-    <div style="margin-bottom:12px;">
-      <a href="index.html">← ホーム</a>
-      <a href="quiz.html">英→日クイズ</a>
-      <a href="quiz_jaen.html">日→英クイズ</a>
-      <a href="sentence.html">１級大問９演習</a>
-      <a href="list.html">番号つき一覧</a>
+    <div class="box topNavBox">
+      <div class="topNavTitle">学習ページ移動</div>
+      <div class="topNav">
+        <a href="index.html">ホーム</a>
+        <a href="study.html" class="active">暗記</a>
+        <a href="quiz.html">英→日</a>
+        <a href="quiz_jaen.html">日→英</a>
+        <a href="accent.html">アクセント</a>
+        <a href="sentence.html">大問9</a>
+        <a href="list.html">一覧</a>
+        <a href="progress.html">進捗</a>
+      </div>
     </div>
 
-    <div id="levelBadge" style="font-size:14px; color:#555; margin-bottom:8px;"></div>
+    <div id="levelBadge"></div>
+
+    <div class="goimonToggleBox">
+      <button id="goimonToggleBtn" class="goimonToggleBtn" type="button">ゴイモンの様子を見る</button>
+      <button id="evolutionNoticeBtn" class="evoNoticeBtn hidden" type="button">あれ、ゴイモンの様子が…！？</button>
+    </div>
+
+    <div id="goimonPanel" class="goimonMiniCard hidden">
+      <div class="goimonMiniHead">
+        <div class="goimonMiniImageWrap">
+          <img id="goimonMiniImage" class="goimonMiniImage" src="images/goimon/goimon_egg.png" alt="ゴイモン">
+        </div>
+        <div class="goimonMiniInfo">
+          <div class="goimonMiniTitle">今のゴイモン</div>
+          <div id="goimonMiniName" class="goimonMiniName">ゴイモン</div>
+          <div id="goimonMiniMeta" class="goimonMiniMeta">Lv1｜たまご期｜なごみ系</div>
+        </div>
+      </div>
+
+      <div class="goimonMiniValueBox">
+        <div>
+          <div class="goimonMiniValueLabel">このページで育つ能力</div>
+          <div class="goimonMiniValue">ちえ <span id="goimonChieValue">0.0</span><span class="goimonMiniUnit">pt</span></div>
+        </div>
+      </div>
+
+      <div class="goimonMiniGuide">
+        「意味を見る」→「次へ」で1語完了。1語進むごとに ちえ +0.1
+      </div>
+    </div>
 
     <div class="box">
       <div class="row">
@@ -39,8 +647,22 @@
         <select id="blockSelect"></select>
         <button id="applyBlock" type="button">このBlockで学習</button>
       </div>
-      <div id="blockInfo" class="muted" style="margin-top:6px;"></div>
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <div class="muted" style="margin-bottom:4px;">出題モード</div>
+          <select id="orderMode">
+            <option value="start">先頭から</option>
+            <option value="continue" selected>続きから</option>
+            <option value="random">ランダム</option>
+            <option value="weak">苦手順</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="blockInfo" class="muted" style="margin-top:10px;"></div>
       <div id="blockRate" class="muted" style="margin-top:4px;"></div>
+      <div id="modeInfo" class="muted" style="margin-top:4px;"></div>
     </div>
 
     <div id="word">---</div>
@@ -52,16 +674,14 @@
       </label>
     </div>
 
-    <!-- ここ：1ボタン化するので showMeaning / nextWord をやめて unifiedBtn だけにする -->
     <div class="row-tight" style="margin: 10px 0;">
-      <button id="unifiedBtn" type="button">意味を見る</button>
+      <button id="unifiedBtn" type="button" class="mainButton">意味を見る</button>
     </div>
 
     <div id="meaning" class="hidden">---</div>
 
     <div class="box">
       <div id="progress" class="muted"></div>
-      <button id="toggleMode" type="button" style="margin-top:8px;">ランダム出題：OFF</button>
       <div id="randomCount" class="muted" style="display:none; margin-top:6px;"></div>
 
       <div style="margin-top:10px;">
@@ -75,12 +695,47 @@
 
   </div>
 
+  <div id="evolutionModal" class="modalBackdrop theme-nagomi">
+    <div class="modalCard">
+      <div class="evoSparkField">
+        <span class="evoSpark s1"></span>
+        <span class="evoSpark s2"></span>
+        <span class="evoSpark s3"></span>
+        <span class="evoSpark s4"></span>
+        <span class="evoSpark s5"></span>
+        <span class="evoSpark s6"></span>
+      </div>
+
+      <div id="evoLead" class="evoLead">あれ、ゴイモンの様子が…！？</div>
+      <div id="evoSub" class="evoSub">学習の力が満ち、進化の時が近づいています。</div>
+
+      <div class="evoStageWrap">
+        <div class="evoHalo"></div>
+        <div class="evoRing r1"></div>
+        <div class="evoRing r2"></div>
+        <div id="evoImageWrap" class="evoImageWrap">
+          <img id="evolutionImage" class="evoImage" src="images/goimon/goimon_egg.png" alt="進化中のゴイモン">
+        </div>
+        <div id="evoFlash" class="evoFlash"></div>
+      </div>
+
+      <div id="evolutionPhaseText" class="evoPhaseText">ゴイモンが光に包まれている…！</div>
+      <div id="evolutionResultName" class="evoResultName"></div>
+
+      <div class="evoActions">
+        <button id="evolutionCloseBtn" type="button">あとで見る</button>
+        <button id="evolutionConfirmBtn" class="evoPrimary" type="button">進化する！</button>
+      </div>
+    </div>
+  </div>
+
   <script src="words_1kyu.js"></script>
   <script src="blocks_1kyu.js"></script>
   <script src="words_2kyu.js"></script>
   <script src="blocks_2kyu.js"></script>
   <script src="dataset.js"></script>
   <script src="global_stats.js"></script>
+  <script src="goimon.js"></script>
   <script src="study.js"></script>
 </body>
 </html>
