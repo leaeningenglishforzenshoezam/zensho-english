@@ -1,28 +1,51 @@
-// quiz.js（英→日）完全版：Block＋3モード＋順番続き＋級ごと保存＋横断ブロック記録＋URLパラメータ（範囲/弱点/自動開始）
-// ★追加：正解=緑/不正解=赤、正解ピンポン/不正解ブッブー、1問1回だけ押せる（連打防止）
+// quiz.js（英→日）ゴイモン版 完全版
+// Block＋3モード＋順番続き＋級ごと保存＋横断ブロック記録＋URLパラメータ（範囲/弱点/自動開始）
+// ★正解=緑/不正解=赤、正解ピンポン/不正解ブッブー、1問1回だけ押せる（連打防止）
+// ★学習ログ（ホームのログ表示用）に 1問ごとに加算（attempt/correct/wrong）
+// ★ゴイモン：英→日正解で ちえ +1
+// ★ゴイモン表示は折りたたみ式＋進化演出共通化
 
 document.addEventListener("DOMContentLoaded", () => {
   const words = window.WORDS || [];
   const blocks = window.BLOCKS || [];
   const PASS_LINE = 80;
 
-  // ===== レベル（1級/2級）取得 =====
   const LEVEL_KEY = "zensho_level_v1";
   function getLevel() {
     return localStorage.getItem(LEVEL_KEY) || "1";
   }
   const LV = getLevel();
 
-  // ===== 保存キー（級ごと）=====
   const WEAK_KEY = `zensho_quiz_weak_points_enja_v2_lv${LV}`;
   const ORDER_CURSOR_KEY = `zensho_quiz_order_cursor_v1_enja_lv${LV}`;
   const SETTINGS_KEY = `zensho_quiz_settings_enja_v1_lv${LV}`;
   const BLOCK_STATS_KEY = `zensho_block_stats_enja_v1_lv${LV}`;
-
-  // ===== 横断ブロック記録キー（級ごと・暗記/英→日/日→英で共通）=====
   const GLOBAL_BLOCK_KEY = `zensho_block_global_lv${LV}_v1`;
+  const GOIMON_UI_KEY = `zensho_quiz_goimon_ui_v2_lv${LV}`;
 
-  // ===== DOM =====
+  function addLearningLog(isCorrect) {
+    try {
+      if (typeof window.zenshoLogAdd === "function") {
+        window.zenshoLogAdd("quiz_enja", !!isCorrect);
+      }
+    } catch {}
+  }
+
+  function addQuizGoimonProgress() {
+    try {
+      if (!window.GoimonUI || typeof window.GoimonUI.addQuizEnJaCorrect !== "function") return;
+      window.GoimonUI.addQuizEnJaCorrect();
+
+      if (typeof window.renderQuizGoimonMini === "function") {
+        window.renderQuizGoimonMini();
+      }
+
+      renderEvolutionNotice();
+    } catch (e) {
+      console.warn("addQuizGoimonProgress failed:", e);
+    }
+  }
+
   const statsEl = document.getElementById("stats");
   const qMetaEl = document.getElementById("qMeta");
   const questionEl = document.getElementById("question");
@@ -52,8 +75,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const settingsSummaryEl = document.getElementById("settingsSummary");
 
   const modeSelectEl = document.getElementById("modeSelect");
+  const levelBadgeEl = document.getElementById("levelBadge");
 
-  // 結果画面
   const playBox = document.getElementById("playBox");
   const summaryBox = document.getElementById("summaryBox");
   const finalScoreEl = document.getElementById("finalScore");
@@ -62,11 +85,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const wrongListEl = document.getElementById("wrongList");
   const backToSetupBtn = document.getElementById("backToSetup");
 
-  // 結果画面ボタン（このBlockを暗記 / 弱点で復習）
   const goStudyBlockBtn = document.getElementById("goStudyBlock");
   const goWeakReviewBtn = document.getElementById("goWeakReview");
 
-  // ===== 安全チェック =====
+  const toggleGoimonBtn = document.getElementById("toggleGoimon");
+  const goimonCardEl = document.getElementById("goimonCard");
+  const evolutionNoticeBtn = document.getElementById("evolutionNoticeBtn");
+
   function must(el, name) {
     if (!el) throw new Error(`quiz.html に #${name} が見つかりません`);
   }
@@ -78,12 +103,13 @@ document.addEventListener("DOMContentLoaded", () => {
     [weakModeEl,"weakMode"],[clearWeakBtn,"clearWeak"],[weakInfoEl,"weakInfo"],
     [speakQBtn,"speakQ"],[autoSpeakQEl,"autoSpeakQ"],
     [toggleSettingsBtn,"toggleSettings"],[settingsArea,"settingsArea"],[settingsSummaryEl,"settingsSummary"],
-    [modeSelectEl,"modeSelect"],
+    [modeSelectEl,"modeSelect"],[levelBadgeEl,"levelBadge"],
     [summaryBox,"summaryBox"],[playBox,"playBox"],[finalScoreEl,"finalScore"],[finalBlockLineEl,"finalBlockLine"],
     [askedListEl,"askedList"],[wrongListEl,"wrongList"],[backToSetupBtn,"backToSetup"],
+    [toggleGoimonBtn,"toggleGoimon"],[goimonCardEl,"goimonCard"],
+    [evolutionNoticeBtn,"evolutionNoticeBtn"]
   ].forEach(([el,n]) => must(el,n));
 
-  // ===== Utility =====
   function safeParse(key) {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
@@ -116,7 +142,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return blocks.find(b => n >= Number(b.start) && n <= Number(b.end)) || null;
   }
 
-  // ===== 音声（英語読み上げ）=====
   function speakEnglish(text) {
     if (!("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
@@ -126,21 +151,18 @@ document.addEventListener("DOMContentLoaded", () => {
     window.speechSynthesis.speak(u);
   }
 
-  // ===== 効果音（ファイル不要：ブラウザで音を作る）=====
   let _audioCtx = null;
   function getAudioCtx() {
     if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     return _audioCtx;
   }
   function ensureAudioReady() {
-    // iPhone等は「クリック後に resume」が必要なことがある
     try {
       const ctx = getAudioCtx();
       if (ctx.state === "suspended") ctx.resume();
     } catch {}
   }
 
-  // ピンポン（高い音2回）
   function playCorrectSound() {
     try {
       const ctx = getAudioCtx();
@@ -170,7 +192,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch {}
   }
 
-  // ブッブー（低い音）
   function playWrongSound() {
     try {
       const ctx = getAudioCtx();
@@ -192,7 +213,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch {}
   }
 
-  // ===== 横断ブロック記録（英→日）=====
   function loadGlobal() {
     return safeParse(GLOBAL_BLOCK_KEY) || { byBlock: {} };
   }
@@ -205,14 +225,28 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!g.byBlock) g.byBlock = {};
     const k = String(blockId);
     if (!g.byBlock[k]) {
-      g.byBlock[k] = { studyDone: 0, quizAttempted: 0, quizCorrect: 0, quizAttemptedJaEn: 0, quizCorrectJaEn: 0 };
+      g.byBlock[k] = {
+        studyDone: 0,
+        quizAttempted: 0,
+        quizCorrect: 0,
+        quizAttemptedJaEn: 0,
+        quizCorrectJaEn: 0,
+        accentAttempted: 0,
+        accentCorrect: 0,
+        sentenceAttempted: 0,
+        sentenceCorrect: 0,
+        audioAttempted: 0,
+        audioCorrect: 0
+      };
     }
+    if (!Number.isFinite(g.byBlock[k].quizAttempted)) g.byBlock[k].quizAttempted = 0;
+    if (!Number.isFinite(g.byBlock[k].quizCorrect)) g.byBlock[k].quizCorrect = 0;
+
     g.byBlock[k].quizAttempted += 1;
     if (isCorrect) g.byBlock[k].quizCorrect += 1;
     saveGlobal(g);
   }
 
-  // ===== 弱点ポイント（級別）=====
   let weakPoints = {};
   function loadWeakPoints() {
     const raw = localStorage.getItem(WEAK_KEY);
@@ -236,24 +270,20 @@ document.addEventListener("DOMContentLoaded", () => {
   function weakCount() {
     return Object.keys(weakPoints).length;
   }
-  // ===== sentence（語句補充）から英→日の弱点に加点する窓口 =====
-  // sentence.js から window.addWeakFromSentenceToEnJa(word, +1) で呼ばれます
+
   window.addWeakFromSentenceToEnJa = (en, weight = 1) => {
     try {
       const w = String(en || "").trim().toLowerCase();
       let add = Number(weight);
       if (!w) return;
       if (!Number.isFinite(add) || add <= 0) add = 1;
-
-      // 既存の弱点ポイントに +add
       setPoint(w, getPoint(w) + add);
       saveWeakPoints();
     } catch (e) {
-      // 失敗してもクイズ自体は止めない
       console.warn("addWeakFromSentenceToEnJa failed:", e);
     }
   };
-  // ===== 順番モードの「続き」（級別）=====
+
   function loadOrderCursor(start, end) {
     const raw = localStorage.getItem(ORDER_CURSOR_KEY);
     if (!raw) return start;
@@ -267,9 +297,8 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(ORDER_CURSOR_KEY, JSON.stringify({ start, end, cursor }));
   }
 
-  // ===== 設定保存（級別）=====
   let autoSpeakQ = false;
-  let quizMode = "order"; // order / random / weak
+  let quizMode = "order";
   function loadSettings() {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (!raw) return;
@@ -283,7 +312,6 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify({ autoSpeakQ, quizMode }));
   }
 
-  // ===== Block累計（このページ内の表示用・級別）=====
   let statsMap = {};
   function loadBlockStats() {
     const raw = localStorage.getItem(BLOCK_STATS_KEY);
@@ -299,8 +327,6 @@ document.addEventListener("DOMContentLoaded", () => {
     statsMap[k].attempted += 1;
     if (isCorrect) statsMap[k].correct += 1;
     saveBlockStats();
-
-    // 横断（progress.js用）
     addGlobalEnJa(blockId, isCorrect);
   }
   function getBlockAccText(blockId) {
@@ -312,7 +338,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${tag}（${pct}%｜${s.correct}/${s.attempted}）`;
   }
 
-  // ===== セッション =====
   let session = {
     active: false,
     answered: 0,
@@ -331,19 +356,91 @@ document.addEventListener("DOMContentLoaded", () => {
   let wrongMap = {};
 
   let orderCursor = 0;
-
-  // ===== 設定折りたたみ＋要約 =====
   let settingsOpen = false;
+
+  function loadGoimonUiState() {
+    return safeParse(GOIMON_UI_KEY) || { open: false };
+  }
+  let goimonUi = loadGoimonUiState();
+
+  function saveGoimonUiState() {
+    localStorage.setItem(GOIMON_UI_KEY, JSON.stringify(goimonUi));
+  }
+
+  function renderGoimonVisibility() {
+    if (goimonUi.open) {
+      goimonCardEl.classList.remove("hidden");
+      toggleGoimonBtn.textContent = "ゴイモンを閉じる";
+    } else {
+      goimonCardEl.classList.add("hidden");
+      toggleGoimonBtn.textContent = "ゴイモンの様子を見る";
+    }
+  }
+
+  function renderEvolutionNotice() {
+    try {
+      if (window.GoimonUI && typeof window.GoimonUI.renderEvolutionNoticeButton === "function") {
+        window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
+        return;
+      }
+
+      if (!window.GoimonUI || typeof window.GoimonUI.loadCurrent !== "function") return;
+      const g = window.GoimonUI.loadCurrent();
+      if (!g) return;
+      if (g.pendingEvolution) evolutionNoticeBtn.classList.remove("hidden");
+      else evolutionNoticeBtn.classList.add("hidden");
+    } catch {}
+  }
+
+  function openSharedEvolution() {
+    try {
+      if (window.GoimonUI && typeof window.GoimonUI.openEvolutionOverlay === "function") {
+        window.GoimonUI.openEvolutionOverlay({
+          onComplete: () => {
+            if (typeof window.renderQuizGoimonMini === "function") {
+              window.renderQuizGoimonMini();
+            }
+            renderEvolutionNotice();
+          }
+        });
+        return;
+      }
+
+      if (window.GoimonUI && typeof window.GoimonUI.playPendingEvolutionSequence === "function") {
+        window.GoimonUI.playPendingEvolutionSequence({
+          onComplete: () => {
+            if (typeof window.renderQuizGoimonMini === "function") {
+              window.renderQuizGoimonMini();
+            }
+            renderEvolutionNotice();
+          }
+        });
+        return;
+      }
+
+      if (window.GoimonUI && typeof window.GoimonUI.confirmEvolution === "function") {
+        window.GoimonUI.confirmEvolution();
+        if (typeof window.renderQuizGoimonMini === "function") {
+          window.renderQuizGoimonMini();
+        }
+        renderEvolutionNotice();
+      }
+    } catch (e) {
+      console.warn("openSharedEvolution failed:", e);
+    }
+  }
 
   function modeText() {
     if (quizMode === "order") return "順番";
     if (quizMode === "random") return "ランダム";
     return "ニガテ順";
   }
+
   function summaryRangeText() {
     if (blockSelectEl.value === "all") return "全範囲";
     return `Block ${blockSelectEl.value}`;
   }
+
   function updateSettingsSummary() {
     if (settingsOpen) {
       settingsSummaryEl.textContent = "";
@@ -352,6 +449,7 @@ document.addEventListener("DOMContentLoaded", () => {
     settingsSummaryEl.textContent =
       `（${summaryRangeText()}｜${session.limit}問｜${weakMode ? "弱点ON" : "弱点OFF"}｜モード:${modeText()}｜${LV}級）`;
   }
+
   function closeSettings() {
     settingsOpen = false;
     settingsArea.style.display = "none";
@@ -366,7 +464,16 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSettingsSummary();
   });
 
-  // ===== Block UI =====
+  toggleGoimonBtn.addEventListener("click", () => {
+    goimonUi.open = !goimonUi.open;
+    saveGoimonUiState();
+    renderGoimonVisibility();
+  });
+
+  evolutionNoticeBtn.addEventListener("click", () => {
+    openSharedEvolution();
+  });
+
   function renderBlockStatsLine() {
     const v = blockSelectEl.value;
     if (v === "all") {
@@ -422,7 +529,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSettingsSummary();
   });
 
-  // ===== 結果画面ボタン（範囲を渡す）=====
   function getCurrentRangeFromInputs() {
     let s = Number(rangeStartEl.value) - 1;
     let e = Number(rangeEndEl.value) - 1;
@@ -444,7 +550,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ===== 出題作成 =====
   function renderMeta(no) {
     const b = getBlockByNo(no);
     if (b) qMetaEl.textContent = `Block ${b.id}（${b.start}〜${b.end}）｜番号 ${no} / ${words.length}（${LV}級）`;
@@ -456,7 +561,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return { s, e };
   }
 
-  // 4択（日本語を選ぶ）
   function makeChoices(correctWord, s, e) {
     const candidates = [];
     for (let i = s; i <= e; i++) {
@@ -513,7 +617,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const { s, e } = getRangePool();
     let idx = pickCorrectIndex(s, e);
 
-    // 弱点モードONなら、順番以外は弱点寄り
     if (weakMode && quizMode !== "order") {
       const weakIdxs = [];
       for (let i = s; i <= e; i++) if (getPoint(words[i].en) > 0) weakIdxs.push(i);
@@ -538,11 +641,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  // ===== 画面表示 =====
   function showPlayView() {
     playBox.style.display = "block";
     summaryBox.style.display = "none";
   }
+
   function showSummaryView() {
     playBox.style.display = "none";
     summaryBox.style.display = "block";
@@ -561,6 +664,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateWeakInfo();
     renderBlockStatsLine();
     updateSettingsSummary();
+    renderEvolutionNotice();
 
     if (!session.active) {
       questionEl.textContent = "テスト未開始";
@@ -593,7 +697,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const btn = document.createElement("button");
       btn.textContent = text;
 
-      // クリックで正誤音が鳴るように「最初のクリックで音を使える状態にする」
       btn.addEventListener("click", () => {
         ensureAudioReady();
         handleChoice(text, btn);
@@ -623,16 +726,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const correct = (choiceText === current.ja);
 
-    // ボタン色＋音
+    addLearningLog(correct);
+
     if (correct) {
       clickedBtn.classList.add("correct");
       playCorrectSound();
       session.correct++;
       resultEl.textContent = "⭕️ 正解！";
 
-      const p = getPoint(current.en);
-      if (p > 0) {
-        setPoint(current.en, p - 1);
+      const currentWeakPoint = getPoint(current.en);
+
+      addQuizGoimonProgress();
+
+      if (currentWeakPoint > 0) {
+        setPoint(current.en, currentWeakPoint - 1);
         saveWeakPoints();
       }
     } else {
@@ -640,7 +747,6 @@ document.addEventListener("DOMContentLoaded", () => {
       playWrongSound();
       resultEl.textContent = `❌ 不正解。正解は「${current.ja}」`;
 
-      // 不正解のときは正解も緑に見せる
       markCorrectButtonGreen();
 
       setPoint(current.en, getPoint(current.en) + 2);
@@ -650,7 +756,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // 連打防止（全ボタン無効化）
     lockChoices();
 
     if (current.blockId) addBlockResult(current.blockId, correct);
@@ -659,6 +764,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateWeakInfo();
     renderBlockStatsLine();
     updateSettingsSummary();
+    renderEvolutionNotice();
 
     if (session.answered < session.limit) nextBtn.disabled = false;
     else finishSession();
@@ -694,7 +800,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ===== イベント =====
   speakQBtn.addEventListener("click", () => {
     if (current) speakEnglish(current.en);
   });
@@ -777,7 +882,6 @@ document.addEventListener("DOMContentLoaded", () => {
     showPlayView();
   });
 
-  // 順番モードの「続き」をリセット（ボタンがある場合のみ）
   const resetOrderBtn = document.getElementById("resetOrderCursor");
   if (resetOrderBtn) {
     resetOrderBtn.addEventListener("click", () => {
@@ -790,7 +894,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ===== URLパラメータ反映（範囲・モード・弱点・自動開始）=====
   function applyQuery() {
     const p = new URLSearchParams(location.search);
     const start = Number(p.get("start"));
@@ -820,7 +923,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (autostart === "1") setTimeout(() => startBtn.click(), 0);
   }
 
-  // ===== 起動 =====
   loadWeakPoints();
   loadSettings();
   loadBlockStats();
@@ -834,9 +936,23 @@ document.addEventListener("DOMContentLoaded", () => {
   session.limit = Number(limitEl.value) || session.limit;
   weakMode = !!weakModeEl.checked;
 
+  if (levelBadgeEl) {
+    levelBadgeEl.textContent = `現在：全商英検 ${LV}級`;
+  }
+
+  if (window.GoimonUI && typeof window.GoimonUI.ensureEvolutionUIReady === "function") {
+    window.GoimonUI.ensureEvolutionUIReady();
+  }
+
+  renderGoimonVisibility();
   closeSettings();
   showPlayView();
   renderQuestion();
+
+  if (typeof window.renderQuizGoimonMini === "function") {
+    window.renderQuizGoimonMini();
+  }
+  renderEvolutionNotice();
 
   applyQuery();
 });
