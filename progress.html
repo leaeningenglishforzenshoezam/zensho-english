@@ -5,25 +5,300 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ブロック進捗</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif; background:#f7f7f7; margin:0; }
-    .wrap { max-width: 860px; margin: 0 auto; padding: 18px 12px 28px; }
-    .card { background:#fff; border:1px solid #ddd; border-radius:12px; padding:14px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
-    h1 { margin: 0 0 8px; font-size: 20px; }
-    .muted { color:#666; font-size: 13px; line-height: 1.5; }
-    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    button { padding: 10px 12px; border:0; border-radius:10px; cursor:pointer; }
-    .btn { background:#efefef; color:#111; }
-    .btn.primary { background:#2b7cff; color:#fff; }
-    table { width:100%; border-collapse: collapse; }
-    th, td { border-top:1px solid #eee; padding:10px 8px; text-align:left; vertical-align:top; }
-    th { font-size: 13px; color:#444; }
-    td { font-size: 14px; }
-    .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; background:#f0f4ff; color:#2b7cff; }
-    .ok { color:#0a7f2e; font-weight:700; }
-    .ng { color:#b00020; font-weight:700; }
-    .small { font-size:12px; color:#666; }
-    .right { text-align:right; }
-    input { padding: 8px; border:1px solid #ddd; border-radius:10px; width: 120px; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
+      background:#f7f7f7;
+      margin:0;
+      color:#111;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 18px 12px 32px;
+    }
+    .card {
+      background:#fff;
+      border:1px solid #ddd;
+      border-radius:12px;
+      padding:14px;
+      margin-bottom:12px;
+      box-shadow:0 1px 3px rgba(0,0,0,0.05);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+    .muted {
+      color:#666;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .row {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    a {
+      color:#2b7cff;
+      text-decoration:none;
+    }
+    button {
+      padding: 10px 12px;
+      border: 0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn {
+      background:#efefef;
+      color:#111;
+    }
+    .btn.primary {
+      background:#2b7cff;
+      color:#fff;
+    }
+    .btn.danger {
+      background:#fff3f3;
+      color:#a10000;
+      border:1px solid #efc7c7;
+    }
+    input, select {
+      padding: 9px 10px;
+      border:1px solid #ddd;
+      border-radius:10px;
+      font-size:14px;
+      background:#fff;
+    }
+    .pill {
+      display:inline-block;
+      padding:5px 10px;
+      border-radius:999px;
+      font-size:12px;
+      background:#f0f4ff;
+      color:#2b7cff;
+      white-space:nowrap;
+    }
+    .pill.ok {
+      background:#edf9f0;
+      color:#167a2e;
+    }
+    .pill.mid {
+      background:#fff6e8;
+      color:#9a5a00;
+    }
+    .pill.ng {
+      background:#fff0f0;
+      color:#b00020;
+    }
+
+    .goimonPanel {
+      display:grid;
+      grid-template-columns: 120px 1fr;
+      gap:14px;
+      align-items:center;
+      border:1px solid #eee3ce;
+      border-radius:14px;
+      background:#fffaf2;
+      padding:14px;
+      margin-top:12px;
+    }
+    .goimonImageWrap {
+      width:120px;
+      height:120px;
+      border-radius:14px;
+      background:#fff;
+      border:1px solid #ecdcbc;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+    .goimonImageWrap img {
+      max-width:100px;
+      max-height:100px;
+      display:block;
+    }
+    .goimonTitle {
+      font-size:18px;
+      font-weight:800;
+      margin-bottom:4px;
+    }
+    .goimonMeta {
+      font-size:13px;
+      color:#555;
+      margin-bottom:10px;
+    }
+    .goimonBubble {
+      position:relative;
+      background:#fff;
+      border:1px solid #e6e6e6;
+      border-radius:14px;
+      padding:12px 14px;
+      line-height:1.7;
+      font-size:14px;
+    }
+    .goimonBubble::before {
+      content:"";
+      position:absolute;
+      left:-8px;
+      top:20px;
+      width:14px;
+      height:14px;
+      background:#fff;
+      border-left:1px solid #e6e6e6;
+      border-bottom:1px solid #e6e6e6;
+      transform:rotate(45deg);
+    }
+
+    .summaryGrid {
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+    .summaryBox {
+      border:1px solid #eee;
+      border-radius:12px;
+      background:#fafafa;
+      padding:12px;
+    }
+    .summaryLabel {
+      font-size:12px;
+      color:#666;
+      margin-bottom:6px;
+    }
+    .summaryValue {
+      font-size:20px;
+      font-weight:800;
+      line-height:1.2;
+    }
+    .summarySub {
+      margin-top:6px;
+      font-size:12px;
+      color:#555;
+      line-height:1.5;
+    }
+
+    .filterBar {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:10px;
+    }
+
+    .blockGrid {
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top:12px;
+    }
+
+    .blockCard {
+      border:1px solid #e6e6e6;
+      border-radius:14px;
+      background:#fff;
+      padding:14px;
+    }
+    .blockHead {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .blockTitle {
+      font-size:17px;
+      font-weight:800;
+      margin:0 0 4px;
+    }
+    .blockRange {
+      font-size:13px;
+      color:#666;
+    }
+
+    .statusGrid {
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:8px;
+      margin-top:8px;
+    }
+    .statusBox {
+      border:1px solid #eee;
+      border-radius:12px;
+      background:#fafafa;
+      padding:10px 10px;
+    }
+    .statusLabel {
+      font-size:12px;
+      color:#666;
+      margin-bottom:5px;
+    }
+    .statusValue {
+      font-size:15px;
+      font-weight:800;
+      line-height:1.3;
+    }
+
+    .actionArea {
+      margin-top:12px;
+      border-top:1px solid #eee;
+      padding-top:12px;
+    }
+    .actionTitle {
+      font-size:13px;
+      font-weight:700;
+      margin-bottom:8px;
+      color:#444;
+    }
+    .actionButtons {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .miniBtn {
+      padding:9px 11px;
+      border-radius:10px;
+      border:1px solid #ddd;
+      background:#fff;
+      cursor:pointer;
+      font-size:13px;
+    }
+    .miniBtn.recommend {
+      background:#eef5ff;
+      border-color:#c9dbff;
+      color:#21468f;
+      font-weight:800;
+    }
+
+    .emptyBox {
+      border:1px dashed #d7d7d7;
+      border-radius:12px;
+      padding:18px;
+      color:#666;
+      background:#fcfcfc;
+      text-align:center;
+    }
+
+    @media (max-width: 760px) {
+      .goimonPanel {
+        grid-template-columns: 1fr;
+      }
+      .goimonImageWrap {
+        width:100%;
+        height:110px;
+      }
+      .goimonBubble::before {
+        display:none;
+      }
+      .summaryGrid {
+        grid-template-columns: 1fr;
+      }
+      .blockGrid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -32,7 +307,10 @@
       <div class="row" style="justify-content:space-between;">
         <div>
           <h1>ブロック進捗</h1>
-          <div class="muted">暗記（意味→次へで完了）＋英→日＋日→英の横断記録をまとめて表示します。</div>
+          <div class="muted">
+            Blockごとの学習状況をまとめて確認できます。<br>
+            このページから、そのまま各範囲の学習にも進めます。
+          </div>
         </div>
         <div class="row">
           <a href="index.html">← ホーム</a>
@@ -40,48 +318,65 @@
         </div>
       </div>
 
-      <div class="row" style="margin-top:10px;">
+      <div id="goimonPanel" class="goimonPanel">
+        <div class="goimonImageWrap">
+          <img id="progressGoimonImage" src="images/goimon/goimon_egg.png" alt="ゴイモン" />
+        </div>
+        <div>
+          <div class="goimonTitle" id="progressGoimonName">なごみ系のたまご</div>
+          <div class="goimonMeta" id="progressGoimonMeta">Lv 1 / 0 pt / たまご期</div>
+          <div class="goimonBubble" id="progressGoimonComment">今日はどこを復習するとよさそうかな。</div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
         <button id="lv1" class="btn">全商英検 1級</button>
         <button id="lv2" class="btn">全商英検 2級</button>
         <button id="refresh" class="btn">更新</button>
-        <button id="resetGlobal" class="btn" style="margin-left:auto;">この級の横断記録を全消去</button>
+        <button id="resetGlobal" class="btn danger" style="margin-left:auto;">この級の横断記録を全消去</button>
       </div>
 
-      <div class="row" style="margin-top:10px;">
-        <div class="muted">合格ライン（クイズ正答率）</div>
+      <div class="filterBar">
+        <div class="muted">合格ライン</div>
         <input id="passLine" type="number" min="1" max="100" value="80" />
         <div class="muted">%</div>
+
+        <div class="muted" style="margin-left:12px;">表示</div>
+        <select id="statusFilter">
+          <option value="all">すべて</option>
+          <option value="needs_review">要復習のみ</option>
+          <option value="ok">良好のみ</option>
+          <option value="untouched">未挑戦のみ</option>
+        </select>
       </div>
 
-      <div id="summary" class="muted" style="margin-top:10px;"></div>
+      <div class="summaryGrid">
+        <div class="summaryBox">
+          <div class="summaryLabel">全体まとめ</div>
+          <div class="summaryValue" id="summaryMain">—</div>
+          <div class="summarySub" id="summarySub">—</div>
+        </div>
+        <div class="summaryBox">
+          <div class="summaryLabel">おすすめ復習対象</div>
+          <div class="summaryValue" id="summaryRecommend">—</div>
+          <div class="summarySub" id="summaryRecommendSub">—</div>
+        </div>
+        <div class="summaryBox">
+          <div class="summaryLabel">記録メモ</div>
+          <div class="summaryValue" id="summaryMemo">—</div>
+          <div class="summarySub" id="summaryMemoSub">—</div>
+        </div>
+      </div>
     </div>
 
     <div class="card">
-      <div class="row" style="justify-content:space-between; margin-bottom:8px;">
-        <div style="font-weight:700;">ブロック別の一覧</div>
-        <div class="small">※ クイズ正答率は「英→日」「日→英」それぞれ別に出します</div>
+      <div class="row" style="justify-content:space-between;">
+        <div style="font-weight:800;">Block別一覧</div>
+        <div class="muted">暗記 / 英→日 / 日→英 / アクセント / 大問9 / 音声→意味</div>
       </div>
 
-      <div style="overflow:auto;">
-        <table>
-          <thead>
-            <tr>
-              <th style="width:110px;">Block</th>
-              <th style="width:120px;">範囲</th>
-              <th>暗記</th>
-              <th>英→日</th>
-              <th>日→英</th>
-              <th>例文穴埋め</th>
-              <th class="right" style="width:110px;">判定</th>
-            </tr>
-          </thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
-
-      <div class="muted" style="margin-top:10px;">
-        判定は「英→日」または「日→英」のどちらかが合格ライン以上ならOK扱いにしています（厳しめにしたければ変更できます）。
-      </div>
+      <div id="blockGrid" class="blockGrid"></div>
+      <div id="emptyState" class="emptyBox" style="display:none;">この条件に合うBlockはありません。</div>
     </div>
   </div>
 
@@ -91,6 +386,7 @@
   <script src="blocks_2kyu.js"></script>
   <script src="dataset.js"></script>
   <script src="global_stats.js"></script>
+  <script src="goimon.js"></script>
   <script src="progress.js"></script>
 </body>
 </html>
