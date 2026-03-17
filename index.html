@@ -4,100 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>語彙学習ホーム</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f7f7f7;
-    }
-    .wrap {
-      max-width: 520px;
-      margin: 0 auto;
-      padding: 22px 16px 30px;
-    }
-    .card {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 14px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    h1 {
-      font-size: 20px;
-      margin: 0 0 6px;
-    }
-    .sub {
-      font-size: 14px;
-      color: #444;
-      margin: 0 0 12px;
-      line-height: 1.5;
-    }
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 12px 14px;
-      border: 0;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
-      margin: 10px 0;
-    }
-    .btn.primary { background: #2b7cff; color: white; }
-    .btn.gray { background: #efefef; color: #111; }
-    .row {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .row .btn { margin: 0; }
-    .mini {
-      font-size: 13px;
-      color: #555;
-      margin-top: 8px;
-      line-height: 1.5;
-    }
-    .footer {
-      font-size: 12px;
-      color: #666;
-      margin-top: 16px;
-      line-height: 1.5;
-    }
-    a { color: #2b7cff; text-decoration: none; }
-
-    .levelBox {
-      text-align: center;
-    }
-    .levelTitle {
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .levelRow {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .levelBtn {
-      width: 140px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      background: #fff;
-      cursor: pointer;
-    }
-    .levelBtn.active {
-      border-color: #2b7cff;
-      background: #eaf2ff;
-      font-weight: 700;
-    }
-    #currentLevelInfo {
-      margin-top: 8px;
-      font-size: 14px;
-      color: #555;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -113,47 +20,341 @@
     </div>
 
     <div class="card">
+      <div class="goimonQuick">
+        <div class="goimonQuickLeft">
+          <div class="goimonQuickTitle">ゴイモン</div>
+          <p class="goimonQuickSub">学習にあわせて育つ、語彙学習のお供です。</p>
+        </div>
+        <div class="goimonQuickRight">
+          <div class="goimonQuickLabel">現在の段階</div>
+          <div class="goimonQuickValue" id="goimonStageValue">たまご期</div>
+        </div>
+      </div>
+
+      <div class="goimonMiniCard">
+        <div class="goimonMiniImageWrap">
+          <img id="goimonMiniImage" src="images/goimon/goimon_egg.png" alt="ゴイモン" />
+        </div>
+        <div class="goimonMiniInfo">
+          <div class="goimonMiniName" id="goimonTypeName">なごみ系のたまご</div>
+          <div class="goimonMiniMeta" id="goimonLevelText">Lv 1 / 0 pt</div>
+          <div class="goimonMiniSub" id="goimonMiniSubText">まずは学習してゴイモンを育てよう</div>
+        </div>
+      </div>
+
+      <div class="goimonSpeechRow">
+        <div class="goimonSpeechBubble" id="goimonSpeechText">今日もいっしょに進もう。</div>
+      </div>
+
+      <div class="goimonBanner nick hidden" id="goimonNicknamePromptCard">
+        <div class="goimonBannerTitle">新しい姿になったよ</div>
+        <p class="goimonBannerText">
+          幼体に進化しました。ニックネームをつけると、これからの相棒らしさが増します。
+        </p>
+        <div class="nicknameRow">
+          <input id="goimonNicknamePromptInput" class="nicknameInput" type="text" maxlength="20" placeholder="ニックネームを入力" />
+        </div>
+        <button class="btn soft" id="saveGoimonNicknamePromptBtn">この名前にする</button>
+        <button class="btn gray" id="skipGoimonNicknamePromptBtn">あとで決める</button>
+        <div class="miniNote">※ 幼体以上になれば、あとからいつでも変更できます。</div>
+      </div>
+
+      <div class="goimonBanner hall hidden" id="goimonHallBanner">
+        <div class="goimonBannerTitle">上級体に到達しました</div>
+        <p class="goimonBannerText" id="goimonHallBannerText">
+          このゴイモンを殿堂入りさせると、保存して次の世代のたまごを育て始められます。
+        </p>
+        <button class="btn gold" id="goimonHallOfFameBtn">🏆 殿堂入りタグをつけて保存し、新しいたまごを始める</button>
+      </div>
+
+      <div class="goimonBanner nick hidden" id="goimonSpecialRouteBanner">
+        <div class="goimonBannerTitle">？？？</div>
+        <p class="goimonBannerText" id="goimonSpecialRouteText">
+          特別な分岐は、育成を進めると解放されるかもしれません。
+        </p>
+        <button class="btn soft" id="goimonSelectMrUnoBtn">MR.UNO ルートを選ぶ</button>
+        <button class="btn gray" id="goimonClearSpecialRouteBtn">通常ルートに戻す</button>
+      </div>
+
+      <button class="btn goimon" id="openGoimonSheetBtn">🐣 ゴイモンを見る</button>
+    </div>
+
+    <div class="card">
       <h1>語彙学習</h1>
       <p class="sub">
-        まずは「覚える」→「クイズ」→「弱点を潰す」の流れがおすすめです。
+        このアプリでは、暗記・英→日・日→英・音声・アクセント・大問9を使って語彙力を広く育てます。<br>
+    
+      </p>
       </p>
 
       <button class="btn primary" id="goWordList">▶ 単語一覧（番号つき）</button>
       <button class="btn primary" id="goStudy">▶ 覚える（暗記）</button>
       <button class="btn primary" id="goQuiz">▶ クイズで確認（英→日）</button>
       <button class="btn primary" id="goQuizJaEn">▶ クイズで確認（日→英）</button>
+      <button class="btn primary" id="goAudioQuiz">▶ 音声→意味クイズ</button>
+      <button class="btn primary" id="goAccent">▶ 大問1演習（アクセント）</button>
       <button class="btn primary" id="goSentence">▶ 大問9演習（例文穴埋め）</button>
       <button class="btn primary" id="goProgress">▶ ブロック進捗を見る</button>
 
       <div class="row">
         <button class="btn gray" id="goRecommended">今日のおすすめ</button>
-        <button class="btn gray" id="resetAll">データ初期化</button>
       </div>
-
-      <div class="mini" id="status"></div>
     </div>
 
     <div class="card">
-      <div class="sub" style="margin:0;">
-    
+      <div class="sectionTitle">学習状況（見やすい版）</div>
+
+      <div class="statsGrid">
+        <div class="statBox clickable" id="nextActionCard" role="button" tabindex="0" aria-label="次にやることを開く">
+          <div class="statLabel">次にやること</div>
+          <div class="statValue" id="statNextAction">—</div>
+          <div class="statSub" id="statNextActionSub">—</div>
+        </div>
+
+        <div class="statBox">
+          <div class="statLabel">アプリ開発者の日替わりメッセージ</div>
+          <div class="statValue" id="statDevMessage">—</div>
+          <div class="statSub" id="statDevMessageSub">今日も少しずつ進めていきましょう。</div>
+        </div>
       </div>
+
+      <div class="statsWide">
+        <div class="statLabel">設定・履歴</div>
+        <div class="pillRow" id="statPills"></div>
+        <div class="mutedSmall" id="statNote"></div>
+      </div>
+
+      <div class="sectionTitle" style="margin-top:14px;">学習ログ</div>
+      <div class="logList" id="logList"></div>
+      <div class="mutedSmall">
+        ※ 内訳は「英→日 / 日→英 / 大問9 / アクセント」です。
+      </div>
+    </div>
+
+    <div class="card">
       <div class="footer">
-        ・覚える：自動発音やランダムを使って回す<br>
-        ・クイズ：弱点モードONで復習効率アップ<br>
-        ・今日のおすすめ：すぐ始めたい人向け
+        ・覚える：まず単語に触れるときにおすすめ<br>
+        ・クイズ：意味確認や思い出す練習におすすめ<br>
+        ・音声→意味：耳から意味をつかむ力を鍛える<br>
+        ・今日のおすすめ：迷ったときの入口
       </div>
+
       <div class="footer" style="margin-top:10px;">
-    <a href="https://docs.google.com/forms/d/e/1FAIpQLSfQMt0jC7aal_Rxvqxn_TkjT-pQZw1Ohf_V3v82Z6FWKLW39Q/viewform?usp=publish-editor"
-       target="_blank" rel="noopener">
-      ご意見・改善要望はこちら
-    </a>
-  </div>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSfQMt0jC7aal_Rxvqxn_TkjT-pQZw1Ohf_V3v82Z6FWKLW39Q/viewform?usp=publish-editor"
+           target="_blank" rel="noopener">
+          ご意見・改善要望はこちら
+        </a>
+      </div>
     </div>
 
   </div>
 
+  <div class="sheetBackdrop" id="sheetBackdrop"></div>
+
+  <div class="bottomSheet" id="goimonSheet" aria-hidden="true">
+    <div class="sheetHandle"></div>
+    <div class="sheetInner">
+      <div class="sheetHead">
+        <h2 class="sheetTitle">ゴイモン詳細</h2>
+        <button class="sheetClose" id="closeGoimonSheet">閉じる</button>
+      </div>
+
+      <div class="sheetSummary">
+        <div class="sheetSummaryLabel">現在のゴイモン</div>
+        <div class="sheetSummaryValue" id="goimonDetailName">なごみ系のたまご</div>
+        <div class="sheetSummarySub" id="goimonDetailDesc">学習に応じて成長し、進化していきます。</div>
+      </div>
+
+      <div class="goimonProgressCard">
+        <div class="goimonProgressHead">
+          <div class="goimonProgressTitle">進化の進み具合</div>
+          <div class="goimonProgressText" id="goimonGrowthText">次の進化まであと 100 pt</div>
+        </div>
+        <div class="goimonBarTrack">
+          <div class="goimonBarFill" id="goimonGrowthBarFill"></div>
+        </div>
+        <div class="goimonProgressSub" id="goimonGrowthSub">0 / 100 pt</div>
+      </div>
+
+      <div class="goimonDetailGrid">
+        <div class="goimonImageCard">
+          <div class="goimonImageLabel">ゴイモン（タップで拡大）</div>
+          <div class="goimonImageBox clickable" id="goimonDetailImageBox" role="button" tabindex="0" aria-label="ゴイモン画像を拡大表示">
+            <img id="goimonDetailImage" src="images/goimon/goimon_egg.png" alt="ゴイモン詳細画像" />
+          </div>
+        </div>
+
+        <div class="goimonStatsCard">
+          <div class="goimonStatRow"><span>進化段階</span><strong id="goimonDetailStage">たまご期</strong></div>
+          <div class="goimonStatRow"><span>系統</span><strong id="goimonDetailType">なごみ系</strong></div>
+          <div class="goimonStatRow"><span>レベル</span><strong id="goimonDetailLevel">1</strong></div>
+          <div class="goimonStatRow"><span>ゴイポイント</span><strong id="goimonDetailPoints">0 pt</strong></div>
+          <div class="goimonStatRow"><span>現役</span><strong id="goimonDetailGeneration">第1世代</strong></div>
+          <div class="goimonStatRow"><span>ニックネーム</span><strong id="goimonDetailNickname">未設定</strong></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <div class="sectionTitle">図鑑・名前</div>
+        <button class="btn soft" id="openGoimonDexBtn">📖 図鑑を見る</button>
+        <button class="btn soft" id="toggleGoimonNicknameEditorBtn">✏️ ニックネームをつける / 変える</button>
+
+        <div id="goimonNicknameEditorWrap" class="hidden">
+          <div class="mutedSmall" id="goimonNicknameEditorGuide">幼体以上になると、いつでも名前をつけたり変えたりできます。</div>
+          <div class="nicknameRow">
+            <input id="goimonNicknameEditInput" class="nicknameInput" type="text" maxlength="20" placeholder="ニックネームを入力" />
+          </div>
+          <button class="btn soft" id="saveGoimonNicknameEditBtn">ニックネームを保存</button>
+          <button class="btn gray" id="clearGoimonNicknameEditBtn">ニックネームを外す</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <div class="sectionTitle">能力値</div>
+        <div class="statsGrid">
+          <div class="statBox">
+            <div class="statLabel">ちえ</div>
+            <div class="statValue" id="goimonStatChie">0</div>
+          </div>
+          <div class="statBox">
+            <div class="statLabel">ことば</div>
+            <div class="statValue" id="goimonStatKotoba">0</div>
+          </div>
+          <div class="statBox">
+            <div class="statLabel">おんかん</div>
+            <div class="statValue" id="goimonStatOnkan">0</div>
+          </div>
+          <div class="statBox">
+            <div class="statLabel">ぶんみゃく</div>
+            <div class="statValue" id="goimonStatBunmyaku">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sectionTitle">保存・分岐育成</div>
+        <div class="mutedSmall" id="goimonBoxSummary">現役1体 / 保存箱 0体 / 上限15体</div>
+        <button class="btn soft" id="goimonSaveAndNewEggBtn">保存して新しいたまごを始める</button>
+        <button class="btn soft" id="goimonCloneBranchBtn">複製して別ルートで育てる</button>
+        <div class="miniNote">
+          ※ 保存箱が15体のときは追加できません。<br>
+          ※ 満杯のときは、先に保存箱から削除してから改めて押してください。
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sectionTitle">保存箱</div>
+        <div id="goimonArchiveSummary" class="mutedSmall">保存箱：0体 / 殿堂入り経験：0体</div>
+        <button class="btn gray" id="openGoimonArchiveBtn">保存箱を開く / 閉じる</button>
+        <div id="goimonArchiveList" class="archiveList hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="goimonImageZoomBackdrop" id="goimonImageZoomBackdrop"></div>
+
+  <div class="goimonImageZoomModal" id="goimonImageZoomModal" aria-hidden="true">
+    <div class="goimonImageZoomCard">
+      <div class="goimonImageZoomHead">
+        <div class="goimonImageZoomTitle" id="goimonImageZoomTitle">ゴイモン拡大表示</div>
+        <button class="goimonImageZoomClose" id="closeGoimonImageZoom">閉じる</button>
+      </div>
+      <div class="goimonImageZoomBody">
+        <img id="goimonImageZoomImg" src="images/goimon/goimon_egg.png" alt="ゴイモン拡大画像">
+      </div>
+    </div>
+  </div>
+
+  <div class="goimonDexBackdrop" id="goimonDexBackdrop"></div>
+
+  <div class="goimonDexModal" id="goimonDexModal" aria-hidden="true">
+    <div class="goimonDexCard">
+      <div class="goimonDexHead">
+        <div class="goimonDexTitle">ゴイモン図鑑</div>
+        <button class="goimonDexClose" id="closeGoimonDexBtn">閉じる</button>
+      </div>
+
+      <div class="goimonDexBody">
+        <div class="goimonDexControls">
+          <div class="goimonDexHint">育てたことのある姿だけ名前と説明が見られます。</div>
+        </div>
+
+        <div class="goimonDexTree" id="goimonDexTree"></div>
+
+        <div class="goimonDexEntry" id="goimonDexEntry">
+          <div class="goimonDexEntryEmpty" id="goimonDexEntryEmpty">
+            左の樹形図からゴイモンを選ぶと、説明が表示されます。
+          </div>
+
+          <div class="hidden" id="goimonDexEntryBody">
+            <div class="goimonDexEntryTop">
+              <div class="goimonDexEntryImageWrap clickable" id="goimonDexEntryImageWrap" role="button" tabindex="0" aria-label="図鑑画像を拡大表示">
+                <img id="goimonDexEntryImage" src="images/goimon/goimon_egg.png" alt="図鑑画像">
+              </div>
+              <div class="goimonDexEntryMain">
+                <div class="goimonDexEntryStage" id="goimonDexEntryStage">幼体</div>
+                <div class="goimonDexEntryName" id="goimonDexEntryName">？？？</div>
+                <div class="goimonDexEntryType" id="goimonDexEntryType">？？？系</div>
+              </div>
+            </div>
+
+            <div class="goimonDexEntrySection">
+              <div class="goimonDexEntryLabel">図鑑説明</div>
+              <div class="goimonDexEntryText" id="goimonDexEntryText">？？？</div>
+            </div>
+
+            <div class="goimonDexEntrySection">
+              <div class="goimonDexEntryLabel">解放状況</div>
+              <div class="goimonDexEntryText" id="goimonDexEntryUnlock">未解放</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="evoOverlay" class="evoOverlay hidden">
+    <div class="evoCenter">
+      <div class="evoFlash"></div>
+      <div id="evoShock" class="evoShock"></div>
+
+      <div class="evoImageStage">
+        <img id="evoGoimonBefore" src="" class="evoGoimon evoBefore" alt="進化前ゴイモン" />
+        <img id="evoGoimonAfter" src="" class="evoGoimon evoAfter evoHidden" alt="進化後ゴイモン" />
+      </div>
+
+      <div id="evoText1" class="evoText evoHidden">✨進化！✨</div>
+      <div id="evoText2" class="evoTextSub evoHidden"></div>
+
+      <button id="evoSkipBtn" class="evoSkip">スキップ</button>
+    </div>
+  </div>
+
+  <script src="words_1kyu.js"></script>
+  <script src="blocks_1kyu.js"></script>
   <script>
-    // ===== レベル（1級/2級） =====
+    window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
+    if (window.ACTIVE_LEVEL === "1") {
+      window.WORDS = window.WORDS_1KYU || [];
+      window.BLOCKS = window.BLOCKS_1KYU || [];
+    }
+  </script>
+  <script src="words_2kyu.js"></script>
+  <script src="blocks_2kyu.js"></script>
+  <script>
+    if (window.ACTIVE_LEVEL === "2") {
+      window.WORDS = window.WORDS_2KYU || [];
+      window.BLOCKS = window.BLOCKS_2KYU || [];
+    }
+  </script>
+
+  <script src="goimon_dialogues.js"></script>
+  <script src="developer_messages.js"></script>
+  <script src="goimon_dex.js"></script>
+  <script src="goimon_rules.js"></script>
+  <script src="goimon.js"></script>
+
+  <script>
     const LEVEL_KEY = "zensho_level_v1";
 
     const btn1 = document.getElementById("selectLevel1");
@@ -166,8 +367,27 @@
 
     function setLevel(lv) {
       localStorage.setItem(LEVEL_KEY, String(lv));
+      window.ACTIVE_LEVEL = String(lv);
+
+      if (window.ACTIVE_LEVEL === "1") {
+        window.WORDS = window.WORDS_1KYU || [];
+        window.BLOCKS = window.BLOCKS_1KYU || [];
+      } else {
+        window.WORDS = window.WORDS_2KYU || [];
+        window.BLOCKS = window.BLOCKS_2KYU || [];
+      }
+
       renderLevel();
       updateStatus();
+
+      if (window.GoimonUI && window.GoimonUI.renderHome) {
+        window.GoimonUI.renderHome();
+      }
+      if (window.GoimonDexUI && window.GoimonDexUI.renderTree) {
+        window.GoimonDexUI.renderTree();
+      }
+
+      applyGoimonDetailAnimation();
     }
 
     function renderLevel() {
@@ -180,24 +400,17 @@
     btn1.addEventListener("click", () => setLevel("1"));
     btn2.addEventListener("click", () => setLevel("2"));
 
-    // ===== 保存キー（級ごとに分ける）=====
     function keyFor(base) {
       return `${base}_lv${getLevel()}`;
     }
 
-    // ★ここが重要：今あなたが使っている最新キーに合わせる
-    // - study.js（暗記）: zensho_vocab_state_v3 を想定
-    // - quiz.js（英→日）: WEAK_KEY は v2
-    // - quiz_jaen.js（日→英）: WEAK_KEY は v3
-    // - 出題履歴（SEEN_KEY）は使っていないなら 0 表示でもOK
     function keys() {
       return {
-        STUDY_KEY: keyFor("zensho_vocab_state_v3"),
-
+        STUDY_KEY: keyFor("zensho_study_state_v1"),
         WEAK_ENJA_KEY: keyFor("zensho_quiz_weak_points_enja_v2"),
         WEAK_JAEN_KEY: keyFor("zensho_quiz_weak_points_jaen_v3"),
-
-        SEEN_KEY: keyFor("zensho_quiz_seen_counts_v1")
+        SEEN_KEY: keyFor("zensho_quiz_seen_counts_v1"),
+        LOG_KEY: keyFor("zensho_learning_log_v1")
       };
     }
 
@@ -205,6 +418,74 @@
       const raw = localStorage.getItem(key);
       if (!raw) return null;
       try { return JSON.parse(raw); } catch { return null; }
+    }
+
+    function pad2(n){ return String(n).padStart(2,"0"); }
+
+    function todayKey(){
+      const d = new Date();
+      return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+    }
+
+    function readLog(){
+      const { LOG_KEY } = keys();
+      const obj = safeParse(LOG_KEY);
+      return (obj && typeof obj === "object") ? obj : {};
+    }
+
+    function sumLogRange(logObj, days){
+      const result = { attempt:0, correct:0, wrong:0 };
+      const now = new Date();
+      for (let i=0;i<days;i++){
+        const d = new Date(now);
+        d.setDate(now.getDate()-i);
+        const k = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+        const day = logObj[k];
+        if (!day) continue;
+        for (const cat of Object.values(day)){
+          if (!cat || typeof cat !== "object") continue;
+          result.attempt += Number(cat.attempt||0);
+          result.correct += Number(cat.correct||0);
+          result.wrong += Number(cat.wrong||0);
+        }
+      }
+      return result;
+    }
+
+    function sumLogRangeForCategory(logObj, days, categoryKey){
+      const result = { attempt:0, correct:0, wrong:0 };
+      const now = new Date();
+      for (let i=0;i<days;i++){
+        const d = new Date(now);
+        d.setDate(now.getDate()-i);
+        const k = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+        const day = logObj[k];
+        if (!day || typeof day !== "object") continue;
+        const cat = day[categoryKey];
+        if (!cat || typeof cat !== "object") continue;
+        result.attempt += Number(cat.attempt||0);
+        result.correct += Number(cat.correct||0);
+        result.wrong += Number(cat.wrong||0);
+      }
+      return result;
+    }
+
+    function fmtRate(obj){
+      if (!obj.attempt) return "—";
+      return `${Math.round((obj.correct/obj.attempt)*100)}%`;
+    }
+
+    function getDailyDevMessage() {
+      const messages = Array.isArray(window.DEVELOPER_MESSAGES) ? window.DEVELOPER_MESSAGES : [];
+      if (!messages.length) {
+        return "今日も少しずつ進めていきましょう。";
+      }
+
+      const d = new Date();
+      const seed = Number(`${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}`);
+      const index = seed % messages.length;
+      const item = messages[index];
+      return typeof item === "string" ? item : item.text;
     }
 
     function updateStatus() {
@@ -215,65 +496,352 @@
       const weakJaen = safeParse(WEAK_JAEN_KEY);
       const seen = safeParse(SEEN_KEY);
 
-      const idx = s?.index ?? 0;
-      const isRandom = s?.isRandom ?? false;
-      const randomCount = s?.randomCount ?? 0;
-      const autoSpeak = s?.autoSpeak ?? false;
+      const idx = Number.isFinite(s?.idx) ? s.idx : 0;
+      const orderMode = String(s?.orderMode || "continue");
+      const autoSpeak = !!s?.autoSpeak;
 
       const weakEnjaCount = weakEnja ? Object.keys(weakEnja).length : 0;
       const weakJaenCount = weakJaen ? Object.keys(weakJaen).length : 0;
+      const totalWeak = weakEnjaCount + weakJaenCount;
       const seenCount = seen ? Object.keys(seen).length : 0;
 
       const lv = getLevel();
-      const lines = [];
-      lines.push(`【${lv}級】暗記：${idx + 1}番目から再開（ランダム：${isRandom ? "ON" : "OFF"} / ランダム回数：${randomCount} / 自動発音：${autoSpeak ? "ON" : "OFF"}）`);
-      lines.push(`【${lv}級】弱点：英→日 ${weakEnjaCount}語 / 日→英 ${weakJaenCount}語 / 出題履歴 ${seenCount}語`);
+      const words = window.WORDS || [];
 
-      document.getElementById("status").textContent = lines.join("｜");
+      const statNextAction = document.getElementById("statNextAction");
+      const statNextActionSub = document.getElementById("statNextActionSub");
+      const statDevMessage = document.getElementById("statDevMessage");
+      const statDevMessageSub = document.getElementById("statDevMessageSub");
+      const statPills = document.getElementById("statPills");
+      const statNote = document.getElementById("statNote");
+
+      const safeIdx = Math.max(0, Math.min(words.length ? words.length - 1 : 0, idx));
+      const nextWord = (words[safeIdx] && words[safeIdx].en) ? String(words[safeIdx].en) : "";
+
+      const modeLabel =
+        orderMode === "start" ? "先頭から" :
+        orderMode === "continue" ? "続きから" :
+        orderMode === "random" ? "ランダム" : "苦手順";
+
+      statNextAction.textContent = "暗記を続きから再開";
+      statNextActionSub.textContent =
+        nextWord
+          ? `次は ${safeIdx + 1}番（${nextWord}）｜モード：${modeLabel} / 自動発音：${autoSpeak ? "ON" : "OFF"}`
+          : `次は ${safeIdx + 1}番｜モード：${modeLabel} / 自動発音：${autoSpeak ? "ON" : "OFF"}`;
+
+      statDevMessage.textContent = getDailyDevMessage();
+      statDevMessageSub.textContent = "";
+
+      statPills.innerHTML = "";
+
+      const pill1 = document.createElement("span");
+      pill1.className = "pill blue";
+      pill1.textContent = `${lv}級モード`;
+      statPills.appendChild(pill1);
+
+      const pill2 = document.createElement("span");
+      pill2.className = "pill gray";
+      pill2.textContent = `出題履歴：${seenCount}語`;
+      statPills.appendChild(pill2);
+
+      const pill3 = document.createElement("span");
+      pill3.className = "pill yellow";
+      pill3.textContent = `弱点合計：${totalWeak}語`;
+      statPills.appendChild(pill3);
+
+      const pill4 = document.createElement("span");
+      pill4.className = "pill gray";
+      pill4.textContent = `英→日 ${weakEnjaCount} / 日→英 ${weakJaenCount}`;
+      statPills.appendChild(pill4);
+
+      statNote.textContent = "※ 弱点・履歴・暗記の続き位置は「この級」だけの集計です（1級/2級で別保存）。";
+
+      const logObj = readLog();
+      const t = todayKey();
+
+      const todaySum = sumLogRange(logObj, 1);
+      const weekSum = sumLogRange(logObj, 7);
+
+      const todayEnja = sumLogRangeForCategory(logObj, 1, "quiz_enja");
+      const todayJaen = sumLogRangeForCategory(logObj, 1, "quiz_jaen");
+      const todaySen  = sumLogRangeForCategory(logObj, 1, "sentence");
+      const todayAcc  = sumLogRangeForCategory(logObj, 1, "accent");
+
+      const weekEnja = sumLogRangeForCategory(logObj, 7, "quiz_enja");
+      const weekJaen = sumLogRangeForCategory(logObj, 7, "quiz_jaen");
+      const weekSen  = sumLogRangeForCategory(logObj, 7, "sentence");
+      const weekAcc  = sumLogRangeForCategory(logObj, 7, "accent");
+
+      const logList = document.getElementById("logList");
+      logList.innerHTML = "";
+
+      const mkRow = (left, right) => {
+        const div = document.createElement("div");
+        div.className = "logRow";
+        const l = document.createElement("div");
+        l.className = "logLeft";
+        l.textContent = left;
+        const r = document.createElement("div");
+        r.className = "logRight";
+        r.textContent = right;
+        div.appendChild(l);
+        div.appendChild(r);
+        return div;
+      };
+
+      const fmtBreak = (a,b,c,d) => `英→日 ${a} / 日→英 ${b} / 大問9 ${c} / アク ${d}`;
+
+      logList.appendChild(mkRow(`今日（${t}）の解答数`, `${todaySum.attempt} 回`));
+      logList.appendChild(mkRow(`今日の内訳（回数）`, fmtBreak(todayEnja.attempt, todayJaen.attempt, todaySen.attempt, todayAcc.attempt)));
+      logList.appendChild(mkRow(`直近7日間の解答数`, `${weekSum.attempt} 回`));
+      logList.appendChild(mkRow(`直近7日間の内訳（回数）`, fmtBreak(weekEnja.attempt, weekJaen.attempt, weekSen.attempt, weekAcc.attempt)));
+      logList.appendChild(mkRow(`直近7日間の正解率（合計）`, fmtRate(weekSum)));
     }
 
-    // ===== 画面遷移 =====
-    
-    document.getElementById("goWordList").addEventListener("click", () => {
-      location.href = "list.html";
-    });
-    document.getElementById("goStudy").addEventListener("click", () => {
-      location.href = "study.html";
-    });
-    document.getElementById("goQuiz").addEventListener("click", () => {
-      location.href = "quiz.html";
-    });
-    document.getElementById("goQuizJaEn").addEventListener("click", () => {
-      location.href = "quiz_jaen.html";
-    });
-    document.getElementById("goProgress").addEventListener("click", () => {
-      location.href = "progress.html";
-    });
+    function clearGoimonDetailAnimationClasses(img) {
+      if (!img) return;
+      img.classList.remove(
+        "goimonAnimEgg",
+        "goimonAnimChild",
+        "goimonAnimGrowth",
+        "goimonAnimMid",
+        "goimonAnimFinal"
+      );
+    }
 
-    document.getElementById("goSentence").addEventListener("click", () => {
-  location.href = "sentence.html";
-});
-    document.getElementById("goRecommended").addEventListener("click", () => {
-      location.href = "recommended.html";
-    });
+    function applyGoimonDetailAnimation() {
+      const img = document.getElementById("goimonDetailImage");
+      if (!img) return;
 
-    document.getElementById("resetAll").addEventListener("click", () => {
-      const { STUDY_KEY, WEAK_ENJA_KEY, WEAK_JAEN_KEY, SEEN_KEY } = keys();
-      const lv = getLevel();
-      if (!confirm(`【${lv}級】の暗記・クイズ保存データを初期化しますか？`)) return;
+      clearGoimonDetailAnimationClasses(img);
 
-      localStorage.removeItem(STUDY_KEY);
-      localStorage.removeItem(WEAK_ENJA_KEY);
-      localStorage.removeItem(WEAK_JAEN_KEY);
-      localStorage.removeItem(SEEN_KEY);
+      let stage = "egg";
+      if (window.GoimonUI && window.GoimonUI.ensureCurrent) {
+        const current = window.GoimonUI.ensureCurrent();
+        stage = String(current?.stage || "egg");
+      }
 
-      alert("初期化しました。");
-      updateStatus();
-    });
+      requestAnimationFrame(() => {
+        if (stage === "egg") img.classList.add("goimonAnimEgg");
+        else if (stage === "child") img.classList.add("goimonAnimChild");
+        else if (stage === "growth") img.classList.add("goimonAnimGrowth");
+        else if (stage === "mid") img.classList.add("goimonAnimMid");
+        else if (stage === "final") img.classList.add("goimonAnimFinal");
+        else img.classList.add("goimonAnimEgg");
+      });
+    }
 
-    // 起動
+    function openGoimonSheet() {
+      const backdrop = document.getElementById("sheetBackdrop");
+      const sheet = document.getElementById("goimonSheet");
+      if (!backdrop || !sheet) return;
+
+      backdrop.classList.add("show");
+      sheet.classList.add("show");
+      sheet.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+
+      applyGoimonDetailAnimation();
+    }
+
+    function closeGoimonSheet() {
+      const backdrop = document.getElementById("sheetBackdrop");
+      const sheet = document.getElementById("goimonSheet");
+      const img = document.getElementById("goimonDetailImage");
+      if (!backdrop || !sheet) return;
+
+      backdrop.classList.remove("show");
+      sheet.classList.remove("show");
+      sheet.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+
+      clearGoimonDetailAnimationClasses(img);
+      closeGoimonImageZoom();
+      closeGoimonDex();
+    }
+
+    function openGoimonImageZoom() {
+      const img = document.getElementById("goimonDetailImage");
+      const backdrop = document.getElementById("goimonImageZoomBackdrop");
+      const modal = document.getElementById("goimonImageZoomModal");
+      const zoomImg = document.getElementById("goimonImageZoomImg");
+      const title = document.getElementById("goimonImageZoomTitle");
+      const name = document.getElementById("goimonDetailName");
+
+      if (!img || !backdrop || !modal || !zoomImg || !title) return;
+
+      zoomImg.src = img.src;
+      zoomImg.alt = img.alt || "ゴイモン拡大画像";
+      title.textContent = name ? `${name.textContent} を拡大表示` : "ゴイモン拡大表示";
+
+      backdrop.classList.add("show");
+      modal.classList.add("show");
+      modal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeGoimonImageZoom() {
+      const backdrop = document.getElementById("goimonImageZoomBackdrop");
+      const modal = document.getElementById("goimonImageZoomModal");
+      if (!backdrop || !modal) return;
+
+      backdrop.classList.remove("show");
+      modal.classList.remove("show");
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    function setupGoimonImageZoom() {
+      const box = document.getElementById("goimonDetailImageBox");
+      const closeBtn = document.getElementById("closeGoimonImageZoom");
+      const backdrop = document.getElementById("goimonImageZoomBackdrop");
+
+      if (box) {
+        box.addEventListener("click", openGoimonImageZoom);
+        box.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            openGoimonImageZoom();
+          }
+        });
+      }
+
+      if (closeBtn) closeBtn.addEventListener("click", closeGoimonImageZoom);
+      if (backdrop) backdrop.addEventListener("click", closeGoimonImageZoom);
+    }
+
+    function openGoimonDex() {
+      const backdrop = document.getElementById("goimonDexBackdrop");
+      const modal = document.getElementById("goimonDexModal");
+      if (!backdrop || !modal) return;
+
+      backdrop.classList.add("show");
+      modal.classList.add("show");
+      modal.setAttribute("aria-hidden", "false");
+
+      if (window.GoimonDexUI && window.GoimonDexUI.renderTree) {
+        window.GoimonDexUI.renderTree();
+      }
+    }
+
+    function closeGoimonDex() {
+      const backdrop = document.getElementById("goimonDexBackdrop");
+      const modal = document.getElementById("goimonDexModal");
+      if (!backdrop || !modal) return;
+
+      backdrop.classList.remove("show");
+      modal.classList.remove("show");
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    function setupGoimonDex() {
+      const openBtn = document.getElementById("openGoimonDexBtn");
+      const closeBtn = document.getElementById("closeGoimonDexBtn");
+      const backdrop = document.getElementById("goimonDexBackdrop");
+      const imageWrap = document.getElementById("goimonDexEntryImageWrap");
+
+      if (openBtn) openBtn.addEventListener("click", openGoimonDex);
+      if (closeBtn) closeBtn.addEventListener("click", closeGoimonDex);
+      if (backdrop) backdrop.addEventListener("click", closeGoimonDex);
+
+      if (imageWrap) {
+        imageWrap.addEventListener("click", () => {
+          const img = document.getElementById("goimonDexEntryImage");
+          const zoomImg = document.getElementById("goimonImageZoomImg");
+          const zoomTitle = document.getElementById("goimonImageZoomTitle");
+          const backdrop2 = document.getElementById("goimonImageZoomBackdrop");
+          const modal2 = document.getElementById("goimonImageZoomModal");
+          const name = document.getElementById("goimonDexEntryName");
+
+          if (!img || !zoomImg || !zoomTitle || !backdrop2 || !modal2) return;
+
+          zoomImg.src = img.src;
+          zoomImg.alt = img.alt || "図鑑画像拡大";
+          zoomTitle.textContent = name ? `${name.textContent} を拡大表示` : "図鑑画像拡大";
+          backdrop2.classList.add("show");
+          modal2.classList.add("show");
+          modal2.setAttribute("aria-hidden", "false");
+        });
+
+        imageWrap.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            imageWrap.click();
+          }
+        });
+      }
+    }
+
+    function setupNicknameToggle() {
+      const toggleBtn = document.getElementById("toggleGoimonNicknameEditorBtn");
+      const wrap = document.getElementById("goimonNicknameEditorWrap");
+      if (!toggleBtn || !wrap) return;
+
+      toggleBtn.addEventListener("click", () => {
+        wrap.classList.toggle("hidden");
+      });
+    }
+
+    function setupGoimonSheet() {
+      const openBtn = document.getElementById("openGoimonSheetBtn");
+      const closeBtn = document.getElementById("closeGoimonSheet");
+      const backdrop = document.getElementById("sheetBackdrop");
+
+      if (openBtn) openBtn.addEventListener("click", openGoimonSheet);
+      if (closeBtn) closeBtn.addEventListener("click", closeGoimonSheet);
+      if (backdrop) backdrop.addEventListener("click", closeGoimonSheet);
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeGoimonImageZoom();
+          closeGoimonDex();
+          closeGoimonSheet();
+        }
+      });
+    }
+
+    function setupNextActionCard() {
+      const card = document.getElementById("nextActionCard");
+      if (!card) return;
+
+      const openStudy = () => {
+        location.href = "study.html";
+      };
+
+      card.addEventListener("click", openStudy);
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openStudy();
+        }
+      });
+    }
+
+    document.getElementById("goWordList").addEventListener("click", () => { location.href = "list.html"; });
+    document.getElementById("goStudy").addEventListener("click", () => { location.href = "study.html"; });
+    document.getElementById("goQuiz").addEventListener("click", () => { location.href = "quiz.html"; });
+    document.getElementById("goQuizJaEn").addEventListener("click", () => { location.href = "quiz_jaen.html"; });
+    document.getElementById("goAudioQuiz").addEventListener("click", () => { location.href = "audio_quiz.html"; });
+    document.getElementById("goProgress").addEventListener("click", () => { location.href = "progress.html"; });
+    document.getElementById("goSentence").addEventListener("click", () => { location.href = "sentence.html"; });
+    document.getElementById("goAccent").addEventListener("click", () => { location.href = "accent.html"; });
+    document.getElementById("goRecommended").addEventListener("click", () => { location.href = "recommended.html"; });
+
     renderLevel();
     updateStatus();
+    setupGoimonSheet();
+    setupGoimonImageZoom();
+    setupGoimonDex();
+    setupNicknameToggle();
+    setupNextActionCard();
+
+    if (window.GoimonUI && window.GoimonUI.initHomeActions) {
+      window.GoimonUI.initHomeActions();
+    }
+    if (window.GoimonUI && window.GoimonUI.renderHome) {
+      window.GoimonUI.renderHome();
+    }
+    if (window.GoimonDexUI && window.GoimonDexUI.init) {
+      window.GoimonDexUI.init();
+    }
   </script>
 </body>
 </html>
