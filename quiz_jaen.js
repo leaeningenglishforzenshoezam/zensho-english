@@ -1,25 +1,34 @@
-// quiz_jaen.js（日→英）完全版：Block＋3モード＋順番続き＋順番リセット＋結果画面＋結果ボタン＋URLパラメータ＋「級ごとに保存」対応
-// ★追加：正解=緑/不正解=赤、正解ピンポン/不正解ブッブー、1問1回だけ押せる（連打防止）
+// quiz_jaen.js（日→英）ゴイモン版：Block＋3モード＋順番続き＋順番リセット＋結果画面＋URLパラメータ＋級ごと保存
+// ★正解=緑/不正解=赤、正解ピンポン/不正解ブッブー、1問1回だけ押せる
+// ★学習ログ（ホーム用）に 1問ごとに加算
+// ★日→英正解時は ゴイモンの「ことば +1」
+// ★ゴイモンは折りたたみ表示＋進化通知＋共通進化演出
 
 document.addEventListener("DOMContentLoaded", () => {
   const words = window.WORDS || [];
   const blocks = window.BLOCKS || [];
   const PASS_LINE = 80;
 
-  // ===== レベル（1級/2級）取得 =====
   const LEVEL_KEY = "zensho_level_v1";
   function getLevel() {
     return localStorage.getItem(LEVEL_KEY) || "1";
   }
   const LV = getLevel();
 
-  // ===== 保存キー（日→英専用）（★級ごとに分離）=====
+  function addLearningLog(isCorrect) {
+    try {
+      if (typeof window.zenshoLogAdd === "function") {
+        window.zenshoLogAdd("quiz_jaen", !!isCorrect);
+      }
+    } catch {}
+  }
+
   const WEAK_KEY = `zensho_quiz_weak_points_jaen_v3_lv${LV}`;
   const ORDER_CURSOR_KEY = `zensho_quiz_order_cursor_jaen_v2_lv${LV}`;
   const SETTINGS_KEY = `zensho_quiz_settings_jaen_v2_lv${LV}`;
   const BLOCK_STATS_KEY = `zensho_block_stats_jaen_v2_lv${LV}`;
+  const UI_KEY = `zensho_quiz_jaen_ui_v1_lv${LV}`;
 
-  // ===== DOM =====
   const statsEl = document.getElementById("stats");
   const qMetaEl = document.getElementById("qMeta");
   const questionEl = document.getElementById("question");
@@ -47,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const toggleSettingsBtn = document.getElementById("toggleSettings");
   const settingsArea = document.getElementById("settingsArea");
   const settingsSummaryEl = document.getElementById("settingsSummary");
+  const setupBox = document.getElementById("setupBox");
 
   const modeSelectEl = document.getElementById("modeSelect");
   const resetOrderBtn = document.getElementById("resetOrderCursor");
@@ -62,10 +72,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const goStudyBlockBtn = document.getElementById("goStudyBlock");
   const goWeakReviewBtn = document.getElementById("goWeakReview");
 
-  // ===== 安全チェック =====
+  const levelBadgeEl = document.getElementById("levelBadge");
+  const goimonToggleBtn = document.getElementById("goimonToggleBtn");
+  const goimonPanel = document.getElementById("goimonPanel");
+  const evolutionNoticeBtn = document.getElementById("evolutionNoticeBtn");
+  const goimonMiniImageEl = document.getElementById("goimonMiniImage");
+  const goimonMiniNameEl = document.getElementById("goimonMiniName");
+  const goimonMiniMetaEl = document.getElementById("goimonMiniMeta");
+  const goimonKotobaValueEl = document.getElementById("goimonKotobaValue");
+
   function must(el, name) {
     if (!el) throw new Error(`quiz_jaen.html に #${name} が見つかりません`);
   }
+
   [
     [statsEl,"stats"],[qMetaEl,"qMeta"],[questionEl,"question"],[choicesEl,"choices"],[resultEl,"result"],
     [nextBtn,"nextQ"],[startBtn,"startTest"],[resetBtn,"resetQuiz"],
@@ -73,15 +92,39 @@ document.addEventListener("DOMContentLoaded", () => {
     [blockSelectEl,"blockSelect"],[applyBlockBtn,"applyBlock"],[blockStatsEl,"blockStats"],
     [weakModeEl,"weakMode"],[clearWeakBtn,"clearWeak"],[weakInfoEl,"weakInfo"],
     [speakQBtn,"speakQ"],[autoSpeakQEl,"autoSpeakQ"],
-    [toggleSettingsBtn,"toggleSettings"],[settingsArea,"settingsArea"],[settingsSummaryEl,"settingsSummary"],
+    [toggleSettingsBtn,"toggleSettings"],[settingsArea,"settingsArea"],[settingsSummaryEl,"settingsSummary"],[setupBox,"setupBox"],
     [modeSelectEl,"modeSelect"],[resetOrderBtn,"resetOrderCursor"],
     [playBox,"playBox"],[summaryBox,"summaryBox"],
     [finalScoreEl,"finalScore"],[finalBlockLineEl,"finalBlockLine"],
     [askedListEl,"askedList"],[wrongListEl,"wrongList"],[backToSetupBtn,"backToSetup"],
     [goStudyBlockBtn,"goStudyBlock"],[goWeakReviewBtn,"goWeakReview"],
+    [levelBadgeEl,"levelBadge"],[goimonToggleBtn,"goimonToggleBtn"],[goimonPanel,"goimonPanel"],
+    [evolutionNoticeBtn,"evolutionNoticeBtn"],[goimonMiniImageEl,"goimonMiniImage"],
+    [goimonMiniNameEl,"goimonMiniName"],[goimonMiniMetaEl,"goimonMiniMeta"],[goimonKotobaValueEl,"goimonKotobaValue"]
   ].forEach(([el,n]) => must(el,n));
 
-  // ===== 音声（英語）=====
+  function safeParse(key) {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+
+  function saveJson(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function loadUiState() {
+    return safeParse(UI_KEY) || { goimonOpen: false };
+  }
+
+  function saveUiState() {
+    saveJson(UI_KEY, uiState);
+  }
+
   function speakEnglish(text) {
     if (!("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
@@ -91,21 +134,18 @@ document.addEventListener("DOMContentLoaded", () => {
     window.speechSynthesis.speak(u);
   }
 
-  // ===== 効果音（ファイル不要）=====
   let _audioCtx = null;
   function getAudioCtx() {
     if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     return _audioCtx;
   }
   function ensureAudioReady() {
-    // iPhone等は「ユーザー操作後に resume」が必要なことがある
     try {
       const ctx = getAudioCtx();
       if (ctx.state === "suspended") ctx.resume();
     } catch {}
   }
 
-  // ピンポン（高い音2回）
   function playCorrectSound() {
     try {
       const ctx = getAudioCtx();
@@ -135,7 +175,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch {}
   }
 
-  // ブッブー（低い音）
   function playWrongSound() {
     try {
       const ctx = getAudioCtx();
@@ -167,7 +206,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ===== Utility =====
   function shuffle(arr) {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
@@ -189,12 +227,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function getBlockById(id) {
     return blocks.find(b => Number(b.id) === Number(id)) || null;
   }
+
   function getBlockByNo(no) {
     const n = Number(no);
     return blocks.find(b => n >= Number(b.start) && n <= Number(b.end)) || null;
   }
 
-  // ===== 弱点ポイント（日→英）=====
   let weakPoints = {};
   function loadWeakPoints() {
     const raw = localStorage.getItem(WEAK_KEY);
@@ -219,7 +257,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return Object.keys(weakPoints).length;
   }
 
-  // ===== 順番モード「続き」保存（日→英）=====
   function loadOrderCursor(start, end) {
     const raw = localStorage.getItem(ORDER_CURSOR_KEY);
     if (!raw) return start;
@@ -231,13 +268,13 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch {}
     return start;
   }
+
   function saveOrderCursor(start, end, cursor) {
     localStorage.setItem(ORDER_CURSOR_KEY, JSON.stringify({ start, end, cursor }));
   }
 
-  // ===== 設定保存（日→英）=====
-  let autoSpeakQ = false; // 解答後に正解を読む
-  let quizMode = "order"; // order / random / weak
+  let autoSpeakQ = false;
+  let quizMode = "order";
   function loadSettings() {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (!raw) return;
@@ -249,20 +286,22 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch {}
   }
+
   function saveSettings() {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify({ autoSpeakQ, quizMode }));
   }
 
-  // ===== Block累計（表示用）=====
   let statsMap = {};
   function loadBlockStats() {
     const raw = localStorage.getItem(BLOCK_STATS_KEY);
     if (!raw) return;
     try { statsMap = JSON.parse(raw) || {}; } catch {}
   }
+
   function saveBlockStats() {
     localStorage.setItem(BLOCK_STATS_KEY, JSON.stringify(statsMap));
   }
+
   function addBlockResult(blockId, isCorrect) {
     const k = String(blockId);
     if (!statsMap[k]) statsMap[k] = { attempted: 0, correct: 0 };
@@ -270,17 +309,33 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isCorrect) statsMap[k].correct += 1;
     saveBlockStats();
 
-    // ===== ここから追加：横断の共通記録（レベル別）=====
     const lv = window.ACTIVE_LEVEL || "1";
     const GLOBAL_BLOCK_KEY = `zensho_block_global_lv${lv}_v1`;
     const g = JSON.parse(localStorage.getItem(GLOBAL_BLOCK_KEY) || '{"byBlock":{}}');
     const k2 = String(blockId);
-    if (!g.byBlock[k2]) g.byBlock[k2] = { studyDone: 0, quizAttempted: 0, quizCorrect: 0, quizAttemptedJaEn: 0, quizCorrectJaEn: 0 };
+    if (!g.byBlock[k2]) {
+      g.byBlock[k2] = {
+        studyDone: 0,
+        quizAttempted: 0,
+        quizCorrect: 0,
+        quizAttemptedJaEn: 0,
+        quizCorrectJaEn: 0,
+        accentAttempted: 0,
+        accentCorrect: 0,
+        sentenceAttempted: 0,
+        sentenceCorrect: 0,
+        audioAttempted: 0,
+        audioCorrect: 0
+      };
+    }
+    if (!Number.isFinite(g.byBlock[k2].quizAttemptedJaEn)) g.byBlock[k2].quizAttemptedJaEn = 0;
+    if (!Number.isFinite(g.byBlock[k2].quizCorrectJaEn)) g.byBlock[k2].quizCorrectJaEn = 0;
+
     g.byBlock[k2].quizAttemptedJaEn += 1;
     if (isCorrect) g.byBlock[k2].quizCorrectJaEn += 1;
     localStorage.setItem(GLOBAL_BLOCK_KEY, JSON.stringify(g));
-    // ===== 追加ここまで =====
   }
+
   function getBlockAccText(blockId) {
     const k = String(blockId);
     const s = statsMap[k];
@@ -290,7 +345,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${tag}（${pct}%｜${s.correct}/${s.attempted}）`;
   }
 
-  // ===== セッション =====
   let session = {
     active: false,
     answered: 0,
@@ -305,22 +359,30 @@ document.addEventListener("DOMContentLoaded", () => {
   let weakMode = false;
 
   let askedSet = new Set();
-  let askedLog = [];   // {no, ja, en, blockId}
-  let wrongMap = {};   // {en: {no, ja, en, blockId}}
+  let askedLog = [];
+  let wrongMap = {};
 
   let orderCursor = 0;
+  let uiState = loadUiState();
 
-  // ===== 表示切り替え =====
+  function showSetupView() {
+    setupBox.style.display = "block";
+    playBox.style.display = "none";
+    summaryBox.style.display = "none";
+  }
+
   function showPlayView() {
+    setupBox.style.display = "none";
     playBox.style.display = "block";
     summaryBox.style.display = "none";
   }
+
   function showSummaryView() {
+    setupBox.style.display = "none";
     playBox.style.display = "none";
     summaryBox.style.display = "block";
   }
 
-  // ===== 設定折りたたみ＋要約 =====
   let settingsOpen = false;
 
   function modeText() {
@@ -328,10 +390,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (quizMode === "random") return "ランダム";
     return "ニガテ順";
   }
+
   function summaryRangeText() {
     if (blockSelectEl.value === "all") return "全範囲";
     return `Block ${blockSelectEl.value}`;
   }
+
   function updateSettingsSummary() {
     if (settingsOpen) {
       settingsSummaryEl.textContent = "";
@@ -340,6 +404,7 @@ document.addEventListener("DOMContentLoaded", () => {
     settingsSummaryEl.textContent =
       `（${summaryRangeText()}｜${session.limit}問｜${weakMode ? "弱点ON" : "弱点OFF"}｜モード:${modeText()}｜${LV}級）`;
   }
+
   function closeSettings() {
     settingsOpen = false;
     settingsArea.style.display = "none";
@@ -354,7 +419,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSettingsSummary();
   });
 
-  // ===== Block UI =====
   function renderBlockSelect() {
     blockSelectEl.innerHTML = "";
 
@@ -410,7 +474,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSettingsSummary();
   });
 
-  // ===== 順番続きリセット =====
   resetOrderBtn.addEventListener("click", () => {
     if (!confirm("順番モードの進捗を最初からに戻しますか？")) return;
     let s = Number(rangeStartEl.value) - 1;
@@ -420,7 +483,6 @@ document.addEventListener("DOMContentLoaded", () => {
     alert("順番モードを最初からにリセットしました。");
   });
 
-  // ===== 結果画面ボタン =====
   function getCurrentRangeFromInputs() {
     let s = Number(rangeStartEl.value) - 1;
     let e = Number(rangeEndEl.value) - 1;
@@ -438,7 +500,6 @@ document.addEventListener("DOMContentLoaded", () => {
     location.href = `quiz_jaen.html?start=${s + 1}&end=${e + 1}&mode=weak&weak=1&autostart=1`;
   });
 
-  // ===== 出題作成（日→英）=====
   function renderMeta(no) {
     const b = getBlockByNo(no);
     if (b) qMetaEl.textContent = `Block ${b.id}（${b.start}〜${b.end}）｜番号 ${no} / ${words.length}（${LV}級）`;
@@ -573,11 +634,111 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function formatGoimonPoint(num) {
+    if (window.GoimonUI && typeof window.GoimonUI.formatPoint === "function") {
+      return window.GoimonUI.formatPoint(num);
+    }
+    const n = Number(num || 0);
+    if (Math.abs(n - Math.round(n)) < 0.0001) return String(Math.round(n));
+    return n.toFixed(1);
+  }
+
+  function getStageLabel(stage) {
+    if (window.GoimonUI && typeof window.GoimonUI.getStageLabel === "function") {
+      return window.GoimonUI.getStageLabel(stage);
+    }
+    return stage || "";
+  }
+
+  function renderEvolutionNotice() {
+    if (window.GoimonUI && typeof window.GoimonUI.renderEvolutionNoticeButton === "function") {
+      window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
+      return;
+    }
+    if (!window.GoimonUI || typeof window.GoimonUI.loadCurrent !== "function") return;
+    const g = window.GoimonUI.loadCurrent();
+    if (!g) return;
+
+    if (g.pendingEvolution) {
+      evolutionNoticeBtn.classList.remove("hidden");
+    } else {
+      evolutionNoticeBtn.classList.add("hidden");
+    }
+  }
+
+  function renderGoimonStatus() {
+    if (!window.GoimonUI || typeof window.GoimonUI.loadCurrent !== "function") return;
+    const g = window.GoimonUI.loadCurrent();
+    if (!g) return;
+
+    const displayName = (window.GoimonUI && typeof window.GoimonUI.getGoimonPrimaryName === "function")
+      ? window.GoimonUI.getGoimonPrimaryName(g)
+      : "ゴイモン";
+    const stageLabel = getStageLabel(g.stage);
+    const typeLabel = g.stage === "egg" && g.specialRoute === "mr_uno"
+      ? "MR.UNOルート"
+      : (g.typeLabel || "なごみ系");
+    const kotoba = g.stats?.kotoba || 0;
+
+    goimonMiniImageEl.src = g.imageKey || "images/goimon/goimon_egg.png";
+    goimonMiniImageEl.alt = displayName;
+    goimonMiniNameEl.textContent = displayName;
+    goimonMiniMetaEl.textContent = `Lv${g.level}｜${stageLabel}｜${typeLabel}`;
+    goimonKotobaValueEl.textContent = formatGoimonPoint(kotoba);
+
+    renderEvolutionNotice();
+  }
+
+  function openSharedEvolution() {
+    try {
+      if (window.GoimonUI && typeof window.GoimonUI.openEvolutionOverlay === "function") {
+        window.GoimonUI.openEvolutionOverlay({
+          onComplete: () => {
+            renderGoimonStatus();
+          }
+        });
+        return;
+      }
+
+      if (window.GoimonUI && typeof window.GoimonUI.playPendingEvolutionSequence === "function") {
+        window.GoimonUI.playPendingEvolutionSequence({
+          onComplete: () => {
+            renderGoimonStatus();
+          }
+        });
+        return;
+      }
+
+      if (window.GoimonUI && typeof window.GoimonUI.confirmEvolution === "function") {
+        window.GoimonUI.confirmEvolution();
+        renderGoimonStatus();
+      }
+    } catch (e) {
+      console.warn("openSharedEvolution failed:", e);
+    }
+  }
+
+  function renderLevelBadge() {
+    levelBadgeEl.textContent = `現在：全商英検 ${LV}級`;
+  }
+
+  function renderGoimonPanelState() {
+    if (uiState.goimonOpen) {
+      goimonPanel.classList.remove("hidden");
+      goimonToggleBtn.textContent = "ゴイモンを閉じる";
+    } else {
+      goimonPanel.classList.add("hidden");
+      goimonToggleBtn.textContent = "ゴイモンの様子を見る";
+    }
+  }
+
   function renderQuestion() {
     renderStats();
     updateWeakInfo();
     renderBlockStatsLine();
     updateSettingsSummary();
+    renderGoimonPanelState();
+    renderGoimonStatus();
 
     if (!session.active) {
       questionEl.textContent = "テスト未開始";
@@ -608,7 +769,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const btn = document.createElement("button");
       btn.textContent = text;
 
-      // ★クリックで効果音を鳴らせるように準備してから判定
       btn.addEventListener("click", () => {
         ensureAudioReady();
         handleChoice(text, btn);
@@ -626,7 +786,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const correct = (choiceText === current.en);
 
-    // ★見た目（色）＋効果音
+    addLearningLog(correct);
+
     if (correct) {
       clickedBtn.classList.add("correct");
       playCorrectSound();
@@ -634,9 +795,18 @@ document.addEventListener("DOMContentLoaded", () => {
       session.correct++;
       resultEl.textContent = "⭕️ 正解！";
 
-      const p = getPoint(current.en);
-      if (p > 0) {
-        setPoint(current.en, p - 1);
+      const currentWeakPoint = getPoint(current.en);
+
+      if (window.GoimonUI && typeof window.GoimonUI.addQuizJaEnCorrect === "function") {
+        try {
+          window.GoimonUI.addQuizJaEnCorrect();
+        } catch (e) {
+          console.warn("Goimon addQuizJaEnCorrect failed:", e);
+        }
+      }
+
+      if (currentWeakPoint > 0) {
+        setPoint(current.en, currentWeakPoint - 1);
         saveWeakPoints();
       }
     } else {
@@ -645,7 +815,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       resultEl.textContent = `❌ 不正解。正解は「${current.en}」`;
 
-      // 不正解のとき、正解のボタンも緑で見せる
       markCorrectButtonGreen();
 
       setPoint(current.en, getPoint(current.en) + 2);
@@ -656,7 +825,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // ★連打防止：全部押せなくする
     lockChoices();
 
     if (window.GlobalStats && current.blockId) {
@@ -664,13 +832,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (current.blockId) addBlockResult(current.blockId, correct);
 
-    // ★あなたの仕様のまま：解答後に英語を読む
     if (autoSpeakQ) speakEnglish(current.en);
 
     renderStats();
     updateWeakInfo();
     renderBlockStatsLine();
     updateSettingsSummary();
+    renderGoimonStatus();
 
     if (session.answered >= session.limit) {
       finishSession();
@@ -679,7 +847,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ===== イベント =====
   speakQBtn.addEventListener("click", () => {
     if (!current) return;
     if (!answeredThisQuestion) {
@@ -767,10 +934,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   backToSetupBtn.addEventListener("click", () => {
-    showPlayView();
+    showSetupView();
   });
 
-  // ===== URLパラメータ反映（範囲・モード・弱点・自動開始）=====
   function applyQuery() {
     const p = new URLSearchParams(location.search);
 
@@ -802,14 +968,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ===== 起動 =====
+  goimonToggleBtn.addEventListener("click", () => {
+    uiState.goimonOpen = !uiState.goimonOpen;
+    saveUiState();
+    renderGoimonPanelState();
+  });
+
+  evolutionNoticeBtn.addEventListener("click", () => {
+    openSharedEvolution();
+  });
+
   loadWeakPoints();
   loadSettings();
   loadBlockStats();
 
+  if (window.GoimonUI && typeof window.GoimonUI.ensureCurrent === "function") {
+    window.GoimonUI.ensureCurrent();
+  }
+
   autoSpeakQEl.checked = !!autoSpeakQ;
   modeSelectEl.value = quizMode;
 
+  renderLevelBadge();
   renderBlockSelect();
   applySelectedBlockToRange();
 
@@ -818,7 +998,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateWeakInfo();
   closeSettings();
-  showPlayView();
+  showSetupView();
   renderQuestion();
 
   applyQuery();
