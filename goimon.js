@@ -1468,6 +1468,10 @@ window.GoimonDexUI = (function () {
       .replaceAll("'", "&#39;");
   }
 
+  function isMobileDex() {
+    return window.matchMedia("(max-width: 768px)").matches;
+  }
+
   function getCurrentGoimon() {
     if (window.GoimonUI && typeof window.GoimonUI.ensureCurrent === "function") {
       return window.GoimonUI.ensureCurrent();
@@ -1500,6 +1504,18 @@ window.GoimonDexUI = (function () {
     return "学習を進めると解放されます";
   }
 
+  function getDesktopEntryContainer() {
+    const body = document.getElementById("goimonDexEntryBody");
+    const empty = document.getElementById("goimonDexEntryEmpty");
+    return body?.closest(".goimonDexEntry") || empty?.closest(".goimonDexEntry") || null;
+  }
+
+  function syncDesktopEntryVisibility() {
+    const entry = getDesktopEntryContainer();
+    if (!entry) return;
+    entry.style.display = isMobileDex() ? "none" : "";
+  }
+
   function setDexEntryEmpty() {
     const empty = document.getElementById("goimonDexEntryEmpty");
     const body = document.getElementById("goimonDexEntryBody");
@@ -1507,7 +1523,7 @@ window.GoimonDexUI = (function () {
     if (body) body.classList.add("hidden");
   }
 
-  function renderDexEntry(speciesKey, stageKey, unlocked) {
+  function renderDesktopDexEntry(speciesKey, stageKey, unlocked) {
     const empty = document.getElementById("goimonDexEntryEmpty");
     const body = document.getElementById("goimonDexEntryBody");
     const stageEl = document.getElementById("goimonDexEntryStage");
@@ -1556,6 +1572,168 @@ window.GoimonDexUI = (function () {
     unlockEl.textContent = "解放済み";
     imgEl.src = entry?.image || "images/goimon/goimon_egg.png";
     imgEl.alt = entry?.name || "図鑑画像";
+  }
+
+  function ensureMobileDexSheet() {
+    if (document.getElementById("goimonDexMobileSheet")) return;
+
+    const backdrop = document.createElement("div");
+    backdrop.id = "goimonDexMobileSheetBackdrop";
+    backdrop.style.cssText = [
+      "position:fixed",
+      "inset:0",
+      "background:rgba(0,0,0,0.45)",
+      "opacity:0",
+      "pointer-events:none",
+      "transition:opacity .2s ease",
+      "z-index:1250"
+    ].join(";");
+
+    const modal = document.createElement("div");
+    modal.id = "goimonDexMobileSheet";
+    modal.setAttribute("aria-hidden", "true");
+    modal.style.cssText = [
+      "position:fixed",
+      "left:0",
+      "right:0",
+      "bottom:0",
+      "margin:0 auto",
+      "width:min(100vw, 520px)",
+      "max-height:82vh",
+      "background:#fff",
+      "border-radius:18px 18px 0 0",
+      "box-shadow:0 -8px 24px rgba(0,0,0,0.18)",
+      "transform:translateY(105%)",
+      "transition:transform .25s ease",
+      "z-index:1251",
+      "display:flex",
+      "flex-direction:column",
+      "overflow:hidden"
+    ].join(";");
+
+    modal.innerHTML = `
+      <div style="width:42px;height:5px;border-radius:999px;background:#ddd;margin:10px auto 8px;flex:0 0 auto;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:0 14px 12px;border-bottom:1px solid #eee;">
+        <div style="font-size:18px;font-weight:800;color:#111;">図鑑詳細</div>
+        <button id="goimonDexMobileSheetClose" type="button" style="border:0;background:#f2f2f2;color:#111;border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer;">閉じる</button>
+      </div>
+      <div style="padding:14px;overflow-y:auto;">
+        <div id="goimonDexMobileEntryTop" style="display:flex;gap:12px;align-items:center;margin-bottom:14px;">
+          <div id="goimonDexMobileEntryImageWrap" style="width:100px;height:100px;border-radius:16px;background:#fffaf1;border:1px solid #f0e3c9;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+            <img id="goimonDexMobileEntryImage" src="" alt="" style="max-width:84px;max-height:84px;display:block;">
+          </div>
+          <div style="min-width:0;">
+            <div id="goimonDexMobileEntryStage" style="font-size:12px;color:#777;margin-bottom:4px;"></div>
+            <div id="goimonDexMobileEntryName" style="font-size:22px;font-weight:900;color:#111;line-height:1.3;word-break:break-word;margin-bottom:6px;"></div>
+            <div id="goimonDexMobileEntryType" style="font-size:13px;color:#555;"></div>
+          </div>
+        </div>
+        <div style="margin-top:12px;">
+          <div style="font-size:12px;color:#666;margin-bottom:6px;">図鑑説明</div>
+          <div id="goimonDexMobileEntryText" style="font-size:14px;color:#222;line-height:1.7;word-break:break-word;"></div>
+        </div>
+        <div style="margin-top:12px;">
+          <div style="font-size:12px;color:#666;margin-bottom:6px;">解放状況</div>
+          <div id="goimonDexMobileEntryUnlock" style="font-size:14px;color:#222;line-height:1.7;word-break:break-word;"></div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(backdrop);
+    document.body.appendChild(modal);
+
+    function closeSheet() {
+      backdrop.style.opacity = "0";
+      backdrop.style.pointerEvents = "none";
+      modal.style.transform = "translateY(105%)";
+      modal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    function openSheet() {
+      backdrop.style.opacity = "1";
+      backdrop.style.pointerEvents = "auto";
+      modal.style.transform = "translateY(0)";
+      modal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    backdrop.addEventListener("click", closeSheet);
+    document.getElementById("goimonDexMobileSheetClose")?.addEventListener("click", closeSheet);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeSheet();
+    });
+
+    modal._openSheet = openSheet;
+    modal._closeSheet = closeSheet;
+  }
+
+  function openMobileDexSheet() {
+    ensureMobileDexSheet();
+    const modal = document.getElementById("goimonDexMobileSheet");
+    modal?._openSheet?.();
+  }
+
+  function closeMobileDexSheet() {
+    const modal = document.getElementById("goimonDexMobileSheet");
+    modal?._closeSheet?.();
+  }
+
+  function renderMobileDexEntry(speciesKey, stageKey, unlocked) {
+    ensureMobileDexSheet();
+
+    const stageEl = document.getElementById("goimonDexMobileEntryStage");
+    const nameEl = document.getElementById("goimonDexMobileEntryName");
+    const typeEl = document.getElementById("goimonDexMobileEntryType");
+    const textEl = document.getElementById("goimonDexMobileEntryText");
+    const unlockEl = document.getElementById("goimonDexMobileEntryUnlock");
+    const imgEl = document.getElementById("goimonDexMobileEntryImage");
+
+    if (!stageEl || !nameEl || !typeEl || !textEl || !unlockEl || !imgEl) return;
+
+    if (stageKey === "egg") {
+      const egg = window.GOIMON_DEX?.common?.egg || {};
+      stageEl.textContent = window.GoimonDex?.getStageLabel("egg") || "たまご";
+      nameEl.textContent = egg.name || "ふしぎなたまご";
+      typeEl.textContent = egg.typeLabel || "共通";
+      textEl.textContent = egg.description || "";
+      unlockEl.textContent = "解放済み";
+      imgEl.src = egg.image || "images/goimon/goimon_egg.png";
+      imgEl.alt = egg.name || "ふしぎなたまご";
+      return;
+    }
+
+    const speciesData = window.GoimonDex?.getSpecies(speciesKey);
+    const entry = window.GoimonDex?.getEntry(speciesKey, stageKey);
+    const stageLabel = window.GoimonDex?.getStageLabel(stageKey) || stageKey;
+
+    stageEl.textContent = stageLabel;
+    typeEl.textContent = speciesData?.label || "？？？系";
+
+    if (!unlocked) {
+      const hint = getUnlockHint(speciesKey, stageKey);
+      nameEl.textContent = "？？？";
+      textEl.textContent = `まだ未解放の個体です。解放条件：${hint}`;
+      unlockEl.textContent = `未解放（条件：${hint}）`;
+      imgEl.src = "images/goimon/goimon_egg.png";
+      imgEl.alt = "未解放";
+      return;
+    }
+
+    nameEl.textContent = entry?.name || "名称未設定";
+    textEl.textContent = entry?.description || "";
+    unlockEl.textContent = "解放済み";
+    imgEl.src = entry?.image || "images/goimon/goimon_egg.png";
+    imgEl.alt = entry?.name || "図鑑画像";
+  }
+
+  function renderDexEntry(speciesKey, stageKey, unlocked) {
+    if (!isMobileDex()) {
+      renderDesktopDexEntry(speciesKey, stageKey, unlocked);
+    } else {
+      renderMobileDexEntry(speciesKey, stageKey, unlocked);
+    }
   }
 
   function buildEggNodeHtml(currentSpecies, currentStage) {
@@ -1640,7 +1818,12 @@ window.GoimonDexUI = (function () {
         const species = node.dataset.species || "";
         const stage = node.dataset.stage || "egg";
         const unlocked = node.dataset.unlocked === "1";
+
         renderDexEntry(species, stage, unlocked);
+
+        if (isMobileDex()) {
+          openMobileDexSheet();
+        }
       });
     });
   }
@@ -1648,6 +1831,8 @@ window.GoimonDexUI = (function () {
   function renderTree() {
     const tree = document.getElementById("goimonDexTree");
     if (!tree || !window.GoimonDex || !window.GOIMON_DEX) return;
+
+    syncDesktopEntryVisibility();
 
     const currentSpecies = getCurrentSpecies();
     const currentStage = getCurrentStage();
@@ -1674,15 +1859,34 @@ window.GoimonDexUI = (function () {
     tree.innerHTML = html;
     bindDexNodeEvents();
 
-    if (currentSpecies && currentStage !== "egg" && isUnlocked(currentSpecies, currentStage)) {
-      renderDexEntry(currentSpecies, currentStage, true);
+    if (!isMobileDex()) {
+      if (currentSpecies && currentStage !== "egg" && isUnlocked(currentSpecies, currentStage)) {
+        renderDesktopDexEntry(currentSpecies, currentStage, true);
+      } else {
+        setDexEntryEmpty();
+      }
     } else {
       setDexEntryEmpty();
+      closeMobileDexSheet();
     }
+  }
+
+  function bindResizeOnce() {
+    if (window.__goimonDexResizeBound) return;
+    window.__goimonDexResizeBound = true;
+
+    window.addEventListener("resize", () => {
+      syncDesktopEntryVisibility();
+      if (!isMobileDex()) {
+        closeMobileDexSheet();
+      }
+    });
   }
 
   return {
     init() {
+      ensureMobileDexSheet();
+      bindResizeOnce();
       renderTree();
     },
     renderTree
