@@ -5,46 +5,345 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>大問9演習（固定問題・4択）</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif; background:#f7f7f7; margin:0; }
-    .wrap { max-width: 760px; margin: 0 auto; padding: 16px 12px 24px; }
-    .topnav a { margin-right: 10px; color:#2b7cff; text-decoration:none; font-size:14px; }
-    .card { background:#fff; border:1px solid #ddd; border-radius:12px; padding:14px; margin: 12px 0; }
-    .muted { color:#666; font-size: 13px; }
-    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:space-between; }
-    button { padding:10px 12px; border-radius:10px; border:1px solid #ddd; background:#fff; cursor:pointer; }
-    button.primary { background:#2b7cff; border-color:#2b7cff; color:#fff; }
-    button.danger { background:#b00020; border-color:#b00020; color:#fff; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
+      background:#f7f7f7;
+      margin:0;
+      color:#111;
+    }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px 12px 24px;
+    }
+
+    .card {
+      background:#fff;
+      border:1px solid #ddd;
+      border-radius:12px;
+      padding:14px;
+      margin: 12px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .muted {
+      color:#666;
+      font-size: 13px;
+    }
+
+    .row {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:space-between;
+    }
+
+    button {
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid #ddd;
+      background:#fff;
+      cursor:pointer;
+    }
+
+    button.primary {
+      background:#2b7cff;
+      border-color:#2b7cff;
+      color:#fff;
+      font-weight:700;
+    }
+
+    button.danger {
+      background:#b00020;
+      border-color:#b00020;
+      color:#fff;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
 
     .ok { color:#0a7a2f; font-weight:700; }
     .ng { color:#b00020; font-weight:700; }
 
-    .hr { height:1px; background:#eee; margin:12px 0; }
+    .hr {
+      height:1px;
+      background:#eee;
+      margin:12px 0;
+    }
 
-    select, input[type="number"] { padding:10px 10px; border-radius:10px; border:1px solid #ddd; }
+    select, input[type="number"] {
+      padding:10px 10px;
+      border-radius:10px;
+      border:1px solid #ddd;
+      font-size: 16px;
+    }
+
     label { font-size: 14px; }
 
-    table { width:100%; border-collapse: collapse; }
-    th, td { border-top: 1px solid #eee; padding: 10px 8px; vertical-align: top; font-size: 14px; }
-    th { text-align:left; background:#fafafa; }
-    .pill { display:inline-block; padding:3px 8px; border-radius:999px; background:#f0f4ff; color:#2b7cff; font-size:12px; border:1px solid #d6e4ff; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
-    .pre { white-space: pre-wrap; }
+    table {
+      width:100%;
+      border-collapse: collapse;
+    }
 
-    /* ===== スマホ向け可読性アップ ===== */
-    #question { font-size: 22px; line-height: 1.65; }
-    #qMeta, #stats { font-size: 14px; }
-    #hintArea { font-size: 16px; line-height: 1.6; }
-    #result { font-size: 18px; }
-    #detail { font-size: 15px; line-height: 1.7; }
+    th, td {
+      border-top: 1px solid #eee;
+      padding: 10px 8px;
+      vertical-align: top;
+      font-size: 14px;
+    }
 
-    /* 選択肢：2×2 */
+    th {
+      text-align:left;
+      background:#fafafa;
+    }
+
+    .pill {
+      display:inline-block;
+      padding:3px 8px;
+      border-radius:999px;
+      background:#f0f4ff;
+      color:#2b7cff;
+      font-size:12px;
+      border:1px solid #d6e4ff;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    .pre {
+      white-space: pre-wrap;
+    }
+
+    .topNavBox {
+      margin-bottom: 12px;
+    }
+
+    .topNavTitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .topNav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .topNav a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      color: #111;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .topNav a.active {
+      background: #eaf2ff;
+      border-color: #2b7cff;
+      color: #1251b5;
+      font-weight: 700;
+    }
+
+    #levelBadge {
+      font-size:14px;
+      color:#555;
+      margin: 6px 0 10px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .goimonToggleBox {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .goimonToggleBtn {
+      background: #f9fbff;
+      border: 1px solid #d6e5ff;
+      color: #234f97;
+      font-weight: 700;
+    }
+
+    .evoNoticeBtn {
+      background: linear-gradient(180deg, #fff6d6 0%, #ffe8a3 100%);
+      border: 1px solid #f1d48a;
+      color: #7a5200;
+      font-weight: 900;
+      position: relative;
+      animation: noticePulse 1.8s ease-in-out infinite;
+      box-shadow: 0 0 0 rgba(255, 214, 102, 0.0);
+    }
+
+    .evoNoticeBtn::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 14px;
+      border: 2px solid rgba(255, 214, 102, 0.35);
+      animation: noticeRing 1.8s ease-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes noticePulse {
+      0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(255,214,102,0); }
+      50% { transform: translateY(-1px) scale(1.02); box-shadow: 0 6px 18px rgba(255,214,102,0.35); }
+    }
+
+    @keyframes noticeRing {
+      0% { transform: scale(0.96); opacity: 0.75; }
+      100% { transform: scale(1.12); opacity: 0; }
+    }
+
+    .miniGoimonCard {
+      border: 1px solid #f0e3c7;
+      background: #fffaf2;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .miniGoimonHead {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .miniGoimonTitle {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .miniGoimonSub {
+      font-size: 12px;
+      color: #666;
+      margin: 4px 0 0;
+      line-height: 1.4;
+    }
+
+    .miniGoimonStage {
+      text-align: right;
+      flex: 0 0 auto;
+    }
+
+    .miniGoimonStageLabel {
+      font-size: 11px;
+      color: #8a6a2d;
+      margin-bottom: 2px;
+    }
+
+    .miniGoimonStageValue {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .miniGoimonBody {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .miniGoimonImageWrap {
+      width: 88px;
+      height: 88px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid #eddcb8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    .miniGoimonImageWrap img {
+      max-width: 76px;
+      max-height: 76px;
+      display: block;
+    }
+
+    .miniGoimonInfo {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .miniGoimonName {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0 0 4px;
+    }
+
+    .miniGoimonMeta {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    .miniGoimonDesc {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .goimonPointGuide {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    #question {
+      font-size: 22px;
+      line-height: 1.65;
+    }
+
+    #qMeta, #stats {
+      font-size: 14px;
+    }
+
+    #hintArea {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    #result {
+      font-size: 18px;
+    }
+
+    #detail {
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
     #choices {
       margin-top: 12px;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
     }
+
     #choices button {
       width:100%;
       text-align:left;
@@ -52,22 +351,29 @@
       padding: 14px 12px;
       border-radius: 10px;
     }
+
     @media (max-width: 340px) {
-      #choices { grid-template-columns: 1fr; }
+      #choices {
+        grid-template-columns: 1fr;
+      }
     }
+
     #choices button.correct {
       background: #2ecc71;
       color: #fff;
       border: 1px solid #27ae60;
     }
+
     #choices button.wrong {
       background: #e74c3c;
       color: #fff;
       border: 1px solid #c0392b;
     }
-    #choices button:disabled { opacity: 0.92; }
 
-    /* ===== ニガテ管理UI ===== */
+    #choices button:disabled {
+      opacity: 0.92;
+    }
+
     .weakBox {
       border: 1px solid #eee;
       border-radius: 12px;
@@ -75,6 +381,7 @@
       margin-top: 12px;
       background: #fafafa;
     }
+
     .weakHead {
       display:flex;
       justify-content:space-between;
@@ -83,29 +390,89 @@
       flex-wrap:wrap;
       margin-bottom: 8px;
     }
+
     .weakList {
       margin: 0;
       padding-left: 18px;
       max-height: 220px;
       overflow: auto;
     }
-    .weakList li { margin: 6px 0; }
-    .weakActions { display:flex; gap:8px; flex-wrap:wrap; }
-    .miniBtn { padding: 6px 10px; border-radius: 10px; font-size: 13px; }
+
+    .weakList li {
+      margin: 6px 0;
+    }
+
+    .weakActions {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .miniBtn {
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 420px) {
+      #choices {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
 
-    <div class="topnav" style="margin:8px 0 4px;">
-      <a href="index.html">← ホーム</a>
-      <a href="study.html">覚える</a>
-      <a href="quiz.html">英→日クイズ</a>
-      <a href="quiz_jaen.html">日→英クイズ</a>
-      <a href="progress.html">ブロック進捗</a>
+    <div class="card topNavBox">
+      <div class="topNavTitle">学習ページ移動</div>
+      <div class="topNav">
+        <a href="index.html">ホーム</a>
+        <a href="study.html">暗記</a>
+        <a href="quiz.html">英→日</a>
+        <a href="quiz_jaen.html">日→英</a>
+        <a href="accent.html">アクセント</a>
+        <a href="sentence.html" class="active">大問9</a>
+        <a href="list.html">一覧</a>
+        <a href="progress.html">進捗</a>
+      </div>
     </div>
 
-    <!-- 設定 -->
+    <div id="levelBadge"></div>
+
+    <div class="goimonToggleBox">
+      <button id="toggleGoimon" type="button" class="goimonToggleBtn">ゴイモンの様子を見る</button>
+      <button id="evolutionNoticeBtn" type="button" class="evoNoticeBtn hidden">あれ、ゴイモンの様子が…！？</button>
+    </div>
+
+    <div id="goimonCard" class="miniGoimonCard hidden">
+      <div class="miniGoimonHead">
+        <div>
+          <div class="miniGoimonTitle">現在のゴイモン</div>
+          <div class="miniGoimonSub">このページでは、大問9演習の正解でゴイモンの「ぶんみゃく」が育ちます。</div>
+        </div>
+        <div class="miniGoimonStage">
+          <div class="miniGoimonStageLabel">現在の段階</div>
+          <div class="miniGoimonStageValue" id="sentenceGoimonStage">たまご期</div>
+        </div>
+      </div>
+
+      <div class="miniGoimonBody">
+        <div class="miniGoimonImageWrap">
+          <img id="sentenceGoimonImage" src="images/goimon/goimon_egg.png" alt="ゴイモン" />
+        </div>
+        <div class="miniGoimonInfo">
+          <div class="miniGoimonName" id="sentenceGoimonName">なごみ系のたまご</div>
+          <div class="miniGoimonMeta" id="sentenceGoimonMeta">Lv 1 / 0 pt</div>
+          <div class="miniGoimonDesc" id="sentenceGoimonDesc">まずは学習してゴイモンを育てよう。</div>
+        </div>
+      </div>
+
+      <div class="goimonPointGuide">
+        正解：ぶんみゃく +1 ／ 間違えてもゴイモンは減りません
+      </div>
+    </div>
+
     <div class="card" id="setupBox">
       <div class="row">
         <div>
@@ -151,7 +518,6 @@
 
       <div class="muted" id="weakInfo" style="margin-top:10px;"></div>
 
-      <!-- ニガテ管理 -->
       <div class="weakBox">
         <div class="weakHead">
           <div>
@@ -182,7 +548,6 @@
       </div>
     </div>
 
-    <!-- 演習画面 -->
     <div class="card" id="playBox" style="display:none;">
       <div class="row">
         <div id="stats" class="muted"></div>
@@ -207,7 +572,6 @@
       <div id="detail" class="muted" style="margin-top:10px;"></div>
     </div>
 
-    <!-- 結果画面 -->
     <div class="card" id="summaryBox" style="display:none;">
       <div class="row">
         <div>
@@ -247,7 +611,6 @@
 
   </div>
 
-  <!-- 単語データ -->
   <script src="words_1kyu.js"></script>
   <script src="blocks_1kyu.js"></script>
   <script>
@@ -271,10 +634,90 @@
     }
   </script>
 
-  <!-- 固定問題データ -->
+  <script src="learning_log.js"></script>
+  <script src="goimon.js"></script>
   <script src="sentence_fixed.js"></script>
 
-  <!-- 出題ロジック -->
+  <script>
+    (function () {
+      if (!window.GoimonUI || !window.GoimonUI.loadCurrent) return;
+
+      function renderSentenceGoimonMini() {
+        const g = window.GoimonUI.loadCurrent();
+        if (!g) return;
+
+        const stageMap = {
+          egg: "たまご期",
+          child: "幼体",
+          growth: "成長体",
+          mid: "中級体",
+          final: "上級体"
+        };
+
+        const typeMap = {
+          nagomi: "なごみ系",
+          hirameki: "ひらめき系",
+          tsumugi: "つむぎ系",
+          yomitoki: "よみとき系",
+          shirabe: "しらべ系",
+          hibiki: "ひびき系",
+          kotonoha: "ことのは系",
+          mr_uno: "MR.UNO"
+        };
+
+        const descMap = {
+          nagomi: "バランスよく育つ、やさしい守護神獣タイプ。",
+          hirameki: "知性とひらめきが伸びる、啓示神獣タイプ。",
+          tsumugi: "ことばと感情があふれる、表現神獣タイプ。",
+          yomitoki: "読む・見抜く力が育つ、解読神獣タイプ。",
+          shirabe: "音・響き・共鳴をまとう、音楽神獣タイプ。",
+          hibiki: "知性と音感が響き合う、共鳴神獣タイプ。",
+          kotonoha: "ことばと文脈を束ねる、言霊神獣タイプ。",
+          mr_uno: "特別に解放された、学びを導く隠しルート。"
+        };
+
+        const setText = (id, value) => {
+          const target = document.getElementById(id);
+          if (target) target.textContent = value;
+        };
+
+        const stageLabel = stageMap[g.stage] || "たまご期";
+        const typeLabel = (g.stage === "egg")
+          ? (g.specialRoute === "mr_uno" ? "MR.UNOルート" : "なごみ系")
+          : (typeMap[g.type] || "なごみ系");
+
+        const displayName = (window.GoimonUI && typeof window.GoimonUI.getGoimonPrimaryName === "function")
+          ? window.GoimonUI.getGoimonPrimaryName(g)
+          : ((g.stage === "egg") ? "なごみ系のたまご" : `${typeLabel} / ${stageLabel}`);
+
+        const desc = descMap[g.type] || "学習に応じて成長し、進化していきます。";
+        const pt = Number(g.totalPoints || 0);
+        const ptText = Number.isInteger(pt) ? String(pt) : pt.toFixed(1);
+
+        setText("sentenceGoimonStage", stageLabel);
+        setText("sentenceGoimonName", displayName);
+        setText("sentenceGoimonMeta", `Lv ${g.level} / ${ptText} pt`);
+        setText("sentenceGoimonDesc", g.stage === "egg" && g.specialRoute === "mr_uno"
+          ? "隠し分岐を選択中です。次の進化から MR.UNO として育ちます。"
+          : desc
+        );
+
+        const img = document.getElementById("sentenceGoimonImage");
+        if (img) {
+          img.src = g.imageKey;
+          img.alt = displayName;
+        }
+
+        if (window.GoimonUI && typeof window.GoimonUI.renderEvolutionNoticeButton === "function") {
+          window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
+        }
+      }
+
+      renderSentenceGoimonMini();
+      window.renderSentenceGoimonMini = renderSentenceGoimonMini;
+    })();
+  </script>
+
   <script src="sentence.js"></script>
 </body>
 </html>
