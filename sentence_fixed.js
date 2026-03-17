@@ -393,9 +393,9 @@
 
 {"id":"F_fold_01","answer":"fold","en":"Please （　） the paper in half and put it in the envelope.","ja":"紙を半分に「折って」封筒に入れてください。","choices":["fold","fill","find","fix"]},
 
-{"id":"F_forehead_01","answer":"forehead","en":"He wiped sweat from his （　） with a towel.","ja":"彼はタオルで「額」の汗をぬぐった。","choices":["forehead","shoulder","stomach","fingertip"]},
+{"id":"F_forehead_01","answer":"forehead","en":"He wiped sweat from his （　） with a towel.","ja":"彼はタオルで「額」の汗をぬぐった。","choices":["forehead","freezer","stomach","fingertip"]},
 
-{"id":"F_frank_01","answer":"frank","en":"To be （　）, I don’t think the plan will work.","ja":"「率直に」言うと、その計画はうまくいかないと思う。","choices":["frank","fresh","fierce","foreign"]},
+{"id":"F_frank_01","answer":"frank","en":"To be （　）, I don’t think the plan will work.","ja":"「率直に」言うと、その計画はうまくいかないと思う。",note:"to be flank「率直にいうと」＝flankly speaking(これも覚えたい)","choices":["frank","fresh","fierce","foreign"]},
 
 {"id":"F_freezer_01","answer":"freezer","en":"Put the ice cream back in the （　） so it won’t melt.","ja":"溶けないようにアイスを「冷凍庫」に戻しなさい。","choices":["freezer","drawer","garage","closet"]},
 
@@ -429,9 +429,9 @@
 
 {"id":"F_grief_01","answer":"grief","en":"She was overwhelmed with （　） after the loss of her child.","ja":"子どもを失った後、彼女は深い「悲しみ」に打ちのめされた。","choices":["grief","relief","profit","effort"]},
 
-{"id":"F_guarantee_01","answer":"guarantee","en":"This warranty does not （　） free repairs after one year.","ja":"この保証は1年後の無料修理を「保証」しない。","choices":["guarantee","increase","decorate","interrupt"]},
+{"id":"F_guarantee_01","answer":"guarantee","en":"This warranty does not （　） free repairs after one year.","ja":"この保証は1年後の無料修理を「保証」しない。",note:"warranty「保証(名)」、guarantee「を保証する（動詞）」","choices":["guarantee","increase","decorate","interrupt"]},
 
-{"id":"F_guilty_01","answer":"guilty","en":"The jury found him （　） and the judge sentenced him to prison.","ja":"陪審は彼を「有罪」とし、裁判官は刑務所刑を言い渡した。","choices":["guilty","gentle","global","golden"]},
+{"id":"F_guilty_01","answer":"guilty","en":"The jury found him （　） and the judge sentenced him to prison.","ja":"陪審は彼を「有罪」とし、裁判官は刑務所刑を言い渡した。",note:"jury「陪審」、find O C「O=Cと認識する」今回はO=him、C=guilty、sentence「判決を言い渡す」","choices":["guilty","gentle","global","golden"]},
 
 {"id":"F_halfway_01","answer":"halfway","en":"The power went out （　） through the movie.","ja":"映画の「途中で」停電になった。","choices":["halfway","monthly","rapidly","quietly"]},
 
@@ -455,7 +455,7 @@
 
 {"id":"F_horn_01","answer":"horn","en":"The driver blew the （　） to warn the cyclist.","ja":"運転手は自転車に注意を促すため「クラクション」を鳴らした。","choices":["horn","wheel","engine","mirror"]},
 
-{"id":"F_human_01","answer":"human","en":"The disease can spread from animals to （　） beings.","ja":"その病気は動物から「人間」に広がる可能性がある。","choices":["human","royal","local","metal"]},
+{"id":"F_human_01","answer":"human","en":"The disease can spread from animals to （　） beings.","ja":"その病気は動物から「人間」に広がる可能性がある。",note:"human beings「人間」（他の動物や機械と特に区別するときに使われる）","choices":["human","royal","local","metal"]},
 
 {"id":"F_humid_01","answer":"humid","en":"Summer in this city is very hot and （　）.","ja":"この街の夏はとても暑くて「蒸し暑い」。","choices":["humid","rapid","solid","equal"]},
 
@@ -479,7 +479,7 @@
 
 {"id":"F_include_01","answer":"include","en":"The price of the tour （　） meals and hotel accommodation.","ja":"そのツアーの料金には食事とホテル代が「含まれている」。","choices":["includes","reduces","provides","prepares"]},
 
-{"id":"F_income_01","answer":"income","en":"Her monthly （　） is enough to support her family.","ja":"彼女の月の「収入」は家族を養うのに十分だ。","choices":["income","budget","salary","payment"]},
+{"id":"F_income_01","answer":"income","en":"Her monthly （　） is enough to support her family.","ja":"彼女の月の「収入」は家族を養うのに十分だ。","choices":["income","budget","outcome","payment"]},
 
 {"id":"F_incredible_01","answer":"incredible","en":"The magician performed an （　） trick that surprised everyone.","ja":"そのマジシャンは皆を驚かせる「信じられない」手品を披露した。","choices":["incredible","visible","possible","ordinary"]},
 
@@ -487,17 +487,17 @@
 
 {"id":"F_indicate_01","answer":"indicate","en":"The sign clearly （　） the direction of the station.","ja":"その標識は駅の方向をはっきり「示している」。","choices":["indicates","collects","creates","controls"]},
 
-{"id":"F_individual_01","answer":"individual","en":"Each （　） student must submit the form separately.","ja":"それぞれの「個々の」生徒が書類を別々に提出しなければならない。","choices":["individual","general","national","public"]},
+{"id":"F_individual_01","answer":"individual","en":"Each （　） student must submit the form separately.","ja":"それぞれの「個々の」生徒が書類を別々に提出しなければならない。","choices":["individual","domestic","national","industrial"]},
 
-{"id":"F_inferior_01","answer":"inferior","en":"This product is clearly （　） to the original one.","ja":"この製品は明らかに元の製品より「劣っている」。","choices":["inferior","superior","similar","equal"]},
+{"id":"F_inferior_01","answer":"inferior","en":"He always feels（　） when he is around people who are more successful than him.","ja":"彼は、自分より成功している人たちと一緒にいると、いつも自分が「劣っている」と感じる。","choices":["inferior","superior","senior","equal"]},
 
 {"id":"F_inform_01","answer":"inform","en":"Please （　） me immediately if there is any change.","ja":"変更があればすぐに私に「知らせて」ください。","choices":["inform","perform","transform","confirm"]},
 
-{"id":"F_initial_01","answer":"initial","en":"The （　） stage of the project took several months.","ja":"その計画の「初期」段階には数か月かかった。","choices":["initial","final","central","normal"]},
+{"id":"F_initial_01","answer":"initial","en":"The （　） stage of the project took several months.","ja":"その計画の「初期」段階には数か月かかった。","choices":["initial","traditional","central","normal"]},
 
 {"id":"F_injure_01","answer":"injure","en":"Several passengers were seriously （　） in the accident.","ja":"その事故で数人の乗客が重傷を「負った」。","choices":["injured","rescued","protected","treated"]},
 
-{"id":"F_injury_01","answer":"injury","en":"He could not play in the game because of a leg （　）.","ja":"彼は足の「けが」のため試合に出られなかった。","choices":["injury","disease","problem","damage"]},
+{"id":"F_injury_01","answer":"injury","en":"He could not play in the game because of a leg （　）.","ja":"彼は足の「けが」のため試合に出られなかった。","choices":["injury","innocent","improve","incomplete"]},
 
 {"id":"F_innocent_01","answer":"innocent","en":"The man was found （　） of the crime by the court.","ja":"その男は裁判でその犯罪について「無実」と判断された。","choices":["innocent","absent","present","silent"]},
 
@@ -519,7 +519,7 @@
 
 {"id":"F_investigation_01","answer":"investigation","en":"The police began a careful （　） of the crime.","ja":"警察はその犯罪の慎重な「調査」を始めた。","choices":["investigation","conversation","explanation","operation"]},
 
-{"id":"F_investment_01","answer":"investment","en":"Buying property can be a good long-term （　）.","ja":"不動産を買うことは良い長期「投資」になり得る。","choices":["investment","agreement","equipment","development"]},
+{"id":"F_investment_01","answer":"investment","en":"Buying property can be a good long-term （　）.","ja":"不動産を買うことは良い長期「投資」になり得る。",note:"property:財産、資産、不動産","choices":["investment","agreement","equipment","development"]},
 
 {"id":"F_invoice_01","answer":"invoice","en":"The seller sent an （　） listing the total price of the goods.","ja":"売り手は商品の合計金額を示した「請求書」を送った。","choices":["invoice","receipt","ticket","schedule"]},
 
@@ -537,7 +537,7 @@
 
 {"id":"F_justice_01","answer":"justice","en":"People demanded （　） after the unfair trial.","ja":"不公平な裁判の後、人々は「正義」を求めた。","choices":["justice","victory","fortune","energy"]},
 
-{"id":"F_keen_01","answer":"keen","en":"She is very （　） to learn new languages.","ja":"彼女は新しい言語を学ぶことにとても「熱心だ」。","choices":["keen","calm","plain","rough"]},
+{"id":"F_keen_01","answer":"keen","en":"She is very （　） to learn new languages.","ja":"彼女は新しい言語を学ぶことにとても「熱心だ」。",note:"be keen to V「Vすることに熱心だ」","choices":["keen","calm","plain","rough"]},
 
 {"id":"F_labor_01","answer":"labor","en":"Many workers protested against unfair （　） conditions.","ja":"多くの労働者が不公平な「労働」条件に抗議した。","choices":["labor","travel","office","village"]},
 
@@ -569,7 +569,7 @@
 
 {"id":"F_majority_01","answer":"majority","en":"The （　） of voters supported the new policy because they thought it benefited the entire society.","ja":"有権者の「大多数」はその新政策が社会全体に利益をもたらすと考えたため、それを支持した。","choices":["majority","minority","variety","society"]},
 
-{"id":"F_manufacture_01","answer":"manufacture","en":"This factory （　） cars for export.","ja":"この工場は輸出用の車を「製造する」。","choices":["manufactures","repairs","collects","decorates"]},
+{"id":"F_manufacture_01","answer":"manufacture","en":"This factory （　） cars for export.","ja":"この工場は輸出用の車を「製造する」。","choices":["manufactures","migrate","misses","minds"]},
 
 {"id":"F_mass_01","answer":"mass","en":"The explosion destroyed a large （　） of buildings.","ja":"その爆発は大量の建物を破壊した。","choices":["mass","pair","group","series"]},
 
@@ -583,13 +583,13 @@
 
 {"id":"F_memorize_01","answer":"memorize","en":"Students must （　） these English words.","ja":"生徒はこれらの英単語を「暗記」しなければならない。","choices":["memorize","organize","recognize","realize"]},
 
-{"id":"F_mention_01","answer":"mention","en":"He did not （　） the accident in his report.","ja":"彼は報告書で事故について「言及しなかった」。","choices":["mention","explain","describe","announce"]},
+{"id":"F_mention_01","answer":"mention","en":"He did not （　） the accident in his report.","ja":"彼は報告書で事故について「言及しなかった」。","choices":["mention","maintain","motivate","multiply"]},
 
-{"id":"F_merit_01","answer":"merit","en":"Hard work is an important （　） in achieving success.","ja":"努力は成功を達成するうえで重要な「長所」だ。","choices":["merit","fault","risk","debt"]},
+{"id":"F_merit_01","answer":"merit","en":"The main（　) of this new software is its user-friendly interface.","ja":"この新しいソフトウェアの主な「長所」はその使用者に優しいインターフェースだ。。","choices":["merit","fault","risk","debt"]},
 
 {"id":"F_method_01","answer":"method","en":"The scientist developed a new （　） of testing the theory.","ja":"科学者はその理論を試す新しい「方法」を開発した。","choices":["method","system","machine","device"]},
 
-{"id":"F_minimum_01","answer":"minimum","en":"You must pay at least the （　） fee.","ja":"少なくとも「最低」料金を支払わなければならない。","choices":["minimum","maximum","average","normal"]},
+{"id":"F_minimum_01","answer":"minimum","en":"You must pay at least the （　） fee.","ja":"少なくとも「最低」料金を支払わなければならない。",note:"at least「少なくとおも」","choices":["minimum","maximum","average","normal"]},
 
 {"id":"F_minority_01","answer":"minority","en":"Only a small （　） opposed the plan.","ja":"少数の人だけがその計画に反対した。","choices":["minority","majority","variety","society"]},
 
@@ -597,13 +597,13 @@
 
 {"id":"F_miserable_01","answer":"miserable","en":"He felt （　） after losing his job.","ja":"仕事を失って彼は「みじめ」な気持ちになった。","choices":["miserable","comfortable","available","possible"]},
 
-{"id":"F_modest_01","answer":"modest","en":"Despite his success, he remained （　）.","ja":"成功したにもかかわらず彼は「控えめ」だった。","choices":["modest","honest","clever","nervous"]},
+{"id":"F_modest_01","answer":"modest","en":"Despite his success, he remained （　）.","ja":"成功したにもかかわらず彼は「控えめ」だった。",note:"despite A「Aにも関わらず」＝in spite of A","choices":["modest","honest","clever","nervous"]},
 
-{"id":"F_monthly_01","answer":"monthly","en":"The magazine is published （　）.","ja":"その雑誌は「毎月」発行される。","choices":["monthly","daily","weekly","yearly"]},
+{"id":"F_monthly_01","answer":"monthly","en":"The rent for this apartment is paid（　）on the first day of each month.","ja":"このアパートの家賃は各月の初日に毎月支払われる。","choices":["monthly","daily","weekly","yearly"]},
 
-{"id":"F_moral_01","answer":"moral","en":"Parents teach children basic （　） values.","ja":"親は子どもに基本的な「道徳」価値を教える。","choices":["moral","social","public","natural"]},
+{"id":"F_moral_01","answer":"moral","en":"The (　 ) of the story is that honesty is always the best policy..","ja":"この物語の「教訓」は、正直は常に最善の策であるということだ。","choices":["moral","module","model","mortal"]},
 
-{"id":"F_moreover_01","answer":"moreover","en":"The plan is expensive. （　）, it may not work.","ja":"その計画は高価だ。「さらに」、うまくいかないかもしれない。","choices":["Moreover","However","Instead","Finally"]},
+{"id":"F_moreover_01","answer":"moreover","en":"The plan is expensive. （　）, it may not work.","ja":"その計画は高価だ。「さらに」、うまくいかないかもしれない。","choices":["Moreover","However","Instead","Nevertheless"]},
 
 {"id":"F_motion_01","answer":"motion","en":"The camera can detect even slight （　）.","ja":"そのカメラはわずかな「動き」でも感知できる。","choices":["motion","signal","sound","image"]},
 
@@ -619,7 +619,7 @@
 
 {"id":"F_neglect_01","answer":"neglect","en":"He was accused of （　） his duties.","ja":"彼は職務を「怠った」と非難された。","choices":["neglecting","collecting","protecting","accepting"]},
 
-{"id":"F_neighborhood_01","answer":"neighborhood","en":"This （　） is quiet and safe.","ja":"この「近所」は静かで安全だ。","choices":["neighborhood","building","company","village"]},
+{"id":"F_neighborhood_01","answer":"neighborhood","en":"This （　） is quiet and safe.","ja":"この「近所」は静かで安全だ。","choices":["neighborhood","narrative","necessity","negotiation"]},
 
 {"id":"F_nephew_01","answer":"nephew","en":"My sister’s son is my （　）.","ja":"私の姉（妹）の息子は私の「甥」だ。","choices":["nephew","cousin","brother","uncle"]},
 
@@ -631,25 +631,25 @@
 
 {"id":"F_obedient_01","answer":"obedient","en":"The dog is very （　） and follows every command.","ja":"その犬はとても「従順」で命令に従う。","choices":["obedient","ancient","brilliant","violent"]},
 
-{"id":"F_observation_01","answer":"observation","en":"The scientist recorded his （　） in a notebook.","ja":"科学者は自分の「観察」をノートに記録した。","choices":["observation","operation","education","conversation"]},
+{"id":"F_observation_01","answer":"observation","en":"The scientist recorded his （　） in a notebook.","ja":"科学者は自分の「観察」をノートに記録した。","choices":["observation","organization","education","conversation"]},
 
 {"id":"F_observe_01","answer":"observe","en":"Scientists （　） the stars through powerful telescopes.","ja":"科学者は強力な望遠鏡で星を「観察する」。","choices":["observe","decorate","operate","transport"]},
 
-{"id":"F_occasional_01","answer":"occasional","en":"He makes （　） visits to his hometown.","ja":"彼は時々故郷を訪れる。「時折の」訪問だ。","choices":["occasional","regional","seasonal","personal"]},
+{"id":"F_occasional_01","answer":"occasional","en":"He makes （　） visits to his hometown.","ja":"彼は時々故郷を訪れる。「時折の」訪問だ。","choices":["occasional","regional","religious","occupation"]},
 
 {"id":"F_occupation_01","answer":"occupation","en":"Please write your （　） on the application form.","ja":"申込書にあなたの「職業」を書いてください。","choices":["occupation","education","destination","celebration"]},
 
-{"id":"F_occupy_01","answer":"occupy","en":"This table is already （　） by another group.","ja":"このテーブルはすでに別のグループに「占められている」。","choices":["occupied","collected","repaired","delivered"]},
+{"id":"F_occupy_01","answer":"occupy","en":"This table is already （　） by another group.","ja":"このテーブルはすでに別のグループに「占められている」。","choices":["occupied","collected","omitted","delivered"]},
 
 {"id":"F_occur_01","answer":"occur","en":"The accident （　） late at night.","ja":"その事故は夜遅くに「起こった」。","choices":["occurred","appeared","arrived","entered"]},
 
 {"id":"F_omit_01","answer":"omit","en":"Do not （　） any important details in the report.","ja":"報告書で重要な詳細を「省いて」はいけない。","choices":["omit","admit","submit","permit"]},
 
-{"id":"F_opportunity_01","answer":"opportunity","en":"This job offers a good （　） to gain experience.","ja":"この仕事は経験を得る良い「機会」を与えてくれる。","choices":["opportunity","difficulty","necessity","possibility"]},
+{"id":"F_opportunity_01","answer":"opportunity","en":"This job offers a good （　） to gain experience.","ja":"この仕事は経験を得る良い「機会」を与えてくれる。","choices":["opportunity","difficulty","necessity","responsibility"]},
 
 {"id":"F_oppose_01","answer":"oppose","en":"Many citizens （　） the plan to raise taxes.","ja":"多くの市民が増税計画に「反対している」。","choices":["oppose","compose","expose","propose"]},
 
-{"id":"F_oral_01","answer":"oral","en":"Students must take an （　） exam in English speaking.","ja":"学生は英語スピーキングの「口頭」試験を受けなければならない。","choices":["oral","final","usual","equal"]},
+{"id":"F_oral_01","answer":"oral","en":"Students must take an （　） exam in English speaking.","ja":"学生は英語スピーキングの「口頭」試験を受けなければならない。","choices":["oral","organized","usual","equal"]},
 
 {"id":"F_organization_01","answer":"organization","en":"The charity （　） helps poor children.","ja":"その慈善「団体」は貧しい子どもたちを助けている。","choices":["organization","population","communication","competition"]},
 
@@ -659,7 +659,7 @@
 
 {"id":"F_oxygen_01","answer":"oxygen","en":"Humans cannot live without （　）.","ja":"人間は「酸素」なしでは生きられない。","choices":["oxygen","carbon","nitrogen","metal"]},
 
-{"id":"F_parcel_01","answer":"parcel","en":"The postman delivered a （　） this morning.","ja":"郵便配達人が今朝「小包」を届けた。","choices":["parcel","letter","ticket","document"]},
+{"id":"F_parcel_01","answer":"parcel","en":"The postman delivered a （　） this morning.","ja":"郵便配達人が今朝「小包」を届けた。","choices":["parcel","participation","principle","permanent"]},
 
 {"id":"F_passage_01","answer":"passage","en":"The narrow （　） leads to the garden.","ja":"その狭い「通路」は庭へ続いている。","choices":["passage","village","garage","storage"]},
 
@@ -667,9 +667,9 @@
 
 {"id":"F_pause_01","answer":"pause","en":"The speaker made a short （　） before continuing.","ja":"話者は続ける前に短い「休止」をした。","choices":["pause","voice","answer","choice"]},
 
-{"id":"F_pavement_01","answer":"pavement","en":"Pedestrians should walk on the （　）, not the road.","ja":"歩行者は道路ではなく「歩道」を歩くべきだ。","choices":["pavement","highway","railway","bridge"]},
+{"id":"F_pavement_01","answer":"pavement","en":"Pedestrians should walk on the （　）, not the road.","ja":"歩行者は道路ではなく「歩道」を歩くべきだ。",note:"pedestrian「歩行者」","choices":["pavement","highway","railway","bridge"]},
 
-{"id":"F_payment_01","answer":"payment","en":"The （　） must be made by credit card.","ja":"「支払い」はクレジットカードで行う必要がある。","choices":["payment","shipment","movement","equipment"]},
+{"id":"F_payment_01","answer":"payment","en":"The （　） must be made by credit card.","ja":"「支払い」はクレジットカードで行う必要がある。","choices":["payment","imigration","movement","equipment"]},
 
 {"id":"F_performance_01","answer":"performance","en":"Her piano （　） impressed the audience.","ja":"彼女のピアノ「演奏」は聴衆を感動させた。","choices":["performance","difference","conference","consequence"]},
 
@@ -677,11 +677,11 @@
 
 {"id":"F_permission_01","answer":"permission","en":"You need the teacher’s （　） to leave early.","ja":"早退するには先生の「許可」が必要だ。","choices":["permission","decision","discussion","education"]},
 
-{"id":"F_persuade_01","answer":"persuade","en":"She tried to （　） him to change his mind.","ja":"彼女は彼の考えを変えさせようと「説得」した。","choices":["persuade","include","improve","compare"]},
+{"id":"F_persuade_01","answer":"persuade","en":"She tried to （　） him to change his mind.","ja":"彼女は彼の考えを変えさせようと「説得」した。",note:"persuade 人 to V「人にVすることを説得する」","choices":["persuade","include","improve","compare"]},
 
 {"id":"F_philosophy_01","answer":"philosophy","en":"He studies Greek （　） at university.","ja":"彼は大学でギリシャ「哲学」を学んでいる。","choices":["philosophy","chemistry","biology","physics"]},
 
-{"id":"F_pigeon_01","answer":"pigeon","en":"A （　） landed on the park bench.","ja":"「ハト」が公園のベンチに止まった。","choices":["pigeon","sparrow","eagle","crow"]},
+{"id":"F_pigeon_01","answer":"pigeon","en":"A （　） landed on the park bench.","ja":"「ハト」が公園のベンチに止まった。","choices":["pigeon","planet","politics","possibility"]},
 
 {"id":"F_pile_01","answer":"pile","en":"There was a （　） of books on the desk.","ja":"机の上に本の「山」があった。","choices":["pile","pair","group","line"]},
 
@@ -691,21 +691,21 @@
 
 {"id":"F_policy_01","answer":"policy","en":"The government announced a new economic （　）.","ja":"政府は新しい経済「政策」を発表した。","choices":["policy","theory","method","project"]},
 
-{"id":"F_political_01","answer":"political","en":"She studies （　） science at university.","ja":"彼女は大学で「政治」学を学んでいる。","choices":["political","medical","chemical","technical"]},
+{"id":"F_political_01","answer":"political","en":"Some people prefer not to discuss their (　) views at the dinner table to avoid argument.","ja":"議論を避けるために「政治的な」見解を食事の時に話題にあげたくない人もいる。","choices":["political","medical","chemical","technical"]},
 
-{"id":"F_politician_01","answer":"politician","en":"The （　） promised to reduce taxes.","ja":"その「政治家」は減税を約束した。","choices":["politician","musician","technician","physician"]},
+{"id":"F_politician_01","answer":"politician","en":"The （　） promised to reduce taxes.","ja":"その「政治家」は減税を約束した。","choices":["politician","dentist","professor","physician"]},
 
-{"id":"F_politics_01","answer":"politics","en":"He has been interested in （　） since college.","ja":"彼は大学時代から「政治」に興味を持っている。","choices":["politics","physics","mathematics","economics"]},
+{"id":"F_politics_01","answer":"politics","en":"My brother is studying （　） at university to understnad how governments work.","ja":"どのように政府が機能しているかを理解するために、彼は大学で政治学を学んでいる。","choices":["politics","physics","mathematics","ethics"]},
 
-{"id":"F_positive_01","answer":"positive","en":"She has a very （　） attitude toward life.","ja":"彼女は人生に対してとても「前向きな」態度を持っている。","choices":["positive","passive","careful","serious"]},
+{"id":"F_positive_01","answer":"positive","en":"Try to keep a (　) attitude even while you are facing difficulties.","ja":"たとえ、困難に直面している間でも、「ポジティブな」態度でいつづけよう。","choices":["positive","passive","careful","serious"]},
 
 {"id":"F_possibility_01","answer":"possibility","en":"There is a strong （　） of rain tomorrow.","ja":"明日は雨の「可能性」が高い。","choices":["possibility","probability","ability","capacity"]},
 
-{"id":"F_poverty_01","answer":"poverty","en":"Many charities work to reduce world （　）.","ja":"多くの慈善団体が世界の「貧困」を減らそうとしている。","choices":["poverty","disease","violence","danger"]},
+{"id":"F_poverty_01","answer":"poverty","en":"Many charities work to reduce world （　）.","ja":"多くの慈善団体が世界の「貧困」を減らそうとしている。","choices":["poverty","priority","disaster","danger"]},
 
 {"id":"F_praise_01","answer":"praise","en":"The teacher （　） the student for his hard work.","ja":"先生は努力した生徒を「ほめた」。","choices":["praised","punished","ordered","warned"]},
 
-{"id":"F_pray_01","answer":"pray","en":"They went to the temple to （　） for peace.","ja":"彼らは平和を「祈る」ため寺に行った。","choices":["pray","cry","sing","rest"]},
+{"id":"F_pray_01","answer":"pray","en":"They went to the temple to （　） for peace.","ja":"彼らは平和を「祈る」ため寺に行った。","choices":["pray","pretend","provide","rest"]},
 
 {"id":"F_preparation_01","answer":"preparation","en":"Good （　） is necessary before the exam.","ja":"試験の前には十分な「準備」が必要だ。","choices":["preparation","education","attention","operation"]},
 
@@ -713,7 +713,7 @@
 
 {"id":"F_principle_01","answer":"principle","en":"Honesty is an important moral （　）.","ja":"正直さは重要な道徳的「原則」だ。","choices":["principle","policy","theory","system"]},
 
-{"id":"F_process_01","answer":"process","en":"Learning a language is a long （　）.","ja":"言語を学ぶことは長い「過程」だ。","choices":["process","project","program","progress"]},
+{"id":"F_process_01","answer":"process","en":"Learning a language is a long （　）.","ja":"言語を学ぶことは長い「過程」だ。","choices":["process","property","program","progress"]},
 
 {"id":"F_profession_01","answer":"profession","en":"Teaching is a respected （　）.","ja":"教師は尊敬される「職業」だ。","choices":["profession","position","situation","condition"]},
 
@@ -729,7 +729,7 @@
 
 {"id":"F_proposal_01","answer":"proposal","en":"The manager accepted the new business （　）.","ja":"部長は新しい事業「提案」を受け入れた。","choices":["proposal","arrival","removal","approval"]},
 
-{"id":"F_provide_01","answer":"provide","en":"The hotel will （　） free breakfast for guests.","ja":"そのホテルは宿泊客に無料の朝食を「提供する」。","choices":["provide","protect","prevent","prepare"]},
+{"id":"F_provide_01","answer":"provide","en":"The hotel will （　） free breakfast for guests.","ja":"そのホテルは宿泊客に無料の朝食を「提供する」。","choices":["provide","protect","prevent","preserve"]},
 
 {"id":"F_purchase_01","answer":"purchase","en":"Customers can （　） tickets online.","ja":"客はオンラインでチケットを「購入」できる。","choices":["purchase","exchange","deliver","collect"]},
 
@@ -741,7 +741,7 @@
 
 {"id":"F_rate_01","answer":"rate","en":"The unemployment （　） has decreased this year.","ja":"今年、失業「率」は低下した。","choices":["rate","score","scale","speed"]},
 
-{"id":"F_ray_01","answer":"ray","en":"A bright （　） of sunlight entered the room.","ja":"明るい太陽の「光線」が部屋に差し込んだ。","choices":["ray","beam","line","light"]},
+{"id":"F_ray_01","answer":"ray","en":"A bright （　） of sunlight entered the room.","ja":"明るい太陽の「光線」が部屋に差し込んだ。","choices":["ray","recipe","line","relationship"]},
 
 {"id":"F_reasonable_01","answer":"reasonable","en":"The price of the meal was very （　）.","ja":"その食事の値段はとても「合理的」だった。","choices":["reasonable","possible","available","valuable"]},
 
@@ -749,11 +749,11 @@
 
 {"id":"F_recipe_01","answer":"recipe","en":"This book contains many Italian cooking （　）.","ja":"この本には多くのイタリア料理の「レシピ」が載っている。","choices":["recipes","records","reports","results"]},
 
-{"id":"F_recognition_01","answer":"recognition","en":"She received international （　） for her research.","ja":"彼女は研究で国際的な「評価」を受けた。","choices":["recognition","celebration","communication","operation"]},
+{"id":"F_recognition_01","answer":"recognition","en":"She received international （　） for her research.","ja":"彼女は研究で国際的な「認知(評価)」を受けた。",note:"recognize「を認識する」","choices":["recognition","celebration","communication","operation"]},
 
 {"id":"F_recommend_01","answer":"recommend","en":"I strongly （　） this restaurant.","ja":"このレストランを強く「勧めます」。","choices":["recommend","encourage","introduce","invite"]},
 
-{"id":"F_recreation_01","answer":"recreation","en":"The park is used for sports and （　）.","ja":"その公園はスポーツや「娯楽」に利用されている。","choices":["recreation","education","occupation","transportation"]},
+{"id":"F_recreation_01","answer":"recreation","en":"The park is used for sports and （　）.","ja":"その公園はスポーツや「娯楽」に利用されている。","choices":["recreation","reduction","occupation","transportation"]},
 
 {"id":"F_reduce_01","answer":"reduce","en":"The company plans to （　） costs next year.","ja":"その会社は来年コストを「減らす」予定だ。","choices":["reduce","remove","release","replace"]},
 
@@ -767,238 +767,238 @@
 
 {"id":"F_reliable_01","answer":"reliable","en":"He is a very （　） worker.","ja":"彼はとても「信頼できる」労働者だ。","choices":["reliable","possible","valuable","available"]},
 
-{"id":"F_relieve_01","answer":"relieve","en":"This medicine will （　） your pain.","ja":"この薬は痛みを「和らげる」。","choices":["relieve","remove","reduce","replace"]},
+{"id":"F_relieve_01","answer":"relieve","en":"This medicine will （　） your pain.","ja":"この薬は痛みを「和らげる」。","choices":["relieve","release","reduce","replace"]},
 
-{"id":"F_religion_01","answer":"religion","en":"People practice different （　） around the world.","ja":"世界中で人々はさまざまな「宗教」を信仰している。","choices":["religion","tradition","custom","language"]},
+{"id":"F_religion_01","answer":"religion","en":"Freedom of （　） is a fundamental human right in many countries.","ja":"「信教」の自由は、多くの国において基本的人権である。","choices":["religion","region","custom","language"]},
 
-{"id":"F_religious_01","answer":"religious","en":"They visited a （　） temple.","ja":"彼らは「宗教的な」寺院を訪れた。","choices":["religious","dangerous","famous","serious"]},
+{"id":"F_religious_01","answer":"religious","en":"They visited a （　） temple.","ja":"彼らは「宗教的な」寺院を訪れた。","choices":["religious","dangerous","reliance","serious"]},
 
-{"id":"F_rely_01","answer":"rely","en":"You can （　） on her for help.","ja":"助けが必要なら彼女を「頼る」ことができる。","choices":["rely","call","depend","count"]},
+{"id":"F_rely_01","answer":"rely","en":"The company had to （　） on bank loans to survive the economic crisis.","ja":"その会社は経営危機を生き抜くために銀行のローンに「頼ら」なくてはいけなかった。","choices":["rely","refuse","refer","relay"]},
 
-{"id":"F_replace_01","answer":"replace","en":"We must （　） the broken window.","ja":"壊れた窓を「取り替えなければならない」。","choices":["replace","repair","remove","reduce"]},
+{"id":"F_replace_01","answer":"replace","en":"Artificial intelligence may eventually （　） human workers in certain jobs.","ja":"人工知能（AI)は最終的に特定の仕事において人間と「取って代わる」かもしれない。","choices":["replace","repair","remove","reduce"]},
 
 {"id":"F_represent_01","answer":"represent","en":"This symbol （　） peace.","ja":"この象徴は平和を「表す」。","choices":["represents","produces","reduces","releases"]},
 
-{"id":"F_representative_01","answer":"representative","en":"She is a sales （　） for the company.","ja":"彼女はその会社の営業「代表者」だ。","choices":["representative","assistant","manager","employee"]},
+{"id":"F_representative_01","answer":"representative","en":"She is （　） for the company.","ja":"彼女はその会社の営業「担当」だ。",note:"sales representative「営業担当」は、会社の製品を売り込む担当者を指す決まった言い方。","choices":["representative","recreation","reflection","requirement"]},
 
 {"id":"F_research_01","answer":"research","en":"The scientist is doing （　） on cancer.","ja":"その科学者はがんの「研究」をしている。","choices":["research","practice","training","exercise"]},
 
-{"id":"F_resemble_01","answer":"resemble","en":"The boy （　） his father very much.","ja":"その少年は父親にとても「似ている」。","choices":["resembles","repairs","removes","returns"]},
+{"id":"F_resemble_01","answer":"resemble","en":"The boy （　） his father very much.","ja":"その少年は父親にとても「似ている」。","choices":["resembles","repairs","removes","reminds"]},
 
 {"id":"F_reservation_01","answer":"reservation","en":"I made a hotel （　） for tonight.","ja":"今夜のホテルの「予約」をした。","choices":["reservation","application","situation","communication"]},
 
 {"id":"F_responsibility_01","answer":"responsibility","en":"Parents have a （　） to care for their children.","ja":"親には子どもを世話する「責任」がある。","choices":["responsibility","possibility","opportunity","ability"]},
 
-{"id":"F_responsible_01","answer":"responsible","en":"He is （　） for managing the project.","ja":"彼はその計画を管理する「責任がある」。","choices":["responsible","possible","available","capable"]},
+{"id":"F_responsible_01","answer":"responsible","en":"He is （　） for managing the project as a leader.","ja":"彼はリーダーとしてその計画を管理する「責任がある」。","choices":["responsible","possible","available","capable"]},
 
-{"id":"F_retire_01","answer":"retire","en":"My grandfather decided to （　） at the age of 65.","ja":"祖父は65歳で「引退する」ことを決めた。","choices":["retire","resign","rest","relax"]},
+{"id":"F_retire_01","answer":"retire","en":"My grandfather decided to （　） from the company at the age of 65.","ja":"祖父は65歳で会社から「引退する」ことを決めた。","choices":["retire","reform","retain","return"]},
 
-{"id":"F_reward_01","answer":"reward","en":"The police offered a （　） for information.","ja":"警察は情報提供者に「報酬」を提示した。","choices":["reward","award","salary","payment"]},
+{"id":"F_reward_01","answer":"reward","en":"The police offered a （　） for information.","ja":"警察は情報提供者に「報酬」を提示した。","choices":["reward","regret","salary","report"]},
 
-{"id":"F_rid_01","answer":"rid","en":"Recycling is the best way to get （　）of waste.","ja":"リサイクルは廃棄物を「処分する」最善の方法だ。",note:"get rid of A:「Aを処分する」","choices":["rid","remove","clean","clear"]},
+{"id":"F_rid_01","answer":"rid","en":"Recycling is the best way to get （　）of waste.","ja":"リサイクルは廃棄物を「処分する」最善の方法だ。",note:"get rid of A:「Aを処分する」","choices":["rid","remove","reduce","reveal"]},
 
-{"id":"F_ripe_01","answer":"ripe","en":"The bananas are （　） and ready to eat.","ja":"バナナは「熟して」食べごろだ。","choices":["ripe","fresh","sweet","soft"]},
+{"id":"F_ripe_01","answer":"ripe","en":"The bananas are （　） and ready to eat.","ja":"バナナは「熟して」食べごろだ。","choices":["ripe","rich","rigid","rare"]},
 
-{"id":"F_risk_01","answer":"risk","en":"Smoking increases the （　） of cancer.","ja":"喫煙はがんの「危険」を高める。","choices":["risk","chance","choice","point"]},
+{"id":"F_risk_01","answer":"risk","en":"Smoking increases the （　） of cancer.","ja":"喫煙はがんの「危険」を高める。","choices":["risk","opportunity","choice","rest"]},
 
-{"id":"F_rob_01","answer":"rob","en":"The thief tried to （　） the bank.","ja":"その泥棒は銀行を「奪おう」とした。","choices":["rob","steal","take","grab"]},
+{"id":"F_rob_01","answer":"rob","en":"The thief tried to （　） the bank.","ja":"その泥棒は銀行「強盗」をしようとした。","choices":["rob","steal","reduce","grab"]},
 
 {"id":"F_robber_01","answer":"robber","en":"The police arrested the bank （　）.","ja":"警察は銀行「強盗」を逮捕した。","choices":["robber","driver","passenger","visitor"]},
 
-{"id":"F_role_01","answer":"role","en":"She played an important （　） in the project.","ja":"彼女はその計画で重要な「役割」を果たした。","choices":["role","part","duty","task"]},
+{"id":"F_role_01","answer":"role","en":"She played an important （　） in the project.","ja":"彼女はその計画で重要な「役割」を果たした。",note:"play a role「役割を果たす」で覚える","choices":["role","part","duty","task"]},
 
-{"id":"F_route_01","answer":"route","en":"This bus follows the same （　） every day.","ja":"このバスは毎日同じ「経路」を通る。","choices":["route","road","line","street"]},
+{"id":"F_route_01","answer":"route","en":"This bus follows the same （　） every day.","ja":"このバスは毎日同じ「経路」を通る。","choices":["route","rough","root","result"]},
 
-{"id":"F_rubber_01","answer":"rubber","en":"These boots are made of （　）.","ja":"このブーツは「ゴム」でできている。","choices":["rubber","plastic","metal","wood"]},
+{"id":"F_rubber_01","answer":"rubber","en":"These boots are made of （　）to keep your feet dry in the rain.","ja":"雨の中でも足が濡れないように、このブーツは「ゴム」でできている。","choices":["rubber","rubbish","robber","ruin"]},
 
-{"id":"F_ruin_01","answer":"ruin","en":"Heavy rain could （　） the crops.","ja":"大雨は作物を「台無しにする」かもしれない。","choices":["ruin","damage","destroy","break"]},
+{"id":"F_ruin_01","answer":"ruin","en":"Heavy rain could （　） the crops.","ja":"大雨は作物を「台無しにする」かもしれない。","choices":["ruin","repair","reveal","resign"]},
 
-{"id":"F_sacrifice_01","answer":"sacrifice","en":"Parents often make many （　） for their children.","ja":"親は子どものため多くの「犠牲」を払う。","choices":["sacrifices","efforts","choices","decisions"]},
+{"id":"F_sacrifice_01","answer":"sacrifice","en":"Parents often （　） their own hobbies to support their children's education.","ja":"親は子どもの教育のために、しばしば自身の趣味を「犠牲にする」。","choices":["sacrifices","separate","seek","suggest"]},
 
-{"id":"F_sake_01","answer":"sake","en":"He worked hard for the （　） of his family.","ja":"彼は家族の「ため」に一生懸命働いた。","choices":["sake","purpose","reason","benefit"]},
+{"id":"F_sake_01","answer":"sake","en":"He worked hard for the （　） of his family.","ja":"彼は家族の「ため」に一生懸命働いた。","choices":["sake","purpose","reason","scale"]},
 
-{"id":"F_satisfaction_01","answer":"satisfaction","en":"She felt great （　） after finishing the work.","ja":"仕事を終えて大きな「満足」を感じた。","choices":["satisfaction","impression","confidence","advantage"]},
+{"id":"F_satisfaction_01","answer":"satisfaction","en":"She felt great （　） after finishing the work.","ja":"仕事を終えて大きな「満足」を感じた。","choices":["satisfaction","impression","stupid","advantage"]},
 
 {"id":"F_satisfactory_01","answer":"satisfactory","en":"The results were （　） and met expectations.","ja":"結果は「満足のいく」ものだった。","choices":["satisfactory","necessary","available","possible"]},
 
-{"id":"F_scale_01","answer":"scale","en":"The earthquake caused damage on a large （　）.","ja":"その地震は大きな「規模」で被害をもたらした。","choices":["scale","level","range","degree"]},
+{"id":"F_scale_01","answer":"scale","en":"The earthquake caused damage on a large （　）.","ja":"その地震は大きな「規模」で被害をもたらした。",note:"levelはhigh、rangeはwideで程度を示す","choices":["scale","level","range","score"]},
 
-{"id":"F_scholar_01","answer":"scholar","en":"He is a famous （　） of ancient history.","ja":"彼は古代史の有名な「学者」だ。","choices":["scholar","teacher","student","writer"]},
+{"id":"F_scholar_01","answer":"scholar","en":"He is a famous （　） of ancient history.","ja":"彼は古代史の有名な「学者」だ。","choices":["scholar","scholarship","schedule","scheme"]},
 
-{"id":"F_scholarship_01","answer":"scholarship","en":"She received a （　） to study abroad.","ja":"彼女は留学のため「奨学金」を受けた。","choices":["scholarship","internship","membership","leadership"]},
+{"id":"F_scholarship_01","answer":"scholarship","en":"She received a （　） to study abroad.","ja":"彼女は留学のため「奨学金」を受けた。","choices":["scholarship","internship","relationship","leadership"]},
 
-{"id":"F_score_01","answer":"score","en":"Our team got the highest （　） in the game.","ja":"私たちのチームは試合で最高「得点」を取った。","choices":["score","point","mark","grade"]},
+{"id":"F_score_01","answer":"score","en":"Our team got the highest （　） in the game.","ja":"私たちのチームは試合で最高「得点」を取った。","choices":["score","scale","source","scene"]},
 
-{"id":"F_scream_01","answer":"scream","en":"She （　） loudly when she saw the spider.","ja":"彼女はクモを見て大声で「叫んだ」。","choices":["screamed","laughed","shouted","whispered"]},
+{"id":"F_scream_01","answer":"scream","en":"She （　） loudly when she saw the spider.","ja":"彼女はクモを見て大声で「叫んだ」。","choices":["screamed","laughed","suggested","whispered"]},
 
-{"id":"F_seize_01","answer":"seize","en":"The police （　） the illegal goods.","ja":"警察は違法な商品を「押収した」。","choices":["seized","collected","received","delivered"]},
+{"id":"F_seize_01","answer":"seize","en":"The police （　） the illegal goods at the border.","ja":"警察は国境で違法な商品を「押収した」。","choices":["seized","displayed","packed","returned"]},
 
-{"id":"F_seldom_01","answer":"seldom","en":"He （　） goes to the cinema.","ja":"彼は映画館には「めったに」行かない。","choices":["seldom","often","always","usually"]},
+{"id":"F_seldom_01","answer":"seldom","en":"He （　） goes to the cinema because he is very busy on weekends.","ja":"彼は週末とても忙しいので映画館には「めったに」行かない。","choices":["seldom","carefully","instantly","already"]},
 
-{"id":"F_select_01","answer":"select","en":"Please （　） the correct answer.","ja":"正しい答えを「選びなさい」。","choices":["select","collect","connect","correct"]},
+{"id":"F_select_01","answer":"select","en":"Please （　） one answer from these four choices.","ja":"この4つの選択肢から答えを1つ「選びなさい」。","choices":["select","borrow","hide","repeat"]},
 
-{"id":"F_sensible_01","answer":"sensible","en":"It was a （　） decision to save money.","ja":"お金を貯めるのは「分別のある」決定だった。","choices":["sensible","possible","valuable","available"]},
+{"id":"F_sensible_01","answer":"sensible","en":"Saving money every month was a （　） decision.","ja":"毎月お金を貯めるのは「分別のある」決定だった。","choices":["sensible","wooden","purple","silent"]},
 
-{"id":"F_sensitive_01","answer":"sensitive","en":"This camera is very （　） to light.","ja":"このカメラは光にとても「敏感」だ。","choices":["sensitive","reactive","relative","positive"]},
+{"id":"F_sensitive_01","answer":"sensitive","en":"This camera is very （　） to light, so be careful when using it outdoors.","ja":"このカメラは光にとても「敏感」なので、屋外で使うときは注意しなさい。","choices":["sensitive","distant","central","formal"]},
 
-{"id":"F_series_01","answer":"series","en":"The book is part of a popular fantasy （　）.","ja":"その本は人気ファンタジー「シリーズ」の一部だ。","choices":["series","group","collection","set"]},
+{"id":"F_series_01","answer":"series","en":"This novel is the third book in a fantasy （　）.","ja":"この小説はファンタジー「シリーズ」の3冊目だ。","choices":["series","engine","valley","festival"]},
 
-{"id":"F_severe_01","answer":"severe","en":"The country is facing a （　） economic crisis.","ja":"その国は「深刻な」経済危機に直面している。","choices":["severe","serious","heavy","major"]},
+{"id":"F_severe_01","answer":"severe","en":"The country is facing a （　） economic crisis that has caused many businesses to close.","ja":"その国は多くの企業が閉鎖するほどの「深刻な」経済危機に直面している。","choices":["severe","wooden","minor","careless"]},
 
-{"id":"F_shade_01","answer":"shade","en":"We rested in the （　） of a large tree.","ja":"私たちは大きな木の「日陰」で休んだ。","choices":["shade","shadow","shelter","cover"]},
+{"id":"F_shade_01","answer":"shade","en":"We sat in the （　） of a large tree to escape the hot sun.","ja":"私たちは暑い日差しを避けるため大きな木の「日陰」に座った。","choices":["shade","branch","forest","flower"]},
 
-{"id":"F_shallow_01","answer":"shallow","en":"The water is very （　）, so children can play safely.","ja":"水はとても「浅い」ので子どもも安全に遊べる。","choices":["shallow","narrow","smooth","thin"]},
+{"id":"F_shallow_01","answer":"shallow","en":"The water near the shore is very （　）, so even small children can stand in it.","ja":"岸の近くの水はとても「浅い」ので、小さな子どもでも立つことができる。","choices":["shallow","curved","sweat","solid"]},
 
-{"id":"F_shame_01","answer":"shame","en":"He felt great （　） after telling a lie.","ja":"彼は嘘をついたあと大きな「恥」を感じた。","choices":["shame","fear","anger","doubt"]},
+{"id":"F_shame_01","answer":"shame","en":"He felt deep （　） after lying to his best friend.","ja":"彼は親友にうそをついたあと深い「恥」を感じた。","choices":["shame","glory","engine","bridge"]},
 
-{"id":"F_shortage_01","answer":"shortage","en":"The city is facing a water （　） this summer.","ja":"その都市はこの夏、水の「不足」に直面している。","choices":["shortage","supply","storage","support"]},
+{"id":"F_shortage_01","answer":"shortage","en":"The town is facing a water （　） after weeks without rain.","ja":"その町は何週間も雨が降らなかったため水の「不足」に直面している。","choices":["shortage","balance","holiday","lecture"]},
 
-{"id":"F_sightseeing_01","answer":"sightseeing","en":"We spent the afternoon （　） in Kyoto.","ja":"私たちは午後を京都で「観光して」過ごした。","choices":["sightseeing","shopping","studying","camping"]},
+{"id":"F_sightseeing_01","answer":"sightseeing","en":"We spent the afternoon （　） around the old streets of Kyoto.","ja":"私たちは午後を京都の古い通りを「観光して」過ごした。","choices":["sightseeing","arguing","repairing","measuring"]},
 
-{"id":"F_signature_01","answer":"signature","en":"Please write your （　） at the bottom of the contract.","ja":"契約書の下にあなたの「署名」を書いてください。","choices":["signature","initial","symbol","mark"]},
+{"id":"F_signature_01","answer":"signature","en":"Please put your （　） at the bottom of the contract.","ja":"契約書の下にあなたの「署名」を書いてください。","choices":["signature","address","uniform","suitcase"]},
 
-{"id":"F_silly_01","answer":"silly","en":"It was （　） to forget my umbrella on a rainy day.","ja":"雨の日に傘を忘れるなんて「ばかげている」。","choices":["silly","lazy","slow","weak"]},
+{"id":"F_silly_01","answer":"silly","en":"It was （　） to leave my umbrella on the train on such a rainy day.","ja":"こんな雨の日に電車に傘を置き忘れるなんて「ばかげている」。","choices":["silly","ancient","weekly","narrow"]},
 
-{"id":"F_similar_01","answer":"similar","en":"These two paintings look very （　）.","ja":"この2つの絵はとても「似ている」。","choices":["similar","equal","same","close"]},
+{"id":"F_similar_01","answer":"similar","en":"The two houses look very （　）, but they were built by different people.","ja":"その2軒の家はとても「似ている」が、別の人によって建てられた。","choices":["similar","expensive","peaceful","slight"]},
 
-{"id":"F_sincere_01","answer":"sincere","en":"She gave a （　） apology for her mistake.","ja":"彼女は自分のミスについて「誠実な」謝罪をした。","choices":["sincere","simple","quiet","direct"]},
+{"id":"F_sincere_01","answer":"sincere","en":"She gave a （　） apology and admitted her mistake honestly.","ja":"彼女は「誠実な」謝罪をし、自分のミスを正直に認めた。","choices":["sincere","wooden","distant","curious"]},
 
-{"id":"F_situation_01","answer":"situation","en":"The economic （　） has improved recently.","ja":"経済「状況」は最近改善した。","choices":["situation","condition","position","direction"]},
+{"id":"F_situation_01","answer":"situation","en":"The economic （　） has improved since last year.","ja":"経済「状況」は昨年から改善した。","choices":["situation","instrument","adventure","vegetable"]},
 
-{"id":"F_skill_01","answer":"skill","en":"Driving requires practice and （　）.","ja":"運転には練習と「技能」が必要だ。","choices":["skill","talent","ability","power"]},
+{"id":"F_skill_01","answer":"skill","en":"Driving safely requires practice and great （　）.","ja":"安全に運転するには練習と優れた「技能」が必要だ。","choices":["skill","ticket","season","corner"]},
 
-{"id":"F_skillful_01","answer":"skillful","en":"The surgeon performed a very （　） operation.","ja":"その外科医は非常に「熟練した」手術を行った。","choices":["skillful","careful","helpful","useful"]},
+{"id":"F_skillful_01","answer":"skillful","en":"The surgeon performed a very （　） operation.","ja":"その外科医は非常に「熟練した」手術を行った。","choices":["skillful","dusty","empty","recent"]},
 
-{"id":"F_soil_01","answer":"soil","en":"Plants grow well in rich （　）.","ja":"植物は栄養豊かな「土」でよく育つ。","choices":["soil","sand","dust","rock"]},
+{"id":"F_soil_01","answer":"soil","en":"These vegetables grow well in rich, dark （　）.","ja":"これらの野菜は栄養豊かで黒い「土」でよく育つ。",note:"rich, black soilとあるが、rich and blackのような形容詞を並列するときのandは省略し、[,]で繋ぐことができる。","choices":["soil","mirror","curtain","ceiling"]},
 
-{"id":"F_solution_01","answer":"solution","en":"We must find a （　） to this problem.","ja":"この問題の「解決策」を見つけなければならない。","choices":["solution","method","reason","choice"]},
+{"id":"F_solution_01","answer":"solution","en":"We need to find a practical （　） to this problem before Friday.","ja":"私たちは金曜日までにこの問題への実際的な「解決策」を見つける必要がある。","choices":["solution","festival","shoulder","neighbor"]},
 
-{"id":"F_sorrow_01","answer":"sorrow","en":"She expressed deep （　） at the funeral.","ja":"彼女は葬式で深い「悲しみ」を表した。","choices":["sorrow","anger","pleasure","comfort"]},
+{"id":"F_sorrow_01","answer":"sorrow","en":"She showed deep （　） at her grandfather's funeral.","ja":"彼女は祖父の葬式で深い「悲しみ」を表した。","choices":["sorrow","synthesis","traffic","strategy"]},
 
-{"id":"F_source_01","answer":"source","en":"The river is the main water （　） for the town.","ja":"その川は町の主な水の「源」だ。","choices":["source","course","force","supply"]},
+{"id":"F_source_01","answer":"source","en":"This river is the main water （　） for the village.","ja":"この川はその村の主な水の「源」だ。","choices":["source","surgery","surface","pillow"]},
 
-{"id":"F_spite_01","answer":"spite","en":"He finished the race in （　） of his injury.","ja":"彼はけがにもかかわらずレースを完走した。","choices":["spite","front","case","view"]},
+{"id":"F_spite_01","answer":"spite","en":"He finished the race in （　） of his injured leg.","ja":"彼は足をけがしていたにもかかわらずレースを完走した。","choices":["spite","middle","corner","edge"]},
 
-{"id":"F_spoil_01","answer":"spoil","en":"Too much rain can （　） the harvest.","ja":"雨が多すぎると収穫が「台無しになる」。","choices":["spoil","destroy","damage","break"]},
+{"id":"F_spoil_01","answer":"spoil","en":"Too much rain can （　） the fruit before it is sold.","ja":"雨が多すぎると、売られる前に果物を「だめにしてしまう」ことがある。","choices":["spoil","polish","borrow","invite"]},
 
-{"id":"F_staff_01","answer":"staff","en":"The hospital has a large medical （　）.","ja":"その病院には多くの医療「職員」がいる。","choices":["staff","team","group","crowd"]},
+{"id":"F_staff_01","answer":"staff","en":"The hospital has enough medical （　） to care for all the patients.","ja":"その病院にはすべての患者を世話するのに十分な医療「職員」がいる。","choices":["staff","furniture","supplement","traffic"]},
 
-{"id":"F_stare_01","answer":"stare","en":"It is rude to （　） at strangers.","ja":"見知らぬ人をじっと「見つめる」のは失礼だ。","choices":["stare","watch","notice","look"]},
+{"id":"F_stare_01","answer":"stare","en":"It is rude to （　） at people on the train.","ja":"電車の中で人をじっと「見つめる」のは失礼だ。","choices":["stare","whisper","suggest","kneel"]},
 
-{"id":"F_starve_01","answer":"starve","en":"Without food, people will （　）.","ja":"食べ物がなければ人は「飢える」。","choices":["starve","suffer","weaken","collapse"]},
+{"id":"F_starve_01","answer":"starve","en":"Without food for many days, people will eventually （　）.","ja":"何日も食べ物がなければ、人はやがて「飢える」。","choices":["starve","settle","float","succeed"]},
 
-{"id":"F_steady_01","answer":"steady","en":"He made （　） progress in his studies.","ja":"彼は勉強で「着実な」進歩をした。","choices":["steady","rapid","sudden","brief"]},
+{"id":"F_steady_01","answer":"steady","en":"She has made （　） progress in English this year.","ja":"彼女は今年英語で「着実な」進歩をしてきた。","choices":["steady","substantial","subjective","fragile"]},
 
-{"id":"F_steep_01","answer":"steep","en":"The road becomes very （　） near the mountain.","ja":"その道は山の近くでとても「急」になる。","choices":["steep","wide","rough","long"]},
+{"id":"F_steep_01","answer":"steep","en":"The road becomes very （　） as it climbs the mountain.","ja":"その道は山を登るにつれてとても「急」になる。","choices":["steep","gentle","empty","structural"]},
 
-{"id":"F_stock_01","answer":"stock","en":"The store has a large （　） of shoes.","ja":"その店には靴の「在庫」が多くある。","choices":["stock","supply","amount","quantity"]},
+{"id":"F_stock_01","answer":"stock","en":"The store has a large （　） of winter coats ready for sale.","ja":"その店には販売用の冬物コートの「在庫」がたくさんある。","choices":["stock","silence","distance","shadow"]},
 
-{"id":"F_stormy_01","answer":"stormy","en":"The sea was very （　） during the typhoon.","ja":"台風の間、海はとても「嵐のような」状態だった。","choices":["stormy","windy","rainy","cloudy"]},
+{"id":"F_stormy_01","answer":"stormy","en":"The sea became very （　） during the typhoon.","ja":"台風の間、海はとても「嵐のような」状態になった。","choices":["stormy","wooden","silent","gentle"]},
 
-{"id":"F_strain_01","answer":"strain","en":"Too much work can cause mental （　）.","ja":"働きすぎは精神的「緊張」を引き起こす。","choices":["strain","stress","pressure","tension"]},
+{"id":"F_strain_01","answer":"strain","en":"Working long hours every day caused severe mental （　）.","ja":"毎日長時間働くことが深刻な精神的「負担」を引き起こした。","choices":["strain","strength","entrance","vehicle"]},
 
-{"id":"F_stretch_01","answer":"stretch","en":"Please （　） your arms before exercising.","ja":"運動前に腕を「伸ばし」なさい。","choices":["stretch","raise","shake","move"]},
+{"id":"F_stretch_01","answer":"stretch","en":"Please （　） your arms before you start running.","ja":"走り始める前に腕を「伸ばし」なさい。","choices":["stretch","borrow","fold","fix"]},
 
-{"id":"F_struggle_01","answer":"struggle","en":"They had to （　） to survive in the harsh winter.","ja":"彼らは厳しい冬を生き延びるため「奮闘」した。","choices":["struggle","attempt","fight","compete"]},
+{"id":"F_struggle_01","answer":"struggle","en":"The family had to （　） to survive through the cold winter.","ja":"その家族は寒い冬を生き延びるために「奮闘」しなければならなかった。","choices":["struggle","decorate","apologize","whisper"]},
 
-{"id":"F_stupid_01","answer":"stupid","en":"It was （　） to ignore such an obvious warning.","ja":"そんな明らかな警告を無視するのは「愚か」だ。","choices":["stupid","silly","careless","foolish"]},
+{"id":"F_stupid_01","answer":"stupid","en":"It was （　） to ignore such a clear warning sign.","ja":"そんなにはっきりした警告標識を無視するのは「愚か」だった。","choices":["stupid","smooth","daily","polite"]},
 
-{"id":"F_substitute_01","answer":"substitute","en":"The coach sent in a （　） player.","ja":"監督は「交代」選手を送り出した。","choices":["substitute","reserve","assistant","partner"]},
+{"id":"F_substitute_01","answer":"substitute","en":"The coach sent in a （　） player in the second half.","ja":"監督は後半に「交代」選手を送り出した。","choices":["substitute","central","wooden","nervous"]},
 
-{"id":"F_suggestion_01","answer":"suggestion","en":"Thank you for your helpful （　）.","ja":"役立つ「提案」をありがとう。","choices":["suggestion","decision","discussion","explanation"]},
+{"id":"F_suggestion_01","answer":"suggestion","en":"Thank you for your helpful （　） about my report.","ja":"私のレポートについての役立つ「提案」をありがとう。","choices":["suggestion","vehicle","disease","statue"]},
 
-{"id":"F_suitable_01","answer":"suitable","en":"This coat is （　） for cold weather.","ja":"このコートは寒い天気に「適している」。","choices":["suitable","possible","available","valuable"]},
+{"id":"F_suitable_01","answer":"suitable","en":"These shoes are （　） for hiking in the mountains.","ja":"これらの靴は山でのハイキングに「適している」。","choices":["suitable","fragile","distant","strange"]},
 
-{"id":"F_sum_01","answer":"sum","en":"The total （　） of the numbers is 100.","ja":"その数字の合計「総和」は100だ。","choices":["sum","amount","number","score"]},
+{"id":"F_sum_01","answer":"sum","en":"The （　） of 25 and 75 is 100.","ja":"25と75の「合計」は100だ。","choices":["sum","suburb","subject","suggestion"]},
 
-{"id":"F_superior_01","answer":"superior","en":"This model is （　） to the previous one.","ja":"このモデルは前のものより「優れている」。","choices":["superior","stronger","larger","higher"]},
+{"id":"F_superior_01","answer":"superior","en":"This model is clearly （　） to the older one in speed and safety.","ja":"このモデルは速度と安全性の点で古いものより明らかに「優れている」。","choices":["superior","foreign","wooden","careless"]},
 
-{"id":"F_surround_01","answer":"surround","en":"Tall mountains （　） the small village.","ja":"高い山々がその小さな村を「囲んでいる」。","choices":["surround","protect","support","connect"]},
+{"id":"F_surround_01","answer":"surround","en":"Tall mountains （　） the small village.","ja":"高い山々がその小さな村を「囲んでいる」。","choices":["surround","repair","divide","invite"]},
 
-{"id":"F_survive_01","answer":"survive","en":"Only a few plants can （　） in the desert.","ja":"砂漠で「生き残れる」植物はわずかだ。","choices":["survive","live","grow","remain"]},
+{"id":"F_survive_01","answer":"survive","en":"Only a few plants can （　） in the dry desert.","ja":"乾いた砂漠で「生き残れる」植物はわずかだ。","choices":["survive","gather","decorate","deliver"]},
 
-{"id":"F_suspect_01","answer":"suspect","en":"The police （　） him of stealing the car.","ja":"警察は彼が車を盗んだと「疑っている」。","choices":["suspect","arrest","accuse","blame"]},
+{"id":"F_suspect_01","answer":"suspect","en":"The police （　） him of stealing the bicycle.","ja":"警察は彼が自転車を盗んだと「疑っている」。","choices":["suspect","praise","surrender","trust"]},
 
-{"id":"F_swallow_01","answer":"swallow","en":"He tried to （　） the pill with water.","ja":"彼は水で薬を「飲み込もう」とした。","choices":["swallow","drink","eat","take"]},
+{"id":"F_swallow_01","answer":"swallow","en":"He tried to （　） the pill with a glass of water.","ja":"彼はコップ一杯の水でその薬を「飲み込もう」とした。","choices":["swallow","throw","hide","drop"]},
 
-{"id":"F_symbol_01","answer":"symbol","en":"The dove is a （　） of peace.","ja":"ハトは平和の「象徴」だ。","choices":["symbol","signal","mark","sign"]},
+{"id":"F_symbol_01","answer":"symbol","en":"The white dove is a well-known （　） of peace.","ja":"白いハトは平和のよく知られた「象徴」だ。","choices":["symbol","ceiling","factory","substance"]},
 
-{"id":"F_sympathy_01","answer":"sympathy","en":"She expressed deep （　） for the victims.","ja":"彼女は被害者に深い「同情」を示した。","choices":["sympathy","respect","interest","attention"]},
+{"id":"F_sympathy_01","answer":"sympathy","en":"She expressed deep （　） for the families of the victims.","ja":"彼女は被害者の家族に深い「同情」を示した。","choices":["sympathy","suicide","traffic","superiority"]},
 
-{"id":"F_tank_01","answer":"tank","en":"The army sent a （　） across the battlefield.","ja":"軍は戦場に「戦車」を送った。","choices":["tank","truck","ship","plane"]},
+{"id":"F_tank_01","answer":"tank","en":"The army sent a （　） across the battlefield.","ja":"軍は戦場に「戦車」を送った。","choices":["tank","tax","telescope","temparature"]},
 
-{"id":"F_task_01","answer":"task","en":"Finishing this report is my main （　） today.","ja":"このレポートを終えることが今日の主な「任務」だ。","choices":["task","job","work","duty"]},
+{"id":"F_task_01","answer":"task","en":"Finishing this report is my main （　） today.","ja":"このレポートを終えることが今日の主な「任務」だ。","choices":["task","tendency","tense","term"]},
 
-{"id":"F_technical_01","answer":"technical","en":"He solved the （　） problem with his engineering knowledge.","ja":"彼は工学知識でその「技術的」問題を解決した。","choices":["technical","physical","chemical","medical"]},
+{"id":"F_technical_01","answer":"technical","en":"He solved the （　） problem using his engineering knowledge.","ja":"彼は工学の知識を使ってその「技術的」問題を解決した。","choices":["technical","distant","careless","weekly"]},
 
-{"id":"F_technique_01","answer":"technique","en":"The artist developed a unique painting （　）.","ja":"その画家は独特の絵画「技法」を開発した。","choices":["technique","method","skill","style"]},
+{"id":"F_technique_01","answer":"technique","en":"The artist developed a new painting （　） after years of practice.","ja":"その画家は何年もの練習の末に新しい絵画「技法」を開発した。","choices":["technique","festival","suitcase","thermometer"]},
 
-{"id":"F_technology_01","answer":"technology","en":"Modern （　） has changed the way we communicate.","ja":"現代の「技術」は私たちのコミュニケーション方法を変えた。","choices":["technology","science","industry","system"]},
+{"id":"F_technology_01","answer":"technology","en":"Modern （　） has changed the way people communicate.","ja":"現代の「技術」は人々のコミュニケーションの仕方を変えた。","choices":["technology","thief","landscape","neighbor"]},
 
-{"id":"F_telescope_01","answer":"telescope","en":"The astronomer looked at the stars through a （　）.","ja":"その天文学者は「望遠鏡」で星を観察した。","choices":["telescope","microscope","camera","lens"]},
+{"id":"F_telescope_01","answer":"telescope","en":"The astronomer looked at the moon through a （　）.","ja":"その天文学者は「望遠鏡」を通して月を見た。","choices":["telescope","helmet","candle","thermometer"]},
 
-{"id":"F_temple_01","answer":"temple","en":"Many tourists visited the ancient （　） in Kyoto.","ja":"多くの観光客が京都の古い「寺」を訪れた。","choices":["temple","castle","palace","tower"]},
+{"id":"F_temple_01","answer":"temple","en":"Many tourists visited the old （　） in Kyoto.","ja":"多くの観光客が京都の古い「寺」を訪れた。","choices":["temple","track","torture","tongue"]},
 
-{"id":"F_tend_01","answer":"tend","en":"Young children （　） to imitate their parents.","ja":"幼い子どもは親をまねする「傾向がある」。","choices":["tend","want","plan","hope"]},
+{"id":"F_tend_01","answer":"tend","en":"Young children （　） to imitate the people around them.","ja":"幼い子どもは周りの人をまねする「傾向がある」。","choices":["tend","shake","refuse","wander"]},
 
-{"id":"F_theory_01","answer":"theory","en":"Einstein developed the （　） of relativity.","ja":"アインシュタインは相対性「理論」を発展させた。","choices":["theory","method","rule","system"]},
+{"id":"F_theory_01","answer":"theory","en":"Einstein developed the （　） of relativity.","ja":"アインシュタインは相対性「理論」を発展させた。","choices":["theory","curtain","traffic","village"]},
 
-{"id":"F_thermometer_01","answer":"thermometer","en":"The nurse used a （　） to measure my temperature.","ja":"看護師は体温を測るため「温度計」を使った。","choices":["thermometer","barometer","meter","sensor"]},
+{"id":"F_thermometer_01","answer":"thermometer","en":"The nurse used a （　） to check my temperature.","ja":"看護師は私の体温を確かめるために「温度計」を使った。","choices":["thermometer","tradition","stapler","hammer"]},
 
-{"id":"F_throughout_01","answer":"throughout","en":"It rained （　） the entire night.","ja":"一晩「ずっと」雨が降った。","choices":["throughout","during","within","across"]},
+{"id":"F_throughout_01","answer":"throughout","en":"It rained （　） the night without stopping.","ja":"一晩じゅう雨がやむことなく降った。","choices":["throughout","until","beneath","beside"]},
 
-{"id":"F_thus_01","answer":"thus","en":"He worked hard; （　）, he succeeded.","ja":"彼は一生懸命働いた。したがって成功した。","choices":["thus","however","instead","meanwhile"]},
+{"id":"F_thus_01","answer":"thus","en":"He studied hard; （　）, he passed the exam.","ja":"彼は熱心に勉強した。したがって試験に合格した。","choices":["thus","otherwise","meanwhile","unless"]},
 
-{"id":"F_tidy_01","answer":"tidy","en":"Please keep your room clean and （　）.","ja":"部屋をきれいで「整った」状態にしておきなさい。","choices":["tidy","wide","fresh","smooth"]},
+{"id":"F_tidy_01","answer":"tidy","en":"Please keep your desk clean and （　）.","ja":"机を清潔で「整った」状態にしておきなさい。","choices":["tidy","curved","distant","tough"]},
 
-{"id":"F_transfer_01","answer":"transfer","en":"She decided to （　） to another department.","ja":"彼女は別の部署に「異動する」ことを決めた。","choices":["transfer","move","send","travel"]},
+{"id":"F_transfer_01","answer":"transfer","en":"She decided to （　） to another branch office next month.","ja":"彼女は来月別の支店に「異動する」ことを決めた。","choices":["transfer","hesitate","celebrate","whisper"]},
 
-{"id":"F_transportation_01","answer":"transportation","en":"Public （　） is convenient in this city.","ja":"この都市では公共「交通」が便利だ。","choices":["transportation","communication","information","education"]},
+{"id":"F_transportation_01","answer":"transportation","en":"Public （　） is very convenient in this city.","ja":"この都市では公共「交通」がとても便利だ。","choices":["transportation","imagination","conversation","direction"]},
 
-{"id":"F_treasure_01","answer":"treasure","en":"Pirates searched for hidden （　）.","ja":"海賊は隠された「宝」を探した。","choices":["treasure","gold","money","reward"]},
+{"id":"F_treasure_01","answer":"treasure","en":"The pirates searched the island for hidden （　）.","ja":"海賊たちは隠された「宝」を求めて島を捜した。","choices":["treasure","engine","garbage","feather"]},
 
-{"id":"F_tube_01","answer":"tube","en":"The dentist used a small （　） of toothpaste.","ja":"歯医者は歯磨き粉の小さな「チューブ」を使った。","choices":["tube","bottle","box","bag"]},
+{"id":"F_tube_01","answer":"tube","en":"She squeezed a little toothpaste out of the （　）.","ja":"彼女は「チューブ」から少し歯みがき粉を絞り出した。","choices":["tube","helmet","drawer","translation"]},
 
-{"id":"F_typical_01","answer":"typical","en":"This dish is a （　） example of Italian cuisine.","ja":"この料理はイタリア料理の「典型的な」例だ。","choices":["typical","normal","usual","common"]},
+{"id":"F_typical_01","answer":"typical","en":"Pizza is a （　） example of Italian food.","ja":"ピザはイタリア料理の「典型的な」例だ。","choices":["typical","curious","wooden","distant"]},
 
-{"id":"F_ugly_01","answer":"ugly","en":"The building is old and （　）.","ja":"その建物は古くて「醜い」。","choices":["ugly","dirty","dark","weak"]},
+{"id":"F_ugly_01","answer":"ugly","en":"It is an（　） truth, but we have to face the fact that our resources are limited.","ja":"それは「見たくない」真実だが、我々の資源には限りがあるという事実に向き合わなければならない。",note:"an ugly truth「見たくない現実」という比喩表現","choices":["ugly","ultimate","unanimous","ubiquitous"]},
 
-{"id":"F_uneasy_01","answer":"uneasy","en":"She felt （　） about the strange noise.","ja":"彼女はその奇妙な音に「不安」を感じた。","choices":["uneasy","afraid","nervous","worried"]},
+{"id":"F_uneasy_01","answer":"uneasy","en":"She felt （　） when she heard footsteps outside her window at night.","ja":"彼女は夜、窓の外で足音を聞いて「不安」を感じた。","choices":["uneasy","unfairly","grateful","peaceful"]},
 
-{"id":"F_unfortunate_01","answer":"unfortunate","en":"It was （　） that the event was canceled.","ja":"イベントが中止になったのは「不運」だった。","choices":["unfortunate","unexpected","unlucky","unusual"]},
+{"id":"F_unfortunate_01","answer":"unfortunate","en":"It was （　） that the school trip had to be canceled because of the storm.","ja":"嵐のため修学旅行を中止しなければならなかったのは「残念」だった。","choices":["unfortunate","successful","convenient","pleasant"]},
 
-{"id":"F_universal_01","answer":"universal","en":"Music is a （　） language understood worldwide.","ja":"音楽は世界中で理解される「普遍的な」言語だ。","choices":["universal","international","global","public"]},
+{"id":"F_universal_01","answer":"universal","en":"Music is a （　） language that people everywhere can enjoy.","ja":"音楽はどこでも人々が楽しめる「普遍的な」言語だ。","choices":["universal","private","wooden","narrow"]},
 
-{"id":"F_universe_01","answer":"universe","en":"Scientists study the origin of the （　）.","ja":"科学者は「宇宙」の起源を研究する。","choices":["universe","galaxy","planet","space"]},
+{"id":"F_universe_01","answer":"universe","en":"Scientists are studying how the （　） began.","ja":"科学者たちは「宇宙」がどのように始まったのかを研究している。","choices":["universe","union","library","urgency"]},
 
-{"id":"F_urge_01","answer":"urge","en":"Doctors （　） people to stop smoking.","ja":"医者は人々に禁煙するよう「強く促す」。","choices":["urge","tell","order","force"]},
+{"id":"F_urge_01","answer":"urge","en":"Doctors （　） people to stop smoking for their health.","ja":"医者は健康のために禁煙するよう人々に「強く促す」。",note:"urge 人 to V「人にVすることを促す」","choices":["urge","hide","forgive","delay"]},
 
-{"id":"F_urgent_01","answer":"urgent","en":"This is an （　） matter that needs immediate attention.","ja":"これはすぐ注意が必要な「緊急の」問題だ。","choices":["urgent","serious","important","critical"]},
+{"id":"F_urgent_01","answer":"urgent","en":"This is an （　） message, so please read it immediately.","ja":"これは「緊急の」メッセージなので、すぐに読んでください。","choices":["urgent","optional","distant","wooden"]},
 
-{"id":"F_variety_01","answer":"variety","en":"The store sells a wide （　） of fruits.","ja":"その店は多くの種類の果物を売っている。","choices":["variety","number","amount","group"]},
+{"id":"F_variety_01","answer":"variety","en":"The market sells a wide （　） of fresh fruits and vegetables.","ja":"その市場は新鮮な果物や野菜を多「種類」売っている。","choices":["variety","ceiling","traffic","shadow"]},
 
-{"id":"F_victory_01","answer":"victory","en":"The team celebrated their （　） in the final match.","ja":"チームは決勝戦での「勝利」を祝った。","choices":["victory","success","achievement","result"]},
+{"id":"F_victory_01","answer":"victory","en":"The team celebrated its （　） after the championship game.","ja":"そのチームは優勝試合のあと「勝利」を祝った。","choices":["victory","injury","arrival","training"]},
 
-{"id":"F_virus_01","answer":"virus","en":"The flu is caused by a （　）.","ja":"インフルエンザは「ウイルス」によって引き起こされる。","choices":["virus","bacteria","disease","infection"]},
+{"id":"F_virus_01","answer":"virus","en":"A （　） can spread quickly from person to person.","ja":"「ウイルス」は人から人へすぐに広がることがある。","choices":["virus","hammer","ticket","volunteer"]},
 
-{"id":"F_vote_01","answer":"vote","en":"Citizens will （　） in the election tomorrow.","ja":"市民は明日の選挙で「投票する」。","choices":["vote","elect","select","decide"]},
+{"id":"F_vote_01","answer":"vote","en":"Citizens will （　） for a new mayor tomorrow.","ja":"市民は明日新しい市長に「投票する」。","choices":["vote","float","borrow","kneel"]},
 
-{"id":"F_voyage_01","answer":"voyage","en":"The ship began its long （　） across the ocean.","ja":"船は海を渡る長い「航海」を始めた。","choices":["voyage","journey","trip","travel"]},
+{"id":"F_voyage_01","answer":"voyage","en":"The ship began its long （　） across the Pacific Ocean.","ja":"その船は太平洋を横断する長い「航海」を始めた。","choices":["voyage","argument","festival","value"]},
 
-{"id":"F_wage_01","answer":"wage","en":"Workers demanded higher （　）.","ja":"労働者はより高い「賃金」を要求した。","choices":["wage","salary","income","reward"]},
+{"id":"F_wage_01","answer":"wage","en":"The workers demanded a higher hourly （　）.","ja":"労働者たちはより高い時間あたりの「賃金」を要求した。","choices":["wage","weather","traffic","surface"]},
 
-{"id":"F_wander_01","answer":"wander","en":"He likes to （　） around the city without a plan.","ja":"彼は計画なしに街を「さまよう」のが好きだ。","choices":["wander","walk","travel","move"]},
+{"id":"F_wander_01","answer":"wander","en":"He likes to （　） around the city without any plan.","ja":"彼は何の計画もなく街を「さまよう」のが好きだ。",note:"wonder「不思議に思う」との混同に注意!","choices":["wander","whisper","fold","repair"]},
 
-{"id":"F_weave_01","answer":"weave","en":"She learned to （　） cloth on a traditional loom.","ja":"彼女は伝統的な織機で布を「織る」ことを学んだ。","choices":["weave","spin","sew","knit"]},
+{"id":"F_weave_01","answer":"weave","en":"She learned how to （　） cloth on a traditional loom.","ja":"彼女は伝統的な織機で布を「織る」方法を学んだ。",note:"活用はweave-wove-wovem","choices":["weave","wonder","warn","whisper"]},
 
-{"id":"F_welfare_01","answer":"welfare","en":"The government provides support for social （　）.","ja":"政府は社会「福祉」の支援を提供している。","choices":["welfare","benefit","service","system"]},
+{"id":"F_welfare_01","answer":"welfare","en":"The government increased spending on social （　） programs.","ja":"政府は社会「福祉」制度への支出を増やした。","choices":["welfare","traffic","weather","wealth"]},
 
-{"id":"F_wheel_01","answer":"wheel","en":"The car lost one of its （　）.","ja":"その車は「車輪」を一つ失った。","choices":["wheel","engine","door","seat"]},
+{"id":"F_wheel_01","answer":"wheel","en":"One （　） of the bicycle was damaged in the accident.","ja":"その事故で自転車の「車輪」の1つが壊れた。","choices":["wheel","wage","warrant","wasp"]},
 
-{"id":"F_wisdom_01","answer":"wisdom","en":"His advice showed great （　）.","ja":"彼の助言は大きな「知恵」を示していた。","choices":["wisdom","knowledge","experience","skill"]},
+{"id":"F_wisdom_01","answer":"wisdom","en":"His advice showed great （　） and experience.","ja":"彼の助言は大きな「知恵」と経験を示していた。","choices":["wisdom","traffic","garbage","ceiling"]},
 
-{"id":"F_worm_01","answer":"worm","en":"The bird caught a （　） in the soil.","ja":"鳥が土の中の「虫」を捕まえた。","choices":["worm","bug","ant","fly"]},
+{"id":"F_worm_01","answer":"worm","en":"The bird pulled a （　） out of the wet soil.","ja":"その鳥は湿った土の中から「虫」を引っ張り出した。","choices":["worm","coin","feather","weather"]},
 
-{"id":"F_worthy_01","answer":"worthy","en":"Her work is （　） of praise.","ja":"彼女の仕事は称賛に「値する」。","choices":["worthy","deserving","valuable","excellent"]},
+{"id":"F_worthy_01","answer":"worthy","en":"Her work is （　） of praise.","ja":"彼女の仕事は称賛に「値する」。","choices":["worthy","empty","distant","fragile"]},
 ];
 })();
