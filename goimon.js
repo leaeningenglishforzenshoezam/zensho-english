@@ -741,6 +741,13 @@ function determinePendingEvolution(g) {
 
     overlay.classList.remove("hidden");
     requestAnimationFrame(() => overlay.classList.add("show"));
+    const audio = document.getElementById("evolutionAudio");
+if (audio) {
+  try {
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+  } catch {}
+}
 
     beforeImg.src = g.imageKey;
     beforeImg.classList.remove("evoHidden");
