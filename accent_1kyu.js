@@ -165,7 +165,7 @@
     { blockId: 4, no: 156, en: "editor", ja: "編集者", sylRaw: "ˈed-i-tor", stress: 1, note: "" },
     { blockId: 4, no: 157, en: "effective", ja: "効果的な", sylRaw: "ef-ˈfec-tive", stress: 2, note: "" },
     { blockId: 4, no: 158, en: "embarrass", ja: "当惑させる", sylRaw: "em-ˈbar-rass", stress: 2, note: "" },
-    { blockId: 4, no: 159, en: "emergency", ja: "緊急事態", sylRaw: "emer-ˈgen-cy", stress: 2, note: "" },
+    { blockId: 4, no: 159, en: "emergency", ja: "緊急事態", sylRaw: "e-ˈmer-gen-cy", stress: 2, note: "" },
     { blockId: 4, no: 160, en: "employee", ja: "従業員", sylRaw: "em-ploy-ˈee", stress: 3, note: "同じ母音の連続にアクセント、enPLOYeeと第２音節にアクセントを置く場合もあるが、基本第３音節でＯＫ" },
     { blockId: 4, no: 161, en: "employer", ja: "雇用主", sylRaw: "em-ˈploy-er", stress: 2, note: "" },
     { blockId: 4, no: 162, en: "employment", ja: "雇用", sylRaw: "em-ˈploy-ment", stress: 2, note: "" },
@@ -259,7 +259,7 @@
     { blockId: 5, no: 250, en: "innocent", ja: "無実の", sylRaw: "ˈin-no-cent", stress: 1, note: "" },
 
     { blockId: 6, no: 251, en: "inquire", ja: "尋ねる", sylRaw: "in-ˈquire", stress: 2, note: "" },
-    { blockId: 6, no: 252, en: "inquiry", ja: "問い合わせ", sylRaw: "in-ˈquir-y", stress: 2, note: "" },
+    { blockId: 6, no: 252, en: "inquiry", ja: "問い合わせ", sylRaw: "in-ˈquir-y", stress: 2, note: "US発音でINにアクセントが来る場合もあるので、実際の大問１には出題されづらい" },
     { blockId: 6, no: 253, en: "insist", ja: "主張する", sylRaw: "in-ˈsist", stress: 2, note: "" },
     { blockId: 6, no: 254, en: "inspect", ja: "検査する", sylRaw: "in-ˈspect", stress: 2, note: "" },
     { blockId: 6, no: 255, en: "instrument", ja: "器具", sylRaw: "ˈin-stru-ment", stress: 1, note: "" },
