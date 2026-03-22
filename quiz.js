@@ -95,6 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function must(el, name) {
     if (!el) throw new Error(`quiz.html に #${name} が見つかりません`);
   }
+
   [
     [statsEl,"stats"],[qMetaEl,"qMeta"],[questionEl,"question"],[choicesEl,"choices"],[resultEl,"result"],
     [nextBtn,"nextQ"],[startBtn,"startTest"],[resetBtn,"resetQuiz"],
@@ -137,6 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function getBlockById(id) {
     return blocks.find(b => Number(b.id) === Number(id)) || null;
   }
+
   function getBlockByNo(no) {
     const n = Number(no);
     return blocks.find(b => n >= Number(b.start) && n <= Number(b.end)) || null;
@@ -156,6 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     return _audioCtx;
   }
+
   function ensureAudioReady() {
     try {
       const ctx = getAudioCtx();
@@ -216,9 +219,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function loadGlobal() {
     return safeParse(GLOBAL_BLOCK_KEY) || { byBlock: {} };
   }
+
   function saveGlobal(g) {
     localStorage.setItem(GLOBAL_BLOCK_KEY, JSON.stringify(g));
   }
+
   function addGlobalEnJa(blockId, isCorrect) {
     if (!blockId) return;
     const g = loadGlobal();
@@ -256,17 +261,21 @@ document.addEventListener("DOMContentLoaded", () => {
       if (obj && typeof obj === "object") weakPoints = obj;
     } catch {}
   }
+
   function saveWeakPoints() {
     localStorage.setItem(WEAK_KEY, JSON.stringify(weakPoints));
   }
+
   function getPoint(en) {
     const p = weakPoints[en];
     return typeof p === "number" ? p : 0;
   }
+
   function setPoint(en, p) {
     if (p <= 0) delete weakPoints[en];
     else weakPoints[en] = p;
   }
+
   function weakCount() {
     return Object.keys(weakPoints).length;
   }
@@ -293,6 +302,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch {}
     return start;
   }
+
   function saveOrderCursor(start, end, cursor) {
     localStorage.setItem(ORDER_CURSOR_KEY, JSON.stringify({ start, end, cursor }));
   }
@@ -308,6 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (s.quizMode === "order" || s.quizMode === "random" || s.quizMode === "weak") quizMode = s.quizMode;
     } catch {}
   }
+
   function saveSettings() {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify({ autoSpeakQ, quizMode }));
   }
@@ -318,9 +329,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!raw) return;
     try { statsMap = JSON.parse(raw) || {}; } catch {}
   }
+
   function saveBlockStats() {
     localStorage.setItem(BLOCK_STATS_KEY, JSON.stringify(statsMap));
   }
+
   function addBlockResult(blockId, isCorrect) {
     const k = String(blockId);
     if (!statsMap[k]) statsMap[k] = { attempted: 0, correct: 0 };
@@ -329,6 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
     saveBlockStats();
     addGlobalEnJa(blockId, isCorrect);
   }
+
   function getBlockAccText(blockId) {
     const k = String(blockId);
     const s = statsMap[k];
@@ -361,6 +375,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function loadGoimonUiState() {
     return safeParse(GOIMON_UI_KEY) || { open: false };
   }
+
   let goimonUi = loadGoimonUiState();
 
   function saveGoimonUiState() {
@@ -381,53 +396,8 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       if (window.GoimonUI && typeof window.GoimonUI.renderEvolutionNoticeButton === "function") {
         window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
-        return;
       }
-
-      if (!window.GoimonUI || typeof window.GoimonUI.loadCurrent !== "function") return;
-      const g = window.GoimonUI.loadCurrent();
-      if (!g) return;
-      if (g.pendingEvolution) evolutionNoticeBtn.classList.remove("hidden");
-      else evolutionNoticeBtn.classList.add("hidden");
     } catch {}
-  }
-
-  function openSharedEvolution() {
-    try {
-      if (window.GoimonUI && typeof window.GoimonUI.openEvolutionOverlay === "function") {
-        window.GoimonUI.openEvolutionOverlay({
-          onComplete: () => {
-            if (typeof window.renderQuizGoimonMini === "function") {
-              window.renderQuizGoimonMini();
-            }
-            renderEvolutionNotice();
-          }
-        });
-        return;
-      }
-
-      if (window.GoimonUI && typeof window.GoimonUI.playPendingEvolutionSequence === "function") {
-        window.GoimonUI.playPendingEvolutionSequence({
-          onComplete: () => {
-            if (typeof window.renderQuizGoimonMini === "function") {
-              window.renderQuizGoimonMini();
-            }
-            renderEvolutionNotice();
-          }
-        });
-        return;
-      }
-
-      if (window.GoimonUI && typeof window.GoimonUI.confirmEvolution === "function") {
-        window.GoimonUI.confirmEvolution();
-        if (typeof window.renderQuizGoimonMini === "function") {
-          window.renderQuizGoimonMini();
-        }
-        renderEvolutionNotice();
-      }
-    } catch (e) {
-      console.warn("openSharedEvolution failed:", e);
-    }
   }
 
   function modeText() {
@@ -468,10 +438,6 @@ document.addEventListener("DOMContentLoaded", () => {
     goimonUi.open = !goimonUi.open;
     saveGoimonUiState();
     renderGoimonVisibility();
-  });
-
-  evolutionNoticeBtn.addEventListener("click", () => {
-    openSharedEvolution();
   });
 
   function renderBlockStatsLine() {
@@ -938,10 +904,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (levelBadgeEl) {
     levelBadgeEl.textContent = `現在：全商英検 ${LV}級`;
-  }
-
-  if (window.GoimonUI && typeof window.GoimonUI.ensureEvolutionUIReady === "function") {
-    window.GoimonUI.ensureEvolutionUIReady();
   }
 
   renderGoimonVisibility();
