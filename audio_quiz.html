@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>音声→意味クイズ</title>
+  <link rel="stylesheet" href="style.css">
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
@@ -474,6 +475,9 @@
     }
   </script>
 
+  <script src="goimon_dialogues.js"></script>
+  <script src="goimon_dex.js"></script>
+  <script src="goimon_rules.js"></script>
   <script src="goimon.js"></script>
 
   <script>
@@ -524,8 +528,36 @@
 
       window.renderAudioGoimonMini = renderAudioGoimonMini;
       renderAudioGoimonMini();
+
+      if (window.GoimonUI) {
+        window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
+        window.GoimonUI.bindEvolutionNoticeButton("evolutionNoticeBtn", {
+          onComplete: () => {
+            renderAudioGoimonMini();
+          }
+        });
+      }
     })();
   </script>
+
+  <audio id="evolutionAudio" src="audio/evolution.mp3" preload="auto"></audio>
+
+  <div id="evoOverlay" class="evoOverlay hidden">
+    <div class="evoCenter">
+      <div class="evoFlash"></div>
+      <div id="evoShock" class="evoShock"></div>
+
+      <div class="evoImageStage">
+        <img id="evoGoimonBefore" src="" class="evoGoimon evoBefore" alt="進化前ゴイモン" />
+        <img id="evoGoimonAfter" src="" class="evoGoimon evoAfter evoHidden" alt="進化後ゴイモン" />
+      </div>
+
+      <div id="evoText1" class="evoText evoHidden">✨進化！✨</div>
+      <div id="evoText2" class="evoTextSub evoHidden"></div>
+
+      <button id="evoSkipBtn" class="evoSkip">スキップ</button>
+    </div>
+  </div>
 
   <script src="audio_quiz.js"></script>
 </body>
