@@ -1,5 +1,5 @@
 // goimon.js
-// 現行ホーム(index.html)対応版
+// 現行ホーム(index.html)対応版・進化演出安定版
 // - 旧保存データの移行つき
 // - goimon_dialogues.js からランダムにセリフ取得
 // - goimon_dex.js を基準に名前・説明・画像を参照
@@ -7,6 +7,12 @@
 // - 各学習ページの GoimonUI API に対応
 // - ホームの詳細シート / 保存箱 / 殿堂入り / 分岐 / 進化演出 / 図鑑 に対応
 // - ポイント加算 / レベル計算 / 進化判定をこのファイルに集約
+// - 修正内容:
+//   1. stage を勝手に自動進化させない
+//   2. pendingEvolution を正しく管理
+//   3. 進化ボタン押下でのみ進化
+//   4. 進化演出を毎回安定再生
+//   5. 音声再生を overlay 開始時に同期
 
 window.GoimonUI = (function () {
   "use strict";
@@ -43,7 +49,6 @@ window.GoimonUI = (function () {
   };
 
   // 学習モードごとの標準加算値
-  // ここだけ直せば、各ページの加算ルールを変えられる
   const POINT_RULES = {
     study: { chie: 0.1 },
     quiz_enja: { chie: 1 },
@@ -53,18 +58,21 @@ window.GoimonUI = (function () {
     audio_quiz: { chie: 0.5, onkan: 0.5 }
   };
 
-  // レベルは totalPoints 20pt ごとに +1
-  // Lv1〜5: egg / Lv6〜15: child / Lv16〜30: growth / Lv31〜45: mid / Lv46〜: final
+  // 現在段階 -> 次段階に必要な累計pt
   const STAGE_POINT_THRESHOLDS = {
-    egg: 100,     // Lv6
-    child: 300,   // Lv16
-    growth: 600,  // Lv31
-    mid: 900      // Lv46
+    egg: 100,     // egg -> child
+    child: 300,   // child -> growth
+    growth: 600,  // growth -> mid
+    mid: 900      // mid -> final
   };
 
   const STAGE_IMAGES = {
     egg: "images/goimon/goimon_egg.png"
   };
+
+  let evolutionBusy = false;
+  let evolutionTimer1 = null;
+  let evolutionTimer2 = null;
 
   function getLevel() {
     return String(window.ACTIVE_LEVEL || localStorage.getItem(LEVEL_KEY) || "1");
@@ -323,6 +331,7 @@ window.GoimonUI = (function () {
   function sanitizeGoimon(g) {
     const base = getDefaultCurrent();
     const out = Object.assign({}, base, g || {});
+
     out.stage = normalizeStage(out.stage);
     out.type = normalizeType(out.type || "nagomi");
     out.specialRoute = String(out.specialRoute || "");
@@ -334,22 +343,29 @@ window.GoimonUI = (function () {
     out.stats.kotoba = roundPoint(out.stats.kotoba);
     out.stats.onkan = roundPoint(out.stats.onkan);
     out.stats.bunmyaku = roundPoint(out.stats.bunmyaku);
+
     out.totalPoints = roundPoint(
       Number.isFinite(Number(out.totalPoints)) ? Number(out.totalPoints) : sumStats(out.stats)
     );
     out.level = calculateLevel(out.totalPoints);
-    out.stage = getStageFromLevel(out.level);
+
+    // 重要:
+    // stage は totalPoints / level から自動上書きしない
+    // 進化未確定なら現在の姿のまま維持する
     out.imageKey = String(out.imageKey || getImageFor(out.type, out.stage));
+
     out.pendingEvolution = !!out.pendingEvolution;
     out.pendingStage = out.pendingEvolution ? normalizeStage(out.pendingStage) : "";
     out.pendingType = out.pendingEvolution ? normalizeType(out.pendingType || out.type) : "";
     out.pendingImageKey = out.pendingEvolution
       ? String(out.pendingImageKey || getImageFor(out.pendingType, out.pendingStage))
       : "";
+
     out.discoveredForms = Array.isArray(out.discoveredForms) ? out.discoveredForms.slice() : ["egg"];
     out.hallOfFame = !!out.hallOfFame;
     out.createdAt = Number.isFinite(Number(out.createdAt)) ? Number(out.createdAt) : Date.now();
     out.updatedAt = Number.isFinite(Number(out.updatedAt)) ? Number(out.updatedAt) : Date.now();
+
     return out;
   }
 
@@ -524,7 +540,9 @@ window.GoimonUI = (function () {
       stats: s,
       total,
       ratios,
-      topStat
+      topStat,
+      currentStage: g.stage,
+      nextStage: getNextStage(g.stage)
     };
 
     if (window.GoimonRules && typeof window.GoimonRules.decideEvolutionType === "function") {
@@ -534,44 +552,44 @@ window.GoimonUI = (function () {
     return "nagomi";
   }
 
-function determinePendingEvolution(g) {
-  const currentStage = getStageFromLevel(g.level);
-  const nextStage = getNextStage(currentStage);
+  function determinePendingEvolution(g) {
+    const currentStage = normalizeStage(g.stage);
+    const nextStage = getNextStage(currentStage);
 
-  if (!nextStage) {
-    g.pendingEvolution = false;
-    g.pendingStage = "";
-    g.pendingType = "";
-    g.pendingImageKey = "";
+    if (!nextStage) {
+      g.pendingEvolution = false;
+      g.pendingStage = "";
+      g.pendingType = "";
+      g.pendingImageKey = "";
+      return g;
+    }
+
+    const threshold = getNextThresholdForStage(currentStage);
+    if (!threshold) {
+      g.pendingEvolution = false;
+      g.pendingStage = "";
+      g.pendingType = "";
+      g.pendingImageKey = "";
+      return g;
+    }
+
+    if (Number(g.totalPoints || 0) < threshold) {
+      g.pendingEvolution = false;
+      g.pendingStage = "";
+      g.pendingType = "";
+      g.pendingImageKey = "";
+      return g;
+    }
+
+    const nextType = decideTypeForEvolution(g);
+
+    g.pendingEvolution = true;
+    g.pendingStage = nextStage;
+    g.pendingType = nextType;
+    g.pendingImageKey = getImageFor(nextType, nextStage);
+
     return g;
   }
-
-  const threshold = getNextThresholdForStage(currentStage);
-  if (!threshold) {
-    g.pendingEvolution = false;
-    g.pendingStage = "";
-    g.pendingType = "";
-    g.pendingImageKey = "";
-    return g;
-  }
-
-  if (Number(g.totalPoints || 0) < threshold) {
-    g.pendingEvolution = false;
-    g.pendingStage = "";
-    g.pendingType = "";
-    g.pendingImageKey = "";
-    return g;
-  }
-
-  const nextType = decideTypeForEvolution(g);
-
-  g.pendingEvolution = true;
-  g.pendingStage = nextStage;
-  g.pendingType = nextType;
-  g.pendingImageKey = getImageFor(nextType, nextStage);
-
-  return g;
-}
 
   function normalizePointDelta(deltaObj) {
     const base = getDefaultStats();
@@ -592,8 +610,10 @@ function determinePendingEvolution(g) {
 
     g.totalPoints = sumStats(g.stats);
     g.level = calculateLevel(g.totalPoints);
+
+    // 現在の姿は変えず、進化可能フラグだけ更新
     g = determinePendingEvolution(g);
-    g.stage = getStageFromLevel(g.level);
+
     if (!g.pendingEvolution) {
       g.imageKey = getImageFor(g.type, g.stage);
     }
@@ -606,10 +626,12 @@ function determinePendingEvolution(g) {
     return g;
   }
 
-  // 今後の新規モードはこれを直接使えばよい
   function addPoints(deltaObj, eventKey) {
     let g = ensureCurrent();
-    return applyDeltaToGoimon(g, deltaObj, eventKey || "custom");
+    const updated = applyDeltaToGoimon(g, deltaObj, eventKey || "custom");
+    renderHome();
+    renderAllMiniHooks();
+    return updated;
   }
 
   function addPointsByRuleKey(ruleKey) {
@@ -619,35 +641,44 @@ function determinePendingEvolution(g) {
   }
 
   function confirmEvolution() {
-    let g = ensureCurrent();
-    if (!g.pendingEvolution) return g;
+  let g = ensureCurrent();
 
-    g.stage = g.pendingStage || g.stage;
-    g.type = g.pendingType || g.type;
-    g.imageKey = g.pendingImageKey || getImageFor(g.type, g.stage);
-    g.pendingEvolution = false;
-    g.pendingStage = "";
-    g.pendingType = "";
-    g.pendingImageKey = "";
-    g.level = calculateLevel(g.totalPoints);
+  // 確定直前にも、念のため最新ステータスで再判定する
+  g = determinePendingEvolution(g);
 
-    if (!Array.isArray(g.discoveredForms)) g.discoveredForms = [];
-    if (!g.discoveredForms.includes(g.stage)) g.discoveredForms.push(g.stage);
-
-    markDiscovered(g.type, g.stage);
-
-    const dex = getDexEntry(g.type, g.stage);
-    const speech = dex?.description || `${getBaseDisplayName(g.type, g.stage)} に進化した！`;
-    setLastEventState({ eventKey: "evolution", speech });
-
+  if (!g.pendingEvolution) {
     saveCurrent(g);
-    renderHome();
-    if (window.GoimonDexUI && typeof window.GoimonDexUI.renderTree === "function") {
-      window.GoimonDexUI.renderTree();
-    }
-
     return g;
   }
+
+  g.stage = g.pendingStage || g.stage;
+  g.type = g.pendingType || g.type;
+  g.imageKey = g.pendingImageKey || getImageFor(g.type, g.stage);
+
+  g.pendingEvolution = false;
+  g.pendingStage = "";
+  g.pendingType = "";
+  g.pendingImageKey = "";
+
+  g.level = calculateLevel(g.totalPoints);
+
+  if (!Array.isArray(g.discoveredForms)) g.discoveredForms = [];
+  if (!g.discoveredForms.includes(g.stage)) g.discoveredForms.push(g.stage);
+
+  markDiscovered(g.type, g.stage);
+
+  const dex = getDexEntry(g.type, g.stage);
+  const speech = dex?.description || `${getBaseDisplayName(g.type, g.stage)} に進化した！`;
+  setLastEventState({ eventKey: "evolution", speech });
+
+  saveCurrent(g);
+  renderHome();
+  if (window.GoimonDexUI && typeof window.GoimonDexUI.renderTree === "function") {
+    window.GoimonDexUI.renderTree();
+  }
+
+  return g;
+}
 
   function getEvolutionTheme(type) {
     switch (type) {
@@ -711,84 +742,169 @@ function determinePendingEvolution(g) {
     else btn.classList.add("hidden");
   }
 
-  function openEvolutionOverlay(opts) {
+  function resetEvolutionOverlayUi() {
     const overlay = document.getElementById("evoOverlay");
     const beforeImg = document.getElementById("evoGoimonBefore");
     const afterImg = document.getElementById("evoGoimonAfter");
     const text1 = document.getElementById("evoText1");
     const text2 = document.getElementById("evoText2");
     const shock = document.getElementById("evoShock");
-    const skipBtn = document.getElementById("evoSkipBtn");
 
-    const g = ensureCurrent();
-    if (!overlay || !beforeImg || !afterImg || !text1 || !text2 || !shock || !skipBtn || !g.pendingEvolution) {
-      const after = confirmEvolution();
-      if (opts && typeof opts.onComplete === "function") opts.onComplete(after);
-      return;
+    if (overlay) {
+      overlay.classList.remove("show");
+      overlay.classList.add("hidden");
+    }
+    if (beforeImg) {
+      beforeImg.classList.remove("evoHidden");
+      beforeImg.src = "";
+    }
+    if (afterImg) {
+      afterImg.classList.add("evoHidden");
+      afterImg.src = "";
+    }
+    if (text1) {
+      text1.classList.add("evoHidden");
+      text1.textContent = "";
+    }
+    if (text2) {
+      text2.classList.add("evoHidden");
+      text2.textContent = "";
+    }
+    if (shock) {
+      shock.classList.remove("active");
     }
 
-    const theme = getEvolutionTheme(g.pendingType || g.type);
-    const finish = () => {
-      const after = confirmEvolution();
-      beforeImg.classList.add("evoHidden");
-      afterImg.classList.remove("evoHidden");
-      afterImg.src = after.imageKey;
-      text1.classList.remove("evoHidden");
-      text2.classList.remove("evoHidden");
-      text2.textContent = `${getBaseDisplayName(after.type, after.stage)} に進化した！`;
-      if (opts && typeof opts.onComplete === "function") opts.onComplete(after);
-    };
-
-    overlay.classList.remove("hidden");
-    requestAnimationFrame(() => overlay.classList.add("show"));
-    const audio = document.getElementById("evolutionAudio");
-if (audio) {
-  try {
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
-  } catch {}
-}
-
-    beforeImg.src = g.imageKey;
-    beforeImg.classList.remove("evoHidden");
-    afterImg.classList.add("evoHidden");
-    afterImg.src = g.pendingImageKey || getImageFor(g.pendingType, g.pendingStage);
-    text1.classList.add("evoHidden");
-    text2.classList.add("evoHidden");
-    text1.textContent = "✨進化！✨";
-    text2.textContent = theme.result;
-
-    shock.classList.remove("active");
-    requestAnimationFrame(() => shock.classList.add("active"));
-
-    let done = false;
-    const closeOverlay = () => {
-      overlay.classList.remove("show");
-      setTimeout(() => overlay.classList.add("hidden"), 350);
-      skipBtn.removeEventListener("click", onSkip);
-    };
-    const onSkip = () => {
-      if (done) return;
-      done = true;
-      finish();
-      closeOverlay();
-    };
-
-    skipBtn.addEventListener("click", onSkip);
-
-    setTimeout(() => {
-      if (done) return;
-      done = true;
-      finish();
-      closeOverlay();
-    }, 2200);
+    if (evolutionTimer1) {
+      clearTimeout(evolutionTimer1);
+      evolutionTimer1 = null;
+    }
+    if (evolutionTimer2) {
+      clearTimeout(evolutionTimer2);
+      evolutionTimer2 = null;
+    }
   }
+
+  function openEvolutionOverlay(opts) {
+  if (evolutionBusy) return;
+
+  const overlay = document.getElementById("evoOverlay");
+  const beforeImg = document.getElementById("evoGoimonBefore");
+  const afterImg = document.getElementById("evoGoimonAfter");
+  const text1 = document.getElementById("evoText1");
+  const text2 = document.getElementById("evoText2");
+  const shock = document.getElementById("evoShock");
+  const skipBtn = document.getElementById("evoSkipBtn");
+  const audio = document.getElementById("evolutionAudio");
+
+  let g = ensureCurrent();
+
+  // 進化ボタン押下時に、必ず最新ステータスで再判定する
+  g = determinePendingEvolution(g);
+  saveCurrent(g);
+
+  if (!g.pendingEvolution) return;
+
+  if (!overlay || !beforeImg || !afterImg || !text1 || !text2 || !shock || !skipBtn) {
+    const after = confirmEvolution();
+    if (opts && typeof opts.onComplete === "function") opts.onComplete(after);
+    return;
+  }
+
+  evolutionBusy = true;
+  resetEvolutionOverlayUi();
+
+  const theme = getEvolutionTheme(g.pendingType || g.type);
+  let done = false;
+
+  function cleanup() {
+    if (evolutionTimer1) {
+      clearTimeout(evolutionTimer1);
+      evolutionTimer1 = null;
+    }
+    if (evolutionTimer2) {
+      clearTimeout(evolutionTimer2);
+      evolutionTimer2 = null;
+    }
+    skipBtn.removeEventListener("click", onSkip);
+    evolutionBusy = false;
+  }
+
+  function closeOverlay() {
+    overlay.classList.remove("show");
+    setTimeout(() => {
+      overlay.classList.add("hidden");
+      resetEvolutionOverlayUi();
+    }, 250);
+  }
+
+  function finish() {
+    if (done) return;
+    done = true;
+
+    const after = confirmEvolution();
+
+    beforeImg.classList.add("evoHidden");
+    afterImg.src = after.imageKey;
+    afterImg.classList.remove("evoHidden");
+
+    text1.textContent = "✨進化！✨";
+    text2.textContent = `${getBaseDisplayName(after.type, after.stage)} に進化した！`;
+    text1.classList.remove("evoHidden");
+    text2.classList.remove("evoHidden");
+
+    evolutionTimer2 = setTimeout(() => {
+      closeOverlay();
+      cleanup();
+      if (opts && typeof opts.onComplete === "function") opts.onComplete(after);
+    }, 900);
+  }
+
+  function onSkip() {
+    finish();
+  }
+
+  beforeImg.src = g.imageKey;
+  beforeImg.classList.remove("evoHidden");
+
+  afterImg.src = g.pendingImageKey || getImageFor(g.pendingType, g.pendingStage);
+  afterImg.classList.add("evoHidden");
+
+  text1.textContent = theme.title;
+  text2.textContent = theme.sub;
+  text1.classList.remove("evoHidden");
+  text2.classList.remove("evoHidden");
+
+  overlay.classList.remove("hidden");
+  requestAnimationFrame(() => {
+    overlay.classList.add("show");
+    shock.classList.remove("active");
+    requestAnimationFrame(() => {
+      shock.classList.add("active");
+    });
+  });
+
+  if (audio) {
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    } catch {}
+  }
+
+  skipBtn.addEventListener("click", onSkip);
+
+  evolutionTimer1 = setTimeout(() => {
+    finish();
+  }, 1400);
+}
 
   function bindEvolutionNoticeButton(buttonId, opts) {
     const btn = typeof buttonId === "string" ? document.getElementById(buttonId) : buttonId;
     if (!btn || btn.dataset.goimonBound === "1") return;
     btn.dataset.goimonBound = "1";
     btn.addEventListener("click", () => {
+      const g = ensureCurrent();
+      if (!g.pendingEvolution) return;
       openEvolutionOverlay(opts || {});
     });
   }
@@ -802,7 +918,7 @@ if (audio) {
   }
 
   function getNextEvolutionProgress(g) {
-    const stage = getStageFromLevel(g.level);
+    const stage = normalizeStage(g.stage);
     const threshold = getNextThresholdForStage(stage);
 
     if (!threshold) {
@@ -1176,6 +1292,7 @@ if (audio) {
     renderNicknameEditor(g);
     renderArchive();
     renderEvolutionNoticeButton("evolutionNoticeBtn");
+    bindEvolutionNoticeButton("evolutionNoticeBtn");
   }
 
   function bindHomeOnce() {
@@ -1359,6 +1476,8 @@ if (audio) {
 
   function initHomeActions() {
     bindHomeOnce();
+    renderEvolutionNoticeButton("evolutionNoticeBtn");
+    bindEvolutionNoticeButton("evolutionNoticeBtn");
   }
 
   // 既存ページ互換API
@@ -1398,6 +1517,7 @@ if (audio) {
     renderHome();
     renderAllMiniHooks();
     renderEvolutionNoticeButton("evolutionNoticeBtn");
+    bindEvolutionNoticeButton("evolutionNoticeBtn");
     if (window.GoimonDexUI && typeof window.GoimonDexUI.renderTree === "function") {
       window.GoimonDexUI.renderTree();
     }
@@ -1424,11 +1544,9 @@ if (audio) {
     getGoimonPrimaryName,
     getImageFor,
 
-    // 新しい集約API
     addPoints,
     addPointsByRuleKey,
 
-    // 既存互換API
     addStudyProgress,
     addQuizEnJaCorrect,
     addQuizJaEnCorrect,
