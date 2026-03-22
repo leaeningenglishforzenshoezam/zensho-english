@@ -1,956 +1,667 @@
-// quiz_jaen.js（日→英）ゴイモン版：Block＋3モード＋順番続き＋順番リセット＋結果画面＋URLパラメータ＋級ごと保存
-// ★正解=緑/不正解=赤、正解ピンポン/不正解ブッブー、1問1回だけ押せる
-// ★学習ログ（ホーム用）に 1問ごとに加算
-// ★日→英正解時は ゴイモンの「ことば +1」
-// ★ゴイモンは折りたたみ表示＋進化通知＋共通進化演出
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>日→英 4択テスト</title>
 
-document.addEventListener("DOMContentLoaded", () => {
-  const words = window.WORDS || [];
-  const blocks = window.BLOCKS || [];
-  const PASS_LINE = 80;
+  <link rel="stylesheet" href="style.css">
 
-  const LEVEL_KEY = "zensho_level_v1";
-  function getLevel() {
-    return localStorage.getItem(LEVEL_KEY) || "1";
-  }
-  const LV = getLevel();
-
-  function addLearningLog(isCorrect) {
-    try {
-      if (typeof window.zenshoLogAdd === "function") {
-        window.zenshoLogAdd("quiz_jaen", !!isCorrect);
-      }
-    } catch {}
-  }
-
-  const WEAK_KEY = `zensho_quiz_weak_points_jaen_v3_lv${LV}`;
-  const ORDER_CURSOR_KEY = `zensho_quiz_order_cursor_jaen_v2_lv${LV}`;
-  const SETTINGS_KEY = `zensho_quiz_settings_jaen_v2_lv${LV}`;
-  const BLOCK_STATS_KEY = `zensho_block_stats_jaen_v2_lv${LV}`;
-  const UI_KEY = `zensho_quiz_jaen_ui_v1_lv${LV}`;
-
-  const statsEl = document.getElementById("stats");
-  const qMetaEl = document.getElementById("qMeta");
-  const questionEl = document.getElementById("question");
-  const choicesEl = document.getElementById("choices");
-  const resultEl = document.getElementById("result");
-  const nextBtn = document.getElementById("nextQ");
-  const startBtn = document.getElementById("startTest");
-  const resetBtn = document.getElementById("resetQuiz");
-
-  const rangeStartEl = document.getElementById("rangeStart");
-  const rangeEndEl = document.getElementById("rangeEnd");
-  const limitEl = document.getElementById("limitCount");
-
-  const blockSelectEl = document.getElementById("blockSelect");
-  const applyBlockBtn = document.getElementById("applyBlock");
-  const blockStatsEl = document.getElementById("blockStats");
-
-  const weakModeEl = document.getElementById("weakMode");
-  const clearWeakBtn = document.getElementById("clearWeak");
-  const weakInfoEl = document.getElementById("weakInfo");
-
-  const speakQBtn = document.getElementById("speakQ");
-  const autoSpeakQEl = document.getElementById("autoSpeakQ");
-
-  const toggleSettingsBtn = document.getElementById("toggleSettings");
-  const settingsArea = document.getElementById("settingsArea");
-  const settingsSummaryEl = document.getElementById("settingsSummary");
-  const setupBox = document.getElementById("setupBox");
-
-  const modeSelectEl = document.getElementById("modeSelect");
-  const resetOrderBtn = document.getElementById("resetOrderCursor");
-
-  const playBox = document.getElementById("playBox");
-  const summaryBox = document.getElementById("summaryBox");
-  const finalScoreEl = document.getElementById("finalScore");
-  const finalBlockLineEl = document.getElementById("finalBlockLine");
-  const askedListEl = document.getElementById("askedList");
-  const wrongListEl = document.getElementById("wrongList");
-  const backToSetupBtn = document.getElementById("backToSetup");
-
-  const goStudyBlockBtn = document.getElementById("goStudyBlock");
-  const goWeakReviewBtn = document.getElementById("goWeakReview");
-
-  const levelBadgeEl = document.getElementById("levelBadge");
-  const goimonToggleBtn = document.getElementById("goimonToggleBtn");
-  const goimonPanel = document.getElementById("goimonPanel");
-  const evolutionNoticeBtn = document.getElementById("evolutionNoticeBtn");
-
-  function must(el, name) {
-    if (!el) throw new Error(`quiz_jaen.html に #${name} が見つかりません`);
-  }
-
-  [
-    [statsEl,"stats"],[qMetaEl,"qMeta"],[questionEl,"question"],[choicesEl,"choices"],[resultEl,"result"],
-    [nextBtn,"nextQ"],[startBtn,"startTest"],[resetBtn,"resetQuiz"],
-    [rangeStartEl,"rangeStart"],[rangeEndEl,"rangeEnd"],[limitEl,"limitCount"],
-    [blockSelectEl,"blockSelect"],[applyBlockBtn,"applyBlock"],[blockStatsEl,"blockStats"],
-    [weakModeEl,"weakMode"],[clearWeakBtn,"clearWeak"],[weakInfoEl,"weakInfo"],
-    [speakQBtn,"speakQ"],[autoSpeakQEl,"autoSpeakQ"],
-    [toggleSettingsBtn,"toggleSettings"],[settingsArea,"settingsArea"],[settingsSummaryEl,"settingsSummary"],[setupBox,"setupBox"],
-    [modeSelectEl,"modeSelect"],[resetOrderBtn,"resetOrderCursor"],
-    [playBox,"playBox"],[summaryBox,"summaryBox"],
-    [finalScoreEl,"finalScore"],[finalBlockLineEl,"finalBlockLine"],
-    [askedListEl,"askedList"],[wrongListEl,"wrongList"],[backToSetupBtn,"backToSetup"],
-    [goStudyBlockBtn,"goStudyBlock"],[goWeakReviewBtn,"goWeakReview"],
-    [levelBadgeEl,"levelBadge"],[goimonToggleBtn,"goimonToggleBtn"],[goimonPanel,"goimonPanel"],
-    [evolutionNoticeBtn,"evolutionNoticeBtn"]
-  ].forEach(([el,n]) => must(el,n));
-
-  function safeParse(key) {
-    const raw = localStorage.getItem(key);
-    if (!raw) return null;
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return null;
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
+      margin: 0;
+      background: #f7f7f7;
+      color: #111;
     }
-  }
 
-  function saveJson(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
-  }
-
-  function loadUiState() {
-    return safeParse(UI_KEY) || { goimonOpen: false };
-  }
-
-  function saveUiState() {
-    saveJson(UI_KEY, uiState);
-  }
-
-  function speakEnglish(text) {
-    if (!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US";
-    u.rate = 0.9;
-    window.speechSynthesis.speak(u);
-  }
-
-  let _audioCtx = null;
-  function getAudioCtx() {
-    if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    return _audioCtx;
-  }
-
-  function ensureAudioReady() {
-    try {
-      const ctx = getAudioCtx();
-      if (ctx.state === "suspended") ctx.resume();
-    } catch {}
-  }
-
-  function playCorrectSound() {
-    try {
-      const ctx = getAudioCtx();
-      const now = ctx.currentTime;
-
-      const osc1 = ctx.createOscillator();
-      const gain1 = ctx.createGain();
-      osc1.type = "sine";
-      osc1.frequency.setValueAtTime(880, now);
-      gain1.gain.setValueAtTime(0.0001, now);
-      gain1.gain.exponentialRampToValueAtTime(0.25, now + 0.01);
-      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-      osc1.connect(gain1).connect(ctx.destination);
-      osc1.start(now);
-      osc1.stop(now + 0.13);
-
-      const osc2 = ctx.createOscillator();
-      const gain2 = ctx.createGain();
-      osc2.type = "sine";
-      osc2.frequency.setValueAtTime(1175, now + 0.14);
-      gain2.gain.setValueAtTime(0.0001, now + 0.14);
-      gain2.gain.exponentialRampToValueAtTime(0.25, now + 0.15);
-      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.26);
-      osc2.connect(gain2).connect(ctx.destination);
-      osc2.start(now + 0.14);
-      osc2.stop(now + 0.27);
-    } catch {}
-  }
-
-  function playWrongSound() {
-    try {
-      const ctx = getAudioCtx();
-      const now = ctx.currentTime;
-
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sawtooth";
-      osc.frequency.setValueAtTime(160, now);
-      osc.frequency.linearRampToValueAtTime(120, now + 0.25);
-
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.35, now + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
-
-      osc.connect(gain).connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.36);
-    } catch {}
-  }
-
-  function lockChoices() {
-    document.querySelectorAll("#choices button").forEach(b => { b.disabled = true; });
-  }
-
-  function markCorrectButtonGreen() {
-    document.querySelectorAll("#choices button").forEach(b => {
-      if (current && b.textContent === current.en) b.classList.add("correct");
-    });
-  }
-
-  function shuffle(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px 12px 28px;
     }
-    return a;
-  }
 
-  function clampRange(s, e) {
-    if (!Number.isFinite(s)) s = 0;
-    if (!Number.isFinite(e)) e = words.length - 1;
-    s = Math.max(0, Math.min(words.length - 1, Math.floor(s)));
-    e = Math.max(0, Math.min(words.length - 1, Math.floor(e)));
-    if (s > e) [s, e] = [e, s];
-    return [s, e];
-  }
+    .card {
+      background:#fff;
+      border:1px solid #ddd;
+      border-radius:12px;
+      padding:14px;
+      margin: 12px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
 
-  function getBlockById(id) {
-    return blocks.find(b => Number(b.id) === Number(id)) || null;
-  }
+    .muted {
+      color:#666;
+      font-size: 13px;
+      line-height: 1.6;
+    }
 
-  function getBlockByNo(no) {
-    const n = Number(no);
-    return blocks.find(b => n >= Number(b.start) && n <= Number(b.end)) || null;
-  }
+    .row {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:space-between;
+    }
 
-  let weakPoints = {};
-  function loadWeakPoints() {
-    const raw = localStorage.getItem(WEAK_KEY);
-    if (!raw) return;
-    try {
-      const obj = JSON.parse(raw);
-      if (obj && typeof obj === "object") weakPoints = obj;
-    } catch {}
-  }
+    .rowStart {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-start;
+    }
 
-  function saveWeakPoints() {
-    localStorage.setItem(WEAK_KEY, JSON.stringify(weakPoints));
-  }
+    button {
+      padding:10px 12px;
+      margin-top: 6px;
+      border-radius:10px;
+      border:1px solid #ddd;
+      background:#fff;
+      cursor:pointer;
+      font-size: 16px;
+    }
 
-  function getPoint(en) {
-    const p = weakPoints[en];
-    return typeof p === "number" ? p : 0;
-  }
+    button.primary {
+      background:#2b7cff;
+      border-color:#2b7cff;
+      color:#fff;
+      font-weight:700;
+    }
 
-  function setPoint(en, p) {
-    if (p <= 0) delete weakPoints[en];
-    else weakPoints[en] = p;
-  }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
 
-  function weakCount() {
-    return Object.keys(weakPoints).length;
-  }
+    select, input {
+      padding:8px;
+      border-radius:8px;
+      border:1px solid #ccc;
+      font-size:16px;
+    }
 
-  function loadOrderCursor(start, end) {
-    const raw = localStorage.getItem(ORDER_CURSOR_KEY);
-    if (!raw) return start;
-    try {
-      const o = JSON.parse(raw);
-      if (o && o.start === start && o.end === end && Number.isFinite(o.cursor)) {
-        return o.cursor;
+    .btnwide {
+      width: 100%;
+    }
+
+    ul {
+      padding-left: 18px;
+    }
+
+    li {
+      margin: 6px 0;
+    }
+
+    .topNavBox {
+      margin-bottom: 12px;
+    }
+
+    .topNavTitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .topNav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .topNav a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      color: #111;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .topNav a.active {
+      background: #eaf2ff;
+      border-color: #2b7cff;
+      color: #1251b5;
+      font-weight: 700;
+    }
+
+    .pageHead {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pageTitle {
+      font-size: 22px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .levelBadgeBox {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .goimonToggleBox {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .goimonToggleBtn {
+      background: #f9fbff;
+      border: 1px solid #d6e5ff;
+      color: #234f97;
+      font-weight: 700;
+    }
+
+    .evoNoticeBtn {
+      background: linear-gradient(180deg, #fff6d6 0%, #ffe8a3 100%);
+      border: 1px solid #f1d48a;
+      color: #7a5200;
+      font-weight: 900;
+      position: relative;
+      animation: noticePulse 1.8s ease-in-out infinite;
+      box-shadow: 0 0 0 rgba(255, 214, 102, 0.0);
+    }
+
+    .evoNoticeBtn::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 14px;
+      border: 2px solid rgba(255, 214, 102, 0.35);
+      animation: noticeRing 1.8s ease-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes noticePulse {
+      0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(255,214,102,0); }
+      50% { transform: translateY(-1px) scale(1.02); box-shadow: 0 6px 18px rgba(255,214,102,0.35); }
+    }
+
+    @keyframes noticeRing {
+      0% { transform: scale(0.96); opacity: 0.75; }
+      100% { transform: scale(1.12); opacity: 0; }
+    }
+
+    /* accent / quiz と統一したミニカード */
+    .miniGoimonCard {
+      border: 1px solid #f0e3c7;
+      background: #fffaf2;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .miniGoimonHead {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .miniGoimonTitle {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .miniGoimonSub {
+      font-size: 12px;
+      color: #666;
+      margin: 4px 0 0;
+      line-height: 1.4;
+    }
+
+    .miniGoimonStage {
+      text-align: right;
+      flex: 0 0 auto;
+    }
+
+    .miniGoimonStageLabel {
+      font-size: 11px;
+      color: #8a6a2d;
+      margin-bottom: 2px;
+    }
+
+    .miniGoimonStageValue {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .miniGoimonBody {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .miniGoimonImageWrap {
+      width: 88px;
+      height: 88px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid #eddcb8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    .miniGoimonImageWrap img {
+      max-width: 76px;
+      max-height: 76px;
+      display: block;
+    }
+
+    .miniGoimonInfo {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .miniGoimonName {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0 0 4px;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .miniGoimonMeta {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    .miniGoimonDesc {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .goimonPointGuide {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    #question {
+      font-size: 26px;
+      margin-bottom: 10px;
+      font-weight: 700;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    #choices {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    #choices button {
+      width: 100%;
+      font-size: 20px;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+      background: #fff;
+    }
+
+    @media (max-width: 340px) {
+      #choices {
+        grid-template-columns: 1fr;
       }
-    } catch {}
-    return start;
-  }
+    }
 
-  function saveOrderCursor(start, end, cursor) {
-    localStorage.setItem(ORDER_CURSOR_KEY, JSON.stringify({ start, end, cursor }));
-  }
+    #choices button.correct {
+      background: #2ecc71;
+      color: #fff;
+      border: 1px solid #27ae60;
+    }
 
-  let autoSpeakQ = false;
-  let quizMode = "order";
-  function loadSettings() {
-    const raw = localStorage.getItem(SETTINGS_KEY);
-    if (!raw) return;
-    try {
-      const s = JSON.parse(raw);
-      autoSpeakQ = !!s.autoSpeakQ;
-      if (s.quizMode === "order" || s.quizMode === "random" || s.quizMode === "weak") {
-        quizMode = s.quizMode;
+    #choices button.wrong {
+      background: #e74c3c;
+      color: #fff;
+      border: 1px solid #c0392b;
+    }
+
+    #choices button:disabled {
+      opacity: 0.95;
+    }
+
+    .startButton {
+      background: #2b7cff;
+      color: #fff;
+      border-color: #2b7cff;
+      font-weight: 700;
+    }
+
+    .nextButton {
+      background: #2b7cff;
+      color: #fff;
+      border-color: #2b7cff;
+      font-weight: 700;
+    }
+
+    @media (max-width: 480px) {
+      .wrap {
+        padding: 12px 10px 24px;
       }
-    } catch {}
+
+      #question {
+        font-size: 24px;
+      }
+
+      #choices button {
+        font-size: 18px;
+        padding: 15px 12px;
+      }
+
+      .miniGoimonBody {
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <div class="card topNavBox">
+    <div class="topNavTitle">学習ページ移動</div>
+    <div class="topNav">
+      <a href="index.html">ホーム</a>
+      <a href="study.html">暗記</a>
+      <a href="quiz.html">英→日</a>
+      <a href="quiz_jaen.html" class="active">日→英</a>
+      <a href="accent.html">アクセント</a>
+      <a href="sentence.html">大問9</a>
+      <a href="list.html">一覧</a>
+      <a href="progress.html">進捗</a>
+    </div>
+  </div>
+
+  <div class="pageHead">
+    <h1 class="pageTitle">日→英 4択テスト</h1>
+    <div id="levelBadge" class="levelBadgeBox"></div>
+  </div>
+
+  <div class="goimonToggleBox">
+    <button id="goimonToggleBtn" class="goimonToggleBtn" type="button">ゴイモンの様子を見る</button>
+    <button id="evolutionNoticeBtn" class="evoNoticeBtn hidden" type="button">あれ、ゴイモンの様子が…！？</button>
+  </div>
+
+  <div id="goimonPanel" class="miniGoimonCard hidden">
+    <div class="miniGoimonHead">
+      <div>
+        <div class="miniGoimonTitle">現在のゴイモン</div>
+        <div class="miniGoimonSub">このページでは、日→英クイズの正解でゴイモンの「ことば」が育ちます。</div>
+      </div>
+      <div class="miniGoimonStage">
+        <div class="miniGoimonStageLabel">現在の段階</div>
+        <div class="miniGoimonStageValue" id="jaenGoimonStage">たまご期</div>
+      </div>
+    </div>
+
+    <div class="miniGoimonBody">
+      <div class="miniGoimonImageWrap">
+        <img id="jaenGoimonImage" src="images/goimon/goimon_egg.png" alt="ゴイモン" />
+      </div>
+      <div class="miniGoimonInfo">
+        <div class="miniGoimonName" id="jaenGoimonName">なごみ系のたまご</div>
+        <div class="miniGoimonMeta" id="jaenGoimonMeta">Lv 1 / 0 pt</div>
+        <div class="miniGoimonDesc" id="jaenGoimonDesc">まずは学習してゴイモンを育てよう。</div>
+      </div>
+    </div>
+
+    <div class="goimonPointGuide">
+      通常正解：ことば +1 ／ 間違えてもゴイモンは減りません
+    </div>
+  </div>
+
+  <button id="toggleSettings" type="button">▶ 設定</button>
+  <div id="settingsSummary" class="muted" style="margin-bottom:8px;"></div>
+
+  <div id="setupBox" class="card">
+    <div id="settingsArea">
+      <div style="font-weight:bold; margin-bottom:8px;">出題設定（日→英）</div>
+
+      <div class="rowStart" style="margin-bottom:10px;">
+        <label style="font-weight:600;">Block:</label>
+        <select id="blockSelect"></select>
+        <button id="applyBlock" type="button">このBlockを範囲に反映</button>
+      </div>
+
+      <div id="blockStats" class="muted" style="margin-bottom:10px;"></div>
+
+      <div style="margin-bottom:10px;">
+        <label>出題範囲（番号）:</label><br>
+        <input id="rangeStart" type="number" min="1" value="1" style="width:90px;"> 〜
+        <input id="rangeEnd" type="number" min="1" value="144" style="width:90px;">
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <label>出題数:</label><br>
+        <input id="limitCount" type="number" min="1" value="10" style="width:90px;"> 問
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <label>出題モード:</label><br>
+        <select id="modeSelect">
+          <option value="order">順番に出題（続きから）</option>
+          <option value="random">ランダムで出題</option>
+          <option value="weak">ニガテ順に出題</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <button id="resetOrderCursor" type="button">🔄 順番モードの続きからをリセット</button>
+        <div class="muted" style="margin-top:6px;">
+          ※今の出題範囲（番号）に対して、順番の開始位置を先頭に戻します。
+        </div>
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <label>
+          <input id="weakMode" type="checkbox">
+          弱点モード（間違えた単語を優先）
+        </label>
+        <button id="clearWeak" type="button" style="margin-left:8px;">弱点を全消去</button>
+        <div id="weakInfo" class="muted" style="margin-top:6px;"></div>
+      </div>
+    </div>
+
+    <button id="startTest" type="button" class="btnwide startButton">この条件でテスト開始</button>
+  </div>
+
+  <div id="playBox" class="card">
+    <div id="stats" style="margin-bottom:8px;"></div>
+    <div id="qMeta" class="muted" style="margin-bottom:8px;"></div>
+
+    <div id="question">テスト未開始</div>
+
+    <div style="margin-bottom:10px;">
+      <button id="speakQ" type="button">🔊 発音</button>
+      <label style="margin-left:10px;">
+        <input id="autoSpeakQ" type="checkbox"> 自動発音
+      </label>
+    </div>
+
+    <div id="choices"></div>
+
+    <div id="result" style="margin-top:10px; font-size:18px;"></div>
+
+    <button id="nextQ" type="button" class="btnwide nextButton" style="margin-top:12px;">次の問題</button>
+    <button id="resetQuiz" type="button" class="btnwide" style="margin-top:8px;">今回の成績リセット</button>
+  </div>
+
+  <div id="summaryBox" class="card" style="display:none;">
+    <div style="font-weight:700; margin-bottom:6px;">今回の結果</div>
+
+    <div id="finalScore" style="font-size:18px; margin-bottom:8px;"></div>
+    <div id="finalBlockLine" class="muted" style="margin-bottom:10px;"></div>
+
+    <div class="row" style="margin-bottom:10px;">
+      <button id="goStudyBlock" type="button">このBlockを暗記する</button>
+      <button id="goWeakReview" type="button">弱点モードで復習</button>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:700;">今回出た単語一覧</div>
+      <ul id="askedList"></ul>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:700;">間違えた単語一覧</div>
+      <ul id="wrongList"></ul>
+    </div>
+
+    <button id="backToSetup" type="button" class="btnwide">設定画面に戻る</button>
+  </div>
+
+</div>
+
+<audio id="evolutionAudio" src="audio/evolution.mp3" preload="auto"></audio>
+
+<div id="evoOverlay" class="evoOverlay hidden">
+  <div class="evoCenter">
+    <div class="evoFlash"></div>
+    <div id="evoShock" class="evoShock"></div>
+
+    <div class="evoImageStage">
+      <img id="evoGoimonBefore" src="" class="evoGoimon evoBefore" alt="進化前ゴイモン" />
+      <img id="evoGoimonAfter" src="" class="evoGoimon evoAfter evoHidden" alt="進化後ゴイモン" />
+    </div>
+
+    <div id="evoText1" class="evoText evoHidden">✨進化！✨</div>
+    <div id="evoText2" class="evoTextSub evoHidden"></div>
+
+    <button id="evoSkipBtn" class="evoSkip">スキップ</button>
+  </div>
+</div>
+
+<script src="words_1kyu.js"></script>
+<script src="blocks_1kyu.js"></script>
+<script>
+  window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
+  if (window.ACTIVE_LEVEL === "1") {
+    window.WORDS = window.WORDS_1KYU || [];
+    window.BLOCKS = window.BLOCKS_1KYU || [];
   }
+</script>
 
-  function saveSettings() {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify({ autoSpeakQ, quizMode }));
+<script src="words_2kyu.js"></script>
+<script src="blocks_2kyu.js"></script>
+<script>
+  if (window.ACTIVE_LEVEL === "2") {
+    window.WORDS = window.WORDS_2KYU || [];
+    window.BLOCKS = window.BLOCKS_2KYU || [];
   }
+</script>
 
-  let statsMap = {};
-  function loadBlockStats() {
-    const raw = localStorage.getItem(BLOCK_STATS_KEY);
-    if (!raw) return;
-    try { statsMap = JSON.parse(raw) || {}; } catch {}
-  }
+<script src="dataset.js"></script>
+<script src="global_stats.js"></script>
+<script src="learning_log.js"></script>
+<script src="goimon_dialogues.js"></script>
+<script src="goimon_dex.js"></script>
+<script src="goimon_rules.js"></script>
+<script src="goimon.js"></script>
 
-  function saveBlockStats() {
-    localStorage.setItem(BLOCK_STATS_KEY, JSON.stringify(statsMap));
-  }
+<script>
+  (function () {
+    if (!window.GoimonUI || !window.GoimonUI.loadCurrent) return;
 
-  function addBlockResult(blockId, isCorrect) {
-    const k = String(blockId);
-    if (!statsMap[k]) statsMap[k] = { attempted: 0, correct: 0 };
-    statsMap[k].attempted += 1;
-    if (isCorrect) statsMap[k].correct += 1;
-    saveBlockStats();
+    function renderQuizJaEnGoimonMini() {
+      const g = window.GoimonUI.loadCurrent();
+      if (!g) return;
 
-    const lv = window.ACTIVE_LEVEL || "1";
-    const GLOBAL_BLOCK_KEY = `zensho_block_global_lv${lv}_v1`;
-    const g = JSON.parse(localStorage.getItem(GLOBAL_BLOCK_KEY) || '{"byBlock":{}}');
-    const k2 = String(blockId);
-    if (!g.byBlock[k2]) {
-      g.byBlock[k2] = {
-        studyDone: 0,
-        quizAttempted: 0,
-        quizCorrect: 0,
-        quizAttemptedJaEn: 0,
-        quizCorrectJaEn: 0,
-        accentAttempted: 0,
-        accentCorrect: 0,
-        sentenceAttempted: 0,
-        sentenceCorrect: 0,
-        audioAttempted: 0,
-        audioCorrect: 0
+      const stageMap = {
+        egg: "たまご期",
+        child: "幼体",
+        growth: "成長体",
+        mid: "中級体",
+        final: "上級体"
       };
-    }
-    if (!Number.isFinite(g.byBlock[k2].quizAttemptedJaEn)) g.byBlock[k2].quizAttemptedJaEn = 0;
-    if (!Number.isFinite(g.byBlock[k2].quizCorrectJaEn)) g.byBlock[k2].quizCorrectJaEn = 0;
 
-    g.byBlock[k2].quizAttemptedJaEn += 1;
-    if (isCorrect) g.byBlock[k2].quizCorrectJaEn += 1;
-    localStorage.setItem(GLOBAL_BLOCK_KEY, JSON.stringify(g));
-  }
+      const descMap = {
+        nagomi: "バランスよく育つ、やさしい守護神獣タイプ。",
+        hirameki: "知性とひらめきが伸びる、啓示神獣タイプ。",
+        tsumugi: "ことばと感情があふれる、表現神獣タイプ。",
+        yomitoki: "読む・見抜く力が育つ、解読神獣タイプ。",
+        shirabe: "音・響き・共鳴をまとう、音楽神獣タイプ。",
+        hibiki: "知性と音感が響き合う、共鳴神獣タイプ。",
+        kotonoha: "ことばと文脈を束ねる、言霊神獣タイプ。",
+        mr_uno: "特別に解放された、学びを導く隠しルート。"
+      };
 
-  function getBlockAccText(blockId) {
-    const k = String(blockId);
-    const s = statsMap[k];
-    if (!s || s.attempted === 0) return "未受験";
-    const pct = Math.round((s.correct / s.attempted) * 100);
-    const tag = pct >= PASS_LINE ? "✅ 合格" : "🟡 挑戦中";
-    return `${tag}（${pct}%｜${s.correct}/${s.attempted}）`;
-  }
+      const stageLabel = stageMap[g.stage] || "たまご期";
+      const displayName = (window.GoimonUI && typeof window.GoimonUI.getGoimonPrimaryName === "function")
+        ? window.GoimonUI.getGoimonPrimaryName(g)
+        : (g.nickname || "ゴイモン");
 
-  let session = {
-    active: false,
-    answered: 0,
-    correct: 0,
-    limit: 10,
-    start: 0,
-    end: Math.max(0, words.length - 1)
-  };
+      const desc = g.stage === "egg" && g.specialRoute === "mr_uno"
+        ? "隠し分岐を選択中です。次の進化から MR.UNO として育ちます。"
+        : (descMap[g.type] || "学習に応じて成長し、進化していきます。");
 
-  let current = null;
-  let answeredThisQuestion = false;
-  let weakMode = false;
+      const pt = Number(g.totalPoints || 0);
+      const ptText = Number.isInteger(pt) ? String(pt) : pt.toFixed(1);
 
-  let askedSet = new Set();
-  let askedLog = [];
-  let wrongMap = {};
+      const setText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+      };
 
-  let orderCursor = 0;
-  let uiState = loadUiState();
-  let settingsOpen = false;
+      setText("jaenGoimonStage", stageLabel);
+      setText("jaenGoimonName", displayName);
+      setText("jaenGoimonMeta", `Lv ${g.level} / ${ptText} pt`);
+      setText("jaenGoimonDesc", desc);
 
-  function showSetupView() {
-    setupBox.style.display = "block";
-    playBox.style.display = "none";
-    summaryBox.style.display = "none";
-  }
-
-  function showPlayView() {
-    setupBox.style.display = "none";
-    playBox.style.display = "block";
-    summaryBox.style.display = "none";
-  }
-
-  function showSummaryView() {
-    setupBox.style.display = "none";
-    playBox.style.display = "none";
-    summaryBox.style.display = "block";
-  }
-
-  function modeText() {
-    if (quizMode === "order") return "順番";
-    if (quizMode === "random") return "ランダム";
-    return "ニガテ順";
-  }
-
-  function summaryRangeText() {
-    if (blockSelectEl.value === "all") return "全範囲";
-    return `Block ${blockSelectEl.value}`;
-  }
-
-  function updateSettingsSummary() {
-    if (settingsOpen) {
-      settingsSummaryEl.textContent = "";
-      return;
-    }
-    settingsSummaryEl.textContent =
-      `（${summaryRangeText()}｜${session.limit}問｜${weakMode ? "弱点ON" : "弱点OFF"}｜モード:${modeText()}｜${LV}級）`;
-  }
-
-  function closeSettings() {
-    settingsOpen = false;
-    settingsArea.style.display = "none";
-    toggleSettingsBtn.textContent = "▶ 設定";
-    updateSettingsSummary();
-  }
-
-  toggleSettingsBtn.addEventListener("click", () => {
-    settingsOpen = !settingsOpen;
-    settingsArea.style.display = settingsOpen ? "block" : "none";
-    toggleSettingsBtn.textContent = settingsOpen ? "▲ 設定を閉じる" : "▶ 設定";
-    updateSettingsSummary();
-  });
-
-  function renderBlockSelect() {
-    blockSelectEl.innerHTML = "";
-
-    const optAll = document.createElement("option");
-    optAll.value = "all";
-    optAll.textContent = `全範囲（1〜${words.length}）`;
-    blockSelectEl.appendChild(optAll);
-
-    for (const b of blocks) {
-      const opt = document.createElement("option");
-      opt.value = String(b.id);
-      opt.textContent = `Block ${b.id}（${b.start}〜${b.end}）`;
-      blockSelectEl.appendChild(opt);
-    }
-
-    if (!blockSelectEl.value) blockSelectEl.value = "all";
-    renderBlockStatsLine();
-    updateSettingsSummary();
-  }
-
-  function applySelectedBlockToRange() {
-    const v = blockSelectEl.value;
-    if (v === "all") {
-      rangeStartEl.value = "1";
-      rangeEndEl.value = String(words.length);
-    } else {
-      const b = getBlockById(Number(v));
-      if (b) {
-        rangeStartEl.value = String(b.start);
-        rangeEndEl.value = String(b.end);
+      const img = document.getElementById("jaenGoimonImage");
+      if (img) {
+        img.src = g.imageKey;
+        img.alt = displayName;
       }
-    }
-  }
 
-  function renderBlockStatsLine() {
-    const v = blockSelectEl.value;
-    if (v === "all") {
-      blockStatsEl.textContent = `Block累計正答率：全範囲（合格 ${PASS_LINE}%）`;
-      return;
-    }
-    const id = Number(v);
-    blockStatsEl.textContent = `このBlockの累計正答率：${getBlockAccText(id)}（合格 ${PASS_LINE}%）`;
-  }
-
-  blockSelectEl.addEventListener("change", () => {
-    renderBlockStatsLine();
-    updateSettingsSummary();
-  });
-
-  applyBlockBtn.addEventListener("click", () => {
-    applySelectedBlockToRange();
-    renderBlockStatsLine();
-    updateSettingsSummary();
-  });
-
-  resetOrderBtn.addEventListener("click", () => {
-    if (!confirm("順番モードの進捗を最初からに戻しますか？")) return;
-    let s = Number(rangeStartEl.value) - 1;
-    let e = Number(rangeEndEl.value) - 1;
-    [s, e] = clampRange(s, e);
-    saveOrderCursor(s, e, s);
-    alert("順番モードを最初からにリセットしました。");
-  });
-
-  function getCurrentRangeFromInputs() {
-    let s = Number(rangeStartEl.value) - 1;
-    let e = Number(rangeEndEl.value) - 1;
-    [s, e] = clampRange(s, e);
-    return { s, e };
-  }
-
-  goStudyBlockBtn.addEventListener("click", () => {
-    const { s, e } = getCurrentRangeFromInputs();
-    location.href = `study.html?start=${s + 1}&end=${e + 1}`;
-  });
-
-  goWeakReviewBtn.addEventListener("click", () => {
-    const { s, e } = getCurrentRangeFromInputs();
-    location.href = `quiz_jaen.html?start=${s + 1}&end=${e + 1}&mode=weak&weak=1&autostart=1`;
-  });
-
-  function renderMeta(no) {
-    const b = getBlockByNo(no);
-    if (b) qMetaEl.textContent = `Block ${b.id}（${b.start}〜${b.end}）｜番号 ${no} / ${words.length}（${LV}級）`;
-    else qMetaEl.textContent = `番号 ${no} / ${words.length}（${LV}級）`;
-  }
-
-  function renderStats() {
-    statsEl.textContent = `今回：${session.answered}/${session.limit}（正解 ${session.correct}）`;
-  }
-
-  function updateWeakInfo() {
-    weakInfoEl.textContent = `弱点数：${weakCount()}（弱点モード：${weakMode ? "ON" : "OFF"}）`;
-  }
-
-  function getRangePool() {
-    const [s, e] = clampRange(session.start, session.end);
-    return { s, e };
-  }
-
-  function makeChoices(correctWord, s, e) {
-    const candidates = [];
-    for (let i = s; i <= e; i++) {
-      const w = words[i];
-      if (w.en !== correctWord.en) candidates.push(w.en);
-    }
-    const uniq = Array.from(new Set(candidates));
-    const picked = shuffle(uniq).slice(0, 3);
-    while (picked.length < 3) picked.push("（該当なし）");
-    return shuffle([correctWord.en, ...picked]);
-  }
-
-  function pickIndex_order(s, e) {
-    if (orderCursor < s || orderCursor > e) orderCursor = s;
-    const idx = orderCursor;
-    orderCursor++;
-    if (orderCursor > e) orderCursor = s;
-    saveOrderCursor(s, e, orderCursor);
-    return idx;
-  }
-
-  function pickIndex_random(s, e) {
-    const remain = [];
-    for (let i = s; i <= e; i++) {
-      if (!askedSet.has(words[i].en)) remain.push(i);
-    }
-    const pool = remain.length ? remain : (() => {
-      const all = [];
-      for (let i = s; i <= e; i++) all.push(i);
-      return all;
-    })();
-    return pool[Math.floor(Math.random() * pool.length)];
-  }
-
-  function pickIndex_weak(s, e) {
-    const arr = [];
-    for (let i = s; i <= e; i++) arr.push({ i, p: getPoint(words[i].en) });
-    const maxP = Math.max(...arr.map(x => x.p));
-    if (maxP <= 0) return pickIndex_random(s, e);
-
-    arr.sort((a, b) => b.p - a.p);
-    const top = arr.slice(0, Math.min(10, arr.length)).filter(x => x.p > 0);
-    const cand = shuffle(top);
-
-    for (const x of cand) {
-      if (!askedSet.has(words[x.i].en)) return x.i;
-    }
-    return cand[0].i;
-  }
-
-  function pickCorrectIndex(s, e) {
-    if (quizMode === "order") return pickIndex_order(s, e);
-    if (quizMode === "random") return pickIndex_random(s, e);
-    return pickIndex_weak(s, e);
-  }
-
-  function makeQuestion() {
-    const { s, e } = getRangePool();
-    let idx = pickCorrectIndex(s, e);
-
-    if (weakMode && quizMode !== "order") {
-      const weakIdxs = [];
-      for (let i = s; i <= e; i++) {
-        if (getPoint(words[i].en) > 0) weakIdxs.push(i);
-      }
-      if (weakIdxs.length > 0) {
-        const remaining = weakIdxs.filter(i => !askedSet.has(words[i].en));
-        const pool = remaining.length ? remaining : weakIdxs;
-        idx = pool[Math.floor(Math.random() * pool.length)];
-      }
-    }
-
-    askedSet.add(words[idx].en);
-
-    const no = idx + 1;
-    const b = getBlockByNo(no);
-    const blockId = b ? Number(b.id) : 0;
-
-    return {
-      idx, no, blockId,
-      ja: words[idx].ja,
-      en: words[idx].en,
-      choices: makeChoices(words[idx], s, e)
-    };
-  }
-
-  function finishSession() {
-    showSummaryView();
-
-    finalScoreEl.textContent = `結果：${session.correct} / ${session.limit}`;
-    const rangeText = (blockSelectEl.value === "all") ? "全範囲" : `Block ${blockSelectEl.value}`;
-    finalBlockLineEl.textContent = `出題範囲：${rangeText}｜モード：${modeText()}｜${weakMode ? "弱点ON" : "弱点OFF"}｜${LV}級`;
-
-    askedListEl.innerHTML = "";
-    askedLog.forEach(item => {
-      const li = document.createElement("li");
-      li.textContent = `${item.no}｜${item.ja} → ${item.en}`;
-      askedListEl.appendChild(li);
-    });
-
-    wrongListEl.innerHTML = "";
-    const wrongArr = Object.values(wrongMap).sort((a, b) => a.no - b.no);
-    if (wrongArr.length === 0) {
-      const li = document.createElement("li");
-      li.textContent = "間違いなし！";
-      wrongListEl.appendChild(li);
-    } else {
-      wrongArr.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = `${item.no}｜${item.ja} → ${item.en}`;
-        wrongListEl.appendChild(li);
-      });
-    }
-  }
-
-  function renderEvolutionNotice() {
-    try {
       if (window.GoimonUI && typeof window.GoimonUI.renderEvolutionNoticeButton === "function") {
         window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
       }
-    } catch {}
-  }
-
-  function renderGoimonStatus() {
-    if (typeof window.renderQuizJaEnGoimonMini === "function") {
-      window.renderQuizJaEnGoimonMini();
-      return;
-    }
-    renderEvolutionNotice();
-  }
-
-  function openSharedEvolution() {
-    try {
-      if (window.GoimonUI && typeof window.GoimonUI.openEvolutionOverlay === "function") {
-        window.GoimonUI.openEvolutionOverlay({
-          onComplete: () => {
-            renderGoimonStatus();
-          }
-        });
-        return;
-      }
-
-      if (window.GoimonUI && typeof window.GoimonUI.confirmEvolution === "function") {
-        window.GoimonUI.confirmEvolution();
-        renderGoimonStatus();
-      }
-    } catch (e) {
-      console.warn("openSharedEvolution failed:", e);
-    }
-  }
-
-  function renderLevelBadge() {
-    levelBadgeEl.textContent = `現在：全商英検 ${LV}級`;
-  }
-
-  function renderGoimonPanelState() {
-    if (uiState.goimonOpen) {
-      goimonPanel.classList.remove("hidden");
-      goimonToggleBtn.textContent = "ゴイモンを閉じる";
-    } else {
-      goimonPanel.classList.add("hidden");
-      goimonToggleBtn.textContent = "ゴイモンの様子を見る";
-    }
-  }
-
-  function renderQuestion() {
-    renderStats();
-    updateWeakInfo();
-    renderBlockStatsLine();
-    updateSettingsSummary();
-    renderGoimonPanelState();
-    renderGoimonStatus();
-
-    if (!session.active) {
-      questionEl.textContent = "テスト未開始";
-      qMetaEl.textContent = "";
-      choicesEl.innerHTML = "";
-      resultEl.textContent = "";
-      nextBtn.disabled = true;
-      return;
     }
 
-    if (session.answered >= session.limit) {
-      finishSession();
-      return;
-    }
+    renderQuizJaEnGoimonMini();
+    window.renderQuizJaEnGoimonMini = renderQuizJaEnGoimonMini;
 
-    answeredThisQuestion = false;
-    nextBtn.disabled = true;
-    resultEl.textContent = "";
-
-    current = makeQuestion();
-    questionEl.textContent = current.ja;
-    renderMeta(current.no);
-
-    askedLog.push({ no: current.no, ja: current.ja, en: current.en, blockId: current.blockId });
-
-    choicesEl.innerHTML = "";
-    current.choices.forEach(text => {
-      const btn = document.createElement("button");
-      btn.textContent = text;
-
-      btn.addEventListener("click", () => {
-        ensureAudioReady();
-        handleChoice(text, btn);
-      });
-
-      choicesEl.appendChild(btn);
-    });
-  }
-
-  function handleChoice(choiceText, clickedBtn) {
-    if (answeredThisQuestion) return;
-    answeredThisQuestion = true;
-
-    session.answered++;
-
-    const correct = (choiceText === current.en);
-
-    addLearningLog(correct);
-
-    if (correct) {
-      clickedBtn.classList.add("correct");
-      playCorrectSound();
-
-      session.correct++;
-      resultEl.textContent = "⭕️ 正解！";
-
-      const currentWeakPoint = getPoint(current.en);
-
-      if (window.GoimonUI && typeof window.GoimonUI.addQuizJaEnCorrect === "function") {
-        try {
-          window.GoimonUI.addQuizJaEnCorrect();
-        } catch (e) {
-          console.warn("Goimon addQuizJaEnCorrect failed:", e);
+    if (window.GoimonUI) {
+      window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
+      window.GoimonUI.bindEvolutionNoticeButton("evolutionNoticeBtn", {
+        onComplete: () => {
+          renderQuizJaEnGoimonMini();
         }
-      }
-
-      if (currentWeakPoint > 0) {
-        setPoint(current.en, currentWeakPoint - 1);
-        saveWeakPoints();
-      }
-    } else {
-      clickedBtn.classList.add("wrong");
-      playWrongSound();
-
-      resultEl.textContent = `❌ 不正解。正解は「${current.en}」`;
-
-      markCorrectButtonGreen();
-
-      setPoint(current.en, getPoint(current.en) + 2);
-      saveWeakPoints();
-
-      if (!wrongMap[current.en]) {
-        wrongMap[current.en] = { no: current.no, ja: current.ja, en: current.en, blockId: current.blockId };
-      }
+      });
     }
+  })();
+</script>
 
-    lockChoices();
-
-    if (window.GlobalStats && current.blockId) {
-      window.GlobalStats.addQuizJaEn(current.blockId, correct);
-    }
-    if (current.blockId) addBlockResult(current.blockId, correct);
-
-    if (autoSpeakQ) speakEnglish(current.en);
-
-    renderStats();
-    updateWeakInfo();
-    renderBlockStatsLine();
-    updateSettingsSummary();
-    renderGoimonStatus();
-
-    if (session.answered >= session.limit) {
-      finishSession();
-    } else {
-      nextBtn.disabled = false;
-    }
-  }
-
-  speakQBtn.addEventListener("click", () => {
-    if (!current) return;
-    if (!answeredThisQuestion) {
-      resultEl.textContent = "まず1つ選んでください（解答後に発音できます）。";
-      return;
-    }
-    speakEnglish(current.en);
-  });
-
-  autoSpeakQEl.addEventListener("change", () => {
-    autoSpeakQ = !!autoSpeakQEl.checked;
-    saveSettings();
-  });
-
-  modeSelectEl.addEventListener("change", () => {
-    quizMode = modeSelectEl.value;
-    saveSettings();
-    updateSettingsSummary();
-  });
-
-  weakModeEl.addEventListener("change", () => {
-    weakMode = !!weakModeEl.checked;
-    updateWeakInfo();
-    updateSettingsSummary();
-  });
-
-  clearWeakBtn.addEventListener("click", () => {
-    if (!confirm("弱点をすべて消しますか？")) return;
-    weakPoints = {};
-    saveWeakPoints();
-    updateWeakInfo();
-  });
-
-  nextBtn.addEventListener("click", () => {
-    if (!answeredThisQuestion) {
-      resultEl.textContent = "まず1つ選んでください。";
-      return;
-    }
-    renderQuestion();
-  });
-
-  startBtn.addEventListener("click", () => {
-    let s = Number(rangeStartEl.value) - 1;
-    let e = Number(rangeEndEl.value) - 1;
-    let l = Number(limitEl.value);
-
-    if (!Number.isFinite(l) || l < 1) l = 10;
-    [s, e] = clampRange(s, e);
-
-    session.start = s;
-    session.end = e;
-    session.limit = Math.floor(l);
-
-    weakMode = !!weakModeEl.checked;
-
-    session.answered = 0;
-    session.correct = 0;
-    session.active = true;
-
-    askedSet.clear();
-    askedLog = [];
-    wrongMap = {};
-
-    if (quizMode === "order") {
-      orderCursor = loadOrderCursor(session.start, session.end);
-    } else {
-      orderCursor = session.start;
-    }
-
-    closeSettings();
-    showPlayView();
-    renderQuestion();
-  });
-
-  resetBtn.addEventListener("click", () => {
-    if (!confirm("今回の成績をリセットしますか？")) return;
-    session.active = false;
-    session.answered = 0;
-    session.correct = 0;
-    askedSet.clear();
-    askedLog = [];
-    wrongMap = {};
-    showPlayView();
-    renderQuestion();
-  });
-
-  backToSetupBtn.addEventListener("click", () => {
-    showSetupView();
-  });
-
-  function applyQuery() {
-    const p = new URLSearchParams(location.search);
-
-    const start = Number(p.get("start"));
-    const end = Number(p.get("end"));
-    const mode = p.get("mode");
-    const weak = p.get("weak");
-    const autostart = p.get("autostart");
-
-    if (Number.isFinite(start) && start >= 1) rangeStartEl.value = String(start);
-    if (Number.isFinite(end) && end >= 1) rangeEndEl.value = String(end);
-
-    if (modeSelectEl && (mode === "order" || mode === "random" || mode === "weak")) {
-      modeSelectEl.value = mode;
-      quizMode = mode;
-      saveSettings();
-    }
-
-    if (weakModeEl && weak === "1") {
-      weakModeEl.checked = true;
-      weakMode = true;
-      updateWeakInfo();
-    }
-
-    updateSettingsSummary();
-
-    if (autostart === "1") {
-      setTimeout(() => startBtn.click(), 0);
-    }
-  }
-
-  goimonToggleBtn.addEventListener("click", () => {
-    uiState.goimonOpen = !uiState.goimonOpen;
-    saveUiState();
-    renderGoimonPanelState();
-  });
-
-  evolutionNoticeBtn.addEventListener("click", () => {
-    openSharedEvolution();
-  });
-
-  loadWeakPoints();
-  loadSettings();
-  loadBlockStats();
-
-  if (window.GoimonUI && typeof window.GoimonUI.ensureCurrent === "function") {
-    window.GoimonUI.ensureCurrent();
-  }
-
-  autoSpeakQEl.checked = !!autoSpeakQ;
-  modeSelectEl.value = quizMode;
-
-  renderLevelBadge();
-  renderBlockSelect();
-  applySelectedBlockToRange();
-
-  session.limit = Number(limitEl.value) || session.limit;
-  weakMode = !!weakModeEl.checked;
-
-  updateWeakInfo();
-  closeSettings();
-  showSetupView();
-  renderQuestion();
-
-  applyQuery();
-});
+<script src="quiz_jaen.js"></script>
+</body>
+</html>
