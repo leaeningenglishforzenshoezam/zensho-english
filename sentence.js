@@ -1183,42 +1183,30 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function openSharedEvolution() {
-    try {
-      if (window.GoimonUI && typeof window.GoimonUI.openEvolutionOverlay === "function") {
-        window.GoimonUI.openEvolutionOverlay({
-          onComplete: () => {
-            if (typeof window.renderSentenceGoimonMini === "function") {
-              window.renderSentenceGoimonMini();
-            }
-            renderEvolutionNotice();
+  try {
+    if (window.GoimonUI && typeof window.GoimonUI.openEvolutionOverlay === "function") {
+      window.GoimonUI.openEvolutionOverlay({
+        onComplete: () => {
+          if (typeof window.renderSentenceGoimonMini === "function") {
+            window.renderSentenceGoimonMini();
           }
-        });
-        return;
-      }
-
-      if (window.GoimonUI && typeof window.GoimonUI.playPendingEvolutionSequence === "function") {
-        window.GoimonUI.playPendingEvolutionSequence({
-          onComplete: () => {
-            if (typeof window.renderSentenceGoimonMini === "function") {
-              window.renderSentenceGoimonMini();
-            }
-            renderEvolutionNotice();
-          }
-        });
-        return;
-      }
-
-      if (window.GoimonUI && typeof window.GoimonUI.confirmEvolution === "function") {
-        window.GoimonUI.confirmEvolution();
-        if (typeof window.renderSentenceGoimonMini === "function") {
-          window.renderSentenceGoimonMini();
+          renderEvolutionNotice();
         }
-        renderEvolutionNotice();
-      }
-    } catch (e) {
-      console.warn("openSharedEvolution failed:", e);
+      });
+      return;
     }
+
+    if (window.GoimonUI && typeof window.GoimonUI.confirmEvolution === "function") {
+      window.GoimonUI.confirmEvolution();
+      if (typeof window.renderSentenceGoimonMini === "function") {
+        window.renderSentenceGoimonMini();
+      }
+      renderEvolutionNotice();
+    }
+  } catch (e) {
+    console.warn("openSharedEvolution failed:", e);
   }
+}
 
   blockSelect.addEventListener("change", updatePoolInfo);
   countInput.addEventListener("input", updatePoolInfo);
@@ -1302,25 +1290,21 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function init() {
-    if (window.GoimonUI && typeof window.GoimonUI.ensureEvolutionUIReady === "function") {
-      window.GoimonUI.ensureEvolutionUIReady();
-    }
+  const s = loadSettings();
+  autoReadEl.checked = !!s.autoRead;
 
-    const s = loadSettings();
-    autoReadEl.checked = !!s.autoRead;
+  renderBlockSelect();
+  updatePoolInfo();
+  updateWeakInfo();
+  renderWeakManagement();
+  renderGoimonVisibility();
+  renderEvolutionNotice();
+  showSetup();
 
-    renderBlockSelect();
-    updatePoolInfo();
-    updateWeakInfo();
-    renderWeakManagement();
-    renderGoimonVisibility();
-    renderEvolutionNotice();
-    showSetup();
-
-    if (typeof window.renderSentenceGoimonMini === "function") {
-      window.renderSentenceGoimonMini();
-    }
+  if (typeof window.renderSentenceGoimonMini === "function") {
+    window.renderSentenceGoimonMini();
   }
+}
 
   init();
 });
