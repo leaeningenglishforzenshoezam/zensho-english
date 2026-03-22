@@ -652,42 +652,30 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function openSharedEvolution() {
-    try {
-      if (window.GoimonUI && typeof window.GoimonUI.openEvolutionOverlay === "function") {
-        window.GoimonUI.openEvolutionOverlay({
-          onComplete: () => {
-            if (typeof window.renderAccentGoimonMini === "function") {
-              window.renderAccentGoimonMini();
-            }
-            renderEvolutionNotice();
+  try {
+    if (window.GoimonUI && typeof window.GoimonUI.openEvolutionOverlay === "function") {
+      window.GoimonUI.openEvolutionOverlay({
+        onComplete: () => {
+          if (typeof window.renderAccentGoimonMini === "function") {
+            window.renderAccentGoimonMini();
           }
-        });
-        return;
-      }
-
-      if (window.GoimonUI && typeof window.GoimonUI.playPendingEvolutionSequence === "function") {
-        window.GoimonUI.playPendingEvolutionSequence({
-          onComplete: () => {
-            if (typeof window.renderAccentGoimonMini === "function") {
-              window.renderAccentGoimonMini();
-            }
-            renderEvolutionNotice();
-          }
-        });
-        return;
-      }
-
-      if (window.GoimonUI && typeof window.GoimonUI.confirmEvolution === "function") {
-        window.GoimonUI.confirmEvolution();
-        if (typeof window.renderAccentGoimonMini === "function") {
-          window.renderAccentGoimonMini();
+          renderEvolutionNotice();
         }
-        renderEvolutionNotice();
-      }
-    } catch (e) {
-      console.warn("openSharedEvolution failed:", e);
+      });
+      return;
     }
+
+    if (window.GoimonUI && typeof window.GoimonUI.confirmEvolution === "function") {
+      window.GoimonUI.confirmEvolution();
+      if (typeof window.renderAccentGoimonMini === "function") {
+        window.renderAccentGoimonMini();
+      }
+      renderEvolutionNotice();
+    }
+  } catch (e) {
+    console.warn("openSharedEvolution failed:", e);
   }
+}
 
   blockSelect.addEventListener("change", () => {
     renderBlockStatsLine();
