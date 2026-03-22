@@ -1,564 +1,870 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>音声→意味クイズ</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
-      margin: 0;
-      background: #f7f7f7;
-      color: #111;
-    }
-    .wrap {
-      max-width: 560px;
-      margin: 0 auto;
-      padding: 20px 14px 30px;
-    }
-    .card {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 14px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    h1 {
-      font-size: 20px;
-      margin: 0 0 8px;
-    }
-    h2 {
-      font-size: 18px;
-      margin: 0 0 10px;
-    }
-    .sub {
-      font-size: 14px;
-      color: #555;
-      line-height: 1.6;
-      margin: 0 0 12px;
-    }
-    .row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin: 10px 0;
-    }
-    .label {
-      font-size: 13px;
-      color: #444;
-      min-width: 80px;
-    }
-    select, input[type="number"] {
-      flex: 1 1 180px;
-      min-width: 0;
-      padding: 10px 12px;
-      border: 1px solid #d9d9d9;
-      border-radius: 10px;
-      font-size: 15px;
-      background: #fff;
-      box-sizing: border-box;
-    }
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 12px 14px;
-      border: 0;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
-      margin: 10px 0;
-    }
-    .btn.primary { background: #2b7cff; color: #fff; }
-    .btn.gray { background: #efefef; color: #111; }
-    .btn.goimon {
-      background: #fff8ef;
-      color: #9a5a00;
-      border: 1px solid #f1d39d;
-      font-weight: 800;
-    }
-    .btn.soft {
-      background: #f5f8ff;
-      color: #234b92;
-      border: 1px solid #cddcff;
-      font-weight: 700;
-    }
-    .smallBtn {
-      appearance: none;
-      border: 1px solid #ddd;
-      background: #fff;
-      color: #111;
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .muted {
-      font-size: 12px;
-      color: #666;
-      line-height: 1.5;
-    }
-    .mono {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    }
-    .hidden { display: none !important; }
+// audio_quiz.js
+// 音声→意味4択クイズ
+// - 英単語を音で聞いて、日本語の意味を4択で選ぶ
+// - 正解時：ゴイモン おんかん +0.5 / ちえ +0.5
+// - 先頭から / 続きから / ランダム / 苦手
+// - 自動再生ON/OFF
+// - 苦手機能あり
+// - ゴイモン表示は折りたたみ式＋共通進化演出
+// - 改修：問題切り替え時に playBox 先頭へ自動スクロール
+// - 改修：高さブレを減らして連続で解きやすくする
+// - 改修：正解でピンポン / 不正解でブッブー
+// - 改修：正解時にゴイモン表示ptをその場更新
 
-    .topNavBox {
-      margin-bottom: 12px;
-    }
-    .topNavTitle {
-      font-size: 13px;
-      color: #666;
-      margin-bottom: 8px;
-      font-weight: 700;
-    }
-    .topNav {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 2px;
-      -webkit-overflow-scrolling: touch;
-    }
-    .topNav a {
-      flex: 0 0 auto;
-      text-decoration: none;
-      color: #111;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 999px;
-      padding: 9px 12px;
-      font-size: 14px;
-      white-space: nowrap;
-    }
-    .topNav a.active {
-      background: #eaf2ff;
-      border-color: #2b7cff;
-      color: #1251b5;
-      font-weight: 700;
-    }
-
-    .goimonMiniCard {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-top: 10px;
-      padding: 12px;
-      border: 1px solid #eee6d7;
-      border-radius: 12px;
-      background: #fff;
-    }
-    .goimonMiniImageWrap {
-      width: 78px;
-      height: 78px;
-      border-radius: 12px;
-      background: #fffaf1;
-      border: 1px solid #f1e2c6;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 auto;
-    }
-    .goimonMiniImageWrap img {
-      max-width: 68px;
-      max-height: 68px;
-      display: block;
-    }
-    .goimonMiniName {
-      font-size: 15px;
-      font-weight: 800;
-      margin-bottom: 4px;
-      word-break: break-word;
-    }
-    .goimonMiniMeta {
-      font-size: 13px;
-      color: #555;
-      margin-bottom: 4px;
-    }
-    .goimonMiniSub {
-      font-size: 12px;
-      color: #666;
-      line-height: 1.5;
-    }
-
-    .noticeBtn {
-      width: 100%;
-      padding: 11px 12px;
-      border-radius: 10px;
-      border: 1px solid #f0cf7f;
-      background: linear-gradient(180deg, #fffaf0 0%, #fff5db 100%);
-      color: #7d4d00;
-      font-weight: 800;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .statusBar {
-      font-size: 14px;
-      color: #444;
-      margin-bottom: 8px;
-      line-height: 1.5;
-    }
-    .qBox {
-      border: 1px solid #e7edf8;
-      background: #fafcff;
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 12px;
-      text-align: center;
-    }
-    .listenLead {
-      font-size: 16px;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-    .listenSub {
-      font-size: 13px;
-      color: #666;
-      line-height: 1.5;
-      margin-bottom: 14px;
-    }
-    .bigPlayBtn {
-      width: 100%;
-      padding: 14px 16px;
-      border-radius: 12px;
-      border: 1px solid #cfe0ff;
-      background: #eef5ff;
-      color: #214489;
-      font-size: 16px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    .choices {
-      display: grid;
-      gap: 10px;
-      margin-top: 12px;
-    }
-    .choices button {
-      width: 100%;
-      text-align: left;
-      padding: 14px 14px;
-      border-radius: 12px;
-      border: 1px solid #dcdcdc;
-      background: #fff;
-      cursor: pointer;
-      font-size: 16px;
-      line-height: 1.5;
-    }
-    .choices button.correct {
-      background: #eaf8ea;
-      border-color: #8dc78d;
-    }
-    .choices button.wrong {
-      background: #fff0f0;
-      border-color: #de8e8e;
-    }
-    .result {
-      margin-top: 14px;
-      font-size: 18px;
-      font-weight: 800;
-      min-height: 32px;
-    }
-    .ok { color: #157915; }
-    .ng { color: #c53333; }
-
-    #detail {
-      min-height: 122px;
-      margin-top: 4px;
-    }
-
-    .detailCard {
-      margin-top: 12px;
-      border: 1px solid #eee;
-      border-radius: 12px;
-      background: #fafafa;
-      padding: 14px;
-      line-height: 1.7;
-    }
-    .detailTitle {
-      font-size: 13px;
-      color: #666;
-      margin-bottom: 6px;
-    }
-    .detailMain {
-      font-size: 24px;
-      font-weight: 900;
-      word-break: break-word;
-      margin-bottom: 8px;
-    }
-    .detailSub {
-      font-size: 16px;
-      color: #333;
-    }
-
-    .summaryLine {
-      font-size: 16px;
-      font-weight: 800;
-      margin-bottom: 12px;
-      line-height: 1.6;
-    }
-    .wrongList {
-      margin-top: 10px;
-      border: 1px solid #eee;
-      border-radius: 12px;
-      background: #fff;
-      padding: 12px;
-    }
-    .wrongRow {
-      padding: 10px 0;
-      border-top: 1px solid #eee;
-      line-height: 1.6;
-    }
-    .wrongRow:first-child { border-top: none; }
-
-    .errorBox {
-      background: #fff0f0;
-      border: 1px solid #efb2b2;
-      color: #8f1e1e;
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 14px;
-      line-height: 1.6;
-    }
-
-    @media (max-width: 480px) {
-      #detail {
-        min-height: 116px;
+document.addEventListener("DOMContentLoaded", () => {
+  function addLearningLog(isCorrect) {
+    try {
+      if (typeof window.zenshoLogAdd === "function") {
+        window.zenshoLogAdd("audio_quiz", !!isCorrect);
       }
+    } catch {}
+  }
+
+  const el = (id) => document.getElementById(id);
+
+  const errorArea = el("errorArea");
+  const levelBadge = el("levelBadge");
+
+  const toggleGoimonBtn = el("toggleGoimon");
+  const goimonCard = el("goimonCard");
+  const evolutionNoticeBtn = el("evolutionNoticeBtn");
+
+  const audioGoimonImage = el("audioGoimonImage");
+  const audioGoimonName = el("audioGoimonName");
+  const audioGoimonMeta = el("audioGoimonMeta");
+  const audioGoimonSub = el("audioGoimonSub");
+
+  const setupBox = el("setupBox");
+  const playBox = el("playBox");
+  const summaryBox = el("summaryBox");
+
+  const blockSelect = el("blockSelect");
+  const applyBlockBtn = el("applyBlock");
+  const blockStats = el("blockStats");
+  const rangeStart = el("rangeStart");
+  const rangeEnd = el("rangeEnd");
+  const limitCount = el("limitCount");
+  const modeSelect = el("modeSelect");
+  const autoPlay = el("autoPlay");
+  const resetCursor = el("resetCursor");
+  const setupInfo = el("setupInfo");
+  const startBtn = el("startBtn");
+
+  const stats = el("stats");
+  const qMeta = el("qMeta");
+  const speakBtn = el("speakBtn");
+  const choices = el("choices");
+  const result = el("result");
+  const detail = el("detail");
+  const nextBtn = el("nextBtn");
+  const backBtn = el("backBtn");
+
+  const summaryLine = el("summaryLine");
+  const wrongEmpty = el("wrongEmpty");
+  const wrongList = el("wrongList");
+  const retryBtn = el("retryBtn");
+  const summaryBackBtn = el("summaryBackBtn");
+
+  function must(x, name) {
+    if (!x) throw new Error(`audio_quiz.html に #${name} が見つかりません`);
+  }
+
+  try {
+    [
+      [errorArea, "errorArea"], [levelBadge, "levelBadge"],
+      [toggleGoimonBtn, "toggleGoimon"], [goimonCard, "goimonCard"], [evolutionNoticeBtn, "evolutionNoticeBtn"],
+      [audioGoimonImage, "audioGoimonImage"], [audioGoimonName, "audioGoimonName"], [audioGoimonMeta, "audioGoimonMeta"], [audioGoimonSub, "audioGoimonSub"],
+      [setupBox, "setupBox"], [playBox, "playBox"], [summaryBox, "summaryBox"],
+      [blockSelect, "blockSelect"], [applyBlockBtn, "applyBlock"], [blockStats, "blockStats"],
+      [rangeStart, "rangeStart"], [rangeEnd, "rangeEnd"], [limitCount, "limitCount"],
+      [modeSelect, "modeSelect"], [autoPlay, "autoPlay"], [resetCursor, "resetCursor"],
+      [setupInfo, "setupInfo"], [startBtn, "startBtn"],
+      [stats, "stats"], [qMeta, "qMeta"], [speakBtn, "speakBtn"], [choices, "choices"], [result, "result"], [detail, "detail"],
+      [nextBtn, "nextBtn"], [backBtn, "backBtn"],
+      [summaryLine, "summaryLine"], [wrongEmpty, "wrongEmpty"], [wrongList, "wrongList"], [retryBtn, "retryBtn"], [summaryBackBtn, "summaryBackBtn"]
+    ].forEach(([x, n]) => must(x, n));
+  } catch (e) {
+    errorArea.innerHTML = `<div class="errorBox">${String(e.message || e)}</div>`;
+    return;
+  }
+
+  const LV = String(window.ACTIVE_LEVEL || localStorage.getItem("zensho_level_v1") || "1");
+  const WORDS = Array.isArray(window.WORDS) ? window.WORDS : [];
+  const BLOCKS = Array.isArray(window.BLOCKS) ? window.BLOCKS : [];
+  const GOIMON_UI_KEY = `zensho_audio_quiz_goimon_ui_v1_lv${LV}`;
+
+  const WEAK_KEY = `zensho_audio_quiz_weak_v1_lv${LV}`;
+  const CURSOR_KEY = `zensho_audio_quiz_cursor_v1_lv${LV}`;
+  const SETTINGS_KEY = `zensho_audio_quiz_settings_v1_lv${LV}`;
+
+  levelBadge.textContent = `現在：全商英検 ${LV}級（音声→意味クイズ）`;
+
+  function showError(msg) {
+    errorArea.innerHTML = `<div class="errorBox">${String(msg || "")}</div>`;
+  }
+
+  function safeParse(key) {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch { return null; }
+  }
+
+  function saveSettings(obj) {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({ autoPlay: !!obj.autoPlay }));
+  }
+
+  function loadSettings() {
+    const obj = safeParse(SETTINGS_KEY);
+    return { autoPlay: !!obj?.autoPlay };
+  }
+
+  function clamp(n, min, max) {
+    const x = Number(n);
+    if (!Number.isFinite(x)) return min;
+    return Math.max(min, Math.min(max, Math.floor(x)));
+  }
+
+  function norm(s) {
+    return String(s || "").trim().toLowerCase();
+  }
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function shuffleArray(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
     }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <div class="card topNavBox">
-      <div class="topNavTitle">学習ページ移動</div>
-      <div class="topNav">
-        <a href="index.html">ホーム</a>
-        <a href="study.html">暗記</a>
-        <a href="quiz.html">英→日</a>
-        <a href="quiz_jaen.html">日→英</a>
-        <a href="accent.html">アクセント</a>
-        <a href="sentence.html">大問9</a>
-        <a href="audio_quiz.html" class="active">音声→意味</a>
-        <a href="list.html">一覧</a>
-        <a href="progress.html">進捗</a>
-      </div>
-    </div>
+    return a;
+  }
 
-    <div id="errorArea"></div>
+  function scrollPlayToTop() {
+    if (!playBox || playBox.classList.contains("hidden")) return;
+    requestAnimationFrame(() => {
+      playBox.scrollIntoView({
+        behavior: "auto",
+        block: "start"
+      });
+    });
+  }
 
-    <div class="card">
-      <h1>音声→意味クイズ</h1>
-      <p class="sub">
-        英単語を音で聞いて、日本語の意味を4択で選びます。<br>
-        正解すると、ゴイモンの <strong>おんかん +0.5 / ちえ +0.5</strong> が伸びます。
-      </p>
-      <div id="levelBadge" class="muted"></div>
-    </div>
+  function showSetup() {
+    setupBox.classList.remove("hidden");
+    playBox.classList.add("hidden");
+    summaryBox.classList.add("hidden");
+  }
 
-    <div class="card">
-      <button class="btn goimon" id="toggleGoimon">ゴイモンの様子を見る</button>
+  function showPlay() {
+    setupBox.classList.add("hidden");
+    playBox.classList.remove("hidden");
+    summaryBox.classList.add("hidden");
+    scrollPlayToTop();
+  }
 
-      <div id="goimonCard" class="hidden">
-        <div class="goimonMiniCard">
-          <div class="goimonMiniImageWrap">
-            <img id="audioGoimonImage" src="images/goimon/goimon_egg.png" alt="ゴイモン" />
-          </div>
-          <div>
-            <div class="goimonMiniName" id="audioGoimonName">なごみ系のたまご</div>
-            <div class="goimonMiniMeta" id="audioGoimonMeta">Lv 1 / 0 pt</div>
-            <div class="goimonMiniSub" id="audioGoimonSub">学習に応じて成長し、進化していきます。</div>
-          </div>
-        </div>
-      </div>
+  function showSummary() {
+    setupBox.classList.add("hidden");
+    playBox.classList.add("hidden");
+    summaryBox.classList.remove("hidden");
+  }
 
-      <button id="evolutionNoticeBtn" class="noticeBtn hidden">✨ ゴイモンが進化できるようです</button>
-    </div>
+  function speakEnglish(text) {
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(String(text || ""));
+    u.lang = "en-US";
+    u.rate = 0.92;
+    window.speechSynthesis.speak(u);
+  }
 
-    <div class="card" id="setupBox">
-      <h2>出題設定</h2>
-
-      <div class="row">
-        <div class="label">範囲</div>
-        <select id="blockSelect"></select>
-        <button class="smallBtn" id="applyBlock">Block反映</button>
-      </div>
-
-      <div class="row">
-        <div class="label">開始</div>
-        <input id="rangeStart" type="number" min="1" value="1" />
-      </div>
-
-      <div class="row">
-        <div class="label">終了</div>
-        <input id="rangeEnd" type="number" min="1" value="100" />
-      </div>
-
-      <div class="row">
-        <div class="label">問題数</div>
-        <input id="limitCount" type="number" min="1" value="10" />
-      </div>
-
-      <div class="row">
-        <div class="label">出題順</div>
-        <select id="modeSelect">
-          <option value="head">先頭から</option>
-          <option value="continue">続きから</option>
-          <option value="random">ランダム</option>
-          <option value="weak">苦手</option>
-        </select>
-      </div>
-
-      <div class="row">
-        <label style="display:flex; align-items:center; gap:8px; font-size:14px;">
-          <input id="autoPlay" type="checkbox" />
-          問題表示時に自動再生する
-        </label>
-      </div>
-
-      <div class="row">
-        <button class="smallBtn" id="resetCursor">続き位置をリセット</button>
-      </div>
-
-      <div id="blockStats" class="muted" style="margin-top:8px;"></div>
-      <div id="setupInfo" class="muted" style="margin-top:8px;"></div>
-
-      <button class="btn primary" id="startBtn">開始する</button>
-    </div>
-
-    <div class="card hidden" id="playBox">
-      <div id="stats" class="statusBar"></div>
-      <div id="qMeta" class="muted" style="margin-bottom:8px;"></div>
-
-      <div class="qBox">
-        <div class="listenLead">音声を聞いて意味を選ぼう</div>
-        <div class="listenSub">英単語はまだ表示されません。音を手がかりに、日本語の意味を選んでください。</div>
-        <button class="bigPlayBtn" id="speakBtn">▶ 音声を聞く</button>
-      </div>
-
-      <div id="choices" class="choices"></div>
-
-      <div id="result" class="result"></div>
-      <div id="detail"></div>
-
-      <button class="btn soft" id="nextBtn" disabled>次の問題へ</button>
-      <button class="btn gray" id="backBtn">設定に戻る</button>
-    </div>
-
-    <div class="card hidden" id="summaryBox">
-      <div id="summaryLine" class="summaryLine"></div>
-      <div id="wrongEmpty" class="muted">今回の誤答はありません。</div>
-      <div id="wrongList" class="wrongList"></div>
-
-      <button class="btn primary" id="retryBtn">同じ設定でもう一度</button>
-      <button class="btn gray" id="summaryBackBtn">設定に戻る</button>
-    </div>
-  </div>
-
-  <script src="words_1kyu.js"></script>
-  <script src="blocks_1kyu.js"></script>
-  <script>
-    window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
-    if (window.ACTIVE_LEVEL === "1") {
-      window.WORDS = window.WORDS_1KYU || [];
-      window.BLOCKS = window.BLOCKS_1KYU || [];
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
-  </script>
+    return audioCtx;
+  }
 
-  <script src="words_2kyu.js"></script>
-  <script src="blocks_2kyu.js"></script>
-  <script>
-    if (window.ACTIVE_LEVEL === "2") {
-      window.WORDS = window.WORDS_2KYU || [];
-      window.BLOCKS = window.BLOCKS_2KYU || [];
+  function ensureAudioReady() {
+    try {
+      const ctx = getAudioCtx();
+      if (ctx.state === "suspended") ctx.resume();
+    } catch {}
+  }
+
+  function playCorrectSound() {
+    try {
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = "sine";
+      osc1.frequency.setValueAtTime(880, now);
+      gain1.gain.setValueAtTime(0.0001, now);
+      gain1.gain.exponentialRampToValueAtTime(0.25, now + 0.01);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+      osc1.connect(gain1).connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.13);
+
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(1175, now + 0.14);
+      gain2.gain.setValueAtTime(0.0001, now + 0.14);
+      gain2.gain.exponentialRampToValueAtTime(0.25, now + 0.15);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.26);
+      osc2.connect(gain2).connect(ctx.destination);
+      osc2.start(now + 0.14);
+      osc2.stop(now + 0.27);
+    } catch {}
+  }
+
+  function playWrongSound() {
+    try {
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(160, now);
+      osc.frequency.linearRampToValueAtTime(120, now + 0.25);
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.35, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.36);
+    } catch {}
+  }
+
+  function getBlockByNo(no) {
+    const n = Number(no);
+    return BLOCKS.find(b => n >= Number(b.start) && n <= Number(b.end)) || null;
+  }
+
+  function getBlockById(id) {
+    return BLOCKS.find(b => Number(b.id) === Number(id)) || null;
+  }
+
+  function renderBlockSelect() {
+    blockSelect.innerHTML = "";
+    const all = document.createElement("option");
+    all.value = "all";
+    all.textContent = "全範囲";
+    blockSelect.appendChild(all);
+
+    for (const b of BLOCKS) {
+      const opt = document.createElement("option");
+      opt.value = String(b.id);
+      opt.textContent = `Block ${b.id}（${b.start}〜${b.end}）`;
+      blockSelect.appendChild(opt);
     }
-  </script>
+    blockSelect.value = "all";
+  }
 
-  <script src="goimon_dialogues.js"></script>
-  <script src="goimon_dex.js"></script>
-  <script src="goimon_rules.js"></script>
-  <script src="goimon.js"></script>
+  function applySelectedBlockToRange() {
+    const v = blockSelect.value;
+    if (v === "all") {
+      rangeStart.value = "1";
+      rangeEnd.value = String(Math.max(WORDS.length, 1));
+      return;
+    }
+    const b = getBlockById(v);
+    if (!b) return;
+    rangeStart.value = String(b.start);
+    rangeEnd.value = String(b.end);
+  }
 
-  <script>
-    (function () {
-      function roundGoimonPoint(value) {
-        return Math.round((Number(value || 0) + Number.EPSILON) * 10) / 10;
-      }
+  function renderBlockStats() {
+    const v = blockSelect.value;
+    blockStats.textContent = (v === "all") ? "Block：全範囲" : `Block：${v}`;
+  }
 
-      function formatGoimonPoint(value) {
-        const n = roundGoimonPoint(value);
-        return Number.isInteger(n) ? String(n) : n.toFixed(1);
-      }
+  function buildPool(startNo, endNo) {
+    const s = clamp(startNo, 1, 999999);
+    const e = clamp(endNo, 1, 999999);
+    const lo = Math.min(s, e);
+    const hi = Math.max(s, e);
 
-      function renderAudioGoimonMini() {
-        if (!window.GoimonUI || !window.GoimonUI.loadCurrent) return;
-        const g = window.GoimonUI.loadCurrent();
-        if (!g) return;
+    const pool = [];
+    const seenEn = new Set();
 
-        const displayName = (window.GoimonUI && typeof window.GoimonUI.getGoimonPrimaryName === "function")
-          ? window.GoimonUI.getGoimonPrimaryName(g)
-          : "ゴイモン";
+    for (let i = 0; i < WORDS.length; i++) {
+      const no = i + 1;
+      if (no < lo || no > hi) continue;
 
-        const desc = (window.GoimonUI && typeof window.GoimonUI.getDisplayDescription === "function")
-          ? window.GoimonUI.getDisplayDescription(g)
-          : "学習に応じて成長し、進化していきます。";
+      const en = String(WORDS[i]?.en || "").trim();
+      const ja = String(WORDS[i]?.ja || "").trim();
+      if (!en || !ja) continue;
 
-        const ptText = (window.GoimonUI && typeof window.GoimonUI.formatPoint === "function")
-          ? window.GoimonUI.formatPoint(g.totalPoints || 0)
-          : formatGoimonPoint(g.totalPoints || 0);
+      const enKey = norm(en);
+      if (seenEn.has(enKey)) continue;
+      seenEn.add(enKey);
 
-        const nameEl = document.getElementById("audioGoimonName");
-        const metaEl = document.getElementById("audioGoimonMeta");
-        const subEl = document.getElementById("audioGoimonSub");
-        const imgEl = document.getElementById("audioGoimonImage");
+      pool.push({
+        no,
+        en,
+        ja,
+        enKey,
+        blockId: Number(getBlockByNo(no)?.id || 0)
+      });
+    }
 
-        if (nameEl) nameEl.textContent = displayName;
-        if (metaEl) metaEl.textContent = `Lv ${g.level} / ${ptText} pt`;
-        if (subEl) subEl.textContent = desc;
-        if (imgEl) {
-          imgEl.src = g.imageKey || "images/goimon/goimon_egg.png";
-          imgEl.alt = displayName;
-        }
+    return pool;
+  }
 
-        if (window.GoimonUI && typeof window.GoimonUI.renderEvolutionNoticeButton === "function") {
-          window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
-        }
-      }
+  function weakLoad() {
+    const obj = safeParse(WEAK_KEY);
+    return (obj && typeof obj === "object") ? obj : {};
+  }
 
-      window.renderAudioGoimonMini = renderAudioGoimonMini;
-      renderAudioGoimonMini();
+  function weakSave(obj) {
+    localStorage.setItem(WEAK_KEY, JSON.stringify(obj));
+  }
 
-      if (window.GoimonUI) {
+  function weakGetPoint(map, key) {
+    const v = map[String(key)];
+    return (typeof v === "number") ? v : 0;
+  }
+
+  function weakAddPoint(map, key, delta) {
+    const k = String(key);
+    const next = weakGetPoint(map, k) + Number(delta || 0);
+    if (next <= 0) delete map[k];
+    else map[k] = next;
+  }
+
+  function weakCount() {
+    return Object.keys(weakLoad()).length;
+  }
+
+  function cursorRangeKey(startNo, endNo) {
+    const s = clamp(startNo, 1, 999999);
+    const e = clamp(endNo, 1, 999999);
+    const lo = Math.min(s, e);
+    const hi = Math.max(s, e);
+    return `${lo}-${hi}`;
+  }
+
+  function loadCursor(startNo, endNo) {
+    const obj = safeParse(CURSOR_KEY) || {};
+    const k = cursorRangeKey(startNo, endNo);
+    const v = obj[k];
+    return Number.isFinite(v) ? v : 0;
+  }
+
+  function saveCursor(startNo, endNo, cursor) {
+    const obj = safeParse(CURSOR_KEY) || {};
+    const k = cursorRangeKey(startNo, endNo);
+    obj[k] = Math.max(0, Number(cursor) || 0);
+    localStorage.setItem(CURSOR_KEY, JSON.stringify(obj));
+  }
+
+  function updateSetupInfo() {
+    const pool = buildPool(rangeStart.value, rangeEnd.value);
+    const wc = weakCount();
+    const c = loadCursor(rangeStart.value, rangeEnd.value);
+    setupInfo.textContent = `この設定で出題可能：${pool.length}問｜保存済み苦手：${wc}問｜続き位置：${c + 1}問目から`;
+  }
+
+  let session = {
+    active: false,
+    mode: "head",
+    pool: [],
+    order: [],
+    cursor: 0,
+    limit: 10,
+    answered: 0,
+    correct: 0,
+    startNo: 1,
+    endNo: 100,
+    autoPlay: false
+  };
+
+  let current = null;
+  let answeredThis = false;
+  let askedLog = [];
+  let wrongLog = [];
+
+  function modeLabel(m) {
+    if (m === "head") return "先頭から";
+    if (m === "continue") return "続きから";
+    if (m === "random") return "ランダム";
+    return "苦手";
+  }
+
+  function resetPlayUI() {
+    answeredThis = false;
+    result.textContent = "";
+    detail.innerHTML = "";
+    nextBtn.disabled = true;
+    choices.innerHTML = "";
+  }
+
+  function renderStats() {
+    stats.textContent = `今回：${session.answered}/${session.limit}（正解 ${session.correct}）`;
+  }
+
+  function renderMeta() {
+    if (!current) {
+      qMeta.textContent = "";
+      return;
+    }
+    const b = getBlockByNo(current.no);
+    const blockText = b ? `Block ${b.id}（${b.start}〜${b.end}）` : (current.blockId ? `Block ${current.blockId}` : "Block ?");
+    qMeta.textContent = `${blockText}｜番号 ${current.no}｜モード：${modeLabel(session.mode)}｜${LV}級`;
+  }
+
+  function persistContinueCursor() {
+    if (session.mode !== "continue") return;
+    saveCursor(session.startNo, session.endNo, session.cursor);
+  }
+
+  function buildWeakOrder(pool) {
+    const weakMap = weakLoad();
+    const arr = [];
+    for (let i = 0; i < pool.length; i++) {
+      const p = weakGetPoint(weakMap, pool[i].enKey);
+      if (p > 0) arr.push({ i, p, no: pool[i].no });
+    }
+    arr.sort((a, b) => (b.p - a.p) || (a.no - b.no));
+    return arr.map(x => x.i);
+  }
+
+  function pickNextQuestion() {
+    if (session.order.length === 0) return null;
+    if (session.cursor >= session.order.length) return null;
+
+    const idx = session.order[session.cursor];
+    if (!Number.isFinite(idx)) return null;
+
+    session.cursor++;
+    persistContinueCursor();
+
+    return session.pool[idx];
+  }
+
+  function renderEvolutionNotice() {
+    try {
+      if (window.GoimonUI && typeof window.GoimonUI.renderEvolutionNoticeButton === "function") {
         window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
-        window.GoimonUI.bindEvolutionNoticeButton("evolutionNoticeBtn", {
+        return;
+      }
+      if (!window.GoimonUI || typeof window.GoimonUI.loadCurrent !== "function") return;
+      const g = window.GoimonUI.loadCurrent();
+      if (!g) return;
+      if (g.pendingEvolution) evolutionNoticeBtn.classList.remove("hidden");
+      else evolutionNoticeBtn.classList.add("hidden");
+    } catch {}
+  }
+
+  function renderQuestion() {
+    if (!session.active) return;
+
+    if (session.answered >= session.limit) {
+      finishSession(false);
+      return;
+    }
+
+    current = pickNextQuestion();
+    if (!current) {
+      finishSession(session.mode === "weak");
+      return;
+    }
+
+    resetPlayUI();
+    renderStats();
+    renderMeta();
+    renderEvolutionNotice();
+
+    const choiceList = buildChoices(current, session.pool);
+    current.choiceList = choiceList;
+
+    for (const ja of choiceList) {
+      const btn = document.createElement("button");
+      btn.textContent = ja;
+      btn.addEventListener("click", () => {
+        ensureAudioReady();
+        handleChoice(ja, btn);
+      });
+      choices.appendChild(btn);
+    }
+
+    scrollPlayToTop();
+
+    if (session.autoPlay) {
+      try { speakEnglish(current.en); } catch {}
+    }
+  }
+
+  function buildChoices(current, pool) {
+    const correct = current.ja;
+    const used = new Set([norm(correct)]);
+    const wrongs = [];
+
+    const candidates = shuffleArray(pool.filter(x => x.enKey !== current.enKey));
+    for (const item of candidates) {
+      const jaKey = norm(item.ja);
+      if (used.has(jaKey)) continue;
+      used.add(jaKey);
+      wrongs.push(item.ja);
+      if (wrongs.length >= 3) break;
+    }
+
+    if (wrongs.length < 3) {
+      const more = shuffleArray(WORDS);
+      for (const item of more) {
+        const ja = String(item?.ja || "").trim();
+        if (!ja) continue;
+        const jaKey = norm(ja);
+        if (used.has(jaKey)) continue;
+        used.add(jaKey);
+        wrongs.push(ja);
+        if (wrongs.length >= 3) break;
+      }
+    }
+
+    return shuffleArray([correct, ...wrongs.slice(0, 3)]);
+  }
+
+  function handleChoice(selectedJa, clickedBtn) {
+    if (answeredThis) return;
+    answeredThis = true;
+
+    session.answered++;
+    const isCorrect = norm(selectedJa) === norm(current.ja);
+    addLearningLog(isCorrect);
+
+    const btns = [...choices.querySelectorAll("button")];
+    for (const b of btns) {
+      if (norm(b.textContent) === norm(current.ja)) b.classList.add("correct");
+      b.disabled = true;
+    }
+    if (!isCorrect && clickedBtn) clickedBtn.classList.add("wrong");
+
+    const weakMap = weakLoad();
+
+    if (isCorrect) {
+      session.correct++;
+      result.innerHTML = `<span class="ok">⭕️ 正解！</span>`;
+      playCorrectSound();
+
+      try {
+        if (window.GoimonUI && typeof window.GoimonUI.addAudioMeaningCorrect === "function") {
+          window.GoimonUI.addAudioMeaningCorrect();
+        }
+      } catch {}
+
+      if (typeof window.renderAudioGoimonMini === "function") {
+        window.renderAudioGoimonMini();
+      }
+
+      weakAddPoint(weakMap, current.enKey, -1);
+    } else {
+      result.innerHTML = `<span class="ng">❌ 不正解。</span>`;
+      playWrongSound();
+      weakAddPoint(weakMap, current.enKey, +1);
+    }
+
+    weakSave(weakMap);
+    updateSetupInfo();
+
+    detail.innerHTML = `
+      <div class="detailCard">
+        <div class="detailTitle">答えの単語</div>
+        <div class="detailMain mono">${escapeHtml(current.en)}</div>
+        <div class="detailSub">意味：${escapeHtml(current.ja)}</div>
+      </div>
+    `;
+
+    askedLog.push({
+      no: current.no,
+      en: current.en,
+      ja: current.ja,
+      chosen: selectedJa,
+      isCorrect
+    });
+    if (!isCorrect) wrongLog.push(askedLog[askedLog.length - 1]);
+
+    renderStats();
+    renderEvolutionNotice();
+    nextBtn.disabled = false;
+  }
+
+  function finishSession(autoWeakEnd) {
+    showSummary();
+    const tail = (session.mode === "weak" && autoWeakEnd) ? "（この回の苦手出題が終わりました）" : "";
+    summaryLine.textContent = `結果：${session.correct} / ${session.answered}（${modeLabel(session.mode)}｜範囲 ${session.startNo}〜${session.endNo}｜${LV}級）${tail}`;
+
+    wrongList.innerHTML = "";
+
+    if (wrongLog.length === 0) {
+      wrongEmpty.classList.remove("hidden");
+      return;
+    }
+    wrongEmpty.classList.add("hidden");
+
+    for (const w of wrongLog) {
+      const div = document.createElement("div");
+      div.className = "wrongRow";
+      div.innerHTML = `
+        <div><span class="mono">${escapeHtml(w.en)}</span></div>
+        <div>あなたの選択：${escapeHtml(w.chosen)}</div>
+        <div>正しい意味：${escapeHtml(w.ja)}</div>
+      `;
+      wrongList.appendChild(div);
+    }
+  }
+
+  function startSession() {
+    const startNo = clamp(rangeStart.value, 1, 999999);
+    const endNo = clamp(rangeEnd.value, 1, 999999);
+    let limit = clamp(limitCount.value, 1, 999999);
+    const pool = buildPool(startNo, endNo);
+
+    if (pool.length < 4) {
+      showError("この範囲では4択を作るのに十分な単語数がありません。範囲を広げてください。");
+      return;
+    }
+
+    session.startNo = startNo;
+    session.endNo = endNo;
+    session.pool = pool;
+    session.mode = ["head", "continue", "random", "weak"].includes(modeSelect.value) ? modeSelect.value : "head";
+    session.autoPlay = !!autoPlay.checked;
+    session.answered = 0;
+    session.correct = 0;
+    session.active = true;
+
+    if (session.mode === "weak") {
+      session.order = buildWeakOrder(pool);
+      if (session.order.length === 0) {
+        showError("苦手モードですが、この範囲内に保存済み苦手がありません。");
+        return;
+      }
+      session.order = shuffleArray(session.order);
+      session.cursor = 0;
+    } else {
+      session.order = [...Array(pool.length)].map((_, i) => i);
+
+      if (session.mode === "random") {
+        session.order = shuffleArray(session.order);
+        session.cursor = 0;
+      } else if (session.mode === "continue") {
+        const saved = loadCursor(startNo, endNo);
+        session.cursor = clamp(saved, 0, Math.max(0, session.order.length - 1));
+        if (saved >= session.order.length) {
+          session.cursor = 0;
+          saveCursor(startNo, endNo, 0);
+        }
+      } else {
+        session.cursor = 0;
+      }
+    }
+
+    limit = Math.min(limit, session.order.length);
+    session.limit = limit;
+
+    askedLog = [];
+    wrongLog = [];
+    errorArea.innerHTML = "";
+    showPlay();
+    renderQuestion();
+  }
+
+  function loadGoimonUiState() {
+    return safeParse(GOIMON_UI_KEY) || { open: false };
+  }
+
+  let goimonUi = loadGoimonUiState();
+
+  function saveGoimonUiState() {
+    localStorage.setItem(GOIMON_UI_KEY, JSON.stringify(goimonUi));
+  }
+
+  function renderAudioQuizGoimonMini() {
+    try {
+      if (!window.GoimonUI || typeof window.GoimonUI.loadCurrent !== "function") return;
+      const g = window.GoimonUI.loadCurrent();
+      if (!g) return;
+
+      const name = (typeof window.GoimonUI.getGoimonPrimaryName === "function")
+        ? window.GoimonUI.getGoimonPrimaryName(g)
+        : "ゴイモン";
+
+      const desc = (typeof window.GoimonUI.getDisplayDescription === "function")
+        ? window.GoimonUI.getDisplayDescription(g)
+        : "学習に応じて成長します。";
+
+      const pointText = (typeof window.GoimonUI.formatPoint === "function")
+        ? window.GoimonUI.formatPoint(g.totalPoints || 0)
+        : String(g.totalPoints || 0);
+
+      audioGoimonImage.src = g.imageKey || "images/goimon/goimon_egg.png";
+      audioGoimonImage.alt = name;
+      audioGoimonName.textContent = name;
+      audioGoimonMeta.textContent = `Lv ${g.level} / ${pointText} pt`;
+      audioGoimonSub.textContent = desc;
+    } catch {}
+  }
+
+  window.renderAudioGoimonMini = renderAudioQuizGoimonMini;
+
+  function renderGoimonVisibility() {
+    if (goimonUi.open) {
+      goimonCard.classList.remove("hidden");
+      toggleGoimonBtn.textContent = "ゴイモンを閉じる";
+    } else {
+      goimonCard.classList.add("hidden");
+      toggleGoimonBtn.textContent = "ゴイモンの様子を見る";
+    }
+  }
+
+  function openSharedEvolution() {
+    try {
+      if (window.GoimonUI && typeof window.GoimonUI.openEvolutionOverlay === "function") {
+        window.GoimonUI.openEvolutionOverlay({
           onComplete: () => {
-            renderAudioGoimonMini();
+            renderAudioQuizGoimonMini();
+            renderEvolutionNotice();
           }
         });
+        return;
       }
-    })();
-  </script>
 
-  <audio id="evolutionAudio" src="audio/evolution.mp3" preload="auto"></audio>
+      if (window.GoimonUI && typeof window.GoimonUI.playPendingEvolutionSequence === "function") {
+        window.GoimonUI.playPendingEvolutionSequence({
+          onComplete: () => {
+            renderAudioQuizGoimonMini();
+            renderEvolutionNotice();
+          }
+        });
+        return;
+      }
 
-  <div id="evoOverlay" class="evoOverlay hidden">
-    <div class="evoCenter">
-      <div class="evoFlash"></div>
-      <div id="evoShock" class="evoShock"></div>
+      if (window.GoimonUI && typeof window.GoimonUI.confirmEvolution === "function") {
+        window.GoimonUI.confirmEvolution();
+        renderAudioQuizGoimonMini();
+        renderEvolutionNotice();
+      }
+    } catch (e) {
+      console.warn("openSharedEvolution failed:", e);
+    }
+  }
 
-      <div class="evoImageStage">
-        <img id="evoGoimonBefore" src="" class="evoGoimon evoBefore" alt="進化前ゴイモン" />
-        <img id="evoGoimonAfter" src="" class="evoGoimon evoAfter evoHidden" alt="進化後ゴイモン" />
-      </div>
+  blockSelect.addEventListener("change", renderBlockStats);
+  applyBlockBtn.addEventListener("click", () => {
+    applySelectedBlockToRange();
+    updateSetupInfo();
+  });
 
-      <div id="evoText1" class="evoText evoHidden">✨進化！✨</div>
-      <div id="evoText2" class="evoTextSub evoHidden"></div>
+  rangeStart.addEventListener("input", updateSetupInfo);
+  rangeEnd.addEventListener("input", updateSetupInfo);
+  limitCount.addEventListener("input", updateSetupInfo);
 
-      <button id="evoSkipBtn" class="evoSkip">スキップ</button>
-    </div>
-  </div>
+  autoPlay.addEventListener("change", () => {
+    saveSettings({ autoPlay: !!autoPlay.checked });
+  });
 
-  <script src="audio_quiz.js"></script>
-</body>
-</html>
+  resetCursor.addEventListener("click", () => {
+    saveCursor(rangeStart.value, rangeEnd.value, 0);
+    alert("「続きから」の開始位置をリセットしました。");
+    updateSetupInfo();
+  });
+
+  startBtn.addEventListener("click", startSession);
+
+  speakBtn.addEventListener("click", () => {
+    if (!current) return;
+    ensureAudioReady();
+    speakEnglish(current.en);
+  });
+
+  nextBtn.addEventListener("click", () => {
+    if (!answeredThis) return;
+    renderQuestion();
+  });
+
+  backBtn.addEventListener("click", () => {
+    session.active = false;
+    showSetup();
+    updateSetupInfo();
+  });
+
+  retryBtn.addEventListener("click", () => {
+    session.answered = 0;
+    session.correct = 0;
+    session.active = true;
+
+    if (session.mode === "random" || session.mode === "weak") {
+      session.cursor = 0;
+      session.order = shuffleArray(session.order);
+    } else if (session.mode === "head") {
+      session.cursor = 0;
+    } else if (session.mode === "continue") {
+      session.cursor = loadCursor(session.startNo, session.endNo);
+      if (!Number.isFinite(session.cursor) || session.cursor < 0 || session.cursor >= session.order.length) {
+        session.cursor = 0;
+      }
+    } else {
+      session.cursor = 0;
+    }
+
+    askedLog = [];
+    wrongLog = [];
+    showPlay();
+    renderQuestion();
+  });
+
+  summaryBackBtn.addEventListener("click", () => {
+    session.active = false;
+    showSetup();
+    updateSetupInfo();
+  });
+
+  toggleGoimonBtn.addEventListener("click", () => {
+    goimonUi.open = !goimonUi.open;
+    saveGoimonUiState();
+    renderGoimonVisibility();
+  });
+
+  evolutionNoticeBtn.addEventListener("click", openSharedEvolution);
+
+  function init() {
+    if (!Array.isArray(WORDS) || WORDS.length === 0) {
+      showError("WORDS が読み込めていません。words_1kyu.js / words_2kyu.js の読み込みを確認してください。");
+      return;
+    }
+
+    if (window.GoimonUI && typeof window.GoimonUI.ensureEvolutionUIReady === "function") {
+      window.GoimonUI.ensureEvolutionUIReady();
+    }
+
+    renderBlockSelect();
+    renderBlockStats();
+
+    rangeStart.value = "1";
+    rangeEnd.value = String(Math.max(WORDS.length, 1));
+
+    const settings = loadSettings();
+    autoPlay.checked = !!settings.autoPlay;
+
+    updateSetupInfo();
+    renderGoimonVisibility();
+    renderAudioQuizGoimonMini();
+    renderEvolutionNotice();
+    showSetup();
+  }
+
+  init();
+});
