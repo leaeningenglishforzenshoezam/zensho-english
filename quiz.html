@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>英→日 4択テスト</title>
 
+  <link rel="stylesheet" href="style.css">
+
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
@@ -13,47 +15,70 @@
       color: #111;
     }
 
-    .container {
-      max-width: 600px;
-      margin: 20px auto;
-      padding: 0 12px 24px;
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px 12px 28px;
     }
 
-    button {
-      padding: 10px 12px;
-      margin-top: 6px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      background: #fff;
-      cursor: pointer;
-    }
-
-    .box {
-      border: 1px solid #ddd;
-      padding: 12px;
-      border-radius: 12px;
-      margin-bottom: 14px;
-      background: #fff;
+    .card {
+      background:#fff;
+      border:1px solid #ddd;
+      border-radius:12px;
+      padding:14px;
+      margin: 12px 0;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
     .muted {
-      color: #666;
-      font-size: 14px;
+      color:#666;
+      font-size: 13px;
+      line-height: 1.6;
     }
 
     .row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:space-between;
+    }
+
+    .rowStart {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-start;
+    }
+
+    button {
+      padding:10px 12px;
+      margin-top: 6px;
+      border-radius:10px;
+      border:1px solid #ddd;
+      background:#fff;
+      cursor:pointer;
+      font-size: 16px;
+    }
+
+    button.primary {
+      background:#2b7cff;
+      border-color:#2b7cff;
+      color:#fff;
+      font-weight:700;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     select, input {
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
+      padding:8px;
+      border-radius:8px;
+      border:1px solid #ccc;
+      font-size:16px;
     }
 
     .btnwide {
@@ -66,49 +91,6 @@
 
     li {
       margin: 6px 0;
-    }
-
-    #question {
-      font-size: 26px;
-      margin-bottom: 10px;
-      font-weight: 700;
-    }
-
-    #choices {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
-
-    #choices button {
-      width: 100%;
-      font-size: 20px;
-      padding: 16px;
-      border-radius: 12px;
-      border: 1px solid #ccc;
-      background: #fff;
-    }
-
-    @media (max-width: 340px) {
-      #choices {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    #choices button.correct {
-      background: #2ecc71;
-      color: #fff;
-      border: 1px solid #27ae60;
-    }
-
-    #choices button.wrong {
-      background: #e74c3c;
-      color: #fff;
-      border: 1px solid #c0392b;
-    }
-
-    #choices button:disabled {
-      opacity: 0.95;
     }
 
     .topNavBox {
@@ -299,6 +281,8 @@
       font-size: 15px;
       font-weight: 800;
       margin: 0 0 4px;
+      line-height: 1.45;
+      word-break: break-word;
     }
 
     .miniGoimonMeta {
@@ -320,6 +304,51 @@
       line-height: 1.5;
     }
 
+    #question {
+      font-size: 26px;
+      margin-bottom: 10px;
+      font-weight: 700;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    #choices {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    #choices button {
+      width: 100%;
+      font-size: 20px;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+      background: #fff;
+    }
+
+    @media (max-width: 340px) {
+      #choices {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    #choices button.correct {
+      background: #2ecc71;
+      color: #fff;
+      border: 1px solid #27ae60;
+    }
+
+    #choices button.wrong {
+      background: #e74c3c;
+      color: #fff;
+      border: 1px solid #c0392b;
+    }
+
+    #choices button:disabled {
+      opacity: 0.95;
+    }
+
     .startButton {
       background: #2b7cff;
       color: #fff;
@@ -335,9 +364,8 @@
     }
 
     @media (max-width: 480px) {
-      .container {
-        margin: 14px auto;
-        padding: 0 10px 20px;
+      .wrap {
+        padding: 12px 10px 24px;
       }
 
       #question {
@@ -357,9 +385,9 @@
 </head>
 
 <body>
-<div class="container">
+<div class="wrap">
 
-  <div class="box topNavBox">
+  <div class="card topNavBox">
     <div class="topNavTitle">学習ページ移動</div>
     <div class="topNav">
       <a href="index.html">ホーム</a>
@@ -414,11 +442,11 @@
   <button id="toggleSettings" type="button">▶ 設定</button>
   <div id="settingsSummary" class="muted" style="margin-bottom:8px;"></div>
 
-  <div id="setupBox" class="box">
+  <div id="setupBox" class="card">
     <div id="settingsArea">
       <div style="font-weight:bold; margin-bottom:8px;">出題設定（英→日）</div>
 
-      <div class="row" style="margin-bottom:10px;">
+      <div class="rowStart" style="margin-bottom:10px;">
         <label style="font-weight:600;">Block:</label>
         <select id="blockSelect"></select>
         <button id="applyBlock" type="button">このBlockを範囲に反映</button>
@@ -468,7 +496,7 @@
     </button>
   </div>
 
-  <div id="playBox" class="box">
+  <div id="playBox" class="card">
     <div id="stats" style="margin-bottom:8px;"></div>
     <div id="qMeta" class="muted" style="margin-bottom:8px;"></div>
 
@@ -494,7 +522,7 @@
     </button>
   </div>
 
-  <div id="summaryBox" class="box" style="display:none;">
+  <div id="summaryBox" class="card" style="display:none;">
     <div style="font-weight:700; margin-bottom:6px;">今回の結果</div>
 
     <div id="finalScore" style="font-size:18px; margin-bottom:8px;"></div>
@@ -505,12 +533,12 @@
       <button id="goWeakReview" type="button">弱点モードで復習</button>
     </div>
 
-    <div class="box">
+    <div class="card">
       <div style="font-weight:700;">今回出た単語一覧</div>
       <ul id="askedList"></ul>
     </div>
 
-    <div class="box">
+    <div class="card">
       <div style="font-weight:700;">間違えた単語一覧</div>
       <ul id="wrongList"></ul>
     </div>
@@ -522,13 +550,51 @@
 
 </div>
 
+<audio id="evolutionAudio" src="audio/evolution.mp3" preload="auto"></audio>
+
+<div id="evoOverlay" class="evoOverlay hidden">
+  <div class="evoCenter">
+    <div class="evoFlash"></div>
+    <div id="evoShock" class="evoShock"></div>
+
+    <div class="evoImageStage">
+      <img id="evoGoimonBefore" src="" class="evoGoimon evoBefore" alt="進化前ゴイモン" />
+      <img id="evoGoimonAfter" src="" class="evoGoimon evoAfter evoHidden" alt="進化後ゴイモン" />
+    </div>
+
+    <div id="evoText1" class="evoText evoHidden">✨進化！✨</div>
+    <div id="evoText2" class="evoTextSub evoHidden"></div>
+
+    <button id="evoSkipBtn" class="evoSkip">スキップ</button>
+  </div>
+</div>
+
 <script src="words_1kyu.js"></script>
 <script src="blocks_1kyu.js"></script>
+
+<script>
+  window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
+  if (window.ACTIVE_LEVEL === "1") {
+    window.WORDS = window.WORDS_1KYU || [];
+    window.BLOCKS = window.BLOCKS_1KYU || [];
+  }
+</script>
+
 <script src="words_2kyu.js"></script>
 <script src="blocks_2kyu.js"></script>
+<script>
+  if (window.ACTIVE_LEVEL === "2") {
+    window.WORDS = window.WORDS_2KYU || [];
+    window.BLOCKS = window.BLOCKS_2KYU || [];
+  }
+</script>
+
 <script src="dataset.js"></script>
 <script src="global_stats.js"></script>
 <script src="learning_log.js"></script>
+<script src="goimon_dialogues.js"></script>
+<script src="goimon_dex.js"></script>
+<script src="goimon_rules.js"></script>
 <script src="goimon.js"></script>
 
 <script>
@@ -547,17 +613,6 @@
         final: "上級体"
       };
 
-      const typeMap = {
-        nagomi: "なごみ系",
-        hirameki: "ひらめき系",
-        tsumugi: "つむぎ系",
-        yomitoki: "よみとき系",
-        shirabe: "しらべ系",
-        hibiki: "ひびき系",
-        kotonoha: "ことのは系",
-        mr_uno: "MR.UNO"
-      };
-
       const descMap = {
         nagomi: "バランスよく育つ、やさしい守護神獣タイプ。",
         hirameki: "知性とひらめきが伸びる、啓示神獣タイプ。",
@@ -569,19 +624,10 @@
         mr_uno: "特別に解放された、学びを導く隠しルート。"
       };
 
-      const setText = (id, value) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = value;
-      };
-
       const stageLabel = stageMap[g.stage] || "たまご期";
-      const typeLabel = (g.stage === "egg")
-        ? (g.specialRoute === "mr_uno" ? "MR.UNOルート" : "なごみ系")
-        : (typeMap[g.type] || "なごみ系");
-
       const displayName = (window.GoimonUI && typeof window.GoimonUI.getGoimonPrimaryName === "function")
         ? window.GoimonUI.getGoimonPrimaryName(g)
-        : ((g.stage === "egg") ? "なごみ系のたまご" : `${typeLabel} / ${stageLabel}`);
+        : (g.nickname || "ゴイモン");
 
       const desc = g.stage === "egg" && g.specialRoute === "mr_uno"
         ? "隠し分岐を選択中です。次の進化から MR.UNO として育ちます。"
@@ -589,6 +635,11 @@
 
       const pt = Number(g.totalPoints || 0);
       const ptText = Number.isInteger(pt) ? String(pt) : pt.toFixed(1);
+
+      const setText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+      };
 
       setText("quizGoimonStage", stageLabel);
       setText("quizGoimonName", displayName);
@@ -608,10 +659,18 @@
 
     renderQuizGoimonMini();
     window.renderQuizGoimonMini = renderQuizGoimonMini;
+
+    if (window.GoimonUI) {
+      window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
+      window.GoimonUI.bindEvolutionNoticeButton("evolutionNoticeBtn", {
+        onComplete: () => {
+          renderQuizGoimonMini();
+        }
+      });
+    }
   })();
 </script>
 
 <script src="quiz.js"></script>
-
 </body>
 </html>
