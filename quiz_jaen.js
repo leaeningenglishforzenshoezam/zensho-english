@@ -76,10 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const goimonToggleBtn = document.getElementById("goimonToggleBtn");
   const goimonPanel = document.getElementById("goimonPanel");
   const evolutionNoticeBtn = document.getElementById("evolutionNoticeBtn");
-  const goimonMiniImageEl = document.getElementById("goimonMiniImage");
-  const goimonMiniNameEl = document.getElementById("goimonMiniName");
-  const goimonMiniMetaEl = document.getElementById("goimonMiniMeta");
-  const goimonKotobaValueEl = document.getElementById("goimonKotobaValue");
 
   function must(el, name) {
     if (!el) throw new Error(`quiz_jaen.html に #${name} が見つかりません`);
@@ -99,8 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     [askedListEl,"askedList"],[wrongListEl,"wrongList"],[backToSetupBtn,"backToSetup"],
     [goStudyBlockBtn,"goStudyBlock"],[goWeakReviewBtn,"goWeakReview"],
     [levelBadgeEl,"levelBadge"],[goimonToggleBtn,"goimonToggleBtn"],[goimonPanel,"goimonPanel"],
-    [evolutionNoticeBtn,"evolutionNoticeBtn"],[goimonMiniImageEl,"goimonMiniImage"],
-    [goimonMiniNameEl,"goimonMiniName"],[goimonMiniMetaEl,"goimonMiniMeta"],[goimonKotobaValueEl,"goimonKotobaValue"]
+    [evolutionNoticeBtn,"evolutionNoticeBtn"]
   ].forEach(([el,n]) => must(el,n));
 
   function safeParse(key) {
@@ -139,6 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     return _audioCtx;
   }
+
   function ensureAudioReady() {
     try {
       const ctx = getAudioCtx();
@@ -242,17 +238,21 @@ document.addEventListener("DOMContentLoaded", () => {
       if (obj && typeof obj === "object") weakPoints = obj;
     } catch {}
   }
+
   function saveWeakPoints() {
     localStorage.setItem(WEAK_KEY, JSON.stringify(weakPoints));
   }
+
   function getPoint(en) {
     const p = weakPoints[en];
     return typeof p === "number" ? p : 0;
   }
+
   function setPoint(en, p) {
     if (p <= 0) delete weakPoints[en];
     else weakPoints[en] = p;
   }
+
   function weakCount() {
     return Object.keys(weakPoints).length;
   }
@@ -364,6 +364,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let orderCursor = 0;
   let uiState = loadUiState();
+  let settingsOpen = false;
 
   function showSetupView() {
     setupBox.style.display = "block";
@@ -382,8 +383,6 @@ document.addEventListener("DOMContentLoaded", () => {
     playBox.style.display = "none";
     summaryBox.style.display = "block";
   }
-
-  let settingsOpen = false;
 
   function modeText() {
     if (quizMode === "order") return "順番";
@@ -634,58 +633,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function formatGoimonPoint(num) {
-    if (window.GoimonUI && typeof window.GoimonUI.formatPoint === "function") {
-      return window.GoimonUI.formatPoint(num);
-    }
-    const n = Number(num || 0);
-    if (Math.abs(n - Math.round(n)) < 0.0001) return String(Math.round(n));
-    return n.toFixed(1);
-  }
-
-  function getStageLabel(stage) {
-    if (window.GoimonUI && typeof window.GoimonUI.getStageLabel === "function") {
-      return window.GoimonUI.getStageLabel(stage);
-    }
-    return stage || "";
-  }
-
   function renderEvolutionNotice() {
-    if (window.GoimonUI && typeof window.GoimonUI.renderEvolutionNoticeButton === "function") {
-      window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
-      return;
-    }
-    if (!window.GoimonUI || typeof window.GoimonUI.loadCurrent !== "function") return;
-    const g = window.GoimonUI.loadCurrent();
-    if (!g) return;
-
-    if (g.pendingEvolution) {
-      evolutionNoticeBtn.classList.remove("hidden");
-    } else {
-      evolutionNoticeBtn.classList.add("hidden");
-    }
+    try {
+      if (window.GoimonUI && typeof window.GoimonUI.renderEvolutionNoticeButton === "function") {
+        window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
+      }
+    } catch {}
   }
 
   function renderGoimonStatus() {
-    if (!window.GoimonUI || typeof window.GoimonUI.loadCurrent !== "function") return;
-    const g = window.GoimonUI.loadCurrent();
-    if (!g) return;
-
-    const displayName = (window.GoimonUI && typeof window.GoimonUI.getGoimonPrimaryName === "function")
-      ? window.GoimonUI.getGoimonPrimaryName(g)
-      : "ゴイモン";
-    const stageLabel = getStageLabel(g.stage);
-    const typeLabel = g.stage === "egg" && g.specialRoute === "mr_uno"
-      ? "MR.UNOルート"
-      : (g.typeLabel || "なごみ系");
-    const kotoba = g.stats?.kotoba || 0;
-
-    goimonMiniImageEl.src = g.imageKey || "images/goimon/goimon_egg.png";
-    goimonMiniImageEl.alt = displayName;
-    goimonMiniNameEl.textContent = displayName;
-    goimonMiniMetaEl.textContent = `Lv${g.level}｜${stageLabel}｜${typeLabel}`;
-    goimonKotobaValueEl.textContent = formatGoimonPoint(kotoba);
-
+    if (typeof window.renderQuizJaEnGoimonMini === "function") {
+      window.renderQuizJaEnGoimonMini();
+      return;
+    }
     renderEvolutionNotice();
   }
 
@@ -693,15 +653,6 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       if (window.GoimonUI && typeof window.GoimonUI.openEvolutionOverlay === "function") {
         window.GoimonUI.openEvolutionOverlay({
-          onComplete: () => {
-            renderGoimonStatus();
-          }
-        });
-        return;
-      }
-
-      if (window.GoimonUI && typeof window.GoimonUI.playPendingEvolutionSequence === "function") {
-        window.GoimonUI.playPendingEvolutionSequence({
           onComplete: () => {
             renderGoimonStatus();
           }
