@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>大問9演習（固定問題・4択）</title>
+  <link rel="stylesheet" href="style.css">
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
@@ -622,6 +623,7 @@
       window.BLOCKS_1KYU = window.BLOCKS_1KYU || [];
     }
   </script>
+
   <script src="words_2kyu.js"></script>
   <script src="blocks_2kyu.js"></script>
   <script src="word_extra.js"></script>
@@ -635,6 +637,9 @@
   </script>
 
   <script src="learning_log.js"></script>
+  <script src="goimon_dialogues.js"></script>
+  <script src="goimon_dex.js"></script>
+  <script src="goimon_rules.js"></script>
   <script src="goimon.js"></script>
   <script src="sentence_fixed.js"></script>
 
@@ -654,17 +659,6 @@
           final: "上級体"
         };
 
-        const typeMap = {
-          nagomi: "なごみ系",
-          hirameki: "ひらめき系",
-          tsumugi: "つむぎ系",
-          yomitoki: "よみとき系",
-          shirabe: "しらべ系",
-          hibiki: "ひびき系",
-          kotonoha: "ことのは系",
-          mr_uno: "MR.UNO"
-        };
-
         const descMap = {
           nagomi: "バランスよく育つ、やさしい守護神獣タイプ。",
           hirameki: "知性とひらめきが伸びる、啓示神獣タイプ。",
@@ -682,25 +676,22 @@
         };
 
         const stageLabel = stageMap[g.stage] || "たまご期";
-        const typeLabel = (g.stage === "egg")
-          ? (g.specialRoute === "mr_uno" ? "MR.UNOルート" : "なごみ系")
-          : (typeMap[g.type] || "なごみ系");
 
         const displayName = (window.GoimonUI && typeof window.GoimonUI.getGoimonPrimaryName === "function")
           ? window.GoimonUI.getGoimonPrimaryName(g)
-          : ((g.stage === "egg") ? "なごみ系のたまご" : `${typeLabel} / ${stageLabel}`);
+          : (g.nickname || "ゴイモン");
 
-        const desc = descMap[g.type] || "学習に応じて成長し、進化していきます。";
+        const desc = g.stage === "egg" && g.specialRoute === "mr_uno"
+          ? "隠し分岐を選択中です。次の進化から MR.UNO として育ちます。"
+          : (descMap[g.type] || "学習に応じて成長し、進化していきます。");
+
         const pt = Number(g.totalPoints || 0);
         const ptText = Number.isInteger(pt) ? String(pt) : pt.toFixed(1);
 
         setText("sentenceGoimonStage", stageLabel);
         setText("sentenceGoimonName", displayName);
         setText("sentenceGoimonMeta", `Lv ${g.level} / ${ptText} pt`);
-        setText("sentenceGoimonDesc", g.stage === "egg" && g.specialRoute === "mr_uno"
-          ? "隠し分岐を選択中です。次の進化から MR.UNO として育ちます。"
-          : desc
-        );
+        setText("sentenceGoimonDesc", desc);
 
         const img = document.getElementById("sentenceGoimonImage");
         if (img) {
@@ -715,8 +706,36 @@
 
       renderSentenceGoimonMini();
       window.renderSentenceGoimonMini = renderSentenceGoimonMini;
+
+      if (window.GoimonUI) {
+        window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
+        window.GoimonUI.bindEvolutionNoticeButton("evolutionNoticeBtn", {
+          onComplete: () => {
+            renderSentenceGoimonMini();
+          }
+        });
+      }
     })();
   </script>
+
+  <audio id="evolutionAudio" src="audio/evolution.mp3" preload="auto"></audio>
+
+  <div id="evoOverlay" class="evoOverlay hidden">
+    <div class="evoCenter">
+      <div class="evoFlash"></div>
+      <div id="evoShock" class="evoShock"></div>
+
+      <div class="evoImageStage">
+        <img id="evoGoimonBefore" src="" class="evoGoimon evoBefore" alt="進化前ゴイモン" />
+        <img id="evoGoimonAfter" src="" class="evoGoimon evoAfter evoHidden" alt="進化後ゴイモン" />
+      </div>
+
+      <div id="evoText1" class="evoText evoHidden">✨進化！✨</div>
+      <div id="evoText2" class="evoTextSub evoHidden"></div>
+
+      <button id="evoSkipBtn" class="evoSkip">スキップ</button>
+    </div>
+  </div>
 
   <script src="sentence.js"></script>
 </body>
