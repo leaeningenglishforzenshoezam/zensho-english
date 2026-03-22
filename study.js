@@ -1,8 +1,8 @@
-// study.js（暗記ページ）ゴイモン版：折りたたみ表示＋豪華進化演出対応
+// study.js（暗記ページ）アクセントページ風ゴイモンミニカード版
 // ★暗記は 1語完了ごとに ちえ +0.1
 // ★ゴイモンは通常は閉じた状態
 // ★進化条件達成時は「あれ、ゴイモンの様子が…！？」を表示
-// ★進化演出は神聖進化＋系統別の色・文言つき
+// ★進化演出は goimon.js の共通 overlay を使用
 
 document.addEventListener("DOMContentLoaded", () => {
   const words = window.WORDS || [];
@@ -42,23 +42,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const goimonPanel = document.getElementById("goimonPanel");
   const evolutionNoticeBtn = document.getElementById("evolutionNoticeBtn");
 
-  const goimonMiniImageEl = document.getElementById("goimonMiniImage");
-  const goimonMiniNameEl = document.getElementById("goimonMiniName");
-  const goimonMiniMetaEl = document.getElementById("goimonMiniMeta");
-  const goimonChieValueEl = document.getElementById("goimonChieValue");
-
-  const evolutionModal = document.getElementById("evolutionModal");
-  const evoLead = document.getElementById("evoLead");
-  const evoSub = document.getElementById("evoSub");
-  const evolutionImage = document.getElementById("evolutionImage");
-  const evolutionPhaseText = document.getElementById("evolutionPhaseText");
-  const evolutionResultName = document.getElementById("evolutionResultName");
-  const evolutionCloseBtn = document.getElementById("evolutionCloseBtn");
-  const evolutionConfirmBtn = document.getElementById("evolutionConfirmBtn");
-  const evoFlash = document.getElementById("evoFlash");
-  const evoImageWrap = document.getElementById("evoImageWrap");
-
-  let evolutionTimers = [];
+  const studyGoimonStageEl = document.getElementById("studyGoimonStage");
+  const studyGoimonImageEl = document.getElementById("studyGoimonImage");
+  const studyGoimonNameEl = document.getElementById("studyGoimonName");
+  const studyGoimonMetaEl = document.getElementById("studyGoimonMeta");
+  const studyGoimonDescEl = document.getElementById("studyGoimonDesc");
 
   function clamp(n, min, max) {
     n = Math.floor(Number(n));
@@ -92,29 +80,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function getBlockByNo(no) {
     const n = Number(no);
     return blocks.find(b => n >= Number(b.start) && n <= Number(b.end)) || null;
-  }
-
-  function formatPoint(num) {
-    if (window.GoimonUI && typeof window.GoimonUI.formatPoint === "function") {
-      return window.GoimonUI.formatPoint(num);
-    }
-    const n = Number(num || 0);
-    if (Math.abs(n - Math.round(n)) < 0.0001) return String(Math.round(n));
-    return n.toFixed(1);
-  }
-
-  function getStageLabel(stage) {
-    if (window.GoimonUI && typeof window.GoimonUI.getStageLabel === "function") {
-      return window.GoimonUI.getStageLabel(stage);
-    }
-    return stage || "";
-  }
-
-  function getDisplayName(type, stage) {
-    if (window.GoimonUI && typeof window.GoimonUI.getDisplayName === "function") {
-      return window.GoimonUI.getDisplayName(type, stage);
-    }
-    return "ゴイモン";
   }
 
   function loadStudyUiState() {
@@ -171,89 +136,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const obj = loadWeakEnja();
     const v = obj[String(enLower || "").trim().toLowerCase()];
     return typeof v === "number" ? v : 0;
-  }
-
-  function getEvolutionTheme(type) {
-    switch (type) {
-      case "hirameki":
-        return {
-          themeClass: "theme-hirameki",
-          lead: "あれ、鋭い光があふれている…！？",
-          sub: "知性とひらめきが高まり、ゴイモンが新たな啓示を受けようとしています。",
-          lines: [
-            "鋭い閃光が、ゴイモンの内側からあふれ出す…",
-            "知の光が幾重にも重なりはじめた…！",
-            "新しい姿が、まもなく顕れる――"
-          ]
-        };
-      case "yomitoki":
-        return {
-          themeClass: "theme-yomitoki",
-          lead: "あれ、ことばの紋が輝いている…！？",
-          sub: "読む力と見抜く力が満ち、静かな進化の儀が始まろうとしています。",
-          lines: [
-            "古いことばの紋が、静かに輝き始める…",
-            "見えなかった意味が、少しずつ形になっていく…",
-            "解読の力が、新たな姿を呼び起こす――"
-          ]
-        };
-      case "shirabe":
-        return {
-          themeClass: "theme-shirabe",
-          lead: "あれ、澄んだ響きが満ちている…！？",
-          sub: "音と共鳴の力が高まり、ゴイモンの周りで神秘的な調べが鳴り始めています。",
-          lines: [
-            "澄んだ響きが、空間いっぱいにひろがる…",
-            "光の波紋が、何度も重なっていく…！",
-            "共鳴の力が、新たな姿を呼び覚ます――"
-          ]
-        };
-      case "tsumugi":
-        return {
-          themeClass: "theme-tsumugi",
-          lead: "あれ、ことばの流れが舞っている…！？",
-          sub: "ことばと感情の力が満ち、ゴイモンが豊かな表現の姿へと近づいています。",
-          lines: [
-            "ことばの流れが、ゴイモンの周りを舞っている…",
-            "想いをのせた光が、ひとつに紡がれていく…！",
-            "表現の力が、新たな姿を描き出す――"
-          ]
-        };
-      case "hibiki":
-        return {
-          themeClass: "theme-hibiki",
-          lead: "あれ、知と響きが共鳴している…！？",
-          sub: "知性と音感が重なり、新しい共鳴の姿へ近づいています。",
-          lines: [
-            "知の火花と響きの波が、同時に広がっていく…",
-            "思考と音がひとつに重なり始めた…！",
-            "共鳴の力が、新しい姿を呼び起こす――"
-          ]
-        };
-      case "kotonoha":
-        return {
-          themeClass: "theme-kotonoha",
-          lead: "あれ、ことばの葉が舞っている…！？",
-          sub: "ことばと文脈の力が満ち、美しい言霊の姿へ近づいています。",
-          lines: [
-            "ことばの葉が、静かに舞い上がっていく…",
-            "文の流れが、美しい形を取り始めた…！",
-            "言霊の力が、新しい姿を描き出す――"
-          ]
-        };
-      case "nagomi":
-      default:
-        return {
-          themeClass: "theme-nagomi",
-          lead: "あれ、やさしい光に包まれている…！？",
-          sub: "学びの力がやわらかく満ち、ゴイモンが静かに進化の時を迎えています。",
-          lines: [
-            "やわらかな光が、ゴイモンを包みこんでいく…",
-            "あたたかな輝きが、少しずつ強くなる…！",
-            "新たな守りの姿が、まもなく現れる――"
-          ]
-        };
-    }
   }
 
   let state = safeParse(STATE_KEY) || {
@@ -480,136 +362,57 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderEvolutionNotice() {
-    if (!window.GoimonUI || typeof window.GoimonUI.loadCurrent !== "function") return;
-    const g = window.GoimonUI.loadCurrent();
-    if (!g) return;
-
-    if (g.pendingEvolution) {
-      evolutionNoticeBtn.classList.remove("hidden");
-    } else {
-      evolutionNoticeBtn.classList.add("hidden");
-    }
+    if (!window.GoimonUI) return;
+    window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
   }
 
-  function renderStudyGoimonStatus() {
-    if (!window.GoimonUI || typeof window.GoimonUI.loadCurrent !== "function") return;
-
-    const g = window.GoimonUI.loadCurrent();
+  function renderStudyGoimonMini() {
+    const g = window.GoimonUI?.loadCurrent?.();
     if (!g) return;
 
-    const displayName = getDisplayName(g.type, g.stage);
-    const stageLabel = getStageLabel(g.stage);
-    const typeLabel = g.typeLabel || "なごみ系";
-    const chie = g.stats?.chie || 0;
+    const stageMap = {
+      egg: "たまご期",
+      child: "幼体",
+      growth: "成長体",
+      mid: "中級体",
+      final: "上級体"
+    };
 
-    if (goimonMiniImageEl) {
-      goimonMiniImageEl.src = g.imageKey || "images/goimon/goimon_egg.png";
-      goimonMiniImageEl.alt = displayName;
+    const descMap = {
+      nagomi: "バランスよく育つ、やさしい守護神獣タイプ。",
+      hirameki: "知性とひらめきが伸びる、啓示神獣タイプ。",
+      tsumugi: "ことばと感情があふれる、表現神獣タイプ。",
+      yomitoki: "読む・見抜く力が育つ、解読神獣タイプ。",
+      shirabe: "音・響き・共鳴をまとう、音楽神獣タイプ。",
+      hibiki: "知性と音感が響き合う、共鳴神獣タイプ。",
+      kotonoha: "ことばと文脈を束ねる、言霊神獣タイプ。",
+      mr_uno: "特別に解放された、学びを導く隠しルート。"
+    };
+
+    const stageLabel = stageMap[g.stage] || "たまご期";
+    const displayName = window.GoimonUI?.getGoimonPrimaryName
+      ? window.GoimonUI.getGoimonPrimaryName(g)
+      : (g.nickname || "ゴイモン");
+
+    const pt = Number(g.totalPoints || 0);
+    const ptText = Number.isInteger(pt) ? String(pt) : pt.toFixed(1);
+
+    if (studyGoimonStageEl) studyGoimonStageEl.textContent = stageLabel;
+    if (studyGoimonNameEl) studyGoimonNameEl.textContent = displayName;
+    if (studyGoimonMetaEl) studyGoimonMetaEl.textContent = `Lv ${g.level} / ${ptText} pt`;
+    if (studyGoimonDescEl) {
+      studyGoimonDescEl.textContent =
+        g.stage === "egg" && g.specialRoute === "mr_uno"
+          ? "隠し分岐を選択中です。次の進化から MR.UNO として育ちます。"
+          : (descMap[g.type] || "学習に応じて成長し、進化していきます。");
     }
 
-    if (goimonMiniNameEl) {
-      goimonMiniNameEl.textContent = displayName;
-    }
-
-    if (goimonMiniMetaEl) {
-      goimonMiniMetaEl.textContent = `Lv${g.level}｜${stageLabel}｜${typeLabel}`;
-    }
-
-    if (goimonChieValueEl) {
-      goimonChieValueEl.textContent = formatPoint(chie);
+    if (studyGoimonImageEl) {
+      studyGoimonImageEl.src = g.imageKey || "images/goimon/goimon_egg.png";
+      studyGoimonImageEl.alt = displayName;
     }
 
     renderEvolutionNotice();
-  }
-
-  function clearEvolutionTimers() {
-    evolutionTimers.forEach(id => clearTimeout(id));
-    evolutionTimers = [];
-  }
-
-  function resetEvolutionModalVisual() {
-    clearEvolutionTimers();
-    evoFlash.classList.remove("show");
-    evoImageWrap.classList.remove("flash", "reveal");
-    evolutionResultName.textContent = "";
-    evolutionResultName.classList.remove("show");
-    evolutionConfirmBtn.disabled = false;
-    evolutionCloseBtn.disabled = false;
-  }
-
-  function openEvolutionModal() {
-    if (!window.GoimonUI || typeof window.GoimonUI.loadCurrent !== "function") return;
-    const g = window.GoimonUI.loadCurrent();
-    if (!g || !g.pendingEvolution) return;
-
-    resetEvolutionModalVisual();
-
-    const theme = getEvolutionTheme(g.pendingType || g.type || "nagomi");
-    evolutionModal.className = `modalBackdrop show ${theme.themeClass}`;
-    evoLead.textContent = theme.lead;
-    evoSub.textContent = theme.sub;
-    evolutionImage.src = g.imageKey || "images/goimon/goimon_egg.png";
-    evolutionImage.alt = "進化前のゴイモン";
-    evolutionPhaseText.textContent = theme.lines[0];
-    evolutionResultName.textContent = "";
-  }
-
-  function closeEvolutionModal() {
-    evolutionModal.classList.remove("show");
-    resetEvolutionModalVisual();
-  }
-
-  function playEvolutionSequence() {
-    if (!window.GoimonUI || typeof window.GoimonUI.loadCurrent !== "function") return;
-
-    const before = window.GoimonUI.loadCurrent();
-    if (!before || !before.pendingEvolution) return;
-
-    const theme = getEvolutionTheme(before.pendingType || before.type || "nagomi");
-    const pendingName = getDisplayName(before.pendingType, before.pendingStage);
-
-    resetEvolutionModalVisual();
-    evolutionConfirmBtn.disabled = true;
-    evolutionCloseBtn.disabled = true;
-
-    evolutionPhaseText.textContent = theme.lines[0];
-
-    evolutionTimers.push(setTimeout(() => {
-      evolutionPhaseText.textContent = theme.lines[1];
-      evoImageWrap.classList.add("flash");
-    }, 700));
-
-    evolutionTimers.push(setTimeout(() => {
-      evoFlash.classList.add("show");
-      evolutionPhaseText.textContent = theme.lines[2];
-    }, 1500));
-
-    evolutionTimers.push(setTimeout(() => {
-      evolutionImage.src = before.pendingImageKey || before.imageKey || "images/goimon/goimon_egg.png";
-      evolutionImage.alt = pendingName;
-      evoImageWrap.classList.remove("flash");
-      evoImageWrap.classList.add("reveal");
-    }, 1830));
-
-    evolutionTimers.push(setTimeout(() => {
-      evoFlash.classList.remove("show");
-      const after = window.GoimonUI.confirmEvolution();
-      const newName = getDisplayName(after.type, after.stage);
-      evolutionResultName.textContent = `${newName} に進化した！`;
-      evolutionResultName.classList.add("show");
-      evolutionPhaseText.textContent = "新たな力が、その身に宿った！";
-      renderStudyGoimonStatus();
-    }, 2200));
-
-    evolutionTimers.push(setTimeout(() => {
-      evolutionConfirmBtn.disabled = false;
-      evolutionCloseBtn.disabled = false;
-    }, 2900));
-
-    evolutionTimers.push(setTimeout(() => {
-      closeEvolutionModal();
-      renderCurrent();
-    }, 3600));
   }
 
   function renderCurrent() {
@@ -626,11 +429,11 @@ document.addEventListener("DOMContentLoaded", () => {
     wordEl.textContent = w.en;
 
     if (state.meaningShown) {
-      meaningEl.classList.remove("hidden");
+      meaningEl.classList.remove("meaningInvisible");
       meaningEl.textContent = w.ja;
       unifiedBtn.textContent = "次へ";
     } else {
-      meaningEl.classList.add("hidden");
+      meaningEl.classList.add("meaningInvisible");
       meaningEl.textContent = w.ja;
       unifiedBtn.textContent = "意味を見る";
     }
@@ -640,7 +443,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateBlockInfo();
     renderProgress();
     renderGoimonPanelState();
-    renderStudyGoimonStatus();
+    renderStudyGoimonMini();
   }
 
   function goNext() {
@@ -680,7 +483,9 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {
       console.warn("Goimon addStudyProgress failed:", e);
     }
-    renderStudyGoimonStatus();
+
+    renderStudyGoimonMini();
+    renderEvolutionNotice();
   }
 
   function completeOneStudyWord() {
@@ -771,30 +576,21 @@ document.addEventListener("DOMContentLoaded", () => {
     renderGoimonPanelState();
   });
 
-  evolutionNoticeBtn.addEventListener("click", () => {
-    openEvolutionModal();
-  });
-
-  evolutionCloseBtn.addEventListener("click", () => {
-    closeEvolutionModal();
-  });
-
-  evolutionConfirmBtn.addEventListener("click", () => {
-    playEvolutionSequence();
-  });
-
-  evolutionModal.addEventListener("click", (e) => {
-    if (e.target === evolutionModal) {
-      closeEvolutionModal();
-    }
-  });
-
   if (levelBadgeEl) {
     levelBadgeEl.textContent = `現在：全商英検 ${lv}級（暗記）`;
   }
 
   if (window.GoimonUI && typeof window.GoimonUI.ensureCurrent === "function") {
     window.GoimonUI.ensureCurrent();
+  }
+
+  if (window.GoimonUI) {
+    window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
+    window.GoimonUI.bindEvolutionNoticeButton("evolutionNoticeBtn", {
+      onComplete: () => {
+        renderCurrent();
+      }
+    });
   }
 
   if (state.idx < 0) state.idx = 0;
