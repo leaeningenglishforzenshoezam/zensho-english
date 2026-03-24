@@ -119,8 +119,11 @@ document.addEventListener("DOMContentLoaded", () => {
     [evolutionNoticeBtn, "evolutionNoticeBtn"]
   ].forEach(([el, id]) => must(el, id));
 
-  const fixedRaw = window.SENTENCE_FIXED || [];
   const lv = String(window.ACTIVE_LEVEL || localStorage.getItem("zensho_level_v1") || "1");
+  const fixedRaw = (lv === "2")
+    ? (window.SENTENCE_FIXED_2KYU || [])
+    : (window.SENTENCE_FIXED_1KYU || []);
+    
   const GOIMON_UI_KEY = `zensho_sentence_goimon_ui_v1_lv${lv}`;
   const GLOBAL_BLOCK_KEY = `zensho_block_global_lv${lv}_v1`;
 
