@@ -83,9 +83,8 @@
     <div class="card">
       <h1>語彙学習</h1>
       <p class="sub">
-        このアプリでは、暗記・英→日・日→英・音声・アクセント・大問9を使って語彙力を広く育てます。<br>
-    
-      </p>
+  このアプリでは、暗記・英→日・日→英・音声・アクセント・大問9・並び替え問題 を使って語彙力を広く育てます。<br>
+</p>
       </p>
 
       <button class="btn primary" id="goWordList">▶ 単語一覧（番号つき）</button>
@@ -95,6 +94,7 @@
       <button class="btn primary" id="goAudioQuiz">▶ 音声→意味クイズ</button>
       <button class="btn primary" id="goAccent">▶ 大問1演習（アクセント）</button>
       <button class="btn primary" id="goSentence">▶ 大問9演習（例文穴埋め）</button>
+      <button class="btn primary" id="goReorder">▶ 大問12演習（語句整序）</button>
       <button class="btn primary" id="goProgress">▶ ブロック進捗を見る</button>
 
       <div class="row">
@@ -128,7 +128,7 @@
       <div class="sectionTitle" style="margin-top:14px;">学習ログ</div>
       <div class="logList" id="logList"></div>
       <div class="mutedSmall">
-        ※ 内訳は「英→日 / 日→英 / 大問9 / アクセント」です。
+        ※ 内訳は「英→日 / 日→英 / 音声→意味 / 大問9 / アクセント / 語句整序」です。
       </div>
     </div>
 
@@ -558,45 +558,76 @@
       statNote.textContent = "※ 弱点・履歴・暗記の続き位置は「この級」だけの集計です（1級/2級で別保存）。";
 
       const logObj = readLog();
-      const t = todayKey();
+const t = todayKey();
 
-      const todaySum = sumLogRange(logObj, 1);
-      const weekSum = sumLogRange(logObj, 7);
+const todaySum = sumLogRange(logObj, 1);
+const weekSum = sumLogRange(logObj, 7);
 
-      const todayEnja = sumLogRangeForCategory(logObj, 1, "quiz_enja");
-      const todayJaen = sumLogRangeForCategory(logObj, 1, "quiz_jaen");
-      const todaySen  = sumLogRangeForCategory(logObj, 1, "sentence");
-      const todayAcc  = sumLogRangeForCategory(logObj, 1, "accent");
+const todayEnja   = sumLogRangeForCategory(logObj, 1, "quiz_enja");
+const todayJaen   = sumLogRangeForCategory(logObj, 1, "quiz_jaen");
+const todayAudio  = sumLogRangeForCategory(logObj, 1, "audio_quiz");
+const todaySen    = sumLogRangeForCategory(logObj, 1, "sentence");
+const todayAcc    = sumLogRangeForCategory(logObj, 1, "accent");
+const todayReo    = sumLogRangeForCategory(logObj, 1, "reorder");
 
-      const weekEnja = sumLogRangeForCategory(logObj, 7, "quiz_enja");
-      const weekJaen = sumLogRangeForCategory(logObj, 7, "quiz_jaen");
-      const weekSen  = sumLogRangeForCategory(logObj, 7, "sentence");
-      const weekAcc  = sumLogRangeForCategory(logObj, 7, "accent");
+const weekEnja    = sumLogRangeForCategory(logObj, 7, "quiz_enja");
+const weekJaen    = sumLogRangeForCategory(logObj, 7, "quiz_jaen");
+const weekAudio   = sumLogRangeForCategory(logObj, 7, "audio_quiz");
+const weekSen     = sumLogRangeForCategory(logObj, 7, "sentence");
+const weekAcc     = sumLogRangeForCategory(logObj, 7, "accent");
+const weekReo     = sumLogRangeForCategory(logObj, 7, "reorder");
 
-      const logList = document.getElementById("logList");
-      logList.innerHTML = "";
+const logList = document.getElementById("logList");
+logList.innerHTML = "";
 
-      const mkRow = (left, right) => {
-        const div = document.createElement("div");
-        div.className = "logRow";
-        const l = document.createElement("div");
-        l.className = "logLeft";
-        l.textContent = left;
-        const r = document.createElement("div");
-        r.className = "logRight";
-        r.textContent = right;
-        div.appendChild(l);
-        div.appendChild(r);
-        return div;
-      };
+const mkRow = (left, right) => {
+  const div = document.createElement("div");
+  div.className = "logRow";
+  const l = document.createElement("div");
+  l.className = "logLeft";
+  l.textContent = left;
+  const r = document.createElement("div");
+  r.className = "logRight";
+  r.textContent = right;
+  div.appendChild(l);
+  div.appendChild(r);
+  return div;
+};
 
-      const fmtBreak = (a,b,c,d) => `英→日 ${a} / 日→英 ${b} / 大問9 ${c} / アク ${d}`;
+const fmtBreak = (a,b,c,d,e,f) =>
+  `英→日 ${a} / 日→英 ${b} / 音→意 ${c} / 大問9 ${d} / アク ${e} / 整序 ${f}`;
 
-      logList.appendChild(mkRow(`今日（${t}）の解答数`, `${todaySum.attempt} 回`));
-      logList.appendChild(mkRow(`今日の内訳（回数）`, fmtBreak(todayEnja.attempt, todayJaen.attempt, todaySen.attempt, todayAcc.attempt)));
-      logList.appendChild(mkRow(`直近7日間の解答数`, `${weekSum.attempt} 回`));
-      logList.appendChild(mkRow(`直近7日間の内訳（回数）`, fmtBreak(weekEnja.attempt, weekJaen.attempt, weekSen.attempt, weekAcc.attempt)));
-      logList.appendChild(mkRow(`直近7日間の正解率（合計）`, fmtRate(weekSum)));
+logList.appendChild(mkRow(`今日（${t}）の解答数`, `${todaySum.attempt} 回`));
+logList.appendChild(
+  mkRow(
+    `今日の内訳（回数）`,
+    fmtBreak(
+      todayEnja.attempt,
+      todayJaen.attempt,
+      todayAudio.attempt,
+      todaySen.attempt,
+      todayAcc.attempt,
+      todayReo.attempt
+    )
+  )
+);
+
+logList.appendChild(mkRow(`直近7日間の解答数`, `${weekSum.attempt} 回`));
+logList.appendChild(
+  mkRow(
+    `直近7日間の内訳（回数）`,
+    fmtBreak(
+      weekEnja.attempt,
+      weekJaen.attempt,
+      weekAudio.attempt,
+      weekSen.attempt,
+      weekAcc.attempt,
+      weekReo.attempt
+    )
+  )
+);
+
+logList.appendChild(mkRow(`直近7日間の正解率（合計）`, fmtRate(weekSum)));
     }
 
     function clearGoimonDetailAnimationClasses(img) {
@@ -821,6 +852,7 @@
     document.getElementById("goQuiz").addEventListener("click", () => { location.href = "quiz.html"; });
     document.getElementById("goQuizJaEn").addEventListener("click", () => { location.href = "quiz_jaen.html"; });
     document.getElementById("goAudioQuiz").addEventListener("click", () => { location.href = "audio_quiz.html"; });
+    document.getElementById("goReorder").addEventListener("click", () => { location.href = "reorder.html"; });
     document.getElementById("goProgress").addEventListener("click", () => { location.href = "progress.html"; });
     document.getElementById("goSentence").addEventListener("click", () => { location.href = "sentence.html"; });
     document.getElementById("goAccent").addEventListener("click", () => { location.href = "accent.html"; });
@@ -843,6 +875,25 @@
     if (window.GoimonDexUI && window.GoimonDexUI.init) {
       window.GoimonDexUI.init();
     }
+
+    window.addEventListener("pageshow", () => {
+  updateStatus();
+  renderLevel();
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) {
+    updateStatus();
+    renderLevel();
+  }
+});
+
+window.addEventListener("focus", () => {
+  updateStatus();
+  renderLevel();
+});
+
+
   </script>
 </body>
 </html>
