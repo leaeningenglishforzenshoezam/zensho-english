@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>語句整序演習（全商英検）</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
+      background:#f7f7f7;
+      margin:0;
+      color:#111;
+    }
+    
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px 12px 24px;
+    }
+
+    .card {
+      background:#fff;
+      border:1px solid #ddd;
+      border-radius:12px;
+      padding:14px;
+      margin: 12px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .muted {
+      color:#666;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .row {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:space-between;
+    }
+
+    button {
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid #ddd;
+      background:#fff;
+      cursor:pointer;
+    }
+
+    button.primary {
+      background:#2b7cff;
+      border-color:#2b7cff;
+      color:#fff;
+      font-weight:700;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .ok { color:#0a7a2f; font-weight:700; }
+    .ng { color:#b00020; font-weight:700; }
+
+    .hr {
+      height:1px;
+      background:#eee;
+      margin:12px 0;
+    }
+
+    select, input[type="number"] {
+      padding:10px 10px;
+      border-radius:10px;
+      border:1px solid #ddd;
+      font-size: 16px;
+    }
+
+    .topNavBox {
+      margin-bottom: 12px;
+    }
+
+    .topNavTitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .topNav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .topNav a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      color: #111;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .topNav a.active {
+      background: #eaf2ff;
+      border-color: #2b7cff;
+      color: #1251b5;
+      font-weight: 700;
+    }
+
+    #levelBadge {
+      font-size:14px;
+      color:#555;
+      margin: 6px 0 10px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .goimonToggleBox {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .goimonToggleBtn {
+      background: #f9fbff;
+      border: 1px solid #d6e5ff;
+      color: #234f97;
+      font-weight: 700;
+    }
+
+    .evoNoticeBtn {
+      background: linear-gradient(180deg, #fff6d6 0%, #ffe8a3 100%);
+      border: 1px solid #f1d48a;
+      color: #7a5200;
+      font-weight: 900;
+      position: relative;
+      animation: noticePulse 1.8s ease-in-out infinite;
+      box-shadow: 0 0 0 rgba(255, 214, 102, 0.0);
+    }
+
+    .evoNoticeBtn::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 14px;
+      border: 2px solid rgba(255, 214, 102, 0.35);
+      animation: noticeRing 1.8s ease-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes noticePulse {
+      0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(255,214,102,0); }
+      50% { transform: translateY(-1px) scale(1.02); box-shadow: 0 6px 18px rgba(255,214,102,0.35); }
+    }
+
+    @keyframes noticeRing {
+      0% { transform: scale(0.96); opacity: 0.75; }
+      100% { transform: scale(1.12); opacity: 0; }
+    }
+
+    .miniGoimonCard {
+      border: 1px solid #f0e3c7;
+      background: #fffaf2;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .miniGoimonHead {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .miniGoimonTitle {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .miniGoimonSub {
+      font-size: 12px;
+      color: #666;
+      margin: 4px 0 0;
+      line-height: 1.4;
+    }
+
+    .miniGoimonStage {
+      text-align: right;
+      flex: 0 0 auto;
+    }
+
+    .miniGoimonStageLabel {
+      font-size: 11px;
+      color: #8a6a2d;
+      margin-bottom: 2px;
+    }
+
+    .miniGoimonStageValue {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .miniGoimonBody {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .miniGoimonImageWrap {
+      width: 88px;
+      height: 88px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid #eddcb8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    .miniGoimonImageWrap img {
+      max-width: 76px;
+      max-height: 76px;
+      display: block;
+    }
+
+    .miniGoimonInfo {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .miniGoimonName {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0 0 4px;
+    }
+
+    .miniGoimonMeta {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    .miniGoimonDesc {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .goimonPointGuide {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .bonusRow {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    .bonusBtn {
+      font-size: 14px;
+      font-weight: 700;
+      background: #fff;
+    }
+
+    .bonusBtn.active {
+      background: #eaf2ff;
+      border-color: #2b7cff;
+      color: #1251b5;
+    }
+
+    #questionLine {
+      font-size: 22px;
+      line-height: 1.7;
+      word-break: break-word;
+    }
+
+    #qMeta, #stats {
+      font-size: 14px;
+    }
+
+    .answerAreaWrap,
+    .bankAreaWrap {
+      margin-top: 14px;
+    }
+
+    .sectionTitle {
+      font-size: 13px;
+      color: #666;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .answerSlots {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      min-height: 52px;
+    }
+
+    .slotCard {
+      min-height: 44px;
+      min-width: 88px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px dashed #cfcfcf;
+      background: #fafafa;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 17px;
+    }
+
+    .slotCard.filled {
+      border-style: solid;
+      background: #eef6ff;
+      border-color: #b7d3ff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .chunkBank {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chunkBtn {
+      font-size: 17px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      background: #fff;
+    }
+
+    .chunkBtn.used {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    #hintArea {
+      font-size: 15px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      margin-top: 12px;
+    }
+
+    #result {
+      font-size: 18px;
+      margin-top: 12px;
+    }
+
+    #detail {
+      margin-top: 12px;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .detailBlock {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      background: #fafafa;
+    }
+
+    .detailLabel {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .detailText {
+      font-size: 15px;
+      color: #111;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .grammarTagWrap {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+
+    .grammarTagBtn {
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid #d6e4ff;
+      background: #f0f4ff;
+      color: #2b5fc7;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .grammarTagBtn.active {
+      background: #2b7cff;
+      color: #fff;
+      border-color: #2b7cff;
+    }
+
+    .grammarCard {
+      margin-top: 12px;
+      border: 1px solid #dfe7f8;
+      background: #f8fbff;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .grammarCardTitle {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .grammarCardSection {
+      margin-top: 10px;
+    }
+
+    .grammarCardLabel {
+      font-size: 12px;
+      color: #5b6b8a;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .grammarCardText {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #111;
+      white-space: pre-wrap;
+    }
+
+    .summaryWrongItem {
+      border-top: 1px solid #eee;
+      padding: 12px 0;
+    }
+
+    .summaryWrongItem:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+    .problemListHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.problemListItem {
+  border-top: 1px solid #eee;
+  padding: 14px 0;
+}
+
+.problemListItem:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.problemListNo {
+  font-size: 14px;
+  font-weight: 800;
+  color: #234f97;
+  margin-bottom: 6px;
+}
+
+.problemListQuestion {
+  font-size: 18px;
+  line-height: 1.7;
+  margin-bottom: 6px;
+}
+
+.problemListJa {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.problemListBtnRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.problemListDetail {
+  display: none;
+  margin-top: 8px;
+}
+
+.tagListHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tagListItem {
+  border-top: 1px solid #eee;
+  padding: 14px 0;
+}
+
+.tagListItem:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.tagListName {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.tagListMeta {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.tagListBtnRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.tagListDetail {
+  display: none;
+  margin-top: 8px;
+}
+
+.tagListDetail.open {
+  display: block;
+}
+
+.tagQuestionList {
+  margin-top: 10px;
+}
+
+.tagQuestionItem {
+  border-top: 1px solid #eee;
+  padding: 10px 0;
+}
+
+.tagQuestionItem:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.problemListDetail.open {
+  display: block;
+}
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    @media (max-width: 520px) {
+      .miniGoimonBody {
+        align-items: flex-start;
+      }
+
+      #questionLine {
+        font-size: 20px;
+      }
+
+      .chunkBtn,
+      .slotCard {
+        font-size: 16px;
+      }
+    }
+
+  .weakBtnActive {
+  background: #fff0f4;
+  border-color: #f2a0b5;
+  color: #ad3159;
+  font-weight: 700;
+}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="card topNavBox">
+      <div class="topNavTitle">学習ページ移動</div>
+      <div class="topNav">
+        <a href="index.html">ホーム</a>
+        <a href="study.html">暗記</a>
+        <a href="quiz.html">英→日</a>
+        <a href="quiz_jaen.html">日→英</a>
+        <a href="audio_quiz.html">音声→意味</a>
+        <a href="accent.html">アクセント</a>
+        <a href="sentence.html">大問9</a>
+        <a href="reorder.html" class="active">語句整序</a>
+        <a href="list.html">一覧</a>
+        <a href="progress.html">進捗</a>
+      </div>
+    </div>
+
+    <div id="levelBadge"></div>
+
+    <div class="goimonToggleBox">
+      <button id="toggleGoimon" type="button" class="goimonToggleBtn">ゴイモンの様子を見る</button>
+      <button id="evolutionNoticeBtn" type="button" class="evoNoticeBtn hidden">あれ、ゴイモンの様子が…！？</button>
+    </div>
+
+    <div id="goimonCard" class="miniGoimonCard hidden">
+      <div class="miniGoimonHead">
+        <div>
+          <div class="miniGoimonTitle">現在のゴイモン</div>
+          <div class="miniGoimonSub">語句整序の正解で「ぶんみゃく +0.5」に加えて、選んだボーナス先も +1.5 されます。</div>
+        </div>
+        <div class="miniGoimonStage">
+          <div class="miniGoimonStageLabel">現在の段階</div>
+          <div class="miniGoimonStageValue" id="reorderGoimonStage">たまご期</div>
+        </div>
+      </div>
+
+      <div class="miniGoimonBody">
+        <div class="miniGoimonImageWrap">
+          <img id="reorderGoimonImage" src="images/goimon/goimon_egg.png" alt="ゴイモン" />
+        </div>
+        <div class="miniGoimonInfo">
+          <div class="miniGoimonName" id="reorderGoimonName">なごみ系のたまご</div>
+          <div class="miniGoimonMeta" id="reorderGoimonMeta">Lv 1 / 0 pt</div>
+          <div class="miniGoimonDesc" id="reorderGoimonDesc">まずは学習してゴイモンを育てよう。</div>
+        </div>
+      </div>
+
+      <div class="goimonPointGuide" id="reorderPointGuide">
+        正解：ぶんみゃく +0.5 ＋ ぶんみゃく +1.5
+      </div>
+
+      <div class="bonusRow" id="bonusStatButtons">
+        <button type="button" class="bonusBtn" data-stat="chie">ボーナス先：ちえ</button>
+        <button type="button" class="bonusBtn" data-stat="kotoba">ボーナス先：ことば</button>
+        <button type="button" class="bonusBtn" data-stat="onkan">ボーナス先：おんかん</button>
+        <button type="button" class="bonusBtn" data-stat="bunmyaku">ボーナス先：ぶんみゃく</button>
+      </div>
+    </div>
+
+    <div class="card" id="setupBox">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:700;">語句整序演習</div>
+          <div class="muted" style="margin-top:4px;">
+            英文だけを見て、4つの語句カードを正しい順に並べます。日本語訳は答え合わせ後に表示されます。
+          </div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="row" style="justify-content:flex-start;">
+        <div>
+          <div class="muted">問題数</div>
+          <input id="countInput" type="number" min="1" step="1" value="10" style="width:120px;" />
+        </div>
+
+        <div>
+          <div class="muted">出題順</div>
+          <select id="orderMode">
+           <option value="start">先頭から</option>
+           <option value="continue" selected>続きから</option>
+           <option value="random">ランダム</option>
+           <option value="weak">苦手順</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="muted" id="poolInfo" style="margin-top:10px;"></div>
+
+      <div class="row" style="justify-content:flex-start; margin-top:12px;">
+  <button id="startBtn" class="primary" type="button">開始</button>
+  <button id="openProblemListBtn" type="button">問題一覧を見る</button>
+  <button id="openGrammarTagListBtn" type="button">文法タグ一覧</button>
+</div>
+    </div>
+
+    <div class="card" id="problemListBox" style="display:none;">
+  <div class="problemListHead">
+    <div>
+      <div style="font-size:18px; font-weight:700;">問題一覧</div>
+      <div class="muted" style="margin-top:4px;">
+        虫食い英文と日本語訳を見ながら確認できます。必要なら正解と解説を開けます。
+      </div>
+    </div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button id="problemListBackBtn" type="button">設定へ戻る</button>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <div id="problemListEmpty" class="muted" style="display:none;">表示できる問題がありません。</div>
+  <div id="problemList"></div>
+</div>
+
+<div class="card" id="grammarTagListBox" style="display:none;">
+  <div class="tagListHead">
+    <div>
+      <div style="font-size:18px; font-weight:700;">文法タグ一覧</div>
+      <div class="muted" style="margin-top:4px;">
+        タグの説明を見たり、そのタグが付いた問題に飛んだりできます。
+      </div>
+    </div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button id="grammarTagListBackBtn" type="button">設定へ戻る</button>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <div id="grammarTagListEmpty" class="muted" style="display:none;">表示できるタグがありません。</div>
+  <div id="grammarTagList"></div>
+</div>
+
+    <div class="card" id="playBox" style="display:none;">
+      <div class="row">
+        <div id="stats" class="muted"></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button id="hintBtn" type="button">ヒント</button>
+          <button id="resetBtn" type="button">並びをリセット</button>
+          <button id="manualWeakBtn" type="button">苦手に追加</button>
+          <button id="checkBtn" class="primary" type="button">答え合わせ</button>
+          <button id="nextBtn" class="primary" type="button" disabled>次へ</button>
+          <button id="backBtn" type="button">設定へ戻る</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div id="questionLine">読み込み中…</div>
+      <div id="qMeta" class="muted" style="margin-top:8px;"></div>
+
+      <div id="hintArea" class="hidden"></div>
+
+      <div class="answerAreaWrap">
+        <div class="sectionTitle">解答欄（タップで戻せます）</div>
+        <div id="answerSlots" class="answerSlots"></div>
+      </div>
+
+      <div class="bankAreaWrap">
+        <div class="sectionTitle">語句カード</div>
+        <div id="chunkBank" class="chunkBank"></div>
+      </div>
+
+      <div id="result"></div>
+      <div id="detail"></div>
+    </div>
+
+    <div class="card" id="summaryBox" style="display:none;">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:700;">今回の結果</div>
+          <div class="muted" id="summaryLine" style="margin-top:4px;"></div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button id="continueBtn" class="primary" type="button">続き（次セット）</button>
+          <button id="summaryBackBtn" type="button">設定へ戻る</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div id="wrongEmpty" class="muted" style="display:none;">全問正解です！</div>
+      <div id="wrongList"></div>
+    </div>
+
+  </div>
+
+  <script>
+    window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
+  </script>
+
+  <script src="goimon_dialogues.js"></script>
+  <script src="goimon_dex.js"></script>
+  <script src="goimon_rules.js"></script>
+  <script src="goimon.js"></script>
+
+  <script src="grammar_cards.js"></script>
+  <script src="reorder_1kyu.js"></script>
+
+  <audio id="evolutionAudio" src="audio/evolution.mp3" preload="auto"></audio>
+
+  <div id="evoOverlay" class="evoOverlay hidden">
+    <div class="evoCenter">
+      <div class="evoFlash"></div>
+      <div id="evoShock" class="evoShock"></div>
+
+      <div class="evoImageStage">
+        <img id="evoGoimonBefore" src="" class="evoGoimon evoBefore" alt="進化前ゴイモン" />
+        <img id="evoGoimonAfter" src="" class="evoGoimon evoAfter evoHidden" alt="進化後ゴイモン" />
+      </div>
+
+      <div id="evoText1" class="evoText evoHidden">✨進化！✨</div>
+      <div id="evoText2" class="evoTextSub evoHidden"></div>
+
+      <button id="evoSkipBtn" class="evoSkip">スキップ</button>
+    </div>
+  </div>
+
+  <script src="reorder.js"></script>
+</body>
+</html>
