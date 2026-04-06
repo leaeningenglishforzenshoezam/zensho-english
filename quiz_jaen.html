@@ -364,6 +364,46 @@
       font-weight: 700;
     }
 
+        .sectionCard {
+      border: 1px solid #eee;
+      border-radius: 12px;
+      background: #fafafa;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .sectionTitle {
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .actionRow {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .actionRow button {
+      margin-top: 0;
+    }
+
+    .summaryBlock {
+      border: 1px solid #eee;
+      border-radius: 12px;
+      background: #fafafa;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .summaryBlockTitle {
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
     @media (max-width: 480px) {
       .wrap {
         padding: 12px 10px 24px;
@@ -390,13 +430,15 @@
 
   <div class="card topNavBox">
     <div class="topNavTitle">学習ページ移動</div>
-    <div class="topNav">
+       <div class="topNav">
       <a href="index.html">ホーム</a>
       <a href="study.html">暗記</a>
       <a href="quiz.html">英→日</a>
       <a href="quiz_jaen.html" class="active">日→英</a>
-      <a href="accent.html">アクセント</a>
+      <a href="audio_quiz.html">音声→意味</a>
+      <a href="accent.html">大問1</a>
       <a href="sentence.html">大問9</a>
+      <a href="reorder.html">大問12</a>
       <a href="list.html">一覧</a>
       <a href="progress.html">進捗</a>
     </div>
@@ -445,50 +487,66 @@
 
   <div id="setupBox" class="card">
     <div id="settingsArea">
-      <div style="font-weight:bold; margin-bottom:8px;">出題設定（日→英）</div>
-
-      <div class="rowStart" style="margin-bottom:10px;">
-        <label style="font-weight:600;">Block:</label>
-        <select id="blockSelect"></select>
-        <button id="applyBlock" type="button">このBlockを範囲に反映</button>
+      <div style="font-size:18px; font-weight:800; margin-bottom:4px;">出題設定（日→英）</div>
+      <div class="muted" style="margin-bottom:12px;">
+        範囲・問題数・出題モードを選んで開始できます。
       </div>
 
-      <div id="blockStats" class="muted" style="margin-bottom:10px;"></div>
+      <div class="sectionCard">
+        <div class="sectionTitle">範囲設定</div>
 
-      <div style="margin-bottom:10px;">
-        <label>出題範囲（番号）:</label><br>
-        <input id="rangeStart" type="number" min="1" value="1" style="width:90px;"> 〜
-        <input id="rangeEnd" type="number" min="1" value="144" style="width:90px;">
-      </div>
+        <div class="rowStart" style="margin-bottom:10px;">
+          <div style="font-weight:600;">Block</div>
+          <select id="blockSelect"></select>
+          <button id="applyBlock" type="button">このBlockを範囲に反映</button>
+        </div>
 
-      <div style="margin-bottom:10px;">
-        <label>出題数:</label><br>
-        <input id="limitCount" type="number" min="1" value="10" style="width:90px;"> 問
-      </div>
+        <div id="blockStats" class="muted" style="margin-bottom:10px;"></div>
 
-      <div style="margin-bottom:10px;">
-        <label>出題モード:</label><br>
-        <select id="modeSelect">
-          <option value="order">順番に出題（続きから）</option>
-          <option value="random">ランダムで出題</option>
-          <option value="weak">ニガテ順に出題</option>
-        </select>
-      </div>
-
-      <div style="margin-bottom:10px;">
-        <button id="resetOrderCursor" type="button">🔄 順番モードの続きからをリセット</button>
-        <div class="muted" style="margin-top:6px;">
-          ※今の出題範囲（番号）に対して、順番の開始位置を先頭に戻します。
+        <div>
+          <div class="muted">出題範囲（番号）</div>
+          <div style="margin-top:4px;">
+            <input id="rangeStart" type="number" min="1" value="1" style="width:90px;"> 〜
+            <input id="rangeEnd" type="number" min="1" value="144" style="width:90px;">
+          </div>
         </div>
       </div>
 
-      <div style="margin-bottom:10px;">
-        <label>
-          <input id="weakMode" type="checkbox">
-          弱点モード（間違えた単語を優先）
-        </label>
-        <button id="clearWeak" type="button" style="margin-left:8px;">弱点を全消去</button>
-        <div id="weakInfo" class="muted" style="margin-top:6px;"></div>
+      <div class="sectionCard">
+        <div class="sectionTitle">出題設定</div>
+
+        <div style="margin-bottom:10px;">
+          <div class="muted">出題数</div>
+          <div style="margin-top:4px;">
+            <input id="limitCount" type="number" min="1" value="10" style="width:90px;"> 問
+          </div>
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <div class="muted">出題モード</div>
+          <div style="margin-top:4px;">
+            <select id="modeSelect">
+              <option value="order">順番に出題（続きから）</option>
+              <option value="random">ランダムで出題</option>
+              <option value="weak">ニガテ順に出題</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <label>
+            <input id="autoSpeakQ" type="checkbox"> 解答後に自動発音
+          </label>
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <button id="resetOrderCursor" type="button">🔄 順番モードの続きからをリセット</button>
+          <div class="muted" style="margin-top:6px;">
+            ※今の出題範囲（番号）に対して、順番の開始位置を先頭に戻します。
+          </div>
+        </div>
+
+        <div id="weakInfo" class="muted"></div>
       </div>
     </div>
 
@@ -513,31 +571,36 @@
     <div id="result" style="margin-top:10px; font-size:18px;"></div>
 
     <button id="nextQ" type="button" class="btnwide nextButton" style="margin-top:12px;">次の問題</button>
-    <button id="resetQuiz" type="button" class="btnwide" style="margin-top:8px;">今回の成績リセット</button>
+    
   </div>
 
-  <div id="summaryBox" class="card" style="display:none;">
-    <div style="font-weight:700; margin-bottom:6px;">今回の結果</div>
-
-    <div id="finalScore" style="font-size:18px; margin-bottom:8px;"></div>
-    <div id="finalBlockLine" class="muted" style="margin-bottom:10px;"></div>
-
-    <div class="row" style="margin-bottom:10px;">
-      <button id="goStudyBlock" type="button">このBlockを暗記する</button>
-      <button id="goWeakReview" type="button">弱点モードで復習</button>
+   <div id="summaryBox" class="card" style="display:none;">
+    <div class="summaryBlock" style="margin-top:0;">
+      <div style="font-weight:700; margin-bottom:6px;">今回の結果</div>
+      <div id="finalScore" style="font-size:18px; margin-bottom:8px;"></div>
+      <div id="finalBlockLine" class="muted"></div>
     </div>
 
-    <div class="card">
-      <div style="font-weight:700;">今回出た単語一覧</div>
+    <div class="summaryBlock">
+      <div class="summaryBlockTitle">次の行動</div>
+
+      <div class="actionRow">
+        <button id="retrySameSet" type="button">同じ問題セットに再挑戦</button>
+        <button id="retrySameCondition" type="button">同じ設定で次へ</button>
+      </div>
+
+      <button id="backToSetup" type="button" class="btnwide">設定画面に戻る</button>
+    </div>
+
+    <div class="summaryBlock">
+      <div class="summaryBlockTitle">今回出た単語一覧</div>
       <ul id="askedList"></ul>
     </div>
 
-    <div class="card">
-      <div style="font-weight:700;">間違えた単語一覧</div>
+    <div class="summaryBlock">
+      <div class="summaryBlockTitle">間違えた単語一覧</div>
       <ul id="wrongList"></ul>
     </div>
-
-    <button id="backToSetup" type="button" class="btnwide">設定画面に戻る</button>
   </div>
 
 </div>
