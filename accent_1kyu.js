@@ -259,7 +259,7 @@
     { blockId: 5, no: 250, en: "innocent", ja: "無実の", sylRaw: "ˈin-no-cent", stress: 1, note: "" },
 
     { blockId: 6, no: 251, en: "inquire", ja: "尋ねる", sylRaw: "in-ˈquire", stress: 2, note: "" },
-    { blockId: 6, no: 252, en: "inquiry", ja: "問い合わせ", sylRaw: "in-ˈquir-y", stress: 2, note: "US発音でINにアクセントが来る場合もあるので、実際の大問１には出題されづらい" },
+    { blockId: 6, no: 252, en: "inquiry", ja: "問い合わせ", sylRaw: "in-ˈquir-y", stress: 2, note: "inにアクセントを置くことがほとんどだが、quirの部分にアクセントを置く人もおり、どちらも辞書に載っているので、テストには出ない(はず）。" },
     { blockId: 6, no: 253, en: "insist", ja: "主張する", sylRaw: "in-ˈsist", stress: 2, note: "" },
     { blockId: 6, no: 254, en: "inspect", ja: "検査する", sylRaw: "in-ˈspect", stress: 2, note: "" },
     { blockId: 6, no: 255, en: "instrument", ja: "器具", sylRaw: "ˈin-stru-ment", stress: 1, note: "" },
