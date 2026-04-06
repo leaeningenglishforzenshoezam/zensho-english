@@ -161,7 +161,7 @@ window.GoimonUI = (function () {
     };
   }
 
-  function getDefaultCurrent() {
+    function getDefaultCurrent() {
     return {
       id: `goimon_${Date.now()}`,
       generation: 1,
@@ -178,6 +178,14 @@ window.GoimonUI = (function () {
       pendingType: "",
       pendingImageKey: "",
       discoveredForms: ["egg"],
+      evolutionHistory: [
+        {
+          stage: "egg",
+          type: "nagomi",
+          imageKey: STAGE_IMAGES.egg,
+          label: "ふしぎなたまご"
+        }
+      ],
       createdAt: Date.now(),
       updatedAt: Date.now(),
       hallOfFame: false
@@ -362,6 +370,17 @@ window.GoimonUI = (function () {
       : "";
 
     out.discoveredForms = Array.isArray(out.discoveredForms) ? out.discoveredForms.slice() : ["egg"];
+        out.evolutionHistory = Array.isArray(out.evolutionHistory) ? out.evolutionHistory.slice() : [];
+    if (!out.evolutionHistory.length) {
+      out.evolutionHistory = [
+        {
+          stage: "egg",
+          type: "nagomi",
+          imageKey: STAGE_IMAGES.egg,
+          label: getBaseDisplayName("nagomi", "egg")
+        }
+      ];
+    }
     out.hallOfFame = !!out.hallOfFame;
     out.createdAt = Number.isFinite(Number(out.createdAt)) ? Number(out.createdAt) : Date.now();
     out.updatedAt = Number.isFinite(Number(out.updatedAt)) ? Number(out.updatedAt) : Date.now();
@@ -640,45 +659,52 @@ window.GoimonUI = (function () {
     return addPoints(rule, ruleKey);
   }
 
-  function confirmEvolution() {
-  let g = ensureCurrent();
+    function confirmEvolution() {
+    let g = ensureCurrent();
 
-  // 確定直前にも、念のため最新ステータスで再判定する
-  g = determinePendingEvolution(g);
+    g = determinePendingEvolution(g);
 
-  if (!g.pendingEvolution) {
+    if (!g.pendingEvolution) {
+      saveCurrent(g);
+      return g;
+    }
+
+    g.stage = g.pendingStage || g.stage;
+    g.type = g.pendingType || g.type;
+    g.imageKey = g.pendingImageKey || getImageFor(g.type, g.stage);
+
+    g.pendingEvolution = false;
+    g.pendingStage = "";
+    g.pendingType = "";
+    g.pendingImageKey = "";
+
+    g.level = calculateLevel(g.totalPoints);
+
+    if (!Array.isArray(g.discoveredForms)) g.discoveredForms = [];
+    if (!g.discoveredForms.includes(g.stage)) g.discoveredForms.push(g.stage);
+
+    if (!Array.isArray(g.evolutionHistory)) g.evolutionHistory = [];
+    g.evolutionHistory.push({
+      stage: g.stage,
+      type: g.type,
+      imageKey: g.imageKey,
+      label: getBaseDisplayName(g.type, g.stage)
+    });
+
+    markDiscovered(g.type, g.stage);
+
+    const dex = getDexEntry(g.type, g.stage);
+    const speech = dex?.description || `${getBaseDisplayName(g.type, g.stage)} に進化した！`;
+    setLastEventState({ eventKey: "evolution", speech });
+
     saveCurrent(g);
+    renderHome();
+    if (window.GoimonDexUI && typeof window.GoimonDexUI.renderTree === "function") {
+      window.GoimonDexUI.renderTree();
+    }
+
     return g;
   }
-
-  g.stage = g.pendingStage || g.stage;
-  g.type = g.pendingType || g.type;
-  g.imageKey = g.pendingImageKey || getImageFor(g.type, g.stage);
-
-  g.pendingEvolution = false;
-  g.pendingStage = "";
-  g.pendingType = "";
-  g.pendingImageKey = "";
-
-  g.level = calculateLevel(g.totalPoints);
-
-  if (!Array.isArray(g.discoveredForms)) g.discoveredForms = [];
-  if (!g.discoveredForms.includes(g.stage)) g.discoveredForms.push(g.stage);
-
-  markDiscovered(g.type, g.stage);
-
-  const dex = getDexEntry(g.type, g.stage);
-  const speech = dex?.description || `${getBaseDisplayName(g.type, g.stage)} に進化した！`;
-  setLastEventState({ eventKey: "evolution", speech });
-
-  saveCurrent(g);
-  renderHome();
-  if (window.GoimonDexUI && typeof window.GoimonDexUI.renderTree === "function") {
-    window.GoimonDexUI.renderTree();
-  }
-
-  return g;
-}
 
   function getEvolutionTheme(type) {
     switch (type) {
@@ -1029,7 +1055,7 @@ window.GoimonUI = (function () {
     }
   }
 
-  function renderDetailSheet(g) {
+    function renderDetailSheet(g) {
     const detailName = document.getElementById("goimonDetailName");
     const detailDesc = document.getElementById("goimonDetailDesc");
     const growthText = document.getElementById("goimonGrowthText");
@@ -1047,6 +1073,18 @@ window.GoimonUI = (function () {
     const statKotoba = document.getElementById("goimonStatKotoba");
     const statOnkan = document.getElementById("goimonStatOnkan");
     const statBunmyaku = document.getElementById("goimonStatBunmyaku");
+
+    const nextEvolutionStageEl = document.getElementById("goimonNextEvolutionStage");
+    const nextEvolutionNeedEl = document.getElementById("goimonNextEvolutionNeed");
+    const nextEvolutionTypeEl = document.getElementById("goimonNextEvolutionType");
+    const nextEvolutionHintEl = document.getElementById("goimonNextEvolutionHint");
+
+    const ratioChieEl = document.getElementById("goimonRatioChie");
+    const ratioKotobaEl = document.getElementById("goimonRatioKotoba");
+    const ratioOnkanEl = document.getElementById("goimonRatioOnkan");
+    const ratioBunmyakuEl = document.getElementById("goimonRatioBunmyaku");
+
+    const historyRow = document.getElementById("goimonEvolutionHistoryRow");
 
     const dex = getDexEntry(g.type, g.stage);
     const progress = getNextEvolutionProgress(g);
@@ -1072,6 +1110,71 @@ window.GoimonUI = (function () {
     if (statKotoba) statKotoba.textContent = formatPoint(g.stats.kotoba);
     if (statOnkan) statOnkan.textContent = formatPoint(g.stats.onkan);
     if (statBunmyaku) statBunmyaku.textContent = formatPoint(g.stats.bunmyaku);
+
+    const total = Math.max(1, sumStats(g.stats));
+    const ratios = {
+      chie: Math.round((Number(g.stats.chie || 0) / total) * 100),
+      kotoba: Math.round((Number(g.stats.kotoba || 0) / total) * 100),
+      onkan: Math.round((Number(g.stats.onkan || 0) / total) * 100),
+      bunmyaku: Math.round((Number(g.stats.bunmyaku || 0) / total) * 100)
+    };
+
+    if (ratioChieEl) ratioChieEl.textContent = `${ratios.chie}%`;
+    if (ratioKotobaEl) ratioKotobaEl.textContent = `${ratios.kotoba}%`;
+    if (ratioOnkanEl) ratioOnkanEl.textContent = `${ratios.onkan}%`;
+    if (ratioBunmyakuEl) ratioBunmyakuEl.textContent = `${ratios.bunmyaku}%`;
+
+    const nextStage = getNextStage(g.stage);
+    const thresholdMap = window.GoimonRules?.getStageThresholds?.() || {
+      child: 100,
+      growth: 300,
+      mid: 600,
+      final: 900
+    };
+    const nextThreshold = nextStage ? Number(thresholdMap[nextStage] || 0) : null;
+    const remain = nextThreshold == null ? 0 : Math.max(0, nextThreshold - Number(g.totalPoints || 0));
+
+    const predictedType = nextStage ? decideTypeForEvolution(g) : g.type;
+    const predictedHint = nextStage
+      ? (window.GoimonRules?.getUnlockHint?.(predictedType, nextStage) || "その時点の能力配分で判定されます")
+      : "この姿が最終進化です";
+
+    if (nextEvolutionStageEl) {
+      nextEvolutionStageEl.textContent = nextStage ? `${getStageLabel(nextStage)}` : "最終到達済み";
+    }
+    if (nextEvolutionNeedEl) {
+      nextEvolutionNeedEl.textContent = nextStage
+        ? `必要pt：${formatPoint(nextThreshold)} pt / あと ${formatPoint(remain)} pt`
+        : "これ以上の進化はありません";
+    }
+    if (nextEvolutionTypeEl) {
+      nextEvolutionTypeEl.textContent = nextStage
+        ? `今の配分で進化すると：${getTypeLabel(predictedType)}`
+        : `現在の系統：${getTypeLabel(g.type)}`;
+    }
+    if (nextEvolutionHintEl) {
+      nextEvolutionHintEl.textContent = nextStage
+        ? `※ 進化時に毎回再判定されます。現時点の見込み条件：${predictedHint}`
+        : "※ 最終段階です";
+    }
+
+    if (historyRow) {
+      historyRow.innerHTML = "";
+      const history = Array.isArray(g.evolutionHistory) ? g.evolutionHistory : [];
+
+      history.forEach(item => {
+        const chip = document.createElement("div");
+        chip.className = "goimonHistoryChip";
+        chip.innerHTML = `
+          <div class="goimonHistoryImgWrap">
+            <img src="${escapeHtml(item.imageKey || STAGE_IMAGES.egg)}" alt="${escapeHtml(item.label || "ゴイモン")}">
+          </div>
+          <div class="goimonHistoryStage">${escapeHtml(getStageLabel(item.stage || "egg"))}</div>
+          <div class="goimonHistoryName">${escapeHtml(item.label || "ゴイモン")}</div>
+        `;
+        historyRow.appendChild(chip);
+      });
+    }
   }
 
   function renderNicknameEditor(g) {
@@ -1511,6 +1614,8 @@ window.GoimonUI = (function () {
     try { if (typeof window.renderAccentGoimonMini === "function") window.renderAccentGoimonMini(); } catch {}
     try { if (typeof window.renderAudioGoimonMini === "function") window.renderAudioGoimonMini(); } catch {}
     try { if (typeof window.renderAudioQuizGoimonMini === "function") window.renderAudioQuizGoimonMini(); } catch {}
+    try { if (typeof window.renderReorderGoimonMini === "function") window.renderReorderGoimonMini(); } catch {}
+
   }
 
   function rerenderEverywhere() {
@@ -2013,7 +2118,8 @@ window.GoimonDexUI = (function () {
       ensureMobileDexSheet();
       bindResizeOnce();
       renderTree();
+      
     },
-    renderTree
+    renderTree,
   };
 })();
