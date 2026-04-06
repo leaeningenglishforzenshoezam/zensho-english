@@ -2020,13 +2020,26 @@ a {
   display: flex;
   gap: 10px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  overflow-y: hidden;
+  padding: 2px 2px 8px;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.goimonHistoryRow::-webkit-scrollbar {
+  height: 8px;
+}
+
+.goimonHistoryRow::-webkit-scrollbar-thumb {
+  background: #d7d7d7;
+  border-radius: 999px;
 }
 
 .goimonHistoryChip {
-  flex: 0 0 auto;
+  flex: 0 0 112px;
   width: 112px;
+  min-width: 112px;
+  box-sizing: border-box;
   border: 1px solid #eee2c8;
   background: #fffaf2;
   border-radius: 14px;
@@ -2044,6 +2057,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 .goimonHistoryImgWrap img {
@@ -2056,6 +2070,7 @@ a {
   font-size: 11px;
   color: #8a6a2d;
   margin-bottom: 4px;
+  line-height: 1.4;
 }
 
 .goimonHistoryName {
@@ -2064,6 +2079,29 @@ a {
   color: #111;
   line-height: 1.4;
   word-break: break-word;
+}
+
+@media (max-width: 420px) {
+  .goimonHistoryChip {
+    flex: 0 0 96px;
+    width: 96px;
+    min-width: 96px;
+    padding: 8px;
+  }
+
+  .goimonHistoryImgWrap {
+    width: 60px;
+    height: 60px;
+  }
+
+  .goimonHistoryImgWrap img {
+    max-width: 50px;
+    max-height: 50px;
+  }
+
+  .goimonHistoryName {
+    font-size: 11px;
+  }
 }
 
 @media (max-width: 420px) {
