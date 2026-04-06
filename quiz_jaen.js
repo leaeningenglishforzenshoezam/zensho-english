@@ -1,8 +1,14 @@
-// quiz_jaen.js（日→英）ゴイモン版：Block＋3モード＋順番続き＋順番リセット＋結果画面＋URLパラメータ＋級ごと保存
-// ★正解=緑/不正解=赤、正解ピンポン/不正解ブッブー、1問1回だけ押せる
-// ★学習ログ（ホーム用）に 1問ごとに加算
-// ★日→英正解時は ゴイモンの「ことば +1」
-// ★ゴイモンは折りたたみ表示＋進化通知＋共通進化演出
+// quiz_jaen.js（日→英）ゴイモン版
+// - Block対応
+// - 順番 / ランダム / ニガテ順
+// - 順番モードは続きから再開
+// - 結果画面あり
+// - URLパラメータ対応
+// - 級ごと保存
+// - 学習ログ（ホーム用）に 1問ごとに加算
+// - 日→英正解で ゴイモンの「ことば +1」
+// - ゴイモンは折りたたみ表示＋進化通知＋共通進化演出
+// - 結果画面から「同じ問題セットに再挑戦」「同じ設定で次へ」が可能
 
 document.addEventListener("DOMContentLoaded", () => {
   const words = window.WORDS || [];
@@ -36,7 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultEl = document.getElementById("result");
   const nextBtn = document.getElementById("nextQ");
   const startBtn = document.getElementById("startTest");
-  const resetBtn = document.getElementById("resetQuiz");
 
   const rangeStartEl = document.getElementById("rangeStart");
   const rangeEndEl = document.getElementById("rangeEnd");
@@ -46,8 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const applyBlockBtn = document.getElementById("applyBlock");
   const blockStatsEl = document.getElementById("blockStats");
 
-  const weakModeEl = document.getElementById("weakMode");
-  const clearWeakBtn = document.getElementById("clearWeak");
   const weakInfoEl = document.getElementById("weakInfo");
 
   const speakQBtn = document.getElementById("speakQ");
@@ -67,11 +70,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const finalBlockLineEl = document.getElementById("finalBlockLine");
   const askedListEl = document.getElementById("askedList");
   const wrongListEl = document.getElementById("wrongList");
+  const retrySameSetBtn = document.getElementById("retrySameSet");
+  const retrySameConditionBtn = document.getElementById("retrySameCondition");
   const backToSetupBtn = document.getElementById("backToSetup");
-
-  const goStudyBlockBtn = document.getElementById("goStudyBlock");
-  const goWeakReviewBtn = document.getElementById("goWeakReview");
-
   const levelBadgeEl = document.getElementById("levelBadge");
   const goimonToggleBtn = document.getElementById("goimonToggleBtn");
   const goimonPanel = document.getElementById("goimonPanel");
@@ -83,17 +84,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   [
     [statsEl,"stats"],[qMetaEl,"qMeta"],[questionEl,"question"],[choicesEl,"choices"],[resultEl,"result"],
-    [nextBtn,"nextQ"],[startBtn,"startTest"],[resetBtn,"resetQuiz"],
+    [nextBtn,"nextQ"],[startBtn,"startTest"],
     [rangeStartEl,"rangeStart"],[rangeEndEl,"rangeEnd"],[limitEl,"limitCount"],
     [blockSelectEl,"blockSelect"],[applyBlockBtn,"applyBlock"],[blockStatsEl,"blockStats"],
-    [weakModeEl,"weakMode"],[clearWeakBtn,"clearWeak"],[weakInfoEl,"weakInfo"],
+    [weakInfoEl,"weakInfo"],
     [speakQBtn,"speakQ"],[autoSpeakQEl,"autoSpeakQ"],
     [toggleSettingsBtn,"toggleSettings"],[settingsArea,"settingsArea"],[settingsSummaryEl,"settingsSummary"],[setupBox,"setupBox"],
     [modeSelectEl,"modeSelect"],[resetOrderBtn,"resetOrderCursor"],
     [playBox,"playBox"],[summaryBox,"summaryBox"],
     [finalScoreEl,"finalScore"],[finalBlockLineEl,"finalBlockLine"],
-    [askedListEl,"askedList"],[wrongListEl,"wrongList"],[backToSetupBtn,"backToSetup"],
-    [goStudyBlockBtn,"goStudyBlock"],[goWeakReviewBtn,"goWeakReview"],
+    [askedListEl,"askedList"],[wrongListEl,"wrongList"],
+    [retrySameSetBtn,"retrySameSet"],[retrySameConditionBtn,"retrySameCondition"],
+    [backToSetupBtn,"backToSetup"],
     [levelBadgeEl,"levelBadge"],[goimonToggleBtn,"goimonToggleBtn"],[goimonPanel,"goimonPanel"],
     [evolutionNoticeBtn,"evolutionNoticeBtn"]
   ].forEach(([el,n]) => must(el,n));
@@ -351,12 +353,13 @@ document.addEventListener("DOMContentLoaded", () => {
     correct: 0,
     limit: 10,
     start: 0,
-    end: Math.max(0, words.length - 1)
+    end: Math.max(0, words.length - 1),
+    retryOrder: null
   };
 
   let current = null;
   let answeredThisQuestion = false;
-  let weakMode = false;
+  
 
   let askedSet = new Set();
   let askedLog = [];
@@ -370,6 +373,11 @@ document.addEventListener("DOMContentLoaded", () => {
     setupBox.style.display = "block";
     playBox.style.display = "none";
     summaryBox.style.display = "none";
+
+    settingsOpen = true;
+    settingsArea.style.display = "block";
+    toggleSettingsBtn.textContent = "▲ 設定を閉じる";
+    updateSettingsSummary();
   }
 
   function showPlayView() {
@@ -401,7 +409,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     settingsSummaryEl.textContent =
-      `（${summaryRangeText()}｜${session.limit}問｜${weakMode ? "弱点ON" : "弱点OFF"}｜モード:${modeText()}｜${LV}級）`;
+      `（${summaryRangeText()}｜${session.limit}問｜モード:${modeText()}｜${LV}級）`;
   }
 
   function closeSettings() {
@@ -482,22 +490,9 @@ document.addEventListener("DOMContentLoaded", () => {
     alert("順番モードを最初からにリセットしました。");
   });
 
-  function getCurrentRangeFromInputs() {
-    let s = Number(rangeStartEl.value) - 1;
-    let e = Number(rangeEndEl.value) - 1;
-    [s, e] = clampRange(s, e);
-    return { s, e };
-  }
 
-  goStudyBlockBtn.addEventListener("click", () => {
-    const { s, e } = getCurrentRangeFromInputs();
-    location.href = `study.html?start=${s + 1}&end=${e + 1}`;
-  });
 
-  goWeakReviewBtn.addEventListener("click", () => {
-    const { s, e } = getCurrentRangeFromInputs();
-    location.href = `quiz_jaen.html?start=${s + 1}&end=${e + 1}&mode=weak&weak=1&autostart=1`;
-  });
+
 
   function renderMeta(no) {
     const b = getBlockByNo(no);
@@ -510,7 +505,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateWeakInfo() {
-    weakInfoEl.textContent = `弱点数：${weakCount()}（弱点モード：${weakMode ? "ON" : "OFF"}）`;
+    weakInfoEl.textContent = `保存済みニガテ数：${weakCount()}（復習したいときは出題モードで「ニガテ順」を選んでください）`;
   }
 
   function getRangePool() {
@@ -576,18 +571,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function makeQuestion() {
     const { s, e } = getRangePool();
-    let idx = pickCorrectIndex(s, e);
+    let idx;
 
-    if (weakMode && quizMode !== "order") {
-      const weakIdxs = [];
-      for (let i = s; i <= e; i++) {
-        if (getPoint(words[i].en) > 0) weakIdxs.push(i);
-      }
-      if (weakIdxs.length > 0) {
-        const remaining = weakIdxs.filter(i => !askedSet.has(words[i].en));
-        const pool = remaining.length ? remaining : weakIdxs;
-        idx = pool[Math.floor(Math.random() * pool.length)];
-      }
+    if (Array.isArray(session.retryOrder)) {
+      if (session.retryOrder.length === 0) return null;
+      idx = session.retryOrder.shift();
+    } else {
+      idx = pickCorrectIndex(s, e);
     }
 
     askedSet.add(words[idx].en);
@@ -607,9 +597,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function finishSession() {
     showSummaryView();
 
-    finalScoreEl.textContent = `結果：${session.correct} / ${session.limit}`;
+    finalScoreEl.textContent = `結果：${session.correct} / ${session.limit}（正答率 ${Math.round((session.correct / session.limit) * 100)}%）`;
     const rangeText = (blockSelectEl.value === "all") ? "全範囲" : `Block ${blockSelectEl.value}`;
-    finalBlockLineEl.textContent = `出題範囲：${rangeText}｜モード：${modeText()}｜${weakMode ? "弱点ON" : "弱点OFF"}｜${LV}級`;
+        finalBlockLineEl.textContent = `出題範囲：${rangeText}｜モード：${modeText()}｜${LV}級`;
 
     askedListEl.innerHTML = "";
     askedLog.forEach(item => {
@@ -631,6 +621,46 @@ document.addEventListener("DOMContentLoaded", () => {
         wrongListEl.appendChild(li);
       });
     }
+  }
+
+  function startRetrySameSetSession() {
+    if (!askedLog.length) {
+      alert("再挑戦できる問題セットがありません。");
+      return;
+    }
+
+    session.active = true;
+    session.answered = 0;
+    session.correct = 0;
+    session.limit = askedLog.length;
+    session.retryOrder = askedLog.map(item => item.no - 1);
+
+    askedSet.clear();
+    askedLog = [];
+    wrongMap = {};
+
+    showPlayView();
+    renderQuestion();
+  }
+
+  function startSameConditionNextSession() {
+    session.answered = 0;
+    session.correct = 0;
+    session.active = true;
+    session.retryOrder = null;
+
+    askedSet.clear();
+    askedLog = [];
+    wrongMap = {};
+
+    if (quizMode === "order") {
+      orderCursor = loadOrderCursor(session.start, session.end);
+    } else {
+      orderCursor = session.start;
+    }
+
+    showPlayView();
+    renderQuestion();
   }
 
   function renderEvolutionNotice() {
@@ -818,18 +848,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSettingsSummary();
   });
 
-  weakModeEl.addEventListener("change", () => {
-    weakMode = !!weakModeEl.checked;
-    updateWeakInfo();
-    updateSettingsSummary();
-  });
 
-  clearWeakBtn.addEventListener("click", () => {
-    if (!confirm("弱点をすべて消しますか？")) return;
-    weakPoints = {};
-    saveWeakPoints();
-    updateWeakInfo();
-  });
 
   nextBtn.addEventListener("click", () => {
     if (!answeredThisQuestion) {
@@ -851,11 +870,10 @@ document.addEventListener("DOMContentLoaded", () => {
     session.end = e;
     session.limit = Math.floor(l);
 
-    weakMode = !!weakModeEl.checked;
-
     session.answered = 0;
     session.correct = 0;
     session.active = true;
+    session.retryOrder = null;
 
     askedSet.clear();
     askedLog = [];
@@ -872,20 +890,17 @@ document.addEventListener("DOMContentLoaded", () => {
     renderQuestion();
   });
 
-  resetBtn.addEventListener("click", () => {
-    if (!confirm("今回の成績をリセットしますか？")) return;
-    session.active = false;
-    session.answered = 0;
-    session.correct = 0;
-    askedSet.clear();
-    askedLog = [];
-    wrongMap = {};
-    showPlayView();
-    renderQuestion();
-  });
+
 
   backToSetupBtn.addEventListener("click", () => {
     showSetupView();
+  });
+    retrySameSetBtn.addEventListener("click", () => {
+    startRetrySameSetSession();
+  });
+
+  retrySameConditionBtn.addEventListener("click", () => {
+    startSameConditionNextSession();
   });
 
   function applyQuery() {
@@ -894,7 +909,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const start = Number(p.get("start"));
     const end = Number(p.get("end"));
     const mode = p.get("mode");
-    const weak = p.get("weak");
     const autostart = p.get("autostart");
 
     if (Number.isFinite(start) && start >= 1) rangeStartEl.value = String(start);
@@ -906,11 +920,7 @@ document.addEventListener("DOMContentLoaded", () => {
       saveSettings();
     }
 
-    if (weakModeEl && weak === "1") {
-      weakModeEl.checked = true;
-      weakMode = true;
-      updateWeakInfo();
-    }
+
 
     updateSettingsSummary();
 
@@ -945,10 +955,9 @@ document.addEventListener("DOMContentLoaded", () => {
   applySelectedBlockToRange();
 
   session.limit = Number(limitEl.value) || session.limit;
-  weakMode = !!weakModeEl.checked;
 
   updateWeakInfo();
-  closeSettings();
+
   showSetupView();
   renderQuestion();
 
