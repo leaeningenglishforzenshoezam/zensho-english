@@ -50,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const backBtn = el("backBtn");
 
   const summaryLine = el("summaryLine");
+  const retrySameBtn = el("retrySameBtn");
   const retryBtn = el("retryBtn");
   const summaryBackBtn = el("summaryBackBtn");
   const wrongEmpty = el("wrongEmpty");
@@ -85,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
       [statsEl,"stats"],[qMetaEl,"qMeta"],[wordEl,"word"],[syllablesEl,"syllables"],
       [choicesEl,"choices"],[resultEl,"result"],[detailEl,"detail"],
       [speakBtn,"speakBtn"],[nextBtn,"nextBtn"],[backBtn,"backBtn"],
-      [summaryLine,"summaryLine"],[retryBtn,"retryBtn"],[summaryBackBtn,"summaryBackBtn"],
+      [summaryLine,"summaryLine"],[retrySameBtn,"retrySameBtn"],[retryBtn,"retryBtn"],[summaryBackBtn,"summaryBackBtn"],
       [wrongEmpty,"wrongEmpty"],[wrongList,"wrongList"],
       [levelBadge,"levelBadge"],[errorArea,"errorArea"],
       [toggleGoimonBtn,"toggleGoimon"],[goimonCard,"goimonCard"],[evolutionNoticeBtn,"evolutionNoticeBtn"]
@@ -406,7 +407,8 @@ document.addEventListener("DOMContentLoaded", () => {
     correct: 0,
     mode: "head",
     startNo: 1,
-    endNo: 500
+    endNo: 500,
+    askedSet: []
   };
 
   let current = null;
@@ -418,6 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (m === "head") return "先頭から";
     if (m === "continue") return "続きから";
     if (m === "random") return "ランダム";
+    if (m === "retry") return "同じ問題に再挑戦";
     return "苦手";
   }
 
@@ -520,6 +523,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    if (session.askedSet.length < session.limit) {
+      session.askedSet.push({ ...current });
+    }
+
     resetUIForNewQuestion();
 
     wordEl.textContent = current.en;
@@ -612,7 +619,7 @@ document.addEventListener("DOMContentLoaded", () => {
     nextBtn.disabled = false;
   }
 
-  function finishSession(autoClearedWeak) {
+    function finishSession(autoClearedWeak) {
     showSummary();
     const tail = (session.mode === "weak" && autoClearedWeak) ? "（この回の苦手出題が終わりました）" : "";
     summaryLine.textContent = `結果：${session.correct} / ${session.answered}（${modeLabel(session.mode)}｜範囲 ${session.startNo}〜${session.endNo}｜${LV}級）${tail}`;
@@ -622,14 +629,109 @@ document.addEventListener("DOMContentLoaded", () => {
       wrongList.innerHTML = "";
       return;
     }
+
     wrongEmpty.style.display = "none";
 
-    const lines = wrongLog.map(w => {
+    const cards = wrongLog.map((w, idx) => {
       const b = getBlockByNo(w.no);
-      const btxt = b ? `Block${b.id}` : (w.blockId ? `Block${w.blockId}` : "Block?");
-      return `・${btxt}｜${w.no} ${w.en} / 正:第${w.correct} あなた:第${w.chosen}｜${w.ja}`;
+      const btxt = b ? `Block ${b.id}` : (w.blockId ? `Block ${w.blockId}` : "Block ?");
+      const stressed = makeStressedUpper(w.sylRaw, w.correct);
+      const noteHtml = w.note
+        ? `<div style="margin-top:8px; font-size:14px; line-height:1.7;">解説：${escapeHtml(w.note)}</div>`
+        : "";
+
+      return `
+        <div style="
+          border-top:${idx === 0 ? "0" : "1px solid #eee"};
+          padding:${idx === 0 ? "0 0 14px 0" : "14px 0"};
+        ">
+          <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
+            <div style="font-weight:800; font-size:16px;">
+              ${escapeHtml(w.en)}
+            </div>
+            <div class="muted" style="font-size:13px;">
+              ${escapeHtml(btxt)} / 番号 ${escapeHtml(String(w.no))}
+            </div>
+          </div>
+
+          <div style="font-size:15px; line-height:1.7; margin-bottom:8px;">
+            意味：${escapeHtml(w.ja || "（なし）")}
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+            <span style="
+              display:inline-block;
+              padding:6px 10px;
+              border-radius:999px;
+              background:#ffecec;
+              color:#b00020;
+              border:1px solid #f3b5bf;
+              font-size:13px;
+              font-weight:700;
+            ">
+              あなた：第${escapeHtml(String(w.chosen))}音節
+            </span>
+
+            <span style="
+              display:inline-block;
+              padding:6px 10px;
+              border-radius:999px;
+              background:#eefaf1;
+              color:#0a7a2f;
+              border:1px solid #bfe7ca;
+              font-size:13px;
+              font-weight:700;
+            ">
+              正解：第${escapeHtml(String(w.correct))}音節
+            </span>
+          </div>
+
+          <div style="
+            padding:10px 12px;
+            border:1px solid #eee;
+            border-radius:12px;
+            background:#fafafa;
+            font-size:18px;
+            font-weight:800;
+            letter-spacing:0.4px;
+            line-height:1.7;
+            margin-bottom:6px;
+          ">
+            ${escapeHtml(stressed)}
+          </div>
+
+          ${noteHtml}
+        </div>
+      `;
     });
-    wrongList.innerHTML = `<pre class="pre">${escapeHtml(lines.join("\n"))}</pre>`;
+
+    wrongList.innerHTML = cards.join("");
+  }
+
+    function startRetrySameSetSession() {
+    const askedSet = Array.isArray(session.askedSet) ? session.askedSet.map(x => ({ ...x })) : [];
+
+    if (!askedSet.length) {
+      alert("解き直せる問題セットがありません。");
+      return;
+    }
+
+    session.active = true;
+    session.pool = askedSet;
+    session.order = [];
+    for (let i = 0; i < askedSet.length; i++) session.order.push(i);
+    session.cursor = 0;
+    session.limit = askedSet.length;
+    session.answered = 0;
+    session.correct = 0;
+    session.mode = "retry";
+    session.askedSet = [];
+
+    askedLog = [];
+    wrongLog = [];
+
+    showPlay();
+    renderQuestion();
   }
 
   function loadGoimonUiState() {
@@ -748,6 +850,7 @@ document.addEventListener("DOMContentLoaded", () => {
     session.answered = 0;
     session.correct = 0;
     session.active = true;
+    session.askedSet = [];
 
     askedLog = [];
     wrongLog = [];
@@ -773,6 +876,9 @@ document.addEventListener("DOMContentLoaded", () => {
     speakEnglish(current.en);
   });
 
+    retrySameBtn.addEventListener("click", () => {
+    startRetrySameSetSession();
+  });
   retryBtn.addEventListener("click", () => {
     session.answered = 0;
     session.correct = 0;
@@ -792,6 +898,7 @@ document.addEventListener("DOMContentLoaded", () => {
       session.cursor = 0;
     }
 
+    session.askedSet = [];
     askedLog = [];
     wrongLog = [];
     showPlay();
