@@ -330,21 +330,22 @@
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card topNavBox">
-      <div class="topNavTitle">学習ページ移動</div>
-      <div class="topNav">
-        <a href="index.html">ホーム</a>
-        <a href="study.html">暗記</a>
-        <a href="quiz.html">英→日</a>
-        <a href="quiz_jaen.html">日→英</a>
-        <a href="accent.html">アクセント</a>
-        <a href="sentence.html">大問9</a>
-        <a href="audio_quiz.html" class="active">音声→意味</a>
-        <a href="list.html">一覧</a>
-        <a href="progress.html">進捗</a>
-      </div>
+<div class="wrap">
+  <div class="card topNavBox">
+    <div class="topNavTitle">学習ページ移動</div>
+    <div class="topNav">
+      <a href="index.html">ホーム</a>
+      <a href="study.html">暗記</a>
+      <a href="quiz.html">英→日</a>
+      <a href="quiz_jaen.html">日→英</a>
+      <a href="audio_quiz.html" class="active">音声→意味</a>
+      <a href="accent.html">大問1</a>
+      <a href="sentence.html">大問9</a>
+      <a href="reorder.html">大問12</a>
+      <a href="list.html">一覧</a>
+      <a href="progress.html">進捗</a>
     </div>
+  </div>
 
     <div id="errorArea"></div>
 
@@ -450,9 +451,13 @@
       <div id="summaryLine" class="summaryLine"></div>
       <div id="wrongEmpty" class="muted">今回の誤答はありません。</div>
       <div id="wrongList" class="wrongList"></div>
+      
 
-      <button class="btn primary" id="retryBtn">同じ設定でもう一度</button>
-      <button class="btn gray" id="summaryBackBtn">設定に戻る</button>
+<div class="row" style="justify-content:flex-start; margin-top:12px;">
+  <button class="smallBtn" id="retrySameBtn" type="button">同じ問題セットに再挑戦</button>
+  <button class="smallBtn" id="retryBtn" type="button">同じ設定で次へ</button>
+  <button class="smallBtn" id="summaryBackBtn" type="button">設定に戻る</button>
+</div>
     </div>
   </div>
 
