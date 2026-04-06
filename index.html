@@ -91,7 +91,7 @@
       <button class="btn primary" id="goStudy">▶ 覚える（暗記）</button>
       <button class="btn primary" id="goQuiz">▶ クイズで確認（英→日）</button>
       <button class="btn primary" id="goQuizJaEn">▶ クイズで確認（日→英）</button>
-      <button class="btn primary" id="goAudioQuiz">▶ 音声→意味クイズ</button>
+      <button class="btn primary" id="goAudioQuiz">▶ クイズで確認（音→日）</button>
       <button class="btn primary" id="goAccent">▶ 大問1演習（アクセント）</button>
       <button class="btn primary" id="goSentence">▶ 大問9演習（例文穴埋め）</button>
       <button class="btn primary" id="goReorder">▶ 大問12演習（語句整序）</button>
@@ -208,6 +208,55 @@
           <button class="btn soft" id="saveGoimonNicknameEditBtn">ニックネームを保存</button>
           <button class="btn gray" id="clearGoimonNicknameEditBtn">ニックネームを外す</button>
         </div>
+      </div>
+            <div class="card" style="margin-top:14px;">
+        <div class="sectionTitle">次の進化の見込み</div>
+
+        <div class="goimonInfoList">
+          <div class="goimonInfoRow">
+            <span>次の進化段階</span>
+            <strong id="goimonNextEvolutionStage">幼体</strong>
+          </div>
+          <div class="goimonInfoRow">
+            <span>必要ポイント</span>
+            <strong id="goimonNextEvolutionNeed">必要pt：100 pt / あと 100 pt</strong>
+          </div>
+          <div class="goimonInfoRow">
+            <span>現在の見込み系統</span>
+            <strong id="goimonNextEvolutionType">今の配分で進化すると：なごみ系</strong>
+          </div>
+        </div>
+
+        <div class="mutedSmall" id="goimonNextEvolutionHint" style="margin-top:8px;">
+          ※ 進化時に毎回その時点の能力配分で再判定されます。
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <div class="sectionTitle">現在の能力バランス</div>
+        <div class="statsGrid">
+          <div class="statBox">
+            <div class="statLabel">ちえ比率</div>
+            <div class="statValue" id="goimonRatioChie">0%</div>
+          </div>
+          <div class="statBox">
+            <div class="statLabel">ことば比率</div>
+            <div class="statValue" id="goimonRatioKotoba">0%</div>
+          </div>
+          <div class="statBox">
+            <div class="statLabel">おんかん比率</div>
+            <div class="statValue" id="goimonRatioOnkan">0%</div>
+          </div>
+          <div class="statBox">
+            <div class="statLabel">ぶんみゃく比率</div>
+            <div class="statValue" id="goimonRatioBunmyaku">0%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <div class="sectionTitle">進化のあゆみ</div>
+        <div class="goimonHistoryRow" id="goimonEvolutionHistoryRow"></div>
       </div>
 
       <div class="card" style="margin-top:14px;">
