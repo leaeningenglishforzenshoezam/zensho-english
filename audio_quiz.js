@@ -62,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const summaryLine = el("summaryLine");
   const wrongEmpty = el("wrongEmpty");
   const wrongList = el("wrongList");
+  const retrySameBtn = el("retrySameBtn");
   const retryBtn = el("retryBtn");
   const summaryBackBtn = el("summaryBackBtn");
 
@@ -81,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
       [setupInfo, "setupInfo"], [startBtn, "startBtn"],
       [stats, "stats"], [qMeta, "qMeta"], [speakBtn, "speakBtn"], [choices, "choices"], [result, "result"], [detail, "detail"],
       [nextBtn, "nextBtn"], [backBtn, "backBtn"],
-      [summaryLine, "summaryLine"], [wrongEmpty, "wrongEmpty"], [wrongList, "wrongList"], [retryBtn, "retryBtn"], [summaryBackBtn, "summaryBackBtn"]
+      [summaryLine, "summaryLine"], [wrongEmpty, "wrongEmpty"], [wrongList, "wrongList"], [retrySameBtn, "retrySameBtn"], [retryBtn, "retryBtn"], [summaryBackBtn, "summaryBackBtn"]
     ].forEach(([x, n]) => must(x, n));
   } catch (e) {
     errorArea.innerHTML = `<div class="errorBox">${String(e.message || e)}</div>`;
@@ -377,7 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setupInfo.textContent = `この設定で出題可能：${pool.length}問｜保存済み苦手：${wc}問｜続き位置：${c + 1}問目から`;
   }
 
-  let session = {
+   let session = {
     active: false,
     mode: "head",
     pool: [],
@@ -388,7 +389,8 @@ document.addEventListener("DOMContentLoaded", () => {
     correct: 0,
     startNo: 1,
     endNo: 100,
-    autoPlay: false
+    autoPlay: false,
+    askedSet: []
   };
 
   let current = null;
@@ -480,6 +482,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!current) {
       finishSession(session.mode === "weak");
       return;
+    }
+
+    if (session.askedSet.length < session.limit) {
+      session.askedSet.push({ ...current });
     }
 
     resetPlayUI();
@@ -626,6 +632,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+    function startRetrySameSetSession() {
+    const askedSet = Array.isArray(session.askedSet) ? session.askedSet.map(x => ({ ...x })) : [];
+
+    if (!askedSet.length) {
+      alert("再挑戦できる問題セットがありません。");
+      return;
+    }
+
+    session.active = true;
+    session.mode = "retry";
+    session.pool = askedSet;
+    session.order = [...Array(askedSet.length)].map((_, i) => i);
+    session.cursor = 0;
+    session.limit = askedSet.length;
+    session.answered = 0;
+    session.correct = 0;
+    session.autoPlay = !!autoPlay.checked;
+    session.askedSet = [];
+
+    askedLog = [];
+    wrongLog = [];
+    errorArea.innerHTML = "";
+    showPlay();
+    renderQuestion();
+  }
+
   function startSession() {
     const startNo = clamp(rangeStart.value, 1, 999999);
     const endNo = clamp(rangeEnd.value, 1, 999999);
@@ -645,6 +677,7 @@ document.addEventListener("DOMContentLoaded", () => {
     session.answered = 0;
     session.correct = 0;
     session.active = true;
+    session.askedSet = [];
 
     if (session.mode === "weak") {
       session.order = buildWeakOrder(pool);
@@ -800,7 +833,9 @@ document.addEventListener("DOMContentLoaded", () => {
     showSetup();
     updateSetupInfo();
   });
-
+  retrySameBtn.addEventListener("click", () => {
+    startRetrySameSetSession();
+  });
   retryBtn.addEventListener("click", () => {
     session.answered = 0;
     session.correct = 0;
@@ -820,6 +855,7 @@ document.addEventListener("DOMContentLoaded", () => {
       session.cursor = 0;
     }
 
+    session.askedSet = [];
     askedLog = [];
     wrongLog = [];
     showPlay();
