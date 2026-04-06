@@ -53,7 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultEl = document.getElementById("result");
   const nextBtn = document.getElementById("nextQ");
   const startBtn = document.getElementById("startTest");
-  const resetBtn = document.getElementById("resetQuiz");
 
   const rangeStartEl = document.getElementById("rangeStart");
   const rangeEndEl = document.getElementById("rangeEnd");
@@ -63,8 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const applyBlockBtn = document.getElementById("applyBlock");
   const blockStatsEl = document.getElementById("blockStats");
 
-  const weakModeEl = document.getElementById("weakMode");
-  const clearWeakBtn = document.getElementById("clearWeak");
   const weakInfoEl = document.getElementById("weakInfo");
 
   const speakQBtn = document.getElementById("speakQ");
@@ -77,16 +74,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const modeSelectEl = document.getElementById("modeSelect");
   const levelBadgeEl = document.getElementById("levelBadge");
 
+  const setupBox = document.getElementById("setupBox");
   const playBox = document.getElementById("playBox");
   const summaryBox = document.getElementById("summaryBox");
   const finalScoreEl = document.getElementById("finalScore");
   const finalBlockLineEl = document.getElementById("finalBlockLine");
   const askedListEl = document.getElementById("askedList");
   const wrongListEl = document.getElementById("wrongList");
+  const retrySameSetBtn = document.getElementById("retrySameSet");
+  const retrySameConditionBtn = document.getElementById("retrySameCondition");
   const backToSetupBtn = document.getElementById("backToSetup");
 
-  const goStudyBlockBtn = document.getElementById("goStudyBlock");
-  const goWeakReviewBtn = document.getElementById("goWeakReview");
 
   const toggleGoimonBtn = document.getElementById("toggleGoimon");
   const goimonCardEl = document.getElementById("goimonCard");
@@ -98,15 +96,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   [
     [statsEl,"stats"],[qMetaEl,"qMeta"],[questionEl,"question"],[choicesEl,"choices"],[resultEl,"result"],
-    [nextBtn,"nextQ"],[startBtn,"startTest"],[resetBtn,"resetQuiz"],
+    [nextBtn,"nextQ"],[startBtn,"startTest"],
     [rangeStartEl,"rangeStart"],[rangeEndEl,"rangeEnd"],[limitEl,"limitCount"],
     [blockSelectEl,"blockSelect"],[applyBlockBtn,"applyBlock"],[blockStatsEl,"blockStats"],
-    [weakModeEl,"weakMode"],[clearWeakBtn,"clearWeak"],[weakInfoEl,"weakInfo"],
+    [weakInfoEl,"weakInfo"],
     [speakQBtn,"speakQ"],[autoSpeakQEl,"autoSpeakQ"],
     [toggleSettingsBtn,"toggleSettings"],[settingsArea,"settingsArea"],[settingsSummaryEl,"settingsSummary"],
     [modeSelectEl,"modeSelect"],[levelBadgeEl,"levelBadge"],
     [summaryBox,"summaryBox"],[playBox,"playBox"],[finalScoreEl,"finalScore"],[finalBlockLineEl,"finalBlockLine"],
-    [askedListEl,"askedList"],[wrongListEl,"wrongList"],[backToSetupBtn,"backToSetup"],
+    [askedListEl,"askedList"],[wrongListEl,"wrongList"],
+    [retrySameSetBtn,"retrySameSet"],[retrySameConditionBtn,"retrySameCondition"],
+    [backToSetupBtn,"backToSetup"],
     [toggleGoimonBtn,"toggleGoimon"],[goimonCardEl,"goimonCard"],
     [evolutionNoticeBtn,"evolutionNoticeBtn"]
   ].forEach(([el,n]) => must(el,n));
@@ -352,14 +352,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${tag}（${pct}%｜${s.correct}/${s.attempted}）`;
   }
 
-  let session = {
-    active: false,
-    answered: 0,
-    correct: 0,
-    limit: 10,
-    start: 0,
-    end: Math.max(0, words.length - 1)
-  };
+let session = {
+  active: false,
+  answered: 0,
+  correct: 0,
+  limit: 10,
+  start: 0,
+  end: Math.max(0, words.length - 1),
+  retryOrder: null
+};
 
   let current = null;
   let answeredThisQuestion = false;
@@ -417,7 +418,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     settingsSummaryEl.textContent =
-      `（${summaryRangeText()}｜${session.limit}問｜${weakMode ? "弱点ON" : "弱点OFF"}｜モード:${modeText()}｜${LV}級）`;
+      `（${summaryRangeText()}｜${session.limit}問｜モード:${modeText()}｜${LV}級）`;
   }
 
   function closeSettings() {
@@ -502,19 +503,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return { s, e };
   }
 
-  if (goStudyBlockBtn) {
-    goStudyBlockBtn.addEventListener("click", () => {
-      const { s, e } = getCurrentRangeFromInputs();
-      location.href = `study.html?start=${s + 1}&end=${e + 1}`;
-    });
-  }
 
-  if (goWeakReviewBtn) {
-    goWeakReviewBtn.addEventListener("click", () => {
-      const { s, e } = getCurrentRangeFromInputs();
-      location.href = `quiz.html?start=${s + 1}&end=${e + 1}&mode=weak&weak=1&autostart=1`;
-    });
-  }
 
   function renderMeta(no) {
     const b = getBlockByNo(no);
@@ -580,8 +569,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function makeQuestion() {
-    const { s, e } = getRangePool();
-    let idx = pickCorrectIndex(s, e);
+  const { s, e } = getRangePool();
+  let idx;
+
+  if (Array.isArray(session.retryOrder)) {
+    if (session.retryOrder.length === 0) return null;
+    idx = session.retryOrder.shift();
+  } else {
+    idx = pickCorrectIndex(s, e);
 
     if (weakMode && quizMode !== "order") {
       const weakIdxs = [];
@@ -592,20 +587,21 @@ document.addEventListener("DOMContentLoaded", () => {
         idx = pool[Math.floor(Math.random() * pool.length)];
       }
     }
-
-    askedSet.add(words[idx].en);
-
-    const no = idx + 1;
-    const b = getBlockByNo(no);
-    const blockId = b ? Number(b.id) : 0;
-
-    return {
-      idx, no, blockId,
-      en: words[idx].en,
-      ja: words[idx].ja,
-      choices: makeChoices(words[idx], s, e)
-    };
   }
+
+  askedSet.add(words[idx].en);
+
+  const no = idx + 1;
+  const b = getBlockByNo(no);
+  const blockId = b ? Number(b.id) : 0;
+
+  return {
+    idx, no, blockId,
+    en: words[idx].en,
+    ja: words[idx].ja,
+    choices: makeChoices(words[idx], s, e)
+  };
+}
 
   function showPlayView() {
     playBox.style.display = "block";
@@ -622,7 +618,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateWeakInfo() {
-    weakInfoEl.textContent = `弱点数：${weakCount()}（弱点モード：${weakMode ? "ON" : "OFF"}）`;
+    weakInfoEl.textContent = `保存済みニガテ数：${weakCount()}（復習したいときは出題モードで「ニガテ順」を選んでください）`;
   }
 
   function renderQuestion() {
@@ -742,7 +738,7 @@ document.addEventListener("DOMContentLoaded", () => {
     finalScoreEl.textContent = `結果：${session.correct} / ${session.limit}`;
 
     const rangeText = (blockSelectEl.value === "all") ? "全範囲" : `Block ${blockSelectEl.value}`;
-    finalBlockLineEl.textContent = `出題範囲：${rangeText}｜モード：${modeText()}｜${weakMode ? "弱点ON" : "弱点OFF"}｜${LV}級`;
+    finalBlockLineEl.textContent = `出題範囲：${rangeText}｜モード：${modeText()}｜${LV}級`;
 
     askedListEl.innerHTML = "";
     askedLog.forEach(item => {
@@ -766,6 +762,46 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+function startSameConditionNextSession() {
+  session.answered = 0;
+  session.correct = 0;
+  session.active = true;
+  session.retryOrder = null;
+
+  askedSet.clear();
+  askedLog = [];
+  wrongMap = {};
+
+  if (quizMode === "order") {
+    orderCursor = loadOrderCursor(session.start, session.end);
+  } else {
+    orderCursor = session.start;
+  }
+
+  showPlayView();
+  renderQuestion();
+}
+
+    function startRetrySameSetSession() {
+  if (!askedLog.length) {
+    alert("再挑戦できる問題セットがありません。");
+    return;
+  }
+
+  session.active = true;
+  session.answered = 0;
+  session.correct = 0;
+  session.limit = askedLog.length;
+  session.retryOrder = askedLog.map(item => item.no - 1);
+
+  askedSet.clear();
+  askedLog = [];
+  wrongMap = {};
+
+  showPlayView();
+  renderQuestion();
+}
+
   speakQBtn.addEventListener("click", () => {
     if (current) speakEnglish(current.en);
   });
@@ -781,18 +817,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSettingsSummary();
   });
 
-  weakModeEl.addEventListener("change", () => {
-    weakMode = !!weakModeEl.checked;
-    updateWeakInfo();
-    updateSettingsSummary();
-  });
-
-  clearWeakBtn.addEventListener("click", () => {
-    if (!confirm("弱点をすべて消しますか？")) return;
-    weakPoints = {};
-    saveWeakPoints();
-    updateWeakInfo();
-  });
 
   nextBtn.addEventListener("click", () => {
     if (!answeredThisQuestion) {
@@ -814,11 +838,11 @@ document.addEventListener("DOMContentLoaded", () => {
     session.end = e;
     session.limit = Math.floor(l);
 
-    weakMode = !!weakModeEl.checked;
 
     session.answered = 0;
     session.correct = 0;
     session.active = true;
+    session.retryOrder = null;
 
     askedSet.clear();
     askedLog = [];
@@ -832,21 +856,22 @@ document.addEventListener("DOMContentLoaded", () => {
     renderQuestion();
   });
 
-  resetBtn.addEventListener("click", () => {
-    if (!confirm("今回の成績をリセットしますか？")) return;
-    session.active = false;
-    session.answered = 0;
-    session.correct = 0;
-    askedSet.clear();
-    askedLog = [];
-    wrongMap = {};
-    showPlayView();
-    renderQuestion();
-  });
 
-  backToSetupBtn.addEventListener("click", () => {
-    showPlayView();
-  });
+
+  retrySameSetBtn.addEventListener("click", () => {
+  startRetrySameSetSession();
+});
+
+retrySameConditionBtn.addEventListener("click", () => {
+  startSameConditionNextSession();
+});
+
+backToSetupBtn.addEventListener("click", () => {
+  summaryBox.style.display = "none";
+  playBox.style.display = "block";
+  closeSettings();
+  renderQuestion();
+});
 
   const resetOrderBtn = document.getElementById("resetOrderCursor");
   if (resetOrderBtn) {
@@ -877,11 +902,7 @@ document.addEventListener("DOMContentLoaded", () => {
       saveSettings();
     }
 
-    if (weakModeEl && weak === "1") {
-      weakModeEl.checked = true;
-      weakMode = true;
-      updateWeakInfo();
-    }
+
 
     renderBlockStatsLine();
     updateSettingsSummary();
@@ -900,16 +921,21 @@ document.addEventListener("DOMContentLoaded", () => {
   applySelectedBlockToRange();
 
   session.limit = Number(limitEl.value) || session.limit;
-  weakMode = !!weakModeEl.checked;
 
   if (levelBadgeEl) {
     levelBadgeEl.textContent = `現在：全商英検 ${LV}級`;
   }
 
-  renderGoimonVisibility();
-  closeSettings();
-  showPlayView();
-  renderQuestion();
+renderGoimonVisibility();
+
+settingsOpen = true;
+settingsArea.style.display = "block";
+toggleSettingsBtn.textContent = "▲ 設定を閉じる";
+updateSettingsSummary();
+
+showPlayView();
+summaryBox.style.display = "none";
+renderQuestion();
 
   if (typeof window.renderQuizGoimonMini === "function") {
     window.renderQuizGoimonMini();
