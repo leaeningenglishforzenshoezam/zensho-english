@@ -1989,6 +1989,82 @@ a {
     grid-template-columns: 1fr 1fr !important;
   }
 }
+.goimonInfoList {
+  display: grid;
+  gap: 10px;
+}
+
+.goimonInfoRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+.goimonInfoRow span {
+  font-size: 13px;
+  color: #666;
+}
+
+.goimonInfoRow strong {
+  font-size: 14px;
+  color: #111;
+}
+
+.goimonHistoryRow {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.goimonHistoryChip {
+  flex: 0 0 auto;
+  width: 112px;
+  border: 1px solid #eee2c8;
+  background: #fffaf2;
+  border-radius: 14px;
+  padding: 10px;
+  text-align: center;
+}
+
+.goimonHistoryImgWrap {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 8px;
+  border: 1px solid #eddcb8;
+  background: #fff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.goimonHistoryImgWrap img {
+  max-width: 60px;
+  max-height: 60px;
+  display: block;
+}
+
+.goimonHistoryStage {
+  font-size: 11px;
+  color: #8a6a2d;
+  margin-bottom: 4px;
+}
+
+.goimonHistoryName {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111;
+  line-height: 1.4;
+  word-break: break-word;
+}
 
 @media (max-width: 420px) {
   .goimonDexStageRow {
