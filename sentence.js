@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const backBtn = document.getElementById("backBtn");
   const summaryBackBtn = document.getElementById("summaryBackBtn");
+  const retrySameBtn = document.getElementById("retrySameBtn");
   const continueBtn = document.getElementById("continueBtn");
   const retryWeakBtn = document.getElementById("retryWeakBtn");
 
@@ -86,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     [clearWeakBtn, "clearWeakBtn"],
     [backBtn, "backBtn"],
     [summaryBackBtn, "summaryBackBtn"],
+    [retrySameBtn, "retrySameBtn"],
     [continueBtn, "continueBtn"],
     [retryWeakBtn, "retryWeakBtn"],
     [blockSelect, "blockSelect"],
@@ -734,10 +736,11 @@ document.addEventListener("DOMContentLoaded", () => {
     order: [],
     cursor: 0,
     limit: 20,
-    answered: 0,
     correct: 0,
+    answered: 0,
     orderMode: "continue",
-    autoRead: false
+    autoRead: false,
+    askedOrder: []
   };
 
   let current = null;
@@ -788,11 +791,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function orderModeText() {
     if (session.mode === "weak") return "ニガテ";
+    if (session.orderMode === "retry") return "同セット再挑戦";
     if (session.orderMode === "start") return "先頭";
     if (session.orderMode === "continue") return "続き";
     return "ランダム";
   }
-
   function renderQuestion() {
     if (session.mode === "weak") {
       const c = weakCounts();
@@ -847,7 +850,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const qIndex = session.order[session.cursor % session.order.length];
     session.cursor++;
-
+    if (session.askedOrder.length < session.limit) session.askedOrder.push(qIndex)
+  
     if (session.mode === "normal" && session.orderMode === "continue") {
       saveCursor(session.blockValue, session.cursor % session.order.length);
     }
@@ -1071,6 +1075,7 @@ document.addEventListener("DOMContentLoaded", () => {
     showSummary();
     renderSummary(autoCleared);
 
+    retrySameBtn.disabled = !(session.askedOrder && session.askedOrder.length > 0);
     continueBtn.disabled = (session.mode === "weak");
     retryWeakBtn.disabled = (weakCounts().total === 0);
   }
@@ -1106,6 +1111,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     session.autoRead = !!autoReadEl.checked;
+    session.askedOrder = [];
 
     askedLog = [];
     showPlay();
@@ -1143,6 +1149,33 @@ document.addEventListener("DOMContentLoaded", () => {
     session.orderMode = "weak";
     session.order = shuffle(eligible);
     session.cursor = 0;
+    session.autoRead = !!autoReadEl.checked;
+    session.askedOrder = [];
+
+    askedLog = [];
+    showPlay();
+    renderQuestion();
+  }
+
+    function startRetrySameSession() {
+    const validOrder = Array.isArray(session.askedOrder)
+      ? session.askedOrder.filter(i => Number.isInteger(i) && i >= 0 && i < fixed.length)
+      : [];
+
+    if (!validOrder.length) {
+      alert("解き直せる問題セットがありません。");
+      return;
+    }
+
+    session.mode = "normal";
+    session.eligible = [...validOrder];
+    session.order = [...validOrder];
+    session.cursor = 0;
+    session.limit = validOrder.length;
+    session.answered = 0;
+    session.correct = 0;
+    session.orderMode = "retry";
+    session.askedOrder = [];
     session.autoRead = !!autoReadEl.checked;
 
     askedLog = [];
@@ -1250,6 +1283,9 @@ document.addEventListener("DOMContentLoaded", () => {
     renderWeakManagement();
   });
 
+    retrySameBtn.addEventListener("click", () => {
+    startRetrySameSession();
+  });
   continueBtn.addEventListener("click", startNormalSession);
 
   retryWeakBtn.addEventListener("click", () => {
