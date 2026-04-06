@@ -22,14 +22,23 @@ const problemListBackBtn = $("problemListBackBtn");
 const problemListEl = $("problemList");
 const problemListEmpty = $("problemListEmpty");
 
+  const weakListBox = $("weakListBox");
+  const openWeakListBtn = $("openWeakListBtn");
+  const weakListBackBtn = $("weakListBackBtn");
+  const weakListEl = $("weakList");
+  const weakListEmpty = $("weakListEmpty");
+
   const startBtn = $("startBtn");
   const backBtn = $("backBtn");
   const manualWeakBtn = $("manualWeakBtn");
+  const retrySetBtnTop = $("retrySetBtnTop");
   const continueBtn = $("continueBtn");
   const summaryBackBtn = $("summaryBackBtn");
 
   const countInput = $("countInput");
   const orderModeEl = $("orderMode");
+  const startNoInput = $("startNoInput");
+  const endNoInput = $("endNoInput");
   const poolInfo = $("poolInfo");
 
   const statsEl = $("stats");
@@ -176,14 +185,18 @@ function addLearningLogResult(categoryKey, isCorrect) {
     const s = safeParse(SETTINGS_KEY);
     return {
       count: Number.isFinite(Number(s?.count)) ? Number(s.count) : 10,
-      orderMode: String(s?.orderMode || "continue")
+      orderMode: String(s?.orderMode || "continue"),
+      startNo: Number.isFinite(Number(s?.startNo)) ? Number(s.startNo) : 1,
+      endNo: Number.isFinite(Number(s?.endNo)) ? Number(s.endNo) : 9999
     };
   }
 
   function saveSettings(obj) {
     saveJson(SETTINGS_KEY, {
       count: Number(obj.count || 10),
-      orderMode: String(obj.orderMode || "continue")
+      orderMode: String(obj.orderMode || "continue"),
+      startNo: Number(obj.startNo || 1),
+      endNo: Number(obj.endNo || 9999)
     });
   }
 
@@ -331,10 +344,12 @@ function renderManualWeakButton() {
     cursor: 0,
     limit: 10,
     answered: 0,
-    correct: 0
+    correct: 0,
+    askedIndexes: []
   };
 
   let current = null;
+  let currentQuestionIndex = -1;
   let selectedIds = [];
   let shownChunkIds = [];
   let checked = false;
@@ -342,12 +357,13 @@ function renderManualWeakButton() {
   let wrongLogs = [];
   let activeGrammarTag = "";
 
- function showSetup() {
+function showSetup() {
   setupBox.style.display = "block";
   playBox.style.display = "none";
   summaryBox.style.display = "none";
   if (problemListBox) problemListBox.style.display = "none";
   if (grammarTagListBox) grammarTagListBox.style.display = "none";
+  if (weakListBox) weakListBox.style.display = "none";
 }
 
 function showPlay() {
@@ -356,6 +372,7 @@ function showPlay() {
   summaryBox.style.display = "none";
   if (problemListBox) problemListBox.style.display = "none";
   if (grammarTagListBox) grammarTagListBox.style.display = "none";
+  if (weakListBox) weakListBox.style.display = "none";
 }
 
 function showSummary() {
@@ -364,6 +381,7 @@ function showSummary() {
   summaryBox.style.display = "block";
   if (problemListBox) problemListBox.style.display = "none";
   if (grammarTagListBox) grammarTagListBox.style.display = "none";
+  if (weakListBox) weakListBox.style.display = "none";
 }
 
 function showProblemList() {
@@ -372,6 +390,7 @@ function showProblemList() {
   summaryBox.style.display = "none";
   if (problemListBox) problemListBox.style.display = "block";
   if (grammarTagListBox) grammarTagListBox.style.display = "none";
+  if (weakListBox) weakListBox.style.display = "none";
 }
 
 function showGrammarTagList() {
@@ -380,6 +399,16 @@ function showGrammarTagList() {
   summaryBox.style.display = "none";
   if (problemListBox) problemListBox.style.display = "none";
   if (grammarTagListBox) grammarTagListBox.style.display = "block";
+  if (weakListBox) weakListBox.style.display = "none";
+}
+
+function showWeakList() {
+  setupBox.style.display = "none";
+  playBox.style.display = "none";
+  summaryBox.style.display = "none";
+  if (problemListBox) problemListBox.style.display = "none";
+  if (grammarTagListBox) grammarTagListBox.style.display = "none";
+  if (weakListBox) weakListBox.style.display = "block";
 }
 
   function getChunkMap(q) {
@@ -652,6 +681,141 @@ function renderGrammarTagList() {
     });
 
     btnRow.appendChild(toggleBtn);
+  });
+}
+
+function renderWeakList() {
+  if (!weakListEl || !weakListEmpty) return;
+
+  weakListEl.innerHTML = "";
+
+  const weakQuestions = QUESTIONS.filter(q => {
+    return isManualWeakId(q.id) || getAutoWeakCountById(q.id) > 0;
+  });
+
+  if (!weakQuestions.length) {
+    weakListEmpty.style.display = "block";
+    return;
+  }
+
+  weakListEmpty.style.display = "none";
+
+  weakQuestions.forEach((q) => {
+    const item = document.createElement("div");
+    item.className = "problemListItem";
+
+    const problemNo = getDisplayQuestionNo(q);
+    const masked = getMaskedQuestionText(q);
+    const tags = Array.isArray(q.grammarTags) ? q.grammarTags : [];
+
+    item.innerHTML = `
+      <div class="problemListNo">問題${escapeHtml(problemNo)}</div>
+      <div class="problemListQuestion">${escapeHtml(masked)}</div>
+      <div class="problemListJa">${escapeHtml(q.ja || "")}</div>
+
+      <div class="detailBlock" style="margin-top:8px;">
+        <div class="detailLabel">苦手状態</div>
+        <div class="problemListWeakMeta muted" style="font-size:14px; line-height:1.7;"></div>
+      </div>
+
+      <div class="problemListBtnRow"></div>
+      <div class="problemListDetail"></div>
+    `;
+
+    weakListEl.appendChild(item);
+
+    const btnRow = item.querySelector(".problemListBtnRow");
+    const detail = item.querySelector(".problemListDetail");
+    const weakMeta = item.querySelector(".problemListWeakMeta");
+
+    const solveBtn = document.createElement("button");
+    solveBtn.type = "button";
+    solveBtn.className = "primary";
+    solveBtn.textContent = "この問題を解く";
+    solveBtn.addEventListener("click", () => {
+      startRetrySessionById(q.id);
+    });
+    btnRow.appendChild(solveBtn);
+
+    const weakBtn = document.createElement("button");
+    weakBtn.type = "button";
+    btnRow.appendChild(weakBtn);
+
+    const toggleBtn = document.createElement("button");
+    toggleBtn.type = "button";
+    toggleBtn.textContent = "正解と解説を見る";
+    btnRow.appendChild(toggleBtn);
+
+    let opened = false;
+
+    toggleBtn.addEventListener("click", () => {
+      opened = !opened;
+
+      if (!opened) {
+        toggleBtn.textContent = "正解と解説を見る";
+        detail.classList.remove("open");
+        detail.innerHTML = "";
+        return;
+      }
+
+      toggleBtn.textContent = "閉じる";
+
+      let html = `
+        <div class="detailBlock">
+          <div class="detailLabel">完成英文</div>
+          <div class="detailText">${escapeHtml(q.completed || "")}</div>
+        </div>
+      `;
+
+      if (Array.isArray(q.grammarFocus) && q.grammarFocus.length) {
+        html += `
+          <div class="detailBlock">
+            <div class="detailLabel">この問題でのポイント</div>
+            <div class="detailText">${escapeHtml(q.grammarFocus.map(x => `・${x}`).join("\n"))}</div>
+          </div>
+        `;
+      }
+
+      if (q.note) {
+        html += `
+          <div class="detailBlock">
+            <div class="detailLabel">補足</div>
+            <div class="detailText">${escapeHtml(q.note)}</div>
+          </div>
+        `;
+      }
+
+      if (tags.length) {
+        html += `<div class="grammarTagWrap">`;
+        html += tags.map(tag => {
+          const card = GRAMMAR_DICT[tag];
+          const label = (card && card.label) ? card.label : tag;
+          return `<span class="grammarTagBtn" style="cursor:default;">${escapeHtml(label)}</span>`;
+        }).join("");
+        html += `</div>`;
+      }
+
+      detail.innerHTML = html;
+      detail.classList.add("open");
+    });
+
+    function updateWeakMeta() {
+      const manual = isManualWeakId(q.id);
+      const autoCount = getAutoWeakCountById(q.id);
+
+      weakMeta.textContent =
+        `${manual ? "手動苦手：あり" : "手動苦手：なし"} / 自動苦手回数：${autoCount}`;
+
+      weakBtn.textContent = manual ? "手動苦手を解除" : "手動苦手に追加";
+      weakBtn.className = manual ? "grammarTagBtn active" : "grammarTagBtn";
+    }
+
+    weakBtn.addEventListener("click", () => {
+      toggleManualWeakById(q.id);
+      updateWeakMeta();
+    });
+
+    updateWeakMeta();
   });
 }
 
@@ -1012,6 +1176,18 @@ function renderGrammarTagList() {
   return id || "-";
 }
 
+function getQuestionNoNumber(target) {
+  const no = Number(getDisplayQuestionNo(target));
+  return Number.isFinite(no) ? no : null;
+}
+
+function getRangeFilteredIndexes(startNo, endNo) {
+  return QUESTIONS
+    .map((q, index) => ({ q, index, no: getQuestionNoNumber(q) }))
+    .filter(x => x.no !== null && x.no >= startNo && x.no <= endNo)
+    .map(x => x.index);
+}
+
   function renderQuestionMeta() {
   const orderLabel = getOrderModeLabel(session.orderMode);
   const problemNo = (typeof getDisplayQuestionNo === "function")
@@ -1021,41 +1197,42 @@ function renderGrammarTagList() {
   qMeta.textContent =
     `問題${problemNo}（${session.answered + 1}/${session.limit}）・ ${orderLabel} ・ カード${current?.chunks?.length || 0}枚`;
 }
-  function renderQuestion() {
-  if (session.answered >= session.limit) {
-    finishSession();
-    return;
-  }
+    function renderQuestion() {
+    if (session.answered >= session.limit) {
+      finishSession();
+      return;
+    }
 
-  if (!session.order.length) {
-    questionLine.textContent = "出題できる問題がありません。";
-    qMeta.textContent = "";
-    answerSlots.innerHTML = "";
-    chunkBank.innerHTML = "";
-    hintBtn.disabled = true;
-    resetBtn.disabled = true;
-    checkBtn.disabled = true;
-    nextBtn.disabled = true;
+    if (!session.order.length) {
+      questionLine.textContent = "出題できる問題がありません。";
+      qMeta.textContent = "";
+      answerSlots.innerHTML = "";
+      chunkBank.innerHTML = "";
+      hintBtn.disabled = true;
+      resetBtn.disabled = true;
+      checkBtn.disabled = true;
+      nextBtn.disabled = true;
+      renderManualWeakButton();
+      return;
+    }
+
+    const qIndex = session.order[session.cursor % session.order.length];
+    session.cursor += 1;
+
+    if (session.orderMode === "continue") {
+      saveCursor(session.cursor % session.order.length);
+    }
+
+    currentQuestionIndex = qIndex;
+    current = QUESTIONS[qIndex];
+    shownChunkIds = shuffle((current.chunks || []).map(x => x.id));
+
+    renderStats();
+    renderQuestionMeta();
+    resetQuestionUi();
     renderManualWeakButton();
-    return;
+    renderEvolutionNotice();
   }
-
-  const qIndex = session.order[session.cursor % session.order.length];
-  session.cursor += 1;
-
-  if (session.orderMode === "continue") {
-    saveCursor(session.cursor % session.order.length);
-  }
-
-  current = QUESTIONS[qIndex];
-  shownChunkIds = shuffle((current.chunks || []).map(x => x.id));
-
-  renderStats();
-  renderQuestionMeta();
-  resetQuestionUi();
-  renderManualWeakButton();
-  renderEvolutionNotice();
-}
 
   function showHint() {
     if (!current || checked) return;
@@ -1113,12 +1290,17 @@ function renderGrammarTagList() {
       `正しい並び：${escapeHtml(correctText)}`;
   }
 
+  session.askedIndexes.push(currentQuestionIndex);
+
   wrongLogs.push({
     id: current.id,
+    qIndex: currentQuestionIndex,
     isCorrect,
     completed: current.completed || "",
     ja: current.ja || "",
-    grammarTags: Array.isArray(current.grammarTags) ? [...current.grammarTags] : []
+    grammarTags: Array.isArray(current.grammarTags) ? [...current.grammarTags] : [],
+    grammarFocus: Array.isArray(current.grammarFocus) ? [...current.grammarFocus] : [],
+    note: current.note || ""
   });
 
   hintBtn.disabled = true;
@@ -1158,10 +1340,32 @@ function startRetrySessionById(id) {
   renderQuestion();
 }
 
+function startRetrySessionByIndexes(indexes) {
+  const validIndexes = Array.isArray(indexes)
+    ? indexes.filter(i => Number.isInteger(i) && i >= 0 && i < QUESTIONS.length)
+    : [];
+
+  if (!validIndexes.length) {
+    alert("解き直せる問題がありません。");
+    return;
+  }
+
+  session.limit = validIndexes.length;
+  session.answered = 0;
+  session.correct = 0;
+  session.orderMode = "retry";
+  session.order = [...validIndexes];
+  session.cursor = 0;
+  session.askedIndexes = [];
+
+  wrongLogs = [];
+  showPlay();
+  renderQuestion();
+}
+
 
 
 function renderSummary() {
-  const wrongs = wrongLogs.filter(x => !x.isCorrect);
   const orderLabel = getOrderModeLabel(session.orderMode);
   const rate = session.limit > 0 ? Math.round((session.correct / session.limit) * 100) : 0;
 
@@ -1170,14 +1374,15 @@ function renderSummary() {
 
   wrongList.innerHTML = "";
 
-  if (wrongs.length === 0) {
+  if (!wrongLogs.length) {
     wrongEmpty.style.display = "block";
+    wrongEmpty.textContent = "今回の結果はまだありません。";
     return;
   }
 
   wrongEmpty.style.display = "none";
 
-  wrongs.forEach((w, idx) => {
+  wrongLogs.forEach((w, idx) => {
     const problemNo = getDisplayQuestionNo(w.id);
     const tags = Array.isArray(w.grammarTags) ? w.grammarTags : [];
     const manual = isManualWeakId(w.id);
@@ -1186,11 +1391,20 @@ function renderSummary() {
     const item = document.createElement("div");
     item.className = "summaryWrongItem";
 
+    const statusText = w.isCorrect ? "⭕️ 正解" : "❌ 不正解";
+    const statusClass = w.isCorrect ? "ok" : "ng";
+
     let html = `
-      <div style="font-weight:800; margin-bottom:6px;">問題${escapeHtml(problemNo)}（今回の${idx + 1}件目のミス）</div>
-      <div class="mono" style="font-size:15px; line-height:1.7; margin-bottom:6px;">${escapeHtml(w.completed)}</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+        <div style="font-weight:800;">問題${escapeHtml(problemNo)}（${idx + 1}/${wrongLogs.length}）</div>
+        <div class="${statusClass}" style="font-weight:800;">${statusText}</div>
+      </div>
+
+      <div class="mono" style="font-size:15px; line-height:1.8; margin-bottom:6px;">${escapeHtml(w.completed)}</div>
       <div class="muted" style="font-size:14px; margin-bottom:10px;">${escapeHtml(w.ja)}</div>
+
       <div class="summaryWeakRow" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;"></div>
+      <div class="summaryFocusArea"></div>
     `;
 
     if (tags.length) {
@@ -1202,6 +1416,8 @@ function renderSummary() {
     wrongList.appendChild(item);
 
     const weakRow = item.querySelector(".summaryWeakRow");
+    const focusArea = item.querySelector(".summaryFocusArea");
+
     if (weakRow) {
       const weakBtn = document.createElement("button");
       weakBtn.type = "button";
@@ -1220,7 +1436,7 @@ function renderSummary() {
       const retryBtn = document.createElement("button");
       retryBtn.type = "button";
       retryBtn.className = "grammarTagBtn";
-      retryBtn.textContent = "もう一度解く";
+      retryBtn.textContent = "この問題をもう一度解く";
 
       retryBtn.addEventListener("click", () => {
         startRetrySessionById(w.id);
@@ -1228,6 +1444,28 @@ function renderSummary() {
 
       weakRow.appendChild(retryBtn);
     }
+
+    let focusHtml = "";
+
+    if (Array.isArray(w.grammarFocus) && w.grammarFocus.length) {
+      focusHtml += `
+        <div class="detailBlock" style="margin-top:8px;">
+          <div class="detailLabel">この問題でのポイント</div>
+          <div class="detailText">${escapeHtml(w.grammarFocus.map(x => `・${x}`).join("\n"))}</div>
+        </div>
+      `;
+    }
+
+    if (w.note) {
+      focusHtml += `
+        <div class="detailBlock" style="margin-top:8px;">
+          <div class="detailLabel">補足</div>
+          <div class="detailText">${escapeHtml(w.note)}</div>
+        </div>
+      `;
+    }
+
+    focusArea.innerHTML = focusHtml;
 
     if (tags.length) {
       const wrap = item.querySelector(".grammarTagWrap");
@@ -1263,6 +1501,41 @@ function renderSummary() {
       cardArea.innerHTML = "";
     }
   });
+
+  const actionBox = document.createElement("div");
+  actionBox.style.display = "flex";
+  actionBox.style.gap = "8px";
+  actionBox.style.flexWrap = "wrap";
+  actionBox.style.marginTop = "16px";
+
+  const retrySetBtn = document.createElement("button");
+  retrySetBtn.type = "button";
+  retrySetBtn.className = "primary";
+  retrySetBtn.textContent = "同じ問題セットを解き直す";
+  retrySetBtn.addEventListener("click", () => {
+    startRetrySessionByIndexes(wrongLogs.map(x => x.qIndex));
+  });
+
+  const nextSetBtn = document.createElement("button");
+  nextSetBtn.type = "button";
+  nextSetBtn.textContent = "次の問題セットへ";
+  nextSetBtn.addEventListener("click", () => {
+    startSession();
+  });
+
+  const setupBtn = document.createElement("button");
+  setupBtn.type = "button";
+  setupBtn.textContent = "設定画面へ";
+  setupBtn.addEventListener("click", () => {
+    showSetup();
+    renderPoolInfo();
+  });
+
+  actionBox.appendChild(retrySetBtn);
+  actionBox.appendChild(nextSetBtn);
+  actionBox.appendChild(setupBtn);
+
+  wrongList.appendChild(actionBox);
 }
 
 
@@ -1280,8 +1553,25 @@ function renderSummary() {
   let requestedLimit = Number(countInput.value);
   if (!Number.isFinite(requestedLimit) || requestedLimit < 1) requestedLimit = 10;
 
+  let startNo = Number(startNoInput.value);
+  let endNo = Number(endNoInput.value);
+
+  if (!Number.isFinite(startNo) || startNo < 1) startNo = 1;
+  if (!Number.isFinite(endNo) || endNo < 1) endNo = 9999;
+
+  if (startNo > endNo) {
+    const tmp = startNo;
+    startNo = endNo;
+    endNo = tmp;
+  }
+
   const orderMode = String(orderModeEl.value || "continue");
-  const baseOrder = QUESTIONS.map((_, i) => i);
+  const baseOrder = getRangeFilteredIndexes(startNo, endNo);
+
+  if (!baseOrder.length) {
+    alert("指定した問題番号の範囲に問題がありません。");
+    return;
+  }
 
   let order = [];
   let cursor = 0;
@@ -1294,15 +1584,16 @@ function renderSummary() {
     cursor = 0;
     saveCursor(0);
   } else if (orderMode === "weak") {
-    order = buildWeakOrder();
+    order = buildWeakOrder().filter(i => baseOrder.includes(i));
     if (!order.length) {
-      alert("まだ苦手問題がありません。まずは通常の学習で記録をためてください。");
+      alert("指定範囲内に苦手問題がありません。");
       return;
     }
     cursor = 0;
   } else {
     order = baseOrder;
-    cursor = loadCursor();
+    const savedCursor = loadCursor();
+    cursor = savedCursor >= order.length ? 0 : savedCursor;
   }
 
   const limit = Math.min(requestedLimit, order.length);
@@ -1313,11 +1604,14 @@ function renderSummary() {
   session.orderMode = orderMode;
   session.order = order;
   session.cursor = cursor;
+  session.askedIndexes = [];
 
   wrongLogs = [];
   saveSettings({
     count: limit,
-    orderMode: session.orderMode
+    orderMode: session.orderMode,
+    startNo,
+    endNo
   });
 
   showPlay();
@@ -1356,6 +1650,8 @@ function renderSummary() {
     const settings = loadSettings();
     countInput.value = String(settings.count || 10);
     orderModeEl.value = settings.orderMode || "continue";
+    if (startNoInput) startNoInput.value = String(settings.startNo || 1);
+    if (endNoInput) endNoInput.value = String(settings.endNo || 9999);
 
     renderLevelBadge();
     renderPoolInfo();
@@ -1376,12 +1672,27 @@ function renderSummary() {
       renderPoolInfo();
     });
 
-    continueBtn.addEventListener("click", startSession);
+        if (continueBtn) {
+      continueBtn.textContent = "次の問題セットへ";
+      continueBtn.addEventListener("click", () => {
+        startSession();
+      });
+    }
 
-    summaryBackBtn.addEventListener("click", () => {
-      showSetup();
-      renderPoolInfo();
-    });
+     if (retrySetBtnTop) {
+      retrySetBtnTop.textContent = "同じ問題セットで解き直す";
+      retrySetBtnTop.addEventListener("click", () => {
+        startRetrySessionByIndexes(wrongLogs.map(x => x.qIndex));
+      });
+    }
+
+    if (summaryBackBtn) {
+      summaryBackBtn.textContent = "設定画面へ";
+      summaryBackBtn.addEventListener("click", () => {
+        showSetup();
+        renderPoolInfo();
+      });
+    }
 
     hintBtn.addEventListener("click", showHint);
 
@@ -1427,6 +1738,20 @@ if (openGrammarTagListBtn) {
   openGrammarTagListBtn.addEventListener("click", () => {
     renderGrammarTagList();
     showGrammarTagList();
+  });
+}
+
+if (openWeakListBtn) {
+  openWeakListBtn.addEventListener("click", () => {
+    renderWeakList();
+    showWeakList();
+  });
+}
+
+if (weakListBackBtn) {
+  weakListBackBtn.addEventListener("click", () => {
+    showSetup();
+    renderPoolInfo();
   });
 }
 
