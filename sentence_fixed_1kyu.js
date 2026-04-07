@@ -17,7 +17,7 @@
 
     {"id":"F_advertisement_01","answer":"advertisement","en":"We saw an （　） for the new smartphone on TV.","ja":"新しいスマホの「広告」をテレビで見た。","choices":["advertisement","article","appointment","audience"]},
 
-    {"id":"F_addition_01","answer":"addition","en":"In （　） to the report, please submit the data sheet.","ja":"レポートに「加えて」、データ用紙も提出して。","choices":["addition","advance","advantage","agreement"]},
+    {"id":"F_addition_01","answer":"addition","en":"In （　） to the report, please submit the data sheet.","ja":"レポートに「加えて」、データ用紙も提出して。",note:"in addition to A:Aに加えて = Moreover/ Furthermore/ On top of that/ Besides　で覚える。","choices":["addition","advance","advantage","agreement"]},
 
     {"id":"F_adopt_01","answer":"adopt","en":"The city decided to （　） a new recycling rule.","ja":"市は新しいリサイクル規則を「採用」することにした。","choices":["adopt","admire","attach","arrest"]},
 
@@ -30,6 +30,8 @@
     {"id":"F_affair_01","answer":"affair","en":"The politician tried to hide the （　） from the public.","ja":"政治家は「スキャンダル」を世間から隠そうとした。","choices":["affair","article","agreement","association"]},
 
     {"id":"F_affect_01","answer":"affect","en":"Lack of sleep can （　） your performance in class.","ja":"睡眠不足は授業のパフォーマンスに「影響」する。","choices":["affect","adopt","attach","arise"]},
+
+    {"id":"F_afford_01","answer":"afford","en":"The students cannot （　） to buy all the required textbooks.","ja":"その学生は必要な教科書をすべて買う「余裕がない」。",note:"afford to V：Vする余裕がない　という使い方で覚えよう","choices":["afford","approve","attach","arise"]},
 
     {"id":"F_agent_01","answer":"agent","en":"We asked a travel （　） to plan our trip.","ja":"旅行「代理人（担当者）」に旅行計画を頼んだ。","choices":["agent","applicant","audience","author"]},
 
@@ -49,6 +51,8 @@
 
     {"id":"F_anyhow_01","answer":"anyhow","en":"It was raining, but we went out （　）.","ja":"雨だったが「とにかく」出かけた。","choices":["anyhow","otherwise","throughout","below"]},
 
+    {"id":"F_apologize_01","answer":"apologize","en":"You should （　） to her for being late.","ja":"遅れたことを彼女に「謝る」べきだ。",note:"appologize to 人 for A：人にAについて謝る　という使い方で覚えよう","choices":["apologize","appreciate","approve","argue"]},
+
     {"id":"F_apparent_01","answer":"apparent","en":"It became （　） that he had misunderstood the rules.","ja":"彼が規則を誤解していたことが「明らか」になった。",note :"itは形式主語。that以下の内容を指している。","choices":["apparent","absolute","artificial","available"]},
 
     {"id":"F_applicant_01","answer":"applicant","en":"Each （　） must submit a resume.","ja":"「応募者」は履歴書を提出しなければならない。","choices":["applicant","audience","agent","author"]},
@@ -64,6 +68,8 @@
     {"id":"F_approve_01","answer":"approve","en":"The principal did not （　） the plan.","ja":"校長はその計画を「承認」しなかった。","choices":["approve","remind","attach","appoint"]},
 
     {"id":"F_argue_01","answer":"argue","en":"They began to （　） about the issue.","ja":"彼らはその問題について「口論」し始めた。","choices":["argue","arise","import","approve"]},
+
+    {"id":"F_argument_01","answer":"argument","en":"Their small disagreement soon turned into a loud （　）.","ja":"彼らの小さな意見の食い違いはすぐに激しい「口論」になった。",note:"turn into A ：Aに変わる","choices":["argument","agreement","advantage","appointment"]},
 
     {"id":"F_arise_01","answer":"arise","en":"If any problems （　）, call me immediately.","ja":"問題が「発生」したらすぐ連絡して。","choices":["arise","arrest","adopt","attach"]},
 
@@ -499,7 +505,9 @@
 
 {"id":"F_injury_01","answer":"injury","en":"He could not play in the game because of a leg （　）.","ja":"彼は足の「けが」のため試合に出られなかった。","choices":["injury","innocent","improve","incomplete"]},
 
-{"id":"F_innocent_01","answer":"innocent","en":"The man was found （　） of the crime by the court.","ja":"その男は裁判でその犯罪について「無実」と判断された。","choices":["innocent","absent","present","silent"]},
+{"id":"F_innocence_01","answer":"innocence","en":"The lawyer tried to prove his client’s （　） in court.","ja":"弁護士は法廷で依頼人の「無実」を証明しようとした。","choices":["innocence","injury","inquiry","insurance"]},
+
+{"id":"F_innocent_01","answer":"innocent","en":"The man was found （　） of the crime by the court.","ja":"その男は裁判でその犯罪について「無実だ」と判断された。",note:"innocentは「無実な」という形容詞 A be found 形容詞 : Aは形容詞と判断される　となる。","choices":["innocent","absent","present","silent"]},
 
 {"id":"F_inquire_01","answer":"inquire","en":"She called the office to （　） about the job opening.","ja":"彼女は求人について「問い合わせる」ために会社へ電話した。","choices":["inquire","require","acquire","admire"]},
 
