@@ -360,14 +360,14 @@ window.GoimonUI = (function () {
     // 重要:
     // stage は totalPoints / level から自動上書きしない
     // 進化未確定なら現在の姿のまま維持する
-    out.imageKey = String(out.imageKey || getImageFor(out.type, out.stage));
+    out.imageKey = getImageFor(out.type, out.stage);
 
     out.pendingEvolution = !!out.pendingEvolution;
     out.pendingStage = out.pendingEvolution ? normalizeStage(out.pendingStage) : "";
     out.pendingType = out.pendingEvolution ? normalizeType(out.pendingType || out.type) : "";
     out.pendingImageKey = out.pendingEvolution
-      ? String(out.pendingImageKey || getImageFor(out.pendingType, out.pendingStage))
-      : "";
+  ? getImageFor(out.pendingType, out.pendingStage)
+  : "";
 
     out.discoveredForms = Array.isArray(out.discoveredForms) ? out.discoveredForms.slice() : ["egg"];
         out.evolutionHistory = Array.isArray(out.evolutionHistory) ? out.evolutionHistory.slice() : [];
