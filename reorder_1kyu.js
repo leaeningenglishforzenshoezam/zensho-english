@@ -727,7 +727,7 @@ window.REORDER_1KYU = [
       { id: "c3", text: "had" },
       { id: "c4", text: "green" }
     ],
-    answer: ["c1", "c2", "c3", "c4"],
+    answer: ["c3", "c1", "c2", "c4"],
     completed: "We had the walls painted green before the party.",
     ja: "私たちはパーティーの前に壁を緑色に塗ってもらいました。",
     grammarTags: ["causative_verb"],//使役動詞
