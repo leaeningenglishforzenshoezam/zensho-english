@@ -25,6 +25,7 @@ window.GoimonUI = (function () {
   const DEX_DISCOVERY_KEY_BASE = "zensho_goimon_dex_discovery_v2";
   const HALL_COUNT_KEY_BASE = "zensho_goimon_hall_count_v2";
   const LAST_EVENT_KEY_BASE = "zensho_goimon_last_event_v2";
+  const MR_UNO_UNLOCK_KEY_BASE = "zensho_goimon_mr_uno_unlocked_v1";
 
   const ARCHIVE_LIMIT = 15;
 
@@ -258,6 +259,53 @@ window.GoimonUI = (function () {
     return keyOf(LAST_EVENT_KEY_BASE);
   }
 
+  function getMrUnoUnlockKey() {
+  return keyOf(MR_UNO_UNLOCK_KEY_BASE);
+}
+
+function isMrUnoPermanentlyUnlocked() {
+  return !!loadJson(getMrUnoUnlockKey(), false);
+}
+
+function setMrUnoPermanentlyUnlocked(flag) {
+  saveJson(getMrUnoUnlockKey(), !!flag);
+}
+
+function getAllOwnedGoimons() {
+  const current = ensureCurrent();
+  const archive = loadArchive();
+  return [current, ...archive].filter(Boolean).map(sanitizeGoimon);
+}
+
+function countDistinctFinalTypesForMrUno() {
+  const all = getAllOwnedGoimons();
+  const typeSet = new Set();
+
+  all.forEach(g => {
+    if (g && g.stage === "final" && g.type && g.type !== "mr_uno") {
+      typeSet.add(g.type);
+    }
+  });
+
+  return typeSet.size;
+}
+
+function hasAnyMrUnoHistory() {
+  const current = ensureCurrent();
+  if (current.specialRoute === "mr_uno" || current.type === "mr_uno") return true;
+
+  const archive = loadArchive();
+  if (archive.some(g => g.specialRoute === "mr_uno" || g.type === "mr_uno")) return true;
+
+  const discovery = loadDexDiscovery();
+  return Object.keys(discovery).some(key => key.startsWith("mr_uno:") && discovery[key]);
+}
+
+function shouldPreserveLegacyMrUnoUnlock() {
+  if (hasAnyMrUnoHistory()) return true;
+  return getHallCount() >= 2;
+}
+
   function getDexData() {
     if (window.GOIMON_DEX && typeof window.GOIMON_DEX === "object") {
       return window.GOIMON_DEX;
@@ -318,9 +366,9 @@ window.GoimonUI = (function () {
   }
 
   function getGoimonPrimaryName(g) {
-    const baseName = getBaseDisplayName(g.type, g.stage);
-    return g.nickname ? `${g.nickname}（${baseName}）` : baseName;
-  }
+  const baseName = getBaseDisplayName(g.type, g.stage);
+  return g.nickname ? g.nickname : baseName;
+}
 
   function getTypeDescription(type) {
     const map = {
@@ -1022,14 +1070,25 @@ window.GoimonUI = (function () {
     }
   }
 
-  function isMrUnoUnlocked() {
-    if (window.GoimonRules && typeof window.GoimonRules.isSpecialRouteUnlocked === "function") {
-      return window.GoimonRules.isSpecialRouteUnlocked("mr_uno", {
-        hallOfFameCount: getHallCount()
-      });
-    }
-    return getHallCount() >= 2;
+function isMrUnoUnlocked() {
+  if (isMrUnoPermanentlyUnlocked()) return true;
+
+  // 旧条件ですでに解放済みだった学習者は、そのまま保持
+  if (shouldPreserveLegacyMrUnoUnlock()) {
+    setMrUnoPermanentlyUnlocked(true);
+    return true;
   }
+
+  // 新条件：
+  // MR.UNO 以外の別種類の最終形態を 5 種類達成したら解放
+  const unlocked = countDistinctFinalTypesForMrUno() >= 5;
+
+  if (unlocked) {
+    setMrUnoPermanentlyUnlocked(true);
+  }
+
+  return unlocked;
+}
 
   function renderSpecialRouteBanner(g) {
     const card = document.getElementById("goimonSpecialRouteBanner");
