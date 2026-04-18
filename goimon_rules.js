@@ -14,7 +14,7 @@ window.GOIMON_RULES = {
     mr_uno: {
       secret: true,
       unlock: {
-        hallOfFameCount: 2
+        distinctFinalTypes: 5
       }
     }
   },
@@ -139,7 +139,7 @@ window.GOIMON_RULES = {
     },
 
     mr_uno: {
-      child: "特別ルートを選んだ状態で進化すると、MR.UNO系として進化します",
+      child: "MR.UNO以外の別種類の最終形態を5種類達成し、特別ルートを選んだ状態で進化すると、MR.UNO系として進化します",
       growth: "以後の進化でも、特別ルート中はMR.UNO系として進化します",
       mid: "以後の進化でも、特別ルート中はMR.UNO系として進化します",
       final: "以後の進化でも、特別ルート中はMR.UNO系として進化します"
@@ -247,8 +247,8 @@ window.GoimonRules = {
     if (!route) return false;
 
     if (speciesKey === "mr_uno") {
-      const required = Number(route.unlock?.hallOfFameCount || 0);
-      return Number(ctx?.hallOfFameCount || 0) >= required;
+      const required = Number(route.unlock?.distinctFinalTypes || 0);
+      return Number(ctx?.distinctFinalTypes || 0) >= required;
     }
 
     return false;
