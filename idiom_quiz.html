@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>イディオムクイズ（全商英検）</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
+      background:#f7f7f7;
+      margin:0;
+      color:#111;
+    }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px 12px 24px;
+    }
+
+    .card {
+      background:#fff;
+      border:1px solid #ddd;
+      border-radius:12px;
+      padding:14px;
+      margin: 12px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .muted {
+      color:#666;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .row {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:space-between;
+    }
+
+    button {
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid #ddd;
+      background:#fff;
+      cursor:pointer;
+      font-size: 15px;
+    }
+
+    button.primary {
+      background:#2b7cff;
+      border-color:#2b7cff;
+      color:#fff;
+      font-weight:700;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .hr {
+      height:1px;
+      background:#eee;
+      margin:12px 0;
+    }
+
+    select, input[type="number"] {
+      padding:10px 10px;
+      border-radius:10px;
+      border:1px solid #ddd;
+      font-size: 16px;
+    }
+
+    .topNavBox {
+      margin-bottom: 12px;
+    }
+
+    .topNavTitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .topNav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .topNav a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      color: #111;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .topNav a.active {
+      background: #eaf2ff;
+      border-color: #2b7cff;
+      color: #1251b5;
+      font-weight: 700;
+    }
+
+    #levelBadge {
+      font-size:14px;
+      color:#555;
+      margin: 6px 0 10px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .choiceGrid {
+      display:grid;
+      gap:10px;
+      margin-top: 14px;
+    }
+
+    .choiceBtn {
+      text-align:left;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid #ddd;
+      background:#fff;
+      font-size:16px;
+      line-height:1.6;
+      white-space: normal;
+      word-break: break-word;
+    }
+
+    .choiceBtn.correct {
+      background:#e8f7e8;
+      border-color:#2e9f4d;
+      color:#156b2e;
+      font-weight:700;
+    }
+
+    .choiceBtn.wrong {
+      background:#fdeaea;
+      border-color:#d94b4b;
+      color:#a11f1f;
+      font-weight:700;
+    }
+
+    .expressionBox {
+      font-size: 28px;
+      line-height: 1.6;
+      word-break: break-word;
+      text-align: center;
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 20px 14px;
+      margin-top: 12px;
+      font-weight: 800;
+    }
+
+    .questionModeBadge {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #1251b5;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .feedbackBox {
+      margin-top: 14px;
+      font-size: 17px;
+      line-height: 1.9;
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid #eee;
+      background: #fafafa;
+    }
+
+    .feedbackBox.ok {
+      background:#eefaf0;
+      border-color:#b9e1c2;
+      color:#0a7a2f;
+    }
+
+    .feedbackBox.ng {
+      background:#fff1f1;
+      border-color:#efc0c0;
+      color:#b00020;
+    }
+
+    .feedbackStatus {
+      font-size: 21px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .feedbackLabel {
+      font-size: 14px;
+      color: #555;
+      font-weight: 700;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+
+    .feedbackText {
+      font-size: 18px;
+      line-height: 1.85;
+      color:#111;
+      word-break: break-word;
+    }
+
+    .summaryBlock {
+      margin-top: 14px;
+      border-top: 1px solid #eee;
+      padding-top: 14px;
+    }
+
+    .summaryItem {
+      border-top: 1px solid #eee;
+      padding: 12px 0;
+    }
+
+    .summaryItem:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .summaryLabel {
+      font-size: 12px;
+      color: #666;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .summaryText {
+      font-size: 15px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .listToolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .listToolbarTitle {
+      font-size: 13px;
+      color: #666;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .listToolbarBtns {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .listItem {
+      border-top: 1px solid #eee;
+      padding: 14px 0;
+    }
+
+    .listItem:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .listTitle {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+
+    .listBadgeRow {
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      margin-bottom: 10px;
+    }
+
+    .infoGrid {
+      display:grid;
+      gap:10px;
+      margin-bottom: 10px;
+    }
+
+    .infoBlock {
+      border:1px solid #eee;
+      border-radius:12px;
+      padding:10px 12px;
+      background:#fafafa;
+    }
+
+    .infoLabel {
+      font-size: 12px;
+      color: #666;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .infoValue {
+      font-size: 15px;
+      line-height: 1.7;
+      word-break: break-word;
+      cursor: default;
+    }
+
+    .infoValue.masked {
+      color:#666;
+      background:#f0f0f0;
+      border:1px dashed #ccc;
+      border-radius:8px;
+      padding:10px 12px;
+      cursor:pointer;
+      display:inline-block;
+    }
+
+    .listBtnRow {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top: 8px;
+    }
+
+    .badge {
+      display:inline-block;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      border:1px solid #ddd;
+      background:#fff;
+    }
+
+    .badgeWeak {
+      background:#fff0f4;
+      border-color:#f2a0b5;
+      color:#ad3159;
+    }
+
+    .badgeAuto {
+      background:#fff8e8;
+      border-color:#efcf88;
+      color:#8b5a00;
+    }
+
+    .badgeOk {
+      background:#eefaf0;
+      border-color:#b9e1c2;
+      color:#0a7a2f;
+    }
+
+    .badgeNg {
+      background:#fff1f1;
+      border-color:#efc0c0;
+      color:#b00020;
+    }
+
+    .weakBtnActive {
+      background: #fff0f4;
+      border-color: #f2a0b5;
+      color: #ad3159;
+      font-weight: 700;
+    }
+
+    .goimonToggleBox {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.goimonToggleBtn {
+  background: #f9fbff;
+  border: 1px solid #d6e5ff;
+  color: #234f97;
+  font-weight: 700;
+}
+
+.evoNoticeBtn {
+  background: linear-gradient(180deg, #fff6d6 0%, #ffe8a3 100%);
+  border: 1px solid #f1d48a;
+  color: #7a5200;
+  font-weight: 900;
+  position: relative;
+  animation: noticePulse 1.8s ease-in-out infinite;
+  box-shadow: 0 0 0 rgba(255, 214, 102, 0.0);
+}
+
+.evoNoticeBtn::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 14px;
+  border: 2px solid rgba(255, 214, 102, 0.35);
+  animation: noticeRing 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes noticePulse {
+  0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(255,214,102,0); }
+  50% { transform: translateY(-1px) scale(1.02); box-shadow: 0 6px 18px rgba(255,214,102,0.35); }
+}
+
+@keyframes noticeRing {
+  0% { transform: scale(0.96); opacity: 0.75; }
+  100% { transform: scale(1.12); opacity: 0; }
+}
+
+.miniGoimonCard {
+  border: 1px solid #f0e3c7;
+  background: #fffaf2;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.miniGoimonHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.miniGoimonTitle {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.miniGoimonSub {
+  font-size: 12px;
+  color: #666;
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+
+.miniGoimonStage {
+  text-align: right;
+  flex: 0 0 auto;
+}
+
+.miniGoimonStageLabel {
+  font-size: 11px;
+  color: #8a6a2d;
+  margin-bottom: 2px;
+}
+
+.miniGoimonStageValue {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.miniGoimonBody {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.miniGoimonImageWrap {
+  width: 88px;
+  height: 88px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #eddcb8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.miniGoimonImageWrap img {
+  max-width: 76px;
+  max-height: 76px;
+  display: block;
+}
+
+.miniGoimonInfo {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.miniGoimonName {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0 0 4px;
+}
+
+.miniGoimonMeta {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.miniGoimonDesc {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.goimonPointGuide {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #555;
+  line-height: 1.5;
+}
+
+@media (max-width: 520px) {
+  .miniGoimonBody {
+    align-items: flex-start;
+  }
+}
+
+    @media (max-width: 520px) {
+      .expressionBox {
+        font-size: 24px;
+      }
+
+      .choiceBtn {
+        font-size: 15px;
+      }
+
+      .feedbackStatus {
+        font-size: 19px;
+      }
+
+      .feedbackText {
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="card topNavBox">
+      <div class="topNavTitle">学習ページ移動</div>
+      <div class="topNav">
+    <a href="index.html">ホーム</a>
+    <a href="study.html">暗記</a>
+    <a href="quiz.html">英→日</a>
+    <a href="quiz_jaen.html">日→英</a>
+    <a href="audio_quiz.html">音声→意味</a>
+    <a href="idiom_quiz.html" class="active">イディオム</a>
+    <a href="accent.html">大問1</a>
+    <a href="sentence.html">大問9</a>
+    <a href="paraphrase_quiz.html">大問11</a>
+    <a href="reorder.html">大問12</a>
+    <a href="list.html">一覧</a>
+    <a href="progress.html">進捗</a>
+      </div>
+    </div>
+
+    <div id="levelBadge"></div>
+    <div class="goimonToggleBox">
+  <button id="toggleGoimon" type="button" class="goimonToggleBtn">ゴイモンの様子を見る</button>
+  <button id="evolutionNoticeBtn" type="button" class="evoNoticeBtn hidden">あれ、ゴイモンの様子が…！？</button>
+</div>
+
+<div id="goimonCard" class="miniGoimonCard hidden">
+  <div class="miniGoimonHead">
+    <div>
+      <div class="miniGoimonTitle">現在のゴイモン</div>
+      <div class="miniGoimonSub">イディオム問題の正解で「ちえ +0.5」「ことば +0.5」されます。</div>
+    </div>
+    <div class="miniGoimonStage">
+      <div class="miniGoimonStageLabel">現在の段階</div>
+      <div class="miniGoimonStageValue" id="idiomGoimonStage">たまご期</div>
+    </div>
+  </div>
+
+  <div class="miniGoimonBody">
+    <div class="miniGoimonImageWrap">
+      <img id="idiomGoimonImage" src="images/goimon/goimon_egg.png" alt="ゴイモン" />
+    </div>
+    <div class="miniGoimonInfo">
+      <div class="miniGoimonName" id="idiomGoimonName">なごみ系のたまご</div>
+      <div class="miniGoimonMeta" id="idiomGoimonMeta">Lv 1 / 0 pt</div>
+      <div class="miniGoimonDesc" id="idiomGoimonDesc">まずは学習してゴイモンを育てよう。</div>
+    </div>
+  </div>
+
+  <div class="goimonPointGuide" id="idiomPointGuide">
+    正解：ちえ +0.5 ＋ ことば +0.5
+  </div>
+</div>
+
+    <div class="card" id="setupBox">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:700;">イディオムクイズ</div>
+          <div class="muted" style="margin-top:4px;">
+            イディオムの意味を選ぶモードと、同義表現を選ぶモードを切り替えられます。<br>
+            解答後は意味と同義表現を両方表示して復習しやすくしています。
+          </div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="row" style="justify-content:flex-start;">
+        <div>
+          <div class="muted">問題モード</div>
+          <select id="questionMode">
+            <option value="meaning" selected>意味を選ぶ</option>
+            <option value="synonym">同義表現を選ぶ</option>
+          </select>
+        </div>
+
+        <div>
+          <div class="muted">問題数</div>
+          <select id="questionCount">
+            <option value="5">5問</option>
+            <option value="10" selected>10問</option>
+            <option value="20">20問</option>
+            <option value="all">全問</option>
+          </select>
+        </div>
+
+        <div>
+          <div class="muted">出題順</div>
+          <select id="quizMode">
+            <option value="order">順番</option>
+            <option value="order_continue">続きから</option>
+            <option value="random">ランダム</option>
+            <option value="weak">ニガテ順</option>
+          </select>
+        </div>
+
+        <div>
+          <div class="muted">読み上げ</div>
+          <label style="display:flex; align-items:center; gap:8px; padding-top:10px;">
+            <input type="checkbox" id="autoRead" />
+            <span>自動読み上げ</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="muted" id="poolInfo" style="margin-top:10px;"></div>
+
+      <div class="row" style="justify-content:flex-start; margin-top:12px;">
+        <button id="startBtn" class="primary" type="button">開始</button>
+        <button id="openProblemListBtn" type="button">問題一覧を見る</button>
+        <button id="openWeakListBtn" type="button">ニガテ一覧を見る</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="focusIdiomBox">
+  <div style="font-size:18px; font-weight:700;">関連イディオム</div>
+  <div class="muted" id="focusIdiomLine" style="margin-top:6px;"></div>
+
+  <div style="margin-top:12px;">
+    <div id="focusIdiomExpression" style="font-size:22px; font-weight:800; line-height:1.7;"></div>
+    <div id="focusIdiomJa" class="muted" style="margin-top:8px;"></div>
+    <div id="focusIdiomSynonym" class="muted" style="margin-top:6px;"></div>
+  </div>
+
+  <div class="row" style="justify-content:flex-start; margin-top:12px;">
+    <button id="focusMeaningBtn" class="primary" type="button">意味問題で解く</button>
+    <button id="focusSynonymBtn" type="button">同義表現問題で解く</button>
+    <button id="focusIdiomClearBtn" type="button">解除</button>
+  </div>
+</div>
+
+    <div class="card hidden" id="problemListBox">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:700;">問題一覧</div>
+          <div class="muted" style="margin-top:4px;">
+            表現・意味・同義表現を整理して確認できます。意味や同義表現は隠して、タップで再表示できます。
+          </div>
+        </div>
+        <div>
+          <button id="problemListBackBtn" type="button">設定へ戻る</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="listToolbar">
+        <div class="listToolbarTitle">一括表示切り替え</div>
+        <div class="listToolbarBtns">
+          <button id="problemMaskMeaningBtn" type="button">意味を一括で隠す</button>
+          <button id="problemMaskSynonymBtn" type="button">同義表現を一括で隠す</button>
+        </div>
+      </div>
+
+      <div id="problemList"></div>
+      <div id="problemListEmpty" class="muted hidden">表示できる問題がありません。</div>
+    </div>
+
+    <div class="card hidden" id="weakListBox">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:700;">ニガテ一覧</div>
+          <div class="muted" style="margin-top:4px;">
+            自動でミスが記録された表現、または手動で苦手登録した表現を確認できます。
+          </div>
+        </div>
+        <div>
+          <button id="weakListBackBtn" type="button">設定へ戻る</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="listToolbar">
+        <div class="listToolbarTitle">一括表示切り替え</div>
+        <div class="listToolbarBtns">
+          <button id="weakMaskMeaningBtn" type="button">意味を一括で隠す</button>
+          <button id="weakMaskSynonymBtn" type="button">同義表現を一括で隠す</button>
+        </div>
+      </div>
+
+      <div id="weakList"></div>
+      <div id="weakListEmpty" class="muted hidden">まだニガテ登録された表現はありません。</div>
+    </div>
+
+    <div class="card hidden" id="playBox">
+      <div class="row">
+        <div id="stats" class="muted"></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button id="readBtn" type="button">読み上げ</button>
+          <button id="jumpParaphraseBtn" type="button">この表現の[11]形式問題へ</button>
+          <button id="backBtn" type="button">設定へ戻る</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div id="expressionText" class="expressionBox">take part in</div>
+      <div id="questionModeBadge" class="questionModeBadge"></div>
+
+      <div id="choicesBox" class="choiceGrid"></div>
+
+      <div id="feedbackBox" class="feedbackBox hidden"></div>
+
+      <div class="row" style="justify-content:flex-end; margin-top:12px;">
+        <button id="nextBtn" class="primary" type="button" disabled>次へ</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="summaryBox">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:700;">今回の結果</div>
+          <div class="muted" id="summaryLine" style="margin-top:4px;"></div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button id="retrySetBtnTop" type="button">同じ問題セットで解き直す</button>
+          <button id="continueBtn" class="primary" type="button">次の問題セットへ</button>
+          <button id="summaryBackBtn" type="button">設定画面へ</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="summaryBlock">
+        <div class="summaryLabel">スコア</div>
+        <div id="resultScore" class="summaryText" style="font-size:20px; font-weight:800;"></div>
+      </div>
+
+      <div class="summaryBlock">
+        <div class="summaryLabel">間違えた表現一覧</div>
+        <div id="wrongList"></div>
+        <div id="wrongEmpty" class="muted hidden">全問正解です！</div>
+      </div>
+
+      <div class="summaryBlock">
+        <div class="summaryLabel">今回出た表現一覧</div>
+        <div id="askedList"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
+  </script>
+  <script src="idiom_data_1kyu.js"></script>
+  <script src="goimon_dialogues.js"></script>
+<script src="goimon_dex.js"></script>
+<script src="goimon_rules.js"></script>
+<script src="goimon.js"></script>
+
+<audio id="evolutionAudio" src="audio/evolution.mp3" preload="auto"></audio>
+
+<div id="evoOverlay" class="evoOverlay hidden">
+  <div class="evoCenter">
+    <div class="evoFlash"></div>
+    <div id="evoShock" class="evoShock"></div>
+
+    <div class="evoImageStage">
+      <img id="evoGoimonBefore" src="" class="evoGoimon evoBefore" alt="進化前ゴイモン" />
+      <img id="evoGoimonAfter" src="" class="evoGoimon evoAfter evoHidden" alt="進化後ゴイモン" />
+    </div>
+
+    <div id="evoText1" class="evoText evoHidden">✨進化！✨</div>
+    <div id="evoText2" class="evoTextSub evoHidden"></div>
+
+    <button id="evoSkipBtn" class="evoSkip">スキップ</button>
+  </div>
+</div>
+  <script src="idiom_quiz.js"></script>
+</body>
+</html>
