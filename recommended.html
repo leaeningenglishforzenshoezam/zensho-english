@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>今日のおすすめ</title>
+  <link rel="stylesheet" href="style.css">
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
@@ -15,7 +16,7 @@
     .wrap {
       max-width: 760px;
       margin: 0 auto;
-      padding: 18px 12px 30px;
+      padding: 16px 12px 30px;
     }
 
     .card {
@@ -28,7 +29,7 @@
     }
 
     h1 {
-      font-size: 22px;
+      font-size: 24px;
       margin: 0 0 8px;
     }
 
@@ -40,8 +41,14 @@
     .sub {
       font-size: 14px;
       color: #555;
-      line-height: 1.7;
+      line-height: 1.8;
       margin: 0;
+    }
+
+    .muted {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.7;
     }
 
     .row {
@@ -55,6 +62,44 @@
       justify-content: space-between;
     }
 
+    .topNavBox {
+      margin-bottom: 12px;
+    }
+
+    .topNavTitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .topNav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .topNav a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      color: #111;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .topNav a.active {
+      background: #eaf2ff;
+      border-color: #2b7cff;
+      color: #1251b5;
+      font-weight: 700;
+    }
+
     .pill {
       display: inline-block;
       padding: 6px 10px;
@@ -66,10 +111,60 @@
       white-space: nowrap;
     }
 
-    .muted {
+    .heroBox {
+      border: 1px solid #e7ecf7;
+      background: linear-gradient(180deg, #fbfcff 0%, #f4f8ff 100%);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .heroLead {
       font-size: 13px;
-      color: #666;
-      line-height: 1.6;
+      color: #4b5b78;
+      margin-bottom: 8px;
+      font-weight: 800;
+    }
+
+    .heroMain {
+      font-size: 24px;
+      line-height: 1.45;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .heroSub {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
+    .settingGrid {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    input[type="number"] {
+      width: 110px;
+      padding: 10px 10px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 14px;
+      background: #fff;
+      box-sizing: border-box;
+    }
+
+    .smallBtn {
+      appearance: none;
+      border: 1px solid #ddd;
+      background: #fff;
+      color: #111;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      cursor: pointer;
     }
 
     .btn {
@@ -101,55 +196,14 @@
       color: #111;
     }
 
-    .smallBtn {
-      appearance: none;
-      border: 1px solid #ddd;
-      background: #fff;
-      color: #111;
-      border-radius: 10px;
-      padding: 10px 12px;
+    .sectionTitle {
       font-size: 14px;
-      cursor: pointer;
-    }
-
-    input[type="number"] {
-      width: 100px;
-      padding: 10px 10px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      font-size: 14px;
-      background: #fff;
-      box-sizing: border-box;
-    }
-
-    .heroBox {
-      border: 1px solid #e7ecf7;
-      background: linear-gradient(180deg, #fbfcff 0%, #f4f8ff 100%);
-      border-radius: 16px;
-      padding: 16px;
-    }
-
-    .heroLead {
-      font-size: 14px;
-      color: #4b5b78;
-      margin-bottom: 8px;
-      font-weight: 700;
-    }
-
-    .heroMain {
-      font-size: 24px;
-      line-height: 1.45;
-      font-weight: 900;
+      color: #444;
+      font-weight: 800;
       margin-bottom: 10px;
     }
 
-    .heroSub {
-      font-size: 14px;
-      color: #555;
-      line-height: 1.8;
-    }
-
-    .detailBox {
+    .reasonBox {
       margin-top: 12px;
       border: 1px solid #eee;
       background: #fafafa;
@@ -157,14 +211,14 @@
       padding: 14px;
     }
 
-    .detailTitle {
+    .reasonLabel {
       font-size: 13px;
       color: #666;
       margin-bottom: 8px;
       font-weight: 700;
     }
 
-    .detailText {
+    .reasonText {
       font-size: 14px;
       line-height: 1.8;
       color: #222;
@@ -179,9 +233,62 @@
       margin-top: 12px;
     }
 
-    .miniGuide {
-      margin-top: 10px;
+    .flowGrid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .flowCard {
+      border: 1px solid #e8e8e8;
+      border-radius: 12px;
+      padding: 12px;
+      background: #fcfcfc;
+    }
+
+    .flowStep {
       font-size: 12px;
+      font-weight: 800;
+      color: #2b5fc7;
+      margin-bottom: 6px;
+    }
+
+    .flowTitle {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .flowText {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #555;
+    }
+
+    .quickLinks {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .quickLink {
+      display: block;
+      text-decoration: none;
+      color: #111;
+      border: 1px solid #ddd;
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .quickLinkTitle {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .quickLinkSub {
+      font-size: 13px;
       color: #666;
       line-height: 1.7;
     }
@@ -208,7 +315,10 @@
         font-size: 21px;
       }
 
-      .actionGrid {
+      .settingGrid,
+      .actionGrid,
+      .flowGrid,
+      .quickLinks {
         grid-template-columns: 1fr;
       }
     }
@@ -217,12 +327,32 @@
 <body>
   <div class="wrap">
 
+    <div class="card topNavBox">
+      <div class="topNavTitle">学習ページ移動</div>
+      <div class="topNav">
+        <a href="index.html">ホーム</a>
+        <a href="study.html">暗記</a>
+        <a href="quiz.html">英→日</a>
+        <a href="quiz_jaen.html">日→英</a>
+        <a href="audio_quiz.html">音声→意味</a>
+        <a href="accent.html">大問1</a>
+        <a href="sentence.html">大問9</a>
+        <a href="reorder.html">大問12</a>
+        <a href="idiom_quiz.html">イディオム</a>
+        <a href="paraphrase_quiz.html">大問11風</a>
+        <a href="list.html">一覧</a>
+        <a href="progress.html">進捗</a>
+        <a href="recommended.html" class="active">今日のおすすめ</a>
+      </div>
+    </div>
+
     <div class="card">
       <div class="row spaceBetween">
         <div>
           <h1>今日のおすすめ</h1>
           <p class="sub">
-            ゴイモンの育ち方と、これまでの学習記録をもとに、今日やるとよさそうな内容を選びます。
+            今の学習状況に合わせて、最初にやるとよさそうな学習を1つ選びます。<br>
+            迷ったときは、まずここから始めれば大丈夫です。
           </p>
         </div>
         <div class="row">
@@ -233,42 +363,82 @@
     </div>
 
     <div class="card">
-      <div class="row" style="justify-content:flex-start;">
-        <div class="muted">合格ライン</div>
+      <div class="sectionTitle">おすすめの出し方を調整</div>
+      <div class="settingGrid">
+        <div class="muted">合格ラインを上げるほど、復習を優先しやすくなります。</div>
         <input id="passLine" type="number" min="1" max="100" value="80" />
-        <div class="muted">%</div>
-        <button id="reroll" class="smallBtn">もう一度みる</button>
-      </div>
-      <div class="miniGuide">
-        合格ラインを上げると、より厳しめに「要復習」と判定されます。
+        <button id="reroll" class="smallBtn" type="button">もう一度みる</button>
       </div>
     </div>
 
     <div class="card">
       <div class="heroBox">
-        <div class="heroLead">ゴイモンからのおすすめ</div>
+        <div class="heroLead">今日のおすすめ</div>
         <div id="pickInfo" class="heroMain">おすすめを読み込み中…</div>
         <div id="pickDetail" class="heroSub">少し待ってください。</div>
       </div>
 
-      <div class="detailBox">
-        <div class="detailTitle">使い方</div>
-        <div class="detailText">下の「今日のおすすめを始める」を押すと、今の状態に合った学習へすぐ入れます。別のやり方で始めたいときは、その下の別候補を使ってください。</div>
+      <div class="reasonBox">
+        <div class="reasonLabel">まずやること</div>
+        <div class="reasonText">下の青いボタンを押すと、今日いちばん始めやすい学習へそのまま入れます。迷ったらここからで大丈夫です。</div>
       </div>
 
-      <button id="startEnja" class="btn primary">今日のおすすめを始める</button>
+      <button id="startEnja" class="btn primary" type="button">今日のおすすめを始める</button>
 
       <div class="actionGrid">
-        <button id="startJaEn" class="btn soft">別候補：日→英で始める</button>
-        <button id="goStudy" class="btn gray">別候補：暗記から始める</button>
+        <button id="startJaEn" class="btn soft" type="button">別候補：日→英で始める</button>
+        <button id="goStudy" class="btn gray" type="button">別候補：暗記から始める</button>
       </div>
 
-      <button id="goProgress" class="btn gray">ブロック進捗を見る</button>
+      <button id="goProgress" class="btn gray" type="button">進捗を見てから決める</button>
     </div>
 
     <div class="card">
-      <h2>おすすめの見方</h2>
-      <div class="detailText">おすすめは、ゴイモンの今の育ち方と、Blockごとの学習記録を合わせて決めています。未挑戦の内容や、少し弱い内容が優先されやすくなっています。</div>
+      <div class="sectionTitle">学習の進め方</div>
+      <div class="flowGrid">
+        <div class="flowCard">
+          <div class="flowStep">STEP 1</div>
+          <div class="flowTitle">まず1つ始める</div>
+          <div class="flowText">青い「今日のおすすめを始める」を押して、その日の最初の学習に入ります。</div>
+        </div>
+        <div class="flowCard">
+          <div class="flowStep">STEP 2</div>
+          <div class="flowTitle">合わなければ切り替える</div>
+          <div class="flowText">今日は違うと感じたら、日→英や暗記に切り替えて始めても大丈夫です。</div>
+        </div>
+        <div class="flowCard">
+          <div class="flowStep">STEP 3</div>
+          <div class="flowTitle">最後に進捗を見る</div>
+          <div class="flowText">終わったら進捗ページで、どこが進んだか・どこが弱いかを確認します。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sectionTitle">別の入口から始めたいとき</div>
+      <div class="quickLinks">
+        <a class="quickLink" href="idiom_quiz.html">
+          <div class="quickLinkTitle">イディオム演習</div>
+          <div class="quickLinkSub">定型表現の意味や同義表現をまとめて確認したいとき。</div>
+        </a>
+        <a class="quickLink" href="paraphrase_quiz.html">
+          <div class="quickLinkTitle">大問11演習</div>
+          <div class="quickLinkSub">言い換えや同じ意味の表現を練習したいとき。</div>
+        </a>
+        <a class="quickLink" href="sentence.html">
+          <div class="quickLinkTitle">大問9演習</div>
+          <div class="quickLinkSub">文脈の中で語彙を確認したいとき。</div>
+        </a>
+        <a class="quickLink" href="reorder.html">
+          <div class="quickLinkTitle">大問12演習</div>
+          <div class="quickLinkSub">語順や文法感覚も一緒に鍛えたいとき。</div>
+        </a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>このページの見方</h2>
+      <div class="reasonText">おすすめは、学習記録や進み具合をもとに決まります。復習が必要そうな内容や、次に取り組みやすい内容が上に出やすくなっています。おすすめに従って始めてもいいですし、下の別入口からその日の気分に合わせて選んでも大丈夫です。</div>
 
       <div class="footerLinks">
         <a href="progress.html">ブロック進捗へ</a>
