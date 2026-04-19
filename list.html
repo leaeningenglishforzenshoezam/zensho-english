@@ -8,6 +8,7 @@
     body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif; background:#f7f7f7; margin:0; }
     .wrap { max-width: 1100px; margin: 0 auto; padding: 16px 12px 24px; }
     .topnav a { margin-right: 10px; color:#2b7cff; text-decoration:none; font-size:14px; }
+    .topnav a.active { font-weight:700; text-decoration:underline; }
     .card { background:#fff; border:1px solid #ddd; border-radius:12px; padding:14px; margin: 12px 0; }
     .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
     .muted { color:#666; font-size:13px; }
@@ -22,7 +23,6 @@
     td { font-size:15px; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
 
-    /* ① 表ヘッダー固定（強化版） */
     thead th{
       position: sticky;
       top: 0;
@@ -30,7 +30,6 @@
       background: #fafafa;
     }
 
-    /* 列幅：日本語を広くするために、他を少し固定幅に */
     th.wNo { width:72px; }
     th.wBlock { width:92px; }
     th.wEn { width:190px; }
@@ -60,7 +59,6 @@
 
     .btnGroup { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
 
-    /* ブロック境界の見出し行 */
     .blockRow td{
       background:#f4f7ff;
       border-top:1px solid #d6e4ff;
@@ -75,7 +73,6 @@
       font-size:13px;
     }
 
-    /* マスク */
     .masked {
       position: relative;
       color: transparent !important;
@@ -123,7 +120,6 @@
       display:none !important;
     }
 
-    /* テーブルを包む（PCでは横スクロールも保険で残す） */
     .tableWrap { overflow-x:auto; overflow-y:visible; }
 
     @media (max-width: 680px) {
@@ -133,13 +129,9 @@
       th { font-size:13px; }
       .btnMini { font-size:12px; padding:8px 9px; }
 
-      /* ===== スマホ：テーブルをカード表示に変換（JS変更なし） ===== */
-
-      /* ヘッダーは隠す（stickyも無効化） */
       thead { display:none; }
       thead th { position: static; }
 
-      /* 表構造をブロック化 */
       table, tbody, tr, td { display:block; width:100%; }
       table { table-layout: auto; }
 
@@ -152,10 +144,8 @@
         box-shadow: 0 1px 0 rgba(0,0,0,0.03);
       }
 
-      /* もともとのセル境界線は消す */
       td { border-top:none; padding:6px 0; font-size:16px; }
 
-      /* それぞれのセルを「ラベル: 値」形式で表示する */
       td::before{
         display:inline-block;
         min-width: 5.5em;
@@ -166,7 +156,6 @@
         vertical-align: top;
       }
 
-      /* 何列目が何かをCSSだけで判別してラベルを付ける */
       tr td:nth-child(1)::before { content:"番号"; }
       tr td:nth-child(2)::before { content:"Block"; }
       tr td:nth-child(3)::before { content:"英語"; }
@@ -174,7 +163,10 @@
       tr td:nth-child(5)::before { content:"苦手"; }
       tr td:nth-child(6)::before { content:"操作"; }
 
-      /* 日本語は最重要：大きく、行間広く、折り返し強化 */
+      td[data-label]::before {
+        content: attr(data-label) !important;
+      }
+
       td.colJa{
         font-size:18px;
         line-height:1.8;
@@ -182,13 +174,11 @@
         word-break: break-word;
       }
 
-      /* 英語も折り返しOK */
       td.colEn{
         overflow-wrap:anywhere;
         word-break: break-word;
       }
 
-      /* 操作ボタン：横並び＆折り返し */
       td:nth-child(6) .btnGroup{
         display:flex;
         gap:8px;
@@ -197,7 +187,6 @@
       }
       .btnMini{ font-size:13px; padding:10px 12px; border-radius:12px; }
 
-      /* ブロック見出し行はカード化しない（そのまま帯で表示） */
       .blockRow{
         display:block;
         background:#f4f7ff;
@@ -213,7 +202,7 @@
         border-top:none;
         background:transparent;
       }
-      .blockRow td::before{ content:none; } /* ラベル不要 */
+      .blockRow td::before{ content:none; }
     }
   </style>
 </head>
@@ -221,12 +210,18 @@
   <div class="wrap">
 
     <div class="topnav" style="margin:8px 0 4px;">
-      <a href="index.html">← ホーム</a>
-      <a href="study.html">覚える</a>
-      <a href="quiz.html">英→日クイズ</a>
-      <a href="quiz_jaen.html">日→英クイズ</a>
-      <a href="sentence.html">短文穴埋め</a>
-      <a href="progress.html">ブロック進捗</a>
+      <a href="index.html">ホーム</a>
+      <a href="study.html">暗記</a>
+      <a href="quiz.html">英→日</a>
+      <a href="quiz_jaen.html">日→英</a>
+      <a href="audio_quiz.html">音声→意味</a>
+      <a href="idiom_quiz.html">イディオム</a>
+      <a href="accent.html">大問1</a>
+      <a href="sentence.html">大問9</a>
+      <a href="paraphrase_quiz.html">大問11</a>
+      <a href="reorder.html">大問12</a>
+      <a href="list.html" class="active">一覧</a>
+      <a href="progress.html">進捗</a>
     </div>
 
     <div class="card">
@@ -262,6 +257,11 @@
       <div class="row" style="margin-top:10px;">
         <label><input id="toggleEn" type="checkbox" checked /> 英語を表示（マスク切替）</label>
         <label><input id="toggleJa" type="checkbox" checked /> 日本語を表示（マスク切替）</label>
+        <label><input id="toggleAccentView" type="checkbox" /> アクセント表示（苦手欄→アクセント欄）</label>
+      </div>
+
+      <div class="muted" style="margin-top:6px;">
+        ※ アクセント表示をONにすると、苦手欄がアクセント欄に切り替わります。アクセント欄はタップで表示できます。1音節語は「1音節」と表示されます。
       </div>
 
       <div class="muted" id="countLine" style="margin-top:10px;"></div>
@@ -276,7 +276,7 @@
               <th class="wBlock">Block</th>
               <th class="wEn">英語</th>
               <th>日本語</th>
-              <th class="wWeak">苦手（英→日）</th>
+              <th class="wWeak" id="statusHeader">苦手（英→日）</th>
               <th class="wAct">操作</th>
             </tr>
           </thead>
@@ -287,9 +287,9 @@
 
   </div>
 
-  <!-- 単語データ -->
   <script src="words_1kyu.js"></script>
   <script src="blocks_1kyu.js"></script>
+  <script src="accent_1kyu.js"></script>
   <script>
     window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
     if (window.ACTIVE_LEVEL === "1") {
@@ -297,8 +297,10 @@
       window.BLOCKS = window.BLOCKS_1KYU || [];
     }
   </script>
+
   <script src="words_2kyu.js"></script>
   <script src="blocks_2kyu.js"></script>
+  <script src="accent_2kyu.js"></script>
   <script>
     if (window.ACTIVE_LEVEL === "2") {
       window.WORDS = window.WORDS_2KYU || [];
@@ -322,6 +324,8 @@
 
       const toggleEn = document.getElementById("toggleEn");
       const toggleJa = document.getElementById("toggleJa");
+      const toggleAccentView = document.getElementById("toggleAccentView");
+      const statusHeader = document.getElementById("statusHeader");
 
       lvLine.textContent = `${LV}級｜全 ${words.length}語`;
 
@@ -337,6 +341,7 @@
           return {};
         }
       }
+
       function saveObj(key, obj){
         localStorage.setItem(key, JSON.stringify(obj));
       }
@@ -346,11 +351,13 @@
       function loadWeakEnJa(){
         return safeParse(WEAK_ENJA_KEY);
       }
+
       function getWeakPoint(weakObj, en){
         const k = norm(en);
         const v = weakObj[k];
         return (typeof v === "number") ? v : 0;
       }
+
       function incWeak(en, delta){
         const obj = loadWeakEnJa();
         const k = norm(en);
@@ -360,6 +367,7 @@
         else obj[k] = next;
         saveObj(WEAK_ENJA_KEY, obj);
       }
+
       function clearWeak(en){
         const obj = loadWeakEnJa();
         const k = norm(en);
@@ -377,6 +385,52 @@
         u.lang = "en-US";
         u.rate = 0.9;
         window.speechSynthesis.speak(u);
+      }
+
+      function getAccentDataset() {
+        if (LV === "2") {
+          return Array.isArray(window.ACCENT_2KYU) ? window.ACCENT_2KYU : [];
+        }
+        return Array.isArray(window.ACCENT_1KYU) ? window.ACCENT_1KYU : [];
+      }
+
+      const accentData = getAccentDataset();
+      const accentByNo = new Map();
+      const accentByEn = new Map();
+
+      for (const item of accentData) {
+        if (item && Number(item.no)) {
+          accentByNo.set(Number(item.no), item);
+        }
+        if (item && item.en) {
+          accentByEn.set(norm(item.en), item);
+        }
+      }
+
+      function getAccentItem(no, en) {
+        return accentByNo.get(Number(no)) || accentByEn.get(norm(en)) || null;
+      }
+
+      function buildAccentCellText(en, accentItem) {
+        if (!accentItem || !accentItem.sylRaw) return "—";
+
+        const raw = String(accentItem.sylRaw).trim();
+        if (!raw) return "—";
+
+        const parts = raw.split("-");
+        if (parts.length <= 1) {
+          return "1音節";
+        }
+
+        let stressIndex = Number(accentItem.stress || 0) - 1;
+        if (stressIndex < 0) stressIndex = 0;
+        if (stressIndex >= parts.length) stressIndex = parts.length - 1;
+
+        const cleaned = parts.map(part => String(part).replaceAll("ˈ", "").trim());
+
+        return cleaned.map((part, idx) => {
+          return idx === stressIndex ? part.toUpperCase() : part.toLowerCase();
+        }).join("-");
       }
 
       function getBlockByNo(no){
@@ -408,10 +462,10 @@
         return no >= Number(b.start) && no <= Number(b.end);
       }
 
-      // チェックでマスクONにしたら「全部再マスク（revealedリセット）」する
       function applyMaskByToggles(){
         const maskEn = !toggleEn.checked;
         const maskJa = !toggleJa.checked;
+        const maskAccent = !!toggleAccentView.checked;
 
         document.querySelectorAll(".colEn").forEach(td => {
           if (maskEn) {
@@ -432,17 +486,28 @@
             td.classList.remove("revealed");
           }
         });
+
+        document.querySelectorAll(".colAccent").forEach(td => {
+          if (maskAccent) {
+            td.classList.remove("revealed");
+            td.classList.add("masked");
+          } else {
+            td.classList.remove("masked");
+            td.classList.remove("revealed");
+          }
+        });
       }
 
-      // マスク中のセルの挙動：
-      // - masked をタップ：revealed にして表示（発音しない）
-      // - revealed をタップ：発音する（英語を読む）
       function attachMaskBehavior(td, col, getEnForThisRow){
         td.addEventListener("click", (e) => {
-          const maskedMode = (col === "en") ? (!toggleEn.checked) : (!toggleJa.checked);
-          if (!maskedMode) return; // 表示ONなら行クリックが担当
+          const maskedMode =
+            col === "en" ? (!toggleEn.checked) :
+            col === "ja" ? (!toggleJa.checked) :
+            col === "accent" ? (!!toggleAccentView.checked) :
+            false;
 
-          // マスク中は、行クリック発音を止める（セル側で制御）
+          if (!maskedMode) return;
+
           e.stopPropagation();
 
           if (td.classList.contains("revealed")) {
@@ -460,6 +525,10 @@
         const q = norm(searchInput.value);
         const wantWeakOnly = !!onlyWeak.checked;
         const sortMode = String(sortSelect.value || "no");
+
+        if (statusHeader) {
+          statusHeader.textContent = toggleAccentView.checked ? "アクセント" : "苦手（英→日）";
+        }
 
         const rows = [];
         for (let i = 0; i < words.length; i++) {
@@ -510,7 +579,6 @@
 
           const tr = document.createElement("tr");
 
-          // 行タップで発音（ボタンと、マスク中セルは除外）
           tr.addEventListener("click", (e) => {
             if (e.target.closest("button")) return;
             speakEnglish(r.en);
@@ -537,9 +605,18 @@
           tr.appendChild(tdJa);
 
           const tdWeak = document.createElement("td");
-          tdWeak.innerHTML = (r.p > 0)
-            ? `<span class="badge badgeWeak">弱点 ${r.p}</span>`
-            : `<span class="badge">弱点なし</span>`;
+          tdWeak.setAttribute("data-label", toggleAccentView.checked ? "アクセント" : "苦手");
+
+          if (toggleAccentView.checked) {
+            tdWeak.className = "mono colAccent";
+            tdWeak.textContent = buildAccentCellText(r.en, getAccentItem(r.no, r.en));
+            attachMaskBehavior(tdWeak, "accent", () => r.en);
+          } else {
+            tdWeak.innerHTML = (r.p > 0)
+              ? `<span class="badge badgeWeak">弱点 ${r.p}</span>`
+              : `<span class="badge">弱点なし</span>`;
+          }
+
           tr.appendChild(tdWeak);
 
           const tdAct = document.createElement("td");
@@ -587,8 +664,6 @@
         }
 
         countLine.textContent = `表示：${rows.length}語`;
-
-        // 列トグル反映
         applyMaskByToggles();
       }
 
@@ -602,6 +677,7 @@
 
       toggleEn.addEventListener("change", applyMaskByToggles);
       toggleJa.addEventListener("change", applyMaskByToggles);
+      toggleAccentView.addEventListener("change", render);
     });
   </script>
 </body>
