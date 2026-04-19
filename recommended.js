@@ -1,11 +1,3 @@
-// recommended.js
-// ゴイモンの育成方針 + 学習記録から「今日のおすすめ」を決める版
-// 改良点:
-// - 英→日 / 日→英 / アクセント / 大問9 / 音声→意味 の Block横断記録を参照
-// - ゴイモンの育成テーマ → 学習カテゴリ → おすすめBlock の順で決定
-// - おすすめボタンは最適カテゴリへ飛ぶ
-// - 別候補として 日→英 / 暗記 も出せる
-
 document.addEventListener("DOMContentLoaded", () => {
   const LEVEL_KEY = "zensho_level_v1";
 
@@ -16,10 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const pickInfo = document.getElementById("pickInfo");
   const pickDetail = document.getElementById("pickDetail");
 
-  const startEnjaBtn = document.getElementById("startEnja");
-  const startJaenBtn = document.getElementById("startJaEn") || document.getElementById("startJaen");
-  const goStudyBtn = document.getElementById("goStudy");
+  const startPrimaryBtn = document.getElementById("startEnja");
+  const altBtn1 = document.getElementById("startJaEn") || document.getElementById("startJaen");
+  const altBtn2 = document.getElementById("goStudy");
   const goProgressBtn = document.getElementById("goProgress");
+
+  let currentPlan = null;
+  let rerollIndex = 0;
 
   function getLevel() {
     return localStorage.getItem(LEVEL_KEY) || "1";
@@ -36,13 +31,22 @@ document.addEventListener("DOMContentLoaded", () => {
       window.WORDS = window.WORDS_1KYU || window.WORDS || [];
       window.BLOCKS = window.BLOCKS_1KYU || window.BLOCKS || [];
     }
-    return { lv, words: window.WORDS || [], blocks: window.BLOCKS || [] };
+
+    return {
+      lv,
+      words: window.WORDS || [],
+      blocks: window.BLOCKS || []
+    };
   }
 
   function safeParse(key) {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
-    try { return JSON.parse(raw); } catch { return null; }
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
   }
 
   function keyFor(base) {
@@ -73,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
       case "study": return "覚える（暗記）";
       case "quiz_enja": return "クイズで確認（英→日）";
       case "quiz_jaen": return "クイズで確認（日→英）";
-      case "accent": return "大問１演習（アクセント）";
+      case "accent": return "大問1演習（アクセント）";
       case "sentence": return "大問9演習（例文穴埋め）";
       case "audio_quiz": return "音声→意味クイズ";
       default: return "学習";
@@ -93,7 +97,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function loadGlobal(lv) {
     const obj = safeParse(globalKey(lv));
-    if (obj && typeof obj === "object" && obj.byBlock && typeof obj.byBlock === "object") return obj;
+    if (obj && typeof obj === "object" && obj.byBlock && typeof obj.byBlock === "object") {
+      return obj;
+    }
     return { byBlock: {} };
   }
 
@@ -134,42 +140,47 @@ document.addEventListener("DOMContentLoaded", () => {
       totalPoints: 0,
       stage: "egg",
       type: "nagomi",
+      name: "なごみ系のたまご",
       stats: { chie: 0, kotoba: 0, onkan: 0, bunmyaku: 0 },
-      remainToNextEvolution: 100,
-      speech: "今日もいっしょに進もう。"
+      remainToNextEvolution: 100
     };
 
-    if (!window.GoimonUI || typeof window.GoimonUI.loadCurrent !== "function") {
+    if (!window.GoimonUI || typeof window.GoimonUI.ensureCurrent !== "function") {
       return fallback;
     }
 
-    const g = window.GoimonUI.loadCurrent();
+    const g = window.GoimonUI.ensureCurrent();
     if (!g) return fallback;
 
-    let remain = 100;
-    if (typeof window.GoimonUI.getGrowthStatus === "function") {
-      const growth = window.GoimonUI.getGrowthStatus(g);
-      remain = Number(growth?.remainPoints || 0);
-    }
+    const thresholds = {
+      egg: 100,
+      child: 300,
+      growth: 600,
+      mid: 900
+    };
 
-    let speech = fallback.speech;
-    if (typeof window.GoimonUI.ensureHomeSpeech === "function") {
-      const speechState = window.GoimonUI.ensureHomeSpeech();
-      speech = String(speechState?.text || speech);
+    let remain = 0;
+    if (g.stage === "final") {
+      remain = 0;
+    } else {
+      const target = thresholds[g.stage] || 100;
+      remain = Math.max(0, Number(target) - Number(g.totalPoints || 0));
     }
 
     return {
       totalPoints: Number(g.totalPoints || 0),
       stage: String(g.stage || "egg"),
       type: String(g.type || "nagomi"),
+      name: typeof window.GoimonUI.getGoimonPrimaryName === "function"
+        ? window.GoimonUI.getGoimonPrimaryName(g)
+        : "ゴイモン",
       stats: {
         chie: Number(g.stats?.chie || 0),
         kotoba: Number(g.stats?.kotoba || 0),
         onkan: Number(g.stats?.onkan || 0),
         bunmyaku: Number(g.stats?.bunmyaku || 0)
       },
-      remainToNextEvolution: remain,
-      speech
+      remainToNextEvolution: remain
     };
   }
 
@@ -203,7 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return {
         themeKey: "balance",
         themeLabel: themeLabel("balance"),
-        reason: "序盤は幅広く学んで、土台を整えるのがおすすめです。"
+        reason: "序盤は広く触れて、土台を作るのがおすすめです。"
       };
     }
 
@@ -211,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return {
         themeKey: "balance",
         themeLabel: themeLabel("balance"),
-        reason: "今は能力の偏りが小さいので、バランスよく伸ばすのが自然です。"
+        reason: "今は能力の偏りが小さいので、バランスよく進める流れです。"
       };
     }
 
@@ -221,7 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return {
         themeKey: key,
         themeLabel: themeLabel(key),
-        reason: "今は少し低めの力を補うと、全体の育ち方が安定します。"
+        reason: "今は少し弱い力を補うと、全体が安定して伸びやすいです。"
       };
     }
 
@@ -231,7 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return {
         themeKey: key,
         themeLabel: themeLabel(key),
-        reason: "進化が近いので、今の得意な力をもうひと伸ばしするのがおすすめです。"
+        reason: "進化が近いので、今の得意分野を押し伸ばすのがおすすめです。"
       };
     }
 
@@ -240,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return {
       themeKey: key,
       themeLabel: themeLabel(key),
-      reason: "今の育ち方に合う力を自然に伸ばしていく流れです。"
+      reason: "今の育ち方に合う学習を続けると、自然な流れで伸ばせます。"
     };
   }
 
@@ -269,7 +280,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (themeKey === "kotoba_focus") {
       return {
         primaryCategory: "quiz_jaen",
-        fallbackCategories: ["study"]
+        fallbackCategories: ["study", "quiz_enja"]
       };
     }
 
@@ -340,13 +351,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const audioPct = pct(Number(rec.audioCorrect || 0), Number(rec.audioAttempted || 0));
 
     return [
-      `暗記:${Number(rec.studyDone || 0)}回`,
-      `英→日:${enjaPct === null ? "未" : `${enjaPct}%`}`,
-      `日→英:${jaenPct === null ? "未" : `${jaenPct}%`}`,
-      `アクセント:${accentPct === null ? "未" : `${accentPct}%`}`,
-      `大問9:${sentencePct === null ? "未" : `${sentencePct}%`}`,
-      `音声→意味:${audioPct === null ? "未" : `${audioPct}%`}`
-    ].join("｜");
+      `暗記 ${Number(rec.studyDone || 0)}回`,
+      `英→日 ${enjaPct === null ? "未挑戦" : `${enjaPct}%`}`,
+      `日→英 ${jaenPct === null ? "未挑戦" : `${jaenPct}%`}`,
+      `アクセント ${accentPct === null ? "未挑戦" : `${accentPct}%`}`,
+      `大問9 ${sentencePct === null ? "未挑戦" : `${sentencePct}%`}`,
+      `音声→意味 ${audioPct === null ? "未挑戦" : `${audioPct}%`}`
+    ].join(" / ");
   }
 
   function pickBestBlockForCategory(category, blocks, globalData, passLine) {
@@ -368,7 +379,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         const p = (info.pct === null ? 999 : info.pct);
         score = p;
-        reason = `${categoryLabel(category)} の記録が弱めなのでおすすめです。`;
+        reason = `${categoryLabel(category)} の記録が弱めです。`;
       }
 
       if (info.pct !== null && info.pct >= passLine) {
@@ -376,9 +387,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const detail =
-        `Block ${b.id}（${b.start}〜${b.end}）｜` +
-        `${makeCategoryDetail(rec)}｜` +
-        `おすすめ学習:${categoryLabel(category)}`;
+        `Block ${b.id}（${b.start}〜${b.end}）\n` +
+        `記録：${makeCategoryDetail(rec)}\n` +
+        `今回のおすすめ学習：${categoryLabel(category)}`;
 
       if (!best || score < best.score) {
         best = {
@@ -407,25 +418,94 @@ document.addEventListener("DOMContentLoaded", () => {
     const s = Number(start);
     const e = Number(end);
 
-    if (category === "study") {
-      return `study.html?start=${s}&end=${e}`;
-    }
-    if (category === "quiz_enja") {
-      return `quiz.html?start=${s}&end=${e}&mode=weak&weak=1&autostart=1`;
-    }
-    if (category === "quiz_jaen") {
-      return `quiz_jaen.html?start=${s}&end=${e}&mode=weak&weak=1&autostart=1`;
-    }
-    if (category === "accent") {
-      return `accent.html?start=${s}&end=${e}`;
-    }
-    if (category === "sentence") {
-      return `sentence.html?start=${s}&end=${e}`;
-    }
-    if (category === "audio_quiz") {
-      return `audio_quiz.html?start=${s}&end=${e}&mode=weak&weak=1&autostart=1`;
-    }
+    if (category === "study") return `study.html?start=${s}&end=${e}`;
+    if (category === "quiz_enja") return `quiz.html?start=${s}&end=${e}&mode=weak&weak=1&autostart=1`;
+    if (category === "quiz_jaen") return `quiz_jaen.html?start=${s}&end=${e}&mode=weak&weak=1&autostart=1`;
+    if (category === "accent") return `accent.html?start=${s}&end=${e}`;
+    if (category === "sentence") return `sentence.html?start=${s}&end=${e}`;
+    if (category === "audio_quiz") return `audio_quiz.html?start=${s}&end=${e}&mode=weak&weak=1&autostart=1`;
     return `study.html?start=${s}&end=${e}`;
+  }
+
+  function getAltActions(plan) {
+    const s = Number(plan.start);
+    const e = Number(plan.end);
+
+    if (plan.category === "quiz_enja") {
+      return [
+        {
+          label: "別候補：日→英で始める",
+          url: `quiz_jaen.html?start=${s}&end=${e}&mode=weak&weak=1&autostart=1`
+        },
+        {
+          label: "別候補：暗記から始める",
+          url: `study.html?start=${s}&end=${e}`
+        }
+      ];
+    }
+
+    if (plan.category === "quiz_jaen") {
+      return [
+        {
+          label: "別候補：英→日で始める",
+          url: `quiz.html?start=${s}&end=${e}&mode=weak&weak=1&autostart=1`
+        },
+        {
+          label: "別候補：暗記から始める",
+          url: `study.html?start=${s}&end=${e}`
+        }
+      ];
+    }
+
+    if (plan.category === "audio_quiz") {
+      return [
+        {
+          label: "別候補：アクセントで始める",
+          url: `accent.html?start=${s}&end=${e}`
+        },
+        {
+          label: "別候補：暗記から始める",
+          url: `study.html?start=${s}&end=${e}`
+        }
+      ];
+    }
+
+    if (plan.category === "accent") {
+      return [
+        {
+          label: "別候補：音声→意味で始める",
+          url: `audio_quiz.html?start=${s}&end=${e}&mode=weak&weak=1&autostart=1`
+        },
+        {
+          label: "別候補：暗記から始める",
+          url: `study.html?start=${s}&end=${e}`
+        }
+      ];
+    }
+
+    if (plan.category === "sentence") {
+      return [
+        {
+          label: "別候補：英→日で始める",
+          url: `quiz.html?start=${s}&end=${e}&mode=weak&weak=1&autostart=1`
+        },
+        {
+          label: "別候補：大問11風を開く",
+          url: `paraphrase_quiz.html`
+        }
+      ];
+    }
+
+    return [
+      {
+        label: "別候補：英→日で始める",
+        url: `quiz.html?start=${s}&end=${e}&mode=weak&weak=1&autostart=1`
+      },
+      {
+        label: "別候補：日→英で始める",
+        url: `quiz_jaen.html?start=${s}&end=${e}&mode=weak&weak=1&autostart=1`
+      }
+    ];
   }
 
   function buildRecommendedPlan() {
@@ -436,9 +516,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const historySummary = getLearningHistorySummary(7);
 
     if (!blocks.length) {
-      return {
-        error: "BLOCKS が見つかりません。blocks_1kyu.js / blocks_2kyu.js の読み込みを確認してください。"
-      };
+      return { error: "BLOCKS が見つかりません。読み込みを確認してください。" };
     }
 
     const theme = decideRecommendationTheme(goimonSummary);
@@ -449,41 +527,34 @@ document.addEventListener("DOMContentLoaded", () => {
       ...(categoryCandidates.fallbackCategories || [])
     ].filter(Boolean);
 
-    let picked = null;
-    let pickedCategory = null;
+    const candidatePlans = tryCategories
+      .map(category => pickBestBlockForCategory(category, blocks, globalData, passLine))
+      .filter(Boolean);
 
-    for (const category of tryCategories) {
-      const result = pickBestBlockForCategory(category, blocks, globalData, passLine);
-      if (result) {
-        picked = result;
-        pickedCategory = category;
-        break;
-      }
+    if (!candidatePlans.length) {
+      return { error: "おすすめ候補を選べませんでした。" };
     }
 
-    if (!picked) {
-      return {
-        error: "おすすめ候補を選べませんでした。"
-      };
-    }
+    const picked = candidatePlans[rerollIndex % candidatePlans.length];
+    const altActions = getAltActions(picked);
 
     return {
       lv,
       wordsCount: words.length,
       blockCount: blocks.length,
-      speech: goimonSummary.speech,
+      goimonName: goimonSummary.name,
       themeKey: theme.themeKey,
       themeLabel: theme.themeLabel,
       themeReason: theme.reason,
-      category: pickedCategory,
-      categoryLabel: categoryLabel(pickedCategory),
+      category: picked.category,
+      categoryLabel: categoryLabel(picked.category),
       block: picked.block,
       start: picked.start,
       end: picked.end,
       pickReason: picked.reasonText,
       pickDetail: picked.detailText,
-      actionUrl: buildActionUrl(pickedCategory, picked.start, picked.end),
-      fallbackCategories: tryCategories.slice(1)
+      actionUrl: buildActionUrl(picked.category, picked.start, picked.end),
+      altActions
     };
   }
 
@@ -494,71 +565,75 @@ document.addEventListener("DOMContentLoaded", () => {
       badge.textContent = "おすすめを表示できませんでした";
       pickInfo.textContent = plan.error;
       pickDetail.textContent = "";
-      if (startEnjaBtn) startEnjaBtn.disabled = true;
-      if (startJaenBtn) startJaenBtn.disabled = true;
-      if (goStudyBtn) goStudyBtn.disabled = true;
+      if (startPrimaryBtn) startPrimaryBtn.disabled = true;
+      if (altBtn1) altBtn1.disabled = true;
+      if (altBtn2) altBtn2.disabled = true;
       return;
     }
 
-    badge.textContent =
-      `現在：全商英検 ${plan.lv}級（単語数 ${plan.wordsCount}｜Block数 ${plan.blockCount}）`;
+    badge.textContent = `現在：全商英検 ${plan.lv}級`;
 
-    pickInfo.textContent =
-      `ゴイモンのひとこと：${plan.speech}`;
+    pickInfo.textContent = `今日は「${plan.categoryLabel}」から始めよう`;
 
-    pickDetail.textContent =
-      `今日のテーマ：${plan.themeLabel}｜おすすめ学習：${plan.categoryLabel}｜` +
-      `おすすめ範囲：Block ${plan.block.id}（${plan.start}〜${plan.end}）｜` +
-      `理由：${plan.themeReason} ${plan.pickReason}｜${plan.pickDetail}`;
+    pickDetail.textContent = [
+      `ゴイモン：${plan.goimonName}`,
+      `今日のテーマ：${plan.themeLabel}`,
+      `おすすめ範囲：Block ${plan.block.id}（${plan.start}〜${plan.end}）`,
+      `おすすめ理由：${plan.themeReason}`,
+      `このBlockを選んだ理由：${plan.pickReason}`,
+      ``,
+      `${plan.pickDetail}`
+    ].join("\n");
 
-    if (startEnjaBtn) {
-      startEnjaBtn.disabled = false;
-      startEnjaBtn.textContent = `今日のおすすめを始める（${plan.categoryLabel}）`;
+    if (startPrimaryBtn) {
+      startPrimaryBtn.disabled = false;
+      startPrimaryBtn.textContent = `このおすすめで始める（${plan.categoryLabel}）`;
     }
 
-    if (startJaenBtn) {
-      startJaenBtn.disabled = false;
-      startJaenBtn.textContent = "別候補：日→英で始める";
+    if (altBtn1) {
+      altBtn1.disabled = false;
+      altBtn1.textContent = plan.altActions[0]?.label || "別候補";
     }
 
-    if (goStudyBtn) {
-      goStudyBtn.disabled = false;
-      goStudyBtn.textContent = "別候補：暗記から始める";
+    if (altBtn2) {
+      altBtn2.disabled = false;
+      altBtn2.textContent = plan.altActions[1]?.label || "別候補";
     }
   }
-
-  let currentPlan = null;
 
   function openPrimaryRecommendation() {
     if (!currentPlan) return;
     location.href = currentPlan.actionUrl;
   }
 
-  function openJaEnAlternative() {
-    if (!currentPlan) return;
-    location.href = `quiz_jaen.html?start=${currentPlan.start}&end=${currentPlan.end}&mode=weak&weak=1&autostart=1`;
+  function openAlternative1() {
+    if (!currentPlan || !currentPlan.altActions?.[0]) return;
+    location.href = currentPlan.altActions[0].url;
   }
 
-  function openStudyAlternative() {
-    if (!currentPlan) return;
-    location.href = `study.html?start=${currentPlan.start}&end=${currentPlan.end}`;
+  function openAlternative2() {
+    if (!currentPlan || !currentPlan.altActions?.[1]) return;
+    location.href = currentPlan.altActions[1].url;
   }
 
-  function rerender() {
+  function rerender(resetIndex = false) {
+    if (resetIndex) {
+      rerollIndex = 0;
+    }
     currentPlan = buildRecommendedPlan();
     renderPlan(currentPlan);
   }
 
-  if (startEnjaBtn) {
-    startEnjaBtn.addEventListener("click", openPrimaryRecommendation);
+  if (startPrimaryBtn) {
+    startPrimaryBtn.addEventListener("click", openPrimaryRecommendation);
   }
 
-  if (startJaenBtn) {
-    startJaenBtn.addEventListener("click", openJaEnAlternative);
+  if (altBtn1) {
+    altBtn1.addEventListener("click", openAlternative1);
   }
 
-  if (goStudyBtn) {
-    goStudyBtn.addEventListener("click", openStudyAlternative);
+  if (altBtn2) {
+    altBtn2.addEventListener("click", openAlternative2);
   }
 
   if (goProgressBtn) {
@@ -568,12 +643,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (rerollBtn) {
-    rerollBtn.addEventListener("click", rerender);
+    rerollBtn.addEventListener("click", () => {
+      rerollIndex += 1;
+      rerender(false);
+    });
   }
 
   if (passLineEl) {
-    passLineEl.addEventListener("change", rerender);
+    passLineEl.addEventListener("change", () => {
+      rerender(true);
+    });
   }
 
-  rerender();
+  rerender(true);
 });
