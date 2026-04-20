@@ -6,43 +6,40 @@
   const URL_PARAMS = new URLSearchParams(window.location.search);
 
   const STORAGE_KEYS = {
-    weakMeaning: `zensho_idiom_quiz_weak_meaning_v1_lv${DATA_LEVEL}`,
-    weakSynonym: `zensho_idiom_quiz_weak_synonym_v1_lv${DATA_LEVEL}`,
-    manualWeak: `zensho_idiom_quiz_manual_weak_v1_lv${DATA_LEVEL}`,
-    cursorMeaning: `zensho_idiom_quiz_cursor_meaning_v1_lv${DATA_LEVEL}`,
-    cursorSynonym: `zensho_idiom_quiz_cursor_synonym_v1_lv${DATA_LEVEL}`,
-    settings: `zensho_idiom_quiz_settings_v3_lv${DATA_LEVEL}`,
-    listUi: `zensho_idiom_quiz_list_ui_v1_lv${DATA_LEVEL}`
+    weakAuto: `zensho_paraphrase_quiz_weak_v1_lv${DATA_LEVEL}`,
+    manualWeak: `zensho_paraphrase_quiz_manual_weak_v1_lv${DATA_LEVEL}`,
+    cursor: `zensho_paraphrase_quiz_cursor_v1_lv${DATA_LEVEL}`,
+    settings: `zensho_paraphrase_quiz_settings_v2_lv${DATA_LEVEL}`,
+    idiomWeakMeaning: `zensho_idiom_quiz_weak_meaning_v1_lv${DATA_LEVEL}`,
+    idiomWeakSynonym: `zensho_idiom_quiz_weak_synonym_v1_lv${DATA_LEVEL}`
   };
 
   const DEFAULT_SETTINGS = {
-    questionMode: "meaning",
     questionCount: "10",
-    quizMode: "order",
-    autoRead: false
+    quizMode: "order_continue",
+    autoRead: true
   };
 
-  const DATA = Array.isArray(window.IDIOM_DATA_1KYU) ? window.IDIOM_DATA_1KYU.slice() : [];
+  const DATA = Array.isArray(window.PARAPHRASE_DATA_1KYU)
+    ? window.PARAPHRASE_DATA_1KYU.slice()
+    : [];
 
   const el = {
     levelBadge: document.getElementById("levelBadge"),
 
     setupBox: document.getElementById("setupBox"),
-    focusIdiomBox: document.getElementById("focusIdiomBox"),
-    focusIdiomLine: document.getElementById("focusIdiomLine"),
-    focusIdiomExpression: document.getElementById("focusIdiomExpression"),
-    focusIdiomJa: document.getElementById("focusIdiomJa"),
-    focusIdiomSynonym: document.getElementById("focusIdiomSynonym"),
-    focusMeaningBtn: document.getElementById("focusMeaningBtn"),
-    focusSynonymBtn: document.getElementById("focusSynonymBtn"),
-    focusIdiomClearBtn: document.getElementById("focusIdiomClearBtn"),
+    relatedParaphraseBox: document.getElementById("relatedParaphraseBox"),
+    relatedParaphraseLine: document.getElementById("relatedParaphraseLine"),
+    startRelatedParaphraseBtn: document.getElementById("startRelatedParaphraseBtn"),
+    relatedParaphraseToIdiomBtn: document.getElementById("relatedParaphraseToIdiomBtn"),
+    clearRelatedParaphraseBtn: document.getElementById("clearRelatedParaphraseBtn"),
 
     problemListBox: document.getElementById("problemListBox"),
     weakListBox: document.getElementById("weakListBox"),
     playBox: document.getElementById("playBox"),
     summaryBox: document.getElementById("summaryBox"),
+    actionBar: document.getElementById("actionBar"),
 
-    questionMode: document.getElementById("questionMode"),
     questionCount: document.getElementById("questionCount"),
     quizMode: document.getElementById("quizMode"),
     autoRead: document.getElementById("autoRead"),
@@ -62,36 +59,41 @@
     weakListEmpty: document.getElementById("weakListEmpty"),
 
     stats: document.getElementById("stats"),
-    expressionText: document.getElementById("expressionText"),
-    questionModeBadge: document.getElementById("questionModeBadge"),
+    questionNo: document.getElementById("questionNo"),
+    sentenceA: document.getElementById("sentenceA"),
+    sentenceB: document.getElementById("sentenceB"),
     choicesBox: document.getElementById("choicesBox"),
     feedbackBox: document.getElementById("feedbackBox"),
+
     readBtn: document.getElementById("readBtn"),
-    jumpParaphraseBtn: document.getElementById("jumpParaphraseBtn"),
-    nextBtn: document.getElementById("nextBtn"),
+    jumpIdiomBtn: document.getElementById("jumpIdiomBtn"),
+    manualWeakBtn: document.getElementById("manualWeakBtn"),
     backBtn: document.getElementById("backBtn"),
 
+    checkBtn: document.getElementById("checkBtn"),
+    nextBtn: document.getElementById("nextBtn"),
+
     summaryLine: document.getElementById("summaryLine"),
-    resultScore: document.getElementById("resultScore"),
+    summarySub: document.getElementById("summarySub"),
     wrongList: document.getElementById("wrongList"),
     wrongEmpty: document.getElementById("wrongEmpty"),
     askedList: document.getElementById("askedList"),
 
-    retrySetBtnTop: document.getElementById("retrySetBtnTop"),
+    retryBtn: document.getElementById("retryBtn"),
     continueBtn: document.getElementById("continueBtn"),
-    summaryBackBtn: document.getElementById("summaryBackBtn")
+    backToSetupBtn: document.getElementById("backToSetupBtn")
   };
 
   const state = {
-    questionMode: "meaning",
-    mode: "order",
     sessionItems: [],
-    currentIndex: 0,
-    score: 0,
-    answered: false,
-    results: [],
     lastSessionItems: [],
-    focusIdFromQuery: URL_PARAMS.get("focusId") || ""
+    currentIndex: 0,
+    selectedChoice: "",
+    answered: false,
+    score: 0,
+    results: [],
+    mode: "order_continue",
+    relatedSourceId: URL_PARAMS.get("sourceId") || ""
   };
 
   function readJSON(key, fallbackValue) {
@@ -106,6 +108,15 @@
 
   function writeJSON(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
   function shuffle(array) {
@@ -134,6 +145,92 @@
     } catch (err) {}
   }
 
+  function countToNumber(value) {
+    if (value === "all") return DATA.length;
+    const num = Number(value);
+    if (!Number.isFinite(num) || num <= 0) return 10;
+    return Math.min(num, DATA.length);
+  }
+
+  function readWeakAutoMap() {
+    const raw = readJSON(STORAGE_KEYS.weakAuto, {});
+    return raw && typeof raw === "object" ? raw : {};
+  }
+
+  function saveWeakAutoMap(map) {
+    writeJSON(STORAGE_KEYS.weakAuto, map);
+  }
+
+  function readManualWeakMap() {
+    const raw = readJSON(STORAGE_KEYS.manualWeak, {});
+    return raw && typeof raw === "object" ? raw : {};
+  }
+
+  function saveManualWeakMap(map) {
+    writeJSON(STORAGE_KEYS.manualWeak, map);
+  }
+
+  function isManualWeak(id) {
+    return !!readManualWeakMap()[id];
+  }
+
+  function toggleManualWeak(id) {
+    const map = readManualWeakMap();
+    if (map[id]) {
+      delete map[id];
+    } else {
+      map[id] = true;
+    }
+    saveManualWeakMap(map);
+  }
+
+  function incrementParaphraseWeak(id) {
+    const map = readWeakAutoMap();
+    map[id] = (map[id] || 0) + 1;
+    saveWeakAutoMap(map);
+  }
+
+  function incrementIdiomWeakLinks(sourceId) {
+    if (!sourceId) return;
+
+    const meaningMap = readJSON(STORAGE_KEYS.idiomWeakMeaning, {}) || {};
+    const synonymMap = readJSON(STORAGE_KEYS.idiomWeakSynonym, {}) || {};
+
+    meaningMap[sourceId] = (meaningMap[sourceId] || 0) + 1;
+    synonymMap[sourceId] = (synonymMap[sourceId] || 0) + 1;
+
+    writeJSON(STORAGE_KEYS.idiomWeakMeaning, meaningMap);
+    writeJSON(STORAGE_KEYS.idiomWeakSynonym, synonymMap);
+  }
+
+  function getCursor() {
+    const raw = Number(localStorage.getItem(STORAGE_KEYS.cursor) || "0");
+    if (!Number.isFinite(raw) || raw < 0) return 0;
+    return Math.floor(raw);
+  }
+
+  function setCursor(value) {
+    localStorage.setItem(STORAGE_KEYS.cursor, String(value));
+  }
+
+  function getSavedSettings() {
+    const saved = readJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
+    return {
+      questionCount: saved.questionCount || DEFAULT_SETTINGS.questionCount,
+      quizMode: saved.quizMode || DEFAULT_SETTINGS.quizMode,
+      autoRead: typeof saved.autoRead === "boolean" ? saved.autoRead : DEFAULT_SETTINGS.autoRead
+    };
+  }
+
+  function saveCurrentSettings() {
+    const settings = {
+      questionCount: el.questionCount.value,
+      quizMode: el.quizMode.value,
+      autoRead: el.autoRead.checked
+    };
+    writeJSON(STORAGE_KEYS.settings, settings);
+  }
+
   function modeLabel(mode) {
     if (mode === "order") return "順番";
     if (mode === "order_continue") return "続きから";
@@ -143,155 +240,136 @@
     return mode;
   }
 
-  function questionModeLabel(questionMode) {
-    if (questionMode === "meaning") return "意味を選ぶ";
-    if (questionMode === "synonym") return "同義表現を選ぶ";
-    return questionMode;
-  }
-
-  function getItemById(itemId) {
-    return DATA.find(function (item) {
-      return item.id === itemId;
-    }) || null;
-  }
-
-  function getWeakKey(questionMode) {
-    return questionMode === "synonym" ? STORAGE_KEYS.weakSynonym : STORAGE_KEYS.weakMeaning;
-  }
-
-  function getCursorKey(questionMode) {
-    return questionMode === "synonym" ? STORAGE_KEYS.cursorSynonym : STORAGE_KEYS.cursorMeaning;
-  }
-
-  function getWeakMap(questionMode) {
-    const raw = readJSON(getWeakKey(questionMode), {});
-    if (!raw || typeof raw !== "object") return {};
-    return raw;
-  }
-
-  function saveWeakMap(questionMode, map) {
-    writeJSON(getWeakKey(questionMode), map);
-  }
-
-  function incrementWeak(questionMode, id) {
-    const weakMap = getWeakMap(questionMode);
-    weakMap[id] = (weakMap[id] || 0) + 1;
-    saveWeakMap(questionMode, weakMap);
-  }
-
-  function getManualWeakMap() {
-    const raw = readJSON(STORAGE_KEYS.manualWeak, {});
-    if (!raw || typeof raw !== "object") return {};
-    return raw;
-  }
-
-  function saveManualWeakMap(map) {
-    writeJSON(STORAGE_KEYS.manualWeak, map);
-  }
-
-  function isManualWeak(id) {
-    const map = getManualWeakMap();
-    return !!map[id];
-  }
-
-  function toggleManualWeak(id) {
-    const map = getManualWeakMap();
-    if (map[id]) {
-      delete map[id];
+  function updateLevelBadge() {
+    if (UI_LEVEL === "1") {
+      el.levelBadge.textContent = "現在のレベル設定：1級";
     } else {
-      map[id] = true;
+      el.levelBadge.textContent =
+        "現在のレベル設定は2級ですが、このページは今は1級データで動作します。";
     }
-    saveManualWeakMap(map);
   }
 
-  function getListUiMap() {
-    const raw = readJSON(STORAGE_KEYS.listUi, {});
-    if (!raw || typeof raw !== "object") return {};
-    return raw;
+  function getRelatedItemsBySourceId(sourceId) {
+    return DATA
+      .map(function (item, index) {
+        return { ...item, _index: index };
+      })
+      .filter(function (item) {
+        return item.sourceId === sourceId;
+      });
   }
 
-  function saveListUiMap(map) {
-    writeJSON(STORAGE_KEYS.listUi, map);
-  }
+  function refreshRelatedParaphraseBox() {
+    if (!el.relatedParaphraseBox) return;
 
-  function isMeaningMasked(id) {
-    const map = getListUiMap();
-    return !!(map[id] && map[id].meaningMasked);
-  }
-
-  function isSynonymMasked(id) {
-    const map = getListUiMap();
-    return !!(map[id] && map[id].synonymMasked);
-  }
-
-  function setMeaningMasked(id, value) {
-    const map = getListUiMap();
-    map[id] = map[id] || {};
-    map[id].meaningMasked = !!value;
-    saveListUiMap(map);
-  }
-
-  function setSynonymMasked(id, value) {
-    const map = getListUiMap();
-    map[id] = map[id] || {};
-    map[id].synonymMasked = !!value;
-    saveListUiMap(map);
-  }
-
-  function getCursor(questionMode) {
-    const raw = Number(localStorage.getItem(getCursorKey(questionMode)) || "0");
-    if (!Number.isFinite(raw) || raw < 0) return 0;
-    return Math.floor(raw);
-  }
-
-  function setCursor(questionMode, value) {
-    localStorage.setItem(getCursorKey(questionMode), String(value));
-  }
-
-  function getSavedSettings() {
-    const saved = readJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
-    return {
-      questionMode: saved.questionMode || DEFAULT_SETTINGS.questionMode,
-      questionCount: saved.questionCount || DEFAULT_SETTINGS.questionCount,
-      quizMode: saved.quizMode || DEFAULT_SETTINGS.quizMode,
-      autoRead: !!saved.autoRead
-    };
-  }
-
-  function saveCurrentSettings() {
-    const settings = {
-      questionMode: el.questionMode.value,
-      questionCount: el.questionCount.value,
-      quizMode: el.quizMode.value,
-      autoRead: el.autoRead.checked
-    };
-    writeJSON(STORAGE_KEYS.settings, settings);
-  }
-
-  function countToNumber(value) {
-    if (value === "all") return DATA.length;
-    const num = Number(value);
-    if (!Number.isFinite(num) || num <= 0) return 10;
-    return Math.min(num, DATA.length);
-  }
-
-  function hasUsableSynonym(item) {
-    return Array.isArray(item.paraphraseTo) && item.paraphraseTo.length > 0 && item.paraphraseTo[0];
-  }
-
-  function getAvailableDataForMode(questionMode) {
-    if (questionMode === "synonym") {
-      return DATA.filter(hasUsableSynonym);
+    if (!state.relatedSourceId || el.setupBox.classList.contains("hidden")) {
+      el.relatedParaphraseBox.classList.add("hidden");
+      return;
     }
-    return DATA.slice();
+
+    const relatedItems = getRelatedItemsBySourceId(state.relatedSourceId);
+
+    if (!relatedItems.length) {
+      el.relatedParaphraseLine.textContent = `関連する言い換え問題が見つかりませんでした。（sourceId: ${state.relatedSourceId}）`;
+      el.startRelatedParaphraseBtn.disabled = true;
+      el.relatedParaphraseToIdiomBtn.disabled = false;
+      el.relatedParaphraseBox.classList.remove("hidden");
+      return;
+    }
+
+    el.relatedParaphraseLine.textContent =
+      `sourceId ${state.relatedSourceId} に対応する言い換え問題が ${relatedItems.length} 件あります。`;
+    el.startRelatedParaphraseBtn.disabled = false;
+    el.relatedParaphraseToIdiomBtn.disabled = false;
+    el.relatedParaphraseBox.classList.remove("hidden");
   }
 
-  function getSessionItems(questionMode, mode, count) {
-    const base = getAvailableDataForMode(questionMode).map(function (item, index) {
+  function hideAllBoxes() {
+    el.setupBox.classList.add("hidden");
+    if (el.relatedParaphraseBox) {
+      el.relatedParaphraseBox.classList.add("hidden");
+    }
+    el.problemListBox.classList.add("hidden");
+    el.weakListBox.classList.add("hidden");
+    el.playBox.classList.add("hidden");
+    el.summaryBox.classList.add("hidden");
+    el.actionBar.classList.add("hidden");
+  }
+
+  function showBox(name) {
+    hideAllBoxes();
+
+    if (name === "setup") {
+      el.setupBox.classList.remove("hidden");
+      refreshRelatedParaphraseBox();
+      return;
+    }
+
+    if (name === "problemList") {
+      el.problemListBox.classList.remove("hidden");
+      return;
+    }
+
+    if (name === "weakList") {
+      el.weakListBox.classList.remove("hidden");
+      return;
+    }
+
+    if (name === "play") {
+      el.playBox.classList.remove("hidden");
+      el.actionBar.classList.remove("hidden");
+      return;
+    }
+
+    if (name === "summary") {
+      el.summaryBox.classList.remove("hidden");
+    }
+  }
+
+  function updatePoolInfo() {
+    const weakMap = readWeakAutoMap();
+    const manualMap = readManualWeakMap();
+
+    const autoWeakItems = Object.keys(weakMap).filter(function (id) {
+      return (weakMap[id] || 0) > 0;
+    }).length;
+    const autoWeakTotal = Object.values(weakMap).reduce(function (sum, value) {
+      return sum + Number(value || 0);
+    }, 0);
+    const manualWeakItems = Object.keys(manualMap).length;
+    const cursor = getCursor();
+
+    el.poolInfo.textContent =
+      `収録数：${DATA.length}件 / 続きからの次回開始位置：${cursor + 1}番目 / 自動ニガテ：${autoWeakItems}件（累計ミス ${autoWeakTotal}回） / 手動ニガテ：${manualWeakItems}件`;
+  }
+
+  function getWeakListItems() {
+    const weakMap = readWeakAutoMap();
+    const manualMap = readManualWeakMap();
+
+    return DATA.map(function (item, index) {
       return {
         ...item,
-        _index: index
+        _index: index,
+        autoWeakCount: weakMap[item.id] || 0,
+        manualWeak: !!manualMap[item.id]
       };
+    })
+      .filter(function (item) {
+        return item.autoWeakCount > 0 || item.manualWeak;
+      })
+      .sort(function (a, b) {
+        const manualA = a.manualWeak ? 1 : 0;
+        const manualB = b.manualWeak ? 1 : 0;
+        if (manualA !== manualB) return manualB - manualA;
+        if (a.autoWeakCount !== b.autoWeakCount) return b.autoWeakCount - a.autoWeakCount;
+        return a._index - b._index;
+      });
+  }
+
+  function getSessionItems(count, mode) {
+    const base = DATA.map(function (item, index) {
+      return { ...item, _index: index };
     });
 
     if (mode === "random") {
@@ -299,14 +377,14 @@
     }
 
     if (mode === "weak") {
-      const weakMap = getWeakMap(questionMode);
-      const manualWeakMap = getManualWeakMap();
+      const weakMap = readWeakAutoMap();
+      const manualMap = readManualWeakMap();
 
       return base
         .slice()
         .sort(function (a, b) {
-          const manualA = manualWeakMap[a.id] ? 1 : 0;
-          const manualB = manualWeakMap[b.id] ? 1 : 0;
+          const manualA = manualMap[a.id] ? 1 : 0;
+          const manualB = manualMap[b.id] ? 1 : 0;
           if (manualA !== manualB) return manualB - manualA;
 
           const weakA = weakMap[a.id] || 0;
@@ -319,7 +397,7 @@
     }
 
     if (mode === "order_continue") {
-      const cursor = getCursor(questionMode) % base.length;
+      const cursor = getCursor() % base.length;
       const ordered = base.slice(cursor).concat(base.slice(0, cursor));
       return ordered.slice(0, count);
     }
@@ -327,191 +405,175 @@
     return base.slice(0, count);
   }
 
-  function getCorrectAnswerText(question, questionMode) {
-    if (questionMode === "synonym") {
-      return (question.paraphraseTo && question.paraphraseTo[0]) ? question.paraphraseTo[0] : "";
-    }
-    return question.ja;
-  }
-
-  function getWrongPool(question, questionMode) {
-    if (questionMode === "synonym") {
-      return getAvailableDataForMode(questionMode)
-        .filter(function (item) {
-          return item.id !== question.id;
+  function getChoices(question) {
+    const correct = question.answer;
+    const wrongPool = Array.isArray(question.choices)
+      ? question.choices.filter(function (choice) {
+          return choice !== correct;
         })
-        .map(function (item) {
-          return (item.paraphraseTo && item.paraphraseTo[0]) ? item.paraphraseTo[0] : "";
-        })
-        .filter(Boolean);
-    }
+      : [];
 
-    return DATA
-      .filter(function (item) {
-        return item.id !== question.id;
-      })
-      .map(function (item) {
-        return item.ja;
-      })
-      .filter(Boolean);
-  }
-
-  function getChoicesForQuestion(question, questionMode) {
-    const correct = getCorrectAnswerText(question, questionMode);
-    const wrongPool = Array.from(new Set(getWrongPool(question, questionMode).filter(function (text) {
-      return text !== correct;
-    })));
     const selectedWrong = shuffle(wrongPool).slice(0, 3);
     return shuffle([correct, ...selectedWrong]);
   }
 
-  function hideAllMainBoxes() {
-    el.setupBox.classList.add("hidden");
-    el.problemListBox.classList.add("hidden");
-    el.weakListBox.classList.add("hidden");
-    el.playBox.classList.add("hidden");
-    el.summaryBox.classList.add("hidden");
-    if (el.focusIdiomBox) {
-      el.focusIdiomBox.classList.add("hidden");
-    }
+  function updateManualWeakButton(questionId) {
+    const active = isManualWeak(questionId);
+    el.manualWeakBtn.textContent = active ? "苦手解除" : "苦手に追加";
+    el.manualWeakBtn.classList.toggle("weakBtnActive", active);
   }
 
-  function refreshFocusIdiomBox() {
-    if (!el.focusIdiomBox) return;
+  function resetActionButtons() {
+    el.checkBtn.disabled = true;
+    el.nextBtn.disabled = true;
+    el.nextBtn.textContent =
+      state.currentIndex === state.sessionItems.length - 1 ? "結果を見る" : "次へ";
+  }
 
-    if (!state.focusIdFromQuery || el.setupBox.classList.contains("hidden")) {
-      el.focusIdiomBox.classList.add("hidden");
+  function clearFeedback() {
+    el.feedbackBox.className = "feedbackBox hidden";
+    el.feedbackBox.innerHTML = "";
+  }
+
+  function openIdiomForSource(sourceId) {
+    window.location.href = `idiom_quiz.html?focusId=${encodeURIComponent(sourceId)}`;
+  }
+
+  function updateJumpIdiomButton(question) {
+    if (!el.jumpIdiomBtn) return;
+    el.jumpIdiomBtn.disabled = !(question && question.sourceId);
+  }
+
+  function renderQuestion() {
+    const question = state.sessionItems[state.currentIndex];
+    if (!question) {
+      finishQuiz();
       return;
     }
 
-    const item = getItemById(state.focusIdFromQuery);
-    if (!item) {
-      el.focusIdiomBox.classList.add("hidden");
-      return;
-    }
+    state.selectedChoice = "";
+    state.answered = false;
 
-    el.focusIdiomLine.textContent = "大問11風ページから関連表現として開きました。";
-    el.focusIdiomExpression.textContent = item.expression;
-    el.focusIdiomJa.textContent = `意味：${item.ja}`;
-    el.focusIdiomSynonym.textContent = `同義表現：${getSynonymText(item)}`;
-    el.focusIdiomBox.classList.remove("hidden");
-  }
+    el.stats.textContent =
+      `第${state.currentIndex + 1}問 / ${state.sessionItems.length}問 ・ 正解 ${state.score}問 ・ 出題順：${modeLabel(state.mode)}`;
 
-  function showBox(name) {
-    hideAllMainBoxes();
+    el.questionNo.textContent = `第${state.currentIndex + 1}問 / ${state.sessionItems.length}問`;
+    el.sentenceA.textContent = question.a;
+    el.sentenceB.textContent = question.b;
+    el.choicesBox.innerHTML = "";
+    clearFeedback();
+    resetActionButtons();
+    updateManualWeakButton(question.id);
+    updateJumpIdiomButton(question);
 
-    if (name === "setup") {
-      el.setupBox.classList.remove("hidden");
-      refreshFocusIdiomBox();
-      return;
-    }
-    if (name === "problemList") {
-      el.problemListBox.classList.remove("hidden");
-      return;
-    }
-    if (name === "weakList") {
-      el.weakListBox.classList.remove("hidden");
-      return;
-    }
-    if (name === "play") {
-      el.playBox.classList.remove("hidden");
-      return;
-    }
-    if (name === "summary") {
-      el.summaryBox.classList.remove("hidden");
-    }
-  }
+    const choices = getChoices(question);
 
-  function updateLevelBadge() {
-    if (UI_LEVEL === "1") {
-      el.levelBadge.textContent = "現在のレベル設定：1級";
-    } else {
-      el.levelBadge.textContent = "現在のレベル設定は2級ですが、このページは今は1級データで動作します。";
+    choices.forEach(function (choiceText) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "choiceBtn";
+      btn.textContent = choiceText;
+
+      btn.addEventListener("click", function () {
+        if (state.answered) return;
+
+        state.selectedChoice = choiceText;
+        el.checkBtn.disabled = false;
+
+        Array.from(el.choicesBox.querySelectorAll("button")).forEach(function (otherBtn) {
+          otherBtn.classList.remove("selected");
+        });
+
+        btn.classList.add("selected");
+      });
+
+      el.choicesBox.appendChild(btn);
+    });
+
+    if (el.autoRead.checked) {
+      speak(question.a);
     }
   }
 
-  function updatePoolInfo() {
-    const questionMode = el.questionMode.value;
-    const available = getAvailableDataForMode(questionMode);
-    const weakMap = getWeakMap(questionMode);
-    const manualWeakMap = getManualWeakMap();
-
-    const autoWeakItems = Object.keys(weakMap).filter(function (id) {
-      return (weakMap[id] || 0) > 0;
-    }).length;
-    const autoWeakTotal = Object.values(weakMap).reduce(function (sum, value) {
-      return sum + Number(value || 0);
-    }, 0);
-    const manualWeakItems = Object.keys(manualWeakMap).length;
-    const cursor = getCursor(questionMode);
-
-    el.poolInfo.textContent =
-      `問題モード：${questionModeLabel(questionMode)} / 収録数：${available.length}件 / 続きからの次回開始位置：${cursor + 1}番目 / 自動ニガテ：${autoWeakItems}件（累計ミス ${autoWeakTotal}回） / 手動ニガテ：${manualWeakItems}件`;
-  }
-
-  function escapeHtml(value) {
-    return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  }
-
-  function getSynonymText(item) {
-    if (!Array.isArray(item.paraphraseTo) || item.paraphraseTo.length === 0) return "なし";
-    return item.paraphraseTo.join(" / ");
-  }
-
-  function createInfoValueHtml(text, masked, kind, itemId) {
-    if (masked) {
-      return `<div class="infoValue masked" data-reveal-kind="${kind}" data-item-id="${itemId}">（タップで表示）</div>`;
-    }
-    return `<div class="infoValue">${escapeHtml(text)}</div>`;
-  }
-
-  function createListItemHtml(item, autoWeakCount) {
-    const meaningMasked = isMeaningMasked(item.id);
-    const synonymMasked = isSynonymMasked(item.id);
-    const manualWeak = isManualWeak(item.id);
-    const synonymText = getSynonymText(item);
-
-    const badges = [];
-    if (manualWeak) {
-      badges.push(`<span class="badge badgeWeak">手動苦手</span>`);
-    }
-    if (autoWeakCount > 0) {
-      badges.push(`<span class="badge badgeAuto">自動ミス ${autoWeakCount}回</span>`);
-    }
+  function buildFeedbackHtml(question, isCorrect) {
+    const completedB = question.b.replace("( )", question.answer);
 
     return `
-      <div class="listTitle">${escapeHtml(item.expression)}</div>
-      ${badges.length ? `<div class="listBadgeRow">${badges.join("")}</div>` : ""}
-      <div class="infoGrid">
-        <div class="infoBlock">
-          <div class="infoLabel">意味</div>
-          ${createInfoValueHtml(item.ja, meaningMasked, "meaning", item.id)}
-        </div>
-        <div class="infoBlock">
-          <div class="infoLabel">同義表現</div>
-          ${createInfoValueHtml(synonymText, synonymMasked, "synonym", item.id)}
-        </div>
-      </div>
-      <div class="listBtnRow">
-        <button type="button" data-action="toggle-meaning" data-item-id="${item.id}">
-          ${meaningMasked ? "意味を表示" : "意味を隠す"}
-        </button>
-        <button type="button" data-action="toggle-synonym" data-item-id="${item.id}">
-          ${synonymMasked ? "同義表現を表示" : "同義表現を隠す"}
-        </button>
-        <button type="button" data-action="toggle-manual-weak" data-item-id="${item.id}" class="${manualWeak ? "weakBtnActive" : ""}">
-          ${manualWeak ? "苦手解除" : "苦手に追加"}
-        </button>
-        <button type="button" data-action="go-paraphrase" data-item-id="${item.id}">
-          言い換え問題へ
-        </button>
-      </div>
+      <div class="feedbackStatus">${isCorrect ? "正解" : "不正解"}</div>
+
+      ${!isCorrect ? `
+        <div class="feedbackLabel">正解</div>
+        <div class="feedbackText">${escapeHtml(question.answer)}</div>
+      ` : ""}
+
+      <div class="feedbackLabel">下の文（完成形）</div>
+      <div class="feedbackText">${escapeHtml(completedB)}</div>
+
+      <div class="feedbackLabel">日本語</div>
+      <div class="feedbackText">${escapeHtml(question.ja || "")}</div>
+
+      <div class="feedbackLabel">解説</div>
+      <div class="feedbackText">${escapeHtml(question.note || "")}</div>
     `;
+  }
+
+  function checkAnswer() {
+    if (state.answered) return;
+    if (!state.selectedChoice) return;
+
+    const question = state.sessionItems[state.currentIndex];
+    const isCorrect = state.selectedChoice === question.answer;
+
+    state.answered = true;
+    if (isCorrect) {
+      state.score += 1;
+      awardParaphraseGoimonCorrect();
+    } else {
+      incrementParaphraseWeak(question.id);
+      incrementIdiomWeakLinks(question.sourceId);
+    }
+
+    const buttons = Array.from(el.choicesBox.querySelectorAll("button"));
+    buttons.forEach(function (btn) {
+      btn.disabled = true;
+      btn.classList.remove("selected");
+
+      if (btn.textContent === question.answer) {
+        btn.classList.add("correct");
+      }
+
+      if (!isCorrect && btn.textContent === state.selectedChoice) {
+        btn.classList.add("wrong");
+      }
+    });
+
+    el.feedbackBox.classList.remove("hidden");
+    el.feedbackBox.classList.add(isCorrect ? "ok" : "ng");
+    el.feedbackBox.innerHTML = buildFeedbackHtml(question, isCorrect);
+
+    state.results.push({
+      id: question.id,
+      sourceId: question.sourceId || "",
+      a: question.a,
+      b: question.b,
+      answer: question.answer,
+      ja: question.ja || "",
+      note: question.note || "",
+      selectedChoice: state.selectedChoice,
+      correct: isCorrect
+    });
+
+    if (state.mode === "order" || state.mode === "order_continue") {
+      const nextCursor = (question._index + 1) % DATA.length;
+      setCursor(nextCursor);
+    }
+
+    el.checkBtn.disabled = true;
+    el.nextBtn.disabled = false;
+    el.nextBtn.textContent =
+      state.currentIndex === state.sessionItems.length - 1 ? "結果を見る" : "次へ";
+
+    updatePoolInfo();
   }
 
   function renderProblemList() {
@@ -524,12 +586,36 @@
 
     el.problemListEmpty.classList.add("hidden");
 
-    const weakMap = getWeakMap(el.questionMode.value);
+    const weakMap = readWeakAutoMap();
+    const manualMap = readManualWeakMap();
 
-    DATA.forEach(function (item) {
+    DATA.forEach(function (item, index) {
+      const autoWeakCount = weakMap[item.id] || 0;
+      const manualWeak = !!manualMap[item.id];
+
+      const badges = [];
+      if (manualWeak) badges.push(`<span class="badge badgeWeak">手動苦手</span>`);
+      if (autoWeakCount > 0) badges.push(`<span class="badge badgeAuto">自動ミス ${autoWeakCount}回</span>`);
+
       const div = document.createElement("div");
       div.className = "listItem";
-      div.innerHTML = createListItemHtml(item, weakMap[item.id] || 0);
+      div.innerHTML = `
+        <div class="listTitle">第${index + 1}問</div>
+        ${badges.length ? `<div>${badges.join("")}</div>` : ""}
+        <div class="listMeta">上の文：${escapeHtml(item.a)}</div>
+        <div class="listMeta">下の文：${escapeHtml(item.b)}</div>
+        <div class="listMeta">正解：${escapeHtml(item.answer)}</div>
+        <div class="listMeta">日本語：${escapeHtml(item.ja || "")}</div>
+        <div class="listMeta">解説：${escapeHtml(item.note || "")}</div>
+        <div class="listBtnRow">
+          <button type="button" data-action="toggle-manual-weak" data-item-id="${item.id}" class="${manualWeak ? "weakBtnActive" : ""}">
+            ${manualWeak ? "苦手解除" : "苦手に追加"}
+          </button>
+          <button type="button" data-action="go-idiom" data-source-id="${escapeHtml(item.sourceId || "")}">
+            イディオム問題へ
+          </button>
+        </div>
+      `;
       el.problemList.appendChild(div);
     });
   }
@@ -537,29 +623,7 @@
   function renderWeakList() {
     el.weakList.innerHTML = "";
 
-    const questionMode = el.questionMode.value;
-    const weakMap = getWeakMap(questionMode);
-    const manualWeakMap = getManualWeakMap();
-
-    const list = getAvailableDataForMode(questionMode)
-      .map(function (item, index) {
-        return {
-          ...item,
-          _index: index,
-          autoWeakCount: weakMap[item.id] || 0,
-          manualWeak: !!manualWeakMap[item.id]
-        };
-      })
-      .filter(function (item) {
-        return item.autoWeakCount > 0 || item.manualWeak;
-      })
-      .sort(function (a, b) {
-        const manualA = a.manualWeak ? 1 : 0;
-        const manualB = b.manualWeak ? 1 : 0;
-        if (manualA !== manualB) return manualB - manualA;
-        if (a.autoWeakCount !== b.autoWeakCount) return b.autoWeakCount - a.autoWeakCount;
-        return a._index - b._index;
-      });
+    const list = getWeakListItems();
 
     if (!list.length) {
       el.weakListEmpty.classList.remove("hidden");
@@ -568,160 +632,32 @@
 
     el.weakListEmpty.classList.add("hidden");
 
-    list.forEach(function (item) {
+    list.forEach(function (item, index) {
+      const badges = [];
+      if (item.manualWeak) badges.push(`<span class="badge badgeWeak">手動苦手</span>`);
+      if (item.autoWeakCount > 0) badges.push(`<span class="badge badgeAuto">自動ミス ${item.autoWeakCount}回</span>`);
+
       const div = document.createElement("div");
       div.className = "listItem";
-      div.innerHTML = createListItemHtml(item, item.autoWeakCount);
+      div.innerHTML = `
+        <div class="listTitle">苦手 ${index + 1}</div>
+        <div>${badges.join("")}</div>
+        <div class="listMeta">上の文：${escapeHtml(item.a)}</div>
+        <div class="listMeta">下の文：${escapeHtml(item.b)}</div>
+        <div class="listMeta">正解：${escapeHtml(item.answer)}</div>
+        <div class="listMeta">日本語：${escapeHtml(item.ja || "")}</div>
+        <div class="listMeta">解説：${escapeHtml(item.note || "")}</div>
+        <div class="listBtnRow">
+          <button type="button" data-action="toggle-manual-weak" data-item-id="${item.id}" class="${item.manualWeak ? "weakBtnActive" : ""}">
+            ${item.manualWeak ? "苦手解除" : "苦手に追加"}
+          </button>
+          <button type="button" data-action="go-idiom" data-source-id="${escapeHtml(item.sourceId || "")}">
+            イディオム問題へ
+          </button>
+        </div>
+      `;
       el.weakList.appendChild(div);
     });
-  }
-
-  function refreshVisibleLists() {
-    if (!el.problemListBox.classList.contains("hidden")) {
-      renderProblemList();
-    }
-    if (!el.weakListBox.classList.contains("hidden")) {
-      renderWeakList();
-    }
-  }
-
-  function clearFeedback() {
-    el.feedbackBox.className = "feedbackBox hidden";
-    el.feedbackBox.innerHTML = "";
-  }
-
-  function openParaphraseForIdiom(itemId) {
-    window.location.href = `paraphrase_quiz.html?sourceId=${encodeURIComponent(itemId)}`;
-  }
-
-  function updateJumpParaphraseButton(question) {
-    if (!el.jumpParaphraseBtn) return;
-    el.jumpParaphraseBtn.disabled = !question;
-  }
-
-  function renderQuestion() {
-    const question = state.sessionItems[state.currentIndex];
-    if (!question) {
-      finishQuiz();
-      return;
-    }
-
-    state.answered = false;
-
-    el.stats.textContent =
-      `第${state.currentIndex + 1}問 / ${state.sessionItems.length}問 ・ 正解 ${state.score}問 ・ 出題順：${modeLabel(state.mode)}`;
-
-    el.expressionText.textContent = question.expression;
-    el.questionModeBadge.textContent = `問題モード：${questionModeLabel(state.questionMode)}`;
-    el.choicesBox.innerHTML = "";
-    clearFeedback();
-    el.nextBtn.disabled = true;
-    updateJumpParaphraseButton(question);
-
-    const choices = getChoicesForQuestion(question, state.questionMode);
-
-    choices.forEach(function (choiceText) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "choiceBtn";
-      btn.textContent = choiceText;
-      btn.addEventListener("click", function () {
-        answerQuestion(choiceText, btn);
-      });
-      el.choicesBox.appendChild(btn);
-    });
-
-    if (el.autoRead.checked) {
-      speak(question.expression);
-    }
-  }
-
-  function buildFeedbackHtml(question, selectedText, correctText, isCorrect, questionMode) {
-    const synonymText = getSynonymText(question);
-    const statusText = isCorrect ? "正解" : "不正解";
-
-    if (questionMode === "meaning") {
-      return `
-        <div class="feedbackStatus">${statusText}</div>
-        ${!isCorrect ? `
-          <div class="feedbackLabel">あなたの解答</div>
-          <div class="feedbackText">${escapeHtml(selectedText)}</div>
-        ` : ""}
-        <div class="feedbackLabel">意味</div>
-        <div class="feedbackText">${escapeHtml(question.ja)}</div>
-        <div class="feedbackLabel">同義表現</div>
-        <div class="feedbackText">${escapeHtml(synonymText)}</div>
-      `;
-    }
-
-    return `
-      <div class="feedbackStatus">${statusText}</div>
-      ${!isCorrect ? `
-        <div class="feedbackLabel">あなたの解答</div>
-        <div class="feedbackText">${escapeHtml(selectedText)}</div>
-      ` : ""}
-      <div class="feedbackLabel">同義表現</div>
-      <div class="feedbackText">${escapeHtml(synonymText)}</div>
-      <div class="feedbackLabel">意味</div>
-      <div class="feedbackText">${escapeHtml(question.ja)}</div>
-    `;
-  }
-
-  function answerQuestion(selectedText, clickedButton) {
-    if (state.answered) return;
-
-    const question = state.sessionItems[state.currentIndex];
-    if (!question) return;
-
-    state.answered = true;
-
-    const correctText = getCorrectAnswerText(question, state.questionMode);
-    const isCorrect = selectedText === correctText;
-
-   if (isCorrect) {
-  state.score += 1;
-  awardIdiomGoimonCorrect();
-}
-    else {
-      incrementWeak(state.questionMode, question.id);
-    }
-
-    const buttons = Array.from(el.choicesBox.querySelectorAll("button"));
-    buttons.forEach(function (btn) {
-      btn.disabled = true;
-
-      if (btn.textContent === correctText) {
-        btn.classList.add("correct");
-      }
-
-      if (!isCorrect && btn === clickedButton) {
-        btn.classList.add("wrong");
-      }
-    });
-
-    el.feedbackBox.classList.remove("hidden");
-    el.feedbackBox.classList.add(isCorrect ? "ok" : "ng");
-    el.feedbackBox.innerHTML = buildFeedbackHtml(question, selectedText, correctText, isCorrect, state.questionMode);
-
-    state.results.push({
-      id: question.id,
-      expression: question.expression,
-      ja: question.ja,
-      correct: isCorrect,
-      selectedText: selectedText,
-      correctText: correctText,
-      synonymText: getSynonymText(question),
-      questionMode: state.questionMode
-    });
-
-    if (state.mode === "order" || state.mode === "order_continue") {
-      const nextCursor = (question._index + 1) % getAvailableDataForMode(state.questionMode).length;
-      setCursor(state.questionMode, nextCursor);
-    }
-
-    el.nextBtn.textContent = state.currentIndex === state.sessionItems.length - 1 ? "結果を見る" : "次へ";
-    el.nextBtn.disabled = false;
-    updatePoolInfo();
   }
 
   function renderSummary() {
@@ -731,10 +667,8 @@
     });
     const rate = total ? Math.round((state.score / total) * 100) : 0;
 
-    el.summaryLine.textContent =
-      `問題モード：${questionModeLabel(state.questionMode)} / 出題順：${modeLabel(state.mode)} / 正答率：${rate}%`;
-
-    el.resultScore.textContent = `${state.score} / ${total} 問正解`;
+    el.summaryLine.textContent = `${state.score} / ${total} 問正解`;
+    el.summarySub.textContent = `出題順：${modeLabel(state.mode)} / 正答率：${rate}%`;
 
     el.wrongList.innerHTML = "";
     el.askedList.innerHTML = "";
@@ -745,38 +679,40 @@
       el.wrongEmpty.classList.add("hidden");
 
       wrongItems.forEach(function (item) {
+        const completedB = item.b.replace("( )", item.answer);
+
         const div = document.createElement("div");
         div.className = "summaryItem";
         div.innerHTML = `
-          <div style="margin-bottom:6px;">
-            <span class="badge badgeNg">× 不正解</span>
-          </div>
-          <div class="summaryLabel">表現</div>
-          <div class="summaryText">${escapeHtml(item.expression)}</div>
-          <div class="summaryLabel" style="margin-top:8px;">意味</div>
-          <div class="summaryText">${escapeHtml(item.ja)}</div>
-          <div class="summaryLabel" style="margin-top:8px;">同義表現</div>
-          <div class="summaryText">${escapeHtml(item.synonymText)}</div>
+          <div class="summaryLabel">不正解だった問題</div>
+          <div class="summaryText">${escapeHtml(item.a)}</div>
+          <div class="summaryText" style="margin-top:8px;">${escapeHtml(completedB)}</div>
           <div class="summaryLabel" style="margin-top:8px;">あなたの解答</div>
-          <div class="summaryText">${escapeHtml(item.selectedText)}</div>
+          <div class="summaryText">${escapeHtml(item.selectedChoice)}</div>
+          <div class="summaryLabel" style="margin-top:8px;">正解</div>
+          <div class="summaryText">${escapeHtml(item.answer)}</div>
+          <div class="summaryLabel" style="margin-top:8px;">日本語</div>
+          <div class="summaryText">${escapeHtml(item.ja)}</div>
+          <div class="summaryLabel" style="margin-top:8px;">解説</div>
+          <div class="summaryText">${escapeHtml(item.note)}</div>
         `;
         el.wrongList.appendChild(div);
       });
     }
 
-    state.results.forEach(function (item) {
+    state.results.forEach(function (item, index) {
+      const completedB = item.b.replace("( )", item.answer);
+
       const div = document.createElement("div");
       div.className = "summaryItem";
       div.innerHTML = `
-        <div style="margin-bottom:6px;">
-          <span class="badge ${item.correct ? "badgeOk" : "badgeNg"}">${item.correct ? "○ 正解" : "× 不正解"}</span>
-        </div>
-        <div class="summaryLabel">表現</div>
-        <div class="summaryText">${escapeHtml(item.expression)}</div>
-        <div class="summaryLabel" style="margin-top:8px;">意味</div>
+        <div class="summaryLabel">第${index + 1}問 ${item.correct ? "○ 正解" : "× 不正解"}</div>
+        <div class="summaryText">${escapeHtml(item.a)}</div>
+        <div class="summaryText" style="margin-top:8px;">${escapeHtml(completedB)}</div>
+        <div class="summaryLabel" style="margin-top:8px;">正解</div>
+        <div class="summaryText">${escapeHtml(item.answer)}</div>
+        <div class="summaryLabel" style="margin-top:8px;">日本語</div>
         <div class="summaryText">${escapeHtml(item.ja)}</div>
-        <div class="summaryLabel" style="margin-top:8px;">同義表現</div>
-        <div class="summaryText">${escapeHtml(item.synonymText)}</div>
       `;
       el.askedList.appendChild(div);
     });
@@ -787,33 +723,34 @@
     showBox("summary");
   }
 
-  function startQuiz(useLastSession) {
-    const questionMode = el.questionMode.value;
-    const available = getAvailableDataForMode(questionMode);
+  function resetSessionState() {
+    state.currentIndex = 0;
+    state.selectedChoice = "";
+    state.answered = false;
+    state.score = 0;
+    state.results = [];
+  }
 
-    if (available.length < 4) {
-      alert("4択問題を作るには、そのモードで最低4件のデータが必要です。");
+  function startQuiz(useLastSession) {
+    if (!DATA.length) {
+      alert("paraphrase_data_1kyu.js のデータが読み込めていません。");
       return;
     }
 
     saveCurrentSettings();
 
-    const count = Math.min(countToNumber(el.questionCount.value), available.length);
+    const count = countToNumber(el.questionCount.value);
     const mode = el.quizMode.value;
 
-    state.questionMode = questionMode;
     state.mode = mode;
-    state.currentIndex = 0;
-    state.score = 0;
-    state.answered = false;
-    state.results = [];
+    resetSessionState();
 
     if (useLastSession && state.lastSessionItems.length) {
       state.sessionItems = state.lastSessionItems.map(function (item) {
         return { ...item };
       });
     } else {
-      state.sessionItems = getSessionItems(questionMode, mode, count);
+      state.sessionItems = getSessionItems(count, mode);
       state.lastSessionItems = state.sessionItems.map(function (item) {
         return { ...item };
       });
@@ -823,34 +760,20 @@
     renderQuestion();
   }
 
-  function startTargetedIdiomQuiz(itemId, questionMode) {
-    const item = getItemById(itemId);
-    if (!item) return;
-
-    el.questionMode.value = questionMode;
-    state.questionMode = questionMode;
-    state.mode = "linked";
-    state.currentIndex = 0;
-    state.score = 0;
-    state.answered = false;
-    state.results = [];
-
-    const pool = getAvailableDataForMode(questionMode);
-    const originalIndex = pool.findIndex(function (candidate) {
-      return candidate.id === item.id;
-    });
-
-    if (originalIndex === -1) {
-      alert("この問題モードでは解けない表現です。");
+  function startRelatedParaphraseQuiz(sourceId) {
+    const relatedItems = getRelatedItemsBySourceId(sourceId);
+    if (!relatedItems.length) {
+      alert("この表現に対応する言い換え問題が見つかりません。");
       return;
     }
 
-    state.sessionItems = [{
-      ...item,
-      _index: originalIndex
-    }];
-    state.lastSessionItems = state.sessionItems.map(function (entry) {
-      return { ...entry };
+    state.mode = "linked";
+    resetSessionState();
+    state.sessionItems = relatedItems.map(function (item) {
+      return { ...item };
+    });
+    state.lastSessionItems = state.sessionItems.map(function (item) {
+      return { ...item };
     });
 
     showBox("play");
@@ -859,86 +782,63 @@
 
   function goNext() {
     if (!state.answered) return;
+
     state.currentIndex += 1;
+    if (state.currentIndex >= state.sessionItems.length) {
+      finishQuiz();
+      return;
+    }
+
     renderQuestion();
   }
 
   function restoreSettingsToForm() {
     const settings = getSavedSettings();
-    el.questionMode.value = settings.questionMode;
     el.questionCount.value = settings.questionCount;
     el.quizMode.value = settings.quizMode;
     el.autoRead.checked = settings.autoRead;
   }
 
   function handleListAreaClick(event) {
-    const actionBtn = event.target.closest("[data-action]");
-    if (actionBtn) {
-      const action = actionBtn.getAttribute("data-action");
-      const itemId = actionBtn.getAttribute("data-item-id");
+    const btn = event.target.closest("[data-action]");
+    if (!btn) return;
+
+    const action = btn.getAttribute("data-action");
+
+    if (action === "toggle-manual-weak") {
+      const itemId = btn.getAttribute("data-item-id");
       if (!itemId) return;
 
-      if (action === "toggle-meaning") {
-        setMeaningMasked(itemId, !isMeaningMasked(itemId));
-        refreshVisibleLists();
-        return;
+      toggleManualWeak(itemId);
+      updatePoolInfo();
+      renderProblemList();
+      renderWeakList();
+
+      const current = state.sessionItems[state.currentIndex];
+      if (current && current.id === itemId) {
+        updateManualWeakButton(itemId);
       }
-
-      if (action === "toggle-synonym") {
-        setSynonymMasked(itemId, !isSynonymMasked(itemId));
-        refreshVisibleLists();
-        return;
-      }
-
-      if (action === "toggle-manual-weak") {
-        toggleManualWeak(itemId);
-        updatePoolInfo();
-        renderWeakList();
-        renderProblemList();
-        return;
-      }
-
-      if (action === "go-paraphrase") {
-        openParaphraseForIdiom(itemId);
-        return;
-      }
-    }
-
-    const revealTarget = event.target.closest("[data-reveal-kind]");
-    if (revealTarget) {
-      const kind = revealTarget.getAttribute("data-reveal-kind");
-      const itemId = revealTarget.getAttribute("data-item-id");
-      if (!itemId) return;
-
-      if (kind === "meaning") {
-        setMeaningMasked(itemId, false);
-        refreshVisibleLists();
-        return;
-      }
-
-      if (kind === "synonym") {
-        setSynonymMasked(itemId, false);
-        refreshVisibleLists();
-      }
-    }
-  }
-
-  function clearFocusQuery() {
-    state.focusIdFromQuery = "";
-    const url = new URL(window.location.href);
-    url.searchParams.delete("focusId");
-    window.history.replaceState({}, "", url.toString());
-    refreshFocusIdiomBox();
-  }
-
-  function init() {
-    if (!Array.isArray(DATA) || DATA.length === 0) {
-      alert("idiom_data_1kyu.js のデータが読み込めていません。");
       return;
     }
 
-    restoreSettingsToForm();
+    if (action === "go-idiom") {
+      const sourceId = btn.getAttribute("data-source-id");
+      if (!sourceId) return;
+      openIdiomForSource(sourceId);
+    }
+  }
+
+  function clearRelatedSourceQuery() {
+    state.relatedSourceId = "";
+    const url = new URL(window.location.href);
+    url.searchParams.delete("sourceId");
+    window.history.replaceState({}, "", url.toString());
+    refreshRelatedParaphraseBox();
+  }
+
+  function init() {
     updateLevelBadge();
+    restoreSettingsToForm();
     updatePoolInfo();
     renderProblemList();
     renderWeakList();
@@ -947,10 +847,11 @@
     if (!supportsSpeech()) {
       el.readBtn.disabled = true;
       el.readBtn.textContent = "読み上げ非対応";
+      el.autoRead.checked = false;
     }
 
-    if (el.jumpParaphraseBtn) {
-      el.jumpParaphraseBtn.disabled = true;
+    if (el.jumpIdiomBtn) {
+      el.jumpIdiomBtn.disabled = true;
     }
 
     el.startBtn.addEventListener("click", function () {
@@ -977,45 +878,50 @@
       showBox("setup");
     });
 
-    el.problemList.addEventListener("click", function (event) {
-      handleListAreaClick(event);
-    });
-
-    el.weakList.addEventListener("click", function (event) {
-      handleListAreaClick(event);
-    });
+    el.problemList.addEventListener("click", handleListAreaClick);
+    el.weakList.addEventListener("click", handleListAreaClick);
 
     el.readBtn.addEventListener("click", function () {
       const question = state.sessionItems[state.currentIndex];
       if (!question) return;
-      speak(question.expression);
+      speak(question.a);
     });
 
-    if (el.jumpParaphraseBtn) {
-      el.jumpParaphraseBtn.addEventListener("click", function () {
+    if (el.jumpIdiomBtn) {
+      el.jumpIdiomBtn.addEventListener("click", function () {
         const question = state.sessionItems[state.currentIndex];
-        if (!question) return;
-        openParaphraseForIdiom(question.id);
+        if (!question || !question.sourceId) return;
+        openIdiomForSource(question.sourceId);
       });
     }
 
-    if (el.focusMeaningBtn) {
-      el.focusMeaningBtn.addEventListener("click", function () {
-        startTargetedIdiomQuiz(state.focusIdFromQuery, "meaning");
+    if (el.startRelatedParaphraseBtn) {
+      el.startRelatedParaphraseBtn.addEventListener("click", function () {
+        startRelatedParaphraseQuiz(state.relatedSourceId);
       });
     }
 
-    if (el.focusSynonymBtn) {
-      el.focusSynonymBtn.addEventListener("click", function () {
-        startTargetedIdiomQuiz(state.focusIdFromQuery, "synonym");
+    if (el.relatedParaphraseToIdiomBtn) {
+      el.relatedParaphraseToIdiomBtn.addEventListener("click", function () {
+        if (!state.relatedSourceId) return;
+        openIdiomForSource(state.relatedSourceId);
       });
     }
 
-    if (el.focusIdiomClearBtn) {
-      el.focusIdiomClearBtn.addEventListener("click", clearFocusQuery);
+    if (el.clearRelatedParaphraseBtn) {
+      el.clearRelatedParaphraseBtn.addEventListener("click", clearRelatedSourceQuery);
     }
 
-    el.nextBtn.addEventListener("click", goNext);
+    el.manualWeakBtn.addEventListener("click", function () {
+      const question = state.sessionItems[state.currentIndex];
+      if (!question) return;
+
+      toggleManualWeak(question.id);
+      updateManualWeakButton(question.id);
+      updatePoolInfo();
+      renderProblemList();
+      renderWeakList();
+    });
 
     el.backBtn.addEventListener("click", function () {
       showBox("setup");
@@ -1023,7 +929,10 @@
       renderWeakList();
     });
 
-    el.retrySetBtnTop.addEventListener("click", function () {
+    el.checkBtn.addEventListener("click", checkAnswer);
+    el.nextBtn.addEventListener("click", goNext);
+
+    el.retryBtn.addEventListener("click", function () {
       startQuiz(true);
     });
 
@@ -1031,26 +940,20 @@
       startQuiz(false);
     });
 
-    el.summaryBackBtn.addEventListener("click", function () {
+    el.backToSetupBtn.addEventListener("click", function () {
       updatePoolInfo();
       renderWeakList();
       showBox("setup");
     });
 
-    el.questionMode.addEventListener("change", function () {
-      updatePoolInfo();
-      renderWeakList();
-      saveCurrentSettings();
-    });
-
     el.questionCount.addEventListener("change", function () {
-      updatePoolInfo();
       saveCurrentSettings();
+      updatePoolInfo();
     });
 
     el.quizMode.addEventListener("change", function () {
-      updatePoolInfo();
       saveCurrentSettings();
+      updatePoolInfo();
     });
 
     el.autoRead.addEventListener("change", function () {
@@ -1058,19 +961,19 @@
     });
   }
 
-  const IDIOM_GOIMON_DELTA = { chie: 0.5, kotoba: 0.5 };
+  const PARAPHRASE_GOIMON_DELTA = { kotoba: 0.5, bunmyaku: 0.5 };
 
-function renderIdiomGoimonMini() {
+function renderParaphraseGoimonMini() {
   if (!window.GoimonUI) return;
 
   const g = window.GoimonUI.ensureCurrent();
 
-  const stageEl = document.getElementById("idiomGoimonStage");
-  const imageEl = document.getElementById("idiomGoimonImage");
-  const nameEl = document.getElementById("idiomGoimonName");
-  const metaEl = document.getElementById("idiomGoimonMeta");
-  const descEl = document.getElementById("idiomGoimonDesc");
-  const guideEl = document.getElementById("idiomPointGuide");
+  const stageEl = document.getElementById("paraphraseGoimonStage");
+  const imageEl = document.getElementById("paraphraseGoimonImage");
+  const nameEl = document.getElementById("paraphraseGoimonName");
+  const metaEl = document.getElementById("paraphraseGoimonMeta");
+  const descEl = document.getElementById("paraphraseGoimonDesc");
+  const guideEl = document.getElementById("paraphrasePointGuide");
 
   if (!stageEl || !imageEl || !nameEl || !metaEl || !descEl || !guideEl) return;
 
@@ -1080,12 +983,12 @@ function renderIdiomGoimonMini() {
   nameEl.textContent = window.GoimonUI.getGoimonPrimaryName(g);
   metaEl.textContent = `Lv ${g.level} / ${window.GoimonUI.formatPoint(g.totalPoints)} pt`;
   descEl.textContent = window.GoimonUI.getDisplayDescription(g);
-  guideEl.textContent = "正解：ちえ +0.5 ＋ ことば +0.5";
+  guideEl.textContent = "正解：ことば +0.5 ＋ ぶんみゃく +0.5";
 
   window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
 }
 
-function initIdiomGoimonMini() {
+function initParaphraseGoimonMini() {
   if (!window.GoimonUI) return;
 
   const toggleBtn = document.getElementById("toggleGoimon");
@@ -1102,20 +1005,18 @@ function initIdiomGoimonMini() {
 
   window.GoimonUI.bindEvolutionNoticeButton("evolutionNoticeBtn", {
     onComplete: function () {
-      renderIdiomGoimonMini();
+      renderParaphraseGoimonMini();
     }
   });
 
-  renderIdiomGoimonMini();
+  renderParaphraseGoimonMini();
 }
 
-function awardIdiomGoimonCorrect() {
+function awardParaphraseGoimonCorrect() {
   if (!window.GoimonUI) return;
-  window.GoimonUI.addPoints(IDIOM_GOIMON_DELTA, "idiom_quiz");
-  renderIdiomGoimonMini();
+  window.GoimonUI.addPoints(PARAPHRASE_GOIMON_DELTA, "paraphrase_quiz");
+  renderParaphraseGoimonMini();
 }
-
   init();
-
-  initIdiomGoimonMini();
+  initParaphraseGoimonMini();
 })();
