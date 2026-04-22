@@ -150,7 +150,7 @@
     { blockId: 3, no: 142, en: "digest", ja: "消化する", sylRaw: "di-ˈgest", stress: 2, note: "" },
     { blockId: 3, no: 143, en: "dine", ja: "食事をする", sylRaw: "ˈdine", stress: 1, note: "" },
     { blockId: 3, no: 144, en: "director", ja: "監督、責任者", sylRaw: "di-ˈrec-tor", stress: 2, note: "" },
-    { blockId: 3, no: 145, en: "discount", ja: "割引", sylRaw: "dis-ˈcount", stress: 2, note: "" },
+    { blockId: 3, no: 145, en: "discount", ja: "割引", sylRaw: "ˈdis-count", stress: 1, note: "" },
     { blockId: 3, no: 146, en: "display", ja: "展示する", sylRaw: "dis-ˈplay", stress: 2, note: "" },
     { blockId: 3, no: 147, en: "distinct", ja: "明確な", sylRaw: "dis-ˈtinct", stress: 2, note: "" },
     { blockId: 3, no: 148, en: "disturb", ja: "妨げる", sylRaw: "dis-ˈturb", stress: 2, note: "" },
