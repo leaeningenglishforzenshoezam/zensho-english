@@ -191,7 +191,7 @@ window.WORDS_1KYU = [
   { en: "fate", ja: "運命" },
   { en: "fearful", ja: "恐れている" },
   { en: "fierce", ja: "激しい" },
-  { en: "figure", ja: "数字、人物" },
+  { en: "figure", ja: "数字、人物、(+out）考え付く" },
   { en: "flame", ja: "炎" },
   { en: "flash", ja: "閃光" },
   { en: "flour", ja: "小麦粉" },
