@@ -14,7 +14,7 @@
     }
 
     .wrap {
-      max-width: 760px;
+      max-width: 820px;
       margin: 0 auto;
       padding: 16px 12px 24px;
     }
@@ -140,6 +140,9 @@
       line-height:1.6;
       white-space: normal;
       word-break: break-word;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
     }
 
     .choiceBtn.correct {
@@ -156,6 +159,36 @@
       font-weight:700;
     }
 
+    .choiceIndex {
+      flex: 0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:28px;
+      height:28px;
+      border-radius:999px;
+      background:#f2f6ff;
+      color:#2b7cff;
+      font-size:13px;
+      font-weight:800;
+      border:1px solid #d6e4ff;
+      margin-top:1px;
+    }
+
+    .choiceText {
+      flex:1 1 auto;
+      min-width:0;
+    }
+
+    .questionNoLine {
+      text-align:center;
+      font-size: 13px;
+      color:#666;
+      font-weight:700;
+      margin-top: 4px;
+      margin-bottom: 8px;
+    }
+
     .expressionBox {
       font-size: 28px;
       line-height: 1.6;
@@ -165,7 +198,7 @@
       border: 1px solid #eee;
       border-radius: 12px;
       padding: 20px 14px;
-      margin-top: 12px;
+      margin-top: 8px;
       font-weight: 800;
     }
 
@@ -190,13 +223,11 @@
     .feedbackBox.ok {
       background:#eefaf0;
       border-color:#b9e1c2;
-      color:#0a7a2f;
     }
 
     .feedbackBox.ng {
       background:#fff1f1;
       border-color:#efc0c0;
-      color:#b00020;
     }
 
     .feedbackStatus {
@@ -205,19 +236,57 @@
       margin-bottom: 10px;
     }
 
-    .feedbackLabel {
-      font-size: 14px;
-      color: #555;
-      font-weight: 700;
-      margin-top: 10px;
-      margin-bottom: 4px;
+    .feedbackStatus.ok {
+      color:#0a7a2f;
     }
 
-    .feedbackText {
-      font-size: 18px;
-      line-height: 1.85;
+    .feedbackStatus.ng {
+      color:#b00020;
+    }
+
+    .answerGrid {
+      display:grid;
+      gap:10px;
+      margin-top: 8px;
+    }
+
+    .answerField {
+      border:1px solid #e9e9e9;
+      border-radius:12px;
+      background:#fff;
+      padding:10px 12px;
+    }
+
+    .answerLabel {
+      font-size: 12px;
+      color:#666;
+      font-weight:700;
+      margin-bottom: 6px;
+    }
+
+    .answerValue {
+      font-size: 16px;
+      line-height: 1.75;
       color:#111;
       word-break: break-word;
+    }
+
+    .feedbackDetail {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .feedbackDetail .answerField {
+      background:#fafafa;
+    }
+
+    .answerActionRow {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      margin-top: 14px;
     }
 
     .summaryBlock {
@@ -226,27 +295,95 @@
       padding-top: 14px;
     }
 
-    .summaryItem {
-      border-top: 1px solid #eee;
-      padding: 12px 0;
+    .summaryCard {
+      border:1px solid #eee;
+      border-radius:14px;
+      background:#fafafa;
+      padding:12px;
+      margin-top: 12px;
     }
 
-    .summaryItem:first-child {
-      border-top: 0;
-      padding-top: 0;
+    .summaryCard:first-child {
+      margin-top: 0;
     }
 
-    .summaryLabel {
+    .summaryHead {
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+      margin-bottom: 10px;
+    }
+
+    .summaryTitleWrap {
+      min-width:0;
+      flex:1 1 auto;
+    }
+
+    .summaryNo {
       font-size: 12px;
-      color: #666;
-      font-weight: 700;
+      color:#666;
+      font-weight:700;
       margin-bottom: 4px;
     }
 
-    .summaryText {
-      font-size: 15px;
-      line-height: 1.7;
-      white-space: pre-wrap;
+    .summaryTitle {
+      font-size: 18px;
+      font-weight:800;
+      line-height:1.6;
+      word-break:break-word;
+    }
+
+    .summaryMiniGrid {
+      display:grid;
+      gap:8px;
+    }
+
+    .summaryMiniField {
+      border:1px solid #eee;
+      border-radius:12px;
+      background:#fff;
+      padding:10px 12px;
+    }
+
+    .summaryMiniLabel {
+      font-size:12px;
+      color:#666;
+      font-weight:700;
+      margin-bottom:6px;
+    }
+
+    .summaryMiniValue {
+      font-size:15px;
+      line-height:1.75;
+      word-break:break-word;
+    }
+
+    .summaryBtnRow {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+
+    .summaryDetails {
+      margin-top: 10px;
+      background:#fff;
+      border:1px solid #eee;
+      border-radius:12px;
+      padding:10px 12px;
+    }
+
+    .summaryDetails summary {
+      cursor:pointer;
+      font-weight:700;
+    }
+
+    .summaryDetailsInner {
+      margin-top: 10px;
+      display:grid;
+      gap:8px;
     }
 
     .listToolbar {
@@ -274,21 +411,48 @@
       flex-wrap:wrap;
     }
 
-    .listItem {
-      border-top: 1px solid #eee;
-      padding: 14px 0;
+    .compactItem {
+      border:1px solid #eee;
+      border-radius:14px;
+      background:#fafafa;
+      padding:12px;
+      margin-top:12px;
     }
 
-    .listItem:first-child {
-      border-top: 0;
-      padding-top: 0;
+    .compactItem:first-child {
+      margin-top:0;
     }
 
-    .listTitle {
-      font-size: 18px;
-      font-weight: 800;
-      margin-bottom: 10px;
-      line-height: 1.6;
+    .compactHead {
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      margin-bottom:10px;
+    }
+
+    .compactNo {
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:54px;
+      height:30px;
+      padding:0 10px;
+      border-radius:999px;
+      background:#eef4ff;
+      border:1px solid #d7e4ff;
+      color:#2356a8;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .compactExpression {
+      font-size:18px;
+      font-weight:800;
+      line-height:1.6;
+      word-break:break-word;
+      flex:1 1 auto;
+      min-width:0;
     }
 
     .listBadgeRow {
@@ -298,34 +462,32 @@
       margin-bottom: 10px;
     }
 
-    .infoGrid {
+    .compactMain {
       display:grid;
       gap:10px;
-      margin-bottom: 10px;
     }
 
-    .infoBlock {
+    .compactField {
       border:1px solid #eee;
       border-radius:12px;
+      background:#fff;
       padding:10px 12px;
-      background:#fafafa;
     }
 
-    .infoLabel {
-      font-size: 12px;
-      color: #666;
-      font-weight: 700;
-      margin-bottom: 6px;
+    .compactLabel {
+      font-size:12px;
+      color:#666;
+      font-weight:700;
+      margin-bottom:6px;
     }
 
-    .infoValue {
-      font-size: 15px;
-      line-height: 1.7;
-      word-break: break-word;
-      cursor: default;
+    .compactValue {
+      font-size:15px;
+      line-height:1.75;
+      word-break:break-word;
     }
 
-    .infoValue.masked {
+    .compactValue.masked {
       color:#666;
       background:#f0f0f0;
       border:1px dashed #ccc;
@@ -335,11 +497,19 @@
       display:inline-block;
     }
 
-    .listBtnRow {
+    .compactBtnRow {
       display:flex;
       gap:8px;
       flex-wrap:wrap;
-      margin-top: 8px;
+      margin-top: 10px;
+    }
+
+    .compactDetail {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+      display:grid;
+      gap:8px;
     }
 
     .badge {
@@ -384,157 +554,151 @@
     }
 
     .goimonToggleBox {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-}
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
 
-.goimonToggleBtn {
-  background: #f9fbff;
-  border: 1px solid #d6e5ff;
-  color: #234f97;
-  font-weight: 700;
-}
+    .goimonToggleBtn {
+      background: #f9fbff;
+      border: 1px solid #d6e5ff;
+      color: #234f97;
+      font-weight: 700;
+    }
 
-.evoNoticeBtn {
-  background: linear-gradient(180deg, #fff6d6 0%, #ffe8a3 100%);
-  border: 1px solid #f1d48a;
-  color: #7a5200;
-  font-weight: 900;
-  position: relative;
-  animation: noticePulse 1.8s ease-in-out infinite;
-  box-shadow: 0 0 0 rgba(255, 214, 102, 0.0);
-}
+    .evoNoticeBtn {
+      background: linear-gradient(180deg, #fff6d6 0%, #ffe8a3 100%);
+      border: 1px solid #f1d48a;
+      color: #7a5200;
+      font-weight: 900;
+      position: relative;
+      animation: noticePulse 1.8s ease-in-out infinite;
+      box-shadow: 0 0 0 rgba(255, 214, 102, 0.0);
+    }
 
-.evoNoticeBtn::after {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border-radius: 14px;
-  border: 2px solid rgba(255, 214, 102, 0.35);
-  animation: noticeRing 1.8s ease-out infinite;
-  pointer-events: none;
-}
+    .evoNoticeBtn::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 14px;
+      border: 2px solid rgba(255, 214, 102, 0.35);
+      animation: noticeRing 1.8s ease-out infinite;
+      pointer-events: none;
+    }
 
-@keyframes noticePulse {
-  0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(255,214,102,0); }
-  50% { transform: translateY(-1px) scale(1.02); box-shadow: 0 6px 18px rgba(255,214,102,0.35); }
-}
+    @keyframes noticePulse {
+      0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(255,214,102,0); }
+      50% { transform: translateY(-1px) scale(1.02); box-shadow: 0 6px 18px rgba(255,214,102,0.35); }
+    }
 
-@keyframes noticeRing {
-  0% { transform: scale(0.96); opacity: 0.75; }
-  100% { transform: scale(1.12); opacity: 0; }
-}
+    @keyframes noticeRing {
+      0% { transform: scale(0.96); opacity: 0.75; }
+      100% { transform: scale(1.12); opacity: 0; }
+    }
 
-.miniGoimonCard {
-  border: 1px solid #f0e3c7;
-  background: #fffaf2;
-  border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 14px;
-}
+    .miniGoimonCard {
+      border: 1px solid #f0e3c7;
+      background: #fffaf2;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
 
-.miniGoimonHead {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
+    .miniGoimonHead {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
 
-.miniGoimonTitle {
-  font-size: 15px;
-  font-weight: 800;
-  margin: 0;
-}
+    .miniGoimonTitle {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0;
+    }
 
-.miniGoimonSub {
-  font-size: 12px;
-  color: #666;
-  margin: 4px 0 0;
-  line-height: 1.4;
-}
+    .miniGoimonSub {
+      font-size: 12px;
+      color: #666;
+      margin: 4px 0 0;
+      line-height: 1.4;
+    }
 
-.miniGoimonStage {
-  text-align: right;
-  flex: 0 0 auto;
-}
+    .miniGoimonStage {
+      text-align: right;
+      flex: 0 0 auto;
+    }
 
-.miniGoimonStageLabel {
-  font-size: 11px;
-  color: #8a6a2d;
-  margin-bottom: 2px;
-}
+    .miniGoimonStageLabel {
+      font-size: 11px;
+      color: #8a6a2d;
+      margin-bottom: 2px;
+    }
 
-.miniGoimonStageValue {
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 1.1;
-}
+    .miniGoimonStageValue {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
 
-.miniGoimonBody {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-top: 6px;
-}
+    .miniGoimonBody {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 6px;
+    }
 
-.miniGoimonImageWrap {
-  width: 88px;
-  height: 88px;
-  border-radius: 12px;
-  background: #fff;
-  border: 1px solid #eddcb8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-}
+    .miniGoimonImageWrap {
+      width: 88px;
+      height: 88px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid #eddcb8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
 
-.miniGoimonImageWrap img {
-  max-width: 76px;
-  max-height: 76px;
-  display: block;
-}
+    .miniGoimonImageWrap img {
+      max-width: 76px;
+      max-height: 76px;
+      display: block;
+    }
 
-.miniGoimonInfo {
-  min-width: 0;
-  flex: 1 1 auto;
-}
+    .miniGoimonInfo {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
 
-.miniGoimonName {
-  font-size: 15px;
-  font-weight: 800;
-  margin: 0 0 4px;
-}
+    .miniGoimonName {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0 0 4px;
+    }
 
-.miniGoimonMeta {
-  font-size: 13px;
-  color: #555;
-  margin-bottom: 6px;
-}
+    .miniGoimonMeta {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 6px;
+    }
 
-.miniGoimonDesc {
-  font-size: 12px;
-  color: #666;
-  line-height: 1.5;
-}
+    .miniGoimonDesc {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
 
-.goimonPointGuide {
-  margin-top: 10px;
-  font-size: 12px;
-  color: #555;
-  line-height: 1.5;
-}
-
-@media (max-width: 520px) {
-  .miniGoimonBody {
-    align-items: flex-start;
-  }
-}
+    .goimonPointGuide {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #555;
+      line-height: 1.5;
+    }
 
     @media (max-width: 520px) {
       .expressionBox {
@@ -549,8 +713,8 @@
         font-size: 19px;
       }
 
-      .feedbackText {
-        font-size: 17px;
+      .miniGoimonBody {
+        align-items: flex-start;
       }
     }
   </style>
@@ -561,62 +725,63 @@
     <div class="card topNavBox">
       <div class="topNavTitle">学習ページ移動</div>
       <div class="topNav">
-    <a href="index.html">ホーム</a>
-    <a href="study.html">暗記</a>
-    <a href="quiz.html">英→日</a>
-    <a href="quiz_jaen.html">日→英</a>
-    <a href="audio_quiz.html">音声→意味</a>
-    <a href="idiom_quiz.html" class="active">イディオム</a>
-    <a href="accent.html">大問1</a>
-    <a href="sentence.html">大問9</a>
-    <a href="paraphrase_quiz.html">大問11</a>
-    <a href="reorder.html">大問12</a>
-    <a href="list.html">一覧</a>
-    <a href="progress.html">進捗</a>
+        <a href="index.html">ホーム</a>
+        <a href="study.html">暗記</a>
+        <a href="quiz.html">英→日</a>
+        <a href="quiz_jaen.html">日→英</a>
+        <a href="audio_quiz.html">音声→意味</a>
+        <a href="idiom_quiz.html" class="active">イディオム</a>
+        <a href="accent.html">大問1</a>
+        <a href="sentence.html">大問9</a>
+        <a href="paraphrase_quiz.html">大問11</a>
+        <a href="reorder.html">大問12</a>
+        <a href="list.html">一覧</a>
+        <a href="progress.html">進捗</a>
       </div>
     </div>
 
     <div id="levelBadge"></div>
+
     <div class="goimonToggleBox">
-  <button id="toggleGoimon" type="button" class="goimonToggleBtn">ゴイモンの様子を見る</button>
-  <button id="evolutionNoticeBtn" type="button" class="evoNoticeBtn hidden">あれ、ゴイモンの様子が…！？</button>
-</div>
+      <button id="toggleGoimon" type="button" class="goimonToggleBtn">ゴイモンの様子を見る</button>
+      <button id="evolutionNoticeBtn" type="button" class="evoNoticeBtn hidden">あれ、ゴイモンの様子が…！？</button>
+    </div>
 
-<div id="goimonCard" class="miniGoimonCard hidden">
-  <div class="miniGoimonHead">
-    <div>
-      <div class="miniGoimonTitle">現在のゴイモン</div>
-      <div class="miniGoimonSub">イディオム問題の正解で「ちえ +0.5」「ことば +0.5」されます。</div>
-    </div>
-    <div class="miniGoimonStage">
-      <div class="miniGoimonStageLabel">現在の段階</div>
-      <div class="miniGoimonStageValue" id="idiomGoimonStage">たまご期</div>
-    </div>
-  </div>
+    <div id="goimonCard" class="miniGoimonCard hidden">
+      <div class="miniGoimonHead">
+        <div>
+          <div class="miniGoimonTitle">現在のゴイモン</div>
+          <div class="miniGoimonSub">イディオム問題の正解で「ちえ +0.5」「ことば +0.5」されます。</div>
+        </div>
+        <div class="miniGoimonStage">
+          <div class="miniGoimonStageLabel">現在の段階</div>
+          <div class="miniGoimonStageValue" id="idiomGoimonStage">たまご期</div>
+        </div>
+      </div>
 
-  <div class="miniGoimonBody">
-    <div class="miniGoimonImageWrap">
-      <img id="idiomGoimonImage" src="images/goimon/goimon_egg.png" alt="ゴイモン" />
-    </div>
-    <div class="miniGoimonInfo">
-      <div class="miniGoimonName" id="idiomGoimonName">なごみ系のたまご</div>
-      <div class="miniGoimonMeta" id="idiomGoimonMeta">Lv 1 / 0 pt</div>
-      <div class="miniGoimonDesc" id="idiomGoimonDesc">まずは学習してゴイモンを育てよう。</div>
-    </div>
-  </div>
+      <div class="miniGoimonBody">
+        <div class="miniGoimonImageWrap">
+          <img id="idiomGoimonImage" src="images/goimon/goimon_egg.png" alt="ゴイモン" />
+        </div>
+        <div class="miniGoimonInfo">
+          <div class="miniGoimonName" id="idiomGoimonName">なごみ系のたまご</div>
+          <div class="miniGoimonMeta" id="idiomGoimonMeta">Lv 1 / 0 pt</div>
+          <div class="miniGoimonDesc" id="idiomGoimonDesc">まずは学習してゴイモンを育てよう。</div>
+        </div>
+      </div>
 
-  <div class="goimonPointGuide" id="idiomPointGuide">
-    正解：ちえ +0.5 ＋ ことば +0.5
-  </div>
-</div>
+      <div class="goimonPointGuide" id="idiomPointGuide">
+        正解：ちえ +0.5 ＋ ことば +0.5
+      </div>
+    </div>
 
     <div class="card" id="setupBox">
       <div class="row">
         <div>
           <div style="font-size:18px; font-weight:700;">イディオムクイズ</div>
           <div class="muted" style="margin-top:4px;">
-            イディオムの意味を選ぶモードと、同義表現を選ぶモードを切り替えられます。<br>
-            解答後は意味と同義表現を両方表示して復習しやすくしています。
+            意味問題・同義表現問題を切り替えられます。<br>
+            解答後はその場で解答カードを表示し、Enter / Space / → で次に進めます。数字 1〜4 で解答できます。
           </div>
         </div>
       </div>
@@ -627,9 +792,10 @@
         <div>
           <div class="muted">問題モード</div>
           <select id="questionMode">
-            <option value="meaning" selected>意味を選ぶ</option>
-            <option value="synonym">同義表現を選ぶ</option>
-          </select>
+  <option value="meaning" selected>意味を選ぶ</option>
+  <option value="synonym">同義表現を選ぶ</option>
+  <option value="expression_from_meaning">英語表現を選ぶ</option>
+</select>
         </div>
 
         <div>
@@ -645,7 +811,7 @@
         <div>
           <div class="muted">出題順</div>
           <select id="quizMode">
-            <option value="order">順番</option>
+            <option value="order">はじめから</option>
             <option value="order_continue">続きから</option>
             <option value="random">ランダム</option>
             <option value="weak">ニガテ順</option>
@@ -671,28 +837,31 @@
     </div>
 
     <div class="card hidden" id="focusIdiomBox">
-  <div style="font-size:18px; font-weight:700;">関連イディオム</div>
-  <div class="muted" id="focusIdiomLine" style="margin-top:6px;"></div>
+      <div style="font-size:18px; font-weight:700;">関連イディオム</div>
+      <div class="muted" id="focusIdiomLine" style="margin-top:6px;"></div>
 
-  <div style="margin-top:12px;">
-    <div id="focusIdiomExpression" style="font-size:22px; font-weight:800; line-height:1.7;"></div>
-    <div id="focusIdiomJa" class="muted" style="margin-top:8px;"></div>
-    <div id="focusIdiomSynonym" class="muted" style="margin-top:6px;"></div>
-  </div>
+      <div style="margin-top:12px;">
+        <div id="focusIdiomExpression" style="font-size:22px; font-weight:800; line-height:1.7;"></div>
+        <div id="focusIdiomJa" class="muted" style="margin-top:8px;"></div>
+        <div id="focusIdiomSynonym" class="muted" style="margin-top:6px;"></div>
+        <div id="focusIdiomAntonym" class="muted" style="margin-top:6px;"></div>
+        <div id="focusIdiomLinks" class="muted" style="margin-top:6px;"></div>
+        <div id="focusIdiomNote" class="muted" style="margin-top:6px;"></div>
+      </div>
 
-  <div class="row" style="justify-content:flex-start; margin-top:12px;">
-    <button id="focusMeaningBtn" class="primary" type="button">意味問題で解く</button>
-    <button id="focusSynonymBtn" type="button">同義表現問題で解く</button>
-    <button id="focusIdiomClearBtn" type="button">解除</button>
-  </div>
-</div>
+      <div class="row" style="justify-content:flex-start; margin-top:12px;">
+        <button id="focusMeaningBtn" class="primary" type="button">意味問題で解く</button>
+        <button id="focusSynonymBtn" type="button">同義表現問題で解く</button>
+        <button id="focusIdiomClearBtn" type="button">解除</button>
+      </div>
+    </div>
 
     <div class="card hidden" id="problemListBox">
       <div class="row">
         <div>
           <div style="font-size:18px; font-weight:700;">問題一覧</div>
           <div class="muted" style="margin-top:4px;">
-            表現・意味・同義表現を整理して確認できます。意味や同義表現は隠して、タップで再表示できます。
+            まずは意味・同義表現だけ見やすく表示し、必要なときだけ詳細を開けます。
           </div>
         </div>
         <div>
@@ -719,7 +888,7 @@
         <div>
           <div style="font-size:18px; font-weight:700;">ニガテ一覧</div>
           <div class="muted" style="margin-top:4px;">
-            自動でミスが記録された表現、または手動で苦手登録した表現を確認できます。
+            自動ミスや手動苦手に入っている表現だけを見やすく表示します。
           </div>
         </div>
         <div>
@@ -747,21 +916,26 @@
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <button id="readBtn" type="button">読み上げ</button>
           <button id="jumpParaphraseBtn" type="button">この表現の[11]形式問題へ</button>
+          <button id="nextBtn" class="primary" type="button" disabled>次へ</button>
           <button id="backBtn" type="button">設定へ戻る</button>
         </div>
       </div>
 
       <div class="hr"></div>
 
+      <div id="questionNoLine" class="questionNoLine"></div>
       <div id="expressionText" class="expressionBox">take part in</div>
       <div id="questionModeBadge" class="questionModeBadge"></div>
 
       <div id="choicesBox" class="choiceGrid"></div>
 
-      <div id="feedbackBox" class="feedbackBox hidden"></div>
-
-      <div class="row" style="justify-content:flex-end; margin-top:12px;">
-        <button id="nextBtn" class="primary" type="button" disabled>次へ</button>
+      <div id="feedbackBox" class="feedbackBox hidden">
+        <div id="feedbackQuick"></div>
+        <div id="feedbackDetail" class="feedbackDetail hidden"></div>
+        <div class="answerActionRow">
+          <button id="detailToggleBtn" type="button">詳しく見る</button>
+          <button id="nextBtnBottom" class="primary" type="button" disabled>次へ</button>
+        </div>
       </div>
     </div>
 
@@ -781,18 +955,20 @@
       <div class="hr"></div>
 
       <div class="summaryBlock">
-        <div class="summaryLabel">スコア</div>
-        <div id="resultScore" class="summaryText" style="font-size:20px; font-weight:800;"></div>
+        <div class="summaryMiniField">
+          <div class="summaryMiniLabel">スコア</div>
+          <div id="resultScore" class="summaryMiniValue" style="font-size:20px; font-weight:800;"></div>
+        </div>
       </div>
 
       <div class="summaryBlock">
-        <div class="summaryLabel">間違えた表現一覧</div>
+        <div class="summaryMiniLabel">間違えた表現一覧</div>
         <div id="wrongList"></div>
         <div id="wrongEmpty" class="muted hidden">全問正解です！</div>
       </div>
 
       <div class="summaryBlock">
-        <div class="summaryLabel">今回出た表現一覧</div>
+        <div class="summaryMiniLabel">今回出た表現一覧</div>
         <div id="askedList"></div>
       </div>
     </div>
@@ -804,28 +980,29 @@
   </script>
   <script src="idiom_data_1kyu.js"></script>
   <script src="goimon_dialogues.js"></script>
-<script src="goimon_dex.js"></script>
-<script src="goimon_rules.js"></script>
-<script src="goimon.js"></script>
+  <script src="goimon_dex.js"></script>
+  <script src="goimon_rules.js"></script>
+  <script src="goimon.js"></script>
 
-<audio id="evolutionAudio" src="audio/evolution.mp3" preload="auto"></audio>
+  <audio id="evolutionAudio" src="audio/evolution.mp3" preload="auto"></audio>
 
-<div id="evoOverlay" class="evoOverlay hidden">
-  <div class="evoCenter">
-    <div class="evoFlash"></div>
-    <div id="evoShock" class="evoShock"></div>
+  <div id="evoOverlay" class="evoOverlay hidden">
+    <div class="evoCenter">
+      <div class="evoFlash"></div>
+      <div id="evoShock" class="evoShock"></div>
 
-    <div class="evoImageStage">
-      <img id="evoGoimonBefore" src="" class="evoGoimon evoBefore" alt="進化前ゴイモン" />
-      <img id="evoGoimonAfter" src="" class="evoGoimon evoAfter evoHidden" alt="進化後ゴイモン" />
+      <div class="evoImageStage">
+        <img id="evoGoimonBefore" src="" class="evoGoimon evoBefore" alt="進化前ゴイモン" />
+        <img id="evoGoimonAfter" src="" class="evoGoimon evoAfter evoHidden" alt="進化後ゴイモン" />
+      </div>
+
+      <div id="evoText1" class="evoText evoHidden">✨進化！✨</div>
+      <div id="evoText2" class="evoTextSub evoHidden"></div>
+
+      <button id="evoSkipBtn" class="evoSkip">スキップ</button>
     </div>
-
-    <div id="evoText1" class="evoText evoHidden">✨進化！✨</div>
-    <div id="evoText2" class="evoTextSub evoHidden"></div>
-
-    <button id="evoSkipBtn" class="evoSkip">スキップ</button>
   </div>
-</div>
+
   <script src="idiom_quiz.js"></script>
 </body>
 </html>
