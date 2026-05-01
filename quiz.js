@@ -4,6 +4,9 @@
 // ★学習ログ（ホームのログ表示用）に 1問ごとに加算（attempt/correct/wrong）
 // ★ゴイモン：英→日正解で ちえ +1
 // ★ゴイモン表示は折りたたみ式＋進化演出共通化
+// ★選択肢を同じ品詞中心で作成
+// ★選択肢に①〜④を表示
+// ★解答後に全選択肢の「日本語＝英語」を表示
 
 document.addEventListener("DOMContentLoaded", () => {
   const words = window.WORDS || [];
@@ -17,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const LV = getLevel();
 
   const WEAK_KEY = `zensho_quiz_weak_points_enja_v2_lv${LV}`;
+  const MANUAL_WEAK_KEY = `zensho_quiz_manual_weak_enja_v1_lv${LV}`;
   const ORDER_CURSOR_KEY = `zensho_quiz_order_cursor_v1_enja_lv${LV}`;
   const SETTINGS_KEY = `zensho_quiz_settings_enja_v1_lv${LV}`;
   const BLOCK_STATS_KEY = `zensho_block_stats_enja_v1_lv${LV}`;
@@ -34,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function addQuizGoimonProgress() {
     try {
       if (!window.GoimonUI || typeof window.GoimonUI.addQuizEnJaCorrect !== "function") return;
+
       window.GoimonUI.addQuizEnJaCorrect();
 
       if (typeof window.renderQuizGoimonMini === "function") {
@@ -46,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  const questionProgressEl = document.getElementById("questionProgress");
   const statsEl = document.getElementById("stats");
   const qMetaEl = document.getElementById("qMeta");
   const questionEl = document.getElementById("question");
@@ -85,7 +91,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const retrySameConditionBtn = document.getElementById("retrySameCondition");
   const backToSetupBtn = document.getElementById("backToSetup");
 
-
   const toggleGoimonBtn = document.getElementById("toggleGoimon");
   const goimonCardEl = document.getElementById("goimonCard");
   const evolutionNoticeBtn = document.getElementById("evolutionNoticeBtn");
@@ -95,34 +100,76 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   [
-    [statsEl,"stats"],[qMetaEl,"qMeta"],[questionEl,"question"],[choicesEl,"choices"],[resultEl,"result"],
-    [nextBtn,"nextQ"],[startBtn,"startTest"],
-    [rangeStartEl,"rangeStart"],[rangeEndEl,"rangeEnd"],[limitEl,"limitCount"],
-    [blockSelectEl,"blockSelect"],[applyBlockBtn,"applyBlock"],[blockStatsEl,"blockStats"],
-    [weakInfoEl,"weakInfo"],
-    [speakQBtn,"speakQ"],[autoSpeakQEl,"autoSpeakQ"],
-    [toggleSettingsBtn,"toggleSettings"],[settingsArea,"settingsArea"],[settingsSummaryEl,"settingsSummary"],
-    [modeSelectEl,"modeSelect"],[levelBadgeEl,"levelBadge"],
-    [summaryBox,"summaryBox"],[playBox,"playBox"],[finalScoreEl,"finalScore"],[finalBlockLineEl,"finalBlockLine"],
-    [askedListEl,"askedList"],[wrongListEl,"wrongList"],
-    [retrySameSetBtn,"retrySameSet"],[retrySameConditionBtn,"retrySameCondition"],
-    [backToSetupBtn,"backToSetup"],
-    [toggleGoimonBtn,"toggleGoimon"],[goimonCardEl,"goimonCard"],
-    [evolutionNoticeBtn,"evolutionNoticeBtn"]
-  ].forEach(([el,n]) => must(el,n));
+    [questionProgressEl, "questionProgress"],
+    [statsEl, "stats"],
+    [qMetaEl, "qMeta"],
+    [questionEl, "question"],
+    [choicesEl, "choices"],
+    [resultEl, "result"],
+    [nextBtn, "nextQ"],
+    [startBtn, "startTest"],
+    [rangeStartEl, "rangeStart"],
+    [rangeEndEl, "rangeEnd"],
+    [limitEl, "limitCount"],
+    [blockSelectEl, "blockSelect"],
+    [applyBlockBtn, "applyBlock"],
+    [blockStatsEl, "blockStats"],
+    [weakInfoEl, "weakInfo"],
+    [speakQBtn, "speakQ"],
+    [autoSpeakQEl, "autoSpeakQ"],
+    [toggleSettingsBtn, "toggleSettings"],
+    [settingsArea, "settingsArea"],
+    [settingsSummaryEl, "settingsSummary"],
+    [modeSelectEl, "modeSelect"],
+    [levelBadgeEl, "levelBadge"],
+    [summaryBox, "summaryBox"],
+    [playBox, "playBox"],
+    [finalScoreEl, "finalScore"],
+    [finalBlockLineEl, "finalBlockLine"],
+    [askedListEl, "askedList"],
+    [wrongListEl, "wrongList"],
+    [retrySameSetBtn, "retrySameSet"],
+    [retrySameConditionBtn, "retrySameCondition"],
+    [backToSetupBtn, "backToSetup"],
+    [toggleGoimonBtn, "toggleGoimon"],
+    [goimonCardEl, "goimonCard"],
+    [evolutionNoticeBtn, "evolutionNoticeBtn"]
+  ].forEach(([el, n]) => must(el, n));
 
   function safeParse(key) {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
-    try { return JSON.parse(raw); } catch { return null; }
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function escapeAttr(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
   }
 
   function clampRange(s, e) {
     if (!Number.isFinite(s)) s = 0;
     if (!Number.isFinite(e)) e = words.length - 1;
+
     s = Math.max(0, Math.min(words.length - 1, Math.floor(s)));
     e = Math.max(0, Math.min(words.length - 1, Math.floor(e)));
+
     if (s > e) [s, e] = [e, s];
+
     return [s, e];
   }
 
@@ -146,16 +193,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function speakEnglish(text) {
     if (!("speechSynthesis" in window)) return;
+
     window.speechSynthesis.cancel();
+
     const u = new SpeechSynthesisUtterance(text);
     u.lang = "en-US";
     u.rate = 0.9;
+
     window.speechSynthesis.speak(u);
   }
 
   let _audioCtx = null;
+
   function getAudioCtx() {
-    if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!_audioCtx) {
+      _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
     return _audioCtx;
   }
 
@@ -173,22 +226,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const osc1 = ctx.createOscillator();
       const gain1 = ctx.createGain();
+
       osc1.type = "sine";
       osc1.frequency.setValueAtTime(880, now);
+
       gain1.gain.setValueAtTime(0.0001, now);
       gain1.gain.exponentialRampToValueAtTime(0.25, now + 0.01);
       gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+
       osc1.connect(gain1).connect(ctx.destination);
       osc1.start(now);
       osc1.stop(now + 0.13);
 
       const osc2 = ctx.createOscillator();
       const gain2 = ctx.createGain();
+
       osc2.type = "sine";
       osc2.frequency.setValueAtTime(1175, now + 0.14);
+
       gain2.gain.setValueAtTime(0.0001, now + 0.14);
       gain2.gain.exponentialRampToValueAtTime(0.25, now + 0.15);
       gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.26);
+
       osc2.connect(gain2).connect(ctx.destination);
       osc2.start(now + 0.14);
       osc2.stop(now + 0.27);
@@ -202,6 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
+
       osc.type = "sawtooth";
       osc.frequency.setValueAtTime(160, now);
       osc.frequency.linearRampToValueAtTime(120, now + 0.25);
@@ -226,9 +286,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function addGlobalEnJa(blockId, isCorrect) {
     if (!blockId) return;
+
     const g = loadGlobal();
+
     if (!g.byBlock) g.byBlock = {};
+
     const k = String(blockId);
+
     if (!g.byBlock[k]) {
       g.byBlock[k] = {
         studyDone: 0,
@@ -244,18 +308,27 @@ document.addEventListener("DOMContentLoaded", () => {
         audioCorrect: 0
       };
     }
+
     if (!Number.isFinite(g.byBlock[k].quizAttempted)) g.byBlock[k].quizAttempted = 0;
     if (!Number.isFinite(g.byBlock[k].quizCorrect)) g.byBlock[k].quizCorrect = 0;
 
     g.byBlock[k].quizAttempted += 1;
     if (isCorrect) g.byBlock[k].quizCorrect += 1;
+
     saveGlobal(g);
   }
 
   let weakPoints = {};
+  let manualWeakMap = {};
+
+  function normalizeWeakKey(en) {
+    return String(en || "").trim().toLowerCase();
+  }
+
   function loadWeakPoints() {
     const raw = localStorage.getItem(WEAK_KEY);
     if (!raw) return;
+
     try {
       const obj = JSON.parse(raw);
       if (obj && typeof obj === "object") weakPoints = obj;
@@ -276,16 +349,49 @@ document.addEventListener("DOMContentLoaded", () => {
     else weakPoints[en] = p;
   }
 
+  function loadManualWeakMap() {
+    const raw = localStorage.getItem(MANUAL_WEAK_KEY);
+    if (!raw) return;
+
+    try {
+      const obj = JSON.parse(raw);
+      if (obj && typeof obj === "object") manualWeakMap = obj;
+    } catch {}
+  }
+
+  function saveManualWeakMap() {
+    localStorage.setItem(MANUAL_WEAK_KEY, JSON.stringify(manualWeakMap));
+  }
+
+  function isManualWeak(en) {
+    return !!manualWeakMap[normalizeWeakKey(en)];
+  }
+
+  function setManualWeak(en, enabled) {
+    const key = normalizeWeakKey(en);
+    if (!key) return;
+
+    if (enabled) manualWeakMap[key] = true;
+    else delete manualWeakMap[key];
+  }
+
   function weakCount() {
-    return Object.keys(weakPoints).length;
+    const merged = new Set();
+
+    Object.keys(weakPoints).forEach(k => merged.add(normalizeWeakKey(k)));
+    Object.keys(manualWeakMap).forEach(k => merged.add(normalizeWeakKey(k)));
+
+    return merged.size;
   }
 
   window.addWeakFromSentenceToEnJa = (en, weight = 1) => {
     try {
       const w = String(en || "").trim().toLowerCase();
       let add = Number(weight);
+
       if (!w) return;
       if (!Number.isFinite(add) || add <= 0) add = 1;
+
       setPoint(w, getPoint(w) + add);
       saveWeakPoints();
     } catch (e) {
@@ -296,10 +402,14 @@ document.addEventListener("DOMContentLoaded", () => {
   function loadOrderCursor(start, end) {
     const raw = localStorage.getItem(ORDER_CURSOR_KEY);
     if (!raw) return start;
+
     try {
       const o = JSON.parse(raw);
-      if (o && o.start === start && o.end === end && Number.isFinite(o.cursor)) return o.cursor;
+      if (o && o.start === start && o.end === end && Number.isFinite(o.cursor)) {
+        return o.cursor;
+      }
     } catch {}
+
     return start;
   }
 
@@ -309,13 +419,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let autoSpeakQ = false;
   let quizMode = "order";
+
   function loadSettings() {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (!raw) return;
+
     try {
       const s = JSON.parse(raw);
+
       autoSpeakQ = !!s.autoSpeakQ;
-      if (s.quizMode === "order" || s.quizMode === "random" || s.quizMode === "weak") quizMode = s.quizMode;
+
+      if (s.quizMode === "order" || s.quizMode === "random" || s.quizMode === "weak") {
+        quizMode = s.quizMode;
+      }
     } catch {}
   }
 
@@ -324,10 +440,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   let statsMap = {};
+
   function loadBlockStats() {
     const raw = localStorage.getItem(BLOCK_STATS_KEY);
     if (!raw) return;
-    try { statsMap = JSON.parse(raw) || {}; } catch {}
+
+    try {
+      statsMap = JSON.parse(raw) || {};
+    } catch {}
   }
 
   function saveBlockStats() {
@@ -336,9 +456,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function addBlockResult(blockId, isCorrect) {
     const k = String(blockId);
+
     if (!statsMap[k]) statsMap[k] = { attempted: 0, correct: 0 };
+
     statsMap[k].attempted += 1;
     if (isCorrect) statsMap[k].correct += 1;
+
     saveBlockStats();
     addGlobalEnJa(blockId, isCorrect);
   }
@@ -346,21 +469,24 @@ document.addEventListener("DOMContentLoaded", () => {
   function getBlockAccText(blockId) {
     const k = String(blockId);
     const s = statsMap[k];
+
     if (!s || s.attempted === 0) return "未受験";
+
     const pct = Math.round((s.correct / s.attempted) * 100);
     const tag = pct >= PASS_LINE ? "✅ 合格" : "🟡 挑戦中";
+
     return `${tag}（${pct}%｜${s.correct}/${s.attempted}）`;
   }
 
-let session = {
-  active: false,
-  answered: 0,
-  correct: 0,
-  limit: 10,
-  start: 0,
-  end: Math.max(0, words.length - 1),
-  retryOrder: null
-};
+  let session = {
+    active: false,
+    answered: 0,
+    correct: 0,
+    limit: 10,
+    start: 0,
+    end: Math.max(0, words.length - 1),
+    retryOrder: null
+  };
 
   let current = null;
   let answeredThisQuestion = false;
@@ -417,6 +543,7 @@ let session = {
       settingsSummaryEl.textContent = "";
       return;
     }
+
     settingsSummaryEl.textContent =
       `（${summaryRangeText()}｜${session.limit}問｜モード:${modeText()}｜${LV}級）`;
   }
@@ -443,10 +570,12 @@ let session = {
 
   function renderBlockStatsLine() {
     const v = blockSelectEl.value;
+
     if (v === "all") {
       blockStatsEl.textContent = `Block累計正答率：全範囲（合格 ${PASS_LINE}%）`;
       return;
     }
+
     const id = Number(v);
     blockStatsEl.textContent = `このBlockの累計正答率：${getBlockAccText(id)}（合格 ${PASS_LINE}%）`;
   }
@@ -467,17 +596,20 @@ let session = {
     }
 
     if (!blockSelectEl.value) blockSelectEl.value = "all";
+
     renderBlockStatsLine();
     updateSettingsSummary();
   }
 
   function applySelectedBlockToRange() {
     const v = blockSelectEl.value;
+
     if (v === "all") {
       rangeStartEl.value = "1";
       rangeEndEl.value = String(words.length);
     } else {
       const b = getBlockById(Number(v));
+
       if (b) {
         rangeStartEl.value = String(b.start);
         rangeEndEl.value = String(b.end);
@@ -499,16 +631,20 @@ let session = {
   function getCurrentRangeFromInputs() {
     let s = Number(rangeStartEl.value) - 1;
     let e = Number(rangeEndEl.value) - 1;
+
     [s, e] = clampRange(s, e);
+
     return { s, e };
   }
 
-
-
   function renderMeta(no) {
     const b = getBlockByNo(no);
-    if (b) qMetaEl.textContent = `Block ${b.id}（${b.start}〜${b.end}）｜番号 ${no} / ${words.length}（${LV}級）`;
-    else qMetaEl.textContent = `番号 ${no} / ${words.length}（${LV}級）`;
+
+    if (b) {
+      qMetaEl.textContent = `Block ${b.id}（${b.start}〜${b.end}）｜番号 ${no} / ${words.length}（${LV}級）`;
+    } else {
+      qMetaEl.textContent = `番号 ${no} / ${words.length}（${LV}級）`;
+    }
   }
 
   function getRangePool() {
@@ -516,49 +652,214 @@ let session = {
     return { s, e };
   }
 
-  function makeChoices(correctWord, s, e) {
-    const candidates = [];
-    for (let i = s; i <= e; i++) {
-      const w = words[i];
-      if (w.en !== correctWord.en) candidates.push(w.ja);
+  function normalizePos(pos) {
+    const p = String(pos || "").trim().toLowerCase();
+
+    if (p === "noun" || p === "n" || p === "名詞") return "noun";
+    if (p === "verb" || p === "v" || p === "動詞") return "verb";
+    if (p === "adjective" || p === "adj" || p === "形容詞") return "adjective";
+    if (p === "adverb" || p === "adv" || p === "副詞") return "adverb";
+    if (p === "phrase" || p === "熟語" || p === "表現") return "phrase";
+
+    return "";
+  }
+
+  function guessPos(word) {
+    if (!word) return "unknown";
+
+    const explicitPos = normalizePos(word.pos);
+    if (explicitPos) return explicitPos;
+
+    const en = String(word.en || "").trim().toLowerCase();
+    const ja = String(word.ja || "").trim();
+
+    if (!en && !ja) return "unknown";
+    if (en.includes(" ")) return "phrase";
+
+    if (/的な$|な$|しい$|い$/.test(ja)) {
+      return "adjective";
     }
-    const uniq = Array.from(new Set(candidates));
-    const picked = shuffle(uniq).slice(0, 3);
-    while (picked.length < 3) picked.push("（該当なし）");
-    return shuffle([correctWord.ja, ...picked]);
+
+    if (/的に$/.test(ja)) {
+      return "adverb";
+    }
+
+    if (/する$|される$|させる$|できる$|える$|める$|れる$|られる$|う$|く$|ぐ$|す$|つ$|ぬ$|ぶ$|む$|る$/.test(ja)) {
+      return "verb";
+    }
+
+    if (/ly$/.test(en)) {
+      return "adverb";
+    }
+
+    if (/(tion|sion|ment|ness|ity|ance|ence|ship|hood|ism|age)$/.test(en)) {
+      return "noun";
+    }
+
+    if (/(ous|ful|less|able|ible|ive|al|ic|ent|ant|ary)$/.test(en)) {
+      return "adjective";
+    }
+
+    return "noun";
+  }
+
+  function uniqueChoiceWords(pool, correctWord) {
+    const result = [];
+    const usedJa = new Set();
+
+    const correctEn = String(correctWord.en || "").trim().toLowerCase();
+    const correctJa = String(correctWord.ja || "").trim();
+
+    for (const w of pool) {
+      if (!w || !w.en || !w.ja) continue;
+
+      const en = String(w.en || "").trim().toLowerCase();
+      const ja = String(w.ja || "").trim();
+
+      if (!en || !ja) continue;
+      if (en === correctEn) continue;
+      if (ja === correctJa) continue;
+      if (usedJa.has(ja)) continue;
+
+      usedJa.add(ja);
+      result.push(w);
+    }
+
+    return result;
+  }
+
+  function toChoiceItem(word, isCorrect) {
+    return {
+      en: String(word.en || ""),
+      ja: String(word.ja || ""),
+      pos: word.pos || "",
+      isCorrect: !!isCorrect
+    };
+  }
+
+  function makeChoices(correctWord, s, e) {
+    const correctPos = guessPos(correctWord);
+
+    const rangeWords = [];
+    for (let i = s; i <= e; i++) {
+      if (words[i]) rangeWords.push(words[i]);
+    }
+
+    const samePosInRange = uniqueChoiceWords(
+      rangeWords.filter(w => guessPos(w) === correctPos),
+      correctWord
+    );
+
+    const samePosAll = uniqueChoiceWords(
+      words.filter(w => guessPos(w) === correctPos),
+      correctWord
+    );
+
+    const otherInRange = uniqueChoiceWords(
+      rangeWords.filter(w => guessPos(w) !== correctPos),
+      correctWord
+    );
+
+    const allOthers = uniqueChoiceWords(words, correctWord);
+
+    const picked = [];
+    const usedJa = new Set();
+
+    function addFrom(pool, maxCount) {
+      const shuffled = shuffle(pool);
+
+      for (const w of shuffled) {
+        if (picked.length >= maxCount) break;
+
+        const ja = String(w.ja || "").trim();
+        if (!ja) continue;
+        if (usedJa.has(ja)) continue;
+
+        usedJa.add(ja);
+        picked.push(w);
+      }
+    }
+
+    addFrom(samePosInRange, 3);
+    addFrom(samePosAll, 3);
+    addFrom(otherInRange, 3);
+    addFrom(allOthers, 3);
+
+    while (picked.length < 3) {
+      picked.push({
+        en: "",
+        ja: "（該当なし）",
+        pos: "",
+        isPlaceholder: true
+      });
+    }
+
+    const choiceItems = [
+      toChoiceItem(correctWord, true),
+      ...picked.slice(0, 3).map(w => toChoiceItem(w, false))
+    ];
+
+    return shuffle(choiceItems);
   }
 
   function pickIndex_order(s, e) {
     if (orderCursor < s || orderCursor > e) orderCursor = s;
+
     const idx = orderCursor;
+
     orderCursor++;
+
     if (orderCursor > e) orderCursor = s;
+
     saveOrderCursor(s, e, orderCursor);
+
     return idx;
   }
 
   function pickIndex_random(s, e) {
     const remain = [];
-    for (let i = s; i <= e; i++) if (!askedSet.has(words[i].en)) remain.push(i);
-    const pool = remain.length ? remain : (() => {
-      const all = [];
-      for (let i = s; i <= e; i++) all.push(i);
-      return all;
-    })();
+
+    for (let i = s; i <= e; i++) {
+      if (!askedSet.has(words[i].en)) remain.push(i);
+    }
+
+    const pool = remain.length
+      ? remain
+      : (() => {
+          const all = [];
+          for (let i = s; i <= e; i++) all.push(i);
+          return all;
+        })();
+
     return pool[Math.floor(Math.random() * pool.length)];
   }
 
   function pickIndex_weak(s, e) {
     const arr = [];
-    for (let i = s; i <= e; i++) arr.push({ i, p: getPoint(words[i].en) });
-    const maxP = Math.max(...arr.map(x => x.p));
-    if (maxP <= 0) return pickIndex_random(s, e);
 
-    arr.sort((a, b) => b.p - a.p);
-    const top = arr.slice(0, Math.min(10, arr.length)).filter(x => x.p > 0);
+    for (let i = s; i <= e; i++) {
+      arr.push({
+        i,
+        manual: isManualWeak(words[i].en) ? 1 : 0,
+        p: getPoint(words[i].en)
+      });
+    }
+
+    const hasAnyWeak = arr.some(x => x.manual > 0 || x.p > 0);
+    if (!hasAnyWeak) return pickIndex_random(s, e);
+
+    arr.sort((a, b) => (b.manual - a.manual) || (b.p - a.p));
+
+    const top = arr
+      .filter(x => x.manual > 0 || x.p > 0)
+      .slice(0, Math.min(10, arr.length));
+
     const cand = shuffle(top);
 
-    for (const x of cand) if (!askedSet.has(words[x.i].en)) return x.i;
+    for (const x of cand) {
+      if (!askedSet.has(words[x.i].en)) return x.i;
+    }
+
     return cand[0].i;
   }
 
@@ -569,39 +870,45 @@ let session = {
   }
 
   function makeQuestion() {
-  const { s, e } = getRangePool();
-  let idx;
+    const { s, e } = getRangePool();
+    let idx;
 
-  if (Array.isArray(session.retryOrder)) {
-    if (session.retryOrder.length === 0) return null;
-    idx = session.retryOrder.shift();
-  } else {
-    idx = pickCorrectIndex(s, e);
+    if (Array.isArray(session.retryOrder)) {
+      if (session.retryOrder.length === 0) return null;
+      idx = session.retryOrder.shift();
+    } else {
+      idx = pickCorrectIndex(s, e);
 
-    if (weakMode && quizMode !== "order") {
-      const weakIdxs = [];
-      for (let i = s; i <= e; i++) if (getPoint(words[i].en) > 0) weakIdxs.push(i);
-      if (weakIdxs.length > 0) {
-        const remaining = weakIdxs.filter(i => !askedSet.has(words[i].en));
-        const pool = remaining.length ? remaining : weakIdxs;
-        idx = pool[Math.floor(Math.random() * pool.length)];
+      if (weakMode && quizMode !== "order") {
+        const weakIdxs = [];
+
+        for (let i = s; i <= e; i++) {
+          if (getPoint(words[i].en) > 0) weakIdxs.push(i);
+        }
+
+        if (weakIdxs.length > 0) {
+          const remaining = weakIdxs.filter(i => !askedSet.has(words[i].en));
+          const pool = remaining.length ? remaining : weakIdxs;
+          idx = pool[Math.floor(Math.random() * pool.length)];
+        }
       }
     }
+
+    askedSet.add(words[idx].en);
+
+    const no = idx + 1;
+    const b = getBlockByNo(no);
+    const blockId = b ? Number(b.id) : 0;
+
+    return {
+      idx,
+      no,
+      blockId,
+      en: words[idx].en,
+      ja: words[idx].ja,
+      choices: makeChoices(words[idx], s, e)
+    };
   }
-
-  askedSet.add(words[idx].en);
-
-  const no = idx + 1;
-  const b = getBlockByNo(no);
-  const blockId = b ? Number(b.id) : 0;
-
-  return {
-    idx, no, blockId,
-    en: words[idx].en,
-    ja: words[idx].ja,
-    choices: makeChoices(words[idx], s, e)
-  };
-}
 
   function showPlayView() {
     playBox.style.display = "block";
@@ -611,6 +918,32 @@ let session = {
   function showSummaryView() {
     playBox.style.display = "none";
     summaryBox.style.display = "block";
+
+    if (window.QuizUICommon && typeof window.QuizUICommon.clearText === "function") {
+      window.QuizUICommon.clearText(questionProgressEl);
+    } else if (questionProgressEl) {
+      questionProgressEl.textContent = "";
+    }
+  }
+
+  function renderQuestionProgress() {
+    if (!window.QuizUICommon || typeof window.QuizUICommon.renderQuestionProgress !== "function") {
+      if (questionProgressEl) {
+        const currentNo = Math.min(session.answered + 1, session.limit);
+        questionProgressEl.textContent = (session.active && session.limit > 0)
+          ? `第${currentNo}問 / ${session.limit}問`
+          : "";
+      }
+      return;
+    }
+
+    if (!session.active || session.limit <= 0) {
+      window.QuizUICommon.clearText(questionProgressEl);
+      return;
+    }
+
+    const currentNo = Math.min(session.answered + 1, session.limit);
+    window.QuizUICommon.renderQuestionProgress(questionProgressEl, currentNo, session.limit);
   }
 
   function renderStats() {
@@ -618,7 +951,8 @@ let session = {
   }
 
   function updateWeakInfo() {
-    weakInfoEl.textContent = `保存済みニガテ数：${weakCount()}（復習したいときは出題モードで「ニガテ順」を選んでください）`;
+    weakInfoEl.textContent =
+      `保存済みニガテ数：${weakCount()}（手動追加を含む。復習したいときは出題モードで「ニガテ順」を選んでください）`;
   }
 
   function renderQuestion() {
@@ -629,11 +963,18 @@ let session = {
     renderEvolutionNotice();
 
     if (!session.active) {
+      if (window.QuizUICommon && typeof window.QuizUICommon.clearText === "function") {
+        window.QuizUICommon.clearText(questionProgressEl);
+      } else if (questionProgressEl) {
+        questionProgressEl.textContent = "";
+      }
+
       questionEl.textContent = "テスト未開始";
       qMetaEl.textContent = "";
       choicesEl.innerHTML = "";
       resultEl.textContent = "";
       nextBtn.disabled = true;
+      nextBtn.textContent = "次の問題";
       return;
     }
 
@@ -644,24 +985,50 @@ let session = {
 
     answeredThisQuestion = false;
     nextBtn.disabled = true;
+    nextBtn.textContent = "次の問題";
     resultEl.textContent = "";
 
     current = makeQuestion();
+
+    if (!current) {
+      finishSession();
+      return;
+    }
+
     questionEl.textContent = current.en;
+
+    renderQuestionProgress();
     renderMeta(current.no);
 
-    askedLog.push({ no: current.no, en: current.en, ja: current.ja, blockId: current.blockId });
+    askedLog.push({
+      no: current.no,
+      en: current.en,
+      ja: current.ja,
+      blockId: current.blockId,
+      isCorrect: null
+    });
 
     if (autoSpeakQ) speakEnglish(current.en);
 
     choicesEl.innerHTML = "";
-    current.choices.forEach(text => {
+
+    const choiceNumbers = ["①", "②", "③", "④"];
+
+    current.choices.forEach((choice, index) => {
       const btn = document.createElement("button");
-      btn.textContent = text;
+
+      btn.type = "button";
+      btn.className = "choiceBtn";
+      btn.dataset.correct = choice.isCorrect ? "1" : "0";
+
+      btn.innerHTML = `
+        <span class="choiceIndex">${choiceNumbers[index] || index + 1}</span>
+        <span class="choiceText">${escapeHtml(choice.ja)}</span>
+      `;
 
       btn.addEventListener("click", () => {
         ensureAudioReady();
-        handleChoice(text, btn);
+        handleChoice(choice, btn);
       });
 
       choicesEl.appendChild(btn);
@@ -676,17 +1043,62 @@ let session = {
 
   function markCorrectButtonGreen() {
     document.querySelectorAll("#choices button").forEach(b => {
-      if (b.textContent === current.ja) b.classList.add("correct");
+      if (b.dataset.correct === "1") {
+        b.classList.add("correct");
+      }
     });
   }
 
-  function handleChoice(choiceText, clickedBtn) {
-    if (answeredThisQuestion) return;
-    answeredThisQuestion = true;
+  function renderAnswerDetail(isCorrect, selectedChoice) {
+    const choiceNumbers = ["1", "2", "3", "4"];
 
+    const mainText = isCorrect
+      ? "⭕️ 正解！"
+      : `❌ 不正解。正解は「${escapeHtml(current.ja)}」＝ ${escapeHtml(current.en)}`;
+
+    const rows = current.choices.map((choice, index) => {
+      const isAnswer = !!choice.isCorrect;
+
+      const isSelected =
+        selectedChoice &&
+        String(choice.en) === String(selectedChoice.en) &&
+        String(choice.ja) === String(selectedChoice.ja);
+
+      const correctTag = isAnswer
+        ? `<span class="answerChoiceTag correctTag">正解</span>`
+        : "";
+
+      const selectedTag = !isAnswer && isSelected
+        ? `<span class="answerChoiceTag selectedTag">選択</span>`
+        : "";
+
+      return `
+        <div class="answerChoiceRow">
+          <span class="choiceIndex">${choiceNumbers[index] || index + 1}</span>
+          <span class="answerChoiceJa">${escapeHtml(choice.ja)}</span>
+          <span class="answerChoiceEn">＝ ${escapeHtml(choice.en || "—")}</span>
+          ${correctTag}
+          ${selectedTag}
+        </div>
+      `;
+    }).join("");
+
+    resultEl.innerHTML = `
+      <div style="font-weight:800; margin-bottom:8px;">${mainText}</div>
+      <div class="answerDetailBox">
+        <div class="answerDetailTitle">選択肢の確認</div>
+        ${rows}
+      </div>
+    `;
+  }
+
+  function handleChoice(choice, clickedBtn) {
+    if (answeredThisQuestion) return;
+
+    answeredThisQuestion = true;
     session.answered++;
 
-    const correct = (choiceText === current.ja);
+    const correct = !!choice.isCorrect;
 
     addLearningLog(correct);
 
@@ -694,7 +1106,8 @@ let session = {
       clickedBtn.classList.add("correct");
       playCorrectSound();
       session.correct++;
-      resultEl.textContent = "⭕️ 正解！";
+
+      renderAnswerDetail(true, choice);
 
       const currentWeakPoint = getPoint(current.en);
 
@@ -707,14 +1120,20 @@ let session = {
     } else {
       clickedBtn.classList.add("wrong");
       playWrongSound();
-      resultEl.textContent = `❌ 不正解。正解は「${current.ja}」`;
 
       markCorrectButtonGreen();
+      renderAnswerDetail(false, choice);
 
       setPoint(current.en, getPoint(current.en) + 2);
       saveWeakPoints();
+
       if (!wrongMap[current.en]) {
-        wrongMap[current.en] = { no: current.no, en: current.en, ja: current.ja, blockId: current.blockId };
+        wrongMap[current.en] = {
+          no: current.no,
+          en: current.en,
+          ja: current.ja,
+          blockId: current.blockId
+        };
       }
     }
 
@@ -722,85 +1141,218 @@ let session = {
 
     if (current.blockId) addBlockResult(current.blockId, correct);
 
+    const lastAsked = askedLog[askedLog.length - 1];
+    if (lastAsked) {
+      lastAsked.isCorrect = correct;
+    }
+
     renderStats();
     updateWeakInfo();
     renderBlockStatsLine();
     updateSettingsSummary();
     renderEvolutionNotice();
 
-    if (session.answered < session.limit) nextBtn.disabled = false;
-    else finishSession();
+    nextBtn.disabled = false;
+
+    if (session.answered >= session.limit) {
+      nextBtn.textContent = "結果を見る";
+    } else {
+      nextBtn.textContent = "次の問題";
+    }
   }
 
-  function finishSession() {
-    showSummaryView();
+  function renderWeakBadges(en) {
+    const chips = [];
+    const autoPoint = getPoint(en);
+    const manual = isManualWeak(en);
 
-    finalScoreEl.textContent = `結果：${session.correct} / ${session.limit}`;
+    if (manual) {
+      chips.push(`
+        <span style="
+          display:inline-block;
+          padding:4px 8px;
+          border-radius:999px;
+          background:#fff4d6;
+          color:#8a5a00;
+          border:1px solid #f0d28a;
+          font-size:12px;
+          font-weight:700;
+        ">
+          手動で苦手
+        </span>
+      `);
+    }
 
-    const rangeText = (blockSelectEl.value === "all") ? "全範囲" : `Block ${blockSelectEl.value}`;
-    finalBlockLineEl.textContent = `出題範囲：${rangeText}｜モード：${modeText()}｜${LV}級`;
+    if (autoPoint > 0) {
+      chips.push(`
+        <span style="
+          display:inline-block;
+          padding:4px 8px;
+          border-radius:999px;
+          background:#eef5ff;
+          color:#1f58b1;
+          border:1px solid #cfe0ff;
+          font-size:12px;
+          font-weight:700;
+        ">
+          自動苦手 ${autoPoint}
+        </span>
+      `);
+    }
 
+    if (!chips.length) {
+      chips.push(`
+        <span style="
+          display:inline-block;
+          padding:4px 8px;
+          border-radius:999px;
+          background:#f5f5f5;
+          color:#666;
+          border:1px solid #ddd;
+          font-size:12px;
+          font-weight:700;
+        ">
+          通常
+        </span>
+      `);
+    }
+
+    return chips.join("");
+  }
+
+  function renderAskedSummaryList() {
     askedListEl.innerHTML = "";
-    askedLog.forEach(item => {
+
+    if (!askedLog.length) {
       const li = document.createElement("li");
-      li.textContent = `${item.no}｜${item.en} → ${item.ja}`;
+      li.textContent = "結果がありません。";
+      askedListEl.appendChild(li);
+      return;
+    }
+
+    askedLog.forEach(item => {
+      const toggleLabel = isManualWeak(item.en) ? "苦手から外す" : "苦手に追加";
+
+      const li = document.createElement("li");
+
+      li.style.listStyle = "none";
+      li.style.margin = "0 0 12px 0";
+      li.style.padding = "12px";
+      li.style.border = "1px solid #eee";
+      li.style.borderRadius = "12px";
+      li.style.background = "#fafafa";
+
+      li.innerHTML = `
+        <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
+          <div style="font-weight:800;">${item.no}｜${escapeHtml(item.en)}</div>
+          <div style="font-size:13px; color:#666;">${escapeHtml(item.ja)}</div>
+        </div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+          <span style="
+            display:inline-block;
+            padding:4px 8px;
+            border-radius:999px;
+            background:${item.isCorrect ? "#eefaf1" : "#ffecec"};
+            color:${item.isCorrect ? "#0a7a2f" : "#b00020"};
+            border:1px solid ${item.isCorrect ? "#bfe7ca" : "#f3b5bf"};
+            font-size:12px;
+            font-weight:700;
+          ">
+            ${item.isCorrect ? "正解" : "不正解"}
+          </span>
+
+          ${renderWeakBadges(item.en)}
+        </div>
+
+        <div>
+          <button
+            type="button"
+            data-action="toggle-manual-weak"
+            data-en="${escapeAttr(item.en)}"
+            style="margin-top:0;"
+          >
+            ${toggleLabel}
+          </button>
+        </div>
+      `;
+
       askedListEl.appendChild(li);
     });
+  }
 
+  function renderWrongSummaryList() {
     wrongListEl.innerHTML = "";
+
     const wrongArr = Object.values(wrongMap).sort((a, b) => a.no - b.no);
+
     if (wrongArr.length === 0) {
       const li = document.createElement("li");
       li.textContent = "間違いなし！";
       wrongListEl.appendChild(li);
-    } else {
-      wrongArr.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = `${item.no}｜${item.en} → ${item.ja}`;
-        wrongListEl.appendChild(li);
-      });
+      return;
     }
+
+    wrongArr.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = `${item.no}｜${item.en} → ${item.ja}`;
+      wrongListEl.appendChild(li);
+    });
   }
 
-function startSameConditionNextSession() {
-  session.answered = 0;
-  session.correct = 0;
-  session.active = true;
-  session.retryOrder = null;
+  function finishSession() {
+    session.active = false;
 
-  askedSet.clear();
-  askedLog = [];
-  wrongMap = {};
+    showSummaryView();
 
-  if (quizMode === "order") {
-    orderCursor = loadOrderCursor(session.start, session.end);
-  } else {
-    orderCursor = session.start;
+    finalScoreEl.textContent = `結果：${session.correct} / ${session.limit}`;
+
+    const rangeText = blockSelectEl.value === "all" ? "全範囲" : `Block ${blockSelectEl.value}`;
+    finalBlockLineEl.textContent = `出題範囲：${rangeText}｜モード：${modeText()}｜${LV}級`;
+
+    renderAskedSummaryList();
+    renderWrongSummaryList();
   }
 
-  showPlayView();
-  renderQuestion();
-}
+  function startSameConditionNextSession() {
+    session.answered = 0;
+    session.correct = 0;
+    session.active = true;
+    session.retryOrder = null;
 
-    function startRetrySameSetSession() {
-  if (!askedLog.length) {
-    alert("再挑戦できる問題セットがありません。");
-    return;
+    askedSet.clear();
+    askedLog = [];
+    wrongMap = {};
+
+    if (quizMode === "order") {
+      orderCursor = loadOrderCursor(session.start, session.end);
+    } else {
+      orderCursor = session.start;
+    }
+
+    showPlayView();
+    renderQuestion();
   }
 
-  session.active = true;
-  session.answered = 0;
-  session.correct = 0;
-  session.limit = askedLog.length;
-  session.retryOrder = askedLog.map(item => item.no - 1);
+  function startRetrySameSetSession() {
+    if (!askedLog.length) {
+      alert("再挑戦できる問題セットがありません。");
+      return;
+    }
 
-  askedSet.clear();
-  askedLog = [];
-  wrongMap = {};
+    session.active = true;
+    session.answered = 0;
+    session.correct = 0;
+    session.limit = askedLog.length;
+    session.retryOrder = askedLog.map(item => item.no - 1);
 
-  showPlayView();
-  renderQuestion();
-}
+    askedSet.clear();
+    askedLog = [];
+    wrongMap = {};
+
+    showPlayView();
+    renderQuestion();
+  }
 
   speakQBtn.addEventListener("click", () => {
     if (current) speakEnglish(current.en);
@@ -817,12 +1369,17 @@ function startSameConditionNextSession() {
     updateSettingsSummary();
   });
 
-
   nextBtn.addEventListener("click", () => {
     if (!answeredThisQuestion) {
       resultEl.textContent = "まず1つ選んでください。";
       return;
     }
+
+    if (session.answered >= session.limit) {
+      finishSession();
+      return;
+    }
+
     renderQuestion();
   });
 
@@ -832,13 +1389,12 @@ function startSameConditionNextSession() {
     let l = Number(limitEl.value);
 
     if (!Number.isFinite(l) || l < 1) l = 10;
+
     [s, e] = clampRange(s, e);
 
     session.start = s;
     session.end = e;
     session.limit = Math.floor(l);
-
-
     session.answered = 0;
     session.correct = 0;
     session.active = true;
@@ -848,45 +1404,107 @@ function startSameConditionNextSession() {
     askedLog = [];
     wrongMap = {};
 
-    if (quizMode === "order") orderCursor = loadOrderCursor(session.start, session.end);
-    else orderCursor = session.start;
+    if (quizMode === "order") {
+      orderCursor = loadOrderCursor(session.start, session.end);
+    } else {
+      orderCursor = session.start;
+    }
 
     closeSettings();
     showPlayView();
     renderQuestion();
   });
 
-
-
   retrySameSetBtn.addEventListener("click", () => {
-  startRetrySameSetSession();
-});
+    startRetrySameSetSession();
+  });
 
-retrySameConditionBtn.addEventListener("click", () => {
-  startSameConditionNextSession();
-});
+  askedListEl.addEventListener("click", e => {
+    const btn = e.target.closest('[data-action="toggle-manual-weak"]');
+    if (!btn) return;
 
-backToSetupBtn.addEventListener("click", () => {
-  summaryBox.style.display = "none";
-  playBox.style.display = "block";
-  closeSettings();
-  renderQuestion();
-});
+    const en = btn.getAttribute("data-en");
+    if (!en) return;
+
+    const nextState = !isManualWeak(en);
+
+    setManualWeak(en, nextState);
+    saveManualWeakMap();
+
+    updateWeakInfo();
+    renderAskedSummaryList();
+  });
+
+  retrySameConditionBtn.addEventListener("click", () => {
+    startSameConditionNextSession();
+  });
+
+  backToSetupBtn.addEventListener("click", () => {
+    summaryBox.style.display = "none";
+    playBox.style.display = "block";
+
+    session.active = false;
+    current = null;
+    answeredThisQuestion = false;
+
+    closeSettings();
+    renderQuestion();
+  });
 
   const resetOrderBtn = document.getElementById("resetOrderCursor");
+
   if (resetOrderBtn) {
     resetOrderBtn.addEventListener("click", () => {
       if (!confirm("順番モードの進捗を最初からに戻しますか？")) return;
+
       let s = Number(rangeStartEl.value) - 1;
       let e = Number(rangeEndEl.value) - 1;
+
       [s, e] = clampRange(s, e);
+
       saveOrderCursor(s, e, s);
+
       alert("順番モードを最初からにリセットしました。");
     });
   }
 
+  document.addEventListener("keydown", e => {
+    const activeTag = document.activeElement ? document.activeElement.tagName : "";
+    if (["INPUT", "SELECT", "TEXTAREA"].includes(activeTag)) return;
+
+    if (!session.active) return;
+    if (playBox.style.display === "none") return;
+
+    const key = e.key;
+
+    if (!answeredThisQuestion && /^[1-4]$/.test(key)) {
+      const btns = choicesEl.querySelectorAll("button");
+      const btn = btns[Number(key) - 1];
+
+      if (btn) {
+        e.preventDefault();
+        btn.click();
+      }
+
+      return;
+    }
+
+    const isNextKey =
+      key === "Enter" ||
+      key === " " ||
+      key === "Spacebar" ||
+      key === "ArrowRight" ||
+      key === "ArrowDown";
+
+    if (isNextKey && answeredThisQuestion && !nextBtn.disabled) {
+      e.preventDefault();
+      nextBtn.click();
+    }
+  });
+
   function applyQuery() {
     const p = new URLSearchParams(location.search);
+
     const start = Number(p.get("start"));
     const end = Number(p.get("end"));
     const mode = p.get("mode");
@@ -902,15 +1520,23 @@ backToSetupBtn.addEventListener("click", () => {
       saveSettings();
     }
 
-
+    if (weak === "1") {
+      weakMode = true;
+      quizMode = "weak";
+      modeSelectEl.value = "weak";
+      saveSettings();
+    }
 
     renderBlockStatsLine();
     updateSettingsSummary();
 
-    if (autostart === "1") setTimeout(() => startBtn.click(), 0);
+    if (autostart === "1") {
+      setTimeout(() => startBtn.click(), 0);
+    }
   }
 
   loadWeakPoints();
+  loadManualWeakMap();
   loadSettings();
   loadBlockStats();
 
@@ -926,20 +1552,21 @@ backToSetupBtn.addEventListener("click", () => {
     levelBadgeEl.textContent = `現在：全商英検 ${LV}級`;
   }
 
-renderGoimonVisibility();
+  renderGoimonVisibility();
 
-settingsOpen = true;
-settingsArea.style.display = "block";
-toggleSettingsBtn.textContent = "▲ 設定を閉じる";
-updateSettingsSummary();
+  settingsOpen = true;
+  settingsArea.style.display = "block";
+  toggleSettingsBtn.textContent = "▲ 設定を閉じる";
+  updateSettingsSummary();
 
-showPlayView();
-summaryBox.style.display = "none";
-renderQuestion();
+  showPlayView();
+  summaryBox.style.display = "none";
+  renderQuestion();
 
   if (typeof window.renderQuizGoimonMini === "function") {
     window.renderQuizGoimonMini();
   }
+
   renderEvolutionNotice();
 
   applyQuery();
