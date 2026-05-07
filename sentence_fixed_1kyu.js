@@ -405,7 +405,7 @@
 
 {"id":"F_freezer_01","answer":"freezer","en":"Put the ice cream back in the （　） so it won’t melt.","ja":"溶けないようにアイスを「冷凍庫」に戻しなさい。","choices":["freezer","drawer","garage","closet"]},
 
-{"id":"F_frequent_01","answer":"frequent","en":"He makes （　） trips to Tokyo for business.","ja":"彼は仕事で東京へ「頻繁に」行く。","choices":["frequent","formal","final","foreign"]},
+{"id":"F_frequent_01","answer":"frequent","en":"He makes （　） trips to Tokyo for business.","ja":"彼は仕事で東京へ「頻繁に」行く。","choices":["frequent","fierce","final","fashionable"]},
 
 {"id":"F_frost_01","answer":"frost","en":"In the morning, the ground was covered with （　）.","ja":"朝、地面は「霜」に覆われていた。","choices":["frost","flour","flash","flame"]},
 
