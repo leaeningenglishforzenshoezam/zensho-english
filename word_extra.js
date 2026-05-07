@@ -713,7 +713,12 @@
     { en: "lead to", ja: "〜につながる", pos: "phrase" },
     { en: "language", ja: "言語", pos: "noun" },
     { en: "liberty", ja: "自由", pos: "noun" },
-    { en: "leisure", ja: "余暇", pos: "noun" }
+    { en: "leisure", ja: "余暇", pos: "noun" },
+    { en: "chronic", ja: "慢性的な", pos: "adjective" },
+    { en: "idle", ja: "怠惰な", pos: "adjective" },
+    { en: "", ja: "", pos: "" },
+    { en: "", ja: "", pos: "" },
+    { en: "", ja: "", pos: "" },
 
     // ここに追加していく
   ];
