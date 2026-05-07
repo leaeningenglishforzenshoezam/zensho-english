@@ -245,7 +245,7 @@
 
 {"id":"F_crime_01","answer":"crime","en":"The city has a low （　） rate.","ja":"その都市は「犯罪」率が低い。","choices":["crime","danger","failure","expense"]},
 
-{"id":"F_cruel_01","answer":"cruel","en":"It was （　） to abandon the animal.","ja":"その動物を捨てるのは「残酷」だった。",note:"abondon「〜を捨てる」","choices":["cruel","dumb","evil","fearful"]},
+{"id":"F_cruel_01","answer":"cruel","en":"It was （　） to abandon the animal.","ja":"その動物を捨てるのは「残酷」だった。",note:"abondon「〜を捨てる」","choices":["cruel","dull","idle","chronic"]},
 
 {"id":"F_cultivate_01","answer":"cultivate","en":"Farmers （　） the land every spring.","ja":"農家は毎年春に土地を「耕す」。","choices":["cultivate","combine","expand","extend"]},
 
@@ -265,7 +265,7 @@
 
 {"id":"F_decorate_01","answer":"decorate","en":"They （　） the room with flowers.","ja":"彼らは花で部屋を「飾った」。","choices":["decorated","displayed","expanded","extended"]},
 
-{"id":"F_decrease_01","answer":"decrease","en":"The population has （　） rapidly.","ja":"人口は急速に「減少した」。","choices":["decreased","expanded","improved","developed"]},
+{"id":"F_decrease_01","answer":"decrease","en":"The population has （　） rapidly.","ja":"人口は急速に「減少した」。",note:"develop/improveは[質を]発達させるニュアンス。progressは[過程や技術]が前進するイメージ。population「人口」は数的に上下するため、これらと一緒に用いるのは不自然。","choices":["decreased","progressed","improved","developed"]},
 
 {"id":"F_defeat_01","answer":"defeat","en":"Our team （　） the champion.","ja":"私たちのチームは王者を「打ち負かした」。","choices":["defeated","defended","denied","delayed"]},
 
