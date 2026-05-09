@@ -25,11 +25,13 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch {}
   }
 
+  const questionProgressEl = document.getElementById("questionProgress");
   const setupBox = document.getElementById("setupBox");
   const playBox = document.getElementById("playBox");
   const summaryBox = document.getElementById("summaryBox");
 
   const startBtn = document.getElementById("startBtn");
+  const openProblemListBtn = document.getElementById("openProblemListBtn");
   const startWeakBtn = document.getElementById("startWeakBtn");
   const clearWeakBtn = document.getElementById("clearWeakBtn");
 
@@ -57,16 +59,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultEl = document.getElementById("result");
   const detailEl = document.getElementById("detail");
 
-  const summaryLine = document.getElementById("summaryLine");
-  const wrongEmpty = document.getElementById("wrongEmpty");
-  const wrongTable = document.getElementById("wrongTable");
-  const wrongTbody = document.getElementById("wrongTbody");
+const summaryLine = document.getElementById("summaryLine");
+const askedEmpty = document.getElementById("askedEmpty");
+const askedTable = document.getElementById("askedTable");
+const askedTbody = document.getElementById("askedTbody");
+const wrongEmpty = document.getElementById("wrongEmpty");
+const wrongTable = document.getElementById("wrongTable");
+const wrongTbody = document.getElementById("wrongTbody");
 
   const refreshWeakViewBtn = document.getElementById("refreshWeakView");
-  const weakAutoListEl = document.getElementById("weakAutoList");
-  const weakPinListEl = document.getElementById("weakPinList");
-  const weakAutoEmptyEl = document.getElementById("weakAutoEmpty");
-  const weakPinEmptyEl = document.getElementById("weakPinEmpty");
+  const problemListBox = document.getElementById("problemListBox");
+  const problemListBackBtn = document.getElementById("problemListBackBtn");
+  const problemListSummary = document.getElementById("problemListSummary");
+  const problemListEmpty = document.getElementById("problemListEmpty");
+  const problemListBody = document.getElementById("problemListBody");
+
+  const problemListBlockSelect = document.getElementById("problemListBlockSelect");
+  const toggleProblemListAnswersBtn = document.getElementById("toggleProblemListAnswersBtn");
+  const shuffleProblemListBtn = document.getElementById("shuffleProblemListBtn");
 
   const levelBadgeEl = document.getElementById("levelBadge");
 
@@ -79,10 +89,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   [
+    [questionProgressEl, "questionProgress"],
+[askedEmpty, "askedEmpty"],
+[askedTable, "askedTable"],
+[askedTbody, "askedTbody"],
     [setupBox, "setupBox"],
     [playBox, "playBox"],
     [summaryBox, "summaryBox"],
     [startBtn, "startBtn"],
+    [openProblemListBtn, "openProblemListBtn"],
     [startWeakBtn, "startWeakBtn"],
     [clearWeakBtn, "clearWeakBtn"],
     [backBtn, "backBtn"],
@@ -111,10 +126,14 @@ document.addEventListener("DOMContentLoaded", () => {
     [wrongTable, "wrongTable"],
     [wrongTbody, "wrongTbody"],
     [refreshWeakViewBtn, "refreshWeakView"],
-    [weakAutoListEl, "weakAutoList"],
-    [weakPinListEl, "weakPinList"],
-    [weakAutoEmptyEl, "weakAutoEmpty"],
-    [weakPinEmptyEl, "weakPinEmpty"],
+    [problemListBox, "problemListBox"],
+    [problemListBackBtn, "problemListBackBtn"],
+    [problemListSummary, "problemListSummary"],
+    [problemListEmpty, "problemListEmpty"],
+    [problemListBody, "problemListBody"],
+    [problemListBlockSelect, "problemListBlockSelect"],
+    [toggleProblemListAnswersBtn, "toggleProblemListAnswersBtn"],
+    [shuffleProblemListBtn, "shuffleProblemListBtn"],
     [levelBadgeEl, "levelBadge"],
     [toggleGoimonBtn, "toggleGoimon"],
     [goimonCardEl, "goimonCard"],
@@ -288,24 +307,44 @@ document.addEventListener("DOMContentLoaded", () => {
     return a;
   }
 
-  function showSetup() {
-    setupBox.style.display = "block";
-    playBox.style.display = "none";
-    summaryBox.style.display = "none";
+  function clearQuestionProgress() {
+  if (window.QuizUICommon && typeof window.QuizUICommon.clearText === "function") {
+    window.QuizUICommon.clearText(questionProgressEl);
+  } else if (questionProgressEl) {
+    questionProgressEl.textContent = "";
   }
+}
 
-  function showPlay() {
-    setupBox.style.display = "none";
-    playBox.style.display = "block";
-    summaryBox.style.display = "none";
-  }
+function showSetup() {
+  setupBox.style.display = "block";
+  problemListBox.style.display = "none";
+  playBox.style.display = "none";
+  summaryBox.style.display = "none";
+  clearQuestionProgress();
+}
 
-  function showSummary() {
-    setupBox.style.display = "none";
-    playBox.style.display = "none";
-    summaryBox.style.display = "block";
-  }
+function showProblemList() {
+  setupBox.style.display = "none";
+  problemListBox.style.display = "block";
+  playBox.style.display = "none";
+  summaryBox.style.display = "none";
+  clearQuestionProgress();
+}
 
+function showPlay() {
+  setupBox.style.display = "none";
+  problemListBox.style.display = "none";
+  playBox.style.display = "block";
+  summaryBox.style.display = "none";
+}
+
+function showSummary() {
+  setupBox.style.display = "none";
+  problemListBox.style.display = "none";
+  playBox.style.display = "none";
+  summaryBox.style.display = "block";
+  clearQuestionProgress();
+}
   function setHintVisible(on) {
     hintArea.style.display = on ? "block" : "none";
   }
@@ -323,6 +362,14 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
   }
+
+  function escapeAttr(s) {
+  return String(s || "")
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
 
   function sanitizeForQuestionSpeech(text) {
     let t = String(text || "");
@@ -432,10 +479,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function markCorrectButtonGreen(correctNorm) {
-    document.querySelectorAll("#choices button").forEach(b => {
-      if (norm(b.textContent) === correctNorm) b.classList.add("correct");
-    });
-  }
+  document.querySelectorAll("#choices button").forEach(b => {
+    const choiceNorm = b.dataset.choiceNorm || "";
+    if (choiceNorm === correctNorm) {
+      b.classList.add("correct");
+    }
+  });
+}
 
   const IRREGULAR = new Map([
     ["bound", "bind"], ["woven", "weave"], ["wove", "weave"], ["occurred", "occur"],
@@ -552,6 +602,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     return { autoOnly, pinned, total: autoOnly + pinned };
   }
+
+  function getWeakStateById(id) {
+  const map = loadWeakMap();
+  const st = map[String(id)] || { auto: false, pin: false };
+  return { auto: !!st.auto, pin: !!st.pin };
+}
 
   function loadCursor(blockValue) {
     const obj = safeParse(ORDER_CURSOR_KEY);
@@ -747,6 +803,15 @@ document.addEventListener("DOMContentLoaded", () => {
   let answeredThis = false;
   let askedLog = [];
 
+  let problemListBlockFilter = "all";
+  let problemListAnswersVisible = true;
+  let problemListRandomMode = false;
+  let problemListRandomIds = [];
+  let problemListChoiceMeaningOpenMap = {};
+  let problemListAnswerOpenMap = {};
+  let problemListHiddenChoiceMap = {};
+  let problemListMeaningMapCache = null;
+
   function resetUIForNewQuestion() {
     answeredThis = false;
     nextBtn.disabled = true;
@@ -789,6 +854,22 @@ document.addEventListener("DOMContentLoaded", () => {
     statsEl.textContent = `今回：${session.answered}/${session.limit}（正解 ${session.correct}）`;
   }
 
+  function renderQuestionProgress() {
+  if (!session.limit || session.limit <= 0 || !playBox || playBox.style.display === "none") {
+    clearQuestionProgress();
+    return;
+  }
+
+  const currentNo = Math.min(session.answered + 1, session.limit);
+
+  if (window.QuizUICommon && typeof window.QuizUICommon.renderQuestionProgress === "function") {
+    window.QuizUICommon.renderQuestionProgress(questionProgressEl, currentNo, session.limit);
+    return;
+  }
+
+  questionProgressEl.textContent = `第${currentNo}問 / ${session.limit}問`;
+}
+
   function orderModeText() {
     if (session.mode === "weak") return "ニガテ";
     if (session.orderMode === "retry") return "同セット再挑戦";
@@ -810,14 +891,15 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (session.order.length === 0) {
-      questionEl.textContent = "この条件では出題できる固定問題がありません。";
-      qMetaEl.textContent = "";
-      choicesEl.innerHTML = "";
-      hintBtn.disabled = true;
-      nextBtn.disabled = true;
-      return;
-    }
+  if (session.order.length === 0) {
+  clearQuestionProgress();
+  questionEl.textContent = "この条件では出題できる固定問題がありません。";
+  qMetaEl.textContent = "";
+  choicesEl.innerHTML = "";
+  hintBtn.disabled = true;
+  nextBtn.disabled = true;
+  return;
+}
 
     resetUIForNewQuestion();
 
@@ -856,30 +938,45 @@ document.addEventListener("DOMContentLoaded", () => {
       saveCursor(session.blockValue, session.cursor % session.order.length);
     }
 
-    current = fixed[qIndex];
+current = fixed[qIndex];
 
-    const blockText = current.blockId ? `Block ${current.blockId}` : "Block ?";
-    questionEl.textContent = current.en;
-    qMetaEl.textContent =
-      `問題 ${session.answered + 1} / ${session.limit}` +
-      ` ・${orderModeText()}` +
-      ` ・${blockText}` +
-      ` ・${session.mode === "weak" ? "自動は正解で解除／手動は残る" : ""}` +
-      ` ・自動読み上げ:${session.autoRead ? "ON" : "OFF"}`;
+renderQuestionProgress();
+
+const blockText = current.blockId ? `Block ${current.blockId}` : "Block ?";
+questionEl.textContent = current.en;
+qMetaEl.textContent =
+  `${blockText}` +
+  ` ・${orderModeText()}` +
+  ` ・${session.mode === "weak" ? "自動は正解で解除／手動は残る" : "通常演習"}` +
+  ` ・自動読み上げ:${session.autoRead ? "ON" : "OFF"}`;
 
     const shownChoices = shuffle(current.choices);
     current._shownChoices = shownChoices;
 
     choicesEl.innerHTML = "";
-    for (const c of shownChoices) {
-      const btn = document.createElement("button");
-      btn.textContent = c;
-      btn.addEventListener("click", () => {
-        ensureAudioReady();
-        handleChoice(c, btn);
-      });
-      choicesEl.appendChild(btn);
-    }
+
+const choiceNumbers = ["①", "②", "③", "④"];
+
+for (let i = 0; i < shownChoices.length; i++) {
+  const c = shownChoices[i];
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "choiceBtn";
+  btn.dataset.choiceNorm = norm(c);
+
+  btn.innerHTML = `
+    <span class="choiceIndex">${choiceNumbers[i] || String(i + 1)}</span>
+    <span class="choiceText">${escapeHtml(c)}</span>
+  `;
+
+  btn.addEventListener("click", () => {
+    ensureAudioReady();
+    handleChoice(c, btn);
+  });
+
+  choicesEl.appendChild(btn);
+}
 
     renderStats();
     renderEvolutionNotice();
@@ -998,78 +1095,685 @@ document.addEventListener("DOMContentLoaded", () => {
     return !!(st && st.pin);
   }
 
-  function renderSummary(autoCleared) {
-    const wrongs = askedLog.filter(x => !x.isCorrect);
-    const c = weakCounts();
-    const tail = autoCleared ? "（ニガテが0になりました）" : "";
+ function renderWeakBadgesById(qId) {
+  const st = getWeakStateById(qId);
+  const chips = [];
 
-    summaryLine.textContent =
-      `結果：${session.correct} / ${session.limit}` +
-      `（${session.mode === "weak" ? "ニガテ演習" : "通常演習"}｜${orderModeText()}｜${blockSelectLabel(session.blockValue)}）` +
-      `｜ニガテ合計 ${c.total}（自動 ${c.autoOnly} / 手動 ${c.pinned}）` +
-      `｜自動読み上げ:${session.autoRead ? "ON" : "OFF"}${tail}`;
-
-    wrongTbody.innerHTML = "";
-
-    if (wrongs.length === 0) {
-      wrongEmpty.style.display = "block";
-      wrongTable.style.display = "none";
-      return;
-    }
-
-    wrongEmpty.style.display = "none";
-    wrongTable.style.display = "table";
-
-    for (let i = 0; i < wrongs.length; i++) {
-      const w = wrongs[i];
-      const tr = document.createElement("tr");
-
-      const tdNo = document.createElement("td");
-      tdNo.textContent = String(i + 1);
-      tr.appendChild(tdNo);
-
-      const tdText = document.createElement("td");
-      tdText.innerHTML =
-        `<div class="mono" style="margin-bottom:6px;">${escapeHtml(w.en)}</div>` +
-        `<div>${escapeHtml(w.ja)}</div>`;
-      tr.appendChild(tdText);
-
-      const tdAns = document.createElement("td");
-      tdAns.innerHTML =
-        `<div>誤答：<span class="pill mono">${escapeHtml(w.yourChoice)}</span></div>` +
-        `<div style="margin-top:6px;">正答：<span class="pill mono">${escapeHtml(w.correctChoice)}</span></div>`;
-      tr.appendChild(tdAns);
-
-      const tdChk = document.createElement("td");
-      const label = document.createElement("label");
-      label.style.display = "flex";
-      label.style.alignItems = "center";
-      label.style.gap = "8px";
-
-      const chk = document.createElement("input");
-      chk.type = "checkbox";
-      chk.checked = isPinned(w.qId);
-
-      chk.addEventListener("change", () => {
-        if (chk.checked) setPinned(w.qId, true);
-        else setPinned(w.qId, false);
-        updateWeakInfo();
-        renderWeakManagement();
-        renderSummary(false);
-      });
-
-      const span = document.createElement("span");
-      span.className = "muted";
-      span.textContent = "ピン";
-
-      label.appendChild(chk);
-      label.appendChild(span);
-      tdChk.appendChild(label);
-      tr.appendChild(tdChk);
-
-      wrongTbody.appendChild(tr);
-    }
+  if (st.pin) {
+    chips.push(`
+      <span style="
+        display:inline-block;
+        padding:4px 8px;
+        border-radius:999px;
+        background:#fff4d6;
+        color:#8a5a00;
+        border:1px solid #f0d28a;
+        font-size:12px;
+        font-weight:700;
+      ">
+        手動ニガテ
+      </span>
+    `);
   }
+
+  if (st.auto) {
+    chips.push(`
+      <span style="
+        display:inline-block;
+        padding:4px 8px;
+        border-radius:999px;
+        background:#eef5ff;
+        color:#1f58b1;
+        border:1px solid #cfe0ff;
+        font-size:12px;
+        font-weight:700;
+      ">
+        自動ニガテ
+      </span>
+    `);
+  }
+
+  if (!chips.length) {
+    chips.push(`
+      <span style="
+        display:inline-block;
+        padding:4px 8px;
+        border-radius:999px;
+        background:#f5f5f5;
+        color:#666;
+        border:1px solid #ddd;
+        font-size:12px;
+        font-weight:700;
+      ">
+        通常
+      </span>
+    `);
+  }
+
+  return chips.join("");
+}
+
+function getProblemListCorrectChoiceShown(q) {
+  if (!q) return "";
+
+  const ans = norm(q.answer);
+  const choices = Array.isArray(q.choices) ? q.choices : [];
+
+  const found = choices.find(c => norm(c) === ans);
+  if (found) return found;
+
+  return choices[0] || q.answer || "";
+}
+
+function renderProblemListBadges(qId) {
+  const st = getWeakStateById(qId);
+  const chips = [];
+
+  if (st.pin) {
+    chips.push(`
+      <span class="pill" style="background:#fff4d6; color:#8a5a00; border-color:#f0d28a;">
+        手動ニガテ
+      </span>
+    `);
+  }
+
+  if (st.auto) {
+    chips.push(`
+      <span class="pill" style="background:#eef5ff; color:#1f58b1; border-color:#cfe0ff;">
+        自動ニガテ
+      </span>
+    `);
+  }
+
+  if (!chips.length) {
+    chips.push(`
+      <span class="pill" style="background:#f5f5f5; color:#666; border-color:#ddd;">
+        通常
+      </span>
+    `);
+  }
+
+  return chips.join("");
+}
+
+/*
+  問題一覧専用の手動ニガテ切り替え。
+  既存の setPinned(id, false) は「完全削除」仕様なので、
+  問題一覧では auto を壊さない専用処理にする。
+*/
+function setProblemListPinned(id, on) {
+  const map = loadWeakMap();
+  const k = String(id);
+
+  if (on) {
+    if (!map[k]) {
+      map[k] = { auto: false, pin: true };
+    }
+    map[k].pin = true;
+    saveWeakMap(map);
+    return;
+  }
+
+  if (!map[k]) return;
+
+  map[k].pin = false;
+
+  // 自動ニガテが残っているなら、auto は消さない
+  if (map[k].auto) {
+    saveWeakMap(map);
+    return;
+  }
+
+  // 手動だけのニガテだった場合は、項目ごと削除
+  delete map[k];
+  saveWeakMap(map);
+}
+
+function getProblemListBlockOptions() {
+  const set = new Set();
+
+  fixed.forEach(q => {
+    if (q && q.blockId !== undefined && q.blockId !== null && q.blockId !== "") {
+      set.add(String(q.blockId));
+    }
+  });
+
+  return Array.from(set).sort((a, b) => {
+    const na = Number(a);
+    const nb = Number(b);
+
+    if (!Number.isNaN(na) && !Number.isNaN(nb)) {
+      return na - nb;
+    }
+
+    return String(a).localeCompare(String(b), "ja");
+  });
+}
+
+function renderProblemListControls() {
+  const blocks = getProblemListBlockOptions();
+
+  const currentValue = problemListBlockFilter;
+
+  problemListBlockSelect.innerHTML = `
+    <option value="all">すべて</option>
+    ${blocks.map(blockId => {
+      return `<option value="${escapeAttr(blockId)}">Block ${escapeHtml(blockId)}</option>`;
+    }).join("")}
+  `;
+
+  if (currentValue === "all" || blocks.includes(String(currentValue))) {
+    problemListBlockFilter = currentValue;
+  } else {
+    problemListBlockFilter = "all";
+  }
+
+  problemListBlockSelect.value = problemListBlockFilter;
+
+  toggleProblemListAnswersBtn.textContent = problemListAnswersVisible
+    ? "正答を隠す"
+    : "正答を表示する";
+
+  shuffleProblemListBtn.textContent = problemListRandomMode
+    ? "元の順に戻す"
+    : "ランダム表示";
+}
+
+function getProblemListBaseItems() {
+  return fixed.map((q, index) => ({
+    q,
+    index
+  }));
+}
+
+function getProblemListFilteredItems() {
+  let items = getProblemListBaseItems();
+
+  if (problemListBlockFilter !== "all") {
+    items = items.filter(item => {
+      return String(item.q.blockId) === String(problemListBlockFilter);
+    });
+  }
+
+  return items;
+}
+
+function shuffleArray(arr) {
+  const copied = arr.slice();
+
+  for (let i = copied.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = copied[i];
+    copied[i] = copied[j];
+    copied[j] = tmp;
+  }
+
+  return copied;
+}
+
+function getProblemListDisplayChoices(q) {
+  if (!q || !Array.isArray(q.choices)) return [];
+
+  // 正答表示中は、元データの順番で表示
+  if (problemListAnswersVisible) {
+    return q.choices;
+  }
+
+  const key = String(q.id);
+
+  // 正答を隠している間は、問題ごとにランダム順を固定する
+  if (!Array.isArray(problemListHiddenChoiceMap[key])) {
+    problemListHiddenChoiceMap[key] = shuffleArray(q.choices);
+  }
+
+  return problemListHiddenChoiceMap[key];
+}
+
+function refreshProblemListRandomIds() {
+  const ids = getProblemListFilteredItems().map(item => String(item.q.id));
+  problemListRandomIds = shuffleArray(ids);
+}
+
+function getProblemListVisibleItems() {
+  const items = getProblemListFilteredItems();
+
+  if (!problemListRandomMode) {
+    return items;
+  }
+
+  const currentIds = items.map(item => String(item.q.id));
+  const currentIdSet = new Set(currentIds);
+
+  const randomIsValid =
+    problemListRandomIds.length === currentIds.length &&
+    problemListRandomIds.every(id => currentIdSet.has(String(id)));
+
+  if (!randomIsValid) {
+    refreshProblemListRandomIds();
+  }
+
+  const orderMap = new Map();
+  problemListRandomIds.forEach((id, index) => {
+    orderMap.set(String(id), index);
+  });
+
+  return items.slice().sort((a, b) => {
+    return orderMap.get(String(a.q.id)) - orderMap.get(String(b.q.id));
+  });
+}
+
+function normalizeMeaningKey(s) {
+  return String(s || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
+function addMeaningToMap(map, en, ja) {
+  const key = normalizeMeaningKey(en);
+  const val = String(ja || "").trim();
+
+  if (!key || !val) return;
+
+  if (!map.has(key)) {
+    map.set(key, val);
+  }
+}
+
+function buildProblemListMeaningMap() {
+  const map = new Map();
+
+  const sourceArrays = [
+    window.WORDS,
+    window.WORDS_1KYU,
+    window.WORDS_2KYU,
+    window.WORD_EXTRA,
+    window.WORD_EXTRA_1KYU,
+    window.WORD_EXTRA_2KYU,
+    window.EXTRA_WORDS,
+    window.EXTRA_WORDS_1KYU,
+    window.EXTRA_WORDS_2KYU
+  ];
+
+  sourceArrays.forEach(arr => {
+    if (!Array.isArray(arr)) return;
+
+    arr.forEach(item => {
+      if (!item) return;
+
+      // オブジェクト形式 { en, ja } 想定
+      if (typeof item === "object" && !Array.isArray(item)) {
+        const en =
+          item.en ||
+          item.word ||
+          item.answer ||
+          item.expression ||
+          item.term ||
+          "";
+
+        const ja =
+          item.ja ||
+          item.meaning ||
+          item.jp ||
+          item.answerJa ||
+          item.translation ||
+          "";
+
+        addMeaningToMap(map, en, ja);
+        return;
+      }
+
+      // 配列形式 ["word", "意味"] の保険
+      if (Array.isArray(item)) {
+        addMeaningToMap(map, item[0], item[1]);
+      }
+    });
+  });
+
+  return map;
+}
+
+function getProblemListMeaningMap() {
+  if (!problemListMeaningMapCache) {
+    problemListMeaningMapCache = buildProblemListMeaningMap();
+  }
+
+  return problemListMeaningMapCache;
+}
+
+function getChoiceMeaning(choice) {
+  const map = getProblemListMeaningMap();
+  const key = normalizeMeaningKey(choice);
+
+  return map.get(key) || "意味データ未登録";
+}
+
+function renderChoiceMeaningList(q, correctShown, displayChoices) {
+  const choiceNumbers = ["①", "②", "③", "④"];
+  const correctNorm = norm(correctShown);
+  const choices = Array.isArray(displayChoices) ? displayChoices : q.choices;
+
+  const rows = choices.map((choice, i) => {
+    const isCorrect = norm(choice) === correctNorm;
+    const meaning = getChoiceMeaning(choice);
+
+    return `
+      <div class="choiceMeaningRow ${isCorrect ? "correct" : ""}">
+        <div class="choiceMeaningWord">
+          ${choiceNumbers[i] || String(i + 1)}
+          <span class="mono">${escapeHtml(choice)}</span>
+        </div>
+        <div class="choiceMeaningJa">
+          ${escapeHtml(meaning)}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="choiceMeaningBox">
+      ${rows}
+    </div>
+  `;
+}
+
+function renderProblemList() {
+  renderProblemListControls();
+
+  problemListBody.innerHTML = "";
+
+  if (!fixed.length) {
+    problemListEmpty.style.display = "block";
+    problemListSummary.textContent = "表示できる固定問題がありません。";
+    return;
+  }
+
+  const visibleItems = getProblemListVisibleItems();
+
+  if (!visibleItems.length) {
+    problemListEmpty.style.display = "block";
+    problemListSummary.textContent = "この条件で表示できる問題がありません。";
+    return;
+  }
+
+  problemListEmpty.style.display = "none";
+
+  const weakMap = loadWeakMap();
+  const manualCount = Object.keys(weakMap).filter(id => weakMap[id]?.pin).length;
+  const autoCount = Object.keys(weakMap).filter(id => weakMap[id]?.auto).length;
+
+  const blockText = problemListBlockFilter === "all"
+    ? "すべて"
+    : `Block ${problemListBlockFilter}`;
+
+  const orderText = problemListRandomMode
+    ? "ランダム表示"
+    : "通常順";
+
+  problemListSummary.textContent =
+    `収録数：${fixed.length}問 / 表示：${visibleItems.length}問 / 表示ブロック：${blockText} / 表示順：${orderText} / 自動ニガテ：${autoCount}問 / 手動ニガテ：${manualCount}問`;
+
+  visibleItems.forEach(({ q, index }, visibleIndex) => {
+    const correctShown = getProblemListCorrectChoiceShown(q);
+    const correctNorm = norm(correctShown);
+    const st = getWeakStateById(q.id);
+    const isAnswerOpenForThis = !!problemListAnswerOpenMap[String(q.id)];
+    const shouldShowAnswer = problemListAnswersVisible || isAnswerOpenForThis;
+
+    const choiceNumbers = ["①", "②", "③", "④"];
+    const displayChoices = getProblemListDisplayChoices(q);
+
+    const choiceHtml = displayChoices.map((choice, i) => {
+      const isCorrect = shouldShowAnswer && norm(choice) === correctNorm;
+
+      return `
+        <span class="problemChoice ${isCorrect ? "correct" : ""}">
+          <span>${choiceNumbers[i] || String(i + 1)}</span>
+          <span class="mono">${escapeHtml(choice)}</span>
+        </span>
+      `;
+    }).join("");
+
+    const blockShown = q.blockId ? `Block ${q.blockId}` : "Block ?";
+    const isMeaningOpen = !!problemListChoiceMeaningOpenMap[String(q.id)];
+
+    const answerAndJaHtml = shouldShowAnswer
+      ? `
+        <div class="problemField">
+          <div class="problemLabel">正答</div>
+          <div class="problemText">
+            <span class="pill mono">${escapeHtml(correctShown)}</span>
+          </div>
+        </div>
+
+        <div class="problemField">
+          <div class="problemLabel">日本語訳</div>
+          <div class="problemText">${escapeHtml(q.ja || "（なし）")}</div>
+        </div>
+      `
+      : `
+        <div class="problemField">
+          <button
+            type="button"
+            class="problemMaskedCard"
+            data-action="toggle-one-answer"
+            data-qid="${escapeAttr(q.id)}"
+          >
+            正答と日本語訳を隠しています<br>
+            タップすると、この問題だけ表示します
+          </button>
+        </div>
+      `;
+
+    const meaningButtonHtml = shouldShowAnswer
+      ? `
+        <div class="problemField">
+          <button
+            type="button"
+            data-action="toggle-choice-meanings"
+            data-qid="${escapeAttr(q.id)}"
+          >
+            ${isMeaningOpen ? "選択肢の意味を隠す" : "選択肢の意味一覧"}
+          </button>
+
+        ${isMeaningOpen ? renderChoiceMeaningList(q, correctShown, displayChoices) : ""}
+        </div>
+      `
+      : "";
+
+    const noteHtml = q.note && shouldShowAnswer
+      ? `
+        <div class="problemField">
+          <div class="problemLabel">補足</div>
+          <div class="problemText">${escapeHtml(q.note)}</div>
+        </div>
+      `
+      : "";
+
+    const item = document.createElement("div");
+    item.className = "problemListItem";
+
+    item.innerHTML = `
+      <div class="problemListHead">
+        <div>
+          <div class="problemListNo">
+            No.${index + 1} 
+            <span class="muted">/ 表示${visibleIndex + 1}問目</span>
+          </div>
+          <div class="problemListId">
+            ${escapeHtml(blockShown)} / ID：<span class="mono">${escapeHtml(q.id)}</span>
+          </div>
+        </div>
+
+        <div class="problemListBadges">
+          ${renderProblemListBadges(q.id)}
+        </div>
+      </div>
+
+      <div class="problemField">
+        <div class="problemLabel">問題文</div>
+        <div class="problemText mono">${escapeHtml(q.en)}</div>
+      </div>
+
+      <div class="problemField">
+        <div class="problemLabel">選択肢</div>
+        <div class="problemChoiceList">
+          ${choiceHtml}
+        </div>
+      </div>
+
+      ${answerAndJaHtml}
+
+      ${meaningButtonHtml}
+
+      ${noteHtml}
+
+      <div class="problemField">
+        <label class="problemWeakCheck">
+          <input
+            type="checkbox"
+            data-action="problem-list-pin"
+            data-qid="${escapeAttr(q.id)}"
+            ${st.pin ? "checked" : ""}
+          />
+          <span>手動ニガテにする</span>
+        </label>
+      </div>
+    `;
+
+    problemListBody.appendChild(item);
+  });
+}
+
+function renderAskedSummary() {
+  askedTbody.innerHTML = "";
+
+  if (!askedLog.length) {
+    askedEmpty.style.display = "block";
+    askedTable.style.display = "none";
+    return;
+  }
+
+  askedEmpty.style.display = "none";
+  askedTable.style.display = "table";
+
+  for (let i = 0; i < askedLog.length; i++) {
+    const item = askedLog[i];
+    const tr = document.createElement("tr");
+
+    const tdNo = document.createElement("td");
+    tdNo.textContent = String(i + 1);
+    tr.appendChild(tdNo);
+
+    const tdText = document.createElement("td");
+    tdText.innerHTML =
+      `<div class="mono" style="margin-bottom:6px;">${escapeHtml(item.en)}</div>` +
+      `<div>${escapeHtml(item.ja)}</div>`;
+    tr.appendChild(tdText);
+
+    const tdAns = document.createElement("td");
+    tdAns.innerHTML =
+      `<div style="margin-bottom:6px;">
+        <span class="pill" style="background:${item.isCorrect ? "#eefaf1" : "#ffecec"}; color:${item.isCorrect ? "#0a7a2f" : "#b00020"}; border-color:${item.isCorrect ? "#bfe7ca" : "#f3b5bf"};">
+          ${item.isCorrect ? "正解" : "不正解"}
+        </span>
+      </div>` +
+      `<div>あなた：<span class="pill mono">${escapeHtml(item.yourChoice)}</span></div>` +
+      `<div style="margin-top:6px;">正答：<span class="pill mono">${escapeHtml(item.correctChoice)}</span></div>` +
+      `<div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">${renderWeakBadgesById(item.qId)}</div>`;
+    tr.appendChild(tdAns);
+
+    const tdBtn = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.setAttribute("data-action", "toggle-pin");
+    btn.setAttribute("data-qid", escapeAttr(item.qId));
+    btn.textContent = getWeakStateById(item.qId).pin ? "手動ニガテ解除" : "手動ニガテ追加";
+    tdBtn.appendChild(btn);
+    tr.appendChild(tdBtn);
+
+    askedTbody.appendChild(tr);
+  }
+}
+
+function renderWrongSummary() {
+  const wrongs = askedLog.filter(x => !x.isCorrect);
+  wrongTbody.innerHTML = "";
+
+  if (wrongs.length === 0) {
+    wrongEmpty.style.display = "block";
+    wrongTable.style.display = "none";
+    return;
+  }
+
+  wrongEmpty.style.display = "none";
+  wrongTable.style.display = "table";
+
+  for (let i = 0; i < wrongs.length; i++) {
+    const w = wrongs[i];
+    const tr = document.createElement("tr");
+
+    const tdNo = document.createElement("td");
+    tdNo.textContent = String(i + 1);
+    tr.appendChild(tdNo);
+
+    const tdText = document.createElement("td");
+    tdText.innerHTML =
+      `<div class="mono" style="margin-bottom:6px;">${escapeHtml(w.en)}</div>` +
+      `<div>${escapeHtml(w.ja)}</div>`;
+    tr.appendChild(tdText);
+
+    const tdAns = document.createElement("td");
+    tdAns.innerHTML =
+      `<div>誤答：<span class="pill mono">${escapeHtml(w.yourChoice)}</span></div>` +
+      `<div style="margin-top:6px;">正答：<span class="pill mono">${escapeHtml(w.correctChoice)}</span></div>`;
+    tr.appendChild(tdAns);
+
+    const tdChk = document.createElement("td");
+    const label = document.createElement("label");
+    label.style.display = "flex";
+    label.style.alignItems = "center";
+    label.style.gap = "8px";
+
+    const chk = document.createElement("input");
+    chk.type = "checkbox";
+    chk.checked = getWeakStateById(w.qId).pin;
+
+    chk.addEventListener("change", () => {
+      if (chk.checked) setPinned(w.qId, true);
+      else setPinned(w.qId, false);
+      updateWeakInfo();
+      renderWeakManagement();
+      renderAskedSummary();
+      renderWrongSummary();
+    });
+
+    const span = document.createElement("span");
+    span.className = "muted";
+    span.textContent = "ピン";
+
+    label.appendChild(chk);
+    label.appendChild(span);
+    tdChk.appendChild(label);
+    tr.appendChild(tdChk);
+
+    wrongTbody.appendChild(tr);
+  }
+}
+
+function renderSummary(autoCleared) {
+  const c = weakCounts();
+  const tail = autoCleared ? "（ニガテが0になりました）" : "";
+
+  summaryLine.textContent =
+    `結果：${session.correct} / ${session.limit}` +
+    `（${session.mode === "weak" ? "ニガテ演習" : "通常演習"}｜${orderModeText()}｜${blockSelectLabel(session.blockValue)}）` +
+    `｜ニガテ合計 ${c.total}（自動 ${c.autoOnly} / 手動 ${c.pinned}）` +
+    `｜自動読み上げ:${session.autoRead ? "ON" : "OFF"}${tail}`;
+
+  renderAskedSummary();
+  renderWrongSummary();
+}
 
   function finishSession(autoCleared) {
     showSummary();
@@ -1254,6 +1958,98 @@ document.addEventListener("DOMContentLoaded", () => {
 
   startBtn.addEventListener("click", startNormalSession);
 
+    openProblemListBtn.addEventListener("click", () => {
+    renderProblemList();
+    showProblemList();
+  });
+
+  problemListBackBtn.addEventListener("click", () => {
+    showSetup();
+    updatePoolInfo();
+    updateWeakInfo();
+    renderWeakManagement();
+  });
+
+  problemListBlockSelect.addEventListener("change", () => {
+    problemListBlockFilter = problemListBlockSelect.value || "all";
+
+    // ブロックを変えたら、ランダム順は作り直す
+    if (problemListRandomMode) {
+      refreshProblemListRandomIds();
+    }
+
+    problemListAnswerOpenMap = {};
+    problemListChoiceMeaningOpenMap = {};
+    problemListHiddenChoiceMap = {};
+    renderProblemList();
+  });
+
+  toggleProblemListAnswersBtn.addEventListener("click", () => {
+    problemListAnswersVisible = !problemListAnswersVisible;
+
+    // 正答表示を切り替える時は、個別表示・意味一覧・選択肢ランダム順をリセット
+    problemListAnswerOpenMap = {};
+    problemListChoiceMeaningOpenMap = {};
+    problemListHiddenChoiceMap = {};
+
+    renderProblemList();
+  });
+
+  shuffleProblemListBtn.addEventListener("click", () => {
+    problemListRandomMode = !problemListRandomMode;
+
+    if (problemListRandomMode) {
+      refreshProblemListRandomIds();
+    } else {
+      problemListRandomIds = [];
+    }
+
+    problemListAnswerOpenMap = {};
+    problemListChoiceMeaningOpenMap = {};
+    problemListHiddenChoiceMap = {};
+    renderProblemList();
+  });
+
+  problemListBody.addEventListener("click", (e) => {
+    const answerBtn = e.target.closest('button[data-action="toggle-one-answer"]');
+    if (answerBtn) {
+      const qId = answerBtn.getAttribute("data-qid");
+      if (!qId) return;
+
+      const key = String(qId);
+      problemListAnswerOpenMap[key] = true;
+
+      renderProblemList();
+      return;
+    }
+
+    const meaningBtn = e.target.closest('button[data-action="toggle-choice-meanings"]');
+    if (meaningBtn) {
+      const qId = meaningBtn.getAttribute("data-qid");
+      if (!qId) return;
+
+      const key = String(qId);
+      problemListChoiceMeaningOpenMap[key] = !problemListChoiceMeaningOpenMap[key];
+
+      renderProblemList();
+      return;
+    }
+  });
+
+  problemListBody.addEventListener("change", (e) => {
+    const chk = e.target.closest('input[data-action="problem-list-pin"]');
+    if (!chk) return;
+
+    const qId = chk.getAttribute("data-qid");
+    if (!qId) return;
+
+    setProblemListPinned(qId, chk.checked);
+
+    updateWeakInfo();
+    renderWeakManagement();
+    renderProblemList();
+  });
+
   startWeakBtn.addEventListener("click", () => {
     if (weakCounts().total === 0) {
       alert("ニガテ問題がありません。まず通常演習で間違えるか、結果画面でピン留めしてください。");
@@ -1318,6 +2114,21 @@ document.addEventListener("DOMContentLoaded", () => {
     alert("ニガテ一覧を更新しました。");
   });
 
+  askedTbody.addEventListener("click", (e) => {
+  const btn = e.target.closest('[data-action="toggle-pin"]');
+  if (!btn) return;
+
+  const qId = btn.getAttribute("data-qid");
+  if (!qId) return;
+
+  const nextState = !getWeakStateById(qId).pin;
+  setPinned(qId, nextState);
+  updateWeakInfo();
+  renderWeakManagement();
+  renderAskedSummary();
+  renderWrongSummary();
+});
+
   toggleGoimonBtn.addEventListener("click", () => {
     goimonUi.open = !goimonUi.open;
     saveGoimonUiState();
@@ -1346,4 +2157,64 @@ document.addEventListener("DOMContentLoaded", () => {
 }
 
   init();
+  function isTypingTarget(target) {
+  if (!target) return false;
+  const tag = String(target.tagName || "").toLowerCase();
+  return tag === "input" || tag === "textarea" || tag === "select" || target.isContentEditable;
+}
+
+document.addEventListener("keydown", (e) => {
+  if (isTypingTarget(e.target)) return;
+  if (playBox.style.display === "none") return;
+  if (!current) return;
+
+  const key = e.key;
+
+  if (!answeredThis) {
+    if (key === "1" || key === "2" || key === "3" || key === "4") {
+      const btns = choicesEl.querySelectorAll("button");
+      const btn = btns[Number(key) - 1];
+
+      if (btn && !btn.disabled) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        btn.click();
+      }
+    }
+
+    return;
+  }
+
+  const isNextKey =
+    key === "ArrowRight" ||
+    key === "ArrowDown" ||
+    key === "Enter" ||
+    key === " " ||
+    key === "Spacebar";
+
+  if (isNextKey && !nextBtn.disabled) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    nextBtn.click();
+  }
+}, true);
+  if (window.QuizShortcuts && typeof window.QuizShortcuts.register === "function") {
+  window.QuizShortcuts.register({
+    isActive: () => playBox.style.display !== "none" && !!current,
+    canAnswer: () => playBox.style.display !== "none" && !!current && !answeredThis,
+    canNext: () => playBox.style.display !== "none" && answeredThis && !nextBtn.disabled,
+    canSpeak: () => playBox.style.display !== "none" && !!current,
+    onAnswer: (index) => {
+      const btns = choicesEl.querySelectorAll("button");
+      const btn = btns[index - 1];
+      if (btn) btn.click();
+    },
+    onNext: () => {
+      if (!nextBtn.disabled) nextBtn.click();
+    },
+    onSpeak: () => {
+      if (current) readBtn.click();
+    }
+  });
+}
 });
