@@ -203,23 +203,23 @@ shirabe: {
     mr_uno: {
       label: "MR.UNO系",
       child: {
-        name: "魔導UNO",
-        description: "特別な条件でのみ現れるレア幼体。まるメガネの奥で、じっと相手を観察している。",
+        name: "魔法見習いUNO",
+        description: "特別な条件でのみ現れるレアゴイモン。このアプリの開発者であるとも噂されており、一人前の魔法使いになるために日々修行をしている。",
         image: "images/goimon/mr_uno_child.png"
       },
       growth: {
         name: "デスイーターUNO",
-        description: "教師らしさと冒険心が育った成長体。知識と行動力のバランスが取れている。",
+        description: "闇の力に魅了され、闇堕ちしてしまった魔法使い。歯向かうものには禁じられた呪文を簡単に使う短気さが特徴。",
         image: "images/goimon/mr_uno_growth.png"
       },
       mid: {
         name: "フィジカル覚醒UNO",
-        description: "学びと魔法の両方を操る中間体。仲間に知恵を授ける特別な存在。",
+        description: "力とは魔力ではなく筋力であると悟った魔法使い。「力こそパワー」を座右の銘にし、筋力を求める求道者になった。",
         image: "images/goimon/mr_uno_mid.png"
       },
       final: {
         name: "理の境地MR.UNO",
-        description: "知識、ことば、音、文脈のすべてを高次元で扱う伝説級の上級体。",
+        description: "全ての理を悟り、山に籠った伝説の元魔法使い。英単語力を十分に身につけた者のみが出会えると言われている。",
         image: "images/goimon/mr_uno_final.png"
       }
     }
