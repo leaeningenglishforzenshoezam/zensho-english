@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const summaryBox = document.getElementById("summaryBox");
 
   const startBtn = document.getElementById("startBtn");
-  const openProblemListBtn = document.getElementById("openProblemListBtn");
+  let openProblemListBtn = document.getElementById("openProblemListBtn");
   const startWeakBtn = document.getElementById("startWeakBtn");
   const clearWeakBtn = document.getElementById("clearWeakBtn");
 
@@ -68,15 +68,162 @@ const wrongTable = document.getElementById("wrongTable");
 const wrongTbody = document.getElementById("wrongTbody");
 
   const refreshWeakViewBtn = document.getElementById("refreshWeakView");
-  const problemListBox = document.getElementById("problemListBox");
-  const problemListBackBtn = document.getElementById("problemListBackBtn");
-  const problemListSummary = document.getElementById("problemListSummary");
-  const problemListEmpty = document.getElementById("problemListEmpty");
-  const problemListBody = document.getElementById("problemListBody");
+  let problemListBox = document.getElementById("problemListBox");
+  let problemListBackBtn = document.getElementById("problemListBackBtn");
+  let problemListSummary = document.getElementById("problemListSummary");
+  let problemListEmpty = document.getElementById("problemListEmpty");
+  let problemListBody = document.getElementById("problemListBody");
 
-  const problemListBlockSelect = document.getElementById("problemListBlockSelect");
-  const toggleProblemListAnswersBtn = document.getElementById("toggleProblemListAnswersBtn");
-  const shuffleProblemListBtn = document.getElementById("shuffleProblemListBtn");
+  let problemListBlockSelect = document.getElementById("problemListBlockSelect");
+  let toggleProblemListAnswersBtn = document.getElementById("toggleProblemListAnswersBtn");
+  let shuffleProblemListBtn = document.getElementById("shuffleProblemListBtn");
+    function ensureProblemListDom() {
+    // 問題一覧ボタンがHTML側にない場合は、JS側で作る
+    if (!openProblemListBtn && startBtn && startBtn.parentElement) {
+      openProblemListBtn = document.createElement("button");
+      openProblemListBtn.id = "openProblemListBtn";
+      openProblemListBtn.type = "button";
+      openProblemListBtn.textContent = "問題一覧を見る";
+
+      startBtn.insertAdjacentElement("afterend", openProblemListBtn);
+    }
+
+    // 問題一覧BOXがHTML側にない場合は、JS側で作る
+    if (!problemListBox && setupBox) {
+      problemListBox = document.createElement("div");
+      problemListBox.className = "card problemListBox";
+      problemListBox.id = "problemListBox";
+      problemListBox.style.display = "none";
+
+      problemListBox.innerHTML = `
+        <div class="row">
+          <div>
+            <div style="font-size:18px; font-weight:700;">大問9 問題一覧</div>
+            <div class="problemListSummary" id="problemListSummary">
+              固定問題の問題文・選択肢・正答・日本語訳を確認できます。
+            </div>
+          </div>
+          <div>
+            <button id="problemListBackBtn" type="button">設定へ戻る</button>
+          </div>
+        </div>
+
+        <div class="problemListControls">
+          <label>
+            表示ブロック
+            <select id="problemListBlockSelect">
+              <option value="all">すべて</option>
+            </select>
+          </label>
+
+          <button id="toggleProblemListAnswersBtn" type="button">正答を隠す</button>
+          <button id="shuffleProblemListBtn" type="button">ランダム表示</button>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="muted" style="margin-bottom:10px;">
+          チェックをONにすると手動ニガテに追加されます。OFFにすると手動ニガテだけ解除します。自動ニガテが残っている場合は、自動ニガテは消えません。
+        </div>
+
+        <div id="problemListEmpty" class="muted" style="display:none;">
+          表示できる問題がありません。
+        </div>
+
+        <div id="problemListBody"></div>
+      `;
+
+      setupBox.insertAdjacentElement("afterend", problemListBox);
+    }
+
+    // 問題一覧BOXはあるが、中の操作部品だけない場合の保険
+    if (problemListBox && !document.getElementById("problemListBlockSelect")) {
+      const controlBox = document.createElement("div");
+      controlBox.className = "problemListControls";
+      controlBox.innerHTML = `
+        <label>
+          表示ブロック
+          <select id="problemListBlockSelect">
+            <option value="all">すべて</option>
+          </select>
+        </label>
+
+        <button id="toggleProblemListAnswersBtn" type="button">正答を隠す</button>
+        <button id="shuffleProblemListBtn" type="button">ランダム表示</button>
+      `;
+
+      const hr = problemListBox.querySelector(".hr");
+      if (hr) {
+        hr.insertAdjacentElement("beforebegin", controlBox);
+      } else {
+        problemListBox.insertAdjacentElement("afterbegin", controlBox);
+      }
+    }
+
+    // 再取得
+    problemListBox = document.getElementById("problemListBox");
+    problemListBackBtn = document.getElementById("problemListBackBtn");
+    problemListSummary = document.getElementById("problemListSummary");
+    problemListEmpty = document.getElementById("problemListEmpty");
+    problemListBody = document.getElementById("problemListBody");
+
+    problemListBlockSelect = document.getElementById("problemListBlockSelect");
+    toggleProblemListAnswersBtn = document.getElementById("toggleProblemListAnswersBtn");
+    shuffleProblemListBtn = document.getElementById("shuffleProblemListBtn");
+
+    // CSSがHTML側に反映されていない場合の最低限の保険
+    if (!document.getElementById("problemListFallbackStyle")) {
+      const style = document.createElement("style");
+      style.id = "problemListFallbackStyle";
+      style.textContent = `
+        .problemListBox { margin-top: 12px; }
+        .problemListControls {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          align-items: center;
+          margin-top: 12px;
+        }
+        .problemListControls label {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 13px;
+          color: #555;
+          font-weight: 700;
+        }
+        .problemListControls select {
+          padding: 8px 10px;
+          border-radius: 10px;
+          border: 1px solid #ddd;
+          background: #fff;
+          font-size: 14px;
+        }
+        .problemListItem {
+          border: 1px solid #eee;
+          border-radius: 12px;
+          padding: 12px;
+          margin: 10px 0;
+          background: #fff;
+        }
+        .problemMaskedCard {
+          border: 1px dashed #d8d8d8;
+          background: #fafafa;
+          border-radius: 12px;
+          padding: 12px;
+          color: #777;
+          font-size: 14px;
+          font-weight: 700;
+          text-align: center;
+          width: 100%;
+          cursor: pointer;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+
+  ensureProblemListDom();
 
   const levelBadgeEl = document.getElementById("levelBadge");
 
