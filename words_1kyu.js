@@ -434,7 +434,7 @@ window.WORDS_1KYU = [
   { en: "sincere", ja: "誠実な", pos: "adjective" },
   { en: "situation", ja: "状況", pos: "noun" },
   { en: "skill", ja: "技能", pos: "noun" },
-  { en: "skillful / skilful", ja: "熟練した", pos: "adjective" },
+  { en: "skillful", ja: "熟練した", pos: "adjective" },
   { en: "soil", ja: "土", pos: "noun" },
   { en: "solution", ja: "解決策", pos: "noun" },
   { en: "sorrow", ja: "悲しみ", pos: "noun" },
