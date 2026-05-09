@@ -956,6 +956,7 @@ function showSummary() {
   let problemListRandomIds = [];
   let problemListChoiceMeaningOpenMap = {};
   let problemListAnswerOpenMap = {};
+  let problemListChoiceResultMap = {};
   let problemListHiddenChoiceMap = {};
   let problemListMeaningMapCache = null;
 
@@ -1664,22 +1665,52 @@ function renderProblemList() {
     const correctShown = getProblemListCorrectChoiceShown(q);
     const correctNorm = norm(correctShown);
     const st = getWeakStateById(q.id);
-    const isAnswerOpenForThis = !!problemListAnswerOpenMap[String(q.id)];
+
+    const choiceResult = problemListChoiceResultMap[String(q.id)] || null;
+    const isAnswerOpenForThis = !!problemListAnswerOpenMap[String(q.id)] || !!choiceResult;
     const shouldShowAnswer = problemListAnswersVisible || isAnswerOpenForThis;
+    const canTapChoice = !problemListAnswersVisible && !shouldShowAnswer;
 
     const choiceNumbers = ["①", "②", "③", "④"];
     const displayChoices = getProblemListDisplayChoices(q);
+    const selectedChoiceNorm = choiceResult ? norm(choiceResult.selected) : "";
 
     const choiceHtml = displayChoices.map((choice, i) => {
-      const isCorrect = shouldShowAnswer && norm(choice) === correctNorm;
+      const choiceNorm = norm(choice);
+      const isCorrectChoice = shouldShowAnswer && choiceNorm === correctNorm;
+      const isWrongSelected =
+        shouldShowAnswer &&
+        choiceResult &&
+        !choiceResult.isCorrect &&
+        choiceNorm === selectedChoiceNorm;
+
+      const className =
+        `problemChoice problemChoiceBtn ${isCorrectChoice ? "correct" : ""} ${isWrongSelected ? "wrong" : ""}`;
 
       return `
-        <span class="problemChoice ${isCorrect ? "correct" : ""}">
+        <button
+          type="button"
+          class="${className}"
+          data-action="problem-list-choice-answer"
+          data-qid="${escapeAttr(q.id)}"
+          data-choice="${escapeAttr(choice)}"
+          ${canTapChoice ? "" : "disabled"}
+        >
           <span>${choiceNumbers[i] || String(i + 1)}</span>
           <span class="mono">${escapeHtml(choice)}</span>
-        </span>
+        </button>
       `;
     }).join("");
+
+        const choiceResultHtml = choiceResult && shouldShowAnswer
+      ? `
+        <div class="problemListMiniResult ${choiceResult.isCorrect ? "ok" : "ng"}">
+          ${choiceResult.isCorrect ? "⭕ 正解！" : "❌ 不正解"}
+          あなたの選択：
+          <span class="mono">${escapeHtml(choiceResult.selected)}</span>
+        </div>
+      `
+      : "";
 
     const blockShown = q.blockId ? `Block ${q.blockId}` : "Block ?";
     const isMeaningOpen = !!problemListChoiceMeaningOpenMap[String(q.id)];
@@ -1767,6 +1798,7 @@ function renderProblemList() {
         <div class="problemChoiceList">
           ${choiceHtml}
         </div>
+        ${choiceResultHtml}
       </div>
 
       ${answerAndJaHtml}
@@ -2120,12 +2152,12 @@ function renderSummary(autoCleared) {
   problemListBlockSelect.addEventListener("change", () => {
     problemListBlockFilter = problemListBlockSelect.value || "all";
 
-    // ブロックを変えたら、ランダム順は作り直す
     if (problemListRandomMode) {
       refreshProblemListRandomIds();
     }
 
     problemListAnswerOpenMap = {};
+    problemListChoiceResultMap = {};
     problemListChoiceMeaningOpenMap = {};
     problemListHiddenChoiceMap = {};
     renderProblemList();
@@ -2134,8 +2166,9 @@ function renderSummary(autoCleared) {
   toggleProblemListAnswersBtn.addEventListener("click", () => {
     problemListAnswersVisible = !problemListAnswersVisible;
 
-    // 正答表示を切り替える時は、個別表示・意味一覧・選択肢ランダム順をリセット
+    // 正答表示を切り替える時は、個別表示・選択結果・意味一覧・選択肢ランダム順をリセット
     problemListAnswerOpenMap = {};
+    problemListChoiceResultMap = {};
     problemListChoiceMeaningOpenMap = {};
     problemListHiddenChoiceMap = {};
 
@@ -2152,12 +2185,36 @@ function renderSummary(autoCleared) {
     }
 
     problemListAnswerOpenMap = {};
+    problemListChoiceResultMap = {};
     problemListChoiceMeaningOpenMap = {};
     problemListHiddenChoiceMap = {};
     renderProblemList();
   });
 
   problemListBody.addEventListener("click", (e) => {
+        const choiceBtn = e.target.closest('button[data-action="problem-list-choice-answer"]');
+    if (choiceBtn && !choiceBtn.disabled) {
+      const qId = choiceBtn.getAttribute("data-qid");
+      const selected = choiceBtn.getAttribute("data-choice");
+
+      if (!qId || !selected) return;
+
+      const q = fixedById.get(String(qId));
+      if (!q) return;
+
+      const correctShown = getProblemListCorrectChoiceShown(q);
+      const isCorrect = norm(selected) === norm(correctShown);
+
+      problemListChoiceResultMap[String(qId)] = {
+        selected: String(selected),
+        isCorrect
+      };
+
+      problemListAnswerOpenMap[String(qId)] = true;
+
+      renderProblemList();
+      return;
+    }
     const answerBtn = e.target.closest('button[data-action="toggle-one-answer"]');
     if (answerBtn) {
       const qId = answerBtn.getAttribute("data-qid");
