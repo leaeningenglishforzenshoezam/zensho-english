@@ -643,6 +643,45 @@
       padding-right: 6px;
     }
 
+        .problemChoiceBtn {
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+    }
+
+    .problemChoiceBtn:disabled {
+      opacity: 1;
+      cursor: default;
+    }
+
+    .problemChoice.wrong {
+      background: #fff0f0;
+      border-color: #f3b5bf;
+      color: #b00020;
+      font-weight: 700;
+    }
+
+    .problemListMiniResult {
+      margin-top: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .problemListMiniResult.ok {
+      background: #eefaf1;
+      color: #0a7a2f;
+      border: 1px solid #bfe7ca;
+    }
+
+    .problemListMiniResult.ng {
+      background: #fff0f0;
+      color: #b00020;
+      border: 1px solid #f3b5bf;
+    }
+
     @media (max-width: 420px) {
       #choices {
         grid-template-columns: 1fr;
