@@ -353,6 +353,57 @@
       border-radius: 10px;
     }
 
+    #choices button.choiceBtn {
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 16px;
+  line-height: 1.6;
+  white-space: normal;
+  word-break: break-word;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.choiceIndex {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #f2f6ff;
+  color: #2b7cff;
+  font-size: 13px;
+  font-weight: 800;
+  border: 1px solid #d6e4ff;
+  margin-top: 1px;
+}
+
+.choiceText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#choices button.choiceBtn.correct {
+  background: #e8f7e8;
+  border-color: #2e9f4d;
+  color: #156b2e;
+  font-weight: 700;
+}
+
+#choices button.choiceBtn.wrong {
+  background: #fdeaea;
+  border-color: #d94b4b;
+  color: #a11f1f;
+  font-weight: 700;
+}
+
     @media (max-width: 340px) {
       #choices {
         grid-template-columns: 1fr;
@@ -415,6 +466,183 @@
       font-size: 13px;
     }
 
+        .problemListBox {
+      margin-top: 12px;
+    }
+
+    .problemListSummary {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+      margin-top: 6px;
+    }
+
+    .problemListItem {
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 12px;
+      margin: 10px 0;
+      background: #fff;
+    }
+
+    .problemListHead {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .problemListNo {
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .problemListId {
+      font-size: 12px;
+      color: #666;
+      margin-top: 3px;
+    }
+
+    .problemListBadges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .problemField {
+      margin-top: 10px;
+    }
+
+    .problemLabel {
+      font-size: 12px;
+      color: #666;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .problemText {
+      font-size: 14px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .problemChoiceList {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .problemChoice {
+      display: inline-flex;
+      gap: 5px;
+      align-items: center;
+      padding: 5px 8px;
+      border-radius: 999px;
+      border: 1px solid #ddd;
+      background: #fafafa;
+      font-size: 13px;
+    }
+
+    .problemChoice.correct {
+      background: #eefaf1;
+      border-color: #bfe7ca;
+      color: #0a7a2f;
+      font-weight: 700;
+    }
+
+    .problemWeakCheck {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: #fffaf2;
+      border: 1px solid #f0e3c7;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+        .problemListControls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .problemListControls label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #555;
+      font-weight: 700;
+    }
+
+    .problemListControls select {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      background: #fff;
+      font-size: 14px;
+    }
+
+    .problemMaskedCard {
+      border: 1px dashed #d8d8d8;
+      background: #fafafa;
+      border-radius: 12px;
+      padding: 12px;
+      color: #777;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .choiceMeaningBox {
+      margin-top: 10px;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      background: #fcfcfc;
+      padding: 10px;
+    }
+
+    .choiceMeaningRow {
+      display: grid;
+      grid-template-columns: minmax(90px, 1fr) minmax(120px, 1.5fr);
+      gap: 8px;
+      padding: 7px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .choiceMeaningRow:last-child {
+      border-bottom: none;
+    }
+
+    .choiceMeaningWord {
+      font-weight: 800;
+      color: #333;
+    }
+
+    .choiceMeaningJa {
+      color: #555;
+    }
+
+    .choiceMeaningRow.correct {
+      background: #eefaf1;
+      border-radius: 8px;
+      padding-left: 6px;
+      padding-right: 6px;
+    }
+
     @media (max-width: 420px) {
       #choices {
         grid-template-columns: 1fr;
@@ -428,16 +656,18 @@
     <div class="card topNavBox">
       <div class="topNavTitle">学習ページ移動</div>
       <div class="topNav">
-        <a href="index.html">ホーム</a>
-        <a href="study.html">暗記</a>
-        <a href="quiz.html">英→日</a>
-        <a href="quiz_jaen.html">日→英</a>
-        <a href="audio_quiz.html">音声→意味</a>
-        <a href="accent.html">大問1</a>
-        <a href="sentence.html" class="active">大問9</a>
-        <a href="reorder.html">大問12</a>
-        <a href="list.html">一覧</a>
-        <a href="progress.html">進捗</a>
+    <a href="index.html">ホーム</a>
+    <a href="study.html">暗記</a>
+    <a href="quiz.html">英→日</a>
+    <a href="quiz_jaen.html">日→英</a>
+    <a href="audio_quiz.html">音声→意味</a>
+    <a href="idiom_quiz.html">イディオム</a>
+    <a href="accent.html">大問1</a>
+    <a href="sentence.html"class="active">大問9</a>
+    <a href="paraphrase_quiz.html">大問11</a>
+    <a href="reorder.html">大問12</a>
+    <a href="list.html">一覧</a>
+    <a href="progress.html">進捗</a>
       </div>
     </div>
 
@@ -515,6 +745,7 @@
 
       <div class="row" style="justify-content:flex-start; margin-top:12px;">
         <button id="startBtn" class="primary" type="button">開始</button>
+        <button id="openProblemListBtn" type="button">問題一覧を見る</button>
         <button id="startWeakBtn" type="button">ニガテだけ解く</button>
         <button id="clearWeakBtn" class="danger" type="button">ニガテ全消去</button>
       </div>
@@ -551,6 +782,44 @@
       </div>
     </div>
 
+        <div class="card problemListBox" id="problemListBox" style="display:none;">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:700;">大問9 問題一覧</div>
+          <div class="problemListSummary" id="problemListSummary">
+            固定問題の問題文・選択肢・正答・日本語訳を確認できます。
+          </div>
+        </div>
+        <div>
+          <button id="problemListBackBtn" type="button">設定へ戻る</button>
+        </div>
+      </div>
+
+      <div class="problemListControls">
+        <label>
+          表示ブロック
+          <select id="problemListBlockSelect">
+            <option value="all">すべて</option>
+          </select>
+        </label>
+
+        <button id="toggleProblemListAnswersBtn" type="button">正答を隠す</button>
+        <button id="shuffleProblemListBtn" type="button">ランダム表示</button>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="muted" style="margin-bottom:10px;">
+        チェックをONにすると手動ニガテに追加されます。OFFにすると手動ニガテだけ解除します。自動ニガテが残っている場合は、自動ニガテは消えません。
+      </div>
+
+      <div id="problemListEmpty" class="muted" style="display:none;">
+        表示できる問題がありません。
+      </div>
+
+      <div id="problemListBody"></div>
+    </div>
+
     <div class="card" id="playBox" style="display:none;">
       <div class="row">
         <div id="stats" class="muted"></div>
@@ -561,6 +830,8 @@
           <button id="backBtn" type="button">設定へ戻る</button>
         </div>
       </div>
+
+      <div id="questionProgress" class="muted" style="margin-top:8px;"></div>
 
       <div class="hr"></div>
 
@@ -588,6 +859,28 @@
   <button id="summaryBackBtn" type="button">設定画面へ</button>
 </div>
       </div>
+
+      <div class="muted" style="margin-bottom:8px;">
+  今回出た問題一覧です。ボタンで手動ニガテ（ピン留め）の追加・解除ができます。
+</div>
+
+<div id="askedEmpty" class="muted" style="display:none;">結果がありません。</div>
+
+<div style="overflow:auto; margin-bottom:14px;">
+  <table id="askedTable" style="display:none;">
+    <thead>
+      <tr>
+        <th style="width:52px;">#</th>
+        <th>英文 / 日本語訳</th>
+        <th style="width:220px;">判定 / 解答</th>
+        <th style="width:130px;">手動ニガテ</th>
+      </tr>
+    </thead>
+    <tbody id="askedTbody"></tbody>
+  </table>
+</div>
+
+<div class="hr"></div>
 
       <div class="hr"></div>
 
@@ -741,6 +1034,8 @@
     </div>
   </div>
 
-  <script src="sentence.js"></script>
+ <script src="quiz_ui_common.js"></script>
+<script src="quiz_shortcuts.js"></script>
+<script src="sentence.js"></script>
 </body>
 </html>
