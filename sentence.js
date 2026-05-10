@@ -1151,86 +1151,98 @@ for (let i = 0; i < shownChoices.length; i++) {
   }
 
   function handleChoice(choice, clickedBtn) {
-    if (answeredThis) return;
-    answeredThis = true;
+  if (answeredThis) return;
+  answeredThis = true;
 
-    const correctChoiceNorm = currentCorrectChoiceNorm();
-    const isCorrect = (norm(choice) === correctChoiceNorm);
+  const correctChoiceNorm = currentCorrectChoiceNorm();
+  const isCorrect = (norm(choice) === correctChoiceNorm);
 
-    session.answered += 1;
-    addLearningLog(isCorrect);
+  session.answered += 1;
+  addLearningLog(isCorrect);
 
-    const weakMapBefore = loadWeakMap();
-    const wasWeak = !!weakMapBefore[String(current.id)];
+  // ★先に次へ進める状態にしておく
+  // 不正解時の弱点登録や解説表示の途中でエラーが出ても、次へ進めるようにする
+  nextBtn.disabled = false;
+  hintBtn.disabled = true;
+  setHintVisible(false);
 
-    if (isCorrect) {
-      session.correct += 1;
-      resultEl.innerHTML = `<span class="ok">⭕️ 正解！</span>`;
+  const weakMapBefore = loadWeakMap();
+  const wasWeak = !!weakMapBefore[String(current.id)];
+
+  if (isCorrect) {
+    session.correct += 1;
+    resultEl.innerHTML = `<span class="ok">⭕️ 正解！</span>`;
+
+    if (clickedBtn) {
       clickedBtn.classList.add("correct");
-      playCorrectSound();
+    }
 
-      addSentenceGoimonProgress();
-    } else {
-      const show = currentCorrectChoiceShown();
-      resultEl.innerHTML = `<span class="ng">❌ 不正解。</span> 正解は「${show}」`;
+    playCorrectSound();
+    addSentenceGoimonProgress();
+
+  } else {
+    const show = currentCorrectChoiceShown();
+    resultEl.innerHTML = `<span class="ng">❌ 不正解。</span> 正解は「${escapeHtml(show)}」`;
+
+    if (clickedBtn) {
       clickedBtn.classList.add("wrong");
-      playWrongSound();
-      markCorrectButtonGreen(correctChoiceNorm);
-
-      addAutoWeak(current.id);
-      pushWeakToEnJa(current.answer, 1);
-
-      updateWeakInfo();
-      renderWeakManagement();
     }
 
-    if (current.blockId) {
-      addGlobalSentence(current.blockId, isCorrect);
-    }
+    playWrongSound();
+    markCorrectButtonGreen(correctChoiceNorm);
 
-    if (session.mode === "weak" && isCorrect && wasWeak) {
-      removeAutoIfNotPinned(current.id);
-      updateWeakInfo();
-      renderWeakManagement();
-    }
+    addAutoWeak(current.id);
+    pushWeakToEnJa(current.answer, 1);
 
-    lockChoices();
-
-    const fullJa = String(current.ja || "").trim();
-    const note = String(current.note || "").trim();
-    const meanings = buildChoiceMeanings(current._shownChoices || current.choices);
-
-    let text = `【全文訳】\n${fullJa || "（なし）"}\n\n`;
-    if (note) text += `【注釈】\n${note}\n\n`;
-    text += `【選択肢の意味】\n${meanings}`;
-
-    detailEl.innerHTML = `<pre class="pre">${escapeHtml(text)}</pre>`;
-
-    const correctShown = currentCorrectChoiceShown();
-    askedLog.push({
-      qId: current.id,
-      en: current.en,
-      ja: current.ja,
-      yourChoice: String(choice),
-      correctChoice: String(correctShown),
-      isCorrect,
-      blockId: current.blockId
-    });
-
-    nextBtn.disabled = false;
-    hintBtn.disabled = true;
-    setHintVisible(false);
-    renderStats();
-    renderEvolutionNotice();
-
-    if (session.autoRead) {
-      try {
-        setTimeout(() => {
-          speakCurrentAnsweredVersion();
-        }, 250);
-      } catch {}
-    }
+    updateWeakInfo();
+    renderWeakManagement();
   }
+
+  if (current.blockId) {
+    addGlobalSentence(current.blockId, isCorrect);
+  }
+
+  if (session.mode === "weak" && isCorrect && wasWeak) {
+    removeAutoIfNotPinned(current.id);
+    updateWeakInfo();
+    renderWeakManagement();
+  }
+
+  lockChoices();
+
+  const fullJa = String(current.ja || "").trim();
+  const note = String(current.note || "").trim();
+  const meanings = buildChoiceMeanings(current._shownChoices || current.choices);
+
+  let text = `【全文訳】\n${fullJa || "（なし）"}\n\n`;
+  if (note) text += `【注釈】\n${note}\n\n`;
+  text += `【選択肢の意味】\n${meanings}`;
+
+  detailEl.innerHTML = `<pre class="pre">${escapeHtml(text)}</pre>`;
+
+  const correctShown = currentCorrectChoiceShown();
+
+  askedLog.push({
+    qId: current.id,
+    en: current.en,
+    ja: current.ja,
+    yourChoice: String(choice),
+    correctChoice: String(correctShown),
+    isCorrect,
+    blockId: current.blockId
+  });
+
+  renderStats();
+  renderEvolutionNotice();
+
+  if (session.autoRead) {
+    try {
+      setTimeout(() => {
+        speakCurrentAnsweredVersion();
+      }, 250);
+    } catch {}
+  }
+}
 
   function blockSelectLabel(v) {
     if (v === "all") return "全範囲";
