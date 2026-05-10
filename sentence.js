@@ -68,6 +68,10 @@ const wrongTable = document.getElementById("wrongTable");
 const wrongTbody = document.getElementById("wrongTbody");
 
   const refreshWeakViewBtn = document.getElementById("refreshWeakView");
+  const weakAutoListEl = document.getElementById("weakAutoList");
+const weakAutoEmptyEl = document.getElementById("weakAutoEmpty");
+const weakPinListEl = document.getElementById("weakPinList");
+const weakPinEmptyEl = document.getElementById("weakPinEmpty");
   let problemListBox = document.getElementById("problemListBox");
   let problemListBackBtn = document.getElementById("problemListBackBtn");
   let problemListSummary = document.getElementById("problemListSummary");
@@ -273,6 +277,10 @@ const wrongTbody = document.getElementById("wrongTbody");
     [wrongTable, "wrongTable"],
     [wrongTbody, "wrongTbody"],
     [refreshWeakViewBtn, "refreshWeakView"],
+    [weakAutoListEl, "weakAutoList"],
+[weakAutoEmptyEl, "weakAutoEmpty"],
+[weakPinListEl, "weakPinList"],
+[weakPinEmptyEl, "weakPinEmpty"],
     [problemListBox, "problemListBox"],
     [problemListBackBtn, "problemListBackBtn"],
     [problemListSummary, "problemListSummary"],
@@ -2372,65 +2380,52 @@ function renderSummary(autoCleared) {
   }
 }
 
-  init();
-  function isTypingTarget(target) {
-  if (!target) return false;
-  const tag = String(target.tagName || "").toLowerCase();
-  return tag === "input" || tag === "textarea" || tag === "select" || target.isContentEditable;
-}
+init();
 
 document.addEventListener("keydown", (e) => {
-  if (isTypingTarget(e.target)) return;
-  if (playBox.style.display === "none") return;
+  const activeTag = document.activeElement ? document.activeElement.tagName : "";
+
+  // 入力欄・セレクト操作中はショートカットを無効にする
+  if (["INPUT", "SELECT", "TEXTAREA"].includes(activeTag)) return;
+
+  // 大問9の演習中だけ有効
   if (!current) return;
+  if (!playBox || playBox.style.display === "none") return;
 
   const key = e.key;
 
-  if (!answeredThis) {
-    if (key === "1" || key === "2" || key === "3" || key === "4") {
-      const btns = choicesEl.querySelectorAll("button");
-      const btn = btns[Number(key) - 1];
+  // 未解答時：1〜4で選択肢を選ぶ
+  if (!answeredThis && /^[1-4]$/.test(key)) {
+    const btns = choicesEl.querySelectorAll("button");
+    const btn = btns[Number(key) - 1];
 
-      if (btn && !btn.disabled) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        btn.click();
-      }
+    if (btn && !btn.disabled) {
+      e.preventDefault();
+      btn.click();
     }
 
     return;
   }
 
+  // 解答後：Enter / Space / → / ↓ で次へ
   const isNextKey =
-    key === "ArrowRight" ||
-    key === "ArrowDown" ||
     key === "Enter" ||
     key === " " ||
-    key === "Spacebar";
+    key === "Spacebar" ||
+    key === "ArrowRight" ||
+    key === "ArrowDown";
 
-  if (isNextKey && !nextBtn.disabled) {
+  if (isNextKey && answeredThis && !nextBtn.disabled) {
     e.preventDefault();
-    e.stopImmediatePropagation();
     nextBtn.click();
+    return;
   }
-}, true);
-  if (window.QuizShortcuts && typeof window.QuizShortcuts.register === "function") {
-  window.QuizShortcuts.register({
-    isActive: () => playBox.style.display !== "none" && !!current,
-    canAnswer: () => playBox.style.display !== "none" && !!current && !answeredThis,
-    canNext: () => playBox.style.display !== "none" && answeredThis && !nextBtn.disabled,
-    canSpeak: () => playBox.style.display !== "none" && !!current,
-    onAnswer: (index) => {
-      const btns = choicesEl.querySelectorAll("button");
-      const btn = btns[index - 1];
-      if (btn) btn.click();
-    },
-    onNext: () => {
-      if (!nextBtn.disabled) nextBtn.click();
-    },
-    onSpeak: () => {
-      if (current) readBtn.click();
-    }
-  });
-}
+
+  // Vで読み上げ
+  if (key.toLowerCase() === "v") {
+    e.preventDefault();
+    readBtn.click();
+  }
+});
+
 });
