@@ -1610,8 +1610,19 @@ function getProblemListMeaningMap() {
 }
 
 function getChoiceMeaning(choice) {
+  const word = String(choice || "").trim();
+  if (!word) return "意味データ未登録";
+
+  // クイズ中の解説と同じ処理を使う
+  // painted → paint、needs → need、children などの不規則形の一部にも対応
+  if (typeof meaningForForm === "function") {
+    const m = meaningForForm(word);
+    if (m && m !== "(未登録)") return m;
+  }
+
+  // 念のため、問題一覧専用の辞書Mapも見る
   const map = getProblemListMeaningMap();
-  const key = normalizeMeaningKey(choice);
+  const key = normalizeMeaningKey(word);
 
   return map.get(key) || "意味データ未登録";
 }
