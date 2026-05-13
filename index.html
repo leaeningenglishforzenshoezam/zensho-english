@@ -940,22 +940,34 @@
       window.GoimonDexUI.init();
     }
 
-    window.addEventListener("pageshow", () => {
-      updateStatus();
-      renderLevel();
-    });
+   function refreshHomeView() {
+  updateStatus();
+  renderLevel();
 
-    document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) {
-        updateStatus();
-        renderLevel();
-      }
-    });
+  if (window.GoimonUI && typeof window.GoimonUI.renderHome === "function") {
+    window.GoimonUI.renderHome();
+  }
 
-    window.addEventListener("focus", () => {
-      updateStatus();
-      renderLevel();
-    });
+  if (window.GoimonDexUI && typeof window.GoimonDexUI.renderTree === "function") {
+    window.GoimonDexUI.renderTree();
+  }
+
+  applyGoimonDetailAnimation();
+}
+
+window.addEventListener("pageshow", () => {
+  refreshHomeView();
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) {
+    refreshHomeView();
+  }
+});
+
+window.addEventListener("focus", () => {
+  refreshHomeView();
+});
   </script>
 </body>
 </html>
