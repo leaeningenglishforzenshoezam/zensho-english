@@ -1071,23 +1071,44 @@ function shouldPreserveLegacyMrUnoUnlock() {
   }
 
 function isMrUnoUnlocked() {
-  if (isMrUnoPermanentlyUnlocked()) return true;
+  const g = ensureCurrent();
 
-  // 旧条件ですでに解放済みだった学習者は、そのまま保持
-  if (shouldPreserveLegacyMrUnoUnlock()) {
-    setMrUnoPermanentlyUnlocked(true);
+  // すでに現在の個体がMR.UNOとして育成中なら、その個体だけは継続を許可する
+  // ※ 途中で通常ルートに戻ってしまうのを防ぐ
+  const currentIsMrUno =
+    g &&
+    (
+      g.type === "mr_uno" ||
+      g.specialRoute === "mr_uno" ||
+      (Array.isArray(g.evolutionHistory) && g.evolutionHistory.some(h => h.type === "mr_uno"))
+    ) &&
+    g.stage !== "egg";
+
+  if (currentIsMrUno) {
     return true;
   }
 
   // 新条件：
-  // MR.UNO 以外の別種類の最終形態を 5 種類達成したら解放
+  // MR.UNO以外の別種類の最終形態を5種類達成したら、新しいたまごでMR.UNOルートを解放
   const unlocked = countDistinctFinalTypesForMrUno() >= 5;
 
   if (unlocked) {
     setMrUnoPermanentlyUnlocked(true);
+    return true;
   }
 
-  return unlocked;
+  // 条件未達なら、過去に保存されたMR.UNO解放フラグだけを無効化する
+  // ※ ゴイモン本体・保存箱・図鑑・学習履歴は消さない
+  setMrUnoPermanentlyUnlocked(false);
+
+  // まだMR.UNOに進化していない「たまご」だけ、選択中のMR.UNOルートを解除する
+  // ※ すでにMR.UNOとして育っている個体は消さない
+  if (g && g.stage === "egg" && g.specialRoute === "mr_uno") {
+    g.specialRoute = "";
+    saveCurrent(g);
+  }
+
+  return false;
 }
 
   function renderSpecialRouteBanner(g) {
