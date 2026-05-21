@@ -1,1744 +1,1017 @@
-(function () {
-  "use strict";
-
-  const DATA_LEVEL = 1;
-  const UI_LEVEL = window.ACTIVE_LEVEL || "1";
-  const URL_PARAMS = new URLSearchParams(window.location.search);
-
-    const STORAGE_KEYS = {
-    weakMeaning: `zensho_idiom_quiz_weak_meaning_v1_lv${DATA_LEVEL}`,
-    weakSynonym: `zensho_idiom_quiz_weak_synonym_v1_lv${DATA_LEVEL}`,
-    weakExpressionFromMeaning: `zensho_idiom_quiz_weak_expression_from_meaning_v1_lv${DATA_LEVEL}`,
-    manualWeak: `zensho_idiom_quiz_manual_weak_v1_lv${DATA_LEVEL}`,
-    cursorMeaning: `zensho_idiom_quiz_cursor_meaning_v1_lv${DATA_LEVEL}`,
-    cursorSynonym: `zensho_idiom_quiz_cursor_synonym_v1_lv${DATA_LEVEL}`,
-    cursorExpressionFromMeaning: `zensho_idiom_quiz_cursor_expression_from_meaning_v1_lv${DATA_LEVEL}`,
-    settings: `zensho_idiom_quiz_settings_v3_lv${DATA_LEVEL}`,
-    listUi: `zensho_idiom_quiz_list_ui_v1_lv${DATA_LEVEL}`
-  };
-
-  const DEFAULT_SETTINGS = {
-    questionMode: "meaning",
-    questionCount: "10",
-    quizMode: "order",
-    autoRead: false
-  };
-
-  const RAW_DATA = Array.isArray(window.IDIOM_DATA_1KYU) ? window.IDIOM_DATA_1KYU.slice() : [];
-  const DATA = RAW_DATA.map(function (item, index) {
-    return {
-      ...item,
-      displayNo: Number(item.displayNo) || (index + 1)
-    };
-  });
-
-  const el = {
-    levelBadge: document.getElementById("levelBadge"),
-
-    setupBox: document.getElementById("setupBox"),
-    focusIdiomBox: document.getElementById("focusIdiomBox"),
-    focusIdiomLine: document.getElementById("focusIdiomLine"),
-    focusIdiomExpression: document.getElementById("focusIdiomExpression"),
-    focusIdiomJa: document.getElementById("focusIdiomJa"),
-    focusIdiomSynonym: document.getElementById("focusIdiomSynonym"),
-    focusIdiomAntonym: document.getElementById("focusIdiomAntonym"),
-    focusIdiomLinks: document.getElementById("focusIdiomLinks"),
-    focusIdiomNote: document.getElementById("focusIdiomNote"),
-    focusMeaningBtn: document.getElementById("focusMeaningBtn"),
-    focusSynonymBtn: document.getElementById("focusSynonymBtn"),
-    focusIdiomClearBtn: document.getElementById("focusIdiomClearBtn"),
-
-    problemListBox: document.getElementById("problemListBox"),
-    weakListBox: document.getElementById("weakListBox"),
-    playBox: document.getElementById("playBox"),
-    summaryBox: document.getElementById("summaryBox"),
-
-    questionMode: document.getElementById("questionMode"),
-    questionCount: document.getElementById("questionCount"),
-    quizMode: document.getElementById("quizMode"),
-    autoRead: document.getElementById("autoRead"),
-    poolInfo: document.getElementById("poolInfo"),
-
-    startBtn: document.getElementById("startBtn"),
-    openProblemListBtn: document.getElementById("openProblemListBtn"),
-    openWeakListBtn: document.getElementById("openWeakListBtn"),
-
-    problemListBackBtn: document.getElementById("problemListBackBtn"),
-    weakListBackBtn: document.getElementById("weakListBackBtn"),
-
-    problemList: document.getElementById("problemList"),
-    problemListEmpty: document.getElementById("problemListEmpty"),
-
-    weakList: document.getElementById("weakList"),
-    weakListEmpty: document.getElementById("weakListEmpty"),
-
-    problemMaskMeaningBtn: document.getElementById("problemMaskMeaningBtn"),
-    problemMaskSynonymBtn: document.getElementById("problemMaskSynonymBtn"),
-    weakMaskMeaningBtn: document.getElementById("weakMaskMeaningBtn"),
-    weakMaskSynonymBtn: document.getElementById("weakMaskSynonymBtn"),
-
-    stats: document.getElementById("stats"),
-    questionNoLine: document.getElementById("questionNoLine"),
-    expressionText: document.getElementById("expressionText"),
-    questionModeBadge: document.getElementById("questionModeBadge"),
-    choicesBox: document.getElementById("choicesBox"),
-    feedbackBox: document.getElementById("feedbackBox"),
-    feedbackQuick: document.getElementById("feedbackQuick"),
-    feedbackDetail: document.getElementById("feedbackDetail"),
-    detailToggleBtn: document.getElementById("detailToggleBtn"),
-    readBtn: document.getElementById("readBtn"),
-    jumpParaphraseBtn: document.getElementById("jumpParaphraseBtn"),
-    nextBtn: document.getElementById("nextBtn"),
-    nextBtnBottom: document.getElementById("nextBtnBottom"),
-    backBtn: document.getElementById("backBtn"),
-
-    summaryLine: document.getElementById("summaryLine"),
-    resultScore: document.getElementById("resultScore"),
-    wrongList: document.getElementById("wrongList"),
-    wrongEmpty: document.getElementById("wrongEmpty"),
-    askedList: document.getElementById("askedList"),
-
-    retrySetBtnTop: document.getElementById("retrySetBtnTop"),
-    continueBtn: document.getElementById("continueBtn"),
-    summaryBackBtn: document.getElementById("summaryBackBtn"),
-
-    toggleGoimon: document.getElementById("toggleGoimon"),
-    goimonCard: document.getElementById("goimonCard"),
-    evolutionNoticeBtn: document.getElementById("evolutionNoticeBtn")
-  };
-
-  const state = {
-    questionMode: "meaning",
-    mode: "order",
-    sessionItems: [],
-    currentIndex: 0,
-    score: 0,
-    answered: false,
-    results: [],
-    lastSessionItems: [],
-    focusIdFromQuery: URL_PARAMS.get("focusId") || "",
-focusNoteIdsFromQuery: (URL_PARAMS.get("noteIds") || URL_PARAMS.get("noteId") || "")
-  .split(",")
-  .map(function (v) { return String(v || "").trim().toUpperCase(); })
-  .filter(Boolean)
-  };
-
-  function readJSON(key, fallbackValue) {
-    try {
-      const raw = localStorage.getItem(key);
-      if (!raw) return fallbackValue;
-      return JSON.parse(raw);
-    } catch (err) {
-      return fallbackValue;
-    }
-  }
-
-  function writeJSON(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
-  }
-
-  function shuffle(array) {
-    const arr = array.slice();
-    for (let i = arr.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const temp = arr[i];
-      arr[i] = arr[j];
-      arr[j] = temp;
-    }
-    return arr;
-  }
-
-  function supportsSpeech() {
-    return "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
-  }
-
-  function speak(text) {
-    if (!supportsSpeech()) return;
-    try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(String(text || ""));
-      utterance.lang = "en-US";
-      utterance.rate = 1;
-      window.speechSynthesis.speak(utterance);
-    } catch (err) {}
-  }
-
-  function modeLabel(mode) {
-    if (mode === "order") return "順番";
-    if (mode === "order_continue") return "続きから";
-    if (mode === "random") return "ランダム";
-    if (mode === "weak") return "ニガテ順";
-    if (mode === "linked") return "関連問題";
-    return mode;
-  }
-
-    function questionModeLabel(questionMode) {
-    if (questionMode === "meaning") return "意味を選ぶ";
-    if (questionMode === "synonym") return "同義表現を選ぶ";
-    if (questionMode === "expression_from_meaning") return "英語表現を選ぶ";
-    return questionMode;
-  }
-
-  function escapeHtml(value) {
-    return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  }
-
-  function normalizeStringArray(value) {
-    if (Array.isArray(value)) {
-      return Array.from(new Set(
-        value
-          .map(function (v) { return String(v || "").trim(); })
-          .filter(Boolean)
-      ));
-    }
-    if (value == null) return [];
-    const s = String(value).trim();
-    return s ? [s] : [];
-  }
-
-  function getNoteIdList(item) {
-    if (!item) return [];
-    if (Array.isArray(item.noteIds)) return normalizeStringArray(item.noteIds);
-    if (Array.isArray(item.noteId)) return normalizeStringArray(item.noteId);
-    return normalizeStringArray(item.noteId);
-  }
-
-  function getSynonymList(item) {
-    if (!item) return [];
-    return normalizeStringArray(item.paraphraseTo);
-  }
-
-  function getAntonymList(item) {
-    if (!item) return [];
-    return normalizeStringArray(item.antonyms);
-  }
-
-  function getNoteText(item) {
-    return String((item && item.note) || "").trim();
-  }
-
-  function formatTextList(list, emptyText) {
-    const arr = normalizeStringArray(list);
-    return arr.length ? arr.join(" / ") : (emptyText || "なし");
-  }
-
-  function formatSynonyms(item) {
-    return formatTextList(getSynonymList(item), "なし");
-  }
-
-  function formatAntonyms(item) {
-    return formatTextList(getAntonymList(item), "なし");
-  }
-
-  function formatNoteIds(item) {
-    return formatTextList(getNoteIdList(item), "なし");
-  }
-
-    function normalizeCompareText(value) {
-    return String(value || "").trim().toLowerCase();
-  }
-
-  function findItemsUsingSynonymText(text, excludeId) {
-    const key = normalizeCompareText(text);
-    if (!key) return [];
-
-    return DATA.filter(function (item) {
-      if (excludeId && item.id === excludeId) return false;
-
-      return getSynonymList(item).some(function (syn) {
-        return normalizeCompareText(syn) === key;
-      });
-    });
-  }
-
-  function formatExpressionHintsFromSynonym(text, excludeId) {
-    const items = findItemsUsingSynonymText(text, excludeId);
-    if (!items.length) return "";
-
-    return items.map(function (item) {
-      const noteIds = getNoteIdList(item);
-      const noteLabel = noteIds.length ? `（${noteIds.join(", ")}）` : "";
-      return `${item.expression}${noteLabel}`;
-    }).join(" / ");
-  }
-
-  function getItemById(itemId) {
-    return DATA.find(function (item) {
-      return item.id === itemId;
-    }) || null;
-  }
-
-  function getItemsByNoteIds(noteIds) {
-  const targets = Array.isArray(noteIds) ? noteIds : [];
-  if (!targets.length) return [];
-
-  return DATA.filter(function (item) {
-    const ids = normalizeStringArray(item.noteIds || item.noteId)
-      .map(function (v) { return String(v || "").trim().toUpperCase(); });
-
-    return ids.some(function (id) {
-      return targets.indexOf(id) !== -1;
-    });
-  });
-}
-
-    function getWeakKey(questionMode) {
-    if (questionMode === "synonym") return STORAGE_KEYS.weakSynonym;
-    if (questionMode === "expression_from_meaning") return STORAGE_KEYS.weakExpressionFromMeaning;
-    return STORAGE_KEYS.weakMeaning;
-  }
-
-    function getCursorKey(questionMode) {
-    if (questionMode === "synonym") return STORAGE_KEYS.cursorSynonym;
-    if (questionMode === "expression_from_meaning") return STORAGE_KEYS.cursorExpressionFromMeaning;
-    return STORAGE_KEYS.cursorMeaning;
-  }
-
-  function getWeakMap(questionMode) {
-    const raw = readJSON(getWeakKey(questionMode), {});
-    if (!raw || typeof raw !== "object") return {};
-    return raw;
-  }
-
-  function saveWeakMap(questionMode, map) {
-    writeJSON(getWeakKey(questionMode), map);
-  }
-
-  function incrementWeak(questionMode, id) {
-    const weakMap = getWeakMap(questionMode);
-    weakMap[id] = (weakMap[id] || 0) + 1;
-    saveWeakMap(questionMode, weakMap);
-  }
-
-  function getManualWeakMap() {
-    const raw = readJSON(STORAGE_KEYS.manualWeak, {});
-    if (!raw || typeof raw !== "object") return {};
-    return raw;
-  }
-
-  function saveManualWeakMap(map) {
-    writeJSON(STORAGE_KEYS.manualWeak, map);
-  }
-
-  function isManualWeak(id) {
-    const map = getManualWeakMap();
-    return !!map[id];
-  }
-
-  function toggleManualWeak(id) {
-    const map = getManualWeakMap();
-    if (map[id]) {
-      delete map[id];
-    } else {
-      map[id] = true;
-    }
-    saveManualWeakMap(map);
-  }
-
-  function getListUiMap() {
-    const raw = readJSON(STORAGE_KEYS.listUi, {});
-    if (!raw || typeof raw !== "object") return {};
-    return raw;
-  }
-
-  function saveListUiMap(map) {
-    writeJSON(STORAGE_KEYS.listUi, map);
-  }
-
-  function isMeaningMasked(id) {
-    const map = getListUiMap();
-    return !!(map[id] && map[id].meaningMasked);
-  }
-
-  function isSynonymMasked(id) {
-    const map = getListUiMap();
-    return !!(map[id] && map[id].synonymMasked);
-  }
-
-  function setMeaningMasked(id, value) {
-    const map = getListUiMap();
-    map[id] = map[id] || {};
-    map[id].meaningMasked = !!value;
-    saveListUiMap(map);
-  }
-
-  function setSynonymMasked(id, value) {
-    const map = getListUiMap();
-    map[id] = map[id] || {};
-    map[id].synonymMasked = !!value;
-    saveListUiMap(map);
-  }
-
-  function getProblemListTargetIds() {
-    return DATA.map(function (item) {
-      return item.id;
-    });
-  }
-
-  function getWeakListTargetIds() {
-    const questionMode = el.questionMode.value;
-    const weakMap = getWeakMap(questionMode);
-    const manualWeakMap = getManualWeakMap();
-
-    return getAvailableDataForMode(questionMode)
-      .filter(function (item) {
-        return (weakMap[item.id] || 0) > 0 || !!manualWeakMap[item.id];
-      })
-      .map(function (item) {
-        return item.id;
-      });
-  }
-
-  function areAllMeaningMasked(ids) {
-    if (!ids.length) return false;
-    return ids.every(function (id) {
-      return isMeaningMasked(id);
-    });
-  }
-
-  function areAllSynonymMasked(ids) {
-    if (!ids.length) return false;
-    return ids.every(function (id) {
-      return isSynonymMasked(id);
-    });
-  }
-
-  function setMeaningMaskedForIds(ids, value) {
-    const map = getListUiMap();
-    ids.forEach(function (id) {
-      map[id] = map[id] || {};
-      map[id].meaningMasked = !!value;
-    });
-    saveListUiMap(map);
-  }
-
-  function setSynonymMaskedForIds(ids, value) {
-    const map = getListUiMap();
-    ids.forEach(function (id) {
-      map[id] = map[id] || {};
-      map[id].synonymMasked = !!value;
-    });
-    saveListUiMap(map);
-  }
-
-  function updateBulkMaskButtonLabels() {
-    const problemIds = getProblemListTargetIds();
-    const weakIds = getWeakListTargetIds();
-
-    if (el.problemMaskMeaningBtn) {
-      el.problemMaskMeaningBtn.textContent = areAllMeaningMasked(problemIds)
-        ? "意味を一括表示"
-        : "意味を一括で隠す";
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>イディオムクイズ（全商英検）</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
+      background:#f7f7f7;
+      margin:0;
+      color:#111;
     }
 
-    if (el.problemMaskSynonymBtn) {
-      el.problemMaskSynonymBtn.textContent = areAllSynonymMasked(problemIds)
-        ? "同義表現を一括表示"
-        : "同義表現を一括で隠す";
+    .wrap {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 16px 12px 24px;
     }
 
-    if (el.weakMaskMeaningBtn) {
-      el.weakMaskMeaningBtn.textContent = areAllMeaningMasked(weakIds)
-        ? "意味を一括表示"
-        : "意味を一括で隠す";
+    .card {
+      background:#fff;
+      border:1px solid #ddd;
+      border-radius:12px;
+      padding:14px;
+      margin: 12px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
-    if (el.weakMaskSynonymBtn) {
-      el.weakMaskSynonymBtn.textContent = areAllSynonymMasked(weakIds)
-        ? "同義表現を一括表示"
-        : "同義表現を一括で隠す";
-    }
-  }
-
-  function toggleBulkMeaning(ids) {
-    if (!ids.length) return;
-    const nextValue = !areAllMeaningMasked(ids);
-    setMeaningMaskedForIds(ids, nextValue);
-    refreshVisibleLists();
-  }
-
-  function toggleBulkSynonym(ids) {
-    if (!ids.length) return;
-    const nextValue = !areAllSynonymMasked(ids);
-    setSynonymMaskedForIds(ids, nextValue);
-    refreshVisibleLists();
-  }
-
-  function getCursor(questionMode) {
-    const raw = Number(localStorage.getItem(getCursorKey(questionMode)) || "0");
-    if (!Number.isFinite(raw) || raw < 0) return 0;
-    return Math.floor(raw);
-  }
-
-  function setCursor(questionMode, value) {
-    localStorage.setItem(getCursorKey(questionMode), String(value));
-  }
-
-  function getSavedSettings() {
-    const saved = readJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
-    return {
-      questionMode: saved.questionMode || DEFAULT_SETTINGS.questionMode,
-      questionCount: saved.questionCount || DEFAULT_SETTINGS.questionCount,
-      quizMode: saved.quizMode || DEFAULT_SETTINGS.quizMode,
-      autoRead: !!saved.autoRead
-    };
-  }
-
-  function saveCurrentSettings() {
-    const settings = {
-      questionMode: el.questionMode.value,
-      questionCount: el.questionCount.value,
-      quizMode: el.quizMode.value,
-      autoRead: el.autoRead.checked
-    };
-    writeJSON(STORAGE_KEYS.settings, settings);
-  }
-
-  function countToNumber(value, maxCount) {
-    if (value === "all") return maxCount;
-    const num = Number(value);
-    if (!Number.isFinite(num) || num <= 0) return Math.min(10, maxCount);
-    return Math.min(num, maxCount);
-  }
-
-  function hasUsableSynonym(item) {
-    return getSynonymList(item).length > 0;
-  }
-
-  function getAvailableDataForMode(questionMode) {
-    if (questionMode === "synonym") {
-      return DATA.filter(hasUsableSynonym);
-    }
-    return DATA.slice();
-  }
-
-  function getSessionItems(questionMode, mode, count) {
-    const base = getAvailableDataForMode(questionMode).map(function (item, index) {
-      return {
-        ...item,
-        _index: index
-      };
-    });
-
-    if (mode === "random") {
-      return shuffle(base).slice(0, count);
+    .muted {
+      color:#666;
+      font-size: 13px;
+      line-height: 1.6;
     }
 
-    if (mode === "weak") {
-      const weakMap = getWeakMap(questionMode);
-      const manualWeakMap = getManualWeakMap();
-
-      return base
-        .slice()
-        .sort(function (a, b) {
-          const manualA = manualWeakMap[a.id] ? 1 : 0;
-          const manualB = manualWeakMap[b.id] ? 1 : 0;
-          if (manualA !== manualB) return manualB - manualA;
-
-          const weakA = weakMap[a.id] || 0;
-          const weakB = weakMap[b.id] || 0;
-          if (weakA !== weakB) return weakB - weakA;
-
-          return a._index - b._index;
-        })
-        .slice(0, count);
+    .row {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:space-between;
     }
 
-    if (mode === "order_continue") {
-      const cursor = base.length ? (getCursor(questionMode) % base.length) : 0;
-      const ordered = base.slice(cursor).concat(base.slice(0, cursor));
-      return ordered.slice(0, count);
+    button {
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid #ddd;
+      background:#fff;
+      cursor:pointer;
+      font-size: 15px;
     }
 
-    return base.slice(0, count);
-  }
-
-    function getCorrectAnswerText(question, questionMode) {
-    if (questionMode === "synonym") {
-      if (question._currentCorrectText) return question._currentCorrectText;
-      const syns = getSynonymList(question);
-      return syns[0] || "";
+    button.primary {
+      background:#2b7cff;
+      border-color:#2b7cff;
+      color:#fff;
+      font-weight:700;
     }
 
-    if (questionMode === "expression_from_meaning") {
-      question._currentCorrectText = question.expression || "";
-      return question.expression || "";
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
-    return question.ja || "";
-  }
-
-   function getChoicesForQuestion(question, questionMode) {
-    if (questionMode === "synonym") {
-      const correctCandidates = getSynonymList(question);
-      const correct = shuffle(correctCandidates)[0] || "";
-      question._currentCorrectText = correct;
-
-      const wrongPool = Array.from(new Set(
-        getAvailableDataForMode(questionMode)
-          .filter(function (item) { return item.id !== question.id; })
-          .flatMap(function (item) { return getSynonymList(item); })
-          .map(function (text) { return String(text || "").trim(); })
-          .filter(function (text) { return text && text !== correct; })
-      ));
-
-      const selectedWrong = shuffle(wrongPool).slice(0, 3);
-      return shuffle([correct].concat(selectedWrong));
+    .hr {
+      height:1px;
+      background:#eee;
+      margin:12px 0;
     }
 
-    if (questionMode === "expression_from_meaning") {
-      const correct = String(question.expression || "").trim();
-      question._currentCorrectText = correct;
-
-      const wrongPool = Array.from(new Set(
-        DATA
-          .filter(function (item) { return item.id !== question.id; })
-          .map(function (item) { return String(item.expression || "").trim(); })
-          .filter(function (text) { return text && text !== correct; })
-      ));
-
-      const selectedWrong = shuffle(wrongPool).slice(0, 3);
-      return shuffle([correct].concat(selectedWrong));
+    select, input[type="number"] {
+      padding:10px 10px;
+      border-radius:10px;
+      border:1px solid #ddd;
+      font-size: 16px;
     }
 
-    question._currentCorrectText = question.ja || "";
-    const correct = question.ja || "";
-
-    const wrongPool = Array.from(new Set(
-      DATA
-        .filter(function (item) { return item.id !== question.id; })
-        .map(function (item) { return String(item.ja || "").trim(); })
-        .filter(function (text) { return text && text !== correct; })
-    ));
-
-    const selectedWrong = shuffle(wrongPool).slice(0, 3);
-    return shuffle([correct].concat(selectedWrong));
-  }
-
-  function hideAllMainBoxes() {
-    el.setupBox.classList.add("hidden");
-    el.problemListBox.classList.add("hidden");
-    el.weakListBox.classList.add("hidden");
-    el.playBox.classList.add("hidden");
-    el.summaryBox.classList.add("hidden");
-    if (el.focusIdiomBox) {
-      el.focusIdiomBox.classList.add("hidden");
-    }
-  }
-
-  function refreshFocusIdiomBox() {
-  if (!el.focusIdiomBox) return;
-
-  if (el.setupBox.classList.contains("hidden")) {
-    el.focusIdiomBox.classList.add("hidden");
-    return;
-  }
-
-  let item = null;
-  let lineText = "";
-
-  if (state.focusIdFromQuery) {
-    item = getItemById(state.focusIdFromQuery);
-    lineText = "大問11風ページから関連表現として開きました。";
-  } else if (state.focusNoteIdsFromQuery && state.focusNoteIdsFromQuery.length) {
-    const relatedItems = getItemsByNoteIds(state.focusNoteIdsFromQuery);
-    item = relatedItems[0] || null;
-
-    if (relatedItems.length >= 2) {
-      lineText =
-        `大問11番号 ${state.focusNoteIdsFromQuery.join(", ")} に対応するイディオム ${relatedItems.length} 件のうち、先頭の1件を表示しています。`;
-    } else {
-      lineText =
-        `大問11番号 ${state.focusNoteIdsFromQuery.join(", ")} に対応するイディオムです。`;
-    }
-  }
-
-  if (!item) {
-    el.focusIdiomBox.classList.add("hidden");
-    return;
-  }
-
-  el.focusIdiomLine.textContent = lineText;
-  el.focusIdiomExpression.textContent = `No.${item.displayNo}　${item.expression}`;
-  el.focusIdiomJa.textContent = `意味：${item.ja}`;
-  el.focusIdiomSynonym.textContent = `同義表現：${formatSynonyms(item)}`;
-  el.focusIdiomAntonym.textContent = `対義表現：${formatAntonyms(item)}`;
-  el.focusIdiomLinks.textContent = `対応番号：${formatNoteIds(item)}`;
-  el.focusIdiomNote.textContent = `メモ：${getNoteText(item) || "なし"}`;
-  el.focusIdiomBox.classList.remove("hidden");
-
-  if (el.focusSynonymBtn) {
-    el.focusSynonymBtn.disabled = !hasUsableSynonym(item);
-  }
-
-  state.focusIdFromQuery = item.id;
-}
-
-  function showBox(name) {
-    hideAllMainBoxes();
-
-    if (name === "setup") {
-      el.setupBox.classList.remove("hidden");
-      refreshFocusIdiomBox();
-      return;
-    }
-    if (name === "problemList") {
-      el.problemListBox.classList.remove("hidden");
-      return;
-    }
-    if (name === "weakList") {
-      el.weakListBox.classList.remove("hidden");
-      return;
-    }
-    if (name === "play") {
-      el.playBox.classList.remove("hidden");
-      return;
-    }
-    if (name === "summary") {
-      el.summaryBox.classList.remove("hidden");
-    }
-  }
-
-  function updateLevelBadge() {
-    if (UI_LEVEL === "1") {
-      el.levelBadge.textContent = "現在のレベル設定：1級";
-    } else {
-      el.levelBadge.textContent = "現在のレベル設定は2級ですが、このページは今は1級データで動作します。";
-    }
-  }
-
-  function updatePoolInfo() {
-    const questionMode = el.questionMode.value;
-    const available = getAvailableDataForMode(questionMode);
-    const weakMap = getWeakMap(questionMode);
-    const manualWeakMap = getManualWeakMap();
-
-    const autoWeakItems = Object.keys(weakMap).filter(function (id) {
-      return (weakMap[id] || 0) > 0;
-    }).length;
-    const autoWeakTotal = Object.values(weakMap).reduce(function (sum, value) {
-      return sum + Number(value || 0);
-    }, 0);
-    const manualWeakItems = Object.keys(manualWeakMap).length;
-    const cursor = getCursor(questionMode);
-
-    el.poolInfo.textContent =
-      `問題モード：${questionModeLabel(questionMode)} / 収録数：${available.length}件 / 続きからの次回開始位置：${cursor + 1}番目 / 自動ニガテ：${autoWeakItems}件（累計ミス ${autoWeakTotal}回） / 手動ニガテ：${manualWeakItems}件`;
-  }
-
-  function createInfoValueHtml(text, masked, kind, itemId) {
-    if (masked) {
-      return `<div class="compactValue masked" data-reveal-kind="${kind}" data-item-id="${itemId}">（タップで表示）</div>`;
-    }
-    return `<div class="compactValue">${escapeHtml(text)}</div>`;
-  }
-
-  function createListItemHtml(item, autoWeakCount) {
-    const meaningMasked = isMeaningMasked(item.id);
-    const synonymMasked = isSynonymMasked(item.id);
-    const manualWeak = isManualWeak(item.id);
-
-    const badges = [];
-    if (manualWeak) {
-      badges.push(`<span class="badge badgeWeak">手動苦手</span>`);
-    }
-    if (autoWeakCount > 0) {
-      badges.push(`<span class="badge badgeAuto">自動ミス ${autoWeakCount}回</span>`);
+    .topNavBox {
+      margin-bottom: 12px;
     }
 
-    return `
-      <div class="compactItem" data-item-id="${item.id}">
-        <div class="compactHead">
-          <div class="compactNo">No.${item.displayNo}</div>
-          <div class="compactExpression">${escapeHtml(item.expression)}</div>
-        </div>
-
-        ${badges.length ? `<div class="listBadgeRow">${badges.join("")}</div>` : ""}
-
-        <div class="compactMain">
-          <div class="compactField">
-            <div class="compactLabel">意味</div>
-            ${createInfoValueHtml(item.ja, meaningMasked, "meaning", item.id)}
-          </div>
-
-          <div class="compactField">
-            <div class="compactLabel">同義表現</div>
-            ${createInfoValueHtml(formatSynonyms(item), synonymMasked, "synonym", item.id)}
-          </div>
-        </div>
-
-        <div class="compactBtnRow">
-          <button type="button" data-action="toggle-detail" data-item-id="${item.id}">詳しく見る</button>
-          <button type="button" data-action="toggle-meaning" data-item-id="${item.id}">
-            ${meaningMasked ? "意味を表示" : "意味を隠す"}
-          </button>
-          <button type="button" data-action="toggle-synonym" data-item-id="${item.id}">
-            ${synonymMasked ? "同義表現を表示" : "同義表現を隠す"}
-          </button>
-          <button type="button" data-action="toggle-manual-weak" data-item-id="${item.id}" class="${manualWeak ? "weakBtnActive" : ""}">
-            ${manualWeak ? "苦手解除" : "苦手に追加"}
-          </button>
-          <button type="button" data-action="go-paraphrase" data-item-id="${item.id}">
-            言い換え問題へ
-          </button>
-        </div>
-
-        <div class="compactDetail hidden" data-detail-for="${item.id}">
-          <div class="compactField">
-            <div class="compactLabel">対義表現</div>
-            <div class="compactValue">${escapeHtml(formatAntonyms(item))}</div>
-          </div>
-          <div class="compactField">
-            <div class="compactLabel">対応番号</div>
-            <div class="compactValue">${escapeHtml(formatNoteIds(item))}</div>
-          </div>
-          <div class="compactField">
-            <div class="compactLabel">メモ</div>
-            <div class="compactValue">${escapeHtml(getNoteText(item) || "なし")}</div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  function renderProblemList() {
-    el.problemList.innerHTML = "";
-
-    if (!DATA.length) {
-      el.problemListEmpty.classList.remove("hidden");
-      return;
+    .topNavTitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 700;
     }
 
-    el.problemListEmpty.classList.add("hidden");
-
-    const weakMap = getWeakMap(el.questionMode.value);
-
-    DATA.forEach(function (item) {
-      const div = document.createElement("div");
-      div.innerHTML = createListItemHtml(item, weakMap[item.id] || 0);
-      el.problemList.appendChild(div.firstElementChild);
-    });
-
-    updateBulkMaskButtonLabels();
-  }
-
-  function renderWeakList() {
-    el.weakList.innerHTML = "";
-
-    const questionMode = el.questionMode.value;
-    const weakMap = getWeakMap(questionMode);
-    const manualWeakMap = getManualWeakMap();
-
-    const list = getAvailableDataForMode(questionMode)
-      .map(function (item, index) {
-        return {
-          ...item,
-          _index: index,
-          autoWeakCount: weakMap[item.id] || 0,
-          manualWeak: !!manualWeakMap[item.id]
-        };
-      })
-      .filter(function (item) {
-        return item.autoWeakCount > 0 || item.manualWeak;
-      })
-      .sort(function (a, b) {
-        const manualA = a.manualWeak ? 1 : 0;
-        const manualB = b.manualWeak ? 1 : 0;
-        if (manualA !== manualB) return manualB - manualA;
-        if (a.autoWeakCount !== b.autoWeakCount) return b.autoWeakCount - a.autoWeakCount;
-        return a._index - b._index;
-      });
-
-    if (!list.length) {
-      el.weakListEmpty.classList.remove("hidden");
-      updateBulkMaskButtonLabels();
-      return;
+    .topNav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
     }
 
-    el.weakListEmpty.classList.add("hidden");
-
-    list.forEach(function (item) {
-      const div = document.createElement("div");
-      div.innerHTML = createListItemHtml(item, item.autoWeakCount);
-      el.weakList.appendChild(div.firstElementChild);
-    });
-
-    updateBulkMaskButtonLabels();
-  }
-
-  function refreshVisibleLists() {
-    if (!el.problemListBox.classList.contains("hidden")) {
-      renderProblemList();
-    }
-    if (!el.weakListBox.classList.contains("hidden")) {
-      renderWeakList();
-    }
-    updateBulkMaskButtonLabels();
-  }
-
-  function clearAnswerCard() {
-    el.feedbackBox.classList.add("hidden");
-    el.feedbackBox.classList.remove("ok", "ng");
-    el.feedbackQuick.innerHTML = "";
-    el.feedbackDetail.innerHTML = "";
-    el.feedbackDetail.classList.add("hidden");
-    el.detailToggleBtn.textContent = "詳しく見る";
-    el.detailToggleBtn.classList.remove("hidden");
-    el.nextBtn.disabled = true;
-    el.nextBtnBottom.disabled = true;
-    el.nextBtn.textContent = "次へ";
-    el.nextBtnBottom.textContent = "次へ";
-    el.choicesBox.classList.remove("hidden");
-  }
-
-  function openParaphraseForIdiom(itemId) {
-  const item = getItemById(itemId);
-  if (!item) return;
-
-  const noteIds = getNoteIdList(item)
-    .map(function (v) { return String(v || "").trim().toUpperCase(); })
-    .filter(Boolean);
-
-  if (!noteIds.length) {
-    alert("このイディオムに対応する大問11番号がありません。");
-    return;
-  }
-
-  if (noteIds.length === 1) {
-    window.location.href = `paraphrase_quiz.html?noteId=${encodeURIComponent(noteIds[0])}`;
-    return;
-  }
-
-  window.location.href = `paraphrase_quiz.html?noteIds=${encodeURIComponent(noteIds.join(","))}`;
-}
-
-  function updateJumpParaphraseButton(question) {
-    if (!el.jumpParaphraseBtn) return;
-    el.jumpParaphraseBtn.disabled = !question || getNoteIdList(question).length === 0;
-  }
-
-  function renderQuestion() {
-    const question = state.sessionItems[state.currentIndex];
-    if (!question) {
-      finishQuiz();
-      return;
+    .topNav a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      color: #111;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 14px;
+      white-space: nowrap;
     }
 
-    state.answered = false;
-
-    el.stats.textContent =
-      `第${state.currentIndex + 1}問 / ${state.sessionItems.length}問 ・ 正解 ${state.score}問 ・ 出題順：${modeLabel(state.mode)}`;
-
-        el.questionNoLine.textContent = `問題番号 No.${question.displayNo}`;
-
-    if (state.questionMode === "expression_from_meaning") {
-      el.expressionText.textContent = question.ja;
-    } else {
-      el.expressionText.textContent = question.expression;
+    .topNav a.active {
+      background: #eaf2ff;
+      border-color: #2b7cff;
+      color: #1251b5;
+      font-weight: 700;
     }
 
-    el.questionModeBadge.textContent = `問題モード：${questionModeLabel(state.questionMode)}`;
-    el.choicesBox.innerHTML = "";
-    clearAnswerCard();
-    updateJumpParaphraseButton(question);
-
-    const choices = getChoicesForQuestion(question, state.questionMode);
-
-    choices.forEach(function (choiceText, index) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "choiceBtn";
-      btn.dataset.choiceText = choiceText;
-      btn.innerHTML = `
-        <span class="choiceIndex">${index + 1}</span>
-        <span class="choiceText">${escapeHtml(choiceText)}</span>
-      `;
-      btn.addEventListener("click", function () {
-        answerQuestion(choiceText, btn);
-      });
-      el.choicesBox.appendChild(btn);
-    });
-
-    if (el.autoRead.checked && state.questionMode !== "expression_from_meaning") {
-  speak(question.expression);
-}
-  }
-
-    function buildQuickAnswerHtml(question, selectedText, correctText, isCorrect) {
-    const synonymText = formatSynonyms(question);
-
-    if (state.questionMode === "expression_from_meaning") {
-      return `
-        <div class="feedbackStatus ${isCorrect ? "ok" : "ng"}">${isCorrect ? "⭕️ 正解！" : "❌ 不正解"}</div>
-
-        <div class="answerGrid">
-          <div class="answerField">
-            <div class="answerLabel">あなたの解答</div>
-            <div class="answerValue">${escapeHtml(selectedText)}</div>
-          </div>
-
-          <div class="answerField">
-            <div class="answerLabel">正解の英語表現</div>
-            <div class="answerValue">${escapeHtml(correctText)}</div>
-          </div>
-
-          <div class="answerField">
-            <div class="answerLabel">意味</div>
-            <div class="answerValue">${escapeHtml(question.ja || "なし")}</div>
-          </div>
-
-          <div class="answerField">
-            <div class="answerLabel">同義表現</div>
-            <div class="answerValue">${escapeHtml(synonymText)}</div>
-          </div>
-        </div>
-      `;
+    #levelBadge {
+      font-size:14px;
+      color:#555;
+      margin: 6px 0 10px;
     }
 
-    if (state.questionMode === "synonym") {
-      return `
-        <div class="feedbackStatus ${isCorrect ? "ok" : "ng"}">${isCorrect ? "⭕️ 正解！" : "❌ 不正解"}</div>
-
-        <div class="answerGrid">
-          <div class="answerField">
-            <div class="answerLabel">あなたの解答</div>
-            <div class="answerValue">${escapeHtml(selectedText)}</div>
-          </div>
-
-          <div class="answerField">
-            <div class="answerLabel">正解の同義表現</div>
-            <div class="answerValue">${escapeHtml(correctText)}</div>
-          </div>
-
-          <div class="answerField">
-            <div class="answerLabel">意味</div>
-            <div class="answerValue">${escapeHtml(question.ja || "なし")}</div>
-          </div>
-
-          <div class="answerField">
-            <div class="answerLabel">元の英語表現</div>
-            <div class="answerValue">${escapeHtml(question.expression || "なし")}</div>
-          </div>
-        </div>
-      `;
+    .hidden {
+      display: none !important;
     }
 
-    return `
-      <div class="feedbackStatus ${isCorrect ? "ok" : "ng"}">${isCorrect ? "⭕️ 正解！" : "❌ 不正解"}</div>
+    .choiceGrid {
+      display:grid;
+      gap:10px;
+      margin-top: 14px;
+    }
 
-      <div class="answerGrid">
-        <div class="answerField">
-          <div class="answerLabel">あなたの解答</div>
-          <div class="answerValue">${escapeHtml(selectedText)}</div>
-        </div>
+    .choiceBtn {
+      text-align:left;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid #ddd;
+      background:#fff;
+      font-size:16px;
+      line-height:1.6;
+      white-space: normal;
+      word-break: break-word;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
 
-        <div class="answerField">
-          <div class="answerLabel">正解の意味</div>
-          <div class="answerValue">${escapeHtml(correctText)}</div>
-        </div>
+    .choiceBtn.correct {
+      background:#e8f7e8;
+      border-color:#2e9f4d;
+      color:#156b2e;
+      font-weight:700;
+    }
 
-        <div class="answerField">
-          <div class="answerLabel">元の英語表現</div>
-          <div class="answerValue">${escapeHtml(question.expression || "なし")}</div>
-        </div>
+    .choiceBtn.wrong {
+      background:#fdeaea;
+      border-color:#d94b4b;
+      color:#a11f1f;
+      font-weight:700;
+    }
 
-        <div class="answerField">
-          <div class="answerLabel">同義表現</div>
-          <div class="answerValue">${escapeHtml(synonymText)}</div>
-        </div>
-      </div>
-    `;
-  }
+    .choiceIndex {
+      flex: 0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:28px;
+      height:28px;
+      border-radius:999px;
+      background:#f2f6ff;
+      color:#2b7cff;
+      font-size:13px;
+      font-weight:800;
+      border:1px solid #d6e4ff;
+      margin-top:1px;
+    }
 
-function buildDetailAnswerHtml(question, selectedText, correctText, isCorrect) {
-  const selectedSourceHint =
-    state.questionMode === "synonym" && !isCorrect
-      ? formatExpressionHintsFromSynonym(selectedText, question.id)
-      : "";
+    .choiceText {
+      flex:1 1 auto;
+      min-width:0;
+    }
 
-  return `
-    <div class="answerGrid">
-      <div class="answerField">
-        <div class="answerLabel">意味</div>
-        <div class="answerValue">${escapeHtml(question.ja || "なし")}</div>
-      </div>
+    .questionNoLine {
+      text-align:center;
+      font-size: 13px;
+      color:#666;
+      font-weight:700;
+      margin-top: 4px;
+      margin-bottom: 8px;
+    }
 
-      <div class="answerField">
-        <div class="answerLabel">同義表現一覧</div>
-        <div class="answerValue">${escapeHtml(formatSynonyms(question))}</div>
-      </div>
+    .expressionBox {
+      font-size: 28px;
+      line-height: 1.6;
+      word-break: break-word;
+      text-align: center;
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 20px 14px;
+      margin-top: 8px;
+      font-weight: 800;
+    }
 
-      ${
-        selectedSourceHint
-          ? `
-        <div class="answerField">
-          <div class="answerLabel">誤答の英語表現の元になっているイディオム</div>
-          <div class="answerValue">${escapeHtml(selectedSourceHint)}</div>
-        </div>
-      `
-          : ""
+    .questionModeBadge {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #1251b5;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .feedbackBox {
+      margin-top: 14px;
+      font-size: 17px;
+      line-height: 1.9;
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid #eee;
+      background: #fafafa;
+    }
+
+    .feedbackBox.ok {
+      background:#eefaf0;
+      border-color:#b9e1c2;
+    }
+
+    .feedbackBox.ng {
+      background:#fff1f1;
+      border-color:#efc0c0;
+    }
+
+    .feedbackStatus {
+      font-size: 21px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .feedbackStatus.ok {
+      color:#0a7a2f;
+    }
+
+    .feedbackStatus.ng {
+      color:#b00020;
+    }
+
+    .answerGrid {
+      display:grid;
+      gap:10px;
+      margin-top: 8px;
+    }
+
+    .answerField {
+      border:1px solid #e9e9e9;
+      border-radius:12px;
+      background:#fff;
+      padding:10px 12px;
+    }
+
+    .answerLabel {
+      font-size: 12px;
+      color:#666;
+      font-weight:700;
+      margin-bottom: 6px;
+    }
+
+    .answerValue {
+      font-size: 16px;
+      line-height: 1.75;
+      color:#111;
+      word-break: break-word;
+    }
+
+    .feedbackDetail {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .feedbackDetail .answerField {
+      background:#fafafa;
+    }
+
+    .answerActionRow {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      margin-top: 14px;
+    }
+
+    .summaryBlock {
+      margin-top: 14px;
+      border-top: 1px solid #eee;
+      padding-top: 14px;
+    }
+
+    .summaryCard {
+      border:1px solid #eee;
+      border-radius:14px;
+      background:#fafafa;
+      padding:12px;
+      margin-top: 12px;
+    }
+
+    .summaryCard:first-child {
+      margin-top: 0;
+    }
+
+    .summaryHead {
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+      margin-bottom: 10px;
+    }
+
+    .summaryTitleWrap {
+      min-width:0;
+      flex:1 1 auto;
+    }
+
+    .summaryNo {
+      font-size: 12px;
+      color:#666;
+      font-weight:700;
+      margin-bottom: 4px;
+    }
+
+    .summaryTitle {
+      font-size: 18px;
+      font-weight:800;
+      line-height:1.6;
+      word-break:break-word;
+    }
+
+    .summaryMiniGrid {
+      display:grid;
+      gap:8px;
+    }
+
+    .summaryMiniField {
+      border:1px solid #eee;
+      border-radius:12px;
+      background:#fff;
+      padding:10px 12px;
+    }
+
+    .summaryMiniLabel {
+      font-size:12px;
+      color:#666;
+      font-weight:700;
+      margin-bottom:6px;
+    }
+
+    .summaryMiniValue {
+      font-size:15px;
+      line-height:1.75;
+      word-break:break-word;
+    }
+
+    .summaryBtnRow {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+
+    .summaryDetails {
+      margin-top: 10px;
+      background:#fff;
+      border:1px solid #eee;
+      border-radius:12px;
+      padding:10px 12px;
+    }
+
+    .summaryDetails summary {
+      cursor:pointer;
+      font-weight:700;
+    }
+
+    .summaryDetailsInner {
+      margin-top: 10px;
+      display:grid;
+      gap:8px;
+    }
+
+    .listToolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .listToolbarTitle {
+      font-size: 13px;
+      color: #666;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .listToolbarBtns {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .compactItem {
+      border:1px solid #eee;
+      border-radius:14px;
+      background:#fafafa;
+      padding:12px;
+      margin-top:12px;
+    }
+
+    .compactItem:first-child {
+      margin-top:0;
+    }
+
+    .compactHead {
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      margin-bottom:10px;
+    }
+
+    .compactNo {
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:54px;
+      height:30px;
+      padding:0 10px;
+      border-radius:999px;
+      background:#eef4ff;
+      border:1px solid #d7e4ff;
+      color:#2356a8;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .compactExpression {
+      font-size:18px;
+      font-weight:800;
+      line-height:1.6;
+      word-break:break-word;
+      flex:1 1 auto;
+      min-width:0;
+    }
+
+    .listBadgeRow {
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      margin-bottom: 10px;
+    }
+
+    .compactMain {
+      display:grid;
+      gap:10px;
+    }
+
+    .compactField {
+      border:1px solid #eee;
+      border-radius:12px;
+      background:#fff;
+      padding:10px 12px;
+    }
+
+    .compactLabel {
+      font-size:12px;
+      color:#666;
+      font-weight:700;
+      margin-bottom:6px;
+    }
+
+    .compactValue {
+      font-size:15px;
+      line-height:1.75;
+      word-break:break-word;
+    }
+
+    .compactValue.masked {
+      color:#666;
+      background:#f0f0f0;
+      border:1px dashed #ccc;
+      border-radius:8px;
+      padding:10px 12px;
+      cursor:pointer;
+      display:inline-block;
+    }
+
+    .compactBtnRow {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+
+    .compactDetail {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+      display:grid;
+      gap:8px;
+    }
+
+    .badge {
+      display:inline-block;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      border:1px solid #ddd;
+      background:#fff;
+    }
+
+    .badgeWeak {
+      background:#fff0f4;
+      border-color:#f2a0b5;
+      color:#ad3159;
+    }
+
+    .badgeAuto {
+      background:#fff8e8;
+      border-color:#efcf88;
+      color:#8b5a00;
+    }
+
+    .badgeOk {
+      background:#eefaf0;
+      border-color:#b9e1c2;
+      color:#0a7a2f;
+    }
+
+    .badgeNg {
+      background:#fff1f1;
+      border-color:#efc0c0;
+      color:#b00020;
+    }
+
+    .weakBtnActive {
+      background: #fff0f4;
+      border-color: #f2a0b5;
+      color: #ad3159;
+      font-weight: 700;
+    }
+
+    .goimonToggleBox {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .goimonToggleBtn {
+      background: #f9fbff;
+      border: 1px solid #d6e5ff;
+      color: #234f97;
+      font-weight: 700;
+    }
+
+    .evoNoticeBtn {
+      background: linear-gradient(180deg, #fff6d6 0%, #ffe8a3 100%);
+      border: 1px solid #f1d48a;
+      color: #7a5200;
+      font-weight: 900;
+      position: relative;
+      animation: noticePulse 1.8s ease-in-out infinite;
+      box-shadow: 0 0 0 rgba(255, 214, 102, 0.0);
+    }
+
+    .evoNoticeBtn::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 14px;
+      border: 2px solid rgba(255, 214, 102, 0.35);
+      animation: noticeRing 1.8s ease-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes noticePulse {
+      0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(255,214,102,0); }
+      50% { transform: translateY(-1px) scale(1.02); box-shadow: 0 6px 18px rgba(255,214,102,0.35); }
+    }
+
+    @keyframes noticeRing {
+      0% { transform: scale(0.96); opacity: 0.75; }
+      100% { transform: scale(1.12); opacity: 0; }
+    }
+
+    .miniGoimonCard {
+      border: 1px solid #f0e3c7;
+      background: #fffaf2;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .miniGoimonHead {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .miniGoimonTitle {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .miniGoimonSub {
+      font-size: 12px;
+      color: #666;
+      margin: 4px 0 0;
+      line-height: 1.4;
+    }
+
+    .miniGoimonStage {
+      text-align: right;
+      flex: 0 0 auto;
+    }
+
+    .miniGoimonStageLabel {
+      font-size: 11px;
+      color: #8a6a2d;
+      margin-bottom: 2px;
+    }
+
+    .miniGoimonStageValue {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .miniGoimonBody {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .miniGoimonImageWrap {
+      width: 88px;
+      height: 88px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid #eddcb8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    .miniGoimonImageWrap img {
+      max-width: 76px;
+      max-height: 76px;
+      display: block;
+    }
+
+    .miniGoimonInfo {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .miniGoimonName {
+      font-size: 15px;
+      font-weight: 800;
+      margin: 0 0 4px;
+    }
+
+    .miniGoimonMeta {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    .miniGoimonDesc {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .goimonPointGuide {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 520px) {
+      .expressionBox {
+        font-size: 24px;
       }
 
-      <div class="answerField">
-        <div class="answerLabel">対義表現</div>
-        <div class="answerValue">${escapeHtml(formatAntonyms(question))}</div>
-      </div>
+      .choiceBtn {
+        font-size: 15px;
+      }
 
-      <div class="answerField">
-        <div class="answerLabel">対応番号</div>
-        <div class="answerValue">${escapeHtml(formatNoteIds(question))}</div>
-      </div>
+      .feedbackStatus {
+        font-size: 19px;
+      }
 
-      <div class="answerField">
-        <div class="answerLabel">メモ</div>
-        <div class="answerValue">${escapeHtml(getNoteText(question) || "なし")}</div>
+      .miniGoimonBody {
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="card topNavBox">
+      <div class="topNavTitle">学習ページ移動</div>
+      <div class="topNav">
+        <a href="index.html">ホーム</a>
+        <a href="study.html">暗記</a>
+        <a href="quiz.html">英→日</a>
+        <a href="quiz_jaen.html">日→英</a>
+        <a href="audio_quiz.html">音声→意味</a>
+        <a href="idiom_quiz.html" class="active">イディオム</a>
+        <a href="accent.html">大問1</a>
+        <a href="sentence.html">大問9</a>
+        <a href="paraphrase_quiz.html">大問11</a>
+        <a href="reorder.html">大問12</a>
+        <a href="list.html">一覧</a>
+        <a href="progress.html">進捗</a>
       </div>
     </div>
-  `;
-}
 
-  function answerQuestion(selectedText, clickedButton) {
-    if (state.answered) return;
+    <div id="levelBadge"></div>
 
-    const question = state.sessionItems[state.currentIndex];
-    if (!question) return;
+    <div class="goimonToggleBox">
+      <button id="toggleGoimon" type="button" class="goimonToggleBtn">ゴイモンの様子を見る</button>
+      <button id="evolutionNoticeBtn" type="button" class="evoNoticeBtn hidden">あれ、ゴイモンの様子が…！？</button>
+    </div>
 
-    state.answered = true;
-
-    const correctText = getCorrectAnswerText(question, state.questionMode);
-    const isCorrect = selectedText === correctText;
-
-    if (isCorrect) {
-      state.score += 1;
-      awardIdiomGoimonCorrect();
-    } else {
-      incrementWeak(state.questionMode, question.id);
-    }
-
-    const buttons = Array.from(el.choicesBox.querySelectorAll("button"));
-    buttons.forEach(function (btn) {
-      btn.disabled = true;
-
-      if (btn.dataset.choiceText === correctText) {
-        btn.classList.add("correct");
-      }
-
-      if (!isCorrect && btn === clickedButton) {
-        btn.classList.add("wrong");
-      }
-    });
-
-    el.choicesBox.classList.add("hidden");
-    el.feedbackBox.classList.remove("hidden");
-    el.feedbackBox.classList.remove("ok", "ng");
-    el.feedbackBox.classList.add(isCorrect ? "ok" : "ng");
-    el.feedbackQuick.innerHTML = buildQuickAnswerHtml(question, selectedText, correctText, isCorrect);
-    el.feedbackDetail.innerHTML = buildDetailAnswerHtml(question, selectedText, correctText, isCorrect);
-    el.feedbackDetail.classList.add("hidden");
-    el.detailToggleBtn.textContent = "詳しく見る";
-
-    state.results.push({
-      id: question.id,
-      displayNo: question.displayNo,
-      expression: question.expression,
-      ja: question.ja,
-      correct: isCorrect,
-      selectedText: selectedText,
-      correctText: correctText,
-      synonymText: formatSynonyms(question),
-      antonymText: formatAntonyms(question),
-      noteIdsText: formatNoteIds(question),
-      noteText: getNoteText(question) || "なし",
-      questionMode: state.questionMode
-    });
-
-    if (state.mode === "order" || state.mode === "order_continue") {
-      const total = getAvailableDataForMode(state.questionMode).length;
-      if (total > 0) {
-        const nextCursor = (question._index + 1) % total;
-        setCursor(state.questionMode, nextCursor);
-      }
-    }
-
-       const isLast = state.currentIndex === state.sessionItems.length - 1;
-    el.nextBtn.textContent = isLast ? "結果を見る" : "次へ";
-    el.nextBtnBottom.textContent = isLast ? "結果を見る" : "次へ";
-    el.nextBtn.disabled = false;
-    el.nextBtnBottom.disabled = false;
-
-    if (el.autoRead.checked && state.questionMode === "expression_from_meaning") {
-      setTimeout(function () {
-        speak(correctText);
-      }, 150);
-    }
-
-    updatePoolInfo();
-  }
-
-  function createSummaryCardHtml(item) {
-    const manualWeak = isManualWeak(item.id);
-
-    return `
-      <div class="summaryCard">
-        <div class="summaryHead">
-          <div class="summaryTitleWrap">
-            <div class="summaryNo">No.${item.displayNo}</div>
-            <div class="summaryTitle">${escapeHtml(item.expression)}</div>
-          </div>
-          <div>
-            <span class="badge ${item.correct ? "badgeOk" : "badgeNg"}">${item.correct ? "○ 正解" : "× 不正解"}</span>
-          </div>
+    <div id="goimonCard" class="miniGoimonCard hidden">
+      <div class="miniGoimonHead">
+        <div>
+          <div class="miniGoimonTitle">現在のゴイモン</div>
+          <div class="miniGoimonSub">イディオム問題の正解で「ちえ +0.5」「ことば +0.5」されます。</div>
         </div>
-
-        <div class="summaryMiniGrid">
-          <div class="summaryMiniField">
-            <div class="summaryMiniLabel">意味</div>
-            <div class="summaryMiniValue">${escapeHtml(item.ja || "なし")}</div>
-          </div>
-
-          <div class="summaryMiniField">
-            <div class="summaryMiniLabel">同義表現</div>
-            <div class="summaryMiniValue">${escapeHtml(item.synonymText)}</div>
-          </div>
-
-          ${item.correct ? "" : `
-            <div class="summaryMiniField">
-              <div class="summaryMiniLabel">あなたの解答</div>
-              <div class="summaryMiniValue">${escapeHtml(item.selectedText)}</div>
-            </div>
-
-            <div class="summaryMiniField">
-              <div class="summaryMiniLabel">正解</div>
-              <div class="summaryMiniValue">${escapeHtml(item.correctText)}</div>
-            </div>
-          `}
+        <div class="miniGoimonStage">
+          <div class="miniGoimonStageLabel">現在の段階</div>
+          <div class="miniGoimonStageValue" id="idiomGoimonStage">たまご期</div>
         </div>
-
-        <div class="summaryBtnRow">
-          <button type="button" data-action="toggle-summary-weak" data-item-id="${item.id}" class="${manualWeak ? "weakBtnActive" : ""}">
-            ${manualWeak ? "苦手解除" : "苦手に追加"}
-          </button>
-          <button type="button" data-action="go-paraphrase" data-item-id="${item.id}">
-            言い換え問題へ
-          </button>
-        </div>
-
-        <details class="summaryDetails">
-          <summary>詳しく見る</summary>
-          <div class="summaryDetailsInner">
-            <div class="summaryMiniField">
-              <div class="summaryMiniLabel">対義表現</div>
-              <div class="summaryMiniValue">${escapeHtml(item.antonymText)}</div>
-            </div>
-
-            <div class="summaryMiniField">
-              <div class="summaryMiniLabel">対応番号</div>
-              <div class="summaryMiniValue">${escapeHtml(item.noteIdsText)}</div>
-            </div>
-
-            <div class="summaryMiniField">
-              <div class="summaryMiniLabel">メモ</div>
-              <div class="summaryMiniValue">${escapeHtml(item.noteText)}</div>
-            </div>
-          </div>
-        </details>
       </div>
-    `;
-  }
-
-  function renderSummary() {
-    const total = state.sessionItems.length;
-    const wrongItems = state.results.filter(function (item) {
-      return !item.correct;
-    });
-    const rate = total ? Math.round((state.score / total) * 100) : 0;
-
-    el.summaryLine.textContent =
-      `問題モード：${questionModeLabel(state.questionMode)} / 出題順：${modeLabel(state.mode)} / 正答率：${rate}%`;
-
-    el.resultScore.textContent = `${state.score} / ${total} 問正解`;
-
-    el.wrongList.innerHTML = "";
-    el.askedList.innerHTML = "";
-
-    if (!wrongItems.length) {
-      el.wrongEmpty.classList.remove("hidden");
-    } else {
-      el.wrongEmpty.classList.add("hidden");
-      wrongItems.forEach(function (item) {
-        el.wrongList.insertAdjacentHTML("beforeend", createSummaryCardHtml(item));
-      });
-    }
-
-    state.results.forEach(function (item) {
-      el.askedList.insertAdjacentHTML("beforeend", createSummaryCardHtml(item));
-    });
-  }
-
-  function finishQuiz() {
-    renderSummary();
-    showBox("summary");
-  }
-
-  function startQuiz(useLastSession) {
-    const questionMode = el.questionMode.value;
-    const available = getAvailableDataForMode(questionMode);
-
-    if (available.length < 4) {
-      alert("4択問題を作るには、そのモードで最低4件のデータが必要です。");
-      return;
-    }
-
-    saveCurrentSettings();
-
-    const count = countToNumber(el.questionCount.value, available.length);
-    const mode = el.quizMode.value;
-
-    state.questionMode = questionMode;
-    state.mode = mode;
-    state.currentIndex = 0;
-    state.score = 0;
-    state.answered = false;
-    state.results = [];
-
-    if (useLastSession && state.lastSessionItems.length) {
-      state.sessionItems = state.lastSessionItems.map(function (item) {
-        return { ...item };
-      });
-    } else {
-      state.sessionItems = getSessionItems(questionMode, mode, count);
-      state.lastSessionItems = state.sessionItems.map(function (item) {
-        return { ...item };
-      });
-    }
-
-    showBox("play");
-    renderQuestion();
-  }
-
-  function startTargetedIdiomQuiz(itemId, questionMode) {
-    const item = getItemById(itemId);
-    if (!item) return;
-
-    el.questionMode.value = questionMode;
-    state.questionMode = questionMode;
-    state.mode = "linked";
-    state.currentIndex = 0;
-    state.score = 0;
-    state.answered = false;
-    state.results = [];
-
-    const pool = getAvailableDataForMode(questionMode);
-    const originalIndex = pool.findIndex(function (candidate) {
-      return candidate.id === item.id;
-    });
-
-    if (originalIndex === -1) {
-      alert("この問題モードでは解けない表現です。");
-      return;
-    }
-
-    state.sessionItems = [{
-      ...item,
-      _index: originalIndex
-    }];
-    state.lastSessionItems = state.sessionItems.map(function (entry) {
-      return { ...entry };
-    });
-
-    showBox("play");
-    renderQuestion();
-  }
-
-  function goNext() {
-    if (!state.answered) return;
-    state.currentIndex += 1;
-    renderQuestion();
-  }
-
-  function restoreSettingsToForm() {
-    const settings = getSavedSettings();
-    el.questionMode.value = settings.questionMode;
-    el.questionCount.value = settings.questionCount;
-    el.quizMode.value = settings.quizMode;
-    el.autoRead.checked = settings.autoRead;
-  }
-
-  function toggleCompactDetail(container, itemId, btn) {
-    if (!container || !itemId || !btn) return;
-    const detail = container.querySelector(`[data-detail-for="${itemId}"]`);
-    if (!detail) return;
-
-    const willOpen = detail.classList.contains("hidden");
-    detail.classList.toggle("hidden", !willOpen);
-    btn.textContent = willOpen ? "詳細を閉じる" : "詳しく見る";
-  }
-
-  function handleListAreaClick(event) {
-    const actionBtn = event.target.closest("[data-action]");
-    if (actionBtn) {
-      const action = actionBtn.getAttribute("data-action");
-      const itemId = actionBtn.getAttribute("data-item-id");
-      if (!itemId) return;
-
-      if (action === "toggle-detail") {
-        const container = actionBtn.closest(".compactItem");
-        toggleCompactDetail(container, itemId, actionBtn);
-        return;
-      }
-
-      if (action === "toggle-meaning") {
-        setMeaningMasked(itemId, !isMeaningMasked(itemId));
-        refreshVisibleLists();
-        return;
-      }
-
-      if (action === "toggle-synonym") {
-        setSynonymMasked(itemId, !isSynonymMasked(itemId));
-        refreshVisibleLists();
-        return;
-      }
-
-      if (action === "toggle-manual-weak") {
-        toggleManualWeak(itemId);
-        updatePoolInfo();
-        renderWeakList();
-        renderProblemList();
-        return;
-      }
-
-      if (action === "go-paraphrase") {
-        openParaphraseForIdiom(itemId);
-        return;
-      }
-    }
-
-    const revealTarget = event.target.closest("[data-reveal-kind]");
-    if (revealTarget) {
-      const kind = revealTarget.getAttribute("data-reveal-kind");
-      const itemId = revealTarget.getAttribute("data-item-id");
-      if (!itemId) return;
-
-      if (kind === "meaning") {
-        setMeaningMasked(itemId, false);
-        refreshVisibleLists();
-        return;
-      }
-
-      if (kind === "synonym") {
-        setSynonymMasked(itemId, false);
-        refreshVisibleLists();
-      }
-    }
-  }
-
-  function handleSummaryAreaClick(event) {
-    const actionBtn = event.target.closest("[data-action]");
-    if (!actionBtn) return;
-
-    const action = actionBtn.getAttribute("data-action");
-    const itemId = actionBtn.getAttribute("data-item-id");
-    if (!itemId) return;
-
-    if (action === "toggle-summary-weak") {
-      toggleManualWeak(itemId);
-      updatePoolInfo();
-      renderProblemList();
-      renderWeakList();
-      renderSummary();
-      return;
-    }
-
-    if (action === "go-paraphrase") {
-      openParaphraseForIdiom(itemId);
-    }
-  }
-
-  function clearFocusQuery() {
-  state.focusIdFromQuery = "";
-  state.focusNoteIdsFromQuery = [];
-
-  const url = new URL(window.location.href);
-  url.searchParams.delete("focusId");
-  url.searchParams.delete("noteId");
-  url.searchParams.delete("noteIds");
-  window.history.replaceState({}, "", url.toString());
-
-  refreshFocusIdiomBox();
-}
-
-  function isTypingTarget(target) {
-    if (!target) return false;
-    const tag = String(target.tagName || "").toLowerCase();
-    return tag === "input" || tag === "textarea" || tag === "select" || target.isContentEditable;
-  }
-
-  function handleKeyboardShortcut(event) {
-    if (isTypingTarget(event.target)) return;
-    if (el.playBox.classList.contains("hidden")) return;
-
-    const key = event.key;
-
-    if (!state.answered) {
-      if (key === "1" || key === "2" || key === "3" || key === "4") {
-        const buttons = Array.from(el.choicesBox.querySelectorAll(".choiceBtn"));
-        const idx = Number(key) - 1;
-        const btn = buttons[idx];
-        if (btn && !btn.disabled) {
-          event.preventDefault();
-          btn.click();
-        }
-        return;
-      }
-
-      if (key === "v" || key === "V") {
-        event.preventDefault();
-        if (!el.readBtn.disabled) el.readBtn.click();
-      }
-      return;
-    }
-
-    if (key === "Enter" || key === " " || key === "Spacebar" || key === "ArrowRight") {
-      event.preventDefault();
-      if (!el.nextBtn.disabled) goNext();
-      return;
-    }
-
-    if (key === "v" || key === "V") {
-      event.preventDefault();
-      if (!el.readBtn.disabled) el.readBtn.click();
-    }
-  }
-
-  const IDIOM_GOIMON_DELTA = { chie: 0.5, kotoba: 0.5 };
-
-  function renderIdiomGoimonMini() {
-    if (!window.GoimonUI) return;
-
-    const g = window.GoimonUI.ensureCurrent();
-
-    const stageEl = document.getElementById("idiomGoimonStage");
-    const imageEl = document.getElementById("idiomGoimonImage");
-    const nameEl = document.getElementById("idiomGoimonName");
-    const metaEl = document.getElementById("idiomGoimonMeta");
-    const descEl = document.getElementById("idiomGoimonDesc");
-    const guideEl = document.getElementById("idiomPointGuide");
-
-    if (!stageEl || !imageEl || !nameEl || !metaEl || !descEl || !guideEl) return;
-
-    stageEl.textContent = window.GoimonUI.getStageLabel(g.stage);
-    imageEl.src = g.imageKey || window.GoimonUI.getImageFor(g.type, g.stage);
-    imageEl.alt = window.GoimonUI.getGoimonPrimaryName(g);
-    nameEl.textContent = window.GoimonUI.getGoimonPrimaryName(g);
-    metaEl.textContent = `Lv ${g.level} / ${window.GoimonUI.formatPoint(g.totalPoints)} pt`;
-    descEl.textContent = window.GoimonUI.getDisplayDescription(g);
-    guideEl.textContent = "正解：ちえ +0.5 ＋ ことば +0.5";
-
-    window.GoimonUI.renderEvolutionNoticeButton("evolutionNoticeBtn");
-  }
-
-  function initIdiomGoimonMini() {
-    if (!window.GoimonUI) return;
-
-    if (el.toggleGoimon && el.goimonCard && el.toggleGoimon.dataset.bound !== "1") {
-      el.toggleGoimon.dataset.bound = "1";
-      el.toggleGoimon.addEventListener("click", function () {
-        const willOpen = el.goimonCard.classList.contains("hidden");
-        el.goimonCard.classList.toggle("hidden");
-        el.toggleGoimon.textContent = willOpen ? "ゴイモンを閉じる" : "ゴイモンの様子を見る";
-      });
-    }
-
-    window.GoimonUI.bindEvolutionNoticeButton("evolutionNoticeBtn", {
-      onComplete: function () {
-        renderIdiomGoimonMini();
-      }
-    });
-
-    renderIdiomGoimonMini();
-  }
-
-  function awardIdiomGoimonCorrect() {
-    if (!window.GoimonUI) return;
-    window.GoimonUI.addPoints(IDIOM_GOIMON_DELTA, "idiom_quiz");
-    renderIdiomGoimonMini();
-  }
-
-  function init() {
-    if (!Array.isArray(DATA) || DATA.length === 0) {
-      alert("idiom_data_1kyu.js のデータが読み込めていません。");
-      return;
-    }
-
-    restoreSettingsToForm();
-    updateLevelBadge();
-    updatePoolInfo();
-    renderProblemList();
-    renderWeakList();
-    updateBulkMaskButtonLabels();
-    showBox("setup");
-
-    if (!supportsSpeech()) {
-      el.readBtn.disabled = true;
-      el.readBtn.textContent = "読み上げ非対応";
-    }
-
-    if (el.jumpParaphraseBtn) {
-      el.jumpParaphraseBtn.disabled = true;
-    }
-
-    el.startBtn.addEventListener("click", function () {
-      startQuiz(false);
-    });
-
-    el.openProblemListBtn.addEventListener("click", function () {
-      renderProblemList();
-      showBox("problemList");
-    });
-
-    el.openWeakListBtn.addEventListener("click", function () {
-      renderWeakList();
-      showBox("weakList");
-    });
-
-    el.problemListBackBtn.addEventListener("click", function () {
-      updatePoolInfo();
-      showBox("setup");
-    });
-
-    el.weakListBackBtn.addEventListener("click", function () {
-      updatePoolInfo();
-      showBox("setup");
-    });
-
-    if (el.problemMaskMeaningBtn) {
-      el.problemMaskMeaningBtn.addEventListener("click", function () {
-        toggleBulkMeaning(getProblemListTargetIds());
-      });
-    }
-
-    if (el.problemMaskSynonymBtn) {
-      el.problemMaskSynonymBtn.addEventListener("click", function () {
-        toggleBulkSynonym(getProblemListTargetIds());
-      });
-    }
-
-    if (el.weakMaskMeaningBtn) {
-      el.weakMaskMeaningBtn.addEventListener("click", function () {
-        toggleBulkMeaning(getWeakListTargetIds());
-      });
-    }
-
-    if (el.weakMaskSynonymBtn) {
-      el.weakMaskSynonymBtn.addEventListener("click", function () {
-        toggleBulkSynonym(getWeakListTargetIds());
-      });
-    }
-
-    el.problemList.addEventListener("click", handleListAreaClick);
-    el.weakList.addEventListener("click", handleListAreaClick);
-    el.wrongList.addEventListener("click", handleSummaryAreaClick);
-    el.askedList.addEventListener("click", handleSummaryAreaClick);
-
-    el.readBtn.addEventListener("click", function () {
-  const question = state.sessionItems[state.currentIndex];
-  if (!question) return;
-
-  if (state.questionMode === "expression_from_meaning" && !state.answered) {
-    return;
-  }
-
-  if (state.questionMode === "expression_from_meaning") {
-    speak(getCorrectAnswerText(question, state.questionMode));
-    return;
-  }
-
-  speak(question.expression);
-});
-
-    if (el.jumpParaphraseBtn) {
-      el.jumpParaphraseBtn.addEventListener("click", function () {
-        const question = state.sessionItems[state.currentIndex];
-        if (!question) return;
-        openParaphraseForIdiom(question.id);
-      });
-    }
-
-    if (el.focusMeaningBtn) {
-      el.focusMeaningBtn.addEventListener("click", function () {
-        startTargetedIdiomQuiz(state.focusIdFromQuery, "meaning");
-      });
-    }
-
-    if (el.focusSynonymBtn) {
-      el.focusSynonymBtn.addEventListener("click", function () {
-        startTargetedIdiomQuiz(state.focusIdFromQuery, "synonym");
-      });
-    }
-
-    if (el.focusIdiomClearBtn) {
-      el.focusIdiomClearBtn.addEventListener("click", clearFocusQuery);
-    }
-
-    el.detailToggleBtn.addEventListener("click", function () {
-      const willOpen = el.feedbackDetail.classList.contains("hidden");
-      el.feedbackDetail.classList.toggle("hidden", !willOpen);
-      el.detailToggleBtn.textContent = willOpen ? "詳細を閉じる" : "詳しく見る";
-    });
-
-    el.nextBtn.addEventListener("click", goNext);
-    el.nextBtnBottom.addEventListener("click", goNext);
-
-    el.backBtn.addEventListener("click", function () {
-      showBox("setup");
-      updatePoolInfo();
-      renderWeakList();
-    });
-
-    el.retrySetBtnTop.addEventListener("click", function () {
-      startQuiz(true);
-    });
-
-    el.continueBtn.addEventListener("click", function () {
-      startQuiz(false);
-    });
-
-    el.summaryBackBtn.addEventListener("click", function () {
-      updatePoolInfo();
-      renderWeakList();
-      showBox("setup");
-    });
-
-    el.questionMode.addEventListener("change", function () {
-      updatePoolInfo();
-      renderProblemList();
-      renderWeakList();
-      updateBulkMaskButtonLabels();
-      saveCurrentSettings();
-    });
-
-    el.questionCount.addEventListener("change", function () {
-      updatePoolInfo();
-      saveCurrentSettings();
-    });
-
-    el.quizMode.addEventListener("change", function () {
-      updatePoolInfo();
-      saveCurrentSettings();
-    });
-
-    el.autoRead.addEventListener("change", function () {
-      saveCurrentSettings();
-    });
-
-    document.addEventListener("keydown", handleKeyboardShortcut);
-  }
-
-  init();
-  initIdiomGoimonMini();
-})();
+
+      <div class="miniGoimonBody">
+        <div class="miniGoimonImageWrap">
+          <img id="idiomGoimonImage" src="images/goimon/goimon_egg.png" alt="ゴイモン" />
+        </div>
+        <div class="miniGoimonInfo">
+          <div class="miniGoimonName" id="idiomGoimonName">なごみ系のたまご</div>
+          <div class="miniGoimonMeta" id="idiomGoimonMeta">Lv 1 / 0 pt</div>
+          <div class="miniGoimonDesc" id="idiomGoimonDesc">まずは学習してゴイモンを育てよう。</div>
+        </div>
+      </div>
+
+      <div class="goimonPointGuide" id="idiomPointGuide">
+        正解：ちえ +0.5 ＋ ことば +0.5
+      </div>
+    </div>
+
+    <div class="card" id="setupBox">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:700;">イディオムクイズ</div>
+          <div class="muted" style="margin-top:4px;">
+            意味問題・同義表現問題を切り替えられます。<br>
+            解答後はその場で解答カードを表示し、Enter / Space / → で次に進めます。数字 1〜4 で解答できます。
+          </div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="row" style="justify-content:flex-start;">
+        <div>
+          <div class="muted">問題モード</div>
+          <select id="questionMode">
+  <option value="meaning" selected>意味を選ぶ</option>
+  <option value="synonym">同義表現を選ぶ</option>
+  <option value="expression_from_meaning">英語表現を選ぶ</option>
+</select>
+        </div>
+        <div>
+  <div class="muted">問題No.</div>
+  <div style="display:flex; align-items:center; gap:6px;">
+    <input id="rangeStart" type="number" min="1" value="1" style="width:90px;">
+    <span>〜</span>
+    <input id="rangeEnd" type="number" min="1" value="200" style="width:90px;">
+  </div>
+</div>
+
+        <div>
+          <div class="muted">問題数</div>
+          <select id="questionCount">
+            <option value="5">5問</option>
+            <option value="10" selected>10問</option>
+            <option value="20">20問</option>
+            <option value="all">全問</option>
+          </select>
+        </div>
+
+        <div>
+          <div class="muted">出題順</div>
+          <select id="quizMode">
+            <option value="order">はじめから</option>
+            <option value="order_continue">続きから</option>
+            <option value="random">ランダム</option>
+            <option value="weak">ニガテ順</option>
+          </select>
+        </div>
+
+        <div>
+          <div class="muted">読み上げ</div>
+          <label style="display:flex; align-items:center; gap:8px; padding-top:10px;">
+            <input type="checkbox" id="autoRead" />
+            <span>自動読み上げ</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="muted" id="poolInfo" style="margin-top:10px;"></div>
+
+      <div class="row" style="justify-content:flex-start; margin-top:12px;">
+        <button id="startBtn" class="primary" type="button">開始</button>
+        <button id="openProblemListBtn" type="button">問題一覧を見る</button>
+        <button id="openWeakListBtn" type="button">ニガテ一覧を見る</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="focusIdiomBox">
+      <div style="font-size:18px; font-weight:700;">関連イディオム</div>
+      <div class="muted" id="focusIdiomLine" style="margin-top:6px;"></div>
+
+      <div style="margin-top:12px;">
+        <div id="focusIdiomExpression" style="font-size:22px; font-weight:800; line-height:1.7;"></div>
+        <div id="focusIdiomJa" class="muted" style="margin-top:8px;"></div>
+        <div id="focusIdiomSynonym" class="muted" style="margin-top:6px;"></div>
+        <div id="focusIdiomAntonym" class="muted" style="margin-top:6px;"></div>
+        <div id="focusIdiomLinks" class="muted" style="margin-top:6px;"></div>
+        <div id="focusIdiomNote" class="muted" style="margin-top:6px;"></div>
+      </div>
+
+      <div class="row" style="justify-content:flex-start; margin-top:12px;">
+        <button id="focusMeaningBtn" class="primary" type="button">意味問題で解く</button>
+        <button id="focusSynonymBtn" type="button">同義表現問題で解く</button>
+        <button id="focusIdiomClearBtn" type="button">解除</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="problemListBox">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:700;">問題一覧</div>
+          <div class="muted" style="margin-top:4px;">
+            まずは意味・同義表現だけ見やすく表示し、必要なときだけ詳細を開けます。
+          </div>
+        </div>
+        <div>
+          <button id="problemListBackBtn" type="button">設定へ戻る</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="listToolbar">
+        <div class="listToolbarTitle">一括表示切り替え</div>
+        <div class="listToolbarBtns">
+          <button id="problemMaskMeaningBtn" type="button">意味を一括で隠す</button>
+          <button id="problemMaskSynonymBtn" type="button">同義表現を一括で隠す</button>
+        </div>
+      </div>
+
+      <div id="problemList"></div>
+      <div id="problemListEmpty" class="muted hidden">表示できる問題がありません。</div>
+    </div>
+
+    <div class="card hidden" id="weakListBox">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:700;">ニガテ一覧</div>
+          <div class="muted" style="margin-top:4px;">
+            自動ミスや手動苦手に入っている表現だけを見やすく表示します。
+          </div>
+        </div>
+        <div>
+          <button id="weakListBackBtn" type="button">設定へ戻る</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="listToolbar">
+        <div class="listToolbarTitle">一括表示切り替え</div>
+        <div class="listToolbarBtns">
+          <button id="weakMaskMeaningBtn" type="button">意味を一括で隠す</button>
+          <button id="weakMaskSynonymBtn" type="button">同義表現を一括で隠す</button>
+        </div>
+      </div>
+
+      <div id="weakList"></div>
+      <div id="weakListEmpty" class="muted hidden">まだニガテ登録された表現はありません。</div>
+    </div>
+
+    <div class="card hidden" id="playBox">
+      <div class="row">
+        <div id="stats" class="muted"></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button id="readBtn" type="button">読み上げ</button>
+          <button id="jumpParaphraseBtn" type="button">この表現の[11]形式問題へ</button>
+          <button id="nextBtn" class="primary" type="button" disabled>次へ</button>
+          <button id="backBtn" type="button">設定へ戻る</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div id="questionNoLine" class="questionNoLine"></div>
+      <div id="expressionText" class="expressionBox">take part in</div>
+      <div id="questionModeBadge" class="questionModeBadge"></div>
+
+      <div id="choicesBox" class="choiceGrid"></div>
+
+      <div id="feedbackBox" class="feedbackBox hidden">
+        <div id="feedbackQuick"></div>
+        <div id="feedbackDetail" class="feedbackDetail hidden"></div>
+        <div class="answerActionRow">
+  <button id="originSearchBtn" type="button">語源・由来を調べる</button>
+  <button id="nextBtnBottom" class="primary" type="button" disabled>次へ</button>
+</div>
+      </div>
+    </div>
+
+    <div class="card hidden" id="summaryBox">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:700;">今回の結果</div>
+          <div class="muted" id="summaryLine" style="margin-top:4px;"></div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button id="retrySetBtnTop" type="button">同じ問題セットで解き直す</button>
+          <button id="continueBtn" class="primary" type="button">次の問題セットへ</button>
+          <button id="summaryBackBtn" type="button">設定画面へ</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="summaryBlock">
+        <div class="summaryMiniField">
+          <div class="summaryMiniLabel">スコア</div>
+          <div id="resultScore" class="summaryMiniValue" style="font-size:20px; font-weight:800;"></div>
+        </div>
+      </div>
+
+      <div class="summaryBlock">
+        <div class="summaryMiniLabel">間違えた表現一覧</div>
+        <div id="wrongList"></div>
+        <div id="wrongEmpty" class="muted hidden">全問正解です！</div>
+      </div>
+
+      <div class="summaryBlock">
+        <div class="summaryMiniLabel">今回出た表現一覧</div>
+        <div id="askedList"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
+  </script>
+  <script src="idiom_data_1kyu.js"></script>
+  <script src="idiom_examples_1kyu.js"></script>
+  <script src="goimon_dialogues.js"></script>
+  <script src="goimon_dex.js"></script>
+  <script src="goimon_rules.js"></script>
+  <script src="goimon.js"></script>
+
+  <audio id="evolutionAudio" src="audio/evolution.mp3" preload="auto"></audio>
+
+  <div id="evoOverlay" class="evoOverlay hidden">
+    <div class="evoCenter">
+      <div class="evoFlash"></div>
+      <div id="evoShock" class="evoShock"></div>
+
+      <div class="evoImageStage">
+        <img id="evoGoimonBefore" src="" class="evoGoimon evoBefore" alt="進化前ゴイモン" />
+        <img id="evoGoimonAfter" src="" class="evoGoimon evoAfter evoHidden" alt="進化後ゴイモン" />
+      </div>
+
+      <div id="evoText1" class="evoText evoHidden">✨進化！✨</div>
+      <div id="evoText2" class="evoTextSub evoHidden"></div>
+
+      <button id="evoSkipBtn" class="evoSkip">スキップ</button>
+    </div>
+  </div>
+
+  <script src="idiom_quiz.js"></script>
+</body>
+</html>
