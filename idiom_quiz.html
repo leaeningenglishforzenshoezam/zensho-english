@@ -797,6 +797,14 @@
   <option value="expression_from_meaning">英語表現を選ぶ</option>
 </select>
         </div>
+        <div>
+  <div class="muted">問題No.</div>
+  <div style="display:flex; align-items:center; gap:6px;">
+    <input id="rangeStart" type="number" min="1" value="1" style="width:90px;">
+    <span>〜</span>
+    <input id="rangeEnd" type="number" min="1" value="200" style="width:90px;">
+  </div>
+</div>
 
         <div>
           <div class="muted">問題数</div>
@@ -933,9 +941,9 @@
         <div id="feedbackQuick"></div>
         <div id="feedbackDetail" class="feedbackDetail hidden"></div>
         <div class="answerActionRow">
-          <button id="detailToggleBtn" type="button">詳しく見る</button>
-          <button id="nextBtnBottom" class="primary" type="button" disabled>次へ</button>
-        </div>
+  <button id="originSearchBtn" type="button">語源・由来を調べる</button>
+  <button id="nextBtnBottom" class="primary" type="button" disabled>次へ</button>
+</div>
       </div>
     </div>
 
@@ -979,6 +987,7 @@
     window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
   </script>
   <script src="idiom_data_1kyu.js"></script>
+  <script src="idiom_examples_1kyu.js"></script>
   <script src="goimon_dialogues.js"></script>
   <script src="goimon_dex.js"></script>
   <script src="goimon_rules.js"></script>
