@@ -3,390 +3,925 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ブロック進捗</title>
+  <title>大問11風演習（全商英検）</title>
+  <link rel="stylesheet" href="style.css">
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
-      background:#f7f7f7;
-      margin:0;
-      color:#111;
+      background: #f7f7f7;
+      margin: 0;
+      color: #111;
     }
+
     .wrap {
-      max-width: 980px;
+      max-width: 760px;
       margin: 0 auto;
-      padding: 18px 12px 32px;
+      padding: 16px 12px 100px;
     }
+
     .card {
-      background:#fff;
-      border:1px solid #ddd;
-      border-radius:12px;
-      padding:14px;
-      margin-bottom:12px;
-      box-shadow:0 1px 3px rgba(0,0,0,0.05);
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 14px;
+      margin: 12px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
-    h1 {
-      margin: 0 0 8px;
-      font-size: 20px;
-    }
+
     .muted {
-      color:#666;
+      color: #666;
       font-size: 13px;
       line-height: 1.6;
     }
+
     .row {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: space-between;
     }
-    a {
-      color:#2b7cff;
-      text-decoration:none;
-    }
+
     button {
       padding: 10px 12px;
-      border: 0;
       border-radius: 10px;
+      border: 1px solid #ddd;
+      background: #fff;
       cursor: pointer;
+      font-size: 15px;
+    }
+
+    button.primary {
+      background: #2b7cff;
+      border-color: #2b7cff;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .hr {
+      height: 1px;
+      background: #eee;
+      margin: 12px 0;
+    }
+
+    select, input[type="number"] {
+  padding: 10px 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+}
+
+    .topNavBox {
+      margin-bottom: 12px;
+    }
+
+    .topNavTitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .topNav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .topNav a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      color: #111;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      padding: 9px 12px;
       font-size: 14px;
-    }
-    .btn {
-      background:#efefef;
-      color:#111;
-    }
-    .btn.primary {
-      background:#2b7cff;
-      color:#fff;
-    }
-    .btn.danger {
-      background:#fff3f3;
-      color:#a10000;
-      border:1px solid #efc7c7;
-    }
-    input, select {
-      padding: 9px 10px;
-      border:1px solid #ddd;
-      border-radius:10px;
-      font-size:14px;
-      background:#fff;
-    }
-    .pill {
-      display:inline-block;
-      padding:5px 10px;
-      border-radius:999px;
-      font-size:12px;
-      background:#f0f4ff;
-      color:#2b7cff;
-      white-space:nowrap;
-    }
-    .pill.ok {
-      background:#edf9f0;
-      color:#167a2e;
-    }
-    .pill.mid {
-      background:#fff6e8;
-      color:#9a5a00;
-    }
-    .pill.ng {
-      background:#fff0f0;
-      color:#b00020;
+      white-space: nowrap;
     }
 
-    .goimonPanel {
-      display:grid;
-      grid-template-columns: 120px 1fr;
-      gap:14px;
-      align-items:center;
-      border:1px solid #eee3ce;
-      border-radius:14px;
-      background:#fffaf2;
-      padding:14px;
-      margin-top:12px;
-    }
-    .goimonImageWrap {
-      width:120px;
-      height:120px;
-      border-radius:14px;
-      background:#fff;
-      border:1px solid #ecdcbc;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden;
-    }
-    .goimonImageWrap img {
-      max-width:100px;
-      max-height:100px;
-      display:block;
-    }
-    .goimonTitle {
-      font-size:18px;
-      font-weight:800;
-      margin-bottom:4px;
-    }
-    .goimonMeta {
-      font-size:13px;
-      color:#555;
-      margin-bottom:10px;
-    }
-    .goimonBubble {
-      position:relative;
-      background:#fff;
-      border:1px solid #e6e6e6;
-      border-radius:14px;
-      padding:12px 14px;
-      line-height:1.7;
-      font-size:14px;
-    }
-    .goimonBubble::before {
-      content:"";
-      position:absolute;
-      left:-8px;
-      top:20px;
-      width:14px;
-      height:14px;
-      background:#fff;
-      border-left:1px solid #e6e6e6;
-      border-bottom:1px solid #e6e6e6;
-      transform:rotate(45deg);
+    .topNav a.active {
+      background: #eaf2ff;
+      border-color: #2b7cff;
+      color: #1251b5;
+      font-weight: 700;
     }
 
-    .summaryGrid {
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap:10px;
-      margin-top:12px;
+    #levelBadge {
+      font-size: 14px;
+      color: #555;
+      margin: 6px 0 10px;
     }
-    .summaryBox {
-      border:1px solid #eee;
-      border-radius:12px;
-      background:#fafafa;
-      padding:12px;
+
+    .hidden {
+      display: none !important;
     }
+
+    .questionNo {
+      font-size: 14px;
+      color: #555;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .sentenceLabel {
+      font-size: 12px;
+      color: #666;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .sentenceA, .sentenceB {
+      font-size: 22px;
+      line-height: 1.8;
+      word-break: break-word;
+    }
+
+    .choiceGrid {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .choiceBtn {
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 16px;
+  line-height: 1.7;
+  white-space: normal;
+  word-break: break-word;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.choiceBtn.selected {
+  border-color: #2b7cff;
+  background: #eaf2ff;
+  font-weight: 700;
+}
+
+.choiceBtn.correct {
+  background: #e8f7e8;
+  border-color: #2e9f4d;
+  color: #156b2e;
+  font-weight: 700;
+}
+
+.choiceBtn.wrong {
+  background: #fdeaea;
+  border-color: #d94b4b;
+  color: #a11f1f;
+  font-weight: 700;
+}
+
+.choiceIndex {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: #f2f6ff;
+  color: #2b7cff;
+  font-size: 22px;
+  font-weight: 900;
+  border: 2px solid #d6e4ff;
+  margin-top: 0;
+  line-height: 1;
+}
+
+.choiceText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+    .feedbackBox {
+  margin-top: 14px;
+  margin-bottom: 14px;
+  font-size: 17px;
+  line-height: 1.9;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid #eee;
+  background: #fafafa;
+}
+
+    .feedbackBox.ok {
+      background: #eefaf0;
+      border-color: #b9e1c2;
+    }
+
+    .feedbackBox.ng {
+      background: #fff1f1;
+      border-color: #efc0c0;
+    }
+
+    .feedbackStatus {
+      font-size: 21px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .feedbackLabel {
+      font-size: 14px;
+      color: #555;
+      font-weight: 700;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+
+    .feedbackText {
+      font-size: 18px;
+      line-height: 1.85;
+      color: #111;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .summaryLineMain {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .summaryItem {
+      border-top: 1px solid #eee;
+      padding: 12px 0;
+    }
+
+    .summaryItem:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
     .summaryLabel {
-      font-size:12px;
-      color:#666;
-      margin-bottom:6px;
-    }
-    .summaryValue {
-      font-size:20px;
-      font-weight:800;
-      line-height:1.2;
-    }
-    .summarySub {
-      margin-top:6px;
-      font-size:12px;
-      color:#555;
-      line-height:1.5;
+      font-size: 12px;
+      color: #666;
+      font-weight: 700;
+      margin-bottom: 4px;
     }
 
-    .filterBar {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-top:10px;
+    .summaryText {
+      font-size: 15px;
+      line-height: 1.7;
+      white-space: pre-wrap;
     }
 
-    .blockGrid {
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-      margin-top:12px;
+    .listItem {
+      border-top: 1px solid #eee;
+      padding: 14px 0;
     }
 
-    .blockCard {
-      border:1px solid #e6e6e6;
-      border-radius:14px;
-      background:#fff;
-      padding:14px;
-    }
-    .blockHead {
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:10px;
-      margin-bottom:10px;
-    }
-    .blockTitle {
-      font-size:17px;
-      font-weight:800;
-      margin:0 0 4px;
-    }
-    .blockRange {
-      font-size:13px;
-      color:#666;
+    .listItem:first-child {
+      border-top: 0;
+      padding-top: 0;
     }
 
-    .statusGrid {
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:8px;
-      margin-top:8px;
-    }
-    .statusBox {
-      border:1px solid #eee;
-      border-radius:12px;
-      background:#fafafa;
-      padding:10px 10px;
-    }
-    .statusLabel {
-      font-size:12px;
-      color:#666;
-      margin-bottom:5px;
-    }
-    .statusValue {
-      font-size:15px;
-      font-weight:800;
-      line-height:1.3;
+    .listTitle {
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1.7;
+      margin-bottom: 8px;
     }
 
-    .actionArea {
-      margin-top:12px;
-      border-top:1px solid #eee;
-      padding-top:12px;
-    }
-    .actionTitle {
-      font-size:13px;
-      font-weight:700;
-      margin-bottom:8px;
-      color:#444;
-    }
-    .actionButtons {
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-    }
-    .miniBtn {
-      padding:9px 11px;
-      border-radius:10px;
-      border:1px solid #ddd;
-      background:#fff;
-      cursor:pointer;
-      font-size:13px;
-    }
-    .miniBtn.recommend {
-      background:#eef5ff;
-      border-color:#c9dbff;
-      color:#21468f;
-      font-weight:800;
+    .listMeta {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.7;
+      margin-bottom: 8px;
+      white-space: pre-wrap;
     }
 
-    .emptyBox {
-      border:1px dashed #d7d7d7;
-      border-radius:12px;
-      padding:18px;
-      color:#666;
-      background:#fcfcfc;
-      text-align:center;
+    .listBtnRow {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
-    @media (max-width: 760px) {
-      .goimonPanel {
-        grid-template-columns: 1fr;
-      }
-      .goimonImageWrap {
-        width:100%;
-        height:110px;
-      }
-      .goimonBubble::before {
-        display:none;
-      }
-      .summaryGrid {
-        grid-template-columns: 1fr;
-      }
-      .blockGrid {
-        grid-template-columns: 1fr;
-      }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #ddd;
+      background: #fff;
+      margin-right: 6px;
+      margin-bottom: 6px;
     }
+
+    .badgeWeak {
+      background: #fff0f4;
+      border-color: #f2a0b5;
+      color: #ad3159;
+    }
+
+    .badgeAuto {
+      background: #fff8e8;
+      border-color: #efcf88;
+      color: #8b5a00;
+    }
+
+    .weakBtnActive {
+      background: #fff0f4;
+      border-color: #f2a0b5;
+      color: #ad3159;
+      font-weight: 700;
+    }
+
+    .stickyActionBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(247,247,247,0.96);
+  border-top: 1px solid #ddd;
+  backdrop-filter: blur(6px);
+  z-index: 100;
+}
+
+.stickyActionInner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 10px 12px 14px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.stickyActionInner button {
+  min-width: 120px;
+}
+
+.goimonToggleBox {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.goimonToggleBtn {
+  background: #f9fbff;
+  border: 1px solid #d6e5ff;
+  color: #234f97;
+  font-weight: 700;
+}
+
+.evoNoticeBtn {
+  background: linear-gradient(180deg, #fff6d6 0%, #ffe8a3 100%);
+  border: 1px solid #f1d48a;
+  color: #7a5200;
+  font-weight: 900;
+  position: relative;
+  animation: noticePulse 1.8s ease-in-out infinite;
+  box-shadow: 0 0 0 rgba(255, 214, 102, 0.0);
+}
+
+.evoNoticeBtn::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 14px;
+  border: 2px solid rgba(255, 214, 102, 0.35);
+  animation: noticeRing 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes noticePulse {
+  0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(255,214,102,0); }
+  50% { transform: translateY(-1px) scale(1.02); box-shadow: 0 6px 18px rgba(255,214,102,0.35); }
+}
+
+@keyframes noticeRing {
+  0% { transform: scale(0.96); opacity: 0.75; }
+  100% { transform: scale(1.12); opacity: 0; }
+}
+
+.miniGoimonCard {
+  border: 1px solid #f0e3c7;
+  background: #fffaf2;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.miniGoimonHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.miniGoimonTitle {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.miniGoimonSub {
+  font-size: 12px;
+  color: #666;
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+
+.miniGoimonStage {
+  text-align: right;
+  flex: 0 0 auto;
+}
+
+.miniGoimonStageLabel {
+  font-size: 11px;
+  color: #8a6a2d;
+  margin-bottom: 2px;
+}
+
+.miniGoimonStageValue {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.miniGoimonBody {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.miniGoimonImageWrap {
+  width: 88px;
+  height: 88px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #eddcb8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.miniGoimonImageWrap img {
+  max-width: 76px;
+  max-height: 76px;
+  display: block;
+}
+
+.miniGoimonInfo {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.miniGoimonName {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0 0 4px;
+}
+
+.miniGoimonMeta {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.miniGoimonDesc {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.goimonPointGuide {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #555;
+  line-height: 1.5;
+}
+
+
+
+@media (max-width: 520px) {
+  .sentenceA, .sentenceB {
+    font-size: 19px;
+  }
+
+  .choiceBtn {
+    font-size: 15px;
+  }
+
+  .feedbackStatus {
+    font-size: 19px;
+  }
+
+  .feedbackText {
+    font-size: 17px;
+  }
+
+  .stickyActionInner {
+    justify-content: stretch;
+  }
+
+  .stickyActionInner button {
+    flex: 1 1 0;
+  }
+
+  .miniGoimonBody {
+    align-items: flex-start;
+  }
+}
+    
+
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
-      <div class="row" style="justify-content:space-between;">
-        <div>
-          <h1>ブロック進捗</h1>
-          <div class="muted">
-            Blockごとの学習状況をまとめて確認できます。<br>
-            このページから、そのまま各範囲の学習にも進めます。
-          </div>
-        </div>
-        <div class="row">
-          <a href="index.html">← ホーム</a>
-          <span id="levelBadge" class="pill"></span>
-        </div>
-      </div>
 
-      <div id="goimonPanel" class="goimonPanel">
-        <div class="goimonImageWrap">
-          <img id="progressGoimonImage" src="images/goimon/goimon_egg.png" alt="ゴイモン" />
-        </div>
-        <div>
-          <div class="goimonTitle" id="progressGoimonName">なごみ系のたまご</div>
-          <div class="goimonMeta" id="progressGoimonMeta">Lv 1 / 0 pt / たまご期</div>
-          <div class="goimonBubble" id="progressGoimonComment">今日はどこを復習するとよさそうかな。</div>
-        </div>
-      </div>
-
-      <div class="row" style="margin-top:12px;">
-        <button id="lv1" class="btn">全商英検 1級</button>
-        <button id="lv2" class="btn">全商英検 2級</button>
-        <button id="refresh" class="btn">更新</button>
-        <button id="resetGlobal" class="btn danger" style="margin-left:auto;">この級の横断記録を全消去</button>
-      </div>
-
-      <div class="filterBar">
-        <div class="muted">合格ライン</div>
-        <input id="passLine" type="number" min="1" max="100" value="80" />
-        <div class="muted">%</div>
-
-        <div class="muted" style="margin-left:12px;">表示</div>
-        <select id="statusFilter">
-          <option value="all">すべて</option>
-          <option value="needs_review">要復習のみ</option>
-          <option value="ok">良好のみ</option>
-          <option value="untouched">未挑戦のみ</option>
-        </select>
-      </div>
-
-      <div class="summaryGrid">
-        <div class="summaryBox">
-          <div class="summaryLabel">全体まとめ</div>
-          <div class="summaryValue" id="summaryMain">—</div>
-          <div class="summarySub" id="summarySub">—</div>
-        </div>
-        <div class="summaryBox">
-          <div class="summaryLabel">おすすめ復習対象</div>
-          <div class="summaryValue" id="summaryRecommend">—</div>
-          <div class="summarySub" id="summaryRecommendSub">—</div>
-        </div>
-        <div class="summaryBox">
-          <div class="summaryLabel">記録メモ</div>
-          <div class="summaryValue" id="summaryMemo">—</div>
-          <div class="summarySub" id="summaryMemoSub">—</div>
-        </div>
+    <div class="card topNavBox">
+      <div class="topNavTitle">学習ページ移動</div>
+      <div class="topNav">
+        <a href="index.html">ホーム</a>
+        <a href="study.html">暗記</a>
+        <a href="quiz.html">英→日</a>
+        <a href="quiz_jaen.html">日→英</a>
+        <a href="audio_quiz.html">音声→意味</a>
+         <a href="idiom_quiz.html">イディオム</a>
+        <a href="accent.html">大問1</a>
+        <a href="sentence.html">大問9</a>
+        <a href="paraphrase_quiz.html" class="active">大問11</a>
+        <a href="reorder.html">大問12</a>
+        <a href="list.html">一覧</a>
+        <a href="progress.html">進捗</a>
       </div>
     </div>
 
-    <div class="card">
-      <div class="row" style="justify-content:space-between;">
-        <div style="font-weight:800;">Block別一覧</div>
-        <div class="muted">暗記 / 英→日 / 日→英 / アクセント / 大問9 / 音声→意味</div>
-      </div>
+    <div id="levelBadge"></div>
+    <div class="goimonToggleBox">
+  <button id="toggleGoimon" type="button" class="goimonToggleBtn">ゴイモンの様子を見る</button>
+  <button id="evolutionNoticeBtn" type="button" class="evoNoticeBtn hidden">あれ、ゴイモンの様子が…！？</button>
+</div>
 
-      <div id="blockGrid" class="blockGrid"></div>
-      <div id="emptyState" class="emptyBox" style="display:none;">この条件に合うBlockはありません。</div>
+<div id="goimonCard" class="miniGoimonCard hidden">
+  <div class="miniGoimonHead">
+    <div>
+      <div class="miniGoimonTitle">現在のゴイモン</div>
+      <div class="miniGoimonSub">大問11風問題の正解で「ことば +0.5」「ぶんみゃく +0.5」されます。</div>
+    </div>
+    <div class="miniGoimonStage">
+      <div class="miniGoimonStageLabel">現在の段階</div>
+      <div class="miniGoimonStageValue" id="paraphraseGoimonStage">たまご期</div>
     </div>
   </div>
 
-  <script src="words_1kyu.js"></script>
-  <script src="blocks_1kyu.js"></script>
-  <script src="words_2kyu.js"></script>
-  <script src="blocks_2kyu.js"></script>
-  <script src="dataset.js"></script>
-  <script src="global_stats.js"></script>
-  <script src="goimon.js"></script>
-  <script src="progress.js"></script>
+  <div class="miniGoimonBody">
+    <div class="miniGoimonImageWrap">
+      <img id="paraphraseGoimonImage" src="images/goimon/goimon_egg.png" alt="ゴイモン" />
+    </div>
+    <div class="miniGoimonInfo">
+      <div class="miniGoimonName" id="paraphraseGoimonName">なごみ系のたまご</div>
+      <div class="miniGoimonMeta" id="paraphraseGoimonMeta">Lv 1 / 0 pt</div>
+      <div class="miniGoimonDesc" id="paraphraseGoimonDesc">まずは学習してゴイモンを育てよう。</div>
+    </div>
+  </div>
+
+  <div class="goimonPointGuide" id="paraphrasePointGuide">
+    正解：ことば +0.5 ＋ ぶんみゃく +0.5
+  </div>
+</div>
+
+    <div class="card" id="setupBox">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:700;">大問11風演習</div>
+          <div class="muted" style="margin-top:4px;">
+            上の文と同じ意味になるように、下の文の空所に入る表現を4択で選びます。<br>
+            イディオムページ寄りの設定・結果・ニガテ管理つき版です。
+          </div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="row" style="justify-content:flex-start;">
+        <div>
+          <div class="muted">問題No.</div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <input id="rangeStart" type="number" min="1" value="1" style="width:90px;">
+            <span>〜</span>
+            <input id="rangeEnd" type="number" min="1" value="141" style="width:90px;">
+          </div>
+        </div>
+
+        <div>
+          <div class="muted">問題数</div>
+          <select id="questionCount">
+            <option value="5">5問</option>
+            <option value="10" selected>10問</option>
+            <option value="20">20問</option>
+            <option value="all">全問</option>
+          </select>
+        </div>
+
+        <div>
+          <div class="muted">出題順</div>
+          <select id="quizMode">
+            <option value="order">順番</option>
+            <option value="order_continue" selected>続きから</option>
+            <option value="random">ランダム</option>
+            <option value="weak">ニガテ順</option>
+          </select>
+        </div>
+
+        <div>
+          <div class="muted">読み上げ</div>
+          <label style="display:flex; align-items:center; gap:8px; padding-top:10px;">
+            <input type="checkbox" id="autoRead" checked />
+            <span>上の文を自動読み上げ</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="muted" id="poolInfo" style="margin-top:10px;"></div>
+
+      <div class="row" style="justify-content:flex-start; margin-top:12px;">
+        <button id="startBtn" class="primary" type="button">開始</button>
+        <button id="openProblemListBtn" type="button">問題一覧を見る</button>
+        <button id="openWeakListBtn" type="button">ニガテ一覧を見る</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="relatedParaphraseBox">
+  <div style="font-size:18px; font-weight:700;">関連言い換え問題</div>
+  <div class="muted" id="relatedParaphraseLine" style="margin-top:6px;"></div>
+
+  <div class="row" style="justify-content:flex-start; margin-top:12px;">
+    <button id="startRelatedParaphraseBtn" class="primary" type="button">この関連問題を解く</button>
+    <button id="relatedParaphraseToIdiomBtn" type="button">元のイディオムへ</button>
+    <button id="clearRelatedParaphraseBtn" type="button">解除</button>
+  </div>
+</div>
+
+    <div class="card hidden" id="problemListBox">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:700;">問題一覧</div>
+          <div class="muted" style="margin-top:4px;">
+            問題文、正解、日本語、解説を確認できます。
+          </div>
+        </div>
+        <div>
+          <button id="problemListBackBtn" type="button">設定へ戻る</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div id="problemList"></div>
+      <div id="problemListEmpty" class="muted hidden">表示できる問題がありません。</div>
+    </div>
+
+    <div class="card hidden" id="weakListBox">
+      <div class="row">
+        <div>
+          <div style="font-size:18px; font-weight:700;">ニガテ一覧</div>
+          <div class="muted" style="margin-top:4px;">
+            自動でミスが記録された問題、または手動で苦手登録した問題を確認できます。<br>
+            ここで間違えた問題は、対応するイディオムの苦手にも連動します。
+          </div>
+        </div>
+        <div>
+          <button id="weakListBackBtn" type="button">設定へ戻る</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div id="weakList"></div>
+      <div id="weakListEmpty" class="muted hidden">まだニガテ登録された問題はありません。</div>
+    </div>
+
+    <div class="card hidden" id="playBox">
+      <div class="row">
+        <div id="stats" class="muted"></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button id="readBtn" type="button">上の文を読む</button>
+          <button id="jumpIdiomBtn" type="button">この表現のイディオムクイズへ</button>
+          <button id="manualWeakBtn" type="button">苦手に追加</button>
+          <button id="backBtn" type="button">設定へ戻る</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="questionNo" id="questionNo">第1問 / 10問</div>
+
+      <div class="sentenceLabel">上の文</div>
+      <div class="sentenceA" id="sentenceA">Many students took part in the volunteer program last summer.</div>
+
+      <div class="hr"></div>
+
+      <div class="sentenceLabel">下の文</div>
+<div class="sentenceB" id="sentenceB">Many students ( ) the volunteer program last summer.</div>
+
+<div id="feedbackBox" class="feedbackBox hidden"></div>
+
+<div id="choicesBox" class="choiceGrid"></div>
+    </div>
+
+    <div class="card hidden" id="summaryBox">
+      <div class="row">
+        <div>
+          <div class="summaryLineMain" id="summaryLine">8 / 10 問正解</div>
+          <div class="muted" id="summarySub">正答率：80%</div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button id="retryBtn" type="button">同じ問題セットで解き直す</button>
+          <button id="continueBtn" class="primary" type="button">次の問題セットへ</button>
+          <button id="backToSetupBtn" type="button">設定へ戻る</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div>
+        <div class="muted" style="font-weight:700; margin-bottom:8px;">間違えた問題一覧</div>
+        <div id="wrongList"></div>
+        <div id="wrongEmpty" class="muted hidden">全問正解です！</div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div>
+        <div class="muted" style="font-weight:700; margin-bottom:8px;">今回出た問題一覧</div>
+        <div id="askedList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stickyActionBar hidden" id="actionBar">
+    <div class="stickyActionInner">
+      <button id="checkBtn" class="primary" type="button" disabled>答え合わせ</button>
+      <button id="nextBtn" class="primary" type="button" disabled>次へ</button>
+    </div>
+  </div>
+
+  <script>
+    window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
+  </script>
+  <script src="paraphrase_data_1kyu.js"></script>
+  <script src="idiom_data_1kyu.js"></script>
+  <script src="goimon_dialogues.js"></script>
+<script src="goimon_dex.js"></script>
+<script src="goimon_rules.js"></script>
+<script src="goimon.js"></script>
+
+<audio id="evolutionAudio" src="audio/evolution.mp3" preload="auto"></audio>
+
+<div id="evoOverlay" class="evoOverlay hidden">
+  <div class="evoCenter">
+    <div class="evoFlash"></div>
+    <div id="evoShock" class="evoShock"></div>
+
+    <div class="evoImageStage">
+      <img id="evoGoimonBefore" src="" class="evoGoimon evoBefore" alt="進化前ゴイモン" />
+      <img id="evoGoimonAfter" src="" class="evoGoimon evoAfter evoHidden" alt="進化後ゴイモン" />
+    </div>
+
+    <div id="evoText1" class="evoText evoHidden">✨進化！✨</div>
+    <div id="evoText2" class="evoTextSub evoHidden"></div>
+
+    <button id="evoSkipBtn" class="evoSkip">スキップ</button>
+  </div>
+</div>
+  <script src="paraphrase_quiz.js"></script>
 </body>
 </html>
+
+<style>
+/* 既存CSSのいちばん下に追加 */
+
+.paraSummaryCard {
+  border: 1px solid #e6e6e6;
+  border-radius: 14px;
+  background: #fff;
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.paraSummaryHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.paraSummaryTitleWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.paraSummaryNo {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #eaf2ff;
+  border: 1px solid #cfe0ff;
+  color: #1251b5;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.paraSummaryStatus {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid #ddd;
+}
+
+.paraSummaryStatus.ok {
+  background: #eefaf0;
+  border-color: #b9e1c2;
+  color: #0a7a2f;
+}
+
+.paraSummaryStatus.ng {
+  background: #fff1f1;
+  border-color: #efc0c0;
+  color: #b00020;
+}
+
+.paraSummaryGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.paraSummaryField {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fafafa;
+  padding: 10px 12px;
+}
+
+.paraSummaryLabel {
+  font-size: 12px;
+  color: #666;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.paraSummaryValue {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #111;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.paraSummaryDetails {
+  margin-top: 10px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.paraSummaryDetails summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  color: #444;
+}
+
+.paraSummaryDetailsBody {
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.75;
+  color: #333;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 520px) {
+  .paraSummaryValue {
+    font-size: 14px;
+  }
+}
+</style>
