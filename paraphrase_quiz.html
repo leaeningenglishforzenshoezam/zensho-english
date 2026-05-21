@@ -69,12 +69,12 @@
       margin: 12px 0;
     }
 
-    select {
-      padding: 10px 10px;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      font-size: 16px;
-    }
+    select, input[type="number"] {
+  padding: 10px 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+}
 
     .topNavBox {
       margin-bottom: 12px;
@@ -617,6 +617,15 @@
       <div class="hr"></div>
 
       <div class="row" style="justify-content:flex-start;">
+        <div>
+          <div class="muted">問題No.</div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <input id="rangeStart" type="number" min="1" value="1" style="width:90px;">
+            <span>〜</span>
+            <input id="rangeEnd" type="number" min="1" value="141" style="width:90px;">
+          </div>
+        </div>
+
         <div>
           <div class="muted">問題数</div>
           <select id="questionCount">
