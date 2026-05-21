@@ -15,10 +15,12 @@
   };
 
   const DEFAULT_SETTINGS = {
-    questionCount: "10",
-    quizMode: "order_continue",
-    autoRead: true
-  };
+  rangeStart: "1",
+  rangeEnd: "",
+  questionCount: "10",
+  quizMode: "order_continue",
+  autoRead: true
+};
 
   function normalizeNoteId(value) {
     const s = String(value || "").trim().toUpperCase();
@@ -86,10 +88,12 @@
     summaryBox: document.getElementById("summaryBox"),
     actionBar: document.getElementById("actionBar"),
 
-    questionCount: document.getElementById("questionCount"),
-    quizMode: document.getElementById("quizMode"),
-    autoRead: document.getElementById("autoRead"),
-    poolInfo: document.getElementById("poolInfo"),
+rangeStart: document.getElementById("rangeStart"),
+rangeEnd: document.getElementById("rangeEnd"),
+questionCount: document.getElementById("questionCount"),
+quizMode: document.getElementById("quizMode"),
+autoRead: document.getElementById("autoRead"),
+poolInfo: document.getElementById("poolInfo"),
 
     startBtn: document.getElementById("startBtn"),
     openProblemListBtn: document.getElementById("openProblemListBtn"),
@@ -191,12 +195,84 @@
     } catch (err) {}
   }
 
-  function countToNumber(value) {
-    if (value === "all") return DATA.length;
-    const num = Number(value);
-    if (!Number.isFinite(num) || num <= 0) return 10;
-    return Math.min(num, DATA.length);
+  function countToNumber(value, maxCount) {
+  const max = Math.max(0, Number(maxCount) || 0);
+  if (value === "all") return max;
+
+  const num = Number(value);
+  if (!Number.isFinite(num) || num <= 0) return Math.min(10, max);
+
+  return Math.min(num, max);
+}
+
+function getMaxDisplayNo() {
+  const nums = DATA
+    .map(function (item, index) {
+      return Number(item.displayNo || index + 1);
+    })
+    .filter(function (n) {
+      return Number.isFinite(n) && n >= 1;
+    });
+
+  return nums.length ? Math.max.apply(null, nums) : DATA.length;
+}
+
+function getQuestionDisplayNo(item, index) {
+  return Number(item.displayNo || index + 1);
+}
+
+function getRangeValues() {
+  const maxNo = getMaxDisplayNo();
+
+  let startNo = Number(el.rangeStart ? el.rangeStart.value : 1);
+  let endNo = Number(el.rangeEnd ? el.rangeEnd.value : maxNo);
+
+  if (!Number.isFinite(startNo) || startNo < 1) startNo = 1;
+  if (!Number.isFinite(endNo) || endNo < 1) endNo = maxNo;
+
+  startNo = Math.floor(startNo);
+  endNo = Math.floor(endNo);
+
+  if (startNo > endNo) {
+    const temp = startNo;
+    startNo = endNo;
+    endNo = temp;
   }
+
+  startNo = Math.max(1, Math.min(startNo, maxNo));
+  endNo = Math.max(1, Math.min(endNo, maxNo));
+
+  return { startNo, endNo, maxNo };
+}
+
+function getRangedData() {
+  const range = getRangeValues();
+
+  return DATA
+    .map(function (item, index) {
+      return {
+        ...item,
+        _originalIndex: index,
+        _rangeIndex: -1
+      };
+    })
+    .filter(function (item, index) {
+      const no = getQuestionDisplayNo(item, index);
+      return Number.isFinite(no) && no >= range.startNo && no <= range.endNo;
+    })
+    .map(function (item, index) {
+      return {
+        ...item,
+        _rangeIndex: index,
+        _index: index
+      };
+    });
+}
+
+function getCursorRangeKey() {
+  const range = getRangeValues();
+  return `${range.startNo}-${range.endNo}`;
+}
 
   function readWeakAutoMap() {
     const raw = readJSON(STORAGE_KEYS.weakAuto, {});
@@ -278,32 +354,65 @@
   }
 
   function getCursor() {
-    const raw = Number(localStorage.getItem(STORAGE_KEYS.cursor) || "0");
-    if (!Number.isFinite(raw) || raw < 0) return 0;
-    return Math.floor(raw);
+  const key = getCursorRangeKey();
+  const raw = localStorage.getItem(STORAGE_KEYS.cursor);
+
+  if (!raw) return 0;
+
+  try {
+    const obj = JSON.parse(raw);
+
+    if (obj && typeof obj === "object") {
+      const v = Number(obj[key]);
+      if (Number.isFinite(v) && v >= 0) return Math.floor(v);
+      return 0;
+    }
+  } catch {}
+
+  const legacy = Number(raw);
+  if (Number.isFinite(legacy) && legacy >= 0) return Math.floor(legacy);
+
+  return 0;
+}
+
+function setCursor(value) {
+  const key = getCursorRangeKey();
+  const raw = localStorage.getItem(STORAGE_KEYS.cursor);
+
+  let obj = {};
+
+  try {
+    const parsed = JSON.parse(raw || "{}");
+    if (parsed && typeof parsed === "object") obj = parsed;
+  } catch {
+    obj = {};
   }
 
-  function setCursor(value) {
-    localStorage.setItem(STORAGE_KEYS.cursor, String(value));
-  }
+  obj[key] = Math.max(0, Math.floor(Number(value) || 0));
+  localStorage.setItem(STORAGE_KEYS.cursor, JSON.stringify(obj));
+}
 
   function getSavedSettings() {
-    const saved = readJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
-    return {
-      questionCount: saved.questionCount || DEFAULT_SETTINGS.questionCount,
-      quizMode: saved.quizMode || DEFAULT_SETTINGS.quizMode,
-      autoRead: typeof saved.autoRead === "boolean" ? saved.autoRead : DEFAULT_SETTINGS.autoRead
-    };
-  }
+  const saved = readJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
+  return {
+    rangeStart: saved.rangeStart || DEFAULT_SETTINGS.rangeStart,
+    rangeEnd: saved.rangeEnd || DEFAULT_SETTINGS.rangeEnd,
+    questionCount: saved.questionCount || DEFAULT_SETTINGS.questionCount,
+    quizMode: saved.quizMode || DEFAULT_SETTINGS.quizMode,
+    autoRead: typeof saved.autoRead === "boolean" ? saved.autoRead : DEFAULT_SETTINGS.autoRead
+  };
+}
 
   function saveCurrentSettings() {
-    const settings = {
-      questionCount: el.questionCount.value,
-      quizMode: el.quizMode.value,
-      autoRead: el.autoRead.checked
-    };
-    writeJSON(STORAGE_KEYS.settings, settings);
-  }
+  const settings = {
+    rangeStart: el.rangeStart ? el.rangeStart.value : "1",
+    rangeEnd: el.rangeEnd ? el.rangeEnd.value : String(getMaxDisplayNo()),
+    questionCount: el.questionCount.value,
+    quizMode: el.quizMode.value,
+    autoRead: el.autoRead.checked
+  };
+  writeJSON(STORAGE_KEYS.settings, settings);
+}
 
   function modeLabel(mode) {
     if (mode === "order") return "順番";
@@ -408,21 +517,29 @@
   }
 
   function updatePoolInfo() {
-    const weakMap = readWeakAutoMap();
-    const manualMap = readManualWeakMap();
+  const weakMap = readWeakAutoMap();
+  const manualMap = readManualWeakMap();
+  const rangedData = getRangedData();
+  const range = getRangeValues();
 
-    const autoWeakItems = Object.keys(weakMap).filter(function (id) {
-      return (weakMap[id] || 0) > 0;
-    }).length;
-    const autoWeakTotal = Object.values(weakMap).reduce(function (sum, value) {
-      return sum + Number(value || 0);
-    }, 0);
-    const manualWeakItems = Object.keys(manualMap).length;
-    const cursor = getCursor();
+  const autoWeakItems = Object.keys(weakMap).filter(function (id) {
+    return (weakMap[id] || 0) > 0;
+  }).length;
 
-    el.poolInfo.textContent =
-      `収録数：${DATA.length}件 / 続きからの次回開始位置：${cursor + 1}番目 / 自動ニガテ：${autoWeakItems}件（累計ミス ${autoWeakTotal}回） / 手動ニガテ：${manualWeakItems}件`;
-  }
+  const autoWeakTotal = Object.values(weakMap).reduce(function (sum, value) {
+    return sum + Number(value || 0);
+  }, 0);
+
+  const manualWeakItems = Object.keys(manualMap).length;
+  const cursor = rangedData.length ? (getCursor() % rangedData.length) : 0;
+
+  el.poolInfo.textContent =
+    `出題範囲：No.${range.startNo}〜${range.endNo} / ` +
+    `この範囲の問題数：${rangedData.length}件 / ` +
+    `続きからの次回開始位置：${rangedData.length ? cursor + 1 : 0}番目 / ` +
+    `自動ニガテ：${autoWeakItems}件（累計ミス ${autoWeakTotal}回） / ` +
+    `手動ニガテ：${manualWeakItems}件`;
+}
 
   function getWeakListItems() {
     const weakMap = readWeakAutoMap();
@@ -449,43 +566,41 @@
   }
 
   function getSessionItems(count, mode) {
-    const base = DATA.map(function (item, index) {
-      return { ...item, _index: index };
-    });
+  const base = getRangedData();
 
-    if (mode === "random") {
-      return shuffle(base).slice(0, count);
-    }
-
-    if (mode === "weak") {
-      const weakMap = readWeakAutoMap();
-      const manualMap = readManualWeakMap();
-
-      return base
-        .slice()
-        .sort(function (a, b) {
-          const manualA = manualMap[a.id] ? 1 : 0;
-          const manualB = manualMap[b.id] ? 1 : 0;
-          if (manualA !== manualB) return manualB - manualA;
-
-          const weakA = weakMap[a.id] || 0;
-          const weakB = weakMap[b.id] || 0;
-          if (weakA !== weakB) return weakB - weakA;
-
-          return a._index - b._index;
-        })
-        .slice(0, count);
-    }
-
-    if (mode === "order_continue") {
-      if (!base.length) return [];
-      const cursor = getCursor() % base.length;
-      const ordered = base.slice(cursor).concat(base.slice(0, cursor));
-      return ordered.slice(0, count);
-    }
-
-    return base.slice(0, count);
+  if (mode === "random") {
+    return shuffle(base).slice(0, count);
   }
+
+  if (mode === "weak") {
+    const weakMap = readWeakAutoMap();
+    const manualMap = readManualWeakMap();
+
+    return base
+      .slice()
+      .sort(function (a, b) {
+        const manualA = manualMap[a.id] ? 1 : 0;
+        const manualB = manualMap[b.id] ? 1 : 0;
+        if (manualA !== manualB) return manualB - manualA;
+
+        const weakA = weakMap[a.id] || 0;
+        const weakB = weakMap[b.id] || 0;
+        if (weakA !== weakB) return weakB - weakA;
+
+        return a._index - b._index;
+      })
+      .slice(0, count);
+  }
+
+  if (mode === "order_continue") {
+    if (!base.length) return [];
+    const cursor = getCursor() % base.length;
+    const ordered = base.slice(cursor).concat(base.slice(0, cursor));
+    return ordered.slice(0, count);
+  }
+
+  return base.slice(0, count);
+}
 
   function getChoices(question) {
     const correct = question.answer;
@@ -663,10 +778,12 @@
   correct: isCorrect
 });
 
-    if (state.mode === "order" || state.mode === "order_continue") {
-      const nextCursor = (question._index + 1) % DATA.length;
-      setCursor(nextCursor);
-    }
+   if (state.mode === "order" || state.mode === "order_continue") {
+  const rangedData = getRangedData();
+  const total = rangedData.length || 1;
+  const nextCursor = (Number(question._index) + 1) % total;
+  setCursor(nextCursor);
+}
 
     el.checkBtn.disabled = true;
     el.nextBtn.disabled = false;
@@ -865,33 +982,42 @@
   }
 
   function startQuiz(useLastSession) {
-    if (!DATA.length) {
-      alert("paraphrase_data_1kyu.js のデータが読み込めていません。");
-      return;
-    }
-
-    saveCurrentSettings();
-
-    const count = countToNumber(el.questionCount.value);
-    const mode = el.quizMode.value;
-
-    state.mode = mode;
-    resetSessionState();
-
-    if (useLastSession && state.lastSessionItems.length) {
-      state.sessionItems = state.lastSessionItems.map(function (item) {
-        return { ...item };
-      });
-    } else {
-      state.sessionItems = getSessionItems(count, mode);
-      state.lastSessionItems = state.sessionItems.map(function (item) {
-        return { ...item };
-      });
-    }
-
-    showBox("play");
-    renderQuestion();
+  if (!DATA.length) {
+    alert("paraphrase_data_1kyu.js のデータが読み込めていません。");
+    return;
   }
+
+  const rangedData = getRangedData();
+
+  if (!rangedData.length) {
+    const range = getRangeValues();
+    alert(`No.${range.startNo}〜${range.endNo} の範囲に出題できる問題がありません。`);
+    updatePoolInfo();
+    return;
+  }
+
+  saveCurrentSettings();
+
+  const count = countToNumber(el.questionCount.value, rangedData.length);
+  const mode = el.quizMode.value;
+
+  state.mode = mode;
+  resetSessionState();
+
+  if (useLastSession && state.lastSessionItems.length) {
+    state.sessionItems = state.lastSessionItems.map(function (item) {
+      return { ...item };
+    });
+  } else {
+    state.sessionItems = getSessionItems(count, mode);
+    state.lastSessionItems = state.sessionItems.map(function (item) {
+      return { ...item };
+    });
+  }
+
+  showBox("play");
+  renderQuestion();
+}
 
   function startRelatedParaphraseQuiz(noteIds) {
     const relatedItems = getRelatedItemsByNoteIds(noteIds);
@@ -969,11 +1095,21 @@ function handleKeyboardShortcut(event) {
 }
 
   function restoreSettingsToForm() {
-    const settings = getSavedSettings();
-    el.questionCount.value = settings.questionCount;
-    el.quizMode.value = settings.quizMode;
-    el.autoRead.checked = settings.autoRead;
+  const settings = getSavedSettings();
+  const maxNo = getMaxDisplayNo();
+
+  if (el.rangeStart) {
+    el.rangeStart.value = settings.rangeStart || "1";
   }
+
+  if (el.rangeEnd) {
+    el.rangeEnd.value = settings.rangeEnd || String(maxNo);
+  }
+
+  el.questionCount.value = settings.questionCount;
+  el.quizMode.value = settings.quizMode;
+  el.autoRead.checked = settings.autoRead;
+}
 
   function handleListAreaClick(event) {
     const btn = event.target.closest("[data-action]");
@@ -1126,19 +1262,33 @@ function handleKeyboardShortcut(event) {
       showBox("setup");
     });
 
-    el.questionCount.addEventListener("change", function () {
-      saveCurrentSettings();
-      updatePoolInfo();
-    });
+   if (el.rangeStart) {
+  el.rangeStart.addEventListener("input", function () {
+    saveCurrentSettings();
+    updatePoolInfo();
+  });
+}
 
-    el.quizMode.addEventListener("change", function () {
-      saveCurrentSettings();
-      updatePoolInfo();
-    });
+if (el.rangeEnd) {
+  el.rangeEnd.addEventListener("input", function () {
+    saveCurrentSettings();
+    updatePoolInfo();
+  });
+}
 
-    el.autoRead.addEventListener("change", function () {
-      saveCurrentSettings();
-    });
+el.questionCount.addEventListener("change", function () {
+  saveCurrentSettings();
+  updatePoolInfo();
+});
+
+el.quizMode.addEventListener("change", function () {
+  saveCurrentSettings();
+  updatePoolInfo();
+});
+
+el.autoRead.addEventListener("change", function () {
+  saveCurrentSettings();
+});
   }
 
   const PARAPHRASE_GOIMON_DELTA = { kotoba: 0.5, bunmyaku: 0.5 };
