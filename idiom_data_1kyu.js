@@ -1627,6 +1627,1010 @@
       ["understand", "follow"],
       "be beyond one's understanding は『理解の範囲を超えている』。",
       "句⇄同義表現"
+    ),
+ 
+    // ===== IM151〜IM250 追加分 =====
+
+    make(
+      "IM151",
+      "take part in",
+      "～に参加する",
+      n(),
+      ["participate in", "join"],
+      [],
+      "take part in は活動・行事・イベントなどに参加する意味。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM152",
+      "participate in",
+      "～に参加する",
+      n(),
+      ["take part in", "join"],
+      [],
+      "participate in は take part in より少しかしこまった表現。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM153",
+      "be involved in",
+      "～に関わっている",
+      n(),
+      ["take part in", "be connected with"],
+      [],
+      "活動・計画・事件などに関係していることを表す。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM154",
+      "play an important role in",
+      "～で重要な役割を果たす",
+      n(),
+      ["be important in", "contribute to"],
+      [],
+      "社会・教育・環境などの説明文で使いやすい表現。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM155",
+      "in spite of",
+      "～にもかかわらず",
+      n(),
+      ["despite", "although"],
+      [],
+      "後ろには名詞・動名詞が来る。although は後ろに文が来る。",
+      "逆接表現"
+    ),
+    make(
+      "IM156",
+      "despite",
+      "～にもかかわらず",
+      n(),
+      ["in spite of", "although"],
+      [],
+      "in spite of とほぼ同じ意味。やや書き言葉寄り。",
+      "逆接表現"
+    ),
+    make(
+      "IM157",
+      "no matter how",
+      "どれだけ～しても",
+      n(),
+      ["however"],
+      [],
+      "no matter how hard you try のように使う譲歩表現。",
+      "譲歩表現"
+    ),
+    make(
+      "IM158",
+      "no matter what",
+      "何があっても、何を～しても",
+      n(),
+      ["whatever"],
+      [],
+      "no matter what happens で『何が起こっても』。",
+      "譲歩表現"
+    ),
+    make(
+      "IM159",
+      "in fact",
+      "実際に、実を言うと",
+      n(),
+      ["actually", "to tell the truth"],
+      [],
+      "事実を強調するときに使う表現。",
+      "定型表現⇄同義表現"
+    ),
+    make(
+      "IM160",
+      "in advance",
+      "前もって",
+      n(),
+      ["beforehand"],
+      ["at the last minute"],
+      "予約・準備・連絡などでよく使う。",
+      "定型表現⇄同義表現"
+    ),
+    make(
+      "IM161",
+      "in addition to",
+      "～に加えて",
+      n(),
+      ["besides", "as well as"],
+      [],
+      "追加情報を述べるときの前置詞表現。",
+      "前置詞表現⇄同義表現"
+    ),
+    make(
+      "IM162",
+      "in contrast to",
+      "～とは対照的に",
+      n(),
+      ["unlike", "compared with"],
+      [],
+      "比較・対比を表す表現。",
+      "前置詞表現⇄同義表現"
+    ),
+    make(
+      "IM163",
+      "according to",
+      "～によると",
+      n(),
+      ["based on"],
+      [],
+      "情報源・資料・調査結果を示すときに使う。",
+      "前置詞表現"
+    ),
+    make(
+      "IM164",
+      "as a result of",
+      "～の結果として",
+      n(),
+      ["because of", "due to"],
+      [],
+      "原因・結果の関係を表す。後ろは名詞句。",
+      "前置詞表現⇄同義表現"
+    ),
+    make(
+      "IM165",
+      "break out",
+      "発生する、勃発する",
+      n(),
+      ["start suddenly", "occur"],
+      [],
+      "戦争・火事・病気など、よくない出来事が突然起こるときに使う。",
+      "句動詞⇄同義表現"
+    ),
+    make(
+      "IM166",
+      "come into existence",
+      "生まれる、出現する",
+      n(),
+      ["begin to exist", "appear"],
+      [],
+      "制度・考え・文化などが存在するようになることを表す。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM167",
+      "spread all over the world",
+      "世界中に広がる",
+      n(),
+      ["become global", "spread worldwide"],
+      [],
+      "文化・技術・インターネットなどが世界中に広がる文脈で使う。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM168",
+      "all over the world",
+      "世界中で",
+      n(),
+      ["around the world", "throughout the world"],
+      [],
+      "世界中で、世界各地でという意味の定型表現。",
+      "定型表現⇄同義表現"
+    ),
+    make(
+      "IM169",
+      "at one's best",
+      "最高の状態で",
+      n(),
+      ["in the best condition"],
+      ["at one's worst"],
+      "be at its best で『最もよい状態で』。",
+      "定型表現"
+    ),
+    make(
+      "IM170",
+      "ask A for B",
+      "AにBを求める",
+      n(),
+      ["request B from A"],
+      [],
+      "ask the city for better services のように使う。",
+      "構文⇄同義表現"
+    ),
+    make(
+      "IM171",
+      "make a request for",
+      "～を要請する",
+      n(),
+      ["ask for", "request"],
+      [],
+      "request を名詞で使った表現。ややかたい。",
+      "名詞表現⇄同義表現"
+    ),
+    make(
+      "IM172",
+      "now that",
+      "今や～なので、～だから",
+      n(),
+      ["since", "because"],
+      [],
+      "状況が変わったことを理由として述べる表現。",
+      "接続表現"
+    ),
+    make(
+      "IM173",
+      "as long as",
+      "～する限り",
+      n(),
+      ["if", "provided that"],
+      [],
+      "条件を表す。as long as S V の形で使う。",
+      "条件表現"
+    ),
+    make(
+      "IM174",
+      "keep up with",
+      "～についていく",
+      n(),
+      ["follow", "stay level with"],
+      [],
+      "授業・変化・時代・情報などについていく意味。",
+      "句動詞⇄同義表現"
+    ),
+    make(
+      "IM175",
+      "look over",
+      "～をざっと確認する",
+      n(),
+      ["check", "examine briefly"],
+      [],
+      "書類・答案・レポートなどをざっと確認する。look into とは違う。",
+      "句動詞⇄同義表現"
+    ),
+    make(
+      "IM176",
+      "go over",
+      "～を確認する、復習する",
+      n(),
+      ["review", "check"],
+      [],
+      "内容・計画・答案などを見直すときに使う。",
+      "句動詞⇄同義表現"
+    ),
+    make(
+      "IM177",
+      "be ill at ease",
+      "落ち着かない、不安である",
+      n(),
+      ["feel uncomfortable", "feel nervous"],
+      ["feel at ease"],
+      "試験・面接・慣れない場所などで落ち着かない感じ。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM178",
+      "feel at ease",
+      "安心する、くつろぐ",
+      n(),
+      ["feel comfortable", "relax"],
+      ["be ill at ease"],
+      "安心している、落ち着いている状態を表す。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM179",
+      "take on",
+      "～を引き受ける、雇う",
+      n(),
+      ["accept", "employ"],
+      [],
+      "仕事・責任を引き受ける意味でも、人を雇う意味でも使う。",
+      "句動詞⇄同義表現"
+    ),
+    make(
+      "IM180",
+      "take over",
+      "～を引き継ぐ",
+      n(),
+      ["succeed to", "assume control of"],
+      [],
+      "仕事・会社・役割などを引き継ぐときに使う。",
+      "句動詞⇄同義表現"
+    ),
+    make(
+      "IM181",
+      "make suggestions",
+      "提案する",
+      n(),
+      ["suggest", "express ideas"],
+      [],
+      "ideas を出す、提案するという意味。",
+      "名詞表現⇄同義表現"
+    ),
+    make(
+      "IM182",
+      "put forward a proposal",
+      "提案を出す",
+      n(),
+      ["make a proposal", "suggest"],
+      [],
+      "会議・ビジネス・社会問題の文脈で使いやすい。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM183",
+      "take the place of",
+      "～に取って代わる",
+      n(),
+      ["replace"],
+      [],
+      "人・物・制度などに取って代わるという意味。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM184",
+      "be worth doing",
+      "～する価値がある",
+      n(),
+      ["be worthwhile to do"],
+      ["be useless to do"],
+      "worth の後ろは動名詞。This book is worth reading. の形で使う。",
+      "構文表現"
+    ),
+    make(
+      "IM185",
+      "be crucial to",
+      "～にとって極めて重要である",
+      n(),
+      ["be very important to", "be essential to"],
+      [],
+      "important より強く、不可欠に近い重要性を表す。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM186",
+      "be familiar with",
+      "～をよく知っている、～に慣れている",
+      n(),
+      ["know well", "be used to"],
+      [],
+      "人・場所・方法・機械などによく慣れていることを表す。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM187",
+      "keep in touch with",
+      "～と連絡を取り合う",
+      n(),
+      ["stay in contact with"],
+      [],
+      "連絡を取り合い続けるという意味。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM188",
+      "get in touch with",
+      "～と連絡を取る",
+      n(),
+      ["contact"],
+      [],
+      "連絡を取るという一回の動作。keep in touch with との違いに注意。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM189",
+      "be disappointed with",
+      "～にがっかりしている",
+      n(),
+      ["be not satisfied with"],
+      ["be satisfied with"],
+      "結果・答え・サービスなどに失望していることを表す。",
+      "句⇄反意表現"
+    ),
+    make(
+      "IM190",
+      "be satisfied with",
+      "～に満足している",
+      n(),
+      ["be pleased with"],
+      ["be disappointed with"],
+      "結果・答え・サービスなどに満足していることを表す。",
+      "句⇄反意表現"
+    ),
+    make(
+      "IM191",
+      "too ... to do",
+      "あまりに…なので～できない",
+      n(),
+      ["so ... that S cannot"],
+      [],
+      "too difficult to understand などの形で使う。",
+      "構文言い換え"
+    ),
+    make(
+      "IM192",
+      "so ... that S cannot",
+      "とても…なのでSは～できない",
+      n(),
+      ["too ... to do"],
+      [],
+      "too ... to do と言い換えられる重要構文。",
+      "構文言い換え"
+    ),
+    make(
+      "IM193",
+      "have difficulty doing",
+      "～するのに苦労する",
+      n(),
+      ["have trouble doing", "find it difficult to do"],
+      [],
+      "後ろは動名詞。difficulty の後に doing が来る点に注意。",
+      "構文表現"
+    ),
+    make(
+      "IM194",
+      "have trouble doing",
+      "～するのに苦労する",
+      n(),
+      ["have difficulty doing"],
+      [],
+      "have difficulty doing とほぼ同じ。やや会話的。",
+      "構文表現"
+    ),
+    make(
+      "IM195",
+      "be aware of",
+      "～に気づいている、～を認識している",
+      n(),
+      ["know", "realize"],
+      ["be unaware of"],
+      "危険・問題・重要性などを認識していることを表す。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM196",
+      "be fluent in",
+      "～に堪能である",
+      n(),
+      ["speak ... fluently"],
+      [],
+      "言語を流ちょうに話せることを表す。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM197",
+      "have a good command of",
+      "～を自在に使える、～に堪能である",
+      n(),
+      ["be fluent in", "be good at"],
+      [],
+      "言語・技能を高いレベルで使えることを表す。ややかたい。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM198",
+      "draw near",
+      "近づく",
+      n(),
+      ["approach", "come near"],
+      [],
+      "期限・季節・台風などが近づくときに使える。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM199",
+      "take A into account",
+      "Aを考慮に入れる",
+      n(),
+      ["consider A"],
+      ["ignore A"],
+      "意見・状況・費用などを判断材料に入れる意味。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM200",
+      "make fun of",
+      "～をからかう",
+      n(),
+      ["laugh at", "tease"],
+      ["respect"],
+      "人をばかにしてからかう表現。",
+      "熟語⇄同義表現"
+    ),
+
+    make(
+      "IM201",
+      "be related to",
+      "～に関係している",
+      n(),
+      ["be connected with", "have something to do with"],
+      ["be unrelated to"],
+      "人・物事・問題などが関係していることを表す。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM202",
+      "be connected with",
+      "～と関係がある",
+      n(),
+      ["be related to", "have something to do with"],
+      [],
+      "be related to より少しかしこまった表現。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM203",
+      "have something to do with",
+      "～と関係がある",
+      n(),
+      ["be related to", "be connected with"],
+      ["have nothing to do with"],
+      "直訳は『～と何か関係がある』。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM204",
+      "have nothing to do with",
+      "～とは関係がない",
+      n(),
+      ["be unrelated to"],
+      ["have something to do with"],
+      "～とは全く関係がないことを表す。",
+      "熟語⇄反意表現"
+    ),
+    make(
+      "IM205",
+      "be different from",
+      "～と異なる",
+      n(),
+      ["differ from"],
+      ["be similar to"],
+      "比較・対比で使う基本表現。",
+      "句⇄反意表現"
+    ),
+    make(
+      "IM206",
+      "be similar to",
+      "～に似ている",
+      n(),
+      ["resemble", "be like"],
+      ["be different from"],
+      "見た目だけでなく、性質・内容が似ている場合にも使える。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM207",
+      "be suitable for",
+      "～に適している",
+      n(),
+      ["be appropriate for", "be fit for"],
+      ["be unsuitable for"],
+      "目的・人・場所などに合っていることを表す。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM208",
+      "be appropriate for",
+      "～にふさわしい",
+      n(),
+      ["be suitable for"],
+      ["be inappropriate for"],
+      "suitable より少しかしこまった表現。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM209",
+      "be full of",
+      "～でいっぱいである",
+      n(),
+      ["be filled with"],
+      ["be empty of"],
+      "物だけでなく、感情などにも使える。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM210",
+      "be filled with",
+      "～で満たされている",
+      n(),
+      ["be full of"],
+      ["be empty of"],
+      "be full of とほぼ同じ。受け身の形で使う。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM211",
+      "be short of",
+      "～が不足している",
+      n(),
+      ["lack", "do not have enough"],
+      ["have enough"],
+      "お金・時間・人手などが不足している状態を表す。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM212",
+      "run short of",
+      "～が不足する",
+      n(),
+      ["begin to lack", "almost run out of"],
+      [],
+      "不足し始める、足りなくなるという動きを表す。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM213",
+      "run out of",
+      "～を使い果たす",
+      n(),
+      ["use up"],
+      [],
+      "時間・お金・食料などがなくなることを表す。",
+      "句動詞⇄同義表現"
+    ),
+    make(
+      "IM214",
+      "be out of order",
+      "故障している",
+      n(),
+      ["be broken", "not work"],
+      ["be in order"],
+      "機械・設備などが故障していることを表す。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM215",
+      "be in order",
+      "整っている、正常である",
+      n(),
+      ["be working", "be correct"],
+      ["be out of order"],
+      "機械が正常、または物事が整っていることを表す。",
+      "句⇄反意表現"
+    ),
+    make(
+      "IM216",
+      "take measures to",
+      "～するための対策を取る",
+      n(),
+      ["take action to"],
+      [],
+      "環境・安全・健康問題などで使いやすい表現。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM217",
+      "take action to",
+      "～するために行動を起こす",
+      n(),
+      ["take measures to"],
+      [],
+      "問題解決のために具体的な行動を取ることを表す。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM218",
+      "make up for",
+      "～を埋め合わせる",
+      n(),
+      ["compensate for"],
+      [],
+      "失った時間・不足・失敗などを補う意味。",
+      "句動詞⇄同義表現"
+    ),
+    make(
+      "IM219",
+      "compensate for",
+      "～を補償する、埋め合わせる",
+      n(),
+      ["make up for"],
+      [],
+      "make up for よりかたい。損失や不足を補う表現。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM220",
+      "be proud of",
+      "～を誇りに思う",
+      n(),
+      ["take pride in"],
+      [],
+      "人・成果・学校・国などを誇りに思うときに使う。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM221",
+      "take pride in",
+      "～を誇りに思う",
+      n(),
+      ["be proud of"],
+      [],
+      "pride を名詞で使った表現。ややかたい。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM222",
+      "be afraid of",
+      "～を恐れている",
+      n(),
+      ["fear", "be scared of"],
+      [],
+      "名詞・動名詞を後ろに取る。be afraid to do との違いに注意。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM223",
+      "be afraid to do",
+      "～するのを恐れる",
+      n(),
+      ["be scared to do"],
+      [],
+      "実際に行動することを怖がるときに使う。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM224",
+      "be ashamed of",
+      "～を恥じている",
+      n(),
+      ["feel ashamed of"],
+      ["be proud of"],
+      "自分の行動・失敗などを恥じる表現。",
+      "句⇄反意表現"
+    ),
+    make(
+      "IM225",
+      "be interested in",
+      "～に興味がある",
+      n(),
+      ["take an interest in"],
+      ["be not interested in"],
+      "人・物・活動などに興味があることを表す。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM226",
+      "take an interest in",
+      "～に興味を持つ",
+      n(),
+      ["be interested in"],
+      [],
+      "interest を名詞で使った表現。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM227",
+      "pay attention to",
+      "～に注意を払う",
+      n(),
+      ["take notice of", "focus on"],
+      ["ignore"],
+      "授業・説明・安全などに注意を向ける表現。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM228",
+      "take notice of",
+      "～に気づく、注意を払う",
+      n(),
+      ["pay attention to", "notice"],
+      ["ignore"],
+      "人・物事に気づく、注意を向ける意味。",
+      "熟語⇄同義表現"
+    ),
+    make(
+      "IM229",
+      "take care not to",
+      "～しないように気をつける",
+      n(),
+      ["be careful not to"],
+      [],
+      "失敗や危険を避けるために注意する表現。",
+      "構文表現"
+    ),
+    make(
+      "IM230",
+      "be careful not to",
+      "～しないように注意する",
+      n(),
+      ["take care not to"],
+      [],
+      "not to の位置に注意。be careful not to forget など。",
+      "構文表現"
+    ),
+    make(
+      "IM231",
+      "make sure that",
+      "必ず～する、～を確かめる",
+      n(),
+      ["confirm that", "be sure that"],
+      [],
+      "確認する、確実に～するという意味。",
+      "構文表現"
+    ),
+    make(
+      "IM232",
+      "be sure to",
+      "必ず～する",
+      n(),
+      ["make sure to", "never fail to"],
+      [],
+      "Be sure to lock the door. のように命令文でよく使う。",
+      "構文表現"
+    ),
+    make(
+      "IM233",
+      "be supposed to",
+      "～することになっている",
+      n(),
+      ["be expected to"],
+      [],
+      "予定・規則・義務を表す表現。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM234",
+      "be expected to",
+      "～することが期待されている、～する見込みである",
+      n(),
+      ["be supposed to", "be likely to"],
+      [],
+      "期待・予定・見込みを表す表現。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM235",
+      "be forced to",
+      "～せざるを得ない",
+      n(),
+      ["have to", "be made to"],
+      [],
+      "外からの力・状況によって仕方なくする感じ。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM236",
+      "be obliged to",
+      "～する義務がある",
+      n(),
+      ["be required to", "have to"],
+      [],
+      "義務を表すややかたい表現。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM237",
+      "be accustomed to",
+      "～に慣れている",
+      n(),
+      ["be used to", "be familiar with"],
+      [],
+      "後ろは名詞・動名詞。be accustomed to living など。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM238",
+      "be ready to",
+      "～する準備ができている",
+      n(),
+      ["be prepared to"],
+      [],
+      "準備ができている状態を表す。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM239",
+      "be prepared to",
+      "～する準備ができている、覚悟がある",
+      n(),
+      ["be ready to"],
+      [],
+      "be ready to より少しかしこまった表現。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM240",
+      "it is likely that",
+      "～である可能性が高い",
+      n(),
+      ["probably", "be likely to"],
+      ["it is unlikely that"],
+      "可能性が高いことを表す構文。",
+      "構文表現"
+    ),
+    make(
+      "IM241",
+      "be certain that",
+      "～を確信している、～は確かである",
+      n(),
+      ["be sure that"],
+      [],
+      "確信していることを表す。ややかたい。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM242",
+      "be sure that",
+      "～を確信している",
+      n(),
+      ["be certain that"],
+      [],
+      "be certain that より会話的。",
+      "句⇄同義表現"
+    ),
+    make(
+      "IM243",
+      "for the purpose of",
+      "～する目的で",
+      n(),
+      ["in order to", "so as to"],
+      [],
+      "目的を表すややかたい表現。後ろは名詞・動名詞。",
+      "目的表現"
+    ),
+    make(
+      "IM244",
+      "in order to",
+      "～するために",
+      n(),
+      ["so as to", "for the purpose of"],
+      [],
+      "目的を表す基本表現。",
+      "目的表現"
+    ),
+    make(
+      "IM245",
+      "so as to",
+      "～するために",
+      n(),
+      ["in order to"],
+      [],
+      "in order to と近い。ややかたい。",
+      "目的表現"
+    ),
+    make(
+      "IM246",
+      "for fear of",
+      "～を恐れて、～しないように",
+      n(),
+      ["because of fear of"],
+      [],
+      "悪いことが起こるのを恐れて、という意味。",
+      "前置詞表現"
+    ),
+    make(
+      "IM247",
+      "in case of",
+      "～の場合には",
+      n(),
+      ["if there is"],
+      [],
+      "後ろは名詞。in case S V との違いに注意。",
+      "条件表現"
+    ),
+    make(
+      "IM248",
+      "in case",
+      "～の場合に備えて、～するといけないので",
+      n(),
+      ["if", "because something may happen"],
+      [],
+      "in case S V の形で、何かに備える意味を表す。",
+      "条件表現"
+    ),
+    make(
+      "IM249",
+      "as far as I know",
+      "私の知る限りでは",
+      n(),
+      ["to my knowledge"],
+      [],
+      "自分の知識の範囲を示す表現。",
+      "定型表現"
+    ),
+    make(
+      "IM250",
+      "as far as I am concerned",
+      "私に関する限り、私の意見では",
+      n(),
+      ["in my opinion"],
+      [],
+      "自分の立場・意見を述べるときに使う。",
+      "定型表現"
     )
   ];
 
