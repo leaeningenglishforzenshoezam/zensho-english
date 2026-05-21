@@ -150,6 +150,123 @@
     ["P1_139", 139, "N139", "I’ll drop you a line when I arrive in New York.", "I’ll ( ) when I arrive in New York.", ["write to", "take after", "look into", "put off"], "write to"],
     ["P1_140", 140, "N140", "We had to put off the concert because of the storm.", "The storm ( ) us to put off the concert.", ["forced", "wanted", "expected", "ordered"], "forced"],
     ["P1_141", 141, "N141", "Ken can’t play the piano, and he certainly can’t play the violin.", "Ken can’t play the piano, much ( ) the violin.", ["less", "more", "better", "worse"], "less"]
+        ,
+
+    // ===== IM151〜IM250対応 言い換え問題・厳選版 =====
+
+    ["P1_142", 142, "N142", "Many students take part in volunteer activities after school.", "Many students ( ) volunteer activities after school.", ["participate in", "depend on", "look into", "put off"], "participate in", "多くの生徒が放課後にボランティア活動に参加します。", "～に参加する", "take part in の言い換え。participate in ～ で『～に参加する』。"],
+
+    ["P1_143", 143, "N143", "Rina is involved in planning the school festival.", "Rina takes ( ) in planning the school festival.", ["part", "care", "charge", "place"], "part", "リナは文化祭の企画に関わっています。", "～に関わっている", "be involved in は take part in と近い意味で使える。人が活動に関わる場合は be connected with より be involved in が自然。"],
+
+    ["P1_144", 144, "N144", "Local shops play an important role in the town's economy.", "Local shops ( ) the town's economy.", ["contribute to", "depend on", "deal with", "look after"], "contribute to", "地元の店は町の経済で重要な役割を果たしています。", "重要な役割を果たす", "play an important role in は contribute to と近い意味で使える。"],
+
+    ["P1_145", 145, "N145", "Although the road was crowded, the bus arrived on time.", "( ) the crowded road, the bus arrived on time.", ["Despite", "Because of", "According to", "Instead of"], "Despite", "道路が混んでいたにもかかわらず、バスは時間通りに到着しました。", "～にもかかわらず", "although S V は despite + 名詞句 と言い換えられる。"],
+
+    ["P1_146", 146, "N146", "No matter how carefully you check it, you may still find mistakes.", "( ) carefully you check it, you may still find mistakes.", ["However", "Whenever", "Wherever", "Whatever"], "However", "どれだけ注意深く確認しても、まだ間違いが見つかるかもしれません。", "どれだけ～しても", "no matter how は however と言い換えられる。"],
+
+    ["P1_147", 147, "N147", "No matter what happens, we should follow the plan.", "( ) happens, we should follow the plan.", ["Whatever", "Whenever", "Wherever", "However"], "Whatever", "何が起こっても、私たちは計画に従うべきです。", "何があっても", "no matter what は whatever と言い換えられる。"],
+
+    ["P1_148", 148, "N148", "Please send the documents beforehand.", "Please send the documents ( ).", ["in advance", "in contrast", "in fact", "in return"], "in advance", "前もって書類を送ってください。", "前もって", "beforehand の言い換えとして in advance を使う。"],
+
+    ["P1_149", 149, "N149", "In addition to selling books, the shop holds small events.", "The shop holds small events ( ) selling books.", ["as well as", "because of", "instead of", "far from"], "as well as", "その店は本を売ることに加えて、小さなイベントも開催しています。", "～に加えて", "in addition to は as well as と近い意味。"],
+
+    ["P1_150", 150, "N150", "In contrast to his older brother, Ken is quiet and careful.", "( ) his older brother, Ken is quiet and careful.", ["Unlike", "According to", "Thanks to", "In spite of"], "Unlike", "兄とは対照的に、ケンは静かで注意深いです。", "～とは対照的に", "in contrast to は unlike と言い換えられる。"],
+
+    ["P1_151", 151, "N151", "According to the survey, more students use digital textbooks.", "( ) the survey, more students use digital textbooks.", ["Based on", "Apart from", "Because of", "Instead of"], "Based on", "その調査によると、より多くの生徒がデジタル教科書を使っています。", "～によると", "according to は based on と近い意味で使える。"],
+
+    ["P1_152", 152, "N152", "The picnic was canceled as a result of the heavy rain.", "The picnic was canceled ( ) the heavy rain.", ["due to", "far from", "similar to", "aware of"], "due to", "そのピクニックは大雨の結果、中止されました。", "～の結果として", "as a result of は due to / because of と近い原因表現。"],
+
+    ["P1_153", 153, "N153", "A fire broke out in the factory last night.", "A fire ( ) in the factory last night.", ["occurred", "remained", "decreased", "improved"], "occurred", "昨夜、その工場で火事が発生しました。", "発生する", "break out は火事・戦争などが発生する意味。occur と言い換えられる。"],
+
+    ["P1_154", 154, "N154", "Residents asked the city for safer roads.", "Residents ( ) safer roads from the city.", ["requested", "suggested", "prevented", "refused"], "requested", "住民は市により安全な道路を求めました。", "AにBを求める", "ask A for B は request B from A と対応する。"],
+
+    ["P1_155", 155, "N155", "Since you have finished the report, you can go home.", "( ) you have finished the report, you can go home.", ["Now that", "As long as", "No matter", "In case"], "Now that", "レポートを終えたので、あなたは帰ってもよいです。", "今や～なので、～だから", "since は理由を表す now that と言い換えられる。"],
+
+    ["P1_156", 156, "N156", "You may use this room if you clean it after using it.", "You may use this room ( ) you clean it after using it.", ["as long as", "as soon as", "no matter how", "even though"], "as long as", "使ったあとに掃除する限り、この部屋を使ってもよいです。", "～する限り", "if は条件を表す as long as と言い換えられる。"],
+
+    ["P1_157", 157, "N157", "Some students could not follow the fast lesson.", "Some students could not ( ) the fast lesson.", ["keep up with", "look up to", "get rid of", "take care of"], "keep up with", "何人かの生徒はその速い授業についていけませんでした。", "～についていく", "follow は keep up with と言い換えられる。"],
+
+    ["P1_158", 158, "N158", "You should examine your report again before submitting it.", "You should ( ) your report again before submitting it.", ["look over", "look after", "look into", "look up to"], "look over", "提出する前にレポートをもう一度確認すべきです。", "～をざっと確認する", "examine again / check は look over と近い意味。"],
+
+    ["P1_159", 159, "N159", "Let's review today's lesson before the test.", "Let's ( ) today's lesson before the test.", ["go over", "take over", "turn over", "get over"], "go over", "テストの前に今日の授業を復習しましょう。", "～を確認する、復習する", "review は go over と言い換えられる。"],
+
+    ["P1_160", 160, "N160", "Betty felt uncomfortable during the interview.", "Betty was ( ) during the interview.", ["ill at ease", "on purpose", "in charge", "at first sight"], "ill at ease", "ベティは面接中、落ち着きませんでした。", "落ち着かない、不安である", "feel uncomfortable は be ill at ease と言い換えられる。"],
+
+    ["P1_161", 161, "N161", "The kind staff made the visitors feel comfortable.", "The kind staff made the visitors feel ( ).", ["at ease", "in advance", "on account", "under way"], "at ease", "親切なスタッフのおかげで訪問者は安心しました。", "安心する、くつろぐ", "feel comfortable は feel at ease と言い換えられる。"],
+
+    ["P1_162", 162, "N162", "She accepted the responsibility of leading the team.", "She ( ) the responsibility of leading the team.", ["took on", "turned down", "put off", "gave up"], "took on", "彼女はチームを率いる責任を引き受けました。", "～を引き受ける", "accept responsibility は take on responsibility と言い換えられる。"],
+
+    ["P1_163", 163, "N163", "After the president retired, Ms. Sato became responsible for the company.", "After the president retired, Ms. Sato ( ) the company.", ["took over", "took after", "took off", "took part in"], "took over", "社長が退職した後、佐藤さんがその会社を引き継ぎました。", "～を引き継ぐ", "become responsible for a company は take over the company と言い換えられる。"],
+
+    ["P1_164", 164, "N164", "The students expressed ideas for improving the cafeteria.", "The students ( ) for improving the cafeteria.", ["made suggestions", "made excuses", "made efforts", "made mistakes"], "made suggestions", "生徒たちは食堂を改善するための案を出しました。", "提案する", "express ideas は make suggestions と言い換えられる。"],
+
+    ["P1_165", 165, "N165", "The committee proposed a new safety plan.", "The committee ( ) a new safety plan.", ["put forward", "put off", "put up with", "put out"], "put forward", "委員会は新しい安全計画を提案しました。", "提案を出す", "propose は put forward a proposal / plan と言い換えられる。"],
+
+    ["P1_166", 166, "N166", "Online meetings may replace some business trips.", "Online meetings may ( ) some business trips.", ["take the place of", "take care of", "take notice of", "take pride in"], "take the place of", "オンライン会議はいくつかの出張に取って代わるかもしれません。", "～に取って代わる", "replace は take the place of と言い換えられる。"],
+
+    ["P1_167", 167, "N167", "This book is worth reading.", "It is ( ) to read this book.", ["worthwhile", "hopeless", "careless", "familiar"], "worthwhile", "この本は読む価値があります。", "～する価値がある", "be worth doing は it is worthwhile to do と言い換えられる。"],
+
+    ["P1_168", 168, "N168", "Good communication is crucial to successful teamwork.", "Good communication is ( ) to successful teamwork.", ["essential", "similar", "independent", "unrelated"], "essential", "よいコミュニケーションはチームワークの成功に不可欠です。", "～にとって極めて重要である", "be crucial to は be essential to と近い意味。"],
+
+    ["P1_169", 169, "N169", "Are you familiar with this accounting software?", "Do you know this accounting software ( )?", ["well", "carefully", "suddenly", "rarely"], "well", "あなたはこの会計ソフトをよく知っていますか。", "～をよく知っている、～に慣れている", "be familiar with は know ... well と言い換えられる。"],
+
+    ["P1_170", 170, "N170", "I still keep in touch with my host family.", "I still stay ( ) my host family.", ["in contact with", "in contrast to", "in charge of", "in spite of"], "in contact with", "私は今でもホストファミリーと連絡を取り合っています。", "～と連絡を取り合う", "keep in touch with は stay in contact with と言い換えられる。"],
+
+    ["P1_171", 171, "N171", "Please get in touch with the hotel before you leave.", "Please ( ) the hotel before you leave.", ["contact", "compare", "resemble", "represent"], "contact", "出発する前にホテルに連絡してください。", "～と連絡を取る", "get in touch with は contact と言い換えられる。"],
+
+    ["P1_172", 172, "N172", "The customers were disappointed with the new service.", "The customers were not ( ) with the new service.", ["satisfied", "familiar", "aware", "connected"], "satisfied", "顧客はその新しいサービスにがっかりしました。", "～にがっかりしている", "be disappointed with は be not satisfied with と言い換えられる。"],
+
+    ["P1_173", 173, "N173", "The students were satisfied with the result of the event.", "The students were ( ) with the result of the event.", ["pleased", "ashamed", "related", "short"], "pleased", "生徒たちはその行事の結果に満足していました。", "～に満足している", "be satisfied with は be pleased with と近い意味。"],
+
+    ["P1_174", 174, "N174", "The instructions were too complicated for beginners to follow.", "The instructions were so complicated that beginners ( ) follow them.", ["could not", "should not", "must not", "did not"], "could not", "その説明は初心者が理解するには複雑すぎました。", "あまりに…なので～できない", "too ... to do は so ... that S cannot と言い換えられる。"],
+
+    ["P1_175", 175, "N175", "Many students have difficulty expressing their opinions in English.", "Many students find it ( ) to express their opinions in English.", ["difficult", "necessary", "suitable", "possible"], "difficult", "多くの生徒は英語で意見を表現するのに苦労しています。", "～するのに苦労する", "have difficulty doing は find it difficult to do と言い換えられる。"],
+
+    ["P1_176", 176, "N176", "She had trouble finding the office.", "She ( ) to find the office.", ["struggled", "managed", "offered", "decided"], "struggled", "彼女はその事務所を見つけるのに苦労しました。", "～するのに苦労する", "have trouble doing は struggle to do と近い意味。"],
+
+    ["P1_177", 177, "N177", "The students were aware of the danger of sharing personal information online.", "The students ( ) the danger of sharing personal information online.", ["realized", "reduced", "replaced", "recommended"], "realized", "生徒たちはオンラインで個人情報を共有する危険性を認識していました。", "～に気づいている、～を認識している", "be aware of は realize と言い換えられる。"],
+
+    ["P1_178", 178, "N178", "He has a good command of English.", "He is ( ) in English.", ["fluent", "familiar", "satisfied", "aware"], "fluent", "彼は英語を自在に使えます。", "～を自在に使える、～に堪能である", "have a good command of は be fluent in と近い意味。"],
+
+    ["P1_179", 179, "N179", "As the deadline drew near, everyone became busier.", "As the deadline ( ), everyone became busier.", ["approached", "remained", "occurred", "decreased"], "approached", "締め切りが近づくにつれて、みんなはより忙しくなりました。", "近づく", "draw near は approach と言い換えられる。"],
+
+    ["P1_180", 180, "N180", "We should take the cost into account.", "We should ( ) the cost.", ["consider", "ignore", "reject", "remove"], "consider", "私たちは費用を考慮に入れるべきです。", "～を考慮に入れる", "take A into account は consider A と言い換えられる。"],
+
+    ["P1_181", 181, "N181", "Some students made fun of his accent.", "Some students ( ) his accent.", ["laughed at", "looked after", "dealt with", "depended on"], "laughed at", "何人かの生徒は彼のアクセントをからかいました。", "～をからかう", "make fun of は laugh at と近い意味。"],
+
+    ["P1_182", 182, "N182", "This problem is related to the local economy.", "This problem is ( ) with the local economy.", ["connected", "satisfied", "familiar", "filled"], "connected", "この問題は地域経済と関係しています。", "～に関係している", "be related to は be connected with と言い換えられる。物事同士の関係なので自然。"],
+
+    ["P1_183", 183, "N183", "The accident had nothing to do with the new system.", "The accident was ( ) to the new system.", ["unrelated", "similar", "suitable", "important"], "unrelated", "その事故は新しいシステムとは関係がありませんでした。", "～とは関係がない", "have nothing to do with は be unrelated to と言い換えられる。"],
+
+    ["P1_184", 184, "N184", "This training course is suitable for beginners.", "This training course is ( ) for beginners.", ["appropriate", "responsible", "famous", "anxious"], "appropriate", "この研修講座は初心者に適しています。", "～に適している", "be suitable for は be appropriate for と近い意味。"],
+
+    ["P1_185", 185, "N185", "We ran out of time during the test.", "We ( ) all our time during the test.", ["used up", "put off", "looked into", "took over"], "used up", "私たちはテスト中に時間を使い果たしました。", "～を使い果たす", "run out of は use up と言い換えられる。"],
+
+    ["P1_186", 186, "N186", "We must take measures to prevent accidents.", "We must take ( ) to prevent accidents.", ["action", "notice", "pride", "part"], "action", "私たちは事故を防ぐために対策を取らなければなりません。", "対策を取る、行動を起こす", "take measures to は take action to と近い意味。"],
+
+    ["P1_187", 187, "N187", "She made up for her mistake by working overtime.", "She ( ) for her mistake by working overtime.", ["compensated", "apologized", "requested", "examined"], "compensated", "彼女は残業することで自分のミスを埋め合わせました。", "～を埋め合わせる", "make up for は compensate for と言い換えられる。"],
+
+    ["P1_188", 188, "N188", "Ken is proud of his hometown.", "Ken takes ( ) in his hometown.", ["pride", "part", "place", "care"], "pride", "ケンは自分の故郷を誇りに思っています。", "～を誇りに思う", "be proud of は take pride in と言い換えられる。"],
+
+    ["P1_189", 189, "N189", "Mika is interested in international business.", "Mika takes an ( ) in international business.", ["interest", "account", "advantage", "effect"], "interest", "ミカは国際ビジネスに興味があります。", "～に興味がある", "be interested in は take an interest in と言い換えられる。"],
+
+    ["P1_190", 190, "N190", "Please pay attention to changes in the schedule.", "Please take ( ) of changes in the schedule.", ["notice", "pride", "part", "place"], "notice", "予定の変更に注意を払ってください。", "～に注意を払う", "pay attention to は take notice of と言い換えられる。"],
+
+    ["P1_191", 191, "N191", "Take care not to forget your ticket.", "Be ( ) not to forget your ticket.", ["careful", "afraid", "familiar", "fluent"], "careful", "チケットを忘れないように気をつけなさい。", "～しないように気をつける", "take care not to は be careful not to と言い換えられる。"],
+
+    ["P1_192", 192, "N192", "We are supposed to submit the report by Friday.", "We are ( ) to submit the report by Friday.", ["expected", "forced", "allowed", "willing"], "expected", "私たちは金曜日までにレポートを提出することになっています。", "～することになっている", "be supposed to は be expected to と近い意味。"],
+
+    ["P1_193", 193, "N193", "My grandmother is accustomed to living alone.", "My grandmother is ( ) to living alone.", ["used", "ready", "supposed", "likely"], "used", "祖母は一人暮らしに慣れています。", "～に慣れている", "be accustomed to は be used to と言い換えられる。"],
+
+    ["P1_194", 194, "N194", "She studied hard in order to pass the exam.", "She studied hard ( ) pass the exam.", ["so as to", "in case of", "as far as", "no matter"], "so as to", "彼女は試験に合格するために一生懸命勉強しました。", "～するために", "in order to は so as to と言い換えられる。"],
+
+    ["P1_195", 195, "N195", "Use this button if there is an emergency.", "Use this button ( ) an emergency.", ["in case of", "according to", "in spite of", "as a result of"], "in case of", "緊急事態の場合にはこのボタンを使ってください。", "～の場合には", "if there is ... は in case of ... と言い換えられる。"],
+
+    ["P1_196", 196, "N196", "Take an umbrella because it may rain.", "Take an umbrella ( ) it rains.", ["in case", "as long as", "now that", "no matter what"], "in case", "雨が降るといけないので傘を持っていきなさい。", "～の場合に備えて", "in case S V は『SがVする場合に備えて』という意味。"],
+
+    ["P1_197", 197, "N197", "To my knowledge, the store is closed today.", "( ), the store is closed today.", ["As far as I know", "In contrast to", "For the purpose of", "In addition to"], "As far as I know", "私の知る限りでは、その店は今日閉まっています。", "私の知る限りでは", "to my knowledge は as far as I know と言い換えられる。"],
+
+    ["P1_198", 198, "N198", "In my opinion, the first plan is better.", "( ), the first plan is better.", ["As far as I am concerned", "In case of an accident", "As a result of", "No matter what"], "As far as I am concerned", "私の意見では、最初の計画の方がよいです。", "私の意見では", "in my opinion は as far as I am concerned と近い意味。"]
   ];
 const EXTRA = {
   "P1_001": { ja: "私はまたあなたに会えるのを楽しみにしています。", answerJa: "熱望して、ぜひ～したい" },
@@ -292,7 +409,65 @@ const EXTRA = {
   "P1_138": { ja: "人をからかうほど愚かではないはずだ。", answerJa: "賢い" },
   "P1_139": { ja: "ニューヨークに着いたら手紙を書くよ。", answerJa: "～に手紙を書く、連絡する" },
   "P1_140": { ja: "私たちは嵐のためコンサートを延期しなければならなかった。", answerJa: "強いて～させた" },
-  "P1_141": { ja: "ケンはピアノが弾けないし、ましてバイオリンなど弾けない。", answerJa: "まして～ない" }
+  "P1_141": { ja: "ケンはピアノが弾けないし、ましてバイオリンなど弾けない。", answerJa: "まして～ない" },
+  "P1_142": { ja: "多くの生徒が放課後にボランティア活動に参加します。", answerJa: "～に参加する" },
+  "P1_143": { ja: "リナは文化祭の企画に関わっています。", answerJa: "参加、関与" },
+  "P1_144": { ja: "地元の店は町の経済で重要な役割を果たしています。", answerJa: "～に貢献する" },
+  "P1_145": { ja: "道路が混んでいたにもかかわらず、バスは時間通りに到着しました。", answerJa: "～にもかかわらず" },
+  "P1_146": { ja: "どれだけ注意深く確認しても、まだ間違いが見つかるかもしれません。", answerJa: "どれだけ～しても" },
+  "P1_147": { ja: "何が起こっても、私たちは計画に従うべきです。", answerJa: "何が～しても" },
+  "P1_148": { ja: "前もって書類を送ってください。", answerJa: "前もって" },
+  "P1_149": { ja: "その店は本を売ることに加えて、小さなイベントも開催しています。", answerJa: "～に加えて、～だけでなく" },
+  "P1_150": { ja: "兄とは対照的に、ケンは静かで注意深いです。", answerJa: "～と違って" },
+  "P1_151": { ja: "その調査によると、より多くの生徒がデジタル教科書を使っています。", answerJa: "～に基づいて、～によると" },
+  "P1_152": { ja: "そのピクニックは大雨のため中止されました。", answerJa: "～のために、～が原因で" },
+  "P1_153": { ja: "昨夜、その工場で火事が発生しました。", answerJa: "起こった、発生した" },
+  "P1_154": { ja: "住民は市により安全な道路を求めました。", answerJa: "要求した、要請した" },
+  "P1_155": { ja: "レポートを終えたので、あなたは帰ってもよいです。", answerJa: "今や～なので、～だから" },
+  "P1_156": { ja: "使ったあとに掃除する限り、この部屋を使ってもよいです。", answerJa: "～する限り" },
+  "P1_157": { ja: "何人かの生徒はその速い授業についていけませんでした。", answerJa: "～についていく" },
+  "P1_158": { ja: "提出する前にレポートをもう一度確認すべきです。", answerJa: "～をざっと確認する" },
+  "P1_159": { ja: "テストの前に今日の授業を復習しましょう。", answerJa: "～を復習する、確認する" },
+  "P1_160": { ja: "ベティは面接中、落ち着きませんでした。", answerJa: "落ち着かない、不安である" },
+  "P1_161": { ja: "親切なスタッフのおかげで訪問者は安心しました。", answerJa: "安心して、くつろいで" },
+  "P1_162": { ja: "彼女はチームを率いる責任を引き受けました。", answerJa: "～を引き受ける" },
+  "P1_163": { ja: "社長が退職した後、佐藤さんがその会社を引き継ぎました。", answerJa: "～を引き継ぐ" },
+  "P1_164": { ja: "生徒たちは食堂を改善するための案を出しました。", answerJa: "提案する" },
+  "P1_165": { ja: "委員会は新しい安全計画を提案しました。", answerJa: "提案する、提示する" },
+  "P1_166": { ja: "オンライン会議はいくつかの出張に取って代わるかもしれません。", answerJa: "～に取って代わる" },
+  "P1_167": { ja: "この本は読む価値があります。", answerJa: "価値がある" },
+  "P1_168": { ja: "よいコミュニケーションはチームワークの成功に不可欠です。", answerJa: "不可欠な、とても重要な" },
+  "P1_169": { ja: "あなたはこの会計ソフトをよく知っていますか。", answerJa: "よく、十分に" },
+  "P1_170": { ja: "私は今でもホストファミリーと連絡を取り合っています。", answerJa: "連絡を取り合って" },
+  "P1_171": { ja: "出発する前にホテルに連絡してください。", answerJa: "連絡する" },
+  "P1_172": { ja: "顧客はその新しいサービスにがっかりしました。", answerJa: "満足している" },
+  "P1_173": { ja: "生徒たちはその行事の結果に満足していました。", answerJa: "満足して、喜んで" },
+  "P1_174": { ja: "その説明は初心者が理解するには複雑すぎました。", answerJa: "できなかった" },
+  "P1_175": { ja: "多くの生徒は英語で意見を表現するのに苦労しています。", answerJa: "難しい" },
+  "P1_176": { ja: "彼女はその事務所を見つけるのに苦労しました。", answerJa: "苦労した" },
+  "P1_177": { ja: "生徒たちはオンラインで個人情報を共有する危険性を認識していました。", answerJa: "認識した、気づいた" },
+  "P1_178": { ja: "彼は英語を自在に使えます。", answerJa: "流ちょうな、堪能な" },
+  "P1_179": { ja: "締め切りが近づくにつれて、みんなはより忙しくなりました。", answerJa: "近づいた" },
+  "P1_180": { ja: "私たちは費用を考慮に入れるべきです。", answerJa: "考慮する" },
+  "P1_181": { ja: "何人かの生徒は彼のアクセントをからかいました。", answerJa: "～をからかった、笑った" },
+  "P1_182": { ja: "この問題は地域経済と関係しています。", answerJa: "関係している" },
+  "P1_183": { ja: "その事故は新しいシステムとは関係がありませんでした。", answerJa: "関係がない" },
+  "P1_184": { ja: "この研修講座は初心者に適しています。", answerJa: "適切な、ふさわしい" },
+  "P1_185": { ja: "私たちはテスト中に時間を使い果たしました。", answerJa: "使い果たした" },
+  "P1_186": { ja: "私たちは事故を防ぐために対策を取らなければなりません。", answerJa: "行動、対策" },
+  "P1_187": { ja: "彼女は残業することで自分のミスを埋め合わせました。", answerJa: "埋め合わせた、補償した" },
+  "P1_188": { ja: "ケンは自分の故郷を誇りに思っています。", answerJa: "誇り" },
+  "P1_189": { ja: "ミカは国際ビジネスに興味があります。", answerJa: "興味" },
+  "P1_190": { ja: "予定の変更に注意を払ってください。", answerJa: "注意、気づき" },
+  "P1_191": { ja: "チケットを忘れないように気をつけなさい。", answerJa: "注意深い、気をつけて" },
+  "P1_192": { ja: "私たちは金曜日までにレポートを提出することになっています。", answerJa: "～することになっている、期待されている" },
+  "P1_193": { ja: "祖母は一人暮らしに慣れています。", answerJa: "慣れている" },
+  "P1_194": { ja: "彼女は試験に合格するために一生懸命勉強しました。", answerJa: "～するために" },
+  "P1_195": { ja: "緊急事態の場合にはこのボタンを使ってください。", answerJa: "～の場合には" },
+  "P1_196": { ja: "雨が降るといけないので傘を持っていきなさい。", answerJa: "～の場合に備えて" },
+  "P1_197": { ja: "私の知る限りでは、その店は今日閉まっています。", answerJa: "私の知る限りでは" },
+  "P1_198": { ja: "私の意見では、最初の計画の方がよいです。", answerJa: "私の意見では、私に関する限り" }
+  
 };
 
   window.PARAPHRASE_DATA_1KYU = RAW.map(function (row) {
