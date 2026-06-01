@@ -453,7 +453,7 @@
     { blockId: 9, no: 441, en: "staff", ja: "職員", sylRaw: "ˈstaff", stress: 1, note: "" },
     { blockId: 9, no: 442, en: "stare", ja: "じっと見る", sylRaw: "ˈstare", stress: 1, note: "" },
     { blockId: 9, no: 443, en: "starve", ja: "飢える", sylRaw: "ˈstarve", stress: 1, note: "" },
-    { blockId: 9, no: 444, en: "steady", ja: "安定した", sylRaw: "ˈsteady", stress: 1, note: "" },
+    { blockId: 9, no: 444, en: "steady", ja: "安定した", sylRaw: "ˈstead-y", stress: 1, note: "" },
     { blockId: 9, no: 445, en: "steep", ja: "急な", sylRaw: "ˈsteep", stress: 1, note: "" },
     { blockId: 9, no: 446, en: "stock", ja: "在庫", sylRaw: "ˈstock", stress: 1, note: "" },
     { blockId: 9, no: 447, en: "stormy", ja: "嵐の", sylRaw: "ˈstorm-y", stress: 1, note: "" },
