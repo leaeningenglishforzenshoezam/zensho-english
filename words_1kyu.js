@@ -446,7 +446,7 @@ window.WORDS_1KYU = [
   { en: "starve", ja: "飢える", pos: "verb" },
   { en: "steady", ja: "安定した", pos: "adjective" },
   { en: "steep", ja: "急な", pos: "adjective" },
-  { en: "stock", ja: "在庫", pos: "noun" },
+  { en: "stock", ja: "在庫・株", pos: "noun" },
   { en: "stormy", ja: "嵐の", pos: "adjective" },
   { en: "strain", ja: "緊張", pos: "noun" },
   { en: "stretch", ja: "伸ばす", pos: "verb" },
