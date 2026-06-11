@@ -309,7 +309,7 @@ window.WORDS_1KYU = [
   { en: "mystery", ja: "謎", pos: "noun" },
   { en: "neat", ja: "きちんとした", pos: "adjective" },
   { en: "negative", ja: "否定的な、陰性の", pos: "adjective" },
-  { en: "neglect", ja: "無視する", pos: "verb" },
+  { en: "neglect", ja: "無視する・怠る", pos: "verb" },
   { en: "neighborhood", ja: "近所", pos: "noun" },
   { en: "nephew", ja: "甥", pos: "noun" },
   { en: "niece", ja: "姪", pos: "noun" },
