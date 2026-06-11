@@ -333,7 +333,7 @@ window.WORDS_1KYU = [
   { en: "parcel", ja: "小包", pos: "noun" },
   { en: "passage", ja: "通路", pos: "noun" },
   { en: "paste", ja: "のり", pos: "noun" },
-  { en: "pause", ja: "休止", pos: "noun" },
+  { en: "pause", ja: "休止・間", pos: "noun" },
   { en: "pavement", ja: "歩道", pos: "noun" },
   { en: "payment", ja: "支払い", pos: "noun" },
   { en: "performance", ja: "公演、成績", pos: "noun" },
