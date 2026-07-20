@@ -390,6 +390,19 @@
   min-width: 0;
 }
 
+#choices button.choiceBtn.unknownChoiceBtn {
+  grid-column: 1 / -1;
+  text-align: center;
+  justify-content: center;
+  background: #f7f7f7;
+  border-style: dashed;
+}
+
+#choices button.choiceBtn.unknownChoiceBtn .choiceText {
+  flex: 0 0 auto;
+  font-weight: 800;
+}
+
 #choices button.choiceBtn.correct {
   background: #e8f7e8;
   border-color: #2e9f4d;
@@ -757,14 +770,32 @@
 
       <div class="row" style="justify-content:flex-start;">
         <div>
-          <div class="muted">ブロック</div>
-          <select id="blockSelect"></select>
-        </div>
+  <div class="muted">ブロック</div>
+  <select id="blockSelect"></select>
+</div>
 
-        <div>
-          <div class="muted">問題数</div>
-          <input id="countInput" type="number" min="1" step="1" value="20" style="width:120px;" />
-        </div>
+<div>
+  <div class="muted">単語No.</div>
+  <div style="display:flex; align-items:center; gap:6px;">
+    <input id="rangeStartInput" type="number" min="1" step="1" placeholder="開始" style="width:90px;" />
+    <span>〜</span>
+    <input id="rangeEndInput" type="number" min="1" step="1" placeholder="終了" style="width:90px;" />
+  </div>
+</div>
+
+<div>
+  <div class="muted">問題数</div>
+  <input id="countInput" type="number" min="1" step="1" value="50" style="width:120px;" />
+</div>
+
+<div>
+  <div class="muted">問題セット</div>
+  <select id="sentenceSetMode">
+    <option value="a" selected>Aセット</option>
+    <option value="b">Bセット</option>
+    <option value="mix">ミックス</option>
+  </select>
+</div>
 
         <div>
           <div class="muted">出題順</div>
@@ -772,6 +803,7 @@
             <option value="start">先頭から</option>
             <option value="continue" selected>続きから</option>
             <option value="random">ランダム</option>
+            <option value="weak_order">苦手順</option>
           </select>
         </div>
 
@@ -977,6 +1009,7 @@
   <script src="goimon_rules.js"></script>
   <script src="goimon.js"></script>
   <script src="sentence_fixed_1kyu.js"></script>
+  <script src="sentence_fixed_1kyu_b.js"></script>
   <script src="sentence_fixed_2kyu.js"></script>
 
   <script>
