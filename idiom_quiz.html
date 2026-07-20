@@ -271,6 +271,26 @@
       word-break: break-word;
     }
 
+    .exampleJaMasked {
+  margin-top: 6px;
+  color: #666;
+  background: #f0f0f0;
+  border: 1px dashed #ccc;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.exampleJaText {
+  margin-top: 6px;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
     .feedbackDetail {
       margin-top: 12px;
       padding-top: 12px;
@@ -801,20 +821,15 @@
   <div class="muted">問題No.</div>
   <div style="display:flex; align-items:center; gap:6px;">
     <input id="rangeStart" type="number" min="1" value="1" style="width:90px;">
-    <span>〜</span>
-    <input id="rangeEnd" type="number" min="1" value="200" style="width:90px;">
+<span>〜</span>
+<input id="rangeEnd" type="number" min="1" value="250" style="width:90px;">
   </div>
 </div>
 
         <div>
-          <div class="muted">問題数</div>
-          <select id="questionCount">
-            <option value="5">5問</option>
-            <option value="10" selected>10問</option>
-            <option value="20">20問</option>
-            <option value="all">全問</option>
-          </select>
-        </div>
+  <div class="muted">問題数</div>
+  <input id="questionCount" type="number" min="1" step="1" value="50" style="width:90px;">
+</div>
 
         <div>
           <div class="muted">出題順</div>
