@@ -42,8 +42,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const retryWeakBtn = document.getElementById("retryWeakBtn");
 
   const blockSelect = document.getElementById("blockSelect");
-  const countInput = document.getElementById("countInput");
-  const orderModeEl = document.getElementById("orderMode");
+const rangeStartInput = document.getElementById("rangeStartInput");
+const rangeEndInput = document.getElementById("rangeEndInput");
+const countInput = document.getElementById("countInput");
+const sentenceSetModeEl = document.getElementById("sentenceSetMode");
+const orderModeEl = document.getElementById("orderMode");
+
+
   const autoReadEl = document.getElementById("autoRead");
   const poolInfo = document.getElementById("poolInfo");
   const weakInfo = document.getElementById("weakInfo");
@@ -257,8 +262,11 @@ const weakPinEmptyEl = document.getElementById("weakPinEmpty");
     [continueBtn, "continueBtn"],
     [retryWeakBtn, "retryWeakBtn"],
     [blockSelect, "blockSelect"],
+    [rangeStartInput, "rangeStartInput"],
+    [rangeEndInput, "rangeEndInput"],
     [countInput, "countInput"],
-    [orderModeEl, "orderMode"],
+[sentenceSetModeEl, "sentenceSetMode"],
+[orderModeEl, "orderMode"],
     [autoReadEl, "autoRead"],
     [poolInfo, "poolInfo"],
     [weakInfo, "weakInfo"],
@@ -296,10 +304,39 @@ const weakPinEmptyEl = document.getElementById("weakPinEmpty");
   ].forEach(([el, id]) => must(el, id));
 
   const lv = String(window.ACTIVE_LEVEL || localStorage.getItem("zensho_level_v1") || "1");
-  const fixedRaw = (lv === "2")
+
+function getSentenceSetMode() {
+  const v = String(sentenceSetModeEl?.value || "a");
+  if (v === "b" || v === "mix") return v;
+  return "a";
+}
+
+function getSentenceSetLabel() {
+  const mode = getSentenceSetMode();
+  if (mode === "b") return "Bセット";
+  if (mode === "mix") return "ミックス";
+  return "Aセット";
+}
+
+function getActiveSentenceRawData() {
+  const mode = getSentenceSetMode();
+
+  const a = (lv === "2")
     ? (window.SENTENCE_FIXED_2KYU || [])
     : (window.SENTENCE_FIXED_1KYU || []);
-    
+
+  const b = (lv === "2")
+    ? (window.SENTENCE_FIXED_2KYU_B || [])
+    : (window.SENTENCE_FIXED_1KYU_B || []);
+
+  if (mode === "b") return b;
+  if (mode === "mix") return a.concat(b);
+  return a;
+}
+
+function getCursorKey(blockValue) {
+  return `${getSentenceSetMode()}__${String(blockValue || "all")}`;
+}
   const GOIMON_UI_KEY = `zensho_sentence_goimon_ui_v1_lv${lv}`;
   const GLOBAL_BLOCK_KEY = `zensho_block_global_lv${lv}_v1`;
 
@@ -313,9 +350,15 @@ const weakPinEmptyEl = document.getElementById("weakPinEmpty");
   const words = window.WORDS || [];
   const blocks = window.BLOCKS || [];
 
-  const norm = (s) => String(s || "").trim().toLowerCase();
+const norm = (s) => String(s || "").trim().toLowerCase();
 
-  const WEAK_KEY = `zensho_sentence_fixed_weak_v2_lv${lv}`;
+const UNKNOWN_CHOICE_TEXT = "わからない";
+
+function isUnknownChoice(choice) {
+  return String(choice || "").trim() === UNKNOWN_CHOICE_TEXT;
+}
+
+const WEAK_KEY = `zensho_sentence_fixed_weak_v2_lv${lv}`;
   const ORDER_CURSOR_KEY = `zensho_sentence_fixed_order_cursor_lv${lv}`;
   const SETTINGS_KEY = `zensho_sentence_fixed_settings_v1_lv${lv}`;
 
@@ -432,11 +475,16 @@ const weakPinEmptyEl = document.getElementById("weakPinEmpty");
     saveGlobal(g);
   }
 
-  const fixed = fixedRaw
+  let fixed = [];
+let fixedById = new Map();
+
+function normalizeFixedQuestions(rawList) {
+  return (rawList || [])
     .map(q => {
       const answerNorm = norm(q.answer);
       const wordIdx = wordIndexMap.get(answerNorm);
       const block = getBlockByWordIndex(wordIdx);
+
       return {
         id: String(q.id || ""),
         answer: answerNorm,
@@ -449,9 +497,18 @@ const weakPinEmptyEl = document.getElementById("weakPinEmpty");
       };
     })
     .filter(q => q.id && q.en && q.ja && q.choices.length === 4);
+}
 
-  const fixedById = new Map();
-  for (const q of fixed) fixedById.set(String(q.id), q);
+function rebuildFixedData() {
+  fixed = normalizeFixedQuestions(getActiveSentenceRawData());
+
+  fixedById = new Map();
+  for (const q of fixed) {
+    fixedById.set(String(q.id), q);
+  }
+}
+
+rebuildFixedData();
 
   function shuffle(arr) {
     const a = [...arr];
@@ -524,6 +581,83 @@ function showSummary() {
     .replace(/"/g, "&quot;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+}
+
+function normalizeTextKey(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
+}
+
+function normalizeIdWord(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function findSentenceExamplesForWord(en) {
+  const wordKey = normalizeTextKey(en);
+  const idKey = normalizeIdWord(en);
+
+  if (!wordKey && !idKey) return [];
+
+  return sentenceFixedData
+    .filter(item => {
+      if (!item) return false;
+
+      const answerKey = normalizeTextKey(item.answer);
+      const id = normalizeTextKey(item.id);
+
+      return answerKey === wordKey || id.startsWith(`f_${idKey}_`);
+    })
+    .slice(0, 3);
+}
+
+function renderSentenceExamplesHtml(en) {
+  const examples = findSentenceExamplesForWord(en);
+
+  if (!examples.length) return "";
+
+  const itemsHtml = examples.map(item => {
+    const enText = String(item.en || "").trim();
+    const jaText = String(item.ja || "").trim();
+    const noteText = String(item.note || "").trim();
+
+    return `
+      <div class="sentenceExampleItem">
+        <div class="sentenceExampleEn">${escapeHtml(enText)}</div>
+
+        ${
+          jaText
+            ? `
+              <div
+                class="sentenceExampleJaMasked"
+                data-action="reveal-sentence-ja"
+                data-sentence-ja="${escapeAttr(jaText)}"
+              >
+                日本語訳を表示
+              </div>
+            `
+            : ""
+        }
+
+        ${
+          noteText
+            ? `<div class="sentenceExampleNote">メモ：${escapeHtml(noteText)}</div>`
+            : ""
+        }
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="sentenceExampleBox">
+      <div class="sentenceExampleTitle">大問9の例文</div>
+      ${itemsHtml}
+    </div>
+  `;
 }
 
   function sanitizeForQuestionSpeech(text) {
@@ -764,6 +898,58 @@ function showSummary() {
   return { auto: !!st.auto, pin: !!st.pin };
 }
 
+function renderCurrentManualWeakButton() {
+  let box = document.getElementById("currentManualWeakBox");
+
+  if (!box) {
+    box = document.createElement("div");
+    box.id = "currentManualWeakBox";
+    box.style.margin = "10px 0";
+    box.style.display = "flex";
+    box.style.gap = "8px";
+    box.style.flexWrap = "wrap";
+    box.style.alignItems = "center";
+
+    qMetaEl.insertAdjacentElement("afterend", box);
+  }
+
+  if (!current || !current.id) {
+    box.innerHTML = "";
+    box.style.display = "none";
+    return;
+  }
+
+  const st = getWeakStateById(current.id);
+  const isPinned = !!st.pin;
+
+  box.style.display = "flex";
+  box.innerHTML = `
+    <button id="currentManualWeakBtn" type="button" class="miniBtn ${isPinned ? "danger" : ""}">
+      ${isPinned ? "手動ニガテ解除" : "手動ニガテに追加"}
+    </button>
+    <span class="muted">
+      ${isPinned ? "この問題は手動ニガテに入っています。" : "あとで復習したい問題は手動ニガテに入れられます。"}
+    </span>
+  `;
+
+  const btn = document.getElementById("currentManualWeakBtn");
+  if (!btn) return;
+
+  btn.addEventListener("click", function () {
+    const nextState = !getWeakStateById(current.id).pin;
+
+    setPinned(current.id, nextState);
+
+    updateWeakInfo();
+    renderWeakManagement();
+    renderCurrentManualWeakButton();
+
+    resultEl.innerHTML = nextState
+      ? `<span class="ok">手動ニガテに追加しました。</span>`
+      : `<span class="muted">手動ニガテを解除しました。</span>`;
+  });
+}
+
   function loadCursor(blockValue) {
     const obj = safeParse(ORDER_CURSOR_KEY);
     const v = obj?.[String(blockValue)];
@@ -793,14 +979,58 @@ function showSummary() {
     blockSelect.value = "all";
   }
 
-  function getRangeByBlockValue(v) {
-    if (v === "all") return [0, Math.max(0, words.length - 1)];
-    const b = blocks.find(x => String(x.id) === String(v));
-    if (!b) return [0, Math.max(0, words.length - 1)];
-    const s = Math.max(0, Number(b.start) - 1);
-    const e = Math.min(words.length - 1, Number(b.end) - 1);
-    return [s, e];
+ function getBaseRangeByBlockValue(v) {
+  if (v === "all") return [0, Math.max(0, words.length - 1)];
+
+  const b = blocks.find(x => String(x.id) === String(v));
+  if (!b) return [0, Math.max(0, words.length - 1)];
+
+  const s = Math.max(0, Number(b.start) - 1);
+  const e = Math.min(words.length - 1, Number(b.end) - 1);
+
+  return [s, e];
+}
+
+function normalizeNoRange(startNo, endNo, baseStartIdx, baseEndIdx) {
+  const maxNo = Math.max(1, words.length);
+  const baseStartNo = Math.max(1, Number(baseStartIdx) + 1);
+  const baseEndNo = Math.max(1, Number(baseEndIdx) + 1);
+
+  let s = Number(startNo);
+  let e = Number(endNo);
+
+  if (!Number.isFinite(s) || s < 1) s = baseStartNo;
+  if (!Number.isFinite(e) || e < 1) e = baseEndNo;
+
+  s = Math.floor(s);
+  e = Math.floor(e);
+
+  if (s > e) {
+    const temp = s;
+    s = e;
+    e = temp;
   }
+
+  s = Math.max(1, Math.min(s, maxNo));
+  e = Math.max(1, Math.min(e, maxNo));
+
+  return [s - 1, e - 1];
+}
+
+function getRangeByBlockValue(v) {
+  const [baseStartIdx, baseEndIdx] = getBaseRangeByBlockValue(v);
+
+  const customStart = rangeStartInput ? rangeStartInput.value : "";
+  const customEnd = rangeEndInput ? rangeEndInput.value : "";
+
+  // 単語No.欄が空なら、従来通りブロック範囲で出題
+  if (!customStart && !customEnd) {
+    return [baseStartIdx, baseEndIdx];
+  }
+
+  // 単語No.が入力されていれば、その番号範囲を優先
+  return normalizeNoRange(customStart, customEnd, baseStartIdx, baseEndIdx);
+}
 
   function buildEligibleQuestionsByRange(startIdx, endIdx) {
     const list = [];
@@ -813,11 +1043,19 @@ function showSummary() {
     return list;
   }
 
-  function updatePoolInfo() {
-    const [s, e] = getRangeByBlockValue(blockSelect.value);
-    const eligible = buildEligibleQuestionsByRange(s, e);
-    poolInfo.textContent = `この設定で出題可能：${eligible.length}問`;
-  }
+function updatePoolInfo() {
+  rebuildFixedData();
+
+  const [s, e] = getRangeByBlockValue(blockSelect.value);
+  const eligible = buildEligibleQuestionsByRange(s, e);
+
+  const startNo = s + 1;
+  const endNo = e + 1;
+
+  poolInfo.textContent =
+    `この設定で出題可能：${eligible.length}問` +
+    `（${getSentenceSetLabel()} / 単語No.${startNo}〜${endNo}）`;
+}
 
   function updateWeakInfo() {
     const c = weakCounts();
@@ -941,18 +1179,20 @@ function showSummary() {
   }
 
   let session = {
-    mode: "normal",
-    blockValue: "all",
-    eligible: [],
-    order: [],
-    cursor: 0,
-    limit: 20,
-    correct: 0,
-    answered: 0,
-    orderMode: "continue",
-    autoRead: false,
-    askedOrder: []
-  };
+  mode: "normal",
+  sentenceSetMode: "a",
+  cursorKey: "a__all",
+  blockValue: "all",
+  eligible: [],
+  order: [],
+  cursor: 0,
+  limit: 20,
+  correct: 0,
+  answered: 0,
+  orderMode: "continue",
+  autoRead: false,
+  askedOrder: []
+};
 
   let current = null;
   let answeredThis = false;
@@ -968,20 +1208,22 @@ function showSummary() {
   let problemListHiddenChoiceMap = {};
   let problemListMeaningMapCache = null;
 
-  function resetUIForNewQuestion() {
-    answeredThis = false;
-    nextBtn.disabled = true;
-    resultEl.textContent = "";
-    detailEl.textContent = "";
-    hintArea.textContent = "";
-    setHintVisible(false);
-    hintBtn.disabled = false;
+function resetUIForNewQuestion() {
+  answeredThis = false;
+  nextBtn.disabled = true;
+  resultEl.textContent = "";
+  detailEl.textContent = "";
+  hintArea.textContent = "";
+  setHintVisible(false);
+  hintBtn.disabled = false;
 
-    document.querySelectorAll("#choices button").forEach(b => {
-      b.classList.remove("correct", "wrong");
-      b.disabled = false;
-    });
-  }
+  document.querySelectorAll("#choices button").forEach(b => {
+    b.classList.remove("correct", "wrong");
+    b.disabled = false;
+  });
+
+  renderCurrentManualWeakButton();
+}
 
   function currentCorrectChoiceNorm() {
     const ans = current.answer;
@@ -1027,12 +1269,13 @@ function showSummary() {
 }
 
   function orderModeText() {
-    if (session.mode === "weak") return "ニガテ";
-    if (session.orderMode === "retry") return "同セット再挑戦";
-    if (session.orderMode === "start") return "先頭";
-    if (session.orderMode === "continue") return "続き";
-    return "ランダム";
-  }
+  if (session.mode === "weak") return "ニガテ順";
+  if (session.orderMode === "retry") return "同セット再挑戦";
+  if (session.orderMode === "start") return "先頭";
+  if (session.orderMode === "continue") return "続き";
+  if (session.orderMode === "weak_order") return "苦手順";
+  return "ランダム";
+}
   function renderQuestion() {
     if (session.mode === "weak") {
       const c = weakCounts();
@@ -1076,8 +1319,8 @@ function showSummary() {
         for (let i = 0; i < fixed.length; i++) {
           if (idSet.has(fixed[i].id)) eligible.push(i);
         }
-        session.order = shuffle(eligible);
-        session.cursor = 0;
+        session.order = sortWeakQuestionIndexes(eligible);
+session.cursor = 0;
 
         if (session.order.length === 0) {
           finishSession(true);
@@ -1091,8 +1334,8 @@ function showSummary() {
     if (session.askedOrder.length < session.limit) session.askedOrder.push(qIndex)
   
     if (session.mode === "normal" && session.orderMode === "continue") {
-      saveCursor(session.blockValue, session.cursor % session.order.length);
-    }
+  saveCursor(session.cursorKey || getCursorKey(session.blockValue), session.cursor % session.order.length);
+}
 
 current = fixed[qIndex];
 
@@ -1105,24 +1348,27 @@ qMetaEl.textContent =
   ` ・${orderModeText()}` +
   ` ・${session.mode === "weak" ? "自動は正解で解除／手動は残る" : "通常演習"}` +
   ` ・自動読み上げ:${session.autoRead ? "ON" : "OFF"}`;
+  renderCurrentManualWeakButton();
 
-    const shownChoices = shuffle(current.choices);
-    current._shownChoices = shownChoices;
+    const shownChoices = shuffle(current.choices).concat(UNKNOWN_CHOICE_TEXT);
+current._shownChoices = shownChoices;
 
-    choicesEl.innerHTML = "";
+choicesEl.innerHTML = "";
 
-const choiceNumbers = ["①", "②", "③", "④"];
+const choiceNumbers = ["①", "②", "③", "④", "⑤"];
 
 for (let i = 0; i < shownChoices.length; i++) {
   const c = shownChoices[i];
-
   const btn = document.createElement("button");
+  const isUnknown = isUnknownChoice(c);
+
   btn.type = "button";
-  btn.className = "choiceBtn";
-  btn.dataset.choiceNorm = norm(c);
+  btn.className = isUnknown
+    ? "choiceBtn unknownChoiceBtn"
+    : "choiceBtn";
 
   btn.innerHTML = `
-    <span class="choiceIndex">${choiceNumbers[i] || String(i + 1)}</span>
+    <span class="choiceIndex">${choiceNumbers[i] || i + 1}</span>
     <span class="choiceText">${escapeHtml(c)}</span>
   `;
 
@@ -1152,18 +1398,24 @@ for (let i = 0; i < shownChoices.length; i++) {
     hintBtn.disabled = true;
   }
 
-  function buildChoiceMeanings(choices) {
-    const lines = [];
-    for (const c of choices) lines.push(`・${c}：${meaningForForm(c)}`);
-    return lines.join("\n");
+ function buildChoiceMeanings(choices) {
+  const lines = [];
+
+  for (const c of choices) {
+    if (isUnknownChoice(c)) continue;
+    lines.push(`・${c}：${meaningForForm(c)}`);
   }
+
+  return lines.join("\n");
+}
 
   function handleChoice(choice, clickedBtn) {
   if (answeredThis) return;
   answeredThis = true;
 
   const correctChoiceNorm = currentCorrectChoiceNorm();
-  const isCorrect = (norm(choice) === correctChoiceNorm);
+const isUnknown = isUnknownChoice(choice);
+const isCorrect = !isUnknown && (norm(choice) === correctChoiceNorm);
 
   session.answered += 1;
   addLearningLog(isCorrect);
@@ -1189,22 +1441,31 @@ for (let i = 0; i < shownChoices.length; i++) {
     addSentenceGoimonProgress();
 
   } else {
-    const show = currentCorrectChoiceShown();
-    resultEl.innerHTML = `<span class="ng">❌ 不正解。</span> 正解は「${escapeHtml(show)}」`;
+  const show = currentCorrectChoiceShown();
 
-    if (clickedBtn) {
-      clickedBtn.classList.add("wrong");
-    }
-
-    playWrongSound();
-    markCorrectButtonGreen(correctChoiceNorm);
-
-    addAutoWeak(current.id);
-    pushWeakToEnJa(current.answer, 1);
-
-    updateWeakInfo();
-    renderWeakManagement();
+  if (isUnknown) {
+    resultEl.innerHTML =
+      `<span class="ng">❌ わからない。</span> 正解は「${escapeHtml(show)}」<br>` +
+      `<span class="muted">この問題をニガテに追加しました。</span>`;
+  } else {
+    resultEl.innerHTML =
+      `<span class="ng">❌ 不正解。</span> 正解は「${escapeHtml(show)}」`;
   }
+
+  if (clickedBtn) {
+    clickedBtn.classList.add("wrong");
+  }
+
+  playWrongSound();
+  markCorrectButtonGreen(correctChoiceNorm);
+
+  addAutoWeak(current.id);
+  pushWeakToEnJa(current.answer, 1);
+
+  updateWeakInfo();
+  renderWeakManagement();
+  renderCurrentManualWeakButton();
+}
 
   if (current.blockId) {
     addGlobalSentence(current.blockId, isCorrect);
@@ -1253,9 +1514,12 @@ for (let i = 0; i < shownChoices.length; i++) {
 }
 
   function blockSelectLabel(v) {
-    if (v === "all") return "全範囲";
-    return `Block ${v}`;
-  }
+  const [s, e] = getRangeByBlockValue(v);
+  const rangeText = `単語No.${s + 1}〜${e + 1}`;
+
+  if (v === "all") return `全範囲 / ${rangeText}`;
+  return `Block ${v} / ${rangeText}`;
+}
 
   function isPinned(id) {
     const map = loadWeakMap();
@@ -1995,42 +2259,80 @@ function renderSummary(autoCleared) {
   }
 
   function startNormalSession() {
-    const [s, e] = getRangeByBlockValue(blockSelect.value);
-    const eligible = buildEligibleQuestionsByRange(s, e);
+  rebuildFixedData();
 
-    let limit = Number(countInput.value);
-    if (!Number.isFinite(limit) || limit < 1) limit = 20;
-    if (eligible.length > 0) limit = Math.min(limit, eligible.length);
+  const [s, e] = getRangeByBlockValue(blockSelect.value);
+  const eligible = buildEligibleQuestionsByRange(s, e);
 
-    session.mode = "normal";
-    session.blockValue = blockSelect.value;
-    session.eligible = eligible;
-    session.limit = Math.max(1, limit);
-    session.answered = 0;
-    session.correct = 0;
+  let limit = Number(countInput.value);
+  if (!Number.isFinite(limit) || limit < 1) limit = 20;
+  if (eligible.length > 0) limit = Math.min(limit, eligible.length);
 
-    session.orderMode = String(orderModeEl.value || "continue");
+  session.mode = "normal";
+  session.sentenceSetMode = getSentenceSetMode();
+  session.cursorKey = getCursorKey(blockSelect.value);
+  session.blockValue = blockSelect.value;
+  session.eligible = eligible;
+  session.limit = Math.max(1, limit);
+  session.answered = 0;
+  session.correct = 0;
 
-    if (session.orderMode === "random") {
-      session.order = shuffle(eligible);
+  session.orderMode = String(orderModeEl.value || "continue");
+
+  if (session.orderMode === "random") {
+    session.order = shuffle(eligible);
+    session.cursor = 0;
+  } else if (session.orderMode === "weak_order") {
+    session.order = sortWeakQuestionIndexes(eligible);
+    session.cursor = 0;
+  } else {
+    session.order = [...eligible];
+
+    if (session.orderMode === "start") {
       session.cursor = 0;
+      saveCursor(session.cursorKey, 0);
     } else {
-      session.order = [...eligible];
-      if (session.orderMode === "start") {
-        session.cursor = 0;
-        saveCursor(session.blockValue, 0);
-      } else {
-        session.cursor = loadCursor(session.blockValue);
-      }
+      session.cursor = loadCursor(session.cursorKey);
     }
-
-    session.autoRead = !!autoReadEl.checked;
-    session.askedOrder = [];
-
-    askedLog = [];
-    showPlay();
-    renderQuestion();
   }
+
+  session.autoRead = !!autoReadEl.checked;
+  session.askedOrder = [];
+
+  askedLog = [];
+  showPlay();
+  renderQuestion();
+}
+
+  function sortWeakQuestionIndexes(indexes) {
+  const map = loadWeakMap();
+
+  return indexes
+    .slice()
+    .sort(function (a, b) {
+      const qa = fixed[a];
+      const qb = fixed[b];
+
+      const sa = map[String(qa?.id || "")] || { auto: false, pin: false };
+      const sb = map[String(qb?.id || "")] || { auto: false, pin: false };
+
+      const pinA = sa.pin ? 1 : 0;
+      const pinB = sb.pin ? 1 : 0;
+      if (pinA !== pinB) return pinB - pinA;
+
+      const autoA = sa.auto ? 1 : 0;
+      const autoB = sb.auto ? 1 : 0;
+      if (autoA !== autoB) return autoB - autoA;
+
+      const blockA = Number(qa?.blockId || 0);
+      const blockB = Number(qb?.blockId || 0);
+      if (blockA !== blockB) return blockA - blockB;
+
+      const wordA = Number(qa?.wordIndex || 0);
+      const wordB = Number(qb?.wordIndex || 0);
+      return wordA - wordB;
+    });
+}
 
   function startWeakSession() {
     const map = loadWeakMap();
@@ -2061,10 +2363,10 @@ function renderSummary(autoCleared) {
     session.correct = 0;
 
     session.orderMode = "weak";
-    session.order = shuffle(eligible);
-    session.cursor = 0;
-    session.autoRead = !!autoReadEl.checked;
-    session.askedOrder = [];
+session.order = sortWeakQuestionIndexes(eligible);
+session.cursor = 0;
+session.autoRead = !!autoReadEl.checked;
+session.askedOrder = [];
 
     askedLog = [];
     showPlay();
@@ -2158,9 +2460,32 @@ function renderSummary(autoCleared) {
   }
 }
 
-  blockSelect.addEventListener("change", updatePoolInfo);
-  countInput.addEventListener("input", updatePoolInfo);
-  orderModeEl.addEventListener("change", updatePoolInfo);
+  blockSelect.addEventListener("change", () => {
+  updatePoolInfo();
+});
+
+sentenceSetModeEl.addEventListener("change", () => {
+  rebuildFixedData();
+
+  problemListAnswerOpenMap = {};
+  problemListChoiceResultMap = {};
+  problemListChoiceMeaningOpenMap = {};
+  problemListHiddenChoiceMap = {};
+  problemListRandomIds = [];
+
+  updatePoolInfo();
+  updateWeakInfo();
+  renderWeakManagement();
+
+  if (problemListBox && problemListBox.style.display !== "none") {
+    renderProblemList();
+  }
+});
+
+rangeStartInput.addEventListener("input", updatePoolInfo);
+rangeEndInput.addEventListener("input", updatePoolInfo);
+countInput.addEventListener("input", updatePoolInfo);
+orderModeEl.addEventListener("change", updatePoolInfo);
 
   autoReadEl.addEventListener("change", () => {
     saveSettings({ autoRead: !!autoReadEl.checked });
@@ -2405,18 +2730,18 @@ document.addEventListener("keydown", (e) => {
 
   const key = e.key;
 
-  // 未解答時：1〜4で選択肢を選ぶ
-  if (!answeredThis && /^[1-4]$/.test(key)) {
-    const btns = choicesEl.querySelectorAll("button");
-    const btn = btns[Number(key) - 1];
+  // 未解答時：1〜5で選択肢を選ぶ
+if (!answeredThis && /^[1-5]$/.test(key)) {
+  const btns = choicesEl.querySelectorAll("button");
+  const btn = btns[Number(key) - 1];
 
-    if (btn && !btn.disabled) {
-      e.preventDefault();
-      btn.click();
-    }
-
-    return;
+  if (btn && !btn.disabled) {
+    e.preventDefault();
+    btn.click();
   }
+
+  return;
+}
 
   // 解答後：Enter / Space / → / ↓ で次へ
   const isNextKey =
