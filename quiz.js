@@ -10,16 +10,19 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const words = window.WORDS || [];
-  const blocks = window.BLOCKS || [];
-  const PASS_LINE = 80;
+const blocks = window.BLOCKS || [];
+const PASS_LINE = 80;
 
-  const LEVEL_KEY = "zensho_level_v1";
-  function getLevel() {
-    return localStorage.getItem(LEVEL_KEY) || "1";
-  }
-  const LV = getLevel();
+const LEVEL_KEY = "zensho_level_v1";
+function getLevel() {
+  return localStorage.getItem(LEVEL_KEY) || "1";
+}
+const LV = getLevel();
 
-  const WEAK_KEY = `zensho_quiz_weak_points_enja_v2_lv${LV}`;
+const sentenceFixedData =
+  (LV === "2" ? window.SENTENCE_FIXED_2KYU : window.SENTENCE_FIXED_1KYU) || [];
+
+const WEAK_KEY = `zensho_quiz_weak_points_enja_v2_lv${LV}`;
   const MANUAL_WEAK_KEY = `zensho_quiz_manual_weak_enja_v1_lv${LV}`;
   const ORDER_CURSOR_KEY = `zensho_quiz_order_cursor_v1_enja_lv${LV}`;
   const SETTINGS_KEY = `zensho_quiz_settings_enja_v1_lv${LV}`;
@@ -160,6 +163,83 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
   }
+
+  function normalizeTextKey(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
+}
+
+function normalizeIdWord(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function findSentenceExamplesForWord(en) {
+  const wordKey = normalizeTextKey(en);
+  const idKey = normalizeIdWord(en);
+
+  if (!wordKey && !idKey) return [];
+
+  return sentenceFixedData
+    .filter(item => {
+      if (!item) return false;
+
+      const answerKey = normalizeTextKey(item.answer);
+      const id = normalizeTextKey(item.id);
+
+      return answerKey === wordKey || id.startsWith(`f_${idKey}_`);
+    })
+    .slice(0, 3);
+}
+
+function renderSentenceExamplesHtml(en) {
+  const examples = findSentenceExamplesForWord(en);
+
+  if (!examples.length) return "";
+
+  const itemsHtml = examples.map(item => {
+    const enText = String(item.en || "").trim();
+    const jaText = String(item.ja || "").trim();
+    const noteText = String(item.note || "").trim();
+
+    return `
+      <div class="sentenceExampleItem">
+        <div class="sentenceExampleEn">${escapeHtml(enText)}</div>
+
+        ${
+          jaText
+            ? `
+              <div
+                class="sentenceExampleJaMasked"
+                data-action="reveal-sentence-ja"
+                data-sentence-ja="${escapeAttr(jaText)}"
+              >
+                日本語訳を表示
+              </div>
+            `
+            : ""
+        }
+
+        ${
+          noteText
+            ? `<div class="sentenceExampleNote">メモ：${escapeHtml(noteText)}</div>`
+            : ""
+        }
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="sentenceExampleBox">
+      <div class="sentenceExampleTitle">大問9の例文</div>
+      ${itemsHtml}
+    </div>
+  `;
+}
 
   function clampRange(s, e) {
     if (!Number.isFinite(s)) s = 0;
@@ -482,7 +562,7 @@ document.addEventListener("DOMContentLoaded", () => {
     active: false,
     answered: 0,
     correct: 0,
-    limit: 10,
+    limit: 50,
     start: 0,
     end: Math.max(0, words.length - 1),
     retryOrder: null
@@ -1083,13 +1163,16 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     }).join("");
 
-    resultEl.innerHTML = `
-      <div style="font-weight:800; margin-bottom:8px;">${mainText}</div>
-      <div class="answerDetailBox">
-        <div class="answerDetailTitle">選択肢の確認</div>
-        ${rows}
-      </div>
-    `;
+    const sentenceExamplesHtml = renderSentenceExamplesHtml(current.en);
+
+resultEl.innerHTML = `
+  <div style="font-weight:800; margin-bottom:8px;">${mainText}</div>
+  <div class="answerDetailBox">
+    <div class="answerDetailTitle">選択肢の確認</div>
+    ${rows}
+  </div>
+  ${sentenceExamplesHtml}
+`;
   }
 
   function handleChoice(choice, clickedBtn) {
@@ -1368,6 +1451,18 @@ document.addEventListener("DOMContentLoaded", () => {
     saveSettings();
     updateSettingsSummary();
   });
+
+  resultEl.addEventListener("click", e => {
+  const target = e.target.closest('[data-action="reveal-sentence-ja"]');
+  if (!target) return;
+
+  const ja = target.getAttribute("data-sentence-ja") || "";
+
+  target.className = "sentenceExampleJaText";
+  target.removeAttribute("data-action");
+  target.removeAttribute("data-sentence-ja");
+  target.textContent = ja;
+});
 
   nextBtn.addEventListener("click", () => {
     if (!answeredThisQuestion) {
