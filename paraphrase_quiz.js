@@ -17,7 +17,7 @@
   const DEFAULT_SETTINGS = {
   rangeStart: "1",
   rangeEnd: "",
-  questionCount: "10",
+  questionCount: "25",
   quizMode: "order_continue",
   autoRead: true
 };
@@ -197,12 +197,13 @@ poolInfo: document.getElementById("poolInfo"),
 
   function countToNumber(value, maxCount) {
   const max = Math.max(0, Number(maxCount) || 0);
-  if (value === "all") return max;
-
   const num = Number(value);
-  if (!Number.isFinite(num) || num <= 0) return Math.min(10, max);
 
-  return Math.min(num, max);
+  if (!Number.isFinite(num) || num <= 0) {
+    return Math.min(10, max);
+  }
+
+  return Math.min(Math.floor(num), max);
 }
 
 function getMaxDisplayNo() {
@@ -1276,7 +1277,7 @@ if (el.rangeEnd) {
   });
 }
 
-el.questionCount.addEventListener("change", function () {
+el.questionCount.addEventListener("input", function () {
   saveCurrentSettings();
   updatePoolInfo();
 });
