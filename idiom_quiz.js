@@ -13,17 +13,17 @@
     cursorMeaning: `zensho_idiom_quiz_cursor_meaning_v1_lv${DATA_LEVEL}`,
     cursorSynonym: `zensho_idiom_quiz_cursor_synonym_v1_lv${DATA_LEVEL}`,
     cursorExpressionFromMeaning: `zensho_idiom_quiz_cursor_expression_from_meaning_v1_lv${DATA_LEVEL}`,
-    settings: `zensho_idiom_quiz_settings_v3_lv${DATA_LEVEL}`,
+    settings: `zensho_idiom_quiz_settings_v4_lv${DATA_LEVEL}`,
     listUi: `zensho_idiom_quiz_list_ui_v1_lv${DATA_LEVEL}`
   };
 
 const DEFAULT_SETTINGS = {
   questionMode: "meaning",
-  questionCount: "10",
+  questionCount: "50",
   quizMode: "order",
   autoRead: false,
   rangeStart: "1",
-  rangeEnd: "200"
+  rangeEnd: "250"
 };
 
   const RAW_DATA = Array.isArray(window.IDIOM_DATA_1KYU) ? window.IDIOM_DATA_1KYU.slice() : [];
@@ -594,13 +594,16 @@ function getSavedSettings() {
   const maxNo = getMaxDisplayNo();
   const saved = readJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
 
+  const savedStart = saved.rangeStart || DEFAULT_SETTINGS.rangeStart || "1";
+  const savedEnd = saved.rangeEnd || DEFAULT_SETTINGS.rangeEnd || String(maxNo);
+
   return {
     questionMode: saved.questionMode || DEFAULT_SETTINGS.questionMode,
     questionCount: saved.questionCount || DEFAULT_SETTINGS.questionCount,
     quizMode: saved.quizMode || DEFAULT_SETTINGS.quizMode,
     autoRead: !!saved.autoRead,
-    rangeStart: saved.rangeStart || "1",
-    rangeEnd: saved.rangeEnd || String(maxNo)
+    rangeStart: savedStart,
+    rangeEnd: String(Math.min(Number(savedEnd) || maxNo, maxNo))
   };
 }
 
@@ -620,11 +623,14 @@ function saveCurrentSettings() {
 }
 
   function countToNumber(value, maxCount) {
-    if (value === "all") return maxCount;
-    const num = Number(value);
-    if (!Number.isFinite(num) || num <= 0) return Math.min(10, maxCount);
-    return Math.min(num, maxCount);
+  const num = Number(value);
+
+  if (!Number.isFinite(num) || num <= 0) {
+    return Math.min(10, maxCount);
   }
+
+  return Math.min(Math.floor(num), maxCount);
+}
 
   function getMaxDisplayNo() {
   const nums = DATA
@@ -1163,16 +1169,28 @@ function clearAnswerCard() {
   const wrongHint = isCorrect ? "" : getWrongAnswerExpressionHint(question, selectedText);
 
   const exampleHtml = example.exampleEn
-    ? `
-      <div class="answerField">
-        <div class="answerLabel">例文</div>
-        <div class="answerValue">
-          <div>${escapeHtml(example.exampleEn)}</div>
-          ${example.exampleJa ? `<div class="muted" style="margin-top:4px;">${escapeHtml(example.exampleJa)}</div>` : ""}
-        </div>
+  ? `
+    <div class="answerField">
+      <div class="answerLabel">例文</div>
+      <div class="answerValue">
+        <div>${escapeHtml(example.exampleEn)}</div>
+        ${
+          example.exampleJa
+            ? `
+              <div
+                class="exampleJaMasked"
+                data-action="reveal-example-ja"
+                data-example-ja="${escapeHtml(example.exampleJa)}"
+              >
+                日本語訳を表示
+              </div>
+            `
+            : ""
+        }
       </div>
-    `
-    : "";
+    </div>
+  `
+  : "";
 
   const usageHtml = example.usage
     ? `
@@ -1567,13 +1585,13 @@ if (el.originSearchBtn) {
   el.quizMode.value = settings.quizMode;
   el.autoRead.checked = settings.autoRead;
 
-  if (el.rangeStart) {
-    el.rangeStart.value = settings.rangeStart || "1";
-  }
+ if (el.rangeStart) {
+  el.rangeStart.value = settings.rangeStart || "1";
+}
 
-  if (el.rangeEnd) {
-    el.rangeEnd.value = settings.rangeEnd || String(maxNo);
-  }
+if (el.rangeEnd) {
+  el.rangeEnd.value = settings.rangeEnd || String(maxNo);
+}
 
   const range = getNoRange();
 
@@ -1919,6 +1937,17 @@ if (el.originSearchBtn) {
       updatePoolInfo();
       renderWeakList();
     });
+
+    el.feedbackBox.addEventListener("click", function (event) {
+  const target = event.target.closest('[data-action="reveal-example-ja"]');
+  if (!target) return;
+
+  const ja = target.getAttribute("data-example-ja") || "";
+  target.className = "exampleJaText";
+  target.removeAttribute("data-action");
+  target.removeAttribute("data-example-ja");
+  target.textContent = ja;
+});
 
     el.retrySetBtnTop.addEventListener("click", function () {
       startQuiz(true);
