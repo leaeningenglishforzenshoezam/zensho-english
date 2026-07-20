@@ -627,19 +627,14 @@
         </div>
 
         <div>
-          <div class="muted">問題数</div>
-          <select id="questionCount">
-            <option value="5">5問</option>
-            <option value="10" selected>10問</option>
-            <option value="20">20問</option>
-            <option value="all">全問</option>
-          </select>
-        </div>
+  <div class="muted">問題数</div>
+  <input id="questionCount" type="number" min="1" step="1" value="25" style="width:90px;">
+</div>
 
         <div>
           <div class="muted">出題順</div>
           <select id="quizMode">
-            <option value="order">順番</option>
+            <option value="order">はじめから</option>
             <option value="order_continue" selected>続きから</option>
             <option value="random">ランダム</option>
             <option value="weak">ニガテ順</option>
