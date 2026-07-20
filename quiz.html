@@ -400,6 +400,66 @@
       line-height: 1.8;
     }
 
+    .sentenceExampleBox {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid #eee;
+  background: #fff;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.sentenceExampleTitle {
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.sentenceExampleItem {
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.sentenceExampleItem:first-child {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.sentenceExampleEn {
+  font-weight: 700;
+  line-height: 1.8;
+  word-break: break-word;
+}
+
+.sentenceExampleJaMasked {
+  margin-top: 6px;
+  color: #666;
+  background: #f0f0f0;
+  border: 1px dashed #ccc;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.sentenceExampleJaText {
+  margin-top: 6px;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.sentenceExampleNote {
+  margin-top: 6px;
+  color: #555;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
     .answerDetailTitle {
       font-weight: 800;
       margin-bottom: 8px;
@@ -630,7 +690,7 @@
         <div style="margin-bottom:10px;">
           <div class="muted">出題数</div>
           <div style="margin-top:4px;">
-            <input id="limitCount" type="number" min="1" value="10" style="width:90px;"> 問
+            <input id="limitCount" type="number" min="1" value="50" style="width:90px;"> 問
           </div>
         </div>
 
@@ -753,6 +813,8 @@
 
 <script src="words_2kyu.js"></script>
 <script src="blocks_2kyu.js"></script>
+<script src="sentence_fixed_1kyu.js"></script>
+<script src="sentence_fixed_2kyu.js"></script>
 
 <script>
   if (window.ACTIVE_LEVEL === "2") {
