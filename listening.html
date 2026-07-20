@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>リスニング演習</title>
+
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    body {
+      margin: 0;
+      background: #f7f7f7;
+      color: #111;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Hiragino Kaku Gothic ProN",
+        "Yu Gothic",
+        sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px 12px 30px;
+    }
+
+    .card {
+      margin: 12px 0;
+      padding: 14px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .controlRow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .controlGroup {
+      min-width: 145px;
+      flex: 1 1 145px;
+    }
+
+    .controlGroup.wide {
+      flex-basis: 240px;
+    }
+
+    .controlLabel {
+      margin-bottom: 5px;
+      color: #555;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .muted {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .miniNote {
+      color: #777;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .sectionTitle {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .sectionSub {
+      margin-top: 4px;
+      color: #666;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .hr {
+      height: 1px;
+      margin: 14px 0;
+      background: #eee;
+    }
+
+    button,
+    select,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      padding: 10px 12px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) {
+      background: #f8f8f8;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    button.primary {
+      color: #fff;
+      background: #2b7cff;
+      border-color: #2b7cff;
+      font-weight: 800;
+    }
+
+    button.primary:hover:not(:disabled) {
+      background: #166bea;
+    }
+
+    button.soft {
+      color: #215ba8;
+      background: #eef5ff;
+      border-color: #c9dcff;
+      font-weight: 700;
+    }
+
+    button.danger {
+      color: #fff;
+      background: #b00020;
+      border-color: #b00020;
+    }
+
+    button.success {
+      color: #16672e;
+      background: #e9f8ed;
+      border-color: #b9e3c4;
+      font-weight: 800;
+    }
+
+    select,
+    input[type="number"],
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+      line-height: 1.7;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 3px solid rgba(43, 124, 255, 0.15);
+      border-color: #2b7cff;
+    }
+
+    .topNavBox {
+      margin-bottom: 12px;
+    }
+
+    .topNavTitle {
+      margin-bottom: 8px;
+      color: #666;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .topNav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 3px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .topNav a {
+      flex: 0 0 auto;
+      padding: 9px 12px;
+      color: #111;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      text-decoration: none;
+      white-space: nowrap;
+      font-size: 14px;
+    }
+
+    .topNav a.active {
+      color: #1251b5;
+      background: #eaf2ff;
+      border-color: #2b7cff;
+      font-weight: 800;
+    }
+
+    #levelBadge {
+      margin: 6px 0 10px;
+      color: #555;
+      font-size: 14px;
+    }
+
+    /* ゴイモン */
+
+    .goimonToggleBox {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .goimonToggleBtn {
+      color: #234f97;
+      background: #f9fbff;
+      border-color: #d6e5ff;
+      font-weight: 800;
+    }
+
+    .miniGoimonCard {
+      padding: 12px;
+      background: #fffaf2;
+      border: 1px solid #f0e3c7;
+      border-radius: 12px;
+    }
+
+    .miniGoimonHead {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .miniGoimonTitle {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .miniGoimonStage {
+      text-align: right;
+    }
+
+    .miniGoimonStageLabel {
+      color: #8a6a2d;
+      font-size: 11px;
+    }
+
+    .miniGoimonStageValue {
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .miniGoimonBody {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .miniGoimonImageWrap {
+      display: flex;
+      flex: 0 0 auto;
+      width: 88px;
+      height: 88px;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid #eddcb8;
+      border-radius: 12px;
+    }
+
+    .miniGoimonImageWrap img {
+      display: block;
+      max-width: 76px;
+      max-height: 76px;
+    }
+
+    .miniGoimonInfo {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .miniGoimonName {
+      margin-bottom: 4px;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .miniGoimonMeta {
+      margin-bottom: 5px;
+      color: #555;
+      font-size: 13px;
+    }
+
+    .miniGoimonDesc {
+      color: #666;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .goimonPointGuide {
+      margin-top: 10px;
+      color: #555;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .evoNoticeBtn {
+      color: #7a5200;
+      background: linear-gradient(180deg, #fff6d6 0%, #ffe8a3 100%);
+      border-color: #f1d48a;
+      font-weight: 900;
+    }
+
+    /* 設定画面 */
+
+    .methodCards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .methodCard {
+      position: relative;
+      min-height: 100px;
+      padding: 12px;
+      cursor: pointer;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+    }
+
+    .methodCard:hover {
+      border-color: #9bbfff;
+      background: #fbfdff;
+    }
+
+    .methodCard.selected {
+      background: #eef5ff;
+      border: 2px solid #2b7cff;
+    }
+
+    .methodCard input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .methodCardTitle {
+      margin-bottom: 5px;
+      font-weight: 800;
+    }
+
+    .methodCardText {
+      color: #666;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .settingSubBox {
+      margin-top: 12px;
+      padding: 12px;
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 12px;
+    }
+
+    .checkRow {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .checkRow input {
+      flex: 0 0 auto;
+      width: auto;
+      margin-top: 3px;
+    }
+
+    /* 問題画面共通 */
+
+    .questionTopBar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #questionProgress {
+      color: #555;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    #questionMeta {
+      margin-top: 5px;
+      color: #777;
+      font-size: 12px;
+    }
+
+    .audioPanel {
+      margin-top: 14px;
+      padding: 16px;
+      text-align: center;
+      background: #f8fbff;
+      border: 1px solid #dbe8ff;
+      border-radius: 14px;
+    }
+
+    .audioIcon {
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .audioMessage {
+      margin-top: 8px;
+      color: #444;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .audioControls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .playCount {
+      margin-top: 8px;
+      color: #666;
+      font-size: 12px;
+    }
+
+    .speedInline {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .speedInline select {
+      width: auto;
+      min-width: 90px;
+      padding: 8px;
+      font-size: 14px;
+    }
+
+    #choices {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .choiceBtn {
+      display: flex;
+      width: 100%;
+      min-height: 74px;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 13px;
+      text-align: left;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      line-height: 1.55;
+    }
+
+    .choiceIndex {
+      display: inline-flex;
+      flex: 0 0 auto;
+      width: 28px;
+      height: 28px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+      color: #2b7cff;
+      background: #f2f6ff;
+      border: 1px solid #d6e4ff;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .choiceText {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .choiceBtn.correct {
+      color: #156b2e;
+      background: #e8f7e8;
+      border-color: #2e9f4d;
+      font-weight: 700;
+    }
+
+    .choiceBtn.wrong {
+      color: #a11f1f;
+      background: #fdeaea;
+      border-color: #d94b4b;
+      font-weight: 700;
+    }
+
+    .answerResult {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1.6;
+    }
+
+    .answerResult.ok {
+      color: #0a702d;
+      background: #edf9f0;
+      border: 1px solid #bee4c8;
+    }
+
+    .answerResult.ng {
+      color: #a11f1f;
+      background: #fff0f0;
+      border: 1px solid #efb9c0;
+    }
+
+    .explanationBox {
+      margin-top: 12px;
+      padding: 13px;
+      background: #fcfcfc;
+      border: 1px solid #e8e8e8;
+      border-radius: 12px;
+    }
+
+    .explanationTitle {
+      margin-bottom: 7px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .explanationText {
+      font-size: 14px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
+    .scriptBox {
+      margin-top: 12px;
+      padding: 13px;
+      background: #f7faff;
+      border: 1px solid #dce8ff;
+      border-radius: 12px;
+    }
+
+    .scriptEn {
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.7;
+    }
+
+    .scriptJa {
+      margin-top: 6px;
+      color: #555;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .afterAnswerActions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    /* ディクテーション */
+
+    .wordBank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 56px;
+      margin-top: 12px;
+      padding: 12px;
+      background: #fafafa;
+      border: 1px solid #e3e3e3;
+      border-radius: 12px;
+    }
+
+    .wordChip {
+      padding: 8px 11px;
+      background: #fff;
+      border: 1px solid #cfcfcf;
+      border-radius: 999px;
+      font-size: 15px;
+    }
+
+    .wordChip.used {
+      opacity: 0.35;
+    }
+
+    .dictationAnswerArea {
+      min-height: 72px;
+      margin-top: 12px;
+      padding: 12px;
+      background: #fff;
+      border: 2px dashed #cdd8ea;
+      border-radius: 12px;
+    }
+
+    .dictationGuide {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* オーバーラッピング・シャドーイング */
+
+    .practiceGuideBox {
+      margin-top: 12px;
+      padding: 13px;
+      background: #fffaf2;
+      border: 1px solid #f0dfbd;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .practiceScript {
+      margin-top: 12px;
+      padding: 15px;
+      background: #f8fbff;
+      border: 1px solid #dbe8ff;
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.8;
+    }
+
+    .completionButtons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    /* 結果 */
+
+    .summaryScore {
+      padding: 18px;
+      text-align: center;
+      background: #f8fbff;
+      border: 1px solid #dbe8ff;
+      border-radius: 14px;
+    }
+
+    .summaryScoreMain {
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+    .summaryScoreSub {
+      margin-top: 5px;
+      color: #666;
+      font-size: 13px;
+    }
+
+    .summaryGrid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .summaryStat {
+      padding: 12px;
+      text-align: center;
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 12px;
+    }
+
+    .summaryStatLabel {
+      color: #666;
+      font-size: 12px;
+    }
+
+    .summaryStatValue {
+      margin-top: 4px;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .resultList {
+      margin-top: 12px;
+    }
+
+    .resultItem {
+      margin: 8px 0;
+      padding: 11px;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 12px;
+    }
+
+    .resultItemHead {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .resultItemId {
+      font-weight: 800;
+    }
+
+    .resultBadge {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .resultBadge.ok {
+      color: #0a702d;
+      background: #edf9f0;
+    }
+
+    .resultBadge.ng {
+      color: #a11f1f;
+      background: #fff0f0;
+    }
+
+    @media (max-width: 600px) {
+      .methodCards,
+      #choices {
+        grid-template-columns: 1fr;
+      }
+
+      .summaryGrid {
+        grid-template-columns: 1fr;
+      }
+
+      .miniGoimonImageWrap {
+        width: 76px;
+        height: 76px;
+      }
+
+      .miniGoimonImageWrap img {
+        max-width: 66px;
+        max-height: 66px;
+      }
+
+      .practiceScript {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <!-- 学習ページ共通ナビ -->
+    <div class="card topNavBox">
+      <div class="topNavTitle">学習ページ移動</div>
+
+      <nav class="topNav" aria-label="学習ページ移動">
+        <a href="index.html">ホーム</a>
+        <a href="study.html">暗記</a>
+        <a href="quiz.html">英→日</a>
+        <a href="quiz_jaen.html">日→英</a>
+        <a href="audio_quiz.html">音声→意味</a>
+        <a href="idiom_quiz.html">イディオム</a>
+        <a href="accent.html">大問1</a>
+        <a href="listening.html" class="active">リスニング</a>
+        <a href="sentence.html">大問9</a>
+        <a href="paraphrase_quiz.html">大問11</a>
+        <a href="reorder.html">大問12</a>
+        <a href="list.html">一覧</a>
+        <a href="progress.html">進捗</a>
+      </nav>
+    </div>
+
+    <div id="levelBadge">現在：全商英検 1級（リスニング演習）</div>
+
+    <!-- ゴイモン -->
+    <div class="card">
+      <div class="goimonToggleBox">
+        <div>
+          <div class="sectionTitle">ゴイモン</div>
+          <div class="muted">リスニング学習で「おんかん」が育ちます。</div>
+        </div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button
+            id="evolutionNoticeBtn"
+            class="evoNoticeBtn hidden"
+            type="button"
+          >
+            ✨ 進化する
+          </button>
+
+          <button
+            id="toggleGoimon"
+            class="goimonToggleBtn"
+            type="button"
+            aria-expanded="true"
+          >
+            ゴイモンを閉じる
+          </button>
+        </div>
+      </div>
+
+      <div id="goimonCard" class="miniGoimonCard">
+        <div class="miniGoimonHead">
+          <div>
+            <div class="miniGoimonTitle">現在のゴイモン</div>
+            <div class="muted">今回の学習も見守っています。</div>
+          </div>
+
+          <div class="miniGoimonStage">
+            <div class="miniGoimonStageLabel">現在の段階</div>
+            <div id="goimonMiniStage" class="miniGoimonStageValue">
+              たまご期
+            </div>
+          </div>
+        </div>
+
+        <div class="miniGoimonBody">
+          <div class="miniGoimonImageWrap">
+            <img
+              id="goimonMiniImage"
+              src="images/goimon/goimon_egg.png"
+              alt="ゴイモン"
+            />
+          </div>
+
+          <div class="miniGoimonInfo">
+            <div id="goimonMiniName" class="miniGoimonName">
+              ふしぎなたまご
+            </div>
+
+            <div id="goimonMiniMeta" class="miniGoimonMeta">
+              Lv 1 / 0 pt
+            </div>
+
+            <div id="goimonMiniDesc" class="miniGoimonDesc">
+              音をよく聞いて、おんかんを育てよう。
+            </div>
+          </div>
+        </div>
+
+        <div class="goimonPointGuide">
+          リスニング問題・ディクテーション・オーバーラッピング・
+          シャドーイングの完了：おんかん ＋1
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================
+         設定画面
+    ======================================================= -->
+    <div id="setupBox" class="card">
+      <div class="sectionTitle">リスニング演習</div>
+
+      <div class="sectionSub">
+        大問形式と学習方法を選んで開始します。
+      </div>
+
+      <div class="hr"></div>
+
+      <!-- 大問形式 -->
+      <div class="controlRow">
+        <div class="controlGroup wide">
+          <div class="controlLabel">大問形式</div>
+
+          <select id="formatSelect">
+            <option value="3">大問3形式（適切な応答）</option>
+            <option value="2" disabled>
+              大問2形式（問題準備中）
+            </option>
+            <option value="4" disabled>
+              大問4形式（問題準備中）
+            </option>
+            <option value="5" disabled>
+              大問5形式（問題準備中）
+            </option>
+          </select>
+        </div>
+
+        <div class="controlGroup">
+          <div class="controlLabel">出題順</div>
+
+          <select id="orderMode">
+            <option value="order">先頭から</option>
+            <option value="continue">続きから</option>
+            <option value="random">ランダム</option>
+            <option value="weak">ニガテから</option>
+          </select>
+        </div>
+
+        <div class="controlGroup">
+          <div class="controlLabel">問題数</div>
+
+          <select id="questionCount">
+            <option value="5">5問</option>
+            <option value="10" selected>10問</option>
+            <option value="20">20問</option>
+            <option value="30">30問</option>
+            <option value="all">すべて</option>
+            <option value="custom">自由入力</option>
+          </select>
+        </div>
+
+        <div
+          id="customCountWrap"
+          class="controlGroup hidden"
+        >
+          <div class="controlLabel">自由入力</div>
+
+          <input
+            id="customCountInput"
+            type="number"
+            min="1"
+            max="200"
+            step="1"
+            value="10"
+          />
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <!-- 学習方法 -->
+      <div class="controlLabel">学習方法</div>
+
+      <div id="methodCards" class="methodCards">
+
+        <label class="methodCard selected" data-method="quiz">
+          <input
+            type="radio"
+            name="learningMethod"
+            value="quiz"
+            checked
+          />
+
+          <div class="methodCardTitle">
+            🎧 リスニング問題
+          </div>
+
+          <div class="methodCardText">
+            音声を聞き、最も適切な応答を4つの選択肢から選びます。
+          </div>
+        </label>
+
+        <label class="methodCard" data-method="dictation">
+          <input
+            type="radio"
+            name="learningMethod"
+            value="dictation"
+          />
+
+          <div class="methodCardTitle">
+            ✍️ ディクテーション
+          </div>
+
+          <div class="methodCardText">
+            聞こえた英文を、語句整序または全文入力で再現します。
+          </div>
+        </label>
+
+        <label class="methodCard" data-method="overlapping">
+          <input
+            type="radio"
+            name="learningMethod"
+            value="overlapping"
+          />
+
+          <div class="methodCardTitle">
+            🗣️ オーバーラッピング
+          </div>
+
+          <div class="methodCardText">
+            スクリプトを見ながら、音声と同時に英文を読みます。
+          </div>
+        </label>
+
+        <label class="methodCard" data-method="shadowing">
+          <input
+            type="radio"
+            name="learningMethod"
+            value="shadowing"
+          />
+
+          <div class="methodCardTitle">
+            🔁 シャドーイング
+          </div>
+
+          <div class="methodCardText">
+            スクリプトを見ず、音声の少し後を追って発音します。
+          </div>
+        </label>
+      </div>
+
+      <!-- ディクテーション設定 -->
+      <div
+        id="dictationSettings"
+        class="settingSubBox hidden"
+      >
+        <div class="controlLabel">ディクテーション方式</div>
+
+        <div class="controlRow">
+          <div class="controlGroup">
+            <select id="dictationType">
+              <option value="reorder">
+                語句を並べ替える
+              </option>
+
+              <option value="full">
+                全文を入力する
+              </option>
+            </select>
+          </div>
+
+          <div class="controlGroup">
+            <div class="controlLabel">合格再生回数</div>
+
+            <select id="dictationPassCount">
+              <option value="1">1回以内</option>
+              <option value="2">2回以内</option>
+              <option value="3" selected>3回以内</option>
+              <option value="4">4回以内</option>
+              <option value="5">5回以内</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="miniNote" style="margin-top:8px;">
+          合格再生回数は記録判定に使用します。
+          合格回数を超えても、正解するまで練習できます。
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <!-- 再生設定 -->
+      <div class="controlRow">
+        <div class="controlGroup">
+          <div class="controlLabel">再生速度</div>
+
+          <select id="playbackRate">
+            <option value="0.75">0.75倍</option>
+            <option value="1" selected>1.0倍</option>
+            <option value="1.25">1.25倍</option>
+            <option value="1.5">1.5倍</option>
+          </select>
+        </div>
+
+        <div class="controlGroup">
+          <div class="controlLabel">問題表示時の自動再生</div>
+
+          <select id="autoPlayCount">
+            <option value="0">自動再生しない</option>
+            <option value="1" selected>1回</option>
+            <option value="2">2回</option>
+            <option value="3">3回</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settingSubBox">
+        <label class="checkRow">
+          <input
+            id="shuffleChoices"
+            type="checkbox"
+            checked
+          />
+
+          <span>
+            4択リスニングでは、選択肢の順番をランダムにする
+          </span>
+        </label>
+      </div>
+
+      <div
+        id="poolInfo"
+        class="muted"
+        style="margin-top:12px;"
+      >
+        大問3形式：全50問
+      </div>
+
+      <div
+        id="weakInfo"
+        class="muted"
+        style="margin-top:4px;"
+      >
+        ニガテ問題：0問
+      </div>
+
+      <div
+        style="
+          display:flex;
+          flex-wrap:wrap;
+          gap:8px;
+          margin-top:16px;
+        "
+      >
+        <button
+          id="startBtn"
+          class="primary"
+          type="button"
+        >
+          ▶ 学習を始める
+        </button>
+
+        <button
+          id="startWeakBtn"
+          type="button"
+        >
+          ニガテだけ始める
+        </button>
+
+        <button
+          id="openProblemListBtn"
+          type="button"
+        >
+          問題一覧を見る
+        </button>
+      </div>
+    </div>
+
+    <!-- ======================================================
+         問題一覧
+    ======================================================= -->
+    <div
+      id="problemListBox"
+      class="card hidden"
+    >
+      <div class="row">
+        <div>
+          <div class="sectionTitle">
+            リスニング問題一覧
+          </div>
+
+          <div
+            id="problemListSummary"
+            class="sectionSub"
+          >
+            問題文・応答選択肢・正答・日本語訳を確認できます。
+          </div>
+        </div>
+
+        <button
+          id="problemListBackBtn"
+          type="button"
+        >
+          設定へ戻る
+        </button>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="controlRow">
+        <div class="controlGroup">
+          <div class="controlLabel">大問形式</div>
+
+          <select id="problemListFormatSelect">
+            <option value="3">
+              大問3形式
+            </option>
+          </select>
+        </div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button
+            id="toggleProblemListAnswersBtn"
+            type="button"
+          >
+            正答を隠す
+          </button>
+
+          <button
+            id="shuffleProblemListBtn"
+            type="button"
+          >
+            ランダム表示
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="problemListEmpty"
+        class="muted hidden"
+        style="margin-top:12px;"
+      >
+        表示できる問題がありません。
+      </div>
+
+      <div
+        id="problemListBody"
+        style="margin-top:12px;"
+      ></div>
+    </div>
+
+    <!-- ======================================================
+         問題画面
+    ======================================================= -->
+    <div
+      id="playBox"
+      class="card hidden"
+    >
+      <div class="questionTopBar">
+        <div>
+          <div id="questionProgress">
+            1 / 10
+          </div>
+
+          <div id="questionMeta">
+            大問3形式・リスニング問題
+          </div>
+        </div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button
+            id="manualWeakBtn"
+            type="button"
+          >
+            手動ニガテに追加
+          </button>
+
+          <button
+            id="backBtn"
+            type="button"
+          >
+            設定へ戻る
+          </button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <!-- 音声 -->
+      <div class="audioPanel">
+        <div class="audioIcon">🎧</div>
+
+        <div id="audioMessage" class="audioMessage">
+          音声を聞いて答えてください。
+        </div>
+
+        <audio
+          id="questionAudio"
+          preload="auto"
+        ></audio>
+
+        <div class="audioControls">
+          <button
+            id="playAudioBtn"
+            class="primary"
+            type="button"
+          >
+            ▶ 音声を再生
+          </button>
+
+          <button
+            id="stopAudioBtn"
+            type="button"
+          >
+            ■ 停止
+          </button>
+
+          <span class="speedInline">
+            <label for="playSpeedSelect">
+              速度
+            </label>
+
+            <select id="playSpeedSelect">
+              <option value="0.75">0.75倍</option>
+              <option value="1" selected>1.0倍</option>
+              <option value="1.25">1.25倍</option>
+              <option value="1.5">1.5倍</option>
+            </select>
+          </span>
+        </div>
+
+        <div
+          id="currentPlayCount"
+          class="playCount"
+        >
+          再生回数：0回
+        </div>
+      </div>
+
+      <!-- 4択モード -->
+      <section id="quizModePanel">
+        <div
+          class="muted"
+          style="margin-top:14px;"
+        >
+          最も適切な応答を1つ選んでください。
+        </div>
+
+        <div id="choices"></div>
+      </section>
+
+      <!-- ディクテーション -->
+      <section
+        id="dictationModePanel"
+        class="hidden"
+      >
+        <div
+          id="dictationGuide"
+          class="dictationGuide"
+          style="margin-top:14px;"
+        >
+          聞こえた英文を完成させてください。
+        </div>
+
+        <!-- 語句整序 -->
+        <div
+          id="reorderDictationPanel"
+          class="hidden"
+        >
+          <div
+            id="dictationAnswerArea"
+            class="dictationAnswerArea"
+          >
+            単語を下から選んでください。
+          </div>
+
+          <div
+            id="wordBank"
+            class="wordBank"
+          ></div>
+
+          <div
+            style="
+              display:flex;
+              flex-wrap:wrap;
+              gap:8px;
+              margin-top:12px;
+            "
+          >
+            <button
+              id="undoWordBtn"
+              type="button"
+            >
+              1語戻す
+            </button>
+
+            <button
+              id="resetWordsBtn"
+              type="button"
+            >
+              最初から
+            </button>
+
+            <button
+              id="checkReorderBtn"
+              class="primary"
+              type="button"
+            >
+              解答する
+            </button>
+          </div>
+        </div>
+
+        <!-- 全文入力 -->
+        <div
+  id="fullDictationPanel"
+  class="hidden"
+>
+  <div class="sectionTitle">
+    聞こえた英文を入力
+  </div>
+
+  <p class="muted">
+    大文字・小文字、句読点、空白の違いは採点に影響しません。
+    アポストロフィーは入力してください。
+  </p>
+
+  <textarea
+    id="fullDictationInput"
+    rows="4"
+    placeholder="聞こえた英文を入力してください"
+    autocomplete="off"
+    autocapitalize="off"
+    spellcheck="false"
+  ></textarea>
+
+  <div
+    id="fullDictationGuide"
+    class="muted"
+    style="margin-top:8px;"
+  >
+    入力後、「解答する」を押してください。
+  </div>
+
+  <div
+    class="buttonRow"
+    style="margin-top:12px;"
+  >
+    <button
+      type="button"
+      id="clearFullDictationBtn"
+      class="secondary"
+    >
+      入力を消す
+    </button>
+
+    <button
+      type="button"
+      id="checkFullDictationBtn"
+      class="primary"
+    >
+      解答する
+    </button>
+  </div>
+</div>
+      </section>
+
+      <!-- オーバーラッピング -->
+      <section
+        id="overlappingModePanel"
+        class="hidden"
+      >
+        <div class="practiceGuideBox">
+          スクリプトを見ながら、音声とできるだけ同時に英文を読んでください。
+          発音・リズム・音のつながりを意識しましょう。
+        </div>
+
+        <div
+          id="overlappingScript"
+          class="practiceScript"
+        >
+          Script
+        </div>
+
+        <div
+          id="overlappingJa"
+          class="scriptJa"
+        ></div>
+
+        <div class="completionButtons">
+          <button
+            id="completeOverlappingBtn"
+            class="success"
+            type="button"
+          >
+            できた
+          </button>
+
+          <button
+            id="repeatOverlappingBtn"
+            type="button"
+          >
+            もう一度練習する
+          </button>
+        </div>
+      </section>
+
+      <!-- シャドーイング -->
+      <section
+        id="shadowingModePanel"
+        class="hidden"
+      >
+        <div class="practiceGuideBox">
+          まずスクリプトを見ずに、音声の少し後を追って発音してください。
+          難しい場合はスクリプトを表示して確認できます。
+        </div>
+
+        <button
+          id="toggleShadowingScriptBtn"
+          type="button"
+          style="margin-top:12px;"
+        >
+          スクリプトを表示
+        </button>
+
+        <div
+          id="shadowingScriptBox"
+          class="hidden"
+        >
+          <div
+            id="shadowingScript"
+            class="practiceScript"
+          >
+            Script
+          </div>
+
+          <div
+            id="shadowingJa"
+            class="scriptJa"
+          ></div>
+        </div>
+
+        <div class="completionButtons">
+          <button
+            id="completeShadowingBtn"
+            class="success"
+            type="button"
+          >
+            できた
+          </button>
+
+          <button
+            id="repeatShadowingBtn"
+            type="button"
+          >
+            もう一度練習する
+          </button>
+        </div>
+      </section>
+
+      <!-- 正誤・解説 -->
+      <div
+        id="answerResult"
+        class="answerResult hidden"
+      ></div>
+
+      <div
+        id="scriptAnswerBox"
+        class="scriptBox hidden"
+      >
+        <div class="explanationTitle">
+          スクリプト
+        </div>
+
+        <div
+          id="scriptAnswerEn"
+          class="scriptEn"
+        ></div>
+
+        <div
+          id="scriptAnswerJa"
+          class="scriptJa"
+        ></div>
+      </div>
+
+      <div
+        id="explanationBox"
+        class="explanationBox hidden"
+      >
+        <div class="explanationTitle">
+          解説
+        </div>
+
+        <div
+          id="explanationText"
+          class="explanationText"
+        ></div>
+      </div>
+
+      <!-- 解答後の別練習 -->
+      <div
+        id="afterAnswerActions"
+        class="afterAnswerActions hidden"
+      >
+        <button
+          id="reviewDictationBtn"
+          type="button"
+        >
+          同じ問題でディクテーション
+        </button>
+
+        <button
+          id="reviewOverlappingBtn"
+          type="button"
+        >
+          同じ問題でオーバーラッピング
+        </button>
+
+        <button
+          id="reviewShadowingBtn"
+          type="button"
+        >
+          同じ問題でシャドーイング
+        </button>
+      </div>
+
+      <div
+        style="
+          display:flex;
+          justify-content:flex-end;
+          margin-top:16px;
+        "
+      >
+        <button
+          id="nextQuestionBtn"
+          class="primary"
+          type="button"
+          disabled
+        >
+          次の問題へ
+        </button>
+      </div>
+    </div>
+
+    <!-- ======================================================
+         結果画面
+    ======================================================= -->
+    <div
+      id="summaryBox"
+      class="card hidden"
+    >
+      <div class="row">
+        <div>
+          <div class="sectionTitle">
+            今回の結果
+          </div>
+
+          <div
+            id="summaryLine"
+            class="sectionSub"
+          ></div>
+        </div>
+
+        <button
+          id="summaryBackBtn"
+          type="button"
+        >
+          設定画面へ
+        </button>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="summaryScore">
+        <div
+          id="summaryScoreMain"
+          class="summaryScoreMain"
+        >
+          0 / 0
+        </div>
+
+        <div
+          id="summaryScoreSub"
+          class="summaryScoreSub"
+        >
+          正答率 0%
+        </div>
+      </div>
+
+      <div class="summaryGrid">
+        <div class="summaryStat">
+          <div class="summaryStatLabel">
+            学習した問題
+          </div>
+
+          <div
+            id="summaryAttempted"
+            class="summaryStatValue"
+          >
+            0
+          </div>
+        </div>
+
+        <div class="summaryStat">
+          <div class="summaryStatLabel">
+            正解・完了
+          </div>
+
+          <div
+            id="summaryCorrect"
+            class="summaryStatValue"
+          >
+            0
+          </div>
+        </div>
+
+        <div class="summaryStat">
+          <div class="summaryStatLabel">
+            おんかん獲得
+          </div>
+
+          <div
+            id="summaryOnkan"
+            class="summaryStatValue"
+          >
+            ＋0
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="
+          display:flex;
+          flex-wrap:wrap;
+          gap:8px;
+          margin-top:16px;
+        "
+      >
+        <button
+          id="retrySameBtn"
+          type="button"
+        >
+          同じ問題セットをもう一度
+        </button>
+
+        <button
+          id="continueBtn"
+          class="primary"
+          type="button"
+        >
+          次の問題セットへ
+        </button>
+
+        <button
+          id="retryWeakBtn"
+          type="button"
+        >
+          ニガテだけ練習
+        </button>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="sectionTitle">
+        今回の問題
+      </div>
+
+      <div
+        id="summaryEmpty"
+        class="muted hidden"
+        style="margin-top:10px;"
+      >
+        結果がありません。
+      </div>
+
+      <div
+        id="summaryResultList"
+        class="resultList"
+      ></div>
+    </div>
+
+  </div>
+
+  <!-- データ・共通機能 -->
+  <script>
+    window.ACTIVE_LEVEL =
+      localStorage.getItem("zensho_level_v1") || "1";
+  </script>
+
+  <script src="learning_log.js"></script>
+  <script src="goimon_dialogues.js"></script>
+  <script src="goimon_dex.js"></script>
+  <script src="goimon_rules.js"></script>
+  <script src="goimon.js"></script>
+
+  <!-- リスニング問題データ -->
+  <script src="listening_type3_1kyu.js"></script>
+
+  <script src="quiz_ui_common.js"></script>
+<script src="quiz_shortcuts.js"></script>
+
+  <!-- リスニングページ本体 -->
+  <script src="listening.js"></script>
+</body>
+</html>
