@@ -790,6 +790,98 @@
         font-size: 18px;
       }
     }
+
+    .problemListAudioRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.problemListPlayBtn {
+  border: 1px solid #cddcff;
+  background: #eef5ff;
+  color: #234b92;
+  font-weight: 800;
+}
+
+.problemListStopBtn {
+  border: 1px solid #ddd;
+  background: #f5f5f5;
+  color: #444;
+}
+
+.problemListChoices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.problemListChoiceBtn {
+  width: 100%;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fff;
+  color: #222;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.problemListChoiceBtn:hover:not(:disabled) {
+  background: #f5f8ff;
+  border-color: #b9cdf4;
+}
+
+.problemListChoiceBtn.correct {
+  background: #eaf8ea;
+  border-color: #8dc78d;
+  color: #166b16;
+}
+
+.problemListChoiceBtn.wrong {
+  background: #fff0f0;
+  border-color: #de8e8e;
+  color: #a22727;
+}
+
+.problemListChoiceBtn:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.problemListPracticeResult {
+  min-height: 28px;
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.problemListPracticeResult.correct {
+  color: #157915;
+}
+
+.problemListPracticeResult.wrong {
+  color: #c53333;
+}
+
+.problemListRetryBtn {
+  margin-top: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #333;
+}
+
+@media (max-width: 480px) {
+  .problemListChoices {
+    grid-template-columns: 1fr;
+  }
+}
   </style>
 </head>
 
@@ -911,17 +1003,17 @@
           <div class="controlLabel">大問形式</div>
 
           <select id="formatSelect">
-            <option value="3">大問3形式（適切な応答）</option>
-            <option value="2" disabled>
-              大問2形式（問題準備中）
-            </option>
-            <option value="4" disabled>
-              大問4形式（問題準備中）
-            </option>
-            <option value="5" disabled>
-              大問5形式（問題準備中）
-            </option>
-          </select>
+  <option value="2">大問2形式（適切な発話）</option>
+  <option value="3">大問3形式（適切な応答）</option>
+
+  <option value="4" disabled>
+    大問4形式（問題準備中）
+  </option>
+
+  <option value="5" disabled>
+    大問5形式（問題準備中）
+  </option>
+</select>
         </div>
 
         <div class="controlGroup">
@@ -1202,10 +1294,9 @@
           <div class="controlLabel">大問形式</div>
 
           <select id="problemListFormatSelect">
-            <option value="3">
-              大問3形式
-            </option>
-          </select>
+  <option value="2">大問2形式</option>
+  <option value="3">大問3形式</option>
+</select>
         </div>
 
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -1784,7 +1875,8 @@
   <script src="goimon.js"></script>
 
   <!-- リスニング問題データ -->
-  <script src="listening_type3_1kyu.js"></script>
+<script src="listening_type2_1kyu.js"></script>
+<script src="listening_type3_1kyu.js"></script>
 
   <script src="quiz_ui_common.js"></script>
 <script src="quiz_shortcuts.js"></script>
