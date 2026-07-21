@@ -422,6 +422,235 @@
         align-items: flex-start;
       }
     }
+    #choices button.choiceBtn {
+  text-align: left;
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.choiceIndex {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #f2f6ff;
+  color: #2b7cff;
+  border: 1px solid #d6e4ff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.choiceContent {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.choiceEnglish {
+  display: block;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.choiceJapanese {
+  display: none;
+  margin-top: 4px;
+  color: #777;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+#choices.answered .choiceJapanese {
+  display: block;
+}
+
+#choices button.choiceBtn.correct {
+  background: #e8f7e8;
+  border-color: #2e9f4d;
+  color: #156b2e;
+}
+
+#choices button.choiceBtn.wrong {
+  background: #fdeaea;
+  border-color: #d94b4b;
+  color: #a11f1f;
+}
+
+#choices button.choiceBtn.correct .choiceJapanese,
+#choices button.choiceBtn.wrong .choiceJapanese {
+  color: inherit;
+  opacity: 0.72;
+}
+
+@media (max-width: 480px) {
+  #choices {
+    grid-template-columns: 1fr;
+  }
+
+  .choiceEnglish {
+    font-size: 17px;
+  }
+
+  .choiceJapanese {
+    font-size: 12px;
+  }
+}
+.summaryScoreCard {
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid #dce7f8;
+  background: linear-gradient(
+    180deg,
+    #f8fbff 0%,
+    #eef5ff 100%
+  );
+  text-align: center;
+}
+
+.summaryScoreLabel {
+  color: #555;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.summaryScoreMain {
+  margin-top: 6px;
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.summaryScorePercent {
+  margin-top: 5px;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.summaryPassBadge {
+  display: inline-block;
+  margin-top: 9px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.summaryPassBadge.pass {
+  color: #08752e;
+  background: #eaf9ef;
+  border: 1px solid #b9e2c6;
+}
+
+.summaryPassBadge.challenge {
+  color: #875500;
+  background: #fff7df;
+  border: 1px solid #efd28b;
+}
+
+.summaryMeta {
+  margin-top: 12px;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.summaryWordList {
+  padding: 0;
+  margin: 0;
+}
+
+.summaryWordCard {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 12px;
+  border: 1px solid #e7e7e7;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.summaryWordCard:last-child {
+  margin-bottom: 0;
+}
+
+.summaryWordHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.summaryWordNumber {
+  color: #777;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.summaryWordJapanese {
+  margin-top: 4px;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.summaryWordEnglish {
+  margin-top: 4px;
+  color: #334155;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.summaryResultBadge {
+  display: inline-block;
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.summaryResultBadge.correct {
+  color: #08752e;
+  background: #eaf9ef;
+  border: 1px solid #b9e2c6;
+}
+
+.summaryResultBadge.wrong {
+  color: #ad1f2d;
+  background: #fff0f1;
+  border: 1px solid #f0bbc1;
+}
+
+.summaryEmpty {
+  padding: 15px;
+  border: 1px dashed #ccc;
+  border-radius: 12px;
+  color: #666;
+  background: #fafafa;
+  text-align: center;
+}
+
+.summaryWrongCard {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 12px;
+  border: 1px solid #f0c4c8;
+  border-radius: 12px;
+  background: #fff7f7;
+}
+
+.summaryWrongCard:last-child {
+  margin-bottom: 0;
+}
   </style>
 </head>
 
@@ -520,7 +749,7 @@
         <div style="margin-bottom:10px;">
           <div class="muted">出題数</div>
           <div style="margin-top:4px;">
-            <input id="limitCount" type="number" min="1" value="10" style="width:90px;"> 問
+            <input id="limitCount" type="number" min="1" value="50" style="width:90px;"> 問
           </div>
         </div>
 
@@ -727,6 +956,7 @@
   })();
 </script>
 
+<script src="quiz_shortcuts.js"></script>
 <script src="quiz_jaen.js"></script>
 </body>
 </html>
