@@ -2109,3 +2109,133 @@ a {
     grid-template-columns: 1fr !important;
   }
 }
+
+.btn.listening {
+  background: linear-gradient(
+    135deg,
+    #6f42c1 0%,
+    #8c5de8 100%
+  );
+  color: #fff;
+  border: 1px solid #6840b5;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(111, 66, 193, 0.2);
+}
+
+.btn.listening:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.btn.listening:active {
+  transform: translateY(0);
+}
+
+.trainingGroup {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid #e4e4e4;
+  border-radius: 14px;
+  background: #fafafa;
+}
+
+.trainingGroup:first-of-type {
+  margin-top: 14px;
+}
+
+.trainingGroupHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.trainingGroupIcon {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: #eef4ff;
+  font-size: 21px;
+}
+
+.trainingGroupTitle {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.trainingGroupSub {
+  margin-top: 3px;
+  color: #666;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.trainingGroup .btn {
+  margin: 8px 0;
+}
+
+.trainingGroup .btn:last-child {
+  margin-bottom: 0;
+}
+
+.trainingGroup.listeningGroup {
+  border-color: #d8c9f3;
+  background: linear-gradient(
+    180deg,
+    #fbf9ff 0%,
+    #f5f0ff 100%
+  );
+}
+
+.trainingGroup.listeningGroup .trainingGroupIcon {
+  background: #eee6ff;
+}
+
+.btn.listening {
+  background: linear-gradient(
+    135deg,
+    #6f42c1 0%,
+    #8c5de8 100%
+  );
+  color: #fff;
+  border: 1px solid #6840b5;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(111, 66, 193, 0.2);
+}
+
+.btn.listening:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.btn.listening:active {
+  transform: translateY(0);
+}
+
+.btn.progress {
+  background: #eef5ff;
+  color: #214d91;
+  border: 1px solid #c8dcff;
+  font-weight: 800;
+}
+
+.btn.recommended {
+  background: #fff7df;
+  color: #805600;
+  border: 1px solid #efd28b;
+  font-weight: 800;
+}
+
+.trainingGroup.supportGroup {
+  background: #fffdf8;
+  border-color: #eee4cf;
+}
+
+.trainingGroup.supportGroup .trainingGroupIcon {
+  background: #fff3d6;
+}
