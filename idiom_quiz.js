@@ -405,15 +405,33 @@ function openGoogleSearch(query) {
     return !!map[id];
   }
 
-  function toggleManualWeak(id) {
-    const map = getManualWeakMap();
-    if (map[id]) {
-      delete map[id];
-    } else {
-      map[id] = true;
-    }
-    saveManualWeakMap(map);
+  function clearWeakItem(
+  questionMode,
+  id
+) {
+  // 自動ニガテを削除
+  const weakMap =
+    getWeakMap(questionMode);
+
+  if (weakMap[id]) {
+    delete weakMap[id];
+    saveWeakMap(
+      questionMode,
+      weakMap
+    );
   }
+
+  // 手動苦手を削除
+  const manualWeakMap =
+    getManualWeakMap();
+
+  if (manualWeakMap[id]) {
+    delete manualWeakMap[id];
+    saveManualWeakMap(
+      manualWeakMap
+    );
+  }
+}
 
   function getListUiMap() {
     const raw = readJSON(STORAGE_KEYS.listUi, {});
@@ -931,7 +949,11 @@ function getAvailableDataForMode(questionMode, options) {
     return `<div class="compactValue">${escapeHtml(text)}</div>`;
   }
 
-  function createListItemHtml(item, autoWeakCount) {
+  function createListItemHtml(
+  item,
+  autoWeakCount,
+  showClearWeakButton
+) {
     const meaningMasked = isMeaningMasked(item.id);
     const synonymMasked = isSynonymMasked(item.id);
     const manualWeak = isManualWeak(item.id);
@@ -976,6 +998,19 @@ function getAvailableDataForMode(questionMode, options) {
           <button type="button" data-action="toggle-manual-weak" data-item-id="${item.id}" class="${manualWeak ? "weakBtnActive" : ""}">
             ${manualWeak ? "苦手解除" : "苦手に追加"}
           </button>
+          ${
+  showClearWeakButton
+    ? `
+      <button
+        type="button"
+        data-action="clear-weak-item"
+        data-item-id="${item.id}"
+      >
+        苦手一覧から削除
+      </button>
+    `
+    : ""
+}
           <button type="button" data-action="go-paraphrase" data-item-id="${item.id}">
             言い換え問題へ
           </button>
@@ -1013,7 +1048,12 @@ function getAvailableDataForMode(questionMode, options) {
 
  filterByNoRange(DATA).forEach(function (item) {
   const div = document.createElement("div");
-  div.innerHTML = createListItemHtml(item, weakMap[item.id] || 0);
+ div.innerHTML =
+  createListItemHtml(
+    item,
+    weakMap[item.id] || 0,
+    false
+  );
   el.problemList.appendChild(div.firstElementChild);
 });
 
@@ -1057,7 +1097,12 @@ function getAvailableDataForMode(questionMode, options) {
 
     list.forEach(function (item) {
       const div = document.createElement("div");
-      div.innerHTML = createListItemHtml(item, item.autoWeakCount);
+      div.innerHTML =
+  createListItemHtml(
+    item,
+    item.autoWeakCount,
+    true
+  );
       el.weakList.appendChild(div.firstElementChild);
     });
 
@@ -1683,6 +1728,39 @@ if (el.rangeEnd) {
       renderSummary();
       return;
     }
+
+    if (
+  action ===
+  "clear-weak-item"
+) {
+  const item =
+    getItemById(itemId);
+
+  const name =
+    item
+      ? item.expression
+      : itemId;
+
+  const shouldDelete =
+    window.confirm(
+      `「${name}」を苦手一覧から削除しますか？`
+    );
+
+  if (!shouldDelete) {
+    return;
+  }
+
+  clearWeakItem(
+    el.questionMode.value,
+    itemId
+  );
+
+  updatePoolInfo();
+  renderWeakList();
+  renderProblemList();
+
+  return;
+}
 
     if (action === "go-paraphrase") {
       openParaphraseForIdiom(itemId);
