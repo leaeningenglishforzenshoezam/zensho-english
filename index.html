@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>語彙学習ホーム</title>
+  <title>全商英検トレーニング</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -23,7 +23,7 @@
       <div class="goimonQuick">
         <div class="goimonQuickLeft">
           <div class="goimonQuickTitle">ゴイモン</div>
-          <p class="goimonQuickSub">学習にあわせて育つ、語彙学習のお供です。</p>
+          <p class="goimonQuickSub">毎日の英語学習にあわせて育つ、あなたの学習パートナーです。</p>
         </div>
         <div class="goimonQuickRight">
           <div class="goimonQuickLabel">現在の段階</div>
@@ -81,26 +81,128 @@
     </div>
 
     <div class="card">
-      <h1>語彙学習</h1>
-      <p class="sub">
-        このアプリでは、暗記・英→日・日→英・音声・イディオム問題・大問1・大問9・大問11・大問12を使って、語彙力と表現力を広く育てます。
-      </p>
+      <h1>全商英検トレーニング</h1>
 
-      <button class="btn primary" id="goWordList">▶ 単語一覧（番号つき）</button>
-      <button class="btn primary" id="goStudy">▶ 覚える（暗記）</button>
-      <button class="btn primary" id="goQuiz">▶ クイズで確認（英→日）</button>
-      <button class="btn primary" id="goQuizJaEn">▶ クイズで確認（日→英）</button>
-      <button class="btn primary" id="goAudioQuiz">▶ クイズで確認（音→日）</button>
-      <button class="btn primary" id="goIdiom">▶ クイズで確認（イディオム）</button>
-      <button class="btn primary" id="goAccent">▶ 大問1演習（アクセント）</button>
-      <button class="btn primary" id="goSentence">▶ 大問9演習（短文空欄補充）</button>
-      <button class="btn primary" id="goParaphrase">▶ 大問11演習（言い換え）</button>
-      <button class="btn primary" id="goReorder">▶ 大問12演習（語句整序）</button>
-      <button class="btn primary" id="goProgress">▶ ブロック進捗を見る</button>
+<p class="sub">
+  単語・リスニング・各大問形式を使って、
+  全商英検に必要な語彙力・聞く力・表現力を総合的に鍛えます。
+</p>
 
-      <div class="row">
-        <button class="btn gray" id="goRecommended">今日のおすすめ</button>
+     <div class="trainingGroup">
+  <div class="trainingGroupHead">
+    <div class="trainingGroupIcon">📘</div>
+
+    <div>
+      <div class="trainingGroupTitle">
+        単語を身につける
       </div>
+
+      <div class="trainingGroupSub">
+        単語の意味・つづり・音を繰り返し確認します。
+      </div>
+    </div>
+  </div>
+
+  <button class="btn primary" id="goWordList">
+    ▶ 単語一覧を見る
+  </button>
+
+  <button class="btn primary" id="goStudy">
+    ▶ 単語を覚える
+  </button>
+
+  <button class="btn primary" id="goQuiz">
+    ▶ 単語クイズ（英語→日本語）
+  </button>
+
+  <button class="btn primary" id="goQuizJaEn">
+    ▶ 単語クイズ（日本語→英語）
+  </button>
+
+  <button class="btn primary" id="goAudioQuiz">
+    ▶ 単語クイズ（音声→意味）
+  </button>
+
+  <button class="btn primary" id="goIdiom">
+    ▶ イディオムクイズ（意味・同義表現）
+  </button>
+</div>
+
+<div class="trainingGroup listeningGroup">
+  <div class="trainingGroupHead">
+    <div class="trainingGroupIcon">🎧</div>
+
+    <div>
+      <div class="trainingGroupTitle">
+        リスニングを練習する
+      </div>
+
+      <div class="trainingGroupSub">
+        会話や英文を聞いて、内容をつかむ力を鍛えます。
+      </div>
+    </div>
+  </div>
+
+  <button class="btn listening" id="goListening">
+    🎧 リスニング演習
+  </button>
+</div>
+
+<div class="trainingGroup">
+  <div class="trainingGroupHead">
+    <div class="trainingGroupIcon">✏️</div>
+
+    <div>
+      <div class="trainingGroupTitle">
+        各大問を練習する
+      </div>
+
+      <div class="trainingGroupSub">
+        全商英検の出題形式に合わせて練習します。
+      </div>
+    </div>
+  </div>
+
+  <button class="btn primary" id="goAccent">
+    ▶ 大問1演習（アクセント）
+  </button>
+
+  <button class="btn primary" id="goSentence">
+    ▶ 大問9演習（短文空欄補充）
+  </button>
+
+  <button class="btn primary" id="goParaphrase">
+    ▶ 大問11演習（言い換え）
+  </button>
+
+  <button class="btn primary" id="goReorder">
+    ▶ 大問12演習（語句整序）
+  </button>
+</div>
+
+<div class="trainingGroup supportGroup">
+  <div class="trainingGroupHead">
+    <div class="trainingGroupIcon">📊</div>
+
+    <div>
+      <div class="trainingGroupTitle">
+        学習状況・サポート
+      </div>
+
+      <div class="trainingGroupSub">
+        学習の進み具合を確認したり、次の学習を選んだりできます。
+      </div>
+    </div>
+  </div>
+
+  <button class="btn progress" id="goProgress">
+    ▶ ブロック進捗を見る
+  </button>
+
+  <button class="btn recommended" id="goRecommended">
+    今日のおすすめ
+  </button>
+</div>
     </div>
 
     <div class="card">
@@ -135,13 +237,14 @@
 
     <div class="card">
       <div class="footer">
-        ・覚える：まず単語に触れるときにおすすめ<br>
-        ・クイズ：意味確認や思い出す練習におすすめ<br>
-        ・音声→意味：耳から意味をつかむ力を鍛える<br>
-        ・大問11風：言い換え力を鍛える<br>
-        ・イディオム：定型表現を意味・同義表現の両方から確認できる<br>
-        ・今日のおすすめ：迷ったときの入口
-      </div>
+  ・単語一覧：一覧で単語の意味・アクセントの位置を確認できる。暗記カードとしても使えます。<br>
+  ・単語を覚える：初めて学ぶ単語や、忘れた単語の確認におすすめ<br>
+  ・英→日／日→英：単語を思い出す力を鍛える<br>
+  ・音声→意味：単語の音と意味を結びつける<br>
+  ・リスニング演習：会話や英文を聞いて内容をつかむ力を鍛える<br>
+  ・各大問演習：本番の出題形式に合わせて練習する<br>
+  ・今日のおすすめ：何をするか迷ったときの入口
+</div>
 
       <div class="footer" style="margin-top:10px;">
         <a href="https://docs.google.com/forms/d/e/1FAIpQLSfQMt0jC7aal_Rxvqxn_TkjT-pQZw1Ohf_V3v82Z6FWKLW39Q/viewform?usp=publish-editor"
@@ -914,6 +1017,7 @@
     document.getElementById("goQuiz").addEventListener("click", () => { location.href = "quiz.html"; });
     document.getElementById("goQuizJaEn").addEventListener("click", () => { location.href = "quiz_jaen.html"; });
     document.getElementById("goAudioQuiz").addEventListener("click", () => { location.href = "audio_quiz.html"; });
+    document.getElementById("goListening").addEventListener("click",() => {location.href ="listening.html";});
     document.getElementById("goAccent").addEventListener("click", () => { location.href = "accent.html"; });
     document.getElementById("goSentence").addEventListener("click", () => { location.href = "sentence.html"; });
     document.getElementById("goParaphrase").addEventListener("click", () => { location.href = "paraphrase_quiz.html"; });
