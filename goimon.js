@@ -56,7 +56,8 @@ window.GoimonUI = (function () {
     quiz_jaen: { kotoba: 1 },
     accent: { onkan: 1 },
     sentence: { bunmyaku: 1 },
-    audio_quiz: { chie: 0.5, onkan: 0.5 }
+    audio_quiz: { chie: 0.5, onkan: 0.5 },
+    listening: { onkan: 1 }
   };
 
   // 現在段階 -> 次段階に必要な累計pt
@@ -546,16 +547,42 @@ function shouldPreserveLegacyMrUnoUnlock() {
 
   function getReactionSpeech(type, eventKey) {
     if (window.GoimonDialogues && typeof window.GoimonDialogues.getReaction === "function") {
-      if (eventKey === "study") return window.GoimonDialogues.getReaction(type, "chie") || getRandomHomeSpeech(type);
-      if (eventKey === "quiz_enja") return window.GoimonDialogues.getReaction(type, "chie") || getRandomHomeSpeech(type);
-      if (eventKey === "quiz_jaen") return window.GoimonDialogues.getReaction(type, "kotoba") || getRandomHomeSpeech(type);
-      if (eventKey === "accent") return window.GoimonDialogues.getReaction(type, "onkan") || getRandomHomeSpeech(type);
-      if (eventKey === "sentence") return window.GoimonDialogues.getReaction(type, "bunmyaku") || getRandomHomeSpeech(type);
-      if (eventKey === "audio_quiz") {
-        return window.GoimonDialogues.getReaction(type, "onkan")
-          || window.GoimonDialogues.getReaction(type, "chie")
-          || getRandomHomeSpeech(type);
-      }
+      if (eventKey === "study") {
+  return window.GoimonDialogues.getReaction(type, "chie")
+    || getRandomHomeSpeech(type);
+}
+
+if (eventKey === "quiz_enja") {
+  return window.GoimonDialogues.getReaction(type, "chie")
+    || getRandomHomeSpeech(type);
+}
+
+if (eventKey === "quiz_jaen") {
+  return window.GoimonDialogues.getReaction(type, "kotoba")
+    || getRandomHomeSpeech(type);
+}
+
+if (eventKey === "accent") {
+  return window.GoimonDialogues.getReaction(type, "onkan")
+    || getRandomHomeSpeech(type);
+}
+
+if (eventKey === "sentence") {
+  return window.GoimonDialogues.getReaction(type, "bunmyaku")
+    || getRandomHomeSpeech(type);
+}
+
+if (eventKey === "audio_quiz") {
+  return window.GoimonDialogues.getReaction(type, "onkan")
+    || window.GoimonDialogues.getReaction(type, "chie")
+    || getRandomHomeSpeech(type);
+}
+
+// リスニング演習
+if (eventKey === "listening") {
+  return window.GoimonDialogues.getReaction(type, "onkan")
+    || getRandomHomeSpeech(type);
+}
     }
     return getRandomHomeSpeech(type);
   }
