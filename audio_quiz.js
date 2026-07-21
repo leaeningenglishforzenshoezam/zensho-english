@@ -56,8 +56,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const choices = el("choices");
   const result = el("result");
   const detail = el("detail");
-  const nextBtn = el("nextBtn");
-  const backBtn = el("backBtn");
+const prevBtn = el("prevBtn");
+const nextBtn = el("nextBtn");
+const backBtn = el("backBtn");
 
   const summaryLine = el("summaryLine");
   const wrongEmpty = el("wrongEmpty");
@@ -81,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
       [modeSelect, "modeSelect"], [autoPlay, "autoPlay"], [resetCursor, "resetCursor"],
       [setupInfo, "setupInfo"], [startBtn, "startBtn"],
       [stats, "stats"], [qMeta, "qMeta"], [speakBtn, "speakBtn"], [choices, "choices"], [result, "result"], [detail, "detail"],
-      [nextBtn, "nextBtn"], [backBtn, "backBtn"],
+      [prevBtn, "prevBtn"], [nextBtn, "nextBtn"], [backBtn, "backBtn"],
       [summaryLine, "summaryLine"], [wrongEmpty, "wrongEmpty"], [wrongList, "wrongList"], [retrySameBtn, "retrySameBtn"], [retryBtn, "retryBtn"], [summaryBackBtn, "summaryBackBtn"]
     ].forEach(([x, n]) => must(x, n));
   } catch (e) {
@@ -384,7 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
     pool: [],
     order: [],
     cursor: 0,
-    limit: 10,
+    limit: 50,
     answered: 0,
     correct: 0,
     startNo: 1,
@@ -393,10 +394,17 @@ document.addEventListener("DOMContentLoaded", () => {
     askedSet: []
   };
 
-  let current = null;
-  let answeredThis = false;
-  let askedLog = [];
-  let wrongLog = [];
+ let current = null;
+let answeredThis = false;
+
+let askedLog = [];
+let wrongLog = [];
+
+let historyMode = false;
+let historyIndex = -1;
+
+// 前の問題を見る前に表示していた問題を保存
+let suspendedQuestion = null;
 
   function modeLabel(m) {
     if (m === "head") return "先頭から";
@@ -405,13 +413,19 @@ document.addEventListener("DOMContentLoaded", () => {
     return "苦手";
   }
 
-  function resetPlayUI() {
-    answeredThis = false;
-    result.textContent = "";
-    detail.innerHTML = "";
-    nextBtn.disabled = true;
-    choices.innerHTML = "";
-  }
+ function resetPlayUI() {
+  answeredThis = false;
+
+  result.textContent = "";
+  detail.innerHTML = "";
+  choices.innerHTML = "";
+
+  prevBtn.disabled =
+    askedLog.length === 0;
+
+  nextBtn.disabled = true;
+  nextBtn.textContent = "次の問題へ →";
+}
 
   function renderStats() {
     stats.textContent = `今回：${session.answered}/${session.limit}（正解 ${session.correct}）`;
@@ -470,6 +484,98 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch {}
   }
 
+  function renderCurrentChoiceButtons() {
+  choices.innerHTML = "";
+
+  if (
+    !current ||
+    !Array.isArray(
+      current.choiceList
+    )
+  ) {
+    return;
+  }
+
+  const choiceNumbers = [
+    "①",
+    "②",
+    "③",
+    "④"
+  ];
+
+  current.choiceList.forEach(
+    (ja, index) => {
+      const btn =
+        document.createElement(
+          "button"
+        );
+
+      btn.type = "button";
+      btn.className = "choiceBtn";
+
+      btn.innerHTML = `
+        <span class="choiceNumber">
+          ${choiceNumbers[index]}
+        </span>
+
+        <span class="choiceText">
+          ${escapeHtml(ja)}
+        </span>
+      `;
+
+      btn.addEventListener(
+        "click",
+        () => {
+          ensureAudioReady();
+
+          handleChoice(
+            ja,
+            btn
+          );
+        }
+      );
+
+      choices.appendChild(btn);
+    }
+  );
+
+  const unknownBtn =
+    document.createElement(
+      "button"
+    );
+
+  unknownBtn.type = "button";
+
+  unknownBtn.className =
+    "choiceBtn unknownChoice";
+
+  unknownBtn.innerHTML = `
+    <span class="choiceNumber">
+      ⑤
+    </span>
+
+    <span class="choiceText">
+      わからない
+    </span>
+  `;
+
+  unknownBtn.addEventListener(
+    "click",
+    () => {
+      ensureAudioReady();
+
+      handleChoice(
+        "__UNKNOWN__",
+        unknownBtn
+      );
+    }
+  );
+
+  choices.appendChild(
+    unknownBtn
+  );
+}
+
   function renderQuestion() {
     if (!session.active) return;
 
@@ -493,18 +599,17 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMeta();
     renderEvolutionNotice();
 
-    const choiceList = buildChoices(current, session.pool);
-    current.choiceList = choiceList;
+    const choiceList =
+  buildChoices(
+    current,
+    session.pool
+  );
 
-    for (const ja of choiceList) {
-      const btn = document.createElement("button");
-      btn.textContent = ja;
-      btn.addEventListener("click", () => {
-        ensureAudioReady();
-        handleChoice(ja, btn);
-      });
-      choices.appendChild(btn);
-    }
+current.choiceList = [
+  ...choiceList
+];
+
+renderCurrentChoiceButtons();
 
     scrollPlayToTop();
 
@@ -543,20 +648,72 @@ document.addEventListener("DOMContentLoaded", () => {
     return shuffleArray([correct, ...wrongs.slice(0, 3)]);
   }
 
-  function handleChoice(selectedJa, clickedBtn) {
-    if (answeredThis) return;
-    answeredThis = true;
+  function handleChoice(
+  selectedJa,
+  clickedBtn
+) {
+  if (
+    answeredThis ||
+    historyMode
+  ) {
+    return;
+  }
 
-    session.answered++;
-    const isCorrect = norm(selectedJa) === norm(current.ja);
+  answeredThis = true;
+  session.answered++;
+
+  const isUnknown =
+    selectedJa ===
+    "__UNKNOWN__";
+
+  const displayedChoice =
+    isUnknown
+      ? "わからない"
+      : selectedJa;
+
+  const isCorrect =
+    !isUnknown &&
+    norm(selectedJa) ===
+      norm(current.ja);
     addLearningLog(isCorrect);
 
-    const btns = [...choices.querySelectorAll("button")];
-    for (const b of btns) {
-      if (norm(b.textContent) === norm(current.ja)) b.classList.add("correct");
-      b.disabled = true;
-    }
-    if (!isCorrect && clickedBtn) clickedBtn.classList.add("wrong");
+    const btns = [
+  ...choices.querySelectorAll(
+    "button"
+  )
+];
+
+for (const b of btns) {
+  const textEl =
+    b.querySelector(
+      ".choiceText"
+    );
+
+  const choiceText =
+    textEl
+      ? textEl.textContent
+      : "";
+
+  if (
+    norm(choiceText) ===
+    norm(current.ja)
+  ) {
+    b.classList.add(
+      "correct"
+    );
+  }
+
+  b.disabled = true;
+}
+
+if (
+  !isCorrect &&
+  clickedBtn
+) {
+  clickedBtn.classList.add(
+    "wrong"
+  );
+}
 
     const weakMap = weakLoad();
 
@@ -594,18 +751,311 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
 
     askedLog.push({
-      no: current.no,
-      en: current.en,
-      ja: current.ja,
-      chosen: selectedJa,
-      isCorrect
-    });
+  no: current.no,
+  en: current.en,
+  ja: current.ja,
+
+  chosen:
+    displayedChoice,
+
+  isCorrect,
+
+  choices: [
+    ...current.choiceList
+  ],
+
+  blockId:
+    current.blockId
+});
     if (!isCorrect) wrongLog.push(askedLog[askedLog.length - 1]);
 
     renderStats();
-    renderEvolutionNotice();
-    nextBtn.disabled = false;
+renderEvolutionNotice();
+
+prevBtn.disabled =
+  askedLog.length <= 1;
+
+nextBtn.disabled = false;
+nextBtn.textContent =
+  session.answered >=
+  session.limit
+    ? "結果を見る →"
+    : "次の問題へ →";
   }
+
+  function saveCurrentQuestionView() {
+  if (!current) {
+    return null;
+  }
+
+  return {
+    current: {
+      ...current,
+      choiceList:
+        Array.isArray(
+          current.choiceList
+        )
+          ? [...current.choiceList]
+          : []
+    },
+
+    answeredThis,
+
+    resultHtml:
+      result.innerHTML,
+
+    detailHtml:
+      detail.innerHTML,
+
+    qMetaText:
+      qMeta.textContent,
+
+    nextDisabled:
+      nextBtn.disabled,
+
+    nextText:
+      nextBtn.textContent
+  };
+}
+
+function restoreSuspendedQuestion() {
+  if (!suspendedQuestion) {
+    return false;
+  }
+
+  const saved =
+    suspendedQuestion;
+
+  suspendedQuestion = null;
+
+  historyMode = false;
+  historyIndex = -1;
+
+  current = {
+    ...saved.current,
+    choiceList:
+      Array.isArray(
+        saved.current.choiceList
+      )
+        ? [
+            ...saved.current
+              .choiceList
+          ]
+        : []
+  };
+
+  answeredThis =
+    saved.answeredThis;
+
+  result.innerHTML =
+    saved.resultHtml;
+
+  detail.innerHTML =
+    saved.detailHtml;
+
+  qMeta.textContent =
+    saved.qMetaText;
+
+  choices.innerHTML = "";
+
+  renderCurrentChoiceButtons();
+
+  prevBtn.disabled =
+    askedLog.length === 0;
+
+  nextBtn.disabled =
+    saved.nextDisabled;
+
+  nextBtn.textContent =
+    saved.nextText;
+
+  if (
+    session.autoPlay &&
+    current
+  ) {
+    speakEnglish(current.en);
+  }
+
+  scrollPlayToTop();
+
+  return true;
+}
+
+  function renderHistoryQuestion(
+  index
+) {
+  const item =
+    askedLog[index];
+
+  if (!item) {
+    return;
+  }
+
+  historyMode = true;
+  historyIndex = index;
+
+  current = {
+    no: item.no,
+    en: item.en,
+    ja: item.ja,
+    blockId: item.blockId,
+    choiceList: [
+      ...(item.choices || [])
+    ]
+  };
+
+  answeredThis = true;
+
+  result.innerHTML =
+    item.isCorrect
+      ? `
+        <span class="ok">
+          ⭕️ 正解！
+        </span>
+      `
+      : `
+        <span class="ng">
+          ❌ 不正解。
+        </span>
+      `;
+
+  detail.innerHTML = `
+    <div class="detailCard">
+      <div class="detailTitle">
+        前の問題を確認中
+      </div>
+
+      <div class="detailMain mono">
+        ${escapeHtml(item.en)}
+      </div>
+
+      <div class="detailSub">
+        正しい意味：
+        ${escapeHtml(item.ja)}
+      </div>
+
+      <div class="detailSub"
+           style="margin-top:6px;">
+        あなたの回答：
+        ${escapeHtml(item.chosen)}
+      </div>
+    </div>
+  `;
+
+  choices.innerHTML = "";
+
+  const choiceNumbers = [
+    "①",
+    "②",
+    "③",
+    "④"
+  ];
+
+  const savedChoices =
+    Array.isArray(item.choices)
+      ? item.choices
+      : [];
+
+  savedChoices.forEach(
+    (ja, choiceIndex) => {
+      const btn =
+        document.createElement(
+          "button"
+        );
+
+      btn.type = "button";
+      btn.className =
+        "choiceBtn";
+
+      if (
+        norm(ja) ===
+        norm(item.ja)
+      ) {
+        btn.classList.add(
+          "correct"
+        );
+      }
+
+      if (
+        !item.isCorrect &&
+        norm(ja) ===
+          norm(item.chosen)
+      ) {
+        btn.classList.add(
+          "wrong"
+        );
+      }
+
+      btn.disabled = true;
+
+      btn.innerHTML = `
+        <span class="choiceNumber">
+          ${choiceNumbers[choiceIndex]}
+        </span>
+
+        <span class="choiceText">
+          ${escapeHtml(ja)}
+        </span>
+      `;
+
+      choices.appendChild(btn);
+    }
+  );
+
+  const unknownBtn =
+    document.createElement(
+      "button"
+    );
+
+  unknownBtn.type = "button";
+  unknownBtn.className =
+    "choiceBtn unknownChoice";
+
+  if (
+    item.chosen ===
+    "わからない"
+  ) {
+    unknownBtn.classList.add(
+      "wrong"
+    );
+  }
+
+  unknownBtn.disabled = true;
+
+  unknownBtn.innerHTML = `
+    <span class="choiceNumber">
+      ⑤
+    </span>
+
+    <span class="choiceText">
+      わからない
+    </span>
+  `;
+
+  choices.appendChild(
+    unknownBtn
+  );
+
+  const block =
+    getBlockByNo(item.no);
+
+  const blockText =
+    block
+      ? `Block ${block.id}（${block.start}〜${block.end}）`
+      : "Block ?";
+
+  qMeta.textContent =
+    `${blockText}｜番号 ${item.no}｜前の問題を確認中`;
+
+  prevBtn.disabled =
+    historyIndex <= 0;
+
+  nextBtn.disabled = false;
+  nextBtn.textContent =
+    "次の問題へ →";
+
+  scrollPlayToTop();
+}
 
   function finishSession(autoWeakEnd) {
     showSummary();
@@ -653,6 +1103,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     askedLog = [];
     wrongLog = [];
+    historyMode = false;
+    historyIndex = -1;
+    suspendedQuestion = null;
     errorArea.innerHTML = "";
     showPlay();
     renderQuestion();
@@ -710,6 +1163,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     askedLog = [];
     wrongLog = [];
+    historyMode = false;
+    historyIndex = -1;
+    suspendedQuestion = null;
     errorArea.innerHTML = "";
     showPlay();
     renderQuestion();
@@ -823,10 +1279,82 @@ document.addEventListener("DOMContentLoaded", () => {
     speakEnglish(current.en);
   });
 
-  nextBtn.addEventListener("click", () => {
-    if (!answeredThis) return;
-    renderQuestion();
-  });
+  function goPreviousQuestion() {
+  // 過去問題を見ている途中なら、
+  // さらに1問前へ
+  if (historyMode) {
+    if (historyIndex <= 0) {
+      return;
+    }
+
+    renderHistoryQuestion(
+      historyIndex - 1
+    );
+
+    return;
+  }
+
+  // 解答済み履歴がなければ戻れない
+  if (askedLog.length === 0) {
+    return;
+  }
+
+  // 現在表示中の問題を保存する
+  // 未回答でも保存する
+  suspendedQuestion =
+    saveCurrentQuestionView();
+
+  // 直前に解答した問題を表示
+  renderHistoryQuestion(
+    askedLog.length - 1
+  );
+}
+
+prevBtn.addEventListener(
+  "click",
+  goPreviousQuestion
+);
+
+  function goNextQuestion() {
+  // 前の問題を確認している場合
+  if (historyMode) {
+    // まだ次の解答済み問題がある
+    if (
+      historyIndex <
+      askedLog.length - 1
+    ) {
+      renderHistoryQuestion(
+        historyIndex + 1
+      );
+
+      return;
+    }
+
+    // 一番新しい履歴まで来たら、
+    // 戻る前に表示していた問題へ復帰
+    if (
+      restoreSuspendedQuestion()
+    ) {
+      return;
+    }
+
+    historyMode = false;
+    historyIndex = -1;
+    return;
+  }
+
+  // 通常画面では、回答後だけ次へ
+  if (!answeredThis) {
+    return;
+  }
+
+  renderQuestion();
+}
+
+nextBtn.addEventListener(
+  "click",
+  goNextQuestion
+);
 
   backBtn.addEventListener("click", () => {
     session.active = false;
@@ -857,9 +1385,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     session.askedSet = [];
     askedLog = [];
-    wrongLog = [];
-    showPlay();
-    renderQuestion();
+wrongLog = [];
+
+historyMode = false;
+historyIndex = -1;
+suspendedQuestion = null;
+
+showPlay();
+renderQuestion();
   });
 
   summaryBackBtn.addEventListener("click", () => {
@@ -875,6 +1408,95 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   evolutionNoticeBtn.addEventListener("click", openSharedEvolution);
+
+  function registerQuizShortcuts() {
+  if (
+    !window.QuizShortcuts ||
+    typeof window.QuizShortcuts.register !== "function"
+  ) {
+    console.warn(
+      "quiz_shortcuts.js が読み込まれていません。"
+    );
+    return;
+  }
+
+  window.QuizShortcuts.register({
+    isActive: () => {
+      return (
+        session.active &&
+        !playBox.classList.contains("hidden")
+      );
+    },
+
+    canAnswer: () => {
+      return (
+        !historyMode &&
+        !answeredThis &&
+        !!current
+      );
+    },
+
+    onAnswer: index => {
+      const buttons =
+        choices.querySelectorAll("button");
+
+      const target =
+        buttons[index - 1];
+
+      if (
+        target &&
+        !target.disabled
+      ) {
+        target.click();
+      }
+    },
+
+    canPrevious: () => {
+      if (historyMode) {
+        return historyIndex > 0;
+      }
+
+      return askedLog.length > 0;
+    },
+
+    onPrevious: () => {
+      goPreviousQuestion();
+    },
+
+    canNext: () => {
+      if (historyMode) {
+        return true;
+      }
+
+      return answeredThis;
+    },
+
+    onNext: () => {
+      goNextQuestion();
+    },
+
+    canSpeak: () => {
+      return !!current;
+    },
+
+    onSpeak: () => {
+      if (!current) return;
+
+      ensureAudioReady();
+      speakEnglish(current.en);
+    },
+
+    canBack: () => {
+      return true;
+    },
+
+    onBack: () => {
+      session.active = false;
+      showSetup();
+      updateSetupInfo();
+    }
+  });
+}
 
   function init() {
     if (!Array.isArray(WORDS) || WORDS.length === 0) {
@@ -896,11 +1518,16 @@ document.addEventListener("DOMContentLoaded", () => {
     autoPlay.checked = !!settings.autoPlay;
 
     updateSetupInfo();
-    renderGoimonVisibility();
-    renderAudioQuizGoimonMini();
-    renderEvolutionNotice();
-    showSetup();
+renderGoimonVisibility();
+renderAudioQuizGoimonMini();
+renderEvolutionNotice();
+
+registerQuizShortcuts();
+
+showSetup();
   }
+
+  
 
   init();
 });
