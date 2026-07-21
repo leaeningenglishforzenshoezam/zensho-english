@@ -114,6 +114,15 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(key, JSON.stringify(value));
   }
 
+  function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
   function loadUiState() {
     return safeParse(UI_KEY) || { goimonOpen: false };
   }
@@ -199,10 +208,60 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function markCorrectButtonGreen() {
-    document.querySelectorAll("#choices button").forEach(b => {
-      if (current && b.textContent === current.en) b.classList.add("correct");
+  document
+    .querySelectorAll("#choices button")
+    .forEach(button => {
+      if (
+        current &&
+        String(button.dataset.choiceEn) ===
+          String(current.en)
+      ) {
+        button.classList.add("correct");
+      }
     });
-  }
+}
+
+  function renderAnswerDetail(isCorrect, selectedChoice) {
+  const choiceNumbers = ["①", "②", "③", "④"];
+
+  const mainText = isCorrect
+    ? "⭕️ 正解！"
+    : `❌ 不正解。正解は「${escapeHtml(current.ja)}」＝ ${escapeHtml(current.en)}`;
+
+  const rows = current.choices.map((choice, index) => {
+    const isAnswer = !!choice.isCorrect;
+    const isSelected =
+      selectedChoice &&
+      String(choice.en) === String(selectedChoice.en) &&
+      String(choice.ja) === String(selectedChoice.ja);
+
+    const correctTag = isAnswer
+      ? `<span class="answerChoiceTag correctTag">正解</span>`
+      : "";
+
+    const selectedTag = !isAnswer && isSelected
+      ? `<span class="answerChoiceTag selectedTag">選択</span>`
+      : "";
+
+    return `
+      <div class="answerChoiceRow">
+        <span class="choiceNumber">${choiceNumbers[index] || index + 1}</span>
+        <span class="answerChoiceJa">${escapeHtml(choice.ja)}</span>
+        <span class="answerChoiceEn">＝ ${escapeHtml(choice.en || "—")}</span>
+        ${correctTag}
+        ${selectedTag}
+      </div>
+    `;
+  }).join("");
+
+  resultEl.innerHTML = `
+    <div style="font-weight:800; margin-bottom:8px;">${mainText}</div>
+    <div class="answerDetailBox">
+      <div class="answerDetailTitle">選択肢の確認</div>
+      ${rows}
+    </div>
+  `;
+}
 
   function shuffle(arr) {
     const a = [...arr];
@@ -351,7 +410,7 @@ document.addEventListener("DOMContentLoaded", () => {
     active: false,
     answered: 0,
     correct: 0,
-    limit: 10,
+    limit: 50,
     start: 0,
     end: Math.max(0, words.length - 1),
     retryOrder: null
@@ -513,6 +572,17 @@ document.addEventListener("DOMContentLoaded", () => {
     return { s, e };
   }
 
+  function getJapaneseForEnglish(en) {
+  const found =
+    words.find(word => {
+      return String(word.en) === String(en);
+    });
+
+  return found
+    ? String(found.ja || "")
+    : "";
+}
+
   function makeChoices(correctWord, s, e) {
     const candidates = [];
     for (let i = s; i <= e; i++) {
@@ -594,34 +664,195 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  function finishSession() {
-    showSummaryView();
+  function renderAskedSummaryList() {
+  askedListEl.innerHTML = "";
+  askedListEl.className =
+    "summaryWordList";
 
-    finalScoreEl.textContent = `結果：${session.correct} / ${session.limit}（正答率 ${Math.round((session.correct / session.limit) * 100)}%）`;
-    const rangeText = (blockSelectEl.value === "all") ? "全範囲" : `Block ${blockSelectEl.value}`;
-        finalBlockLineEl.textContent = `出題範囲：${rangeText}｜モード：${modeText()}｜${LV}級`;
+  if (!askedLog.length) {
+    const li =
+      document.createElement("li");
 
-    askedListEl.innerHTML = "";
-    askedLog.forEach(item => {
-      const li = document.createElement("li");
-      li.textContent = `${item.no}｜${item.ja} → ${item.en}`;
-      askedListEl.appendChild(li);
-    });
+    li.className =
+      "summaryEmpty";
 
-    wrongListEl.innerHTML = "";
-    const wrongArr = Object.values(wrongMap).sort((a, b) => a.no - b.no);
-    if (wrongArr.length === 0) {
-      const li = document.createElement("li");
-      li.textContent = "間違いなし！";
-      wrongListEl.appendChild(li);
-    } else {
-      wrongArr.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = `${item.no}｜${item.ja} → ${item.en}`;
-        wrongListEl.appendChild(li);
-      });
-    }
+    li.textContent =
+      "結果がありません。";
+
+    askedListEl.appendChild(li);
+    return;
   }
+
+  askedLog.forEach(item => {
+    const li =
+      document.createElement("li");
+
+    li.className =
+      "summaryWordCard";
+
+    li.innerHTML = `
+      <div class="summaryWordHead">
+        <div>
+          <div class="summaryWordNumber">
+            単語番号 ${escapeHtml(item.no)}
+          </div>
+
+          <div class="summaryWordJapanese">
+            ${escapeHtml(item.ja)}
+          </div>
+
+          <div class="summaryWordEnglish">
+            ${escapeHtml(item.en)}
+          </div>
+        </div>
+
+        <span class="
+          summaryResultBadge
+          ${
+            item.isCorrect
+              ? "correct"
+              : "wrong"
+          }
+        ">
+          ${
+            item.isCorrect
+              ? "正解"
+              : "不正解"
+          }
+        </span>
+      </div>
+    `;
+
+    askedListEl.appendChild(li);
+  });
+}
+
+function renderWrongSummaryList() {
+  wrongListEl.innerHTML = "";
+  wrongListEl.className =
+    "summaryWordList";
+
+  const wrongArr =
+    Object
+      .values(wrongMap)
+      .sort(
+        (a, b) =>
+          a.no - b.no
+      );
+
+  if (!wrongArr.length) {
+    const li =
+      document.createElement("li");
+
+    li.className =
+      "summaryEmpty";
+
+    li.textContent =
+      "全問正解です！";
+
+    wrongListEl.appendChild(li);
+    return;
+  }
+
+  wrongArr.forEach(item => {
+    const li =
+      document.createElement("li");
+
+    li.className =
+      "summaryWrongCard";
+
+    li.innerHTML = `
+      <div class="summaryWordNumber">
+        単語番号 ${escapeHtml(item.no)}
+      </div>
+
+      <div class="summaryWordJapanese">
+        ${escapeHtml(item.ja)}
+      </div>
+
+      <div class="summaryWordEnglish">
+        正解：${escapeHtml(item.en)}
+      </div>
+    `;
+
+    wrongListEl.appendChild(li);
+  });
+}
+
+  function finishSession() {
+  session.active = false;
+
+  showSummaryView();
+
+  const attempted =
+    session.limit;
+
+  const correct =
+    session.correct;
+
+  const percent =
+    attempted > 0
+      ? Math.round(
+          (
+            correct /
+            attempted
+          ) * 100
+        )
+      : 0;
+
+  const passed =
+    percent >= PASS_LINE;
+
+  finalScoreEl.innerHTML = `
+    <div class="summaryScoreCard">
+      <div class="summaryScoreLabel">
+        今回のスコア
+      </div>
+
+      <div class="summaryScoreMain">
+        ${correct} / ${attempted}
+      </div>
+
+      <div class="summaryScorePercent">
+        正答率 ${percent}%
+      </div>
+
+      <div class="
+        summaryPassBadge
+        ${
+          passed
+            ? "pass"
+            : "challenge"
+        }
+      ">
+        ${
+          passed
+            ? "合格ライン達成"
+            : "もう一度挑戦"
+        }
+      </div>
+    </div>
+  `;
+
+  const rangeText =
+    blockSelectEl.value === "all"
+      ? "全範囲"
+      : `Block ${blockSelectEl.value}`;
+
+  finalBlockLineEl.innerHTML = `
+    <div class="summaryMeta">
+      出題範囲：${escapeHtml(rangeText)}
+      <br>
+      出題モード：${escapeHtml(modeText())}
+      ／ 全商英検${escapeHtml(LV)}級
+      <br>
+      合格ライン：${PASS_LINE}%
+    </div>
+  `;
+
+  renderAskedSummaryList();
+  renderWrongSummaryList();
+}
 
   function startRetrySameSetSession() {
     if (!askedLog.length) {
@@ -735,35 +966,73 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    answeredThisQuestion = false;
-    nextBtn.disabled = true;
-    resultEl.textContent = "";
+   answeredThisQuestion = false;
+
+nextBtn.disabled = true;
+nextBtn.textContent =
+  "次の問題";
+
+resultEl.textContent = "";
 
     current = makeQuestion();
     questionEl.textContent = current.ja;
     renderMeta(current.no);
 
-    askedLog.push({ no: current.no, ja: current.ja, en: current.en, blockId: current.blockId });
+   askedLog.push({
+  no: current.no,
+  ja: current.ja,
+  en: current.en,
+  blockId: current.blockId,
+  isCorrect: null
+});
 
-    choicesEl.innerHTML = "";
-    current.choices.forEach(text => {
-      const btn = document.createElement("button");
-      btn.textContent = text;
+   choicesEl.innerHTML = "";
+choicesEl.classList.remove("answered");
 
-      btn.addEventListener("click", () => {
-        ensureAudioReady();
-        handleChoice(text, btn);
-      });
+current.choices.forEach((text, index) => {
+  const btn =
+    document.createElement("button");
 
-      choicesEl.appendChild(btn);
-    });
+  const japanese =
+    getJapaneseForEnglish(text);
+
+  btn.type = "button";
+  btn.className = "choiceBtn";
+  btn.dataset.choiceEn = text;
+
+  btn.innerHTML = `
+    <span class="choiceIndex">
+      ${index + 1}
+    </span>
+
+    <span class="choiceContent">
+      <span class="choiceEnglish">
+        ${escapeHtml(text)}
+      </span>
+
+      <span class="choiceJapanese">
+        ${escapeHtml(japanese)}
+      </span>
+    </span>
+  `;
+
+  btn.addEventListener("click", () => {
+    ensureAudioReady();
+    handleChoice(text, btn);
+  });
+
+  choicesEl.appendChild(btn);
+});
   }
 
   function handleChoice(choiceText, clickedBtn) {
-    if (answeredThisQuestion) return;
-    answeredThisQuestion = true;
+  if (answeredThisQuestion) return;
 
-    session.answered++;
+  answeredThisQuestion = true;
+
+  choicesEl.classList.add("answered");
+
+  session.answered++;
 
     const correct = (choiceText === current.en);
 
@@ -808,7 +1077,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     lockChoices();
 
-    if (window.GlobalStats && current.blockId) {
+const lastAsked =
+  askedLog[
+    askedLog.length - 1
+  ];
+
+if (lastAsked) {
+  lastAsked.isCorrect =
+    correct;
+}
+
+if (window.GlobalStats && current.blockId) {
       window.GlobalStats.addQuizJaEn(current.blockId, correct);
     }
     if (current.blockId) addBlockResult(current.blockId, correct);
@@ -821,11 +1100,18 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSettingsSummary();
     renderGoimonStatus();
 
-    if (session.answered >= session.limit) {
-      finishSession();
-    } else {
-      nextBtn.disabled = false;
-    }
+    nextBtn.disabled = false;
+
+if (
+  session.answered >=
+  session.limit
+) {
+  nextBtn.textContent =
+    "結果を見る";
+} else {
+  nextBtn.textContent =
+    "次の問題";
+}
   }
 
   speakQBtn.addEventListener("click", () => {
@@ -850,13 +1136,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-  nextBtn.addEventListener("click", () => {
+  nextBtn.addEventListener(
+  "click",
+  () => {
     if (!answeredThisQuestion) {
-      resultEl.textContent = "まず1つ選んでください。";
+      resultEl.textContent =
+        "まず1つ選んでください。";
+
       return;
     }
+
+    if (
+      session.answered >=
+      session.limit
+    ) {
+      finishSession();
+      return;
+    }
+
     renderQuestion();
-  });
+  }
+);
 
   startBtn.addEventListener("click", () => {
     let s = Number(rangeStartEl.value) - 1;
@@ -902,6 +1202,124 @@ document.addEventListener("DOMContentLoaded", () => {
   retrySameConditionBtn.addEventListener("click", () => {
     startSameConditionNextSession();
   });
+
+  function registerQuizShortcuts() {
+  if (
+    !window.QuizShortcuts ||
+    typeof window.QuizShortcuts.register !== "function"
+  ) {
+    console.warn(
+      "quiz_shortcuts.jsが読み込まれていません。"
+    );
+    return;
+  }
+
+  window.QuizShortcuts.register({
+    isActive: () => {
+      return (
+        session.active &&
+        playBox.style.display !== "none" &&
+        !!current
+      );
+    },
+
+    canAnswer: () => {
+      return (
+        session.active &&
+        !answeredThisQuestion &&
+        choicesEl.querySelectorAll(
+          "button:not(:disabled)"
+        ).length === 4
+      );
+    },
+
+    canNext: () => {
+      return (
+        session.active &&
+        answeredThisQuestion &&
+        !nextBtn.disabled
+      );
+    },
+
+    canSpeak: () => {
+      return (
+        session.active &&
+        !!current &&
+        answeredThisQuestion
+      );
+    },
+
+    canBack: () => {
+      return (
+        session.active &&
+        playBox.style.display !== "none"
+      );
+    },
+
+    onAnswer: index => {
+      const buttons =
+        Array.from(
+          choicesEl.querySelectorAll(
+            "button:not(:disabled)"
+          )
+        );
+
+      const targetButton =
+        buttons[index - 1];
+
+      if (!targetButton) {
+        return;
+      }
+
+      targetButton.click();
+    },
+
+    onNext: () => {
+      if (nextBtn.disabled) {
+        return;
+      }
+
+      nextBtn.click();
+    },
+
+    onSpeak: () => {
+      if (
+        !current ||
+        !answeredThisQuestion
+      ) {
+        return;
+      }
+
+      speakEnglish(current.en);
+    },
+
+    onBack: () => {
+      const ok =
+        window.confirm(
+          "現在のテストを中断して設定画面に戻りますか。"
+        );
+
+      if (!ok) {
+        return;
+      }
+
+      if (
+        "speechSynthesis" in window
+      ) {
+        window.speechSynthesis.cancel();
+      }
+
+      session.active = false;
+      current = null;
+      answeredThisQuestion = false;
+
+      showSetupView();
+      renderQuestion();
+    }
+  });
+}
+
+  
 
   function applyQuery() {
     const p = new URLSearchParams(location.search);
@@ -958,8 +1376,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateWeakInfo();
 
-  showSetupView();
-  renderQuestion();
+ showSetupView();
+renderQuestion();
 
-  applyQuery();
+registerQuizShortcuts();
+applyQuery();
 });
