@@ -133,6 +133,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const problemListBody =
     document.getElementById("problemListBody");
 
+  let problemListAudio = null;
+let problemListPlayingButton = null;
+
   const questionProgress =
     document.getElementById("questionProgress");
 
@@ -428,28 +431,59 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================================================
 
   function getRawQuestions() {
-    if (
-      Array.isArray(
-        window.LISTENING_TYPE3_1KYU
-      )
-    ) {
-      return window.LISTENING_TYPE3_1KYU;
+  const sources = [];
+
+  // 大問2形式
+  if (
+    Array.isArray(
+      window.LISTENING_TYPE2_1KYU
+    )
+  ) {
+    sources.push(
+      ...window.LISTENING_TYPE2_1KYU
+    );
+  } else {
+    try {
+      if (
+        typeof LISTENING_TYPE2_1KYU !==
+          "undefined" &&
+        Array.isArray(
+          LISTENING_TYPE2_1KYU
+        )
+      ) {
+        sources.push(
+          ...LISTENING_TYPE2_1KYU
+        );
+      }
+    } catch (error) {
+      console.warn(
+        "LISTENING_TYPE2_1KYUの取得に失敗しました。",
+        error
+      );
     }
+  }
 
-    /*
-      listening_type3_1kyu.js の先頭が
-
-      const listeningType3_1kyu = [...]
-
-      となっている場合にも対応します。
-    */
+  // 大問3形式
+  if (
+    Array.isArray(
+      window.LISTENING_TYPE3_1KYU
+    )
+  ) {
+    sources.push(
+      ...window.LISTENING_TYPE3_1KYU
+    );
+  } else {
     try {
       if (
         typeof listeningType3_1kyu !==
           "undefined" &&
-        Array.isArray(listeningType3_1kyu)
+        Array.isArray(
+          listeningType3_1kyu
+        )
       ) {
-        return listeningType3_1kyu;
+        sources.push(
+          ...listeningType3_1kyu
+        );
       }
     } catch (error) {
       console.warn(
@@ -457,9 +491,10 @@ document.addEventListener("DOMContentLoaded", () => {
         error
       );
     }
-
-    return [];
   }
+
+  return sources;
+}
 
   function normalizeQuestions(raw) {
     return (raw || [])
@@ -549,6 +584,34 @@ document.addEventListener("DOMContentLoaded", () => {
         q
       ])
     );
+
+    function getSelectedFormat() {
+  return Number(
+    formatSelect?.value || 3
+  );
+}
+
+function getQuestionsByFormat(
+  format = getSelectedFormat()
+) {
+  return allQuestions.filter(q => {
+    return q.format === Number(format);
+  });
+}
+
+function updatePoolInfo() {
+  const format =
+    getSelectedFormat();
+
+  const count =
+    getQuestionsByFormat(format).length;
+
+  poolInfo.textContent =
+    `大問${format}形式：全${count}問`;
+
+  startBtn.disabled =
+    count === 0;
+}
 
   // ============================================================
   // 状態
@@ -1118,7 +1181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const map =
       loadWeakMap();
 
-    return allQuestions.filter(q => {
+    return getQuestionsByFormat().filter(q => {
       const state =
         map[q.id];
 
@@ -1174,39 +1237,59 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================================================
 
   function loadCursor() {
-    const obj =
-      safeParse(
-        localStorage.getItem(
-          CURSOR_KEY
-        ),
-        {}
-      );
-
-    const n =
-      Number(
-        obj?.format3 || 0
-      );
-
-    return (
-      Number.isFinite(n) &&
-      n >= 0
-    )
-      ? n
-      : 0;
-  }
-
-  function saveCursor(cursor) {
-    localStorage.setItem(
-      CURSOR_KEY,
-      JSON.stringify({
-        format3:
-          Math.max(
-            0,
-            Number(cursor || 0)
-          )
-      })
+  const obj =
+    safeParse(
+      localStorage.getItem(
+        CURSOR_KEY
+      ),
+      {}
     );
-  }
+
+  const format =
+    getSelectedFormat();
+
+  const key =
+    `format${format}`;
+
+  const n =
+    Number(
+      obj?.[key] || 0
+    );
+
+  return (
+    Number.isFinite(n) &&
+    n >= 0
+  )
+    ? n
+    : 0;
+}
+
+function saveCursor(cursor) {
+  const obj =
+    safeParse(
+      localStorage.getItem(
+        CURSOR_KEY
+      ),
+      {}
+    );
+
+  const format =
+    getSelectedFormat();
+
+  const key =
+    `format${format}`;
+
+  obj[key] =
+    Math.max(
+      0,
+      Number(cursor || 0)
+    );
+
+  localStorage.setItem(
+    CURSOR_KEY,
+    JSON.stringify(obj)
+  );
+}
 
   // ============================================================
   // ゴイモン表示
@@ -1479,8 +1562,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     return [
-      ...allQuestions
-    ];
+  ...getQuestionsByFormat()
+];
   }
 
   function buildSessionQuestions(
@@ -3386,30 +3469,33 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================================================
 
   function finishSession() {
-    stopAudio();
+  stopAudio();
 
-    if (
-      String(
-        orderMode.value
-      ) === "continue"
-    ) {
-      const nextCursor =
-        (
-          loadCursor() +
-          sessionQuestions.length
-        ) %
-        Math.max(
-          1,
-          allQuestions.length
-        );
+  if (
+    String(
+      orderMode.value
+    ) === "continue"
+  ) {
+    const formatQuestions =
+      getQuestionsByFormat();
 
-      saveCursor(
-        nextCursor
+    const nextCursor =
+      (
+        loadCursor() +
+        sessionQuestions.length
+      ) %
+      Math.max(
+        1,
+        formatQuestions.length
       );
-    }
 
-    showSummary();
+    saveCursor(
+      nextCursor
+    );
   }
+
+  showSummary();
+}
 
   // ============================================================
   // 結果画面
@@ -3436,8 +3522,11 @@ document.addEventListener("DOMContentLoaded", () => {
           )
         : 0;
 
-    summaryLine.textContent =
-      `大問3形式・リスニング問題・${attempted}問`;
+    const format =
+  getSelectedFormat();
+
+summaryLine.textContent =
+  `大問${format}形式・リスニング問題・${attempted}問`;
 
     summaryScoreMain.textContent =
       `${correct} / ${attempted}`;
@@ -3739,19 +3828,119 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================================================
 
   function showProblemList() {
-    renderProblemList(
-      allQuestions
-    );
-
-    showOnly(
-      "problemList"
-    );
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
+  if (problemListFormatSelect) {
+    problemListFormatSelect.value =
+      String(
+        getSelectedFormat()
+      );
   }
+
+  renderProblemList(
+    getQuestionsByFormat(
+      Number(
+        problemListFormatSelect?.value ||
+        getSelectedFormat()
+      )
+    )
+  );
+
+  showOnly(
+    "problemList"
+  );
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+function stopProblemListAudio() {
+  if (problemListAudio) {
+    try {
+      problemListAudio.pause();
+      problemListAudio.currentTime = 0;
+    } catch {}
+  }
+
+  problemListAudio = null;
+
+  if (problemListPlayingButton) {
+    problemListPlayingButton.textContent =
+      "▶ 音声を再生";
+  }
+
+  problemListPlayingButton = null;
+}
+
+function playProblemListAudio(
+  audioFile,
+  button
+) {
+  stopProblemListAudio();
+
+  const src =
+    String(audioFile || "").trim();
+
+  if (!src) {
+    window.alert(
+      "この問題の音声ファイルが設定されていません。"
+    );
+    return;
+  }
+
+  problemListAudio =
+    new Audio(src);
+
+  problemListPlayingButton =
+    button || null;
+
+  if (button) {
+    button.textContent =
+      "⏸ 再生中";
+  }
+
+  problemListAudio.playbackRate =
+    Number(
+      playbackRate?.value || 1
+    );
+
+  problemListAudio.addEventListener(
+    "ended",
+    () => {
+      if (button) {
+        button.textContent =
+          "▶ 音声を再生";
+      }
+
+      problemListAudio = null;
+      problemListPlayingButton = null;
+    },
+    {
+      once: true
+    }
+  );
+
+  problemListAudio
+    .play()
+    .catch(error => {
+      console.warn(
+        "問題一覧の音声再生に失敗しました。",
+        error
+      );
+
+      if (button) {
+        button.textContent =
+          "▶ 音声を再生";
+      }
+
+      problemListAudio = null;
+      problemListPlayingButton = null;
+
+      window.alert(
+        "音声を再生できませんでした。音声ファイルを確認してください。"
+      );
+    });
+}
 
   function renderProblemList(
     source
@@ -3759,9 +3948,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const list =
       source || [];
 
-    problemListSummary.textContent =
-      `大問3形式・全${list.length}問。` +
-      "問題文、選択肢、正答、日本語訳を確認できます。";
+    const listFormat =
+  Number(
+    problemListFormatSelect?.value ||
+    getSelectedFormat()
+  );
+
+problemListSummary.textContent =
+  `大問${listFormat}形式・全${list.length}問。` +
+  "問題文、選択肢、正答、日本語訳を確認できます。";
 
     problemListBody.innerHTML =
       "";
@@ -3799,56 +3994,34 @@ document.addEventListener("DOMContentLoaded", () => {
           "resultItem";
 
         const choicesHtml =
-          q.choices
-            .map(choice => {
-              const isAnswer =
-                problemListAnswersVisible &&
-                choice.id ===
-                  q.answerId;
+  q.choices
+    .map(choice => {
+      return `
+        <button
+          type="button"
+          class="problemListChoiceBtn"
+          data-question-id="${escapeHtml(q.id)}"
+          data-choice-id="${escapeHtml(choice.id)}"
+        >
+          <strong>
+            ${escapeHtml(choice.id)}.
+          </strong>
 
-              return `
-                <div
-                  style="
-                    margin-top:6px;
-                    padding:8px 10px;
-                    border-radius:10px;
-                    border:1px solid ${
-                      isAnswer
-                        ? "#bfe7ca"
-                        : "#eee"
-                    };
-                    background:${
-                      isAnswer
-                        ? "#eefaf1"
-                        : "#fafafa"
-                    };
-                  "
-                >
-                  <strong>
-                    ${escapeHtml(
-                      choice.id
-                    )}.
-                  </strong>
+          ${escapeHtml(choice.text)}
 
-                  ${escapeHtml(
-                    choice.text
-                  )}
-
-                  ${
-                    problemListAnswersVisible
-                      ? `
-                        <div class="muted">
-                          ${escapeHtml(
-                            choice.ja
-                          )}
-                        </div>
-                      `
-                      : ""
-                  }
+          ${
+            problemListAnswersVisible
+              ? `
+                <div class="muted">
+                  ${escapeHtml(choice.ja)}
                 </div>
-              `;
-            })
-            .join("");
+              `
+              : ""
+          }
+        </button>
+      `;
+    })
+    .join("");
 
         item.innerHTML = `
           <div class="resultItemHead">
@@ -3885,85 +4058,140 @@ document.addEventListener("DOMContentLoaded", () => {
             </button>
           </div>
 
-          ${
-            problemListAnswersVisible
-              ? `
-                <div
-                  style="
-                    margin-top:10px;
-                    line-height:1.7;
-                  "
-                >
-                  <strong>
-                    問題文：
-                  </strong>
+          <div
+  style="
+    margin-top:10px;
+    padding:10px 12px;
+    text-align:center;
+    color:#777;
+    background:#fafafa;
+    border:1px dashed #d8d8d8;
+    border-radius:12px;
+  "
+>
+  音声を聞いて、選択肢を選んでください。
+</div>
 
-                  ${escapeHtml(
-                    q.script
-                  )}
-                </div>
+          <div class="problemListAudioRow">
+  <button
+    type="button"
+    class="problemListPlayBtn"
+    data-audio-file="${escapeHtml(q.audioFile)}"
+  >
+    ▶ 音声を再生
+  </button>
 
-                <div class="muted">
-                  ${escapeHtml(
-                    q.scriptJa
-                  )}
-                </div>
-              `
-              : `
-                <div
-                  style="
-                    margin-top:10px;
-                    padding:12px;
-                    text-align:center;
-                    color:#777;
-                    background:#fafafa;
-                    border:1px dashed #d8d8d8;
-                    border-radius:12px;
-                  "
-                >
-                  問題文と正答を隠しています
-                </div>
-              `
-          }
+  <button
+    type="button"
+    class="problemListStopBtn"
+  >
+    ■ 停止
+  </button>
+</div>
 
-          <div style="margin-top:10px;">
-            ${choicesHtml}
-          </div>
+<div
+  class="problemListChoices"
+  data-question-id="${escapeHtml(q.id)}"
+  data-answer-id="${escapeHtml(q.answerId)}"
+>
+  ${choicesHtml}
+</div>
 
-          ${
-            problemListAnswersVisible
-              ? `
-                <div
-                  style="
-                    margin-top:10px;
-                    line-height:1.7;
-                  "
-                >
-                  <strong>
-                    正答：
-                  </strong>
+<div
+  class="problemListPracticeResult"
+  data-result-for="${escapeHtml(q.id)}"
+></div>
 
-                  ${escapeHtml(
-                    q.answerId
-                  )}.
+<button
+  type="button"
+  class="problemListRetryBtn hidden"
+  data-retry-question-id="${escapeHtml(q.id)}"
+>
+  もう一度答える
+</button>
 
-                  ${escapeHtml(
-                    correct?.text ||
-                    ""
-                  )}
-                </div>
+ <div
+  class="problemListAnswerBox ${
+    problemListAnswersVisible
+      ? ""
+      : "hidden"
+  }"
+  style="
+    margin-top:12px;
+    padding:12px;
+    border-radius:12px;
+    background:#f7f9fc;
+    border:1px solid #dde4ee;
+  "
+>
+  <div
+    style="
+      line-height:1.7;
+    "
+  >
+    <strong>
+      問題文：
+    </strong>
 
-                <div
-                  class="muted"
-                  style="margin-top:6px;"
-                >
-                  ${escapeHtml(
-                    q.explanation
-                  )}
-                </div>
-              `
-              : ""
-          }
+    ${escapeHtml(q.script)}
+  </div>
+
+  <div
+    class="muted"
+    style="
+      margin-top:4px;
+      line-height:1.7;
+    "
+  >
+    ${escapeHtml(q.scriptJa)}
+  </div>
+
+  <div
+    style="
+      margin-top:12px;
+      line-height:1.7;
+    "
+  >
+    <strong>
+      正答：
+    </strong>
+
+    ${escapeHtml(q.answerId)}.
+
+    ${escapeHtml(
+      correct?.text || ""
+    )}
+  </div>
+
+  <div
+    class="muted"
+    style="
+      margin-top:4px;
+      line-height:1.7;
+    "
+  >
+    ${escapeHtml(
+      correct?.ja || ""
+    )}
+  </div>
+
+  ${
+    q.explanation
+      ? `
+        <div
+          class="muted"
+          style="
+            margin-top:10px;
+            line-height:1.7;
+          "
+        >
+          <strong>解説：</strong>
+          ${escapeHtml(q.explanation)}
+        </div>
+      `
+      : ""
+  }
+</div>
         `;
 
         problemListBody
@@ -3971,40 +4199,282 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     );
 
-    problemListBody
-      .querySelectorAll(
-        ".problemPinBtn"
-      )
-      .forEach(btn => {
-        btn.addEventListener(
-          "click",
-          () => {
-            const id =
+    // ============================================================
+// 問題一覧内のボタン操作
+// ============================================================
+
+// 手動ニガテボタン
+problemListBody
+  .querySelectorAll(
+    ".problemPinBtn"
+  )
+  .forEach(btn => {
+    btn.addEventListener(
+      "click",
+      () => {
+        const id =
+          String(
+            btn.dataset.questionId ||
+            ""
+          );
+
+        const next =
+          !getWeakState(id).pin;
+
+        setPinned(
+          id,
+          next
+        );
+
+        updateWeakInfo();
+
+        stopProblemListAudio();
+
+        renderProblemList(
+          list
+        );
+      }
+    );
+  });
+
+// 音声再生ボタン
+problemListBody
+  .querySelectorAll(
+    ".problemListPlayBtn"
+  )
+  .forEach(btn => {
+    btn.addEventListener(
+      "click",
+      () => {
+        playProblemListAudio(
+          btn.dataset.audioFile,
+          btn
+        );
+      }
+    );
+  });
+
+// 音声停止ボタン
+problemListBody
+  .querySelectorAll(
+    ".problemListStopBtn"
+  )
+  .forEach(btn => {
+    btn.addEventListener(
+      "click",
+      () => {
+        stopProblemListAudio();
+      }
+    );
+  });
+
+// 選択肢ボタン
+problemListBody
+  .querySelectorAll(
+    ".problemListChoiceBtn"
+  )
+  .forEach(btn => {
+    btn.addEventListener(
+      "click",
+      () => {
+        const questionId =
+          String(
+            btn.dataset.questionId ||
+            ""
+          );
+
+        const selectedId =
+          String(
+            btn.dataset.choiceId ||
+            ""
+          );
+
+        const question =
+          questionById.get(
+            questionId
+          );
+
+        if (!question) {
+          return;
+        }
+
+        // この問題のカードを取得
+        const item =
+          btn.closest(
+            ".resultItem"
+          );
+
+        if (!item) {
+          return;
+        }
+
+        // この問題の選択肢だけを取得
+        const choiceButtons = [
+          ...item.querySelectorAll(
+            ".problemListChoiceBtn"
+          )
+        ];
+
+        const isCorrect =
+          selectedId ===
+          question.answerId;
+
+        // 正解の選択肢を緑にする
+        // すべての選択肢を押せなくする
+        choiceButtons.forEach(
+          choiceBtn => {
+            const choiceId =
               String(
-                btn.dataset
-                  .questionId ||
+                choiceBtn.dataset
+                  .choiceId ||
                 ""
               );
 
-            const next =
-              !getWeakState(
-                id
-              ).pin;
+            if (
+              choiceId ===
+              question.answerId
+            ) {
+              choiceBtn.classList.add(
+                "correct"
+              );
+            }
 
-            setPinned(
-              id,
-              next
-            );
-
-            updateWeakInfo();
-
-            renderProblemList(
-              list
-            );
+            choiceBtn.disabled = true;
           }
         );
-      });
+
+        // 間違えた選択肢を赤にする
+        if (!isCorrect) {
+          btn.classList.add(
+            "wrong"
+          );
+        }
+
+        // 正誤メッセージ
+        const resultEl =
+          item.querySelector(
+            ".problemListPracticeResult"
+          );
+
+       if (resultEl) {
+  resultEl.className =
+    "problemListPracticeResult " +
+    (
+      isCorrect
+        ? "correct"
+        : "wrong"
+    );
+
+  resultEl.textContent =
+    isCorrect
+      ? "⭕ 正解！"
+      : "❌ 不正解。もう一度確認しましょう。";
+}
+// 正解した場合だけ、この問題の正答を表示
+if (isCorrect) {
+  const answerBox =
+    item.querySelector(
+      ".problemListAnswerBox"
+    );
+
+  if (answerBox) {
+    answerBox.classList.remove(
+      "hidden"
+    );
   }
+}
+
+        // 「もう一度答える」を表示
+        const retryBtn =
+          item.querySelector(
+            ".problemListRetryBtn"
+          );
+
+        if (retryBtn) {
+          retryBtn.classList.remove(
+            "hidden"
+          );
+        }
+
+        /*
+          問題一覧では以下を行いません。
+
+          ・ゴイモンへの加算
+          ・学習ログへの記録
+          ・自動ニガテへの追加
+          ・通常演習の正答数変更
+        */
+      }
+    );
+  });
+
+// 「もう一度答える」ボタン
+problemListBody
+  .querySelectorAll(
+    ".problemListRetryBtn"
+  )
+  .forEach(btn => {
+    btn.addEventListener(
+      "click",
+      () => {
+        const item =
+          btn.closest(
+            ".resultItem"
+          );
+
+        if (!item) {
+          return;
+        }
+
+        // 選択肢を再び押せるようにする
+        item
+          .querySelectorAll(
+            ".problemListChoiceBtn"
+          )
+          .forEach(choiceBtn => {
+            choiceBtn.disabled = false;
+
+            choiceBtn.classList.remove(
+              "correct",
+              "wrong"
+            );
+          });
+
+        // 正誤メッセージを消す
+        const resultEl =
+          item.querySelector(
+            ".problemListPracticeResult"
+          );
+
+        if (resultEl) {
+          resultEl.className =
+            "problemListPracticeResult";
+
+          resultEl.textContent = "";
+        }
+
+        // 全体の正答表示がOFFなら、正答を再び隠す
+if (!problemListAnswersVisible) {
+  const answerBox =
+    item.querySelector(
+      ".problemListAnswerBox"
+    );
+
+  if (answerBox) {
+    answerBox.classList.add(
+      "hidden"
+    );
+  }
+}
+
+        // 自分自身を再び隠す
+        btn.classList.add(
+          "hidden"
+        );
+      }
+    );
+  });
+}
 
   // ============================================================
   // 設定画面イベント
@@ -4032,10 +4502,14 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
   formatSelect
-    .addEventListener(
-      "change",
-      saveSettings
-    );
+  .addEventListener(
+    "change",
+    () => {
+      saveSettings();
+      updatePoolInfo();
+      updateWeakInfo();
+    }
+  );
 
   orderMode
     .addEventListener(
@@ -4173,59 +4647,86 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
   problemListBackBtn
-    .addEventListener(
-      "click",
-      () => {
-        showOnly(
-          "setup"
-        );
-      }
-    );
+  .addEventListener(
+    "click",
+    () => {
+      stopProblemListAudio();
+
+      showOnly(
+        "setup"
+      );
+    }
+  );
 
   if (
-    problemListFormatSelect
-  ) {
-    problemListFormatSelect
-      .addEventListener(
-        "change",
-        () => {
-          renderProblemList(
-            allQuestions
-          );
-        }
+  problemListFormatSelect
+) {
+  problemListFormatSelect
+  .addEventListener(
+    "change",
+    () => {
+      stopProblemListAudio();
+
+      renderProblemList(
+        getQuestionsByFormat(
+          Number(
+            problemListFormatSelect.value
+          )
+        )
       );
-  }
+    }
+  );
+}
 
   toggleProblemListAnswersBtn
-    .addEventListener(
-      "click",
-      () => {
-        problemListAnswersVisible =
-          !problemListAnswersVisible;
+  .addEventListener(
+    "click",
+    () => {
+      problemListAnswersVisible =
+        !problemListAnswersVisible;
 
-        toggleProblemListAnswersBtn
-          .textContent =
-            problemListAnswersVisible
-              ? "正答を隠す"
-              : "正答を表示";
+      toggleProblemListAnswersBtn
+        .textContent =
+          problemListAnswersVisible
+            ? "正答を隠す"
+            : "正答を表示";
 
-        renderProblemList(
-          allQuestions
-        );
-      }
-    );
+      // 一覧を描き直す前に音声を止める
+      stopProblemListAudio();
 
-  shuffleProblemListBtn
-    .addEventListener(
-      "click",
-      () => {
-        renderProblemList(
-          shuffleArray(
-            allQuestions
+      renderProblemList(
+        getQuestionsByFormat(
+          Number(
+            problemListFormatSelect?.value ||
+            getSelectedFormat()
+          )
+        )
+      );
+    }
+  );
+
+ shuffleProblemListBtn
+  .addEventListener(
+    "click",
+    () => {
+      const selectedQuestions =
+        getQuestionsByFormat(
+          Number(
+            problemListFormatSelect?.value ||
+            getSelectedFormat()
           )
         );
-      }
-    );
+
+      // 一覧を描き直す前に音声を止める
+      stopProblemListAudio();
+
+      renderProblemList(
+        shuffleArray(
+          selectedQuestions
+        )
+      );
+    }
+  );
 
       // ============================================================
   // 語句並べ替えディクテーション操作
@@ -4973,22 +5474,22 @@ function registerQuizShortcuts() {
       settings
     );
 
-    poolInfo.textContent =
-      `大問3形式：全${allQuestions.length}問`;
+    updatePoolInfo();
 
     if (
-      !allQuestions.length
-    ) {
-      poolInfo.textContent =
-        "問題データを読み込めませんでした。" +
-        "listening_type3_1kyu.jsを確認してください。";
+  !allQuestions.length
+) {
+  poolInfo.textContent =
+    "問題データを読み込めませんでした。" +
+    "listening_type2_1kyu.jsと" +
+    "listening_type3_1kyu.jsを確認してください。";
 
-      startBtn.disabled =
-        true;
+  startBtn.disabled =
+    true;
 
-      openProblemListBtn.disabled =
-        true;
-    }
+  openProblemListBtn.disabled =
+    true;
+}
 
    updateWeakInfo();
 renderGoimonMini();
