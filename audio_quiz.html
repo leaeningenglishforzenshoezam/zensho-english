@@ -231,10 +231,57 @@
       cursor: pointer;
     }
     .choices {
-      display: grid;
-      gap: 10px;
-      margin-top: 12px;
-    }
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.choices button {
+  min-width: 0;
+}
+
+.choiceBtn {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+.choiceNumber {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: #2b7cff;
+  border: 1px solid #d4e2ff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.choiceText {
+  flex: 1 1 auto;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.choices button.unknownChoice {
+  grid-column: 1 / -1;
+  justify-content: center;
+  text-align: center;
+  background: #f5f5f5;
+  color: #555;
+  border-color: #d8d8d8;
+}
+
+.choices button.unknownChoice .choiceNumber {
+  background: #ececec;
+  border-color: #d2d2d2;
+  color: #555;
+}
     .choices button {
       width: 100%;
       text-align: left;
@@ -327,6 +374,36 @@
         min-height: 116px;
       }
     }
+
+    .questionNavRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.questionNavRow .btn {
+  margin: 0;
+}
+
+.prevQuestionBtn {
+  background: #f1f1f1;
+  color: #333;
+  border: 1px solid #d7d7d7;
+  font-weight: 700;
+}
+
+.nextQuestionBtn {
+  background: #eef5ff;
+  color: #234b92;
+  border: 1px solid #cddcff;
+  font-weight: 800;
+}
+
+.questionNavRow button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
   </style>
 </head>
 <body>
@@ -400,17 +477,17 @@
 
       <div class="row">
         <div class="label">問題数</div>
-        <input id="limitCount" type="number" min="1" value="10" />
+        <input id="limitCount" type="number" min="1" value="50" />
       </div>
 
       <div class="row">
         <div class="label">出題順</div>
         <select id="modeSelect">
-          <option value="head">先頭から</option>
-          <option value="continue">続きから</option>
-          <option value="random">ランダム</option>
-          <option value="weak">苦手</option>
-        </select>
+  <option value="head">先頭から</option>
+  <option value="continue">続きから</option>
+  <option value="random" selected>ランダム</option>
+  <option value="weak">苦手</option>
+</select>
       </div>
 
       <div class="row">
@@ -445,8 +522,29 @@
       <div id="result" class="result"></div>
       <div id="detail"></div>
 
-      <button class="btn soft" id="nextBtn" disabled>次の問題へ</button>
-      <button class="btn gray" id="backBtn">設定に戻る</button>
+<div class="questionNavRow">
+  <button
+    class="btn prevQuestionBtn"
+    id="prevBtn"
+    type="button"
+    disabled
+  >
+    ← 前の問題
+  </button>
+
+  <button
+    class="btn nextQuestionBtn"
+    id="nextBtn"
+    type="button"
+    disabled
+  >
+    次の問題へ →
+  </button>
+</div>
+
+<button class="btn gray" id="backBtn">
+  設定に戻る
+</button>
     </div>
 
     <div class="card hidden" id="summaryBox">
@@ -566,6 +664,7 @@
     </div>
   </div>
 
+  <script src="quiz_shortcuts.js"></script>
   <script src="audio_quiz.js"></script>
 </body>
 </html>
