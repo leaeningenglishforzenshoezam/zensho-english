@@ -167,9 +167,17 @@
     ▶ 大問1演習（アクセント）
   </button>
 
+  <button class="btn primary" id="goDialogue">
+  ▶ 大問8演習（会話文空欄補充）
+</button>
+
   <button class="btn primary" id="goSentence">
     ▶ 大問9演習（短文空欄補充）
   </button>
+
+  <button class="btn primary" id="goReadingCompletion">
+  ▶ 大問10演習（長文空欄補充）
+</button>
 
   <button class="btn primary" id="goParaphrase">
     ▶ 大問11演習（言い換え）
@@ -1019,7 +1027,9 @@
     document.getElementById("goAudioQuiz").addEventListener("click", () => { location.href = "audio_quiz.html"; });
     document.getElementById("goListening").addEventListener("click",() => {location.href ="listening.html";});
     document.getElementById("goAccent").addEventListener("click", () => { location.href = "accent.html"; });
+    document.getElementById("goDialogue").addEventListener("click", () => {location.href = "dialogue.html";});
     document.getElementById("goSentence").addEventListener("click", () => { location.href = "sentence.html"; });
+    document.getElementById("goReadingCompletion").addEventListener("click", () => {location.href = "q10.html";});
     document.getElementById("goParaphrase").addEventListener("click", () => { location.href = "paraphrase_quiz.html"; });
     document.getElementById("goReorder").addEventListener("click", () => { location.href = "reorder.html"; });
     document.getElementById("goIdiom").addEventListener("click", () => { location.href = "idiom_quiz.html"; });
