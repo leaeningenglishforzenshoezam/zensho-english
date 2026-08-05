@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta
+    name="description"
+    content="全商英検1級 大問10 長文空欄補充問題の学習ページ"
+  >
+
+  <title>長文空欄補充｜全商英検1級</title>
+
+  <link rel="stylesheet" href="q10.css">
+</head>
+
+<body class="setup-mode">
+
+  <div class="q10-app">
+
+    <!-- =========================
+         上部ヘッダー
+    ========================== -->
+    <header class="app-header">
+
+      <div class="header-left">
+
+        <a
+          href="index.html"
+          class="back-link"
+          aria-label="ホームへ戻る"
+        >
+          ← ホーム
+        </a>
+
+        <div class="header-title-area">
+          <p class="page-label">全商英検1級・大問10</p>
+          <h1 class="page-title">Reading Completion</h1>
+        </div>
+
+      </div>
+
+      <div class="header-actions">
+
+        <button
+          type="button"
+          id="openWeakListButton"
+          class="header-button"
+        >
+          苦手語句
+        </button>
+
+        <button
+          type="button"
+          id="openSettingsButton"
+          class="header-button"
+        >
+          ⚙ 出題条件
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <!-- =========================
+         問題情報
+    ========================== -->
+    <section
+      class="question-status"
+      aria-label="問題の進行状況"
+    >
+
+      <div class="status-top">
+
+        <div>
+          <p
+            id="questionCategory"
+            class="question-category"
+          >
+            Original Reading
+          </p>
+
+          <h2
+            id="questionTitle"
+            class="question-title"
+          >
+            Question Title
+          </h2>
+
+          <p
+            id="questionTitleJa"
+            class="question-title-ja"
+          >
+            日本語テーマ
+          </p>
+        </div>
+
+        <div class="question-meta-area">
+
+          <div
+            class="question-timer"
+            aria-label="この問題の経過時間"
+          >
+            <span class="timer-label">TIME</span>
+            <span id="questionTimer">00:00</span>
+          </div>
+
+          <div class="question-number-area">
+            <span id="currentQuestionNumber">1</span>
+            <span class="question-number-separator">/</span>
+            <span id="totalQuestionNumber">5</span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div
+        class="progress-track"
+        aria-hidden="true"
+      >
+        <div
+          id="progressBar"
+          class="progress-bar"
+        ></div>
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         問題エリア
+    ========================== -->
+    <main class="question-layout">
+
+      <!-- 左：長文 -->
+      <section
+        class="passage-panel"
+        aria-labelledby="passageHeading"
+      >
+
+        <div class="panel-heading">
+
+          <div>
+            <p class="panel-label">Passage</p>
+            <h2 id="passageHeading">英文</h2>
+          </div>
+
+          <button
+            type="button"
+            id="resetAnswersButton"
+            class="reset-button"
+          >
+            ↻ やり直す
+          </button>
+
+        </div>
+
+        <p
+          id="instructionText"
+          class="instruction-text"
+        >
+          本文を読み、空所ごとに最も適切な語句を選んでください。
+        </p>
+
+        <div
+          id="passageContainer"
+          class="passage-container"
+          aria-live="polite"
+        >
+          <!-- q10_page.jsで英文を表示 -->
+        </div>
+
+      </section>
+
+
+      <!-- 右：5問の選択肢 -->
+      <aside
+        class="answers-panel desktop-answers"
+        aria-labelledby="answersHeading"
+      >
+
+        <div class="panel-heading">
+
+          <div>
+            <p class="panel-label">Questions</p>
+            <h2 id="answersHeading">解答欄</h2>
+          </div>
+
+          <p
+            id="answeredCountLabel"
+            class="answered-count-label"
+          >
+            0 / 5 回答
+          </p>
+
+        </div>
+
+        <div
+          id="answersContainer"
+          class="answers-container"
+        >
+          <!-- q10_page.jsで5問を表示 -->
+        </div>
+
+      </aside>
+
+    </main>
+
+
+    <!-- =========================
+         採点結果
+    ========================== -->
+    <section
+      id="resultPanel"
+      class="result-panel"
+      aria-live="polite"
+      hidden
+    >
+
+      <div class="result-summary">
+
+        <div>
+          <p class="panel-label">Result</p>
+          <h2 id="resultTitle">採点結果</h2>
+        </div>
+
+        <p
+          id="resultScore"
+          class="result-score"
+        >
+          0 / 5
+        </p>
+
+      </div>
+
+      <p
+        id="resultMessage"
+        class="result-message"
+      ></p>
+
+    </section>
+
+
+    <!-- =========================
+         空欄ごとの解説
+    ========================== -->
+    <section
+      id="explanationsPanel"
+      class="review-section"
+      hidden
+    >
+
+      <div class="section-heading">
+        <div>
+          <p class="panel-label">Answer Review</p>
+          <h2>空欄の解説</h2>
+        </div>
+      </div>
+
+      <div
+        id="explanationsContainer"
+        class="explanations-container"
+      >
+        <!-- 正答理由・誤答理由 -->
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         全文日本語訳
+    ========================== -->
+    <section
+      id="translationPanel"
+      class="review-section"
+      hidden
+    >
+
+      <button
+        type="button"
+        id="toggleTranslationButton"
+        class="section-toggle-button"
+        aria-expanded="false"
+      >
+        <span>
+          <span class="panel-label">Japanese Translation</span>
+          <strong>全文日本語訳</strong>
+        </span>
+
+        <span
+          id="translationToggleIcon"
+          aria-hidden="true"
+        >
+          ＋
+        </span>
+      </button>
+
+      <div
+        id="translationContainer"
+        class="translation-container"
+        hidden
+      >
+        <!-- 段落ごとの全文訳 -->
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         文ごとの復習
+    ========================== -->
+    <section
+      id="sentenceReviewPanel"
+      class="review-section"
+      hidden
+    >
+
+      <div class="section-heading">
+
+        <div>
+          <p class="panel-label">Sentence Review</p>
+          <h2>文ごとの復習</h2>
+        </div>
+
+        <p class="review-help">
+          文をクリックすると、日本語訳と重要語句を確認できます。
+        </p>
+
+      </div>
+
+      <div
+        id="sentenceReviewContainer"
+        class="sentence-review-container"
+      >
+        <!-- 文ごとの復習カード -->
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         下部操作
+    ========================== -->
+    <nav
+      class="question-actions"
+      aria-label="問題操作"
+    >
+
+      <button
+        type="button"
+        id="previousQuestionButton"
+        class="action-button secondary-button"
+      >
+        前の問題
+      </button>
+
+      <button
+        type="button"
+        id="checkAnswerButton"
+        class="action-button primary-button"
+        disabled
+      >
+        5問すべてに答えてください
+      </button>
+
+      <button
+        type="button"
+        id="nextQuestionButton"
+        class="action-button secondary-button"
+      >
+        次の問題
+      </button>
+
+    </nav>
+
+  </div>
+
+
+  <!-- =========================
+       スマホ用解答ボトムシート
+  ========================== -->
+  <div
+    id="mobileSheetOverlay"
+    class="mobile-sheet-overlay"
+    hidden
+  ></div>
+
+  <section
+    id="mobileAnswersSheet"
+    class="mobile-answers-sheet"
+    aria-labelledby="mobileAnswersHeading"
+    aria-modal="true"
+    role="dialog"
+    hidden
+  >
+
+    <div class="sheet-handle-area">
+      <span class="sheet-handle"></span>
+    </div>
+
+    <div class="mobile-sheet-header">
+
+      <div>
+        <p
+          id="mobileActiveBlankLabel"
+          class="active-blank-label"
+        >
+          空所 ⓐ
+        </p>
+
+        <h2 id="mobileAnswersHeading">
+          選択肢を選ぶ
+        </h2>
+      </div>
+
+      <button
+        type="button"
+        id="closeMobileSheetButton"
+        class="close-sheet-button"
+        aria-label="選択肢を閉じる"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <div
+      id="mobileAnswersContainer"
+      class="mobile-answers-container"
+    >
+      <!-- 選択中の空欄の4択 -->
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       文の復習ボトムシート
+  ========================== -->
+  <div
+    id="sentenceSheetOverlay"
+    class="mobile-sheet-overlay"
+    hidden
+  ></div>
+
+  <section
+    id="sentenceReviewSheet"
+    class="sentence-review-sheet"
+    aria-labelledby="sentenceReviewSheetHeading"
+    aria-modal="true"
+    role="dialog"
+    hidden
+  >
+
+    <div class="sheet-handle-area">
+      <span class="sheet-handle"></span>
+    </div>
+
+    <div class="mobile-sheet-header">
+
+      <div>
+        <p class="panel-label">Sentence Review</p>
+        <h2 id="sentenceReviewSheetHeading">
+          文の復習
+        </h2>
+      </div>
+
+      <button
+        type="button"
+        id="closeSentenceSheetButton"
+        class="close-sheet-button"
+        aria-label="復習画面を閉じる"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <div
+      id="sentenceReviewSheetContent"
+      class="sentence-review-sheet-content"
+    ></div>
+
+  </section>
+
+
+  <!-- =========================
+       苦手語句一覧
+  ========================== -->
+  <div
+    id="weakListOverlay"
+    class="settings-modal-overlay"
+    hidden
+  ></div>
+
+  <section
+    id="weakListModal"
+    class="weak-list-modal"
+    aria-labelledby="weakListTitle"
+    aria-modal="true"
+    role="dialog"
+    hidden
+  >
+
+    <div class="settings-modal-header">
+
+      <div>
+        <p class="panel-label">Weak Expressions</p>
+        <h2 id="weakListTitle">苦手語句一覧</h2>
+      </div>
+
+      <button
+        type="button"
+        id="closeWeakListButton"
+        class="close-sheet-button"
+        aria-label="苦手語句一覧を閉じる"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <div class="weak-list-controls">
+
+      <button
+        type="button"
+        id="toggleWeakMeaningsButton"
+        class="small-control-button"
+      >
+        日本語を隠す
+      </button>
+
+      <button
+        type="button"
+        id="toggleWeakExamplesButton"
+        class="small-control-button"
+      >
+        例文訳を隠す
+      </button>
+
+    </div>
+
+    <div
+      id="weakListContainer"
+      class="weak-list-container"
+    >
+      <!-- 登録された苦手語句 -->
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       出題設定
+  ========================== -->
+  <div
+    id="settingsModalOverlay"
+    class="settings-modal-overlay"
+    hidden
+  ></div>
+
+  <section
+    id="settingsModal"
+    class="settings-modal"
+    aria-labelledby="settingsModalTitle"
+    aria-modal="true"
+    role="dialog"
+    hidden
+  >
+
+    <div class="settings-modal-header">
+
+      <div>
+        <p class="panel-label">Question Settings</p>
+        <h2 id="settingsModalTitle">出題設定</h2>
+      </div>
+
+      <button
+        type="button"
+        id="closeSettingsButton"
+        class="close-sheet-button"
+        aria-label="出題設定を閉じる"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <div class="settings-form">
+
+      <fieldset class="setting-group">
+
+        <legend>出題順</legend>
+
+        <label class="setting-option">
+          <input
+            type="radio"
+            name="questionOrder"
+            value="sequential"
+            checked
+          >
+          <span>
+            <strong>順番</strong>
+            <small>問題番号順に出題します</small>
+          </span>
+        </label>
+
+        <label class="setting-option">
+          <input
+            type="radio"
+            name="questionOrder"
+            value="random"
+          >
+          <span>
+            <strong>ランダム</strong>
+            <small>問題の順番をシャッフルします</small>
+          </span>
+        </label>
+
+        <label class="setting-option">
+  <input
+    type="radio"
+    name="questionOrder"
+    value="unattempted"
+  >
+  <span>
+    <strong>未挑戦優先</strong>
+    <small>解いた回数が少ない問題から出題します</small>
+  </span>
+</label>
+
+      </fieldset>
+
+      <fieldset class="setting-group">
+
+        <legend>出題範囲</legend>
+
+        <label
+          for="questionRangeStart"
+          class="range-label"
+        >
+          開始問題
+        </label>
+
+        <select
+          id="questionRangeStart"
+          class="setting-select"
+        ></select>
+
+        <label
+          for="questionRangeEnd"
+          class="range-label"
+        >
+          終了問題
+        </label>
+
+        <select
+          id="questionRangeEnd"
+          class="setting-select"
+        ></select>
+
+      </fieldset>
+
+      <fieldset class="setting-group question-history-group">
+
+  <legend>学習履歴</legend>
+
+  <div
+    id="questionHistorySummary"
+    
+    class="question-history-summary"
+  >
+    挑戦済み 0問 ／ 未挑戦 35問 ／ 合計 0回
+  </div>
+
+  <p class="question-history-help">
+  問題番号を押すと、その問題だけを解けます。
+</p>
+
+  <div
+    id="questionAttemptList"
+    class="question-attempt-list"
+  >
+    <!-- JavaScriptで問題ごとの挑戦回数を表示 -->
+  </div>
+
+</fieldset>
+
+    </div>
+
+    <div class="settings-modal-actions">
+
+      <button
+        type="button"
+        id="cancelSettingsButton"
+        class="action-button secondary-button"
+      >
+        キャンセル
+      </button>
+
+      <button
+        type="button"
+        id="applySettingsButton"
+        class="action-button primary-button"
+      >
+        問題を開始する
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       JavaScript
+  ========================== -->
+  <script src="goimon_rules.js"></script>
+  <script src="goimon_dex.js"></script>
+  <script src="goimon_dialogues.js"></script>
+  <script src="goimon.js"></script>
+
+  <script src="q10_data.js"></script>
+  <script src="q10_page.js"></script>
+
+</body>
+</html>
