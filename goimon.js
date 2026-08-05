@@ -173,8 +173,14 @@ window.GoimonUI = (function () {
       level: 1,
       nickname: "",
       stats: getDefaultStats(),
-      totalPoints: 0,
-      imageKey: STAGE_IMAGES.egg,
+
+hiddenPoints: {
+  dialogue8: 0,
+  q10: 0
+},
+
+totalPoints: 0,
+imageKey: STAGE_IMAGES.egg,
       pendingEvolution: false,
       pendingStage: "",
       pendingType: "",
@@ -400,8 +406,32 @@ function shouldPreserveLegacyMrUnoUnlock() {
     out.stats.kotoba = roundPoint(out.stats.kotoba);
     out.stats.onkan = roundPoint(out.stats.onkan);
     out.stats.bunmyaku = roundPoint(out.stats.bunmyaku);
+    out.stats.bunmyaku = roundPoint(out.stats.bunmyaku);
 
-    out.totalPoints = roundPoint(
+out.hiddenPoints = Object.assign(
+  {
+    dialogue8: 0,
+    q10: 0
+  },
+  out.hiddenPoints || {}
+);
+
+out.hiddenPoints.dialogue8 = Math.max(
+  0,
+  Number(
+    out.hiddenPoints.dialogue8 || 0
+  )
+);
+
+out.hiddenPoints.q10 = Math.max(
+  0,
+  Number(
+    out.hiddenPoints.q10 || 0
+  )
+);
+
+out.totalPoints = roundPoint(
+
       Number.isFinite(Number(out.totalPoints)) ? Number(out.totalPoints) : sumStats(out.stats)
     );
     out.level = calculateLevel(out.totalPoints);
@@ -733,6 +763,135 @@ if (eventKey === "listening") {
     if (!rule) return ensureCurrent();
     return addPoints(rule, ruleKey);
   }
+
+  function addDialogue8Perfect() {
+  let g = ensureCurrent();
+
+  g.stats.bunmyaku = roundPoint(
+    Number(g.stats.bunmyaku || 0) + 1
+  );
+
+  if (
+    !g.hiddenPoints ||
+    typeof g.hiddenPoints !== "object"
+  ) {
+    g.hiddenPoints = {
+      dialogue8: 0
+    };
+  }
+
+  g.hiddenPoints.dialogue8 =
+    Math.max(
+      0,
+      Number(g.hiddenPoints.dialogue8 || 0)
+    ) + 1;
+
+  g.totalPoints = sumStats(g.stats);
+  g.level = calculateLevel(g.totalPoints);
+
+  g = determinePendingEvolution(g);
+
+  if (!g.pendingEvolution) {
+    g.imageKey = getImageFor(
+      g.type,
+      g.stage
+    );
+  }
+
+  markDiscovered(g.type, g.stage);
+
+  saveCurrent(g);
+
+  updateSpeechForEvent("dialogue8");
+
+  renderHome();
+  renderAllMiniHooks();
+
+  return g;
+}
+
+/* =========================================================
+   大問10・5問全問正解
+   表：ぶんみゃく +1
+   裏：q10 +1
+========================================================= */
+
+function addReading10Perfect() {
+  let g = ensureCurrent();
+
+  /*
+   * 表ポイント
+   */
+  g.stats.bunmyaku = roundPoint(
+    Number(
+      g.stats.bunmyaku || 0
+    ) + 1
+  );
+
+  /*
+   * 裏ポイントの入れ物を保証
+   */
+  if (
+    !g.hiddenPoints ||
+    typeof g.hiddenPoints !== "object"
+  ) {
+    g.hiddenPoints = {
+      dialogue8: 0,
+      q10: 0
+    };
+  }
+
+  /*
+   * q10裏ポイント
+   */
+  g.hiddenPoints.q10 =
+    Math.max(
+      0,
+      Number(
+        g.hiddenPoints.q10 || 0
+      )
+    ) + 1;
+
+  /*
+   * 表ポイントだけで
+   * 合計・レベル・進化を計算する
+   */
+  g.totalPoints =
+    sumStats(g.stats);
+
+  g.level =
+    calculateLevel(
+      g.totalPoints
+    );
+
+  g =
+    determinePendingEvolution(g);
+
+  if (!g.pendingEvolution) {
+    g.imageKey =
+      getImageFor(
+        g.type,
+        g.stage
+      );
+  }
+
+  markDiscovered(
+    g.type,
+    g.stage
+  );
+
+  saveCurrent(g);
+
+  updateSpeechForEvent(
+    "reading10"
+  );
+
+  renderHome();
+
+  renderAllMiniHooks();
+
+  return g;
+}
 
     function confirmEvolution() {
     let g = ensureCurrent();
@@ -1757,9 +1916,14 @@ function isMrUnoUnlocked() {
     getImageFor,
 
     addPoints,
-    addPointsByRuleKey,
+addPointsByRuleKey,
+addDialogue8Perfect,
+addPoints,
+addPointsByRuleKey,
+addDialogue8Perfect,
+addReading10Perfect,
 
-    addStudyProgress,
+addStudyProgress,
     addQuizEnJaCorrect,
     addQuizJaEnCorrect,
     addSentenceCorrect,
