@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta
+    name="description"
+    content="全商英検1級 大問8 会話文完成問題の学習ページ"
+  >
+
+  <title>会話文完成問題｜全商英検1級</title>
+
+  <link rel="stylesheet" href="dialogue.css">
+</head>
+
+<body class="setup-mode">
+
+  <div class="dialogue-app">
+
+    <!-- =========================
+         上部ヘッダー
+    ========================== -->
+    <header class="app-header">
+
+      <div class="header-left">
+        <a
+          href="index.html"
+          class="back-link"
+          aria-label="ホームへ戻る"
+        >
+          ← ホーム
+        </a>
+
+        <div class="header-title-area">
+          <p class="page-label">全商英検1級・大問8</p>
+          <h1 class="page-title">Dialogue Completion</h1>
+        </div>
+      </div>
+
+      <button
+  type="button"
+  id="openSettingsButton"
+  class="header-button"
+  aria-label="出題条件を変更する"
+>
+  ⚙ 出題条件を変更
+</button>
+
+    </header>
+
+
+    <!-- =========================
+         出題情報
+    ========================== -->
+    <section
+      class="question-status"
+      aria-label="問題の進行状況"
+    >
+
+      <div class="status-top">
+
+        <div>
+          <p
+            id="questionCategory"
+            class="question-category"
+          >
+            Category
+          </p>
+
+          <h2
+            id="questionTitle"
+            class="question-title"
+          >
+            Question Title
+          </h2>
+        </div>
+
+        <div class="question-meta-area">
+
+  <div
+    class="question-timer"
+    aria-label="この問題の経過時間"
+  >
+    <span class="timer-label">TIME</span>
+    <span id="questionTimer">00:00</span>
+  </div>
+
+  <div class="question-number-area">
+    <span id="currentQuestionNumber">1</span>
+    <span class="question-number-separator">/</span>
+    <span id="totalQuestionNumber">30</span>
+  </div>
+
+</div>
+
+      </div>
+
+      <div
+        class="progress-track"
+        aria-hidden="true"
+      >
+        <div
+          id="progressBar"
+          class="progress-bar"
+        ></div>
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         メイン問題エリア
+    ========================== -->
+    <main class="question-layout">
+
+    <!-- 会話文 -->
+<section
+  class="dialogue-panel"
+  aria-labelledby="dialogueHeading"
+>
+
+  <div class="panel-heading">
+
+    <div>
+      <p class="panel-label">Conversation</p>
+      <h2 id="dialogueHeading">会話文</h2>
+    </div>
+
+    <button
+      type="button"
+      id="resetAnswersButton"
+      class="reset-button"
+    >
+      ↻ この問題をやり直す
+    </button>
+
+  </div>
+
+  <p class="instruction-text">
+    空所を選び、右側の選択肢から最も適切な英文を選んでください。
+  </p>
+
+  <div
+    id="dialogueContainer"
+    class="dialogue-container"
+    aria-live="polite"
+  >
+    <!-- dialogue_page.jsで会話文を表示 -->
+  </div>
+
+</section>
+
+
+      <!-- PC用選択肢 -->
+      <aside
+        class="choices-panel desktop-choices"
+        aria-labelledby="choicesHeading"
+      >
+
+        <div class="panel-heading">
+
+          <div>
+            <p class="panel-label">Choices</p>
+            <h2 id="choicesHeading">選択肢</h2>
+          </div>
+
+          <p
+            id="activeBlankLabel"
+            class="active-blank-label"
+          >
+            空所 a を選択中
+          </p>
+
+        </div>
+
+        <div
+          id="choicesContainer"
+          class="choices-container"
+        >
+          <!-- dialogue_page.jsで選択肢を表示 -->
+        </div>
+
+      </aside>
+
+    </main>
+
+
+    <!-- =========================
+         正誤判定・結果
+    ========================== -->
+    <section
+      id="resultPanel"
+      class="result-panel"
+      aria-live="polite"
+      hidden
+    >
+
+      <div class="result-summary">
+
+        <div>
+          <p class="panel-label">Result</p>
+
+          <h2 id="resultTitle">
+            結果
+          </h2>
+        </div>
+
+        <p
+          id="resultScore"
+          class="result-score"
+        >
+          0 / 5
+        </p>
+
+      </div>
+
+      <p
+        id="resultMessage"
+        class="result-message"
+      ></p>
+
+    </section>
+
+
+    <!-- =========================
+         下部操作ボタン
+    ========================== -->
+    <nav
+      class="question-actions"
+      aria-label="問題操作"
+    >
+
+      <button
+        type="button"
+        id="previousQuestionButton"
+        class="action-button secondary-button"
+      >
+        前の問題
+      </button>
+
+      <button
+        type="button"
+        id="checkAnswerButton"
+        class="action-button primary-button"
+      >
+        答え合わせ
+      </button>
+
+      <button
+        type="button"
+        id="nextQuestionButton"
+        class="action-button secondary-button"
+      >
+        次の問題
+      </button>
+
+    </nav>
+
+  </div>
+
+
+  <!-- =========================
+       スマホ用：選択肢ボトムシート
+  ========================== -->
+  <div
+    id="mobileSheetOverlay"
+    class="mobile-sheet-overlay"
+    hidden
+  ></div>
+
+  <section
+    id="mobileChoicesSheet"
+    class="mobile-choices-sheet"
+    aria-labelledby="mobileChoicesHeading"
+    aria-modal="true"
+    role="dialog"
+    hidden
+  >
+
+    <div class="sheet-handle-area">
+      <span class="sheet-handle"></span>
+    </div>
+
+    <div class="mobile-sheet-header">
+
+      <div>
+        <p
+          id="mobileActiveBlankLabel"
+          class="active-blank-label"
+        >
+          空所 a を選択中
+        </p>
+
+        <h2 id="mobileChoicesHeading">
+          選択肢を選ぶ
+        </h2>
+      </div>
+
+      <button
+        type="button"
+        id="closeMobileSheetButton"
+        class="close-sheet-button"
+        aria-label="選択肢を閉じる"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <div
+      id="mobileChoicesContainer"
+      class="choices-container mobile-choices-container"
+    >
+      <!-- dialogue_page.jsで選択肢を表示 -->
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       出題設定モーダル
+  ========================== -->
+  <div
+    id="settingsModalOverlay"
+    class="settings-modal-overlay"
+    hidden
+  ></div>
+
+  <section
+    id="settingsModal"
+    class="settings-modal"
+    aria-labelledby="settingsModalTitle"
+    aria-modal="true"
+    role="dialog"
+    hidden
+  >
+
+    <div class="settings-modal-header">
+
+      <div>
+        <p class="panel-label">Question Settings</p>
+        <h2 id="settingsModalTitle">出題設定</h2>
+      </div>
+
+      <button
+        type="button"
+        id="closeSettingsButton"
+        class="close-sheet-button"
+        aria-label="出題設定を閉じる"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <div class="settings-form">
+
+      <fieldset class="setting-group">
+
+        <legend>出題順</legend>
+
+        <label class="setting-option">
+          <input
+            type="radio"
+            name="questionOrder"
+            value="sequential"
+            checked
+          >
+          <span>
+            <strong>順番</strong>
+            <small>問題番号順に出題します</small>
+          </span>
+        </label>
+
+        <label class="setting-option">
+          <input
+            type="radio"
+            name="questionOrder"
+            value="random"
+          >
+          <span>
+            <strong>ランダム</strong>
+            <small>問題の順番をシャッフルします</small>
+          </span>
+        </label>
+
+      </fieldset>
+
+      <fieldset class="setting-group">
+
+        <legend>出題範囲</legend>
+
+        <label
+          for="questionRangeStart"
+          class="range-label"
+        >
+          開始問題
+        </label>
+
+        <select
+          id="questionRangeStart"
+          class="setting-select"
+        >
+          <!-- dialogue_page.jsで生成 -->
+        </select>
+
+        <label
+          for="questionRangeEnd"
+          class="range-label"
+        >
+          終了問題
+        </label>
+
+        <select
+          id="questionRangeEnd"
+          class="setting-select"
+        >
+          <!-- dialogue_page.jsで生成 -->
+        </select>
+
+      </fieldset>
+
+    </div>
+
+    <div class="settings-modal-actions">
+
+      <button
+        type="button"
+        id="cancelSettingsButton"
+        class="action-button secondary-button"
+      >
+        キャンセル
+      </button>
+
+      <button
+  type="button"
+  id="applySettingsButton"
+  class="action-button primary-button"
+>
+  問題を開始する
+</button>
+
+    </div>
+
+  </section>
+
+
+ 
+<script src="goimon_rules.js"></script>
+<script src="goimon_dex.js"></script>
+<script src="goimon_dialogues.js"></script>
+<script src="goimon.js"></script>
+
+<script src="dialogue_data.js"></script>
+<script src="dialogue_page.js"></script>
+
+</body>
+</html>
