@@ -14,6 +14,8 @@ const BLANK_IDS = ["a", "b", "c", "d", "e"];
 
 const STORAGE_KEY = "dialogueCompletionState_v1";
 
+const HISTORY_STORAGE_KEY =
+  "dialogueQuestionHistory_v1";
 
 /* =========================================================
    状態管理
@@ -36,6 +38,8 @@ let questionResults = {};
 let rewardedQuestions = {};
 
 let questionTimes = {};
+
+let questionHistory = {};
 
 let timerIntervalId = null;
 
@@ -144,6 +148,16 @@ const questionRangeStart =
 const questionRangeEnd =
   document.getElementById("questionRangeEnd");
 
+  const questionHistorySummary =
+  document.getElementById(
+    "questionHistorySummary"
+  );
+
+const questionAttemptList =
+  document.getElementById(
+    "questionAttemptList"
+  );
+
 
 /* =========================================================
    初期化
@@ -157,9 +171,14 @@ function initializeDialoguePage() {
   loadSavedState();
 
   /*
+   * 累計挑戦履歴は、
+   * 今回の解答状態とは別に読み込む。
+   */
+  loadQuestionHistory();
+
+  /*
    * ページを開き直したときは、
-   * 前回の回答・採点結果・解答時間を消して
-   * 新しい挑戦として開始する。
+   * 今回分の解答状態だけを初期化する。
    */
   resetDialogueAttemptOnPageOpen();
 
@@ -309,42 +328,130 @@ function setupEventListeners() {
   );
 }
 
+/* =========================================================
+   出題順の値を確認
+========================================================= */
+
+function normalizeQuestionOrder(
+  order
+) {
+  if (
+    order === "random" ||
+    order === "unattempted"
+  ) {
+    return order;
+  }
+
+  return "sequential";
+}
+
 
 /* =========================================================
    問題セット作成
 ========================================================= */
 
 function createQuestionSet() {
-  const minimumId = Math.min(
-    currentSettings.startId,
-    currentSettings.endId
-  );
-
-  const maximumId = Math.max(
-    currentSettings.startId,
-    currentSettings.endId
-  );
-
-  questionSet = dialogueQuestions.filter((question) => {
-    return (
-      question.id >= minimumId &&
-      question.id <= maximumId
+  const minimumId =
+    Math.min(
+      currentSettings.startId,
+      currentSettings.endId
     );
-  });
 
-  if (currentSettings.order === "random") {
-    questionSet = shuffleArray(questionSet);
+  const maximumId =
+    Math.max(
+      currentSettings.startId,
+      currentSettings.endId
+    );
+
+  questionSet =
+    dialogueQuestions.filter(
+      (question) => {
+        return (
+          question.id >= minimumId &&
+          question.id <= maximumId
+        );
+      }
+    );
+
+  const normalizedOrder =
+    normalizeQuestionOrder(
+      currentSettings.order
+    );
+
+  currentSettings.order =
+    normalizedOrder;
+
+  if (
+    normalizedOrder === "random"
+  ) {
+    questionSet =
+      shuffleArray(questionSet);
+  } else if (
+    normalizedOrder === "unattempted"
+  ) {
+    /*
+     * 挑戦回数が少ない問題から並べる。
+     *
+     * 未挑戦 → 1回 → 2回……
+     * 同じ回数なら問題番号順。
+     */
+    questionSet.sort(
+      (questionA, questionB) => {
+        const attemptsA =
+          getQuestionAttemptCount(
+            questionA.id
+          );
+
+        const attemptsB =
+          getQuestionAttemptCount(
+            questionB.id
+          );
+
+        if (
+          attemptsA !== attemptsB
+        ) {
+          return (
+            attemptsA -
+            attemptsB
+          );
+        }
+
+        return (
+          questionA.id -
+          questionB.id
+        );
+      }
+    );
   } else {
-    questionSet.sort((a, b) => a.id - b.id);
-  }
-
-  if (questionSet.length === 0) {
-    questionSet = [...dialogueQuestions].sort(
-      (a, b) => a.id - b.id
+    questionSet.sort(
+      (questionA, questionB) => {
+        return (
+          questionA.id -
+          questionB.id
+        );
+      }
     );
   }
 
-  if (currentQuestionIndex >= questionSet.length) {
+  if (
+    questionSet.length === 0
+  ) {
+    questionSet = [
+      ...dialogueQuestions
+    ].sort(
+      (questionA, questionB) => {
+        return (
+          questionA.id -
+          questionB.id
+        );
+      }
+    );
+  }
+
+  if (
+    currentQuestionIndex >=
+    questionSet.length
+  ) {
     currentQuestionIndex = 0;
   }
 
@@ -947,6 +1054,157 @@ function getInitialActiveBlank(questionId) {
   return firstEmptyBlank || "a";
 }
 
+/* =========================================================
+   問題ごとの挑戦履歴
+========================================================= */
+
+function getQuestionHistoryEntry(
+  questionId
+) {
+  const questionKey =
+    getQuestionKey(questionId);
+
+  const savedEntry =
+    questionHistory[questionKey];
+
+  if (
+    savedEntry &&
+    typeof savedEntry === "object"
+  ) {
+    return {
+      attempts:
+        Number(savedEntry.attempts) || 0,
+
+      bestScore:
+        Number(savedEntry.bestScore) || 0,
+
+      lastScore:
+        Number(savedEntry.lastScore) || 0,
+
+      totalScore:
+        Number(savedEntry.totalScore) || 0,
+
+      lastAttemptedAt:
+        Number(
+          savedEntry.lastAttemptedAt
+        ) || 0
+    };
+  }
+
+  return {
+    attempts: 0,
+    bestScore: 0,
+    lastScore: 0,
+    totalScore: 0,
+    lastAttemptedAt: 0
+  };
+}
+
+
+function getQuestionAttemptCount(
+  questionId
+) {
+  return getQuestionHistoryEntry(
+    questionId
+  ).attempts;
+}
+
+
+function recordQuestionAttempt(
+  question,
+  score
+) {
+  if (!question) {
+    return;
+  }
+
+  const questionKey =
+    getQuestionKey(question.id);
+
+  const currentHistory =
+    getQuestionHistoryEntry(
+      question.id
+    );
+
+  const safeScore =
+    Number(score) || 0;
+
+  questionHistory[questionKey] = {
+    attempts:
+      currentHistory.attempts + 1,
+
+    bestScore:
+      Math.max(
+        currentHistory.bestScore,
+        safeScore
+      ),
+
+    lastScore:
+      safeScore,
+
+    totalScore:
+      currentHistory.totalScore +
+      safeScore,
+
+    lastAttemptedAt:
+      Date.now()
+  };
+
+  saveQuestionHistory();
+}
+
+
+function saveQuestionHistory() {
+  try {
+    localStorage.setItem(
+      HISTORY_STORAGE_KEY,
+      JSON.stringify(
+        questionHistory
+      )
+    );
+  } catch (error) {
+    console.warn(
+      "大問8の学習履歴を保存できませんでした。",
+      error
+    );
+  }
+}
+
+
+function loadQuestionHistory() {
+  try {
+    const savedText =
+      localStorage.getItem(
+        HISTORY_STORAGE_KEY
+      );
+
+    if (!savedText) {
+      questionHistory = {};
+      return;
+    }
+
+    const saved =
+      JSON.parse(savedText);
+
+    if (
+      saved &&
+      typeof saved === "object" &&
+      !Array.isArray(saved)
+    ) {
+      questionHistory = saved;
+    } else {
+      questionHistory = {};
+    }
+  } catch (error) {
+    console.warn(
+      "大問8の学習履歴を読み込めませんでした。",
+      error
+    );
+
+    questionHistory = {};
+  }
+}
+
 
 /* =========================================================
    答え合わせ
@@ -959,9 +1217,21 @@ function checkCurrentAnswers() {
     return;
   }
 
-  const questionKey = getQuestionKey(question.id);
+const questionKey =
+  getQuestionKey(question.id);
 
-  ensureQuestionAnswerState(question.id);
+/*
+ * 同じ挑戦で複数回採点されるのを防ぐ。
+ */
+if (
+  checkedQuestions[questionKey]
+) {
+  return;
+}
+
+ensureQuestionAnswerState(
+  question.id
+);
 
   const unansweredBlanks =
     BLANK_IDS.filter(
@@ -1037,6 +1307,11 @@ function checkCurrentAnswers() {
   details,
   checkedAt: new Date().toISOString()
 };
+
+recordQuestionAttempt(
+  question,
+  score
+);
 
 if (
   score === BLANK_IDS.length &&
@@ -1148,6 +1423,38 @@ const elapsedTime =
     "答え合わせ済み";
 }
 
+/* =========================================================
+   指定した問題を新しい挑戦にする
+========================================================= */
+
+function resetQuestionForNewAttempt(
+  question
+) {
+  if (!question) {
+    return;
+  }
+
+  const questionKey =
+    getQuestionKey(question.id);
+
+  userAnswers[questionKey] = {};
+
+  delete checkedQuestions[
+    questionKey
+  ];
+
+  delete questionResults[
+    questionKey
+  ];
+
+  questionTimes[questionKey] = 0;
+
+  activeBlankId = "a";
+
+  createNewChoiceOrder(
+    question
+  );
+}
 
 /* =========================================================
    解答リセット
@@ -1216,6 +1523,17 @@ function goToNextQuestion() {
   closeMobileChoicesSheet();
 
   currentQuestionIndex += 1;
+
+  const nextQuestion =
+    getCurrentQuestion();
+
+  if (nextQuestion) {
+    resetQuestionForNewAttempt(
+      nextQuestion
+    );
+  }
+
+  saveState();
 
   renderCurrentQuestion();
 }
@@ -1348,6 +1666,271 @@ function setupRangeSelects() {
     String(currentSettings.endId);
 }
 
+/* =========================================================
+   学習履歴一覧
+========================================================= */
+
+function renderQuestionHistory() {
+  if (
+    !questionHistorySummary ||
+    !questionAttemptList
+  ) {
+    return;
+  }
+
+  const sortedQuestions = [
+    ...dialogueQuestions
+  ].sort((questionA, questionB) => {
+    return (
+      questionA.id -
+      questionB.id
+    );
+  });
+
+  const studiedCount =
+    sortedQuestions.filter(
+      (question) => {
+        return (
+          getQuestionAttemptCount(
+            question.id
+          ) > 0
+        );
+      }
+    ).length;
+
+  const unattemptedCount =
+    sortedQuestions.length -
+    studiedCount;
+
+  const totalAttempts =
+    sortedQuestions.reduce(
+      (total, question) => {
+        return (
+          total +
+          getQuestionAttemptCount(
+            question.id
+          )
+        );
+      },
+      0
+    );
+
+  questionHistorySummary.textContent =
+    `挑戦済み ${studiedCount}問` +
+    ` ／ 未挑戦 ${unattemptedCount}問` +
+    ` ／ 合計 ${totalAttempts}回`;
+
+  questionAttemptList.innerHTML =
+    "";
+
+  const fragment =
+    document.createDocumentFragment();
+
+  sortedQuestions.forEach(
+    (question) => {
+      const history =
+        getQuestionHistoryEntry(
+          question.id
+        );
+
+      const item =
+        document.createElement(
+          "button"
+        );
+
+      item.type = "button";
+
+      item.className =
+        "question-attempt-item";
+
+      item.dataset.questionId =
+        String(question.id);
+
+      item.setAttribute(
+        "aria-label",
+        `問題${question.id}を解く`
+      );
+
+      if (
+        history.attempts === 0
+      ) {
+        item.classList.add(
+          "unattempted"
+        );
+      }
+
+      const number =
+        document.createElement(
+          "span"
+        );
+
+      number.className =
+        "question-attempt-number";
+
+      number.textContent =
+        `問題${question.id}`;
+
+      const title =
+        document.createElement(
+          "span"
+        );
+
+      title.className =
+        "question-attempt-title";
+
+      title.textContent =
+        question.title ||
+        `Question ${question.id}`;
+
+      title.title =
+        title.textContent;
+
+      const count =
+        document.createElement(
+          "span"
+        );
+
+      count.className =
+        "question-attempt-count";
+
+      count.textContent =
+        history.attempts === 0
+          ? "未挑戦"
+          : `${history.attempts}回`;
+
+      const arrow =
+        document.createElement(
+          "span"
+        );
+
+      arrow.className =
+        "question-attempt-arrow";
+
+      arrow.textContent = "›";
+
+      item.append(
+        number,
+        title,
+        count,
+        arrow
+      );
+
+      item.addEventListener(
+  "click",
+  () => {
+    startSelectedQuestion(
+      question.id
+    );
+  }
+);
+
+      fragment.appendChild(
+        item
+      );
+    }
+  );
+
+  questionAttemptList.appendChild(
+    fragment
+  );
+}
+
+/* =========================================================
+   指定した問題から番号順で開始
+========================================================= */
+
+function startSelectedQuestion(
+  questionId
+) {
+  const selectedQuestion =
+    dialogueQuestions.find(
+      (question) => {
+        return (
+          question.id === questionId
+        );
+      }
+    );
+
+  if (!selectedQuestion) {
+    console.warn(
+      "指定された問題が見つかりません。",
+      questionId
+    );
+
+    return;
+  }
+
+  pauseQuestionTimer();
+
+  closeMobileChoicesSheet();
+
+  /*
+   * 直接選択した場合は、
+   * 全問題を問題番号順に並べる。
+   *
+   * これにより前後の問題へ移動できる。
+   */
+  questionSet = [
+    ...dialogueQuestions
+  ].sort(
+    (questionA, questionB) => {
+      return (
+        questionA.id -
+        questionB.id
+      );
+    }
+  );
+
+  const selectedIndex =
+    questionSet.findIndex(
+      (question) => {
+        return (
+          question.id === questionId
+        );
+      }
+    );
+
+  if (selectedIndex < 0) {
+    console.warn(
+      "出題セット内に問題が見つかりません。",
+      questionId
+    );
+
+    return;
+  }
+
+  currentQuestionIndex =
+    selectedIndex;
+
+  /*
+   * 選択した問題だけを
+   * 新しい挑戦として開始する。
+   */
+  resetQuestionForNewAttempt(
+    selectedQuestion
+  );
+
+  ensureChoiceOrders();
+
+  sessionStarted = true;
+
+  settingsModalOverlay.hidden =
+    true;
+
+  settingsModal.hidden =
+    true;
+
+  document.body.classList.remove(
+    "setup-mode"
+  );
+
+  document.body.style.overflow =
+    "";
+
+  saveState();
+
+  renderCurrentQuestion();
+}
 
 function openSettingsModal() {
     if (sessionStarted) {
@@ -1367,6 +1950,11 @@ function openSettingsModal() {
 
   questionRangeEnd.value =
     String(currentSettings.endId);
+
+    /*
+ * 問題ごとの挑戦回数を更新する。
+ */
+renderQuestionHistory();
 
   settingsModalOverlay.hidden = false;
 
@@ -1416,12 +2004,23 @@ function applyQuestionSettings() {
     Number(questionRangeEnd.value);
 
   currentSettings = {
-    order:
-      selectedOrder?.value ||
-      "sequential",
-    startId: Math.min(startId, endId),
-    endId: Math.max(startId, endId)
-  };
+  order:
+    normalizeQuestionOrder(
+      selectedOrder?.value
+    ),
+
+  startId:
+    Math.min(
+      startId,
+      endId
+    ),
+
+  endId:
+    Math.max(
+      startId,
+      endId
+    )
+};
 
   currentQuestionIndex = 0;
 
@@ -1549,6 +2148,11 @@ function loadSavedState() {
         ...currentSettings,
         ...savedState.currentSettings
       };
+
+    currentSettings.order =
+  normalizeQuestionOrder(
+    currentSettings.order
+  );
     }
 
     if (
