@@ -1,0 +1,1772 @@
+ body {
+      margin: 0;
+      background: #f7f7f7;
+      color: #111;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Hiragino Kaku Gothic ProN",
+        "Yu Gothic",
+        sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px 12px 30px;
+    }
+
+    .card {
+      margin: 12px 0;
+      padding: 14px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .controlRow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .controlGroup {
+      min-width: 145px;
+      flex: 1 1 145px;
+    }
+
+    .controlGroup.wide {
+      flex-basis: 240px;
+    }
+
+    .controlLabel {
+      margin-bottom: 5px;
+      color: #555;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .muted {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .miniNote {
+      color: #777;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .sectionTitle {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .sectionSub {
+      margin-top: 4px;
+      color: #666;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .hr {
+      height: 1px;
+      margin: 14px 0;
+      background: #eee;
+    }
+
+    button,
+    select,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      padding: 10px 12px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) {
+      background: #f8f8f8;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    button.primary {
+      color: #fff;
+      background: #2b7cff;
+      border-color: #2b7cff;
+      font-weight: 800;
+    }
+
+    button.primary:hover:not(:disabled) {
+      background: #166bea;
+    }
+
+    button.soft {
+      color: #215ba8;
+      background: #eef5ff;
+      border-color: #c9dcff;
+      font-weight: 700;
+    }
+
+    button.danger {
+      color: #fff;
+      background: #b00020;
+      border-color: #b00020;
+    }
+
+    button.success {
+      color: #16672e;
+      background: #e9f8ed;
+      border-color: #b9e3c4;
+      font-weight: 800;
+    }
+
+    select,
+    input[type="number"],
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+      line-height: 1.7;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 3px solid rgba(43, 124, 255, 0.15);
+      border-color: #2b7cff;
+    }
+
+    .topNavBox {
+      margin-bottom: 12px;
+    }
+
+    .topNavTitle {
+      margin-bottom: 8px;
+      color: #666;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .topNav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 3px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .topNav a {
+      flex: 0 0 auto;
+      padding: 9px 12px;
+      color: #111;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      text-decoration: none;
+      white-space: nowrap;
+      font-size: 14px;
+    }
+
+    .topNav a.active {
+      color: #1251b5;
+      background: #eaf2ff;
+      border-color: #2b7cff;
+      font-weight: 800;
+    }
+
+    #levelBadge {
+      margin: 6px 0 10px;
+      color: #555;
+      font-size: 14px;
+    }
+
+    /* ゴイモン */
+
+    .goimonToggleBox {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .goimonToggleBtn {
+      color: #234f97;
+      background: #f9fbff;
+      border-color: #d6e5ff;
+      font-weight: 800;
+    }
+
+    .miniGoimonCard {
+      padding: 12px;
+      background: #fffaf2;
+      border: 1px solid #f0e3c7;
+      border-radius: 12px;
+    }
+
+    .miniGoimonHead {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .miniGoimonTitle {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .miniGoimonStage {
+      text-align: right;
+    }
+
+    .miniGoimonStageLabel {
+      color: #8a6a2d;
+      font-size: 11px;
+    }
+
+    .miniGoimonStageValue {
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .miniGoimonBody {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .miniGoimonImageWrap {
+      display: flex;
+      flex: 0 0 auto;
+      width: 88px;
+      height: 88px;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid #eddcb8;
+      border-radius: 12px;
+    }
+
+    .miniGoimonImageWrap img {
+      display: block;
+      max-width: 76px;
+      max-height: 76px;
+    }
+
+    .miniGoimonInfo {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .miniGoimonName {
+      margin-bottom: 4px;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .miniGoimonMeta {
+      margin-bottom: 5px;
+      color: #555;
+      font-size: 13px;
+    }
+
+    .miniGoimonDesc {
+      color: #666;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .goimonPointGuide {
+      margin-top: 10px;
+      color: #555;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .evoNoticeBtn {
+      color: #7a5200;
+      background: linear-gradient(180deg, #fff6d6 0%, #ffe8a3 100%);
+      border-color: #f1d48a;
+      font-weight: 900;
+    }
+
+    /* 設定画面 */
+
+    .methodCards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .methodCard {
+      position: relative;
+      min-height: 100px;
+      padding: 12px;
+      cursor: pointer;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+    }
+
+    .methodCard:hover {
+      border-color: #9bbfff;
+      background: #fbfdff;
+    }
+
+    .methodCard.selected {
+      background: #eef5ff;
+      border: 2px solid #2b7cff;
+    }
+
+    .methodCard input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .methodCardTitle {
+      margin-bottom: 5px;
+      font-weight: 800;
+    }
+
+    .methodCardText {
+      color: #666;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .settingSubBox {
+      margin-top: 12px;
+      padding: 12px;
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 12px;
+    }
+
+    .checkRow {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .checkRow input {
+      flex: 0 0 auto;
+      width: auto;
+      margin-top: 3px;
+    }
+
+    /* 問題画面共通 */
+
+    .questionTopBar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #questionProgress {
+      color: #555;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    #questionMeta {
+      margin-top: 5px;
+      color: #777;
+      font-size: 12px;
+    }
+
+    .audioPanel {
+      margin-top: 14px;
+      padding: 16px;
+      text-align: center;
+      background: #f8fbff;
+      border: 1px solid #dbe8ff;
+      border-radius: 14px;
+    }
+
+    .audioIcon {
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .audioMessage {
+      margin-top: 8px;
+      color: #444;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .audioControls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .playCount {
+      margin-top: 8px;
+      color: #666;
+      font-size: 12px;
+    }
+
+    .speedInline {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .speedInline select {
+      width: auto;
+      min-width: 90px;
+      padding: 8px;
+      font-size: 14px;
+    }
+
+    #choices {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .choiceBtn {
+      display: flex;
+      width: 100%;
+      min-height: 74px;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 13px;
+      text-align: left;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      line-height: 1.55;
+    }
+
+    .choiceIndex {
+      display: inline-flex;
+      flex: 0 0 auto;
+      width: 28px;
+      height: 28px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+      color: #2b7cff;
+      background: #f2f6ff;
+      border: 1px solid #d6e4ff;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .choiceText {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    /* 選択肢の英文 */
+    .choiceEn {
+      display: block;
+    }
+
+    /* 日本語訳は解答前には非表示 */
+    .choiceJa {
+      display: none;
+      margin-top: 5px;
+      color: #555;
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    /* 答え合わせ後に日本語訳を表示 */
+    .choiceBtn.answered .choiceJa {
+      display: block;
+    }
+
+    .choiceBtn.correct {
+      color: #156b2e;
+      background: #e8f7e8;
+      border-color: #2e9f4d;
+      font-weight: 700;
+    }
+
+    .choiceBtn.wrong {
+      color: #a11f1f;
+      background: #fdeaea;
+      border-color: #d94b4b;
+      font-weight: 700;
+    }
+
+    .answerResult {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1.6;
+    }
+
+    .answerResult.ok {
+      color: #0a702d;
+      background: #edf9f0;
+      border: 1px solid #bee4c8;
+    }
+
+    .answerResult.ng {
+      color: #a11f1f;
+      background: #fff0f0;
+      border: 1px solid #efb9c0;
+    }
+
+    .explanationBox {
+      margin-top: 12px;
+      padding: 13px;
+      background: #fcfcfc;
+      border: 1px solid #e8e8e8;
+      border-radius: 12px;
+    }
+
+    .explanationTitle {
+      margin-bottom: 7px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .explanationText {
+      font-size: 14px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
+    .scriptBox {
+      margin-top: 12px;
+      padding: 13px;
+      background: #f7faff;
+      border: 1px solid #dce8ff;
+      border-radius: 12px;
+    }
+
+    .scriptEn {
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.7;
+    }
+
+    .scriptJa {
+      margin-top: 6px;
+      color: #555;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .afterAnswerActions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    /* ディクテーション */
+
+    .wordBank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 56px;
+      margin-top: 12px;
+      padding: 12px;
+      background: #fafafa;
+      border: 1px solid #e3e3e3;
+      border-radius: 12px;
+    }
+
+    .wordChip {
+      padding: 8px 11px;
+      background: #fff;
+      border: 1px solid #cfcfcf;
+      border-radius: 999px;
+      font-size: 15px;
+    }
+
+    .wordChip.used {
+      opacity: 0.35;
+    }
+
+    .dictationAnswerArea {
+      min-height: 72px;
+      margin-top: 12px;
+      padding: 12px;
+      background: #fff;
+      border: 2px dashed #cdd8ea;
+      border-radius: 12px;
+    }
+
+    .dictationGuide {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+        /* 大問2：1文ずつ分けたディクテーション */
+
+    .dictationSentenceList {
+      display: grid;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .dictationSentenceBlock {
+      padding: 12px;
+      background: #fff;
+      border: 1px solid #dfe6f0;
+      border-radius: 12px;
+    }
+
+    .dictationSentenceHeader {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .dictationSentenceLabel {
+      color: #355b91;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .dictationSentencePlayBtn {
+      flex: 0 0 auto;
+      padding: 7px 10px;
+      color: #215ba8;
+      background: #eef5ff;
+      border: 1px solid #c9dcff;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .dictationSentencePlayBtn.isPlaying {
+      color: #16672e;
+      background: #e9f8ed;
+      border-color: #b9e3c4;
+    }
+
+    /* スクリプト見出しと音声ボタン */
+
+    .scriptHeaderRow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 7px;
+    }
+
+    .scriptHeaderRow .explanationTitle {
+      margin-bottom: 0;
+    }
+
+    /* オーバーラッピング・シャドーイング */
+
+    .practiceGuideBox {
+      margin-top: 12px;
+      padding: 13px;
+      background: #fffaf2;
+      border: 1px solid #f0dfbd;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .practiceScript {
+      margin-top: 12px;
+      padding: 15px;
+      background: #f8fbff;
+      border: 1px solid #dbe8ff;
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.8;
+    }
+
+    .completionButtons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    /* 結果 */
+
+    .summaryScore {
+      padding: 18px;
+      text-align: center;
+      background: #f8fbff;
+      border: 1px solid #dbe8ff;
+      border-radius: 14px;
+    }
+
+    .summaryScoreMain {
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+    .summaryScoreSub {
+      margin-top: 5px;
+      color: #666;
+      font-size: 13px;
+    }
+
+    .summaryGrid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .summaryStat {
+      padding: 12px;
+      text-align: center;
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 12px;
+    }
+
+    .summaryStatLabel {
+      color: #666;
+      font-size: 12px;
+    }
+
+    .summaryStatValue {
+      margin-top: 4px;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .resultList {
+      margin-top: 12px;
+    }
+
+    .resultItem {
+      margin: 8px 0;
+      padding: 11px;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 12px;
+    }
+
+    .resultItemHead {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .resultItemId {
+      font-weight: 800;
+    }
+
+    .resultBadge {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .resultBadge.ok {
+      color: #0a702d;
+      background: #edf9f0;
+    }
+
+    .resultBadge.ng {
+      color: #a11f1f;
+      background: #fff0f0;
+    }
+
+    @media (max-width: 600px) {
+      .methodCards,
+      #choices {
+        grid-template-columns: 1fr;
+      }
+
+      .summaryGrid {
+        grid-template-columns: 1fr;
+      }
+
+      .miniGoimonImageWrap {
+        width: 76px;
+        height: 76px;
+      }
+
+      .miniGoimonImageWrap img {
+        max-width: 66px;
+        max-height: 66px;
+      }
+
+      .practiceScript {
+        font-size: 18px;
+      }
+    }
+
+    .problemListAudioRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.problemListPlayBtn {
+  border: 1px solid #cddcff;
+  background: #eef5ff;
+  color: #234b92;
+  font-weight: 800;
+}
+
+.problemListStopBtn {
+  border: 1px solid #ddd;
+  background: #f5f5f5;
+  color: #444;
+}
+
+.problemListChoices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.problemListChoiceBtn {
+  width: 100%;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fff;
+  color: #222;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.problemListChoiceBtn:hover:not(:disabled) {
+  background: #f5f8ff;
+  border-color: #b9cdf4;
+}
+
+.problemListChoiceBtn.correct {
+  background: #eaf8ea;
+  border-color: #8dc78d;
+  color: #166b16;
+}
+
+.problemListChoiceBtn.wrong {
+  background: #fff0f0;
+  border-color: #de8e8e;
+  color: #a22727;
+}
+
+.problemListChoiceBtn:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.problemListPracticeResult {
+  min-height: 28px;
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.problemListPracticeResult.correct {
+  color: #157915;
+}
+
+.problemListPracticeResult.wrong {
+  color: #c53333;
+}
+
+.problemListRetryBtn {
+  margin-top: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #333;
+}
+
+@media (max-width: 480px) {
+  .problemListChoices {
+    grid-template-columns: 1fr;
+  }
+}
+
+    /* ==========================================================
+       大問5：長文リスニング 5問一括回答
+       ========================================================== */
+
+    .type5Guide {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: #f8fbff;
+      border: 1px solid #dbe8ff;
+      border-radius: 12px;
+      color: #444;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .type5QuestionList {
+      display: grid;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .type5QuestionCard {
+      padding: 15px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 14px;
+    }
+
+    .type5QuestionCard.correct {
+      border-color: #8fc89c;
+      background: #f5fbf6;
+    }
+
+    .type5QuestionCard.wrong {
+      border-color: #e0a0a0;
+      background: #fff7f7;
+    }
+
+    .type5QuestionHead {
+      margin-bottom: 10px;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .type5Stem {
+      margin-bottom: 12px;
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.7;
+    }
+
+    .type5Choices {
+      display: grid;
+      gap: 8px;
+    }
+
+    .type5ChoiceBtn {
+      display: flex;
+      width: 100%;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 11px 12px;
+      text-align: left;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      line-height: 1.55;
+    }
+
+    .type5ChoiceBtn:hover:not(:disabled) {
+      background: #f7faff;
+      border-color: #aec8f3;
+    }
+
+    .type5ChoiceBtn.selected {
+      background: #eef5ff;
+      border: 2px solid #2b7cff;
+    }
+
+    .type5ChoiceBtn.correct {
+      color: #156b2e;
+      background: #e8f7e8;
+      border-color: #2e9f4d;
+      font-weight: 700;
+    }
+
+    .type5ChoiceBtn.wrong {
+      color: #a11f1f;
+      background: #fdeaea;
+      border-color: #d94b4b;
+      font-weight: 700;
+    }
+
+    .type5ChoiceNumber {
+      display: inline-flex;
+      flex: 0 0 auto;
+      width: 28px;
+      height: 28px;
+      align-items: center;
+      justify-content: center;
+      color: #2b7cff;
+      background: #f2f6ff;
+      border: 1px solid #d6e4ff;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .type5ChoiceText {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .type5AnswerArea {
+      margin-top: 18px;
+      text-align: center;
+    }
+
+    .type5CheckBtn {
+      min-width: 180px;
+    }
+
+    .type5Result {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .type5Result.ok {
+      color: #0a702d;
+      background: #edf9f0;
+      border: 1px solid #bee4c8;
+    }
+
+    .type5Result.ng {
+      color: #a11f1f;
+      background: #fff5e8;
+      border: 1px solid #f0d2a8;
+    }
+
+    .type5MiniResult {
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .type5MiniResult.ok {
+      color: #0a702d;
+    }
+
+    .type5MiniResult.ng {
+      color: #a11f1f;
+    }
+
+        /* ==========================================================
+       大問5：答え合わせ後の復習表示
+       ========================================================== */
+
+    .type5ChoiceJa {
+      display: none;
+      margin-top: 5px;
+      color: #555;
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    /* 答え合わせ後だけ選択肢の日本語訳を表示 */
+    .type5QuestionCard.answered
+    .type5ChoiceJa {
+      display: block;
+    }
+
+    .type5ReviewBox {
+      margin-top: 12px;
+      padding: 13px;
+      background: #fcfcfc;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      text-align: left;
+    }
+
+    .type5CorrectAnswer {
+      margin-bottom: 12px;
+      padding: 9px 11px;
+      color: #156b2e;
+      background: #edf9f0;
+      border: 1px solid #bee4c8;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .type5ReviewSection {
+      margin-top: 12px;
+    }
+
+    .type5ReviewTitle {
+      margin-bottom: 5px;
+      color: #444;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .type5StemJa {
+      color: #444;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .type5Evidence {
+      padding: 10px 11px;
+      background: #f7faff;
+      border-left: 4px solid #8fb5f2;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.7;
+    }
+
+    .type5Explanation {
+      color: #333;
+      font-size: 14px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
+      /* ==========================================================
+       大問5：根拠表示
+       ========================================================== */
+
+    .type5ChoiceJa {
+      display: none;
+      margin-top: 5px;
+      color: #555;
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    .type5QuestionCard.answered
+    .type5ChoiceJa {
+      display: block;
+    }
+
+    .type5ReviewBox {
+      margin-top: 12px;
+      padding: 13px;
+      background: #f8fbff;
+      border: 1px solid #dbe8ff;
+      border-radius: 12px;
+    }
+
+    .type5EvidenceTitle {
+      margin-bottom: 7px;
+      color: #355b91;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .type5EvidenceEn {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.75;
+    }
+
+    .type5EvidenceJa {
+      margin-top: 8px;
+      padding-top: 8px;
+      color: #555;
+      border-top: 1px solid #e3eaf5;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+
+    /* ==========================================================
+       大問5：全文スクリプトボタン
+       ========================================================== */
+
+    .type5ScriptAction {
+      margin-top: 18px;
+      text-align: center;
+    }
+
+    .type5ScriptOpenBtn {
+      width: 100%;
+      max-width: 420px;
+      padding: 12px 16px;
+      color: #215ba8;
+      background: #eef5ff;
+      border-color: #c9dcff;
+      font-weight: 900;
+    }
+
+
+    /* ==========================================================
+       大問5：ボトムシート
+       ========================================================== */
+
+    .type5SheetOverlay {
+      position: fixed;
+      z-index: 9999;
+      inset: 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.42);
+    }
+
+    .type5Sheet {
+      width: 100%;
+      max-width: 760px;
+      max-height: 86vh;
+      overflow-y: auto;
+      padding: 18px 16px 24px;
+      background: #fff;
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.16);
+      animation: type5SheetUp 0.22s ease-out;
+    }
+
+    @keyframes type5SheetUp {
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    body.type5SheetOpen {
+      overflow: hidden;
+    }
+
+    .type5SheetHandle {
+      width: 42px;
+      height: 5px;
+      margin: 0 auto 14px;
+      background: #d0d0d0;
+      border-radius: 999px;
+    }
+
+    .type5SheetHead {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .type5SheetTitle {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .type5SheetCloseBtn {
+      flex: 0 0 auto;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border-radius: 999px;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .type5SheetAudio {
+      margin-top: 14px;
+    }
+
+    .type5SheetSection {
+      margin-top: 18px;
+    }
+
+    .type5SheetSectionTitle {
+      margin-bottom: 8px;
+      color: #555;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .type5FullScriptEn {
+      padding: 14px;
+      background: #f8fbff;
+      border: 1px solid #dbe8ff;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.9;
+      white-space: pre-wrap;
+    }
+
+    .type5FullScriptJa {
+      padding: 14px;
+      background: #fafafa;
+      border: 1px solid #e8e8e8;
+      border-radius: 12px;
+      color: #444;
+      font-size: 14px;
+      line-height: 1.9;
+      white-space: pre-wrap;
+    }
+
+    /* ==========================================================
+   大問5：復習カード
+   ========================================================== */
+
+.type5ReviewPracticeCard {
+  margin-top: 20px;
+  margin-bottom: 18px;
+  padding: 16px;
+  background: #fffaf2;
+  border: 1px solid #f0dfbd;
+  border-radius: 14px;
+}
+
+.type5ReviewPracticeTitle {
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.type5ReviewPracticeText {
+  margin-top: 5px;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.type5ReviewPracticeButtons {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 13px;
+}
+
+.type5ReviewPracticeBtn {
+  display: flex;
+  min-width: 0;
+  min-height: 72px;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 8px;
+  background: #fff;
+  border: 1px solid #e3d4b5;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.type5ReviewPracticeBtn:hover:not(:disabled) {
+  background: #fffdf8;
+  border-color: #d6b976;
+}
+
+.type5ReviewPracticeIcon {
+  font-size: 22px;
+}
+
+
+/* ==========================================================
+   大問5：固定フッター
+   ========================================================== */
+
+.type5FixedFooter {
+  position: fixed;
+  z-index: 9000;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  padding:
+    10px 12px
+    calc(
+      10px +
+      env(safe-area-inset-bottom)
+    );
+
+  background:
+    rgba(255, 255, 255, 0.97);
+
+  border-top:
+    1px solid #d9d9d9;
+
+  box-shadow:
+    0 -5px 20px
+    rgba(0, 0, 0, 0.12);
+
+  backdrop-filter:
+    blur(8px);
+
+  -webkit-backdrop-filter:
+    blur(8px);
+}
+
+.type5FixedFooterInner {
+  display: flex;
+  max-width: 736px;
+  gap: 9px;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.type5FixedFooter .type5Result {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+
+  font-size: 16px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.type5FixedFooter .type5Result.ok {
+  color: #0a702d;
+  background: transparent;
+  border: 0;
+}
+
+.type5FixedFooter .type5Result.ng {
+  color: #333;
+  background: transparent;
+  border: 0;
+}
+
+.type5FixedFooter .type5ScriptAction {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.type5FooterScriptBtn {
+  white-space: nowrap;
+  color: #215ba8;
+  background: #eef5ff;
+  border-color: #c9dcff;
+  font-weight: 800;
+}
+
+.type5FooterNextBtn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+
+/*
+  固定フッターが表示されている間、
+  一番下の問題や復習カードが隠れないようにする。
+*/
+body.type5FooterOpen .wrap {
+  padding-bottom:
+    calc(
+      110px +
+      env(safe-area-inset-bottom)
+    );
+}
+
+
+/* ==========================================================
+   大問5：スマホ
+   ========================================================== */
+
+@media (max-width: 600px) {
+
+  .type5ReviewPracticeButtons {
+    grid-template-columns: 1fr;
+  }
+
+  .type5ReviewPracticeBtn {
+    min-height: 54px;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 11px 13px;
+    text-align: left;
+  }
+
+  .type5ReviewPracticeIcon {
+    font-size: 20px;
+  }
+
+  .type5FixedFooter {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .type5FixedFooterInner {
+    gap: 6px;
+  }
+
+  .type5FixedFooter .type5Result {
+    font-size: 14px;
+  }
+
+  .type5FooterScriptBtn,
+  .type5FooterNextBtn {
+    padding: 9px 10px;
+    font-size: 13px;
+  }
+}
+
+/* 1文ずつ採点するため、
+   従来の全文一括「解答する」は非表示 */
+#checkReorderBtn {
+  display: none;
+}
+
+.dictationSentenceCheckArea {
+  margin-top: 12px;
+}
+
+.dictationSentenceCheckBtn {
+  width: 100%;
+}
+
+.dictationSentenceFeedback {
+  margin-top: 8px;
+  padding: 9px 11px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.dictationSentenceFeedback.correct {
+  color: #156b2e;
+  background: #e8f7e8;
+}
+
+.dictationSentenceFeedback.wrong {
+  color: #a11f1f;
+  background: #fdeaea;
+}
+
+.dictationSentenceBlock:has(
+  .dictationSentenceFeedback.correct
+) {
+  border-color: #8fc89c;
+  background: #f5fbf6;
+}
+
+.dictationSentenceSpeedBox {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  padding: 9px 11px;
+  background: #f8fbff;
+  border: 1px solid #dbe8ff;
+  border-radius: 10px;
+}
+
+.dictationSentenceSpeedLabel {
+  color: #555;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.dictationSentenceSpeed {
+  width: auto;
+  min-width: 90px;
+  margin-left: auto;
+  padding: 7px 9px;
+  font-size: 14px;
+}
+
+/* ==========================================================
+   大問5：固定フッター 2段構成
+   ========================================================== */
+
+.type5FixedFooterWrap {
+  max-width: 736px;
+  margin: 0 auto;
+}
+
+.type5FixedReviewRow {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+}
+
+.type5FixedReviewBtn {
+  min-width: 0;
+  padding: 8px 7px;
+  color: #355b91;
+  background: #f8fbff;
+  border-color: #d6e5ff;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.type5FixedReviewBtn:hover:not(:disabled) {
+  background: #eef5ff;
+  border-color: #9bbfff;
+}
+
+/*
+  2段になったので、
+  下のコンテンツが固定フッターに隠れないように広げる
+*/
+body.type5FooterOpen .wrap {
+  padding-bottom:
+    calc(
+      160px +
+      env(safe-area-inset-bottom)
+    );
+}
+
+
+/* スマホ */
+@media (max-width: 600px) {
+
+  .type5FixedReviewRow {
+    gap: 5px;
+  }
+
+  .type5FixedReviewBtn {
+    padding: 8px 4px;
+    font-size: 11px;
+  }
+}
+
+
+/* ==========================================================
+   リスニング問題一覧：学習履歴・1問演習
+   ========================================================== */
+
+.listeningProblemCard {
+  position: relative;
+}
+
+.listeningProblemCardHead {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.listeningProblemNumber {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.listeningProblemTitle {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.5;
+}
+
+.listeningProblemMeta {
+  margin-top: 4px;
+  color: #777;
+  font-size: 12px;
+}
+
+.listeningAttemptBadge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  margin-top: 6px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.listeningAttemptBadge.attemptNotYet {
+  color: #666;
+  background: #f4f4f4;
+  border: 1px solid #ddd;
+}
+
+.listeningAttemptBadge.attemptDone {
+  color: #16672e;
+  background: #e9f8ed;
+  border: 1px solid #b9e3c4;
+}
+
+.listeningProblemAction {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.problemListStartBtn {
+  min-width: 150px;
+  font-weight: 800;
+}
+
+@media (max-width: 480px) {
+
+  .listeningProblemCardHead {
+    align-items: flex-start;
+  }
+
+  .problemListStartBtn {
+    width: 100%;
+  }
+}
