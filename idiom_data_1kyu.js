@@ -230,13 +230,13 @@
       "前置詞表現⇄同義表現"
     ),
 
-    make(
+        make(
       "IM019",
       "succeed in",
       "～することに成功する",
       n(11),
       ["manage to", "be able to"],
-      ["fail to", "be unable to"],
+      ["fail to", "be unable to do"],
       "succeed in は成功した結果を強調する。",
       "熟語⇄同義表現"
     ),
@@ -406,15 +406,15 @@
       "apologize は少しかしこまった謝罪表現。",
       "熟語⇄同義表現"
     ),
-    make(
+      make(
       "IM036",
-      "say sorry to",
-      "～に謝る",
-      n(23),
-      ["apologize to"],
+      "had better (not) do",
+      "～した方がよい、～しない方がよい",
+      n(),
+      ["should (not) do"],
       [],
-      "say sorry は会話的な表現。",
-      "熟語⇄同義表現"
+      "had better do で『～した方がよい』。否定は had better not do の語順になる。",
+      "定型構文"
     ),
 
     make(
@@ -542,26 +542,28 @@
       "make an effort to は1回の努力にも使える。",
       "熟語⇄同義表現"
     ),
-    make(
+        make(
       "IM049",
-      "make efforts to",
-      "～しようと努力する",
-      n(35, 77),
-      ["make an effort to", "try hard to", "work hard to"],
-      ["give up"],
-      "make efforts to はややかたい。",
-      "熟語⇄同義表現"
+      "hardly any A",
+      "ほとんどAがない",
+      n(),
+      ["almost no A", "very few / little A"],
+      ["many A", "much A"],
+      "hardly は『ほとんど～ない』を表す。hardly any + 名詞 の形でよく使う。",
+      "定型表現"
     ),
-    make(
+
+        make(
       "IM050",
-      "try hard to",
-      "一生懸命～しようとする",
-      n(39, 77),
-      ["make an effort to", "work hard to"],
-      ["give up"],
-      "try hard to は最も使いやすい。",
-      "熟語⇄同義表現"
+      "hardly A when B",
+      "AするとすぐにB",
+      n(),
+      ["no sooner A than B", "as soon as A, B"],
+      [],
+      "Hardly had S Vpp when ... の形が代表的。Hardly が文頭に出ると倒置が起こる。",
+      "定型構文"
     ),
+
     make(
       "IM051",
       "work hard to",
@@ -1271,15 +1273,15 @@
       "form と相性がよい。",
       "句動詞⇄同義表現"
     ),
-    make(
+        make(
       "IM118",
-      "fill out",
-      "～に記入する",
+      "mean to do",
+      "～するつもりである",
       n(),
-      ["fill in", "complete"],
+      ["intend to do"],
       [],
-      "AmE では fill out もよく使う。",
-      "句動詞⇄同義表現"
+      "mean to do で『～するつもりである』。mean doing『～することを意味する』との違いに注意。",
+      "語法"
     ),
 
     make(
@@ -1315,14 +1317,14 @@
       "熟語⇄同義表現"
     ),
 
-    make(
+        make(
       "IM122",
-      "catch the bus",
-      "バスに間に合う",
-      n(125),
-      ["take the bus", "make it to the bus"],
-      ["miss the bus", "not make it to the bus"],
-      "catch は『間に合う』の意味で重要。",
+      "be unable to do",
+      "～することができない",
+      n(),
+      ["cannot do", "be incapable of doing"],
+      ["be able to do"],
+      "be unable to do は cannot よりややかたい表現。",
       "定型表現"
     ),
     make(
@@ -1506,16 +1508,18 @@
       "定型表現"
     ),
 
-    make(
+     make(
       "IM140",
-      "be willing to",
-      "喜んで～する",
-      n(89),
-      ["be happy to", "be ready to"],
-      ["be reluctant to"],
-      "再重要表現として本体収録。",
-      "句⇄同義表現"
+      "get used to doing",
+      "～することに慣れる",
+      n(),
+      ["become accustomed to doing"],
+      ["be unused to doing"],
+      "get used to の to は前置詞なので、後ろには名詞・動名詞を置く。",
+      "定型表現"
     ),
+
+  
 
     // ===== ここから追加分（paraphrase側との対応補強） =====
 
@@ -1791,15 +1795,15 @@
       "制度・考え・文化などが存在するようになることを表す。",
       "熟語⇄同義表現"
     ),
-    make(
+        make(
       "IM167",
-      "spread all over the world",
-      "世界中に広がる",
+      "have A Vpp",
+      "Aを～してもらう",
       n(),
-      ["become global", "spread worldwide"],
+      ["get A Vpp"],
       [],
-      "文化・技術・インターネットなどが世界中に広がる文脈で使う。",
-      "熟語⇄同義表現"
+      "have + A + 過去分詞で『Aを～してもらう』を表す。have A do『Aに～させる』との違いに注意。",
+      "定型構文"
     ),
     make(
       "IM168",
@@ -1931,15 +1935,15 @@
       "仕事・会社・役割などを引き継ぐときに使う。",
       "句動詞⇄同義表現"
     ),
-    make(
+        make(
       "IM181",
-      "make suggestions",
-      "提案する",
+      "It was not until A that B",
+      "Aして初めてBした",
       n(),
-      ["suggest", "express ideas"],
+      ["Not until A + inversion"],
       [],
-      "ideas を出す、提案するという意味。",
-      "名詞表現⇄同義表現"
+      "It was not until A that B で『Aして初めてBした』。Not until A が文頭に出る形では、主節で倒置が起こる。",
+      "定型構文"
     ),
     make(
       "IM182",
@@ -2631,7 +2635,420 @@
       [],
       "自分の立場・意見を述べるときに使う。",
       "定型表現"
+    ),
+    
+
+        make(
+      "IM251",
+      "in harmony with A",
+      "Aと調和して",
+      n(),
+      ["in agreement with A"],
+      ["in conflict with A"],
+      "人・考え・環境などが調和していることを表す。",
+      "前置詞表現"
+    ),
+
+    make(
+      "IM252",
+      "what is called A",
+      "いわゆるA",
+      n(),
+      ["what we call A", "so-called A"],
+      [],
+      "what is called A で『いわゆるA』。",
+      "定型表現"
+    ),
+
+    make(
+      "IM253",
+      "turn out to be A",
+      "Aであることが分かる、判明する",
+      n(),
+      ["prove to be A"],
+      [],
+      "予想や見かけとは別に、結果としてAだと分かるときに使う。",
+      "定型表現"
+    ),
+
+    make(
+      "IM254",
+      "second to none",
+      "誰にも劣らない、最高である",
+      n(),
+      ["the best", "as good as anyone"],
+      ["inferior to others"],
+      "second to none は直訳すると『誰の次でもない』。",
+      "定型表現"
+    ),
+
+    make(
+      "IM255",
+      "not so much A as B",
+      "AというよりむしろB",
+      n(),
+      ["B rather than A", "more B than A"],
+      [],
+      "Aを否定して、Bの方が適切だと述べる比較表現。",
+      "比較表現"
+    ),
+
+    make(
+      "IM256",
+      "take A for granted",
+      "Aを当然のことと思う",
+      n(),
+      ["assume A is natural"],
+      [],
+      "人や状況の価値を当然視する意味でも使う。",
+      "定型表現"
+    ),
+
+    make(
+      "IM257",
+      "leave A up to B",
+      "AをBに任せる",
+      n(),
+      ["let B decide A", "entrust A to B"],
+      [],
+      "leave it up to me のように使う。",
+      "定型表現"
+    ),
+
+    make(
+      "IM258",
+      "keep in mind",
+      "～を心に留めておく",
+      n(),
+      ["remember", "bear in mind"],
+      ["forget"],
+      "keep in mind that ... の形でもよく使う。",
+      "定型表現"
+    ),
+
+    make(
+      "IM259",
+      "on good terms with A",
+      "Aと良い関係にある",
+      n(),
+      ["get along well with A"],
+      ["on bad terms with A"],
+      "人間関係が良好であることを表す。",
+      "前置詞表現"
+    ),
+
+    make(
+      "IM260",
+      "when it comes to A",
+      "Aのこととなると、Aについて言えば",
+      n(),
+      ["when speaking of A", "as for A"],
+      [],
+      "Aには名詞・動名詞を置く。",
+      "定型表現"
+    ),
+
+    make(
+      "IM261",
+      "make it a rule to do",
+      "～することにしている",
+      n(),
+      ["make a habit of doing"],
+      [],
+      "it は形式目的語で、to do が内容を表す。",
+      "定型構文"
+    ),
+
+    make(
+      "IM262",
+      "make it clear to A that ...",
+      "Aに…ということを明確にする",
+      n(),
+      ["clearly tell A that ..."],
+      [],
+      "make it clear to A that ... の語順をまとまりで覚える。",
+      "定型構文"
+    ),
+
+    make(
+      "IM263",
+      "get A to do",
+      "Aに～してもらう、Aに～させる",
+      n(),
+      ["persuade A to do", "cause A to do"],
+      [],
+      "使役的な get。make / have と違い to do を取る。",
+      "定型構文"
+    ),
+
+    make(
+      "IM264",
+      "keep A waiting",
+      "Aを待たせておく",
+      n(),
+      ["make A wait"],
+      [],
+      "keep + A + doing で『Aを～している状態にしておく』。",
+      "定型構文"
+    ),
+
+    make(
+      "IM265",
+      "get caught in A",
+      "Aに遭う、Aに巻き込まれる",
+      n(),
+      ["be caught in A"],
+      [],
+      "get caught in the rain / traffic などで使う。",
+      "定型表現"
+    ),
+
+    make(
+      "IM266",
+      "as if ...",
+      "まるで…であるかのように",
+      n(),
+      ["as though ..."],
+      [],
+      "事実と異なる内容では仮定法とともに使われることがある。",
+      "接続表現"
+    ),
+
+    make(
+      "IM267",
+      "by far",
+      "はるかに、断然",
+      n(),
+      ["much", "far and away"],
+      [],
+      "最上級や比較級を強める。by far the best など。",
+      "比較表現"
+    ),
+
+    make(
+      "IM268",
+      "no sooner A than B",
+      "AするとすぐにB",
+      n(),
+      ["hardly A when B", "as soon as A, B"],
+      [],
+      "No sooner が文頭に出ると倒置が起こる。",
+      "定型構文"
+    ),
+
+    make(
+      "IM269",
+      "keep A informed of B",
+      "AにBを知らせておく",
+      n(),
+      ["keep A updated on B"],
+      [],
+      "keep + A + 過去分詞 の形。",
+      "定型構文"
+    ),
+
+    make(
+      "IM270",
+      "call A back",
+      "Aに折り返し電話する",
+      n(),
+      ["return A's call"],
+      [],
+      "代名詞は call you back のように間に置く。",
+      "句動詞"
+    ),
+
+    make(
+      "IM271",
+      "feel free to do",
+      "遠慮なく～する",
+      n(),
+      ["do not hesitate to do"],
+      [],
+      "依頼・案内でよく使う丁寧な表現。",
+      "定型表現"
+    ),
+
+    make(
+      "IM272",
+      "as it is",
+      "そのままで、現状のままで",
+      n(),
+      ["in its present state"],
+      [],
+      "leave A as it is の形でもよく使う。",
+      "定型表現"
+    ),
+
+    make(
+      "IM273",
+      "complain of A",
+      "Aを訴える、Aについて不平を言う",
+      n(),
+      ["complain about A"],
+      [],
+      "症状を訴える場合にも使う。",
+      "前置詞表現"
+    ),
+
+    make(
+      "IM274",
+      "look A up",
+      "Aを調べる",
+      n(),
+      ["search for information about A", "check A"],
+      [],
+      "辞書・名簿・オンラインなどで情報を調べる。look up to と区別。",
+      "句動詞"
+    ),
+
+    make(
+      "IM275",
+      "no longer",
+      "もはや～ない",
+      n(),
+      ["not ... any longer", "not ... anymore"],
+      [],
+      "be動詞の後、一般動詞の前などに置く。",
+      "定型表現"
+    ),
+
+    make(
+      "IM276",
+      "may well do",
+      "～するのももっともだ、たぶん～するだろう",
+      n(),
+      ["have good reason to do", "probably do"],
+      [],
+      "文脈により『～するのももっともだ』と『たぶん～だろう』の意味になる。",
+      "助動詞表現"
+    ),
+
+    make(
+      "IM277",
+      "inform A of B",
+      "AにBを知らせる",
+      n(),
+      ["tell A about B", "notify A of B"],
+      [],
+      "inform + 人 + of + 内容 の語法。",
+      "語法"
+    ),
+
+    make(
+      "IM278",
+      "do nothing but V",
+      "Vばかりする、Vするだけである",
+      n(),
+      ["only V"],
+      [],
+      "but の後ろは動詞の原形を置く。",
+      "定型表現"
+    ),
+
+    make(
+      "IM279",
+      "make oneself understood",
+      "自分の言いたいことを相手に分かってもらう",
+      n(),
+      ["make people understand oneself"],
+      [],
+      "make + oneself + 過去分詞 の定型表現。",
+      "定型構文"
+    ),
+
+    make(
+      "IM280",
+      "object to doing",
+      "～することに反対する",
+      n(),
+      ["be opposed to doing", "be against doing"],
+      ["agree to doing"],
+      "to は前置詞なので後ろには名詞・動名詞を置く。",
+      "語法"
+    ),
+
+    make(
+      "IM281",
+      "be up to A",
+      "A次第である、Aに任されている",
+      n(),
+      ["depend on A", "be A's decision"],
+      [],
+      "It's up to you. の形が代表的。",
+      "定型表現"
+    ),
+
+    make(
+      "IM282",
+      "set eyes on A",
+      "Aを見る、Aを目にする",
+      n(),
+      ["see A"],
+      [],
+      "set eyes on A で『Aを初めて、または実際に目にする』。",
+      "定型表現"
+    ),
+
+    make(
+      "IM283",
+      "major in A",
+      "Aを専攻する",
+      n(),
+      ["study A as one's major"],
+      [],
+      "大学などでの専攻を表す。",
+      "前置詞表現"
+    ),
+
+    make(
+      "IM284",
+      "do A for a living",
+      "職業としてAをする、Aで生計を立てる",
+      n(),
+      ["earn a living by doing A"],
+      [],
+      "What do you do for a living? も重要な定型表現。",
+      "定型表現"
+    ),
+
+    make(
+      "IM285",
+      "do all one can to do",
+      "～するためにできる限りのことをする",
+      n(),
+      ["do one's best to do", "make every effort to do"],
+      [],
+      "all one can が『できるすべて』を表す。",
+      "定型構文"
+    ),
+
+    make(
+      "IM286",
+      "be accused of A",
+      "Aで非難される、Aの罪で告発される",
+      n(),
+      ["be blamed for A"],
+      [],
+      "of の後ろには名詞・動名詞を置く。文脈により『非難される』『告発される』。",
+      "語法"
+    ),
+
+    make(
+      "IM287",
+      "accuse A of B",
+      "BのことでAを非難する、Bの罪でAを告発する",
+      n(),
+      ["blame A for B"],
+      [],
+      "accuse + 人 + of + 内容 の語法。",
+      "語法"
     )
+
+    
+
+
+
   ];
 
   window.IDIOM_DATA_1KYU = RAW;
