@@ -389,6 +389,20 @@
           </span>
         </label>
 
+        <label class="setting-option">
+  <input
+    type="radio"
+    name="questionOrder"
+    value="unattempted"
+  >
+  <span>
+    <strong>未挑戦優先</strong>
+    <small>
+      解いた回数が少ない問題から出題します
+    </small>
+  </span>
+</label>
+
       </fieldset>
 
       <fieldset class="setting-group">
@@ -424,6 +438,32 @@
         </select>
 
       </fieldset>
+
+      <fieldset
+  class="setting-group question-history-group"
+>
+
+  <legend>学習履歴・問題選択</legend>
+
+  <div
+    id="questionHistorySummary"
+    class="question-history-summary"
+  >
+    挑戦済み 0問 ／ 未挑戦 30問 ／ 合計 0回
+  </div>
+
+  <p class="question-history-help">
+    問題を押すと、その問題から番号順に開始します。
+  </p>
+
+  <div
+    id="questionAttemptList"
+    class="question-attempt-list"
+  >
+    <!-- dialogue_page.jsで問題一覧を表示 -->
+  </div>
+
+</fieldset>
 
     </div>
 
