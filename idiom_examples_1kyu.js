@@ -216,11 +216,12 @@
       usage: "apologize to A for B は『BのことでAに謝る』。to と for の使い分けが大事。"
     },
 
-    IM036: {
-      exampleEn: "You should say sorry to her.",
-      exampleJa: "あなたは彼女に謝るべきです。",
-      usage: "say sorry to は apologize to より会話的でやさしい表現。"
+   IM036: {
+      exampleEn: "You had better not stay up too late tonight.",
+      exampleJa: "今夜はあまり遅くまで起きていない方がよいです。",
+      usage: "had better do は『～した方がよい』。否定は had better not do の語順にする。"
     },
+
 
     IM037: {
       exampleEn: "My grandmother takes care of my little sister.",
@@ -295,15 +296,315 @@
     },
 
     IM049: {
-      exampleEn: "They made efforts to protect the environment.",
-      exampleJa: "彼らは環境を守るために努力しました。",
-      usage: "make efforts to は複数の努力・継続的な努力を表しやすい。"
+      exampleEn: "There is hardly any time left before the test.",
+      exampleJa: "テストまでほとんど時間が残っていません。",
+      usage: "hardly any + 名詞で『ほとんど～ない』。hardly 自体に否定の意味がある。"
     },
 
     IM050: {
-      exampleEn: "He tried hard to pass the entrance exam.",
-      exampleJa: "彼は入学試験に合格しようと一生懸命努力しました。",
-      usage: "try hard to は『一生懸命～しようとする』。高校生にも使いやすい表現。"
+      exampleEn: "Hardly had the game started when it began to rain.",
+      exampleJa: "試合が始まるとすぐに雨が降り始めました。",
+      usage: "Hardly had S Vpp when ... で『～するとすぐに…』。Hardly が文頭に来るため倒置になる。"
+    },
+
+        IM051: {
+      exampleEn: "She worked hard to improve her English.",
+      exampleJa: "彼女は英語を上達させるために懸命に努力しました。",
+      usage: "work hard to do は『～するために懸命に努力する』。"
+    },
+
+    IM052: {
+      exampleEn: "The heavy snow prevented us from leaving the town.",
+      exampleJa: "大雪のため私たちは町を出ることができませんでした。",
+      usage: "prevent A from doing で『Aが～するのを防ぐ』。from の後ろは ～ing。"
+    },
+
+    IM053: {
+      exampleEn: "The rain stopped us from playing soccer outside.",
+      exampleJa: "雨のため私たちは外でサッカーをすることができませんでした。",
+      usage: "stop A from doing は『Aが～するのを止める・妨げる』。"
+    },
+
+    IM054: {
+      exampleEn: "Nothing could keep her from achieving her goal.",
+      exampleJa: "何ものも彼女が目標を達成するのを妨げることはできませんでした。",
+      usage: "keep A from doing は『Aが～するのを妨げる』。"
+    },
+
+    IM055: {
+      exampleEn: "The project failed because of a lack of money.",
+      exampleJa: "その計画は資金不足のため失敗しました。",
+      usage: "a lack of は『～の不足』。lack は名詞として使われている。"
+    },
+
+    IM056: {
+      exampleEn: "The hospital is facing a shortage of nurses.",
+      exampleJa: "その病院は看護師不足に直面しています。",
+      usage: "shortage of は『～の不足』。人員・物資などに使いやすい。"
+    },
+
+    IM057: {
+      exampleEn: "The result was far from satisfactory.",
+      exampleJa: "その結果は決して満足できるものではありませんでした。",
+      usage: "be far from は『～にはほど遠い、決して～ではない』という強い否定表現。"
+    },
+
+    IM058: {
+      exampleEn: "His answer was nowhere near correct.",
+      exampleJa: "彼の答えは正解にはほど遠いものでした。",
+      usage: "nowhere near は『全然～ではない、～にはほど遠い』という強調表現。"
+    },
+
+    IM059: {
+      exampleEn: "I visit my grandparents from time to time.",
+      exampleJa: "私は時々祖父母を訪ねます。",
+      usage: "from time to time は『時々』。sometimes と言い換えられる。"
+    },
+
+    IM060: {
+      exampleEn: "We eat out once in a while.",
+      exampleJa: "私たちは時々外食します。",
+      usage: "once in a while は『時々』。from time to time と近い意味。"
+    },
+
+    IM061: {
+      exampleEn: "My parents are against the plan.",
+      exampleJa: "両親はその計画に反対しています。",
+      usage: "be against は『～に反対している』。against の後ろは名詞・動名詞。"
+    },
+
+    IM062: {
+      exampleEn: "I disagree with him on this issue.",
+      exampleJa: "私はこの問題について彼と意見が合いません。",
+      usage: "disagree with A は『Aと意見が合わない』。"
+    },
+
+    IM063: {
+      exampleEn: "I liked the town at first sight.",
+      exampleJa: "私はその町を一目で気に入りました。",
+      usage: "at first sight は『一目見て』。"
+    },
+
+    IM064: {
+      exampleEn: "To be honest, I don't like this idea very much.",
+      exampleJa: "正直に言うと、私はこの考えがあまり好きではありません。",
+      usage: "to be honest は文頭で『正直に言うと』。"
+    },
+
+    IM065: {
+      exampleEn: "Frankly speaking, your plan needs more work.",
+      exampleJa: "率直に言うと、あなたの計画にはさらに改善が必要です。",
+      usage: "frankly speaking は『率直に言うと』。"
+    },
+
+    IM066: {
+      exampleEn: "To tell the truth, I forgot his name.",
+      exampleJa: "実を言うと、私は彼の名前を忘れてしまいました。",
+      usage: "to tell the truth は『実を言うと』という定型表現。"
+    },
+
+    IM067: {
+      exampleEn: "The police are looking into the cause of the accident.",
+      exampleJa: "警察はその事故の原因を調べています。",
+      usage: "look into は『～を詳しく調べる』。"
+    },
+
+    IM068: {
+      exampleEn: "There is no denying that exercise is good for our health.",
+      exampleJa: "運動が健康によいことは否定できません。",
+      usage: "There is no denying that ... で『～は否定できない』。"
+    },
+
+    IM069: {
+      exampleEn: "There is no knowing what will happen next.",
+      exampleJa: "次に何が起こるかは分かりません。",
+      usage: "There is no ～ing で『～することはできない』。"
+    },
+
+    IM070: {
+      exampleEn: "We need to get rid of these old boxes.",
+      exampleJa: "私たちはこれらの古い箱を処分する必要があります。",
+      usage: "get rid of は『～を取り除く、処分する』。"
+    },
+
+    IM071: {
+      exampleEn: "She has made great progress in English.",
+      exampleJa: "彼女は英語で大きく進歩しました。",
+      usage: "make progress in は『～で進歩する』。progress は不可算名詞。"
+    },
+
+    IM072: {
+      exampleEn: "Success depends on how well we prepare.",
+      exampleJa: "成功するかどうかは、どれだけよく準備するかにかかっています。",
+      usage: "depend on は『～次第である、～に頼る』。"
+    },
+
+    IM073: {
+      exampleEn: "Many countries rely on imported energy.",
+      exampleJa: "多くの国が輸入エネルギーに頼っています。",
+      usage: "rely on は『～に頼る』。depend on と近い意味。"
+    },
+
+    IM074: {
+      exampleEn: "You can count on me when you need help.",
+      exampleJa: "助けが必要なときは私を頼りにしてよいですよ。",
+      usage: "count on は『～を当てにする、頼りにする』。"
+    },
+
+    IM075: {
+      exampleEn: "We should become independent of imported energy.",
+      exampleJa: "私たちは輸入エネルギーに頼らないようになるべきです。",
+      usage: "be independent of は『～から独立している、～に頼らない』。"
+    },
+
+    IM076: {
+      exampleEn: "They called off the game because of the storm.",
+      exampleJa: "彼らは嵐のため試合を中止しました。",
+      usage: "call off は『～を中止する』。cancel と言い換えられる。"
+    },
+
+    IM077: {
+      exampleEn: "The children made believe that they were astronauts.",
+      exampleJa: "子どもたちは宇宙飛行士のふりをしました。",
+      usage: "make believe は『ふりをする』。pretend と近い意味。"
+    },
+
+    IM078: {
+      exampleEn: "She completed the task to the best of her ability.",
+      exampleJa: "彼女はできる限りその仕事をやり遂げました。",
+      usage: "to the best of one's ability は『できる限り、精一杯』。"
+    },
+
+    IM079: {
+      exampleEn: "I couldn't figure out how to use the machine.",
+      exampleJa: "私はその機械の使い方が分かりませんでした。",
+      usage: "figure out は考えて『理解する、解決する』。"
+    },
+
+    IM080: {
+      exampleEn: "I found out that the store was closed.",
+      exampleJa: "私はその店が閉まっていることを知りました。",
+      usage: "find out は調べたり経験したりして『分かる、知る』。"
+    },
+
+    IM081: {
+      exampleEn: "We finally worked out a solution to the problem.",
+      exampleJa: "私たちはついにその問題の解決策を見つけました。",
+      usage: "work out は問題などを『解決する、考え出す』。"
+    },
+
+    IM082: {
+      exampleEn: "Many young players look up to him.",
+      exampleJa: "多くの若い選手が彼を尊敬しています。",
+      usage: "look up to は人を『尊敬する』。look down on と反対。"
+    },
+
+    IM083: {
+      exampleEn: "You should not look down on others.",
+      exampleJa: "他人を見下してはいけません。",
+      usage: "look down on は『～を見下す』。"
+    },
+
+    IM084: {
+      exampleEn: "She made up her mind to study abroad.",
+      exampleJa: "彼女は留学することを決心しました。",
+      usage: "make up one's mind は『決心する』。"
+    },
+
+    IM085: {
+      exampleEn: "We need to make a decision by tomorrow.",
+      exampleJa: "私たちは明日までに決定する必要があります。",
+      usage: "make a decision は『決定する』。decide の名詞表現。"
+    },
+
+    IM086: {
+      exampleEn: "The event went ahead as planned.",
+      exampleJa: "その行事は予定どおり行われました。",
+      usage: "as planned は『予定どおりに』。"
+    },
+
+    IM087: {
+      exampleEn: "The train arrived on schedule.",
+      exampleJa: "その電車は予定どおり到着しました。",
+      usage: "on schedule は『予定どおりに』。behind schedule の反対。"
+    },
+
+    IM088: {
+      exampleEn: "I am willing to help with the event.",
+      exampleJa: "私は喜んでその行事を手伝います。",
+      usage: "be willing to は『進んで～するつもりがある』。"
+    },
+
+    IM089: {
+      exampleEn: "Don't worry about the bill. It's on me.",
+      exampleJa: "勘定のことは心配しないで。私のおごりです。",
+      usage: "It's on me. は『私がおごります』という会話表現。"
+    },
+
+    IM090: {
+      exampleEn: "Let me pay for lunch. I'll treat you.",
+      exampleJa: "昼食代は私に払わせてください。私がおごります。",
+      usage: "I'll treat you. は『私がおごります』。"
+    },
+
+    IM091: {
+      exampleEn: "She talked me into joining the club.",
+      exampleJa: "彼女は私を説得してそのクラブに入らせました。",
+      usage: "talk A into doing は『Aを説得して～させる』。"
+    },
+
+    IM092: {
+      exampleEn: "My parents talked me out of quitting school.",
+      exampleJa: "両親は私を説得して学校を辞めないようにしました。",
+      usage: "talk A out of doing は『Aを説得して～するのをやめさせる』。"
+    },
+
+    IM093: {
+      exampleEn: "It goes without saying that health is important.",
+      exampleJa: "健康が重要であることは言うまでもありません。",
+      usage: "It goes without saying that ... は『～は言うまでもない』。"
+    },
+
+    IM094: {
+      exampleEn: "Needless to say, safety comes first.",
+      exampleJa: "言うまでもなく、安全が第一です。",
+      usage: "Needless to say, ... は『言うまでもなく』。"
+    },
+
+    IM095: {
+      exampleEn: "Please take off your shoes before entering.",
+      exampleJa: "入る前に靴を脱いでください。",
+      usage: "take off は衣服・靴などを『脱ぐ』。飛行機の『離陸する』の意味もある。"
+    },
+
+    IM096: {
+      exampleEn: "If it were not for your help, I could not finish this work.",
+      exampleJa: "あなたの助けがなければ、私はこの仕事を終えられないでしょう。",
+      usage: "if it were not for は現在の事実に反する仮定で『もし～がなければ』。"
+    },
+
+    IM097: {
+      exampleEn: "If it had not been for the rain, we could have played outside.",
+      exampleJa: "雨がなかったなら、私たちは外で遊べたでしょう。",
+      usage: "if it had not been for は過去の事実に反する仮定。"
+    },
+
+    IM098: {
+      exampleEn: "But for your advice, I would have made a serious mistake.",
+      exampleJa: "あなたの助言がなかったら、私は重大なミスをしていたでしょう。",
+      usage: "but for は『もし～がなければ』。without と言い換えられる。"
+    },
+
+    IM099: {
+      exampleEn: "This room is available after three o'clock.",
+      exampleJa: "この部屋は3時以降利用できます。",
+      usage: "be available は『利用できる、空いている』。"
+    },
+
+    IM100: {
+      exampleEn: "I'm sorry, but the hotel is fully booked tonight.",
+      exampleJa: "申し訳ありませんが、そのホテルは今夜満室です。",
+      usage: "be fully booked はホテル・便・レストランなどが『満席・満室である』。"
     },
 
         IM101: {
@@ -407,12 +708,12 @@
       exampleJa: "この申込用紙に記入してください。",
       usage: "fill in は form などに『記入する』という意味でよく使う。"
     },
-
-    IM118: {
-      exampleEn: "Please fill out this form before the interview.",
-      exampleJa: "面接の前にこの用紙に記入してください。",
-      usage: "fill out も『記入する』。fill in と同じように form と一緒に使える。"
+ IM118: {
+      exampleEn: "I didn't mean to hurt your feelings.",
+      exampleJa: "私はあなたの気持ちを傷つけるつもりではありませんでした。",
+      usage: "mean to do は『～するつもりである』。mean doing『～することを意味する』と区別する。"
     },
+
 
     IM119: {
       exampleEn: "The flight was delayed by thick fog.",
@@ -433,9 +734,9 @@
     },
 
     IM122: {
-      exampleEn: "I ran to the station to catch the bus.",
-      exampleJa: "私はバスに間に合うように駅まで走りました。",
-      usage: "catch the bus は『バスに乗る、バスに間に合う』という意味。"
+      exampleEn: "We were unable to finish the work on time.",
+      exampleJa: "私たちはその仕事を時間どおりに終えることができませんでした。",
+      usage: "be unable to do は『～することができない』。cannot do と言い換えられる。"
     },
 
     IM123: {
@@ -541,9 +842,9 @@
     },
 
     IM140: {
-      exampleEn: "I am willing to help you with your homework.",
-      exampleJa: "私は喜んであなたの宿題を手伝います。",
-      usage: "be willing to は『喜んで～する、進んで～する』という意味。"
+      exampleEn: "She soon got used to working at her new office.",
+      exampleJa: "彼女はすぐに新しい職場で働くことに慣れました。",
+      usage: "get used to の to は前置詞なので、後ろには名詞・動名詞を置く。"
     },
 
     IM141: {
@@ -703,9 +1004,9 @@
     },
 
     IM167: {
-      exampleEn: "The Internet has spread all over the world.",
-      exampleJa: "インターネットは世界中に広がりました。",
-      usage: "spread all over the world は『世界中に広がる』という意味。"
+      exampleEn: "I had my computer repaired yesterday.",
+      exampleJa: "私は昨日コンピューターを修理してもらいました。",
+      usage: "have + A + 過去分詞で『Aを～してもらう』。have A do『Aに～させる』と区別する。"
     },
 
     IM168: {
@@ -787,9 +1088,9 @@
     },
 
     IM181: {
-      exampleEn: "The students made suggestions for improving the cafeteria.",
-      exampleJa: "生徒たちは食堂を改善するための提案をしました。",
-      usage: "make suggestions は『提案する』。suggest を名詞で使った形。"
+      exampleEn: "It was not until yesterday that I heard the news.",
+      exampleJa: "私は昨日になって初めてその知らせを聞きました。",
+      usage: "It was not until A that B で『Aして初めてBした』。Not until A を文頭に出すと主節は倒置になる。"
     },
 
     IM182: {
@@ -1204,6 +1505,228 @@
       exampleEn: "As far as I am concerned, the first plan is better.",
       exampleJa: "私の意見では、最初の計画の方がよいです。",
       usage: "as far as I am concerned は『私に関する限り、私の意見では』という意味。"
+    },
+
+        IM251: {
+      exampleEn: "People should live in harmony with nature.",
+      exampleJa: "人々は自然と調和して暮らすべきです。",
+      usage: "in harmony with A は『Aと調和して』。"
+    },
+
+    IM252: {
+      exampleEn: "He is what is called a self-made man.",
+      exampleJa: "彼はいわゆる自力で成功した人です。",
+      usage: "what is called A は『いわゆるA』。what we call A とも言える。"
+    },
+
+    IM253: {
+      exampleEn: "The rumor turned out to be false.",
+      exampleJa: "そのうわさは誤りであることが分かりました。",
+      usage: "turn out to be A は『結果としてAだと分かる』。"
+    },
+
+    IM254: {
+      exampleEn: "Her knowledge of local history is second to none.",
+      exampleJa: "彼女の地域史の知識は誰にも劣りません。",
+      usage: "second to none は『誰にも劣らない、最高である』。"
+    },
+
+    IM255: {
+      exampleEn: "He is not so much a teacher as a researcher.",
+      exampleJa: "彼は教師というよりむしろ研究者です。",
+      usage: "not so much A as B は『AというよりむしろB』。"
+    },
+
+    IM256: {
+      exampleEn: "We should not take clean water for granted.",
+      exampleJa: "私たちはきれいな水を当然のものと思うべきではありません。",
+      usage: "take A for granted は『Aを当然のことと思う』。"
+    },
+
+    IM257: {
+      exampleEn: "I'll leave the final decision up to you.",
+      exampleJa: "最終決定はあなたに任せます。",
+      usage: "leave A up to B は『AをBに任せる』。"
+    },
+
+    IM258: {
+      exampleEn: "Keep in mind that the deadline is Friday.",
+      exampleJa: "締め切りが金曜日だということを覚えておいてください。",
+      usage: "keep in mind は『～を心に留めておく』。that節も続けられる。"
+    },
+
+    IM259: {
+      exampleEn: "I am on good terms with my neighbors.",
+      exampleJa: "私は近所の人たちと良い関係にあります。",
+      usage: "on good terms with A は『Aと良い関係にある』。"
+    },
+
+    IM260: {
+      exampleEn: "When it comes to cooking, my father is the best in our family.",
+      exampleJa: "料理のこととなると、父が家族で一番です。",
+      usage: "when it comes to A は『Aのこととなると』。to は前置詞。"
+    },
+
+    IM261: {
+      exampleEn: "I make it a rule to read English every day.",
+      exampleJa: "私は毎日英語を読むことにしています。",
+      usage: "make it a rule to do は『～することにしている』。"
+    },
+
+    IM262: {
+      exampleEn: "The teacher made it clear to us that the rule had changed.",
+      exampleJa: "先生は規則が変わったことを私たちにはっきり示しました。",
+      usage: "make it clear to A that ... は『Aに…ということを明確にする』。"
+    },
+
+    IM263: {
+      exampleEn: "I got my brother to help me with my homework.",
+      exampleJa: "私は兄に宿題を手伝ってもらいました。",
+      usage: "get A to do は『Aに～してもらう・させる』。to do を取る。"
+    },
+
+    IM264: {
+      exampleEn: "I'm sorry to have kept you waiting.",
+      exampleJa: "お待たせして申し訳ありません。",
+      usage: "keep A waiting は『Aを待たせておく』。keep + A + doing の形。"
+    },
+
+    IM265: {
+      exampleEn: "We got caught in a heavy shower on the way home.",
+      exampleJa: "私たちは帰宅途中で激しいにわか雨に遭いました。",
+      usage: "get caught in A は『Aに遭う、巻き込まれる』。"
+    },
+
+    IM266: {
+      exampleEn: "He talks as if he knew everything.",
+      exampleJa: "彼はまるですべてを知っているかのように話します。",
+      usage: "as if ... は『まるで…であるかのように』。事実と異なる場合は仮定法を使うことがある。"
+    },
+
+    IM267: {
+      exampleEn: "This is by far the best plan we have discussed.",
+      exampleJa: "これは私たちが話し合った中で断然最良の案です。",
+      usage: "by far は比較級・最上級を強めて『はるかに、断然』。"
+    },
+
+    IM268: {
+      exampleEn: "No sooner had I arrived home than it began to rain.",
+      exampleJa: "私が家に着くとすぐに雨が降り始めました。",
+      usage: "No sooner had S Vpp than ... で『～するとすぐに…』。文頭では倒置になる。"
+    },
+
+    IM269: {
+      exampleEn: "Please keep me informed of any changes.",
+      exampleJa: "変更があれば私に知らせておいてください。",
+      usage: "keep A informed of B は『AにBを知らせておく』。"
+    },
+
+    IM270: {
+      exampleEn: "I'll call you back after the meeting.",
+      exampleJa: "会議の後で折り返し電話します。",
+      usage: "call A back は『Aに折り返し電話する』。代名詞は call you back の語順。"
+    },
+
+    IM271: {
+      exampleEn: "Please feel free to ask any questions.",
+      exampleJa: "遠慮なく何でも質問してください。",
+      usage: "feel free to do は『遠慮なく～する』。"
+    },
+
+    IM272: {
+      exampleEn: "Please leave the room as it is.",
+      exampleJa: "その部屋をそのままにしておいてください。",
+      usage: "as it is は『そのままで、現状のままで』。"
+    },
+
+    IM273: {
+      exampleEn: "He often complains of back pain.",
+      exampleJa: "彼はよく腰痛を訴えます。",
+      usage: "complain of A は症状などを『訴える』。complain about A は不満を述べる意味でよく使う。"
+    },
+
+    IM274: {
+      exampleEn: "If you don't know the word, look it up in a dictionary.",
+      exampleJa: "その単語を知らなければ、辞書で調べなさい。",
+      usage: "look A up は『Aを調べる』。代名詞は look it up のように間に置く。"
+    },
+
+    IM275: {
+      exampleEn: "This machine is no longer used.",
+      exampleJa: "この機械はもはや使われていません。",
+      usage: "no longer は『もはや～ない』。not ... any longer と言い換えられる。"
+    },
+
+    IM276: {
+      exampleEn: "You may well be tired after such a long trip.",
+      exampleJa: "そんな長旅の後なら、疲れているのももっともです。",
+      usage: "may well do は『～するのももっともだ』。文脈により『たぶん～だろう』も表す。"
+    },
+
+    IM277: {
+      exampleEn: "Please inform me of any changes to the schedule.",
+      exampleJa: "予定に変更があれば私に知らせてください。",
+      usage: "inform A of B は『AにBを知らせる』。"
+    },
+
+    IM278: {
+      exampleEn: "He does nothing but complain about his job.",
+      exampleJa: "彼は仕事について不平ばかり言っています。",
+      usage: "do nothing but V は『Vばかりする』。but の後ろは動詞の原形。"
+    },
+
+    IM279: {
+      exampleEn: "I couldn't make myself understood in English.",
+      exampleJa: "私は英語で自分の言いたいことを分かってもらえませんでした。",
+      usage: "make oneself understood は『自分の言いたいことを相手に分かってもらう』。"
+    },
+
+    IM280: {
+      exampleEn: "Many residents objected to building a new road there.",
+      exampleJa: "多くの住民がそこに新しい道路を建設することに反対しました。",
+      usage: "object to doing の to は前置詞なので、後ろは ～ing。"
+    },
+
+    IM281: {
+      exampleEn: "It's up to you to decide what to do next.",
+      exampleJa: "次に何をするか決めるのはあなた次第です。",
+      usage: "be up to A は『A次第である、Aに任されている』。It's up to you. が代表的。"
+    },
+
+    IM282: {
+      exampleEn: "As soon as she set eyes on the dress, she wanted it.",
+      exampleJa: "彼女はそのドレスを一目見るとすぐに欲しくなりました。",
+      usage: "set eyes on A は『Aを見る、目にする』。"
+    },
+
+    IM283: {
+      exampleEn: "She majored in economics at university.",
+      exampleJa: "彼女は大学で経済学を専攻しました。",
+      usage: "major in A は『Aを専攻する』。"
+    },
+
+    IM284: {
+      exampleEn: "What do you do for a living?",
+      exampleJa: "あなたはどんな仕事をしていますか。",
+      usage: "do A for a living は『職業としてAをする』。What do you do for a living? は重要な定型表現。"
+    },
+
+    IM285: {
+      exampleEn: "We should do all we can to protect the environment.",
+      exampleJa: "私たちは環境を守るためにできる限りのことをすべきです。",
+      usage: "do all one can to do は『～するためにできる限りのことをする』。"
+    },
+
+    IM286: {
+      exampleEn: "He was accused of stealing the money.",
+      exampleJa: "彼はその金を盗んだことで告発されました。",
+      usage: "be accused of A / doing は『Aのことで非難される、Aの罪で告発される』。of の後ろは名詞・動名詞。"
+    },
+
+    IM287: {
+      exampleEn: "They accused him of breaking the rule.",
+      exampleJa: "彼らは規則を破ったことで彼を非難しました。",
+      usage: "accuse A of B / doing は『BのことでAを非難する・告発する』。"
     }
 
     
