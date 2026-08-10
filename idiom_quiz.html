@@ -737,6 +737,55 @@
         align-items: flex-start;
       }
     }
+        .listSearchWrap {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .listSearchInput {
+      flex: 1 1 auto;
+      min-width: 0;
+      padding: 11px 12px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+      background: #fff;
+    }
+
+    .listSearchInput:focus {
+      outline: none;
+      border-color: #2b7cff;
+      box-shadow: 0 0 0 3px rgba(43, 124, 255, 0.10);
+    }
+
+    .listSearchInfo {
+      margin-bottom: 10px;
+    }
+
+    .detailExampleEn {
+      font-size: 16px;
+      line-height: 1.8;
+      font-weight: 700;
+    }
+
+    .detailExampleJa {
+      margin-top: 6px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #555;
+    }
+
+    @media (max-width: 520px) {
+      .listSearchWrap {
+        align-items: stretch;
+      }
+
+      .listSearchInput {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -822,7 +871,7 @@
   <div style="display:flex; align-items:center; gap:6px;">
     <input id="rangeStart" type="number" min="1" value="1" style="width:90px;">
 <span>〜</span>
-<input id="rangeEnd" type="number" min="1" value="250" style="width:90px;">
+<input id="rangeEnd" type="number" min="1" value="287" style="width:90px;">
   </div>
 </div>
 
@@ -894,17 +943,36 @@
 
       <div class="hr"></div>
 
-      <div class="listToolbar">
-        <div class="listToolbarTitle">一括表示切り替え</div>
-        <div class="listToolbarBtns">
-          <button id="problemMaskMeaningBtn" type="button">意味を一括で隠す</button>
-          <button id="problemMaskSynonymBtn" type="button">同義表現を一括で隠す</button>
+            <div class="listToolbar">
+        <div class="listToolbarTitle">一覧を検索・表示切り替え</div>
+
+        <div class="listSearchWrap">
+          <input
+            id="problemSearchInput"
+            class="listSearchInput"
+            type="search"
+            placeholder="英語・日本語・同義表現から検索"
+            autocomplete="off"
+          >
+          <button id="problemSearchClearBtn" type="button">クリア</button>
         </div>
+
+        <div id="problemSearchInfo" class="muted listSearchInfo"></div>
+
+       <div class="listToolbarBtns">
+  <button id="problemWeakOnlyBtn" type="button">苦手のみ表示</button>
+  <button id="problemMaskMeaningBtn" type="button">意味を一括で隠す</button>
+  <button id="problemMaskSynonymBtn" type="button">同義表現を一括で隠す</button>
+</div>
       </div>
 
       <div id="problemList"></div>
-      <div id="problemListEmpty" class="muted hidden">表示できる問題がありません。</div>
-    </div>
+      <div id="problemListEmpty" class="muted hidden">
+        条件に合うイディオムがありません。
+      </div>
+      </div>
+
+      
 
     <div class="card hidden" id="weakListBox">
       <div class="row">
