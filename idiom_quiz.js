@@ -13,7 +13,7 @@
     cursorMeaning: `zensho_idiom_quiz_cursor_meaning_v1_lv${DATA_LEVEL}`,
     cursorSynonym: `zensho_idiom_quiz_cursor_synonym_v1_lv${DATA_LEVEL}`,
     cursorExpressionFromMeaning: `zensho_idiom_quiz_cursor_expression_from_meaning_v1_lv${DATA_LEVEL}`,
-    settings: `zensho_idiom_quiz_settings_v4_lv${DATA_LEVEL}`,
+    settings: `zensho_idiom_quiz_settings_v5_lv${DATA_LEVEL}`,
     listUi: `zensho_idiom_quiz_list_ui_v1_lv${DATA_LEVEL}`
   };
 
@@ -23,7 +23,7 @@ const DEFAULT_SETTINGS = {
   quizMode: "order",
   autoRead: false,
   rangeStart: "1",
-  rangeEnd: "250"
+  rangeEnd: "287"
 };
 
   const RAW_DATA = Array.isArray(window.IDIOM_DATA_1KYU) ? window.IDIOM_DATA_1KYU.slice() : [];
@@ -72,6 +72,10 @@ rangeEnd: document.getElementById("rangeEnd"),
 
     problemList: document.getElementById("problemList"),
     problemListEmpty: document.getElementById("problemListEmpty"),
+    problemSearchInput: document.getElementById("problemSearchInput"),
+    problemSearchClearBtn: document.getElementById("problemSearchClearBtn"),
+    problemSearchInfo: document.getElementById("problemSearchInfo"),
+    problemWeakOnlyBtn: document.getElementById("problemWeakOnlyBtn"),
 
     weakList: document.getElementById("weakList"),
     weakListEmpty: document.getElementById("weakListEmpty"),
@@ -111,8 +115,10 @@ rangeEnd: document.getElementById("rangeEnd"),
   };
 
   const state = {
-    questionMode: "meaning",
-    mode: "order",
+  questionMode: "meaning",
+  mode: "order",
+
+  problemWeakOnly: false,
     sessionItems: [],
     currentIndex: 0,
     score: 0,
@@ -695,6 +701,82 @@ function filterByNoRange(list) {
   });
 }
 
+  function normalizeSearchText(value) {
+    return String(value || "")
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function getProblemSearchQuery() {
+    if (!el.problemSearchInput) return "";
+    return normalizeSearchText(el.problemSearchInput.value);
+  }
+
+  function matchesProblemSearch(item, query) {
+    if (!query) return true;
+
+    const example = getIdiomExample(item);
+
+    const searchableText = [
+      item.id,
+      `no.${item.displayNo}`,
+      item.displayNo,
+      item.expression,
+      item.ja,
+      formatSynonyms(item),
+      formatAntonyms(item),
+      getNoteText(item),
+      example.exampleEn,
+      example.exampleJa,
+      example.usage
+    ]
+      .map(normalizeSearchText)
+      .join(" ");
+
+    return searchableText.includes(query);
+  }
+
+ function getFilteredProblemList() {
+  const query = getProblemSearchQuery();
+
+  const questionMode = el.questionMode.value;
+  const weakMap = getWeakMap(questionMode);
+  const manualWeakMap = getManualWeakMap();
+
+  return filterByNoRange(DATA).filter(function (item) {
+
+    // 検索条件
+    if (!matchesProblemSearch(item, query)) {
+      return false;
+    }
+
+    // 苦手のみ表示
+    if (state.problemWeakOnly) {
+      const autoWeak = (weakMap[item.id] || 0) > 0;
+      const manualWeak = !!manualWeakMap[item.id];
+
+      if (!autoWeak && !manualWeak) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+}
+
+function updateProblemWeakOnlyButton() {
+  if (!el.problemWeakOnlyBtn) return;
+
+  if (state.problemWeakOnly) {
+    el.problemWeakOnlyBtn.textContent = "すべて表示";
+    el.problemWeakOnlyBtn.classList.add("weakBtnActive");
+  } else {
+    el.problemWeakOnlyBtn.textContent = "苦手のみ表示";
+    el.problemWeakOnlyBtn.classList.remove("weakBtnActive");
+  }
+}
+
 function getCursorRangeKey() {
   const range = getNoRange();
   return `${range.startNo}-${range.endNo}`;
@@ -957,6 +1039,7 @@ function getAvailableDataForMode(questionMode, options) {
     const meaningMasked = isMeaningMasked(item.id);
     const synonymMasked = isSynonymMasked(item.id);
     const manualWeak = isManualWeak(item.id);
+     const example = getIdiomExample(item);
 
     const badges = [];
     if (manualWeak) {
@@ -1016,15 +1099,51 @@ function getAvailableDataForMode(questionMode, options) {
           </button>
         </div>
 
-        <div class="compactDetail hidden" data-detail-for="${item.id}">
+                <div class="compactDetail hidden" data-detail-for="${item.id}">
           <div class="compactField">
             <div class="compactLabel">対義表現</div>
             <div class="compactValue">${escapeHtml(formatAntonyms(item))}</div>
           </div>
+
           <div class="compactField">
-            <div class="compactLabel">対応番号</div>
-            <div class="compactValue">${escapeHtml(formatNoteIds(item))}</div>
+            <div class="compactLabel">例文</div>
+
+            ${
+              example.exampleEn
+                ? `
+                  <div class="detailExampleEn">
+                    ${escapeHtml(example.exampleEn)}
+                  </div>
+
+                  ${
+                    example.exampleJa
+                      ? `
+                        <div class="detailExampleJa">
+                          ${escapeHtml(example.exampleJa)}
+                        </div>
+                      `
+                      : ""
+                  }
+                `
+                : `
+                  <div class="compactValue">例文なし</div>
+                `
+            }
           </div>
+
+          ${
+            example.usage
+              ? `
+                <div class="compactField">
+                  <div class="compactLabel">使い方</div>
+                  <div class="compactValue">
+                    ${escapeHtml(example.usage)}
+                  </div>
+                </div>
+              `
+              : ""
+          }
+
           <div class="compactField">
             <div class="compactLabel">メモ</div>
             <div class="compactValue">${escapeHtml(getNoteText(item) || "なし")}</div>
@@ -1034,7 +1153,7 @@ function getAvailableDataForMode(questionMode, options) {
     `;
   }
 
-  function renderProblemList() {
+    function renderProblemList() {
     el.problemList.innerHTML = "";
 
     if (!DATA.length) {
@@ -1042,22 +1161,46 @@ function getAvailableDataForMode(questionMode, options) {
       return;
     }
 
-    el.problemListEmpty.classList.add("hidden");
-
     const weakMap = getWeakMap(el.questionMode.value);
+    const list = getFilteredProblemList();
 
- filterByNoRange(DATA).forEach(function (item) {
-  const div = document.createElement("div");
- div.innerHTML =
-  createListItemHtml(
-    item,
-    weakMap[item.id] || 0,
-    false
-  );
-  el.problemList.appendChild(div.firstElementChild);
-});
+    if (!list.length) {
+      el.problemListEmpty.classList.remove("hidden");
+    } else {
+      el.problemListEmpty.classList.add("hidden");
+    }
 
-    updateBulkMaskButtonLabels();
+    list.forEach(function (item) {
+      const div = document.createElement("div");
+
+      div.innerHTML = createListItemHtml(
+        item,
+        weakMap[item.id] || 0,
+        false
+      );
+
+      el.problemList.appendChild(div.firstElementChild);
+    });
+
+    if (el.problemSearchInfo) {
+      const total = filterByNoRange(DATA).length;
+      const query = getProblemSearchQuery();
+
+     if (state.problemWeakOnly) {
+  el.problemSearchInfo.textContent =
+    query
+      ? `苦手 ${list.length}件を表示（検索中）`
+      : `苦手 ${list.length}件を表示`;
+} else {
+  el.problemSearchInfo.textContent =
+    query
+      ? `${list.length}件 / ${total}件を表示`
+      : `${total}件を表示`;
+}
+    }
+
+    updateProblemWeakOnlyButton();
+updateBulkMaskButtonLabels();
   }
 
   function renderWeakList() {
@@ -1206,6 +1349,22 @@ function clearAnswerCard() {
     if (el.autoRead.checked && state.questionMode !== "expression_from_meaning") {
   speak(question.expression);
 }
+
+    scrollToQuestionTop();
+  }
+
+    function scrollToQuestionTop() {
+    if (!el.playBox) return;
+
+    requestAnimationFrame(function () {
+      const rect = el.playBox.getBoundingClientRect();
+      const y = window.scrollY + rect.top - 10;
+
+      window.scrollTo({
+        top: y,
+        behavior: "smooth"
+      });
+    });
   }
 
    function buildQuickAnswerHtml(question, selectedText, correctText, isCorrect) {
@@ -1947,6 +2106,30 @@ if (el.rangeEnd) {
         toggleBulkSynonym(getWeakListTargetIds());
       });
     }
+
+        if (el.problemSearchInput) {
+      el.problemSearchInput.addEventListener("input", function () {
+        renderProblemList();
+      });
+    }
+
+    if (el.problemSearchClearBtn) {
+      el.problemSearchClearBtn.addEventListener("click", function () {
+        if (!el.problemSearchInput) return;
+
+        el.problemSearchInput.value = "";
+        renderProblemList();
+        el.problemSearchInput.focus();
+      });
+    }
+
+    if (el.problemWeakOnlyBtn) {
+  el.problemWeakOnlyBtn.addEventListener("click", function () {
+    state.problemWeakOnly = !state.problemWeakOnly;
+
+    renderProblemList();
+  });
+}
 
     el.problemList.addEventListener("click", handleListAreaClick);
     el.weakList.addEventListener("click", handleListAreaClick);
