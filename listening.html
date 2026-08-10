@@ -7,882 +7,8 @@
   <title>リスニング演習</title>
 
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="listening.css" />
 
-  <style>
-    body {
-      margin: 0;
-      background: #f7f7f7;
-      color: #111;
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Hiragino Kaku Gothic ProN",
-        "Yu Gothic",
-        sans-serif;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    .wrap {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 16px 12px 30px;
-    }
-
-    .card {
-      margin: 12px 0;
-      padding: 14px;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .controlRow {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: flex-end;
-    }
-
-    .controlGroup {
-      min-width: 145px;
-      flex: 1 1 145px;
-    }
-
-    .controlGroup.wide {
-      flex-basis: 240px;
-    }
-
-    .controlLabel {
-      margin-bottom: 5px;
-      color: #555;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .muted {
-      color: #666;
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .miniNote {
-      color: #777;
-      font-size: 12px;
-      line-height: 1.6;
-    }
-
-    .sectionTitle {
-      font-size: 18px;
-      font-weight: 800;
-    }
-
-    .sectionSub {
-      margin-top: 4px;
-      color: #666;
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .hr {
-      height: 1px;
-      margin: 14px 0;
-      background: #eee;
-    }
-
-    button,
-    select,
-    input,
-    textarea {
-      font: inherit;
-    }
-
-    button {
-      padding: 10px 12px;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    button:hover:not(:disabled) {
-      background: #f8f8f8;
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-      opacity: 0.5;
-    }
-
-    button.primary {
-      color: #fff;
-      background: #2b7cff;
-      border-color: #2b7cff;
-      font-weight: 800;
-    }
-
-    button.primary:hover:not(:disabled) {
-      background: #166bea;
-    }
-
-    button.soft {
-      color: #215ba8;
-      background: #eef5ff;
-      border-color: #c9dcff;
-      font-weight: 700;
-    }
-
-    button.danger {
-      color: #fff;
-      background: #b00020;
-      border-color: #b00020;
-    }
-
-    button.success {
-      color: #16672e;
-      background: #e9f8ed;
-      border-color: #b9e3c4;
-      font-weight: 800;
-    }
-
-    select,
-    input[type="number"],
-    input[type="text"],
-    textarea {
-      width: 100%;
-      padding: 10px;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      font-size: 16px;
-    }
-
-    textarea {
-      min-height: 130px;
-      resize: vertical;
-      line-height: 1.7;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      outline: 3px solid rgba(43, 124, 255, 0.15);
-      border-color: #2b7cff;
-    }
-
-    .topNavBox {
-      margin-bottom: 12px;
-    }
-
-    .topNavTitle {
-      margin-bottom: 8px;
-      color: #666;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .topNav {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 3px;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .topNav a {
-      flex: 0 0 auto;
-      padding: 9px 12px;
-      color: #111;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 999px;
-      text-decoration: none;
-      white-space: nowrap;
-      font-size: 14px;
-    }
-
-    .topNav a.active {
-      color: #1251b5;
-      background: #eaf2ff;
-      border-color: #2b7cff;
-      font-weight: 800;
-    }
-
-    #levelBadge {
-      margin: 6px 0 10px;
-      color: #555;
-      font-size: 14px;
-    }
-
-    /* ゴイモン */
-
-    .goimonToggleBox {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-
-    .goimonToggleBtn {
-      color: #234f97;
-      background: #f9fbff;
-      border-color: #d6e5ff;
-      font-weight: 800;
-    }
-
-    .miniGoimonCard {
-      padding: 12px;
-      background: #fffaf2;
-      border: 1px solid #f0e3c7;
-      border-radius: 12px;
-    }
-
-    .miniGoimonHead {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-
-    .miniGoimonTitle {
-      font-size: 15px;
-      font-weight: 800;
-    }
-
-    .miniGoimonStage {
-      text-align: right;
-    }
-
-    .miniGoimonStageLabel {
-      color: #8a6a2d;
-      font-size: 11px;
-    }
-
-    .miniGoimonStageValue {
-      font-size: 17px;
-      font-weight: 800;
-    }
-
-    .miniGoimonBody {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .miniGoimonImageWrap {
-      display: flex;
-      flex: 0 0 auto;
-      width: 88px;
-      height: 88px;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      background: #fff;
-      border: 1px solid #eddcb8;
-      border-radius: 12px;
-    }
-
-    .miniGoimonImageWrap img {
-      display: block;
-      max-width: 76px;
-      max-height: 76px;
-    }
-
-    .miniGoimonInfo {
-      flex: 1 1 auto;
-      min-width: 0;
-    }
-
-    .miniGoimonName {
-      margin-bottom: 4px;
-      font-size: 15px;
-      font-weight: 800;
-    }
-
-    .miniGoimonMeta {
-      margin-bottom: 5px;
-      color: #555;
-      font-size: 13px;
-    }
-
-    .miniGoimonDesc {
-      color: #666;
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
-    .goimonPointGuide {
-      margin-top: 10px;
-      color: #555;
-      font-size: 12px;
-      line-height: 1.6;
-    }
-
-    .evoNoticeBtn {
-      color: #7a5200;
-      background: linear-gradient(180deg, #fff6d6 0%, #ffe8a3 100%);
-      border-color: #f1d48a;
-      font-weight: 900;
-    }
-
-    /* 設定画面 */
-
-    .methodCards {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .methodCard {
-      position: relative;
-      min-height: 100px;
-      padding: 12px;
-      cursor: pointer;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-    }
-
-    .methodCard:hover {
-      border-color: #9bbfff;
-      background: #fbfdff;
-    }
-
-    .methodCard.selected {
-      background: #eef5ff;
-      border: 2px solid #2b7cff;
-    }
-
-    .methodCard input {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .methodCardTitle {
-      margin-bottom: 5px;
-      font-weight: 800;
-    }
-
-    .methodCardText {
-      color: #666;
-      font-size: 12px;
-      line-height: 1.55;
-    }
-
-    .settingSubBox {
-      margin-top: 12px;
-      padding: 12px;
-      background: #fafafa;
-      border: 1px solid #eee;
-      border-radius: 12px;
-    }
-
-    .checkRow {
-      display: flex;
-      gap: 8px;
-      align-items: flex-start;
-      cursor: pointer;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .checkRow input {
-      flex: 0 0 auto;
-      width: auto;
-      margin-top: 3px;
-    }
-
-    /* 問題画面共通 */
-
-    .questionTopBar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    #questionProgress {
-      color: #555;
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    #questionMeta {
-      margin-top: 5px;
-      color: #777;
-      font-size: 12px;
-    }
-
-    .audioPanel {
-      margin-top: 14px;
-      padding: 16px;
-      text-align: center;
-      background: #f8fbff;
-      border: 1px solid #dbe8ff;
-      border-radius: 14px;
-    }
-
-    .audioIcon {
-      font-size: 34px;
-      line-height: 1;
-    }
-
-    .audioMessage {
-      margin-top: 8px;
-      color: #444;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .audioControls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      justify-content: center;
-      margin-top: 12px;
-    }
-
-    .playCount {
-      margin-top: 8px;
-      color: #666;
-      font-size: 12px;
-    }
-
-    .speedInline {
-      display: inline-flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .speedInline select {
-      width: auto;
-      min-width: 90px;
-      padding: 8px;
-      font-size: 14px;
-    }
-
-    #choices {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .choiceBtn {
-      display: flex;
-      width: 100%;
-      min-height: 74px;
-      gap: 10px;
-      align-items: flex-start;
-      padding: 13px;
-      text-align: left;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      line-height: 1.55;
-    }
-
-    .choiceIndex {
-      display: inline-flex;
-      flex: 0 0 auto;
-      width: 28px;
-      height: 28px;
-      align-items: center;
-      justify-content: center;
-      margin-top: 1px;
-      color: #2b7cff;
-      background: #f2f6ff;
-      border: 1px solid #d6e4ff;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .choiceText {
-      flex: 1 1 auto;
-      min-width: 0;
-    }
-
-    .choiceBtn.correct {
-      color: #156b2e;
-      background: #e8f7e8;
-      border-color: #2e9f4d;
-      font-weight: 700;
-    }
-
-    .choiceBtn.wrong {
-      color: #a11f1f;
-      background: #fdeaea;
-      border-color: #d94b4b;
-      font-weight: 700;
-    }
-
-    .answerResult {
-      margin-top: 14px;
-      padding: 12px;
-      border-radius: 12px;
-      font-size: 17px;
-      font-weight: 800;
-      line-height: 1.6;
-    }
-
-    .answerResult.ok {
-      color: #0a702d;
-      background: #edf9f0;
-      border: 1px solid #bee4c8;
-    }
-
-    .answerResult.ng {
-      color: #a11f1f;
-      background: #fff0f0;
-      border: 1px solid #efb9c0;
-    }
-
-    .explanationBox {
-      margin-top: 12px;
-      padding: 13px;
-      background: #fcfcfc;
-      border: 1px solid #e8e8e8;
-      border-radius: 12px;
-    }
-
-    .explanationTitle {
-      margin-bottom: 7px;
-      font-size: 14px;
-      font-weight: 800;
-    }
-
-    .explanationText {
-      font-size: 14px;
-      line-height: 1.8;
-      white-space: pre-wrap;
-    }
-
-    .scriptBox {
-      margin-top: 12px;
-      padding: 13px;
-      background: #f7faff;
-      border: 1px solid #dce8ff;
-      border-radius: 12px;
-    }
-
-    .scriptEn {
-      font-size: 17px;
-      font-weight: 700;
-      line-height: 1.7;
-    }
-
-    .scriptJa {
-      margin-top: 6px;
-      color: #555;
-      font-size: 14px;
-      line-height: 1.7;
-    }
-
-    .afterAnswerActions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    /* ディクテーション */
-
-    .wordBank {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      min-height: 56px;
-      margin-top: 12px;
-      padding: 12px;
-      background: #fafafa;
-      border: 1px solid #e3e3e3;
-      border-radius: 12px;
-    }
-
-    .wordChip {
-      padding: 8px 11px;
-      background: #fff;
-      border: 1px solid #cfcfcf;
-      border-radius: 999px;
-      font-size: 15px;
-    }
-
-    .wordChip.used {
-      opacity: 0.35;
-    }
-
-    .dictationAnswerArea {
-      min-height: 72px;
-      margin-top: 12px;
-      padding: 12px;
-      background: #fff;
-      border: 2px dashed #cdd8ea;
-      border-radius: 12px;
-    }
-
-    .dictationGuide {
-      color: #666;
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    /* オーバーラッピング・シャドーイング */
-
-    .practiceGuideBox {
-      margin-top: 12px;
-      padding: 13px;
-      background: #fffaf2;
-      border: 1px solid #f0dfbd;
-      border-radius: 12px;
-      font-size: 14px;
-      line-height: 1.75;
-    }
-
-    .practiceScript {
-      margin-top: 12px;
-      padding: 15px;
-      background: #f8fbff;
-      border: 1px solid #dbe8ff;
-      border-radius: 12px;
-      font-size: 20px;
-      font-weight: 700;
-      line-height: 1.8;
-    }
-
-    .completionButtons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    /* 結果 */
-
-    .summaryScore {
-      padding: 18px;
-      text-align: center;
-      background: #f8fbff;
-      border: 1px solid #dbe8ff;
-      border-radius: 14px;
-    }
-
-    .summaryScoreMain {
-      font-size: 30px;
-      font-weight: 900;
-    }
-
-    .summaryScoreSub {
-      margin-top: 5px;
-      color: #666;
-      font-size: 13px;
-    }
-
-    .summaryGrid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .summaryStat {
-      padding: 12px;
-      text-align: center;
-      background: #fafafa;
-      border: 1px solid #eee;
-      border-radius: 12px;
-    }
-
-    .summaryStatLabel {
-      color: #666;
-      font-size: 12px;
-    }
-
-    .summaryStatValue {
-      margin-top: 4px;
-      font-size: 20px;
-      font-weight: 800;
-    }
-
-    .resultList {
-      margin-top: 12px;
-    }
-
-    .resultItem {
-      margin: 8px 0;
-      padding: 11px;
-      background: #fff;
-      border: 1px solid #eee;
-      border-radius: 12px;
-    }
-
-    .resultItemHead {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .resultItemId {
-      font-weight: 800;
-    }
-
-    .resultBadge {
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .resultBadge.ok {
-      color: #0a702d;
-      background: #edf9f0;
-    }
-
-    .resultBadge.ng {
-      color: #a11f1f;
-      background: #fff0f0;
-    }
-
-    @media (max-width: 600px) {
-      .methodCards,
-      #choices {
-        grid-template-columns: 1fr;
-      }
-
-      .summaryGrid {
-        grid-template-columns: 1fr;
-      }
-
-      .miniGoimonImageWrap {
-        width: 76px;
-        height: 76px;
-      }
-
-      .miniGoimonImageWrap img {
-        max-width: 66px;
-        max-height: 66px;
-      }
-
-      .practiceScript {
-        font-size: 18px;
-      }
-    }
-
-    .problemListAudioRow {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  align-items: center;
-  margin-top: 12px;
-}
-
-.problemListPlayBtn {
-  border: 1px solid #cddcff;
-  background: #eef5ff;
-  color: #234b92;
-  font-weight: 800;
-}
-
-.problemListStopBtn {
-  border: 1px solid #ddd;
-  background: #f5f5f5;
-  color: #444;
-}
-
-.problemListChoices {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.problemListChoiceBtn {
-  width: 100%;
-  min-width: 0;
-  padding: 11px 12px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  background: #fff;
-  color: #222;
-  text-align: left;
-  cursor: pointer;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.problemListChoiceBtn:hover:not(:disabled) {
-  background: #f5f8ff;
-  border-color: #b9cdf4;
-}
-
-.problemListChoiceBtn.correct {
-  background: #eaf8ea;
-  border-color: #8dc78d;
-  color: #166b16;
-}
-
-.problemListChoiceBtn.wrong {
-  background: #fff0f0;
-  border-color: #de8e8e;
-  color: #a22727;
-}
-
-.problemListChoiceBtn:disabled {
-  cursor: default;
-  opacity: 1;
-}
-
-.problemListPracticeResult {
-  min-height: 28px;
-  margin-top: 10px;
-  font-size: 15px;
-  font-weight: 800;
-}
-
-.problemListPracticeResult.correct {
-  color: #157915;
-}
-
-.problemListPracticeResult.wrong {
-  color: #c53333;
-}
-
-.problemListRetryBtn {
-  margin-top: 8px;
-  border: 1px solid #ddd;
-  background: #fff;
-  color: #333;
-}
-
-@media (max-width: 480px) {
-  .problemListChoices {
-    grid-template-columns: 1fr;
-  }
-}
-  </style>
 </head>
 
 <body>
@@ -1002,16 +128,21 @@
         <div class="controlGroup wide">
           <div class="controlLabel">大問形式</div>
 
-          <select id="formatSelect">
-  <option value="2">大問2形式（適切な発話）</option>
-  <option value="3">大問3形式（適切な応答）</option>
+         <select id="formatSelect">
+  <option value="2">
+    大問2形式（適切な発話）
+  </option>
+
+  <option value="3">
+    大問3形式（適切な応答）
+  </option>
 
   <option value="4" disabled>
     大問4形式（問題準備中）
   </option>
 
-  <option value="5" disabled>
-    大問5形式（問題準備中）
+  <option value="5">
+    大問5形式（長文内容一致）
   </option>
 </select>
         </div>
@@ -1296,6 +427,7 @@
           <select id="problemListFormatSelect">
   <option value="2">大問2形式</option>
   <option value="3">大問3形式</option>
+   <option value="5">大問5形式（長文内容一致）</option>
 </select>
         </div>
 
@@ -1390,6 +522,13 @@
           </button>
 
           <button
+  id="rewind3Btn"
+  type="button"
+>
+  ↶ 3秒戻る
+</button>
+
+          <button
             id="stopAudioBtn"
             type="button"
           >
@@ -1418,6 +557,173 @@
         </div>
       </div>
 
+            <!-- ======================================================
+           大問5：長文リスニング
+           ====================================================== -->
+      <section
+        id="type5ModePanel"
+        class="hidden"
+      >
+        <div class="type5Guide">
+          音声を聞いて、5つの問題すべてに答えてください。
+          すべて選択すると「5問まとめて答え合わせ」ができます。
+        </div>
+
+        <div
+          id="type5QuestionList"
+          class="type5QuestionList"
+        ></div>
+
+        <!-- 採点前 -->
+        <div class="type5AnswerArea">
+          <button
+            id="type5CheckBtn"
+            class="primary type5CheckBtn"
+            type="button"
+            disabled
+          >
+            5問まとめて答え合わせ
+          </button>
+        </div>
+
+        <!-- ==================================================
+             採点後：この長文を復習
+             ================================================== -->
+        <div
+          id="type5ReviewCard"
+          class="type5ReviewPracticeCard hidden"
+        >
+          <div class="type5ReviewPracticeTitle">
+            この長文を復習
+          </div>
+
+          <div class="type5ReviewPracticeText">
+            聞き取れなかった部分を、別の方法でもう一度練習できます。
+          </div>
+
+          <div class="type5ReviewPracticeButtons">
+
+            <button
+              id="type5ReviewDictationBtn"
+              class="type5ReviewPracticeBtn"
+              type="button"
+            >
+              <span class="type5ReviewPracticeIcon">
+                ✍️
+              </span>
+
+              <span>
+                ディクテーション
+              </span>
+            </button>
+
+            <button
+              id="type5ReviewOverlappingBtn"
+              class="type5ReviewPracticeBtn"
+              type="button"
+            >
+              <span class="type5ReviewPracticeIcon">
+                🗣️
+              </span>
+
+              <span>
+                オーバーラッピング
+              </span>
+            </button>
+
+            <button
+              id="type5ReviewShadowingBtn"
+              class="type5ReviewPracticeBtn"
+              type="button"
+            >
+              <span class="type5ReviewPracticeIcon">
+                🔁
+              </span>
+
+              <span>
+                シャドーイング
+              </span>
+            </button>
+
+          </div>
+        </div>
+      </section>
+
+
+            <!-- ======================================================
+           大問5：採点後の固定フッター
+           ====================================================== -->
+      <div
+        id="type5FixedFooter"
+        class="type5FixedFooter hidden"
+      >
+        <div class="type5FixedFooterWrap">
+
+          <!-- 上段 -->
+          <div class="type5FixedFooterInner">
+
+            <div
+              id="type5Result"
+              class="type5Result hidden"
+            ></div>
+
+            <div
+              id="type5ScriptAction"
+              class="type5ScriptAction hidden"
+            >
+              <button
+                id="type5ScriptOpenBtn"
+                class="type5FooterScriptBtn"
+                type="button"
+              >
+                📖 全文を見る
+              </button>
+            </div>
+
+            <button
+              id="type5NextBtn"
+              class="primary type5FooterNextBtn"
+              type="button"
+              disabled
+            >
+              次へ →
+            </button>
+
+          </div>
+
+          <!-- 下段：復習 -->
+          <div class="type5FixedReviewRow">
+
+            <button
+              id="type5FooterDictationBtn"
+              class="type5FixedReviewBtn"
+              type="button"
+            >
+              ✍️ ディクテーション
+            </button>
+
+            <button
+              id="type5FooterOverlappingBtn"
+              class="type5FixedReviewBtn"
+              type="button"
+            >
+              🗣️ オーバーラッピング
+            </button>
+
+            <button
+              id="type5FooterShadowingBtn"
+              class="type5FixedReviewBtn"
+              type="button"
+            >
+              🔁 シャドーイング
+            </button>
+
+          </div>
+
+        </div>
+      </div>
+
+
       <!-- 4択モード -->
       <section id="quizModePanel">
         <div
@@ -1443,21 +749,61 @@
           聞こえた英文を完成させてください。
         </div>
 
+        <div class="dictationSentenceSpeedBox">
+  <label
+    for="dictationSentenceSpeed"
+    class="dictationSentenceSpeedLabel"
+  >
+    文の再生速度
+  </label>
+
+  <select
+    id="dictationSentenceSpeed"
+    class="dictationSentenceSpeed"
+  >
+    <option value="1.2">
+      1.2倍
+    </option>
+
+    <option
+      value="1"
+      selected
+    >
+      1.0倍
+    </option>
+
+    <option value="0.8">
+      0.8倍
+    </option>
+
+    <option value="0.7">
+      0.7倍
+    </option>
+  </select>
+</div>
+
         <!-- 語句整序 -->
         <div
           id="reorderDictationPanel"
           class="hidden"
         >
+                    <!--
+            大問2ではJavaScriptによって、
+            文ごとの解答欄と単語バンクがここに生成されます。
+          -->
           <div
             id="dictationAnswerArea"
-            class="dictationAnswerArea"
-          >
-            単語を下から選んでください。
-          </div>
+            class="dictationSentenceList"
+          ></div>
 
+          <!--
+            以前の共通単語バンク。
+            JavaScriptの参照を残すため要素自体は残しますが、
+            新しい方式では使用しないので非表示にします。
+          -->
           <div
             id="wordBank"
-            class="wordBank"
+            class="hidden"
           ></div>
 
           <div
@@ -1645,12 +991,22 @@
         class="answerResult hidden"
       ></div>
 
-      <div
+            <div
         id="scriptAnswerBox"
         class="scriptBox hidden"
       >
-        <div class="explanationTitle">
-          スクリプト
+        <div class="scriptHeaderRow">
+          <div class="explanationTitle">
+            スクリプト
+          </div>
+
+          <button
+            id="playScriptAudioBtn"
+            class="soft"
+            type="button"
+          >
+            ▶ スクリプト音声
+          </button>
         </div>
 
         <div
@@ -1862,6 +1218,78 @@
 
   </div>
 
+    <!-- ========================================================
+       大問5：全文スクリプト ボトムシート
+       ======================================================== -->
+  <div
+    id="type5ScriptSheetOverlay"
+    class="type5SheetOverlay hidden"
+  >
+    <div
+      id="type5ScriptSheet"
+      class="type5Sheet"
+      role="dialog"
+      aria-modal="true"
+      aria-label="長文スクリプト"
+    >
+      <div class="type5SheetHandle"></div>
+
+      <div class="type5SheetHead">
+        <div class="type5SheetTitle">
+          長文スクリプト
+        </div>
+
+        <button
+          id="type5ScriptCloseBtn"
+          class="type5SheetCloseBtn"
+          type="button"
+          aria-label="閉じる"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="type5SheetAudio">
+        <button
+          id="type5ScriptPlayBtn"
+          class="primary"
+          type="button"
+        >
+          ▶ 音声を再生
+        </button>
+
+        <button
+          id="type5ScriptStopBtn"
+          type="button"
+        >
+          ■ 停止
+        </button>
+      </div>
+
+      <div class="type5SheetSection">
+        <div class="type5SheetSectionTitle">
+          English Script
+        </div>
+
+        <div
+          id="type5FullScriptEn"
+          class="type5FullScriptEn"
+        ></div>
+      </div>
+
+      <div class="type5SheetSection">
+        <div class="type5SheetSectionTitle">
+          日本語訳
+        </div>
+
+        <div
+          id="type5FullScriptJa"
+          class="type5FullScriptJa"
+        ></div>
+      </div>
+    </div>
+  </div>
+
   <!-- データ・共通機能 -->
   <script>
     window.ACTIVE_LEVEL =
@@ -1874,14 +1302,15 @@
   <script src="goimon_rules.js"></script>
   <script src="goimon.js"></script>
 
-  <!-- リスニング問題データ -->
+<!-- リスニング問題データ -->
 <script src="listening_type2_1kyu.js"></script>
 <script src="listening_type3_1kyu.js"></script>
+<script src="listening_type5_1kyu.js"></script>
 
-  <script src="quiz_ui_common.js"></script>
+<script src="quiz_ui_common.js"></script>
 <script src="quiz_shortcuts.js"></script>
 
-  <!-- リスニングページ本体 -->
-  <script src="listening.js"></script>
+<!-- リスニングページ本体 -->
+<script src="listening.js"></script>
 </body>
 </html>
