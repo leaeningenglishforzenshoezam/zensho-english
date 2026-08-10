@@ -33,6 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const CURSOR_KEY =
     `zensho_listening_cursor_v1_lv${lv}`;
 
+    const ATTEMPT_KEY =
+  `zensho_listening_attempts_v1_lv${lv}`;
+
   const METHOD_LABELS = {
     quiz: "リスニング問題",
     dictation: "ディクテーション",
@@ -85,6 +88,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const dictationPassCount =
     document.getElementById("dictationPassCount");
+  
+  const dictationSentenceSpeed =
+    document.getElementById(
+      "dictationSentenceSpeed"
+    );
 
   const playbackRate =
     document.getElementById("playbackRate");
@@ -157,6 +165,11 @@ let problemListPlayingButton = null;
   const playAudioBtn =
     document.getElementById("playAudioBtn");
 
+    const rewind3Btn =
+    document.getElementById(
+      "rewind3Btn"
+    );
+
   const stopAudioBtn =
     document.getElementById("stopAudioBtn");
 
@@ -180,8 +193,120 @@ let problemListPlayingButton = null;
 
   const choicesEl =
     document.getElementById("choices");
+  
+    /*
+    大問5専用
+  */
+  const type5ModePanel =
+    document.getElementById(
+      "type5ModePanel"
+    );
 
-      const reorderDictationPanel =
+  const type5QuestionList =
+    document.getElementById(
+      "type5QuestionList"
+    );
+
+  const type5CheckBtn =
+    document.getElementById(
+      "type5CheckBtn"
+    );
+
+  const type5Result =
+    document.getElementById(
+      "type5Result"
+    );  
+    const type5ScriptAction =
+    document.getElementById(
+      "type5ScriptAction"
+    );
+
+  const type5ScriptOpenBtn =
+    document.getElementById(
+      "type5ScriptOpenBtn"
+    );
+
+  const type5ScriptSheetOverlay =
+    document.getElementById(
+      "type5ScriptSheetOverlay"
+    );
+
+  const type5ScriptSheet =
+    document.getElementById(
+      "type5ScriptSheet"
+    );
+
+  const type5ScriptCloseBtn =
+    document.getElementById(
+      "type5ScriptCloseBtn"
+    );
+
+  const type5ScriptPlayBtn =
+    document.getElementById(
+      "type5ScriptPlayBtn"
+    );
+
+  const type5ScriptStopBtn =
+    document.getElementById(
+      "type5ScriptStopBtn"
+    );
+
+  const type5FullScriptEn =
+    document.getElementById(
+      "type5FullScriptEn"
+    );
+
+  const type5FullScriptJa =
+    document.getElementById(
+      "type5FullScriptJa"
+    );
+  
+    const type5FixedFooter =
+    document.getElementById(
+      "type5FixedFooter"
+    );
+
+  const type5NextBtn =
+    document.getElementById(
+      "type5NextBtn"
+    );
+
+  const type5ReviewCard =
+    document.getElementById(
+      "type5ReviewCard"
+    );
+
+  const type5ReviewDictationBtn =
+    document.getElementById(
+      "type5ReviewDictationBtn"
+    );
+
+  const type5ReviewOverlappingBtn =
+    document.getElementById(
+      "type5ReviewOverlappingBtn"
+    );
+
+  const type5ReviewShadowingBtn =
+    document.getElementById(
+      "type5ReviewShadowingBtn"
+    );
+
+    const type5FooterDictationBtn =
+    document.getElementById(
+      "type5FooterDictationBtn"
+    );
+
+  const type5FooterOverlappingBtn =
+    document.getElementById(
+      "type5FooterOverlappingBtn"
+    );
+
+  const type5FooterShadowingBtn =
+    document.getElementById(
+      "type5FooterShadowingBtn"
+    );
+  
+    const reorderDictationPanel =
     document.getElementById("reorderDictationPanel");
 
   const fullDictationPanel =
@@ -283,6 +408,9 @@ let problemListPlayingButton = null;
 
   const scriptAnswerJa =
     document.getElementById("scriptAnswerJa");
+
+  const playScriptAudioBtn =
+    document.getElementById("playScriptAudioBtn");
 
   const explanationBox =
     document.getElementById("explanationBox");
@@ -389,6 +517,7 @@ let problemListPlayingButton = null;
     [customCountInput, "customCountInput"],
     [methodCards, "methodCards"],
     [dictationSettings, "dictationSettings"],
+    [dictationSentenceSpeed, "dictationSentenceSpeed"],
     [playbackRate, "playbackRate"],
     [autoPlayCount, "autoPlayCount"],
     [shuffleChoices, "shuffleChoices"],
@@ -397,9 +526,33 @@ let problemListPlayingButton = null;
     [openProblemListBtn, "openProblemListBtn"],
     [questionAudio, "questionAudio"],
     [playAudioBtn, "playAudioBtn"],
+    [rewind3Btn, "rewind3Btn"],
     [stopAudioBtn, "stopAudioBtn"],
     [playSpeedSelect, "playSpeedSelect"],
     [choicesEl, "choices"],
+    [type5ModePanel, "type5ModePanel"],
+    [type5QuestionList, "type5QuestionList"],
+    [type5CheckBtn, "type5CheckBtn"],
+    [type5Result, "type5Result"],
+    [type5ScriptAction, "type5ScriptAction"],
+    [type5ScriptOpenBtn, "type5ScriptOpenBtn"],
+    [type5ScriptSheetOverlay, "type5ScriptSheetOverlay"],
+    [type5ScriptSheet, "type5ScriptSheet"],
+    [type5ScriptCloseBtn, "type5ScriptCloseBtn"],
+    [type5ScriptPlayBtn, "type5ScriptPlayBtn"],
+    [type5ScriptStopBtn, "type5ScriptStopBtn"],
+    [type5FullScriptEn, "type5FullScriptEn"],
+    [type5FullScriptJa, "type5FullScriptJa"],
+    [type5FixedFooter, "type5FixedFooter"],
+    [type5NextBtn, "type5NextBtn"],
+    [type5ReviewCard, "type5ReviewCard"],
+    [type5ReviewDictationBtn, "type5ReviewDictationBtn"],
+    [type5ReviewOverlappingBtn, "type5ReviewOverlappingBtn"],
+    [type5ReviewShadowingBtn, "type5ReviewShadowingBtn"],
+    [type5FooterDictationBtn, "type5FooterDictationBtn"],
+    [type5FooterOverlappingBtn, "type5FooterOverlappingBtn"],
+    [type5FooterShadowingBtn, "type5FooterShadowingBtn"],
+    [playScriptAudioBtn, "playScriptAudioBtn"],
     [reorderDictationPanel, "reorderDictationPanel"],
     [fullDictationPanel, "fullDictationPanel"],
     [dictationAnswerArea, "dictationAnswerArea"],
@@ -430,75 +583,177 @@ let problemListPlayingButton = null;
   // 問題データ
   // ============================================================
 
-  function getRawQuestions() {
-  const sources = [];
+    function getRawQuestions() {
+    const sources = [];
 
-  // 大問2形式
-  if (
-    Array.isArray(
-      window.LISTENING_TYPE2_1KYU
-    )
-  ) {
-    sources.push(
-      ...window.LISTENING_TYPE2_1KYU
-    );
-  } else {
-    try {
-      if (
-        typeof LISTENING_TYPE2_1KYU !==
-          "undefined" &&
-        Array.isArray(
-          LISTENING_TYPE2_1KYU
-        )
-      ) {
-        sources.push(
-          ...LISTENING_TYPE2_1KYU
+    // ==========================================================
+    // 大問2形式
+    // ==========================================================
+
+    if (
+      Array.isArray(
+        window.LISTENING_TYPE2_1KYU
+      )
+    ) {
+      sources.push(
+        ...window.LISTENING_TYPE2_1KYU
+      );
+    } else {
+      try {
+        if (
+          typeof LISTENING_TYPE2_1KYU !==
+            "undefined" &&
+          Array.isArray(
+            LISTENING_TYPE2_1KYU
+          )
+        ) {
+          sources.push(
+            ...LISTENING_TYPE2_1KYU
+          );
+        }
+      } catch (error) {
+        console.warn(
+          "LISTENING_TYPE2_1KYUの取得に失敗しました。",
+          error
         );
       }
-    } catch (error) {
-      console.warn(
-        "LISTENING_TYPE2_1KYUの取得に失敗しました。",
-        error
-      );
     }
-  }
 
-  // 大問3形式
-  if (
-    Array.isArray(
-      window.LISTENING_TYPE3_1KYU
-    )
-  ) {
-    sources.push(
-      ...window.LISTENING_TYPE3_1KYU
-    );
-  } else {
-    try {
-      if (
-        typeof listeningType3_1kyu !==
-          "undefined" &&
-        Array.isArray(
-          listeningType3_1kyu
-        )
-      ) {
-        sources.push(
-          ...listeningType3_1kyu
+    // ==========================================================
+    // 大問3形式
+    // ==========================================================
+
+    if (
+      Array.isArray(
+        window.LISTENING_TYPE3_1KYU
+      )
+    ) {
+      sources.push(
+        ...window.LISTENING_TYPE3_1KYU
+      );
+    } else {
+      try {
+        if (
+          typeof listeningType3_1kyu !==
+            "undefined" &&
+          Array.isArray(
+            listeningType3_1kyu
+          )
+        ) {
+          sources.push(
+            ...listeningType3_1kyu
+          );
+        }
+      } catch (error) {
+        console.warn(
+          "listeningType3_1kyuの取得に失敗しました。",
+          error
         );
       }
-    } catch (error) {
-      console.warn(
-        "listeningType3_1kyuの取得に失敗しました。",
-        error
-      );
     }
-  }
 
-  return sources;
-}
+    // ==========================================================
+    // 大問5形式
+    // ==========================================================
+
+    if (
+      Array.isArray(
+        window.LISTENING_TYPE5_1KYU
+      )
+    ) {
+      sources.push(
+        ...window.LISTENING_TYPE5_1KYU
+      );
+    } else {
+      try {
+        if (
+          typeof LISTENING_TYPE5_1KYU !==
+            "undefined" &&
+          Array.isArray(
+            LISTENING_TYPE5_1KYU
+          )
+        ) {
+          sources.push(
+            ...LISTENING_TYPE5_1KYU
+          );
+        }
+      } catch (error) {
+        console.warn(
+          "LISTENING_TYPE5_1KYUの取得に失敗しました。",
+          error
+        );
+      }
+    }
+
+    return sources;
+  }
 
   function normalizeQuestions(raw) {
     return (raw || [])
       .map(q => {
+
+        const format =
+          Number(q?.format || 3);
+
+        /*
+          大問5の子設問を整形
+        */
+        const subQuestions =
+          Array.isArray(q?.questions)
+            ? q.questions.map(sub => {
+                return {
+                  id: String(
+                    sub?.id || ""
+                  ).trim(),
+
+                  questionType: String(
+                    sub?.questionType || ""
+                  ).trim(),
+
+                  stem: String(
+                    sub?.stem || ""
+                  ).trim(),
+
+                  stemJa: String(
+                    sub?.stemJa || ""
+                  ).trim(),
+
+                  choices:
+                    Array.isArray(
+                      sub?.choices
+                    )
+                      ? sub.choices.map(c => {
+                          return {
+                            id: String(
+                              c?.id || ""
+                            ).trim(),
+
+                            text: String(
+                              c?.text || ""
+                            ).trim(),
+
+                            ja: String(
+                              c?.ja || ""
+                            ).trim()
+                          };
+                        })
+                      : [],
+
+                  answerId: String(
+                    sub?.answerId || ""
+                  ).trim(),
+
+                  evidence: String(
+  sub?.evidence || ""
+).trim(),
+
+evidenceJa: String(
+  sub?.evidenceJa || ""
+).trim()
+                };
+              })
+            : [];
+
         return {
           id: String(
             q?.id || ""
@@ -512,13 +767,19 @@ let problemListPlayingButton = null;
             q?.part || "listening"
           ),
 
-          format: Number(
-            q?.format || 3
-          ),
+          format,
 
           type: String(
             q?.type || ""
           ),
+
+          title: String(
+            q?.title || ""
+          ).trim(),
+
+          sourceType: String(
+            q?.sourceType || ""
+          ).trim(),
 
           audioFile: String(
             q?.audioFile || ""
@@ -532,23 +793,27 @@ let problemListPlayingButton = null;
             q?.scriptJa || ""
           ).trim(),
 
-          choices: Array.isArray(q?.choices)
-            ? q.choices.map(c => {
-                return {
-                  id: String(
-                    c?.id || ""
-                  ).trim(),
+          /*
+            大問2・3用
+          */
+          choices:
+            Array.isArray(q?.choices)
+              ? q.choices.map(c => {
+                  return {
+                    id: String(
+                      c?.id || ""
+                    ).trim(),
 
-                  text: String(
-                    c?.text || ""
-                  ).trim(),
+                    text: String(
+                      c?.text || ""
+                    ).trim(),
 
-                  ja: String(
-                    c?.ja || ""
-                  ).trim()
-                };
-              })
-            : [],
+                    ja: String(
+                      c?.ja || ""
+                    ).trim()
+                  };
+                })
+              : [],
 
           answerId: String(
             q?.answerId || ""
@@ -560,10 +825,41 @@ let problemListPlayingButton = null;
 
           function: String(
             q?.function || ""
-          ).trim()
+          ).trim(),
+
+          /*
+            大問5用
+          */
+          questions:
+            subQuestions
         };
       })
       .filter(q => {
+
+        /*
+          大問5
+          1長文＋5つの子設問
+        */
+        if (q.format === 5) {
+          return (
+            q.id &&
+            q.audioFile &&
+            q.script &&
+            q.questions.length === 5 &&
+            q.questions.every(sub => {
+              return (
+                sub.id &&
+                sub.stem &&
+                sub.choices.length === 4 &&
+                sub.answerId
+              );
+            })
+          );
+        }
+
+        /*
+          大問2・3
+        */
         return (
           q.id &&
           q.audioFile &&
@@ -613,6 +909,102 @@ function updatePoolInfo() {
     count === 0;
 }
 
+// ============================================================
+// リスニング問題ごとの取り組み回数
+// ============================================================
+
+function loadAttemptCounts() {
+  try {
+    const raw =
+      localStorage.getItem(
+        ATTEMPT_KEY
+      );
+
+    if (!raw) {
+      return {};
+    }
+
+    const parsed =
+      JSON.parse(raw);
+
+    return (
+      parsed &&
+      typeof parsed === "object"
+        ? parsed
+        : {}
+    );
+  } catch (error) {
+    console.warn(
+      "リスニング問題の取り組み回数を読み込めませんでした。",
+      error
+    );
+
+    return {};
+  }
+}
+
+function saveAttemptCounts(
+  counts
+) {
+  try {
+    localStorage.setItem(
+      ATTEMPT_KEY,
+      JSON.stringify(
+        counts || {}
+      )
+    );
+  } catch (error) {
+    console.warn(
+      "リスニング問題の取り組み回数を保存できませんでした。",
+      error
+    );
+  }
+}
+
+function getAttemptCount(
+  questionId
+) {
+  const counts =
+    loadAttemptCounts();
+
+  return Math.max(
+    0,
+    Number(
+      counts[
+        String(questionId)
+      ] || 0
+    )
+  );
+}
+
+function incrementAttemptCount(
+  questionId
+) {
+  const id =
+    String(
+      questionId || ""
+    );
+
+  if (!id) {
+    return;
+  }
+
+  const counts =
+    loadAttemptCounts();
+
+  counts[id] =
+    Math.max(
+      0,
+      Number(
+        counts[id] || 0
+      )
+    ) + 1;
+
+  saveAttemptCounts(
+    counts
+  );
+}
+
   // ============================================================
   // 状態
   // ============================================================
@@ -621,9 +1013,31 @@ function updatePoolInfo() {
   let currentIndex = 0;
   let currentQuestion = null;
   let currentChoices = [];
+  let type5SelectedAnswers = {};
 
   let dictationTokens = [];
   let dictationSelectedIndexes = [];
+
+  /*
+    大問2の並べ替えディクテーションを、
+    1文ずつ管理するための配列です。
+
+    各要素は次の形式になります。
+
+    {
+      sentence: "英文",
+      tokens: ["並べ替え用", "の", "単語"],
+      selectedIndexes: [2, 0, 1]
+    }
+  */
+  let dictationSentenceStates = [];
+
+  /*
+    「1語戻す」を押した際に、
+    どの文から戻すかを記録します。
+  */
+  let activeDictationSentenceIndex = 0;
+
   let dictationAttempts = 0;
   let fullDictationAttempts = 0;
 
@@ -797,6 +1211,9 @@ function updatePoolInfo() {
   function stopAudio() {
     autoPlayToken += 1;
 
+    /*
+      MP3音声を停止します。
+    */
     try {
       questionAudio.pause();
       questionAudio.currentTime = 0;
@@ -806,6 +1223,11 @@ function updatePoolInfo() {
         error
       );
     }
+
+    /*
+      文ごとのブラウザ読み上げも停止します。
+    */
+    stopDictationSentenceAudio();
   }
 
   function setAudioRate(rate) {
@@ -1690,194 +2112,253 @@ function saveCursor(cursor) {
       .filter(Boolean);
   }
 
-  function getSelectedDictationTokens() {
-    return dictationSelectedIndexes
-      .map(index => dictationTokens[index])
-      .filter(token => typeof token === "string");
-  }
+   /*
+    大問2の長いスクリプトを1文ずつに分割します。
 
-  function getSelectedDictationText() {
-    return getSelectedDictationTokens().join(" ");
-  }
+    通常のピリオドだけで分けると、
+    a.m.、p.m.、Mr.、Ms.などでも分割されてしまいます。
+    そのため、略語内のピリオドを一時的に保護しています。
+  */
+  function splitDictationSentences(text) {
+    const source =
+      String(text || "").trim();
 
-  function isReorderDictationCorrect() {
-    if (!currentQuestion) {
-      return false;
+    if (!source) {
+      return [];
     }
 
-    return (
-      normalizeDictationText(
-        getSelectedDictationText()
-      ) ===
-      normalizeDictationText(
-        currentQuestion.script
+    const protectedDot = "__DOT__";
+
+    const protectedSource = source
+      /*
+        a.m. / p.m.の内部のピリオドを保護します。
+
+        文中の例：
+        at 3:00 p.m. However, ...
+      */
+      .replace(
+        /\b([ap])\.m\.(?=\s+[a-z])/gi,
+        match => {
+          return match.replace(
+            /\./g,
+            protectedDot
+          );
+        }
       )
-    );
-  }
 
-    function prepareReorderDictation() {
-    if (!currentQuestion) {
-      return;
-    }
+      /*
+        a.m. / p.m.が文末にある場合、
+        最後のピリオドは文末記号として残します。
+      */
+      .replace(
+        /\b([ap])\.m\./gi,
+        (match, letter) => {
+          return `${letter}${protectedDot}m.`;
+        }
+      )
 
-    const originalTokens =
-      splitDictationTokens(
-        currentQuestion.script
+      /*
+        人名の敬称などに含まれるピリオドを保護します。
+      */
+      .replace(
+        /\b(Mr\.|Mrs\.|Ms\.|Dr\.|St\.)/g,
+        match => {
+          return match.replace(
+            /\./g,
+            protectedDot
+          );
+        }
+      )
+
+      /*
+        e.g. / i.e.を保護します。
+      */
+      .replace(
+        /\b(e\.g\.|i\.e\.)/gi,
+        match => {
+          return match.replace(
+            /\./g,
+            protectedDot
+          );
+        }
       );
 
     /*
-      同じ単語が複数ある可能性があるため、
-      単語そのものではなく配列番号で管理します。
+      ピリオド、疑問符、感嘆符を文末として分割します。
     */
-    dictationTokens =
-      shuffleArray(originalTokens);
+    const matches =
+      protectedSource.match(
+        /[^.!?]+[.!?]+(?:["”’']+)?|[^.!?]+$/g
+      );
 
-    dictationSelectedIndexes = [];
-    dictationAttempts = 0;
-
-    reorderDictationPanel
-      .classList
-      .remove("hidden");
-
-    fullDictationPanel
-      .classList
-      .add("hidden");
-
-    renderReorderDictation();
+    return (matches || [protectedSource])
+      .map(sentence => {
+        return sentence
+          .replaceAll(protectedDot, ".")
+          .trim();
+      })
+      .filter(Boolean);
   }
 
-  function renderReorderDictation() {
-    const selectedTokens =
-      getSelectedDictationTokens();
+    /*
+    1文分のディクテーション状態を作ります。
+  */
+  function createDictationSentenceState(
+    sentence
+  ) {
+    return {
+      sentence,
 
-    if (selectedTokens.length) {
-      dictationAnswerArea.innerHTML =
-        selectedTokens
-          .map((token, selectedPosition) => {
-            return `
-              <button
-                type="button"
-                class="wordChip"
-                data-selected-position="${selectedPosition}"
-                title="クリックするとこの語以降を戻します"
-              >
-                ${escapeHtml(token)}
-              </button>
-            `;
-          })
-          .join("");
-    } else {
-      dictationAnswerArea.innerHTML = `
-        <span class="muted">
-          下の単語を、聞こえた順番に選んでください。
-        </span>
-      `;
-    }
+      /*
+        1文ごとに単語を分割してシャッフル
+      */
+      tokens: shuffleArray(
+        splitDictationTokens(sentence)
+      ),
 
-    wordBank.innerHTML = "";
+      /*
+        学習者が選んだ単語
+      */
+      selectedIndexes: [],
 
-    dictationTokens.forEach((token, index) => {
-      const isUsed =
-        dictationSelectedIndexes.includes(index);
+      /*
+        この文だけの採点状態
+      */
+      isCorrect: false,
 
-      const btn =
-        document.createElement("button");
+      /*
+        この文を何回答え合わせしたか
+      */
+      attempts: 0,
 
-      btn.type = "button";
-      btn.className = "wordChip";
-
-      if (isUsed) {
-        btn.classList.add("used");
-        btn.disabled = true;
-      }
-
-      btn.textContent = token;
-
-      btn.addEventListener("click", () => {
-        if (
-          dictationSelectedIndexes.includes(index)
-        ) {
-          return;
-        }
-
-        dictationSelectedIndexes.push(index);
-        renderReorderDictation();
-      });
-
-      wordBank.appendChild(btn);
-    });
-
-    dictationAnswerArea
-      .querySelectorAll("[data-selected-position]")
-      .forEach(btn => {
-        btn.addEventListener("click", () => {
-          const selectedPosition =
-            Number(
-              btn.dataset.selectedPosition
-            );
-
-          if (
-            !Number.isFinite(selectedPosition)
-          ) {
-            return;
-          }
-
-          /*
-            押した語と、それより後ろの語を
-            単語バンクへ戻します。
-          */
-          dictationSelectedIndexes =
-            dictationSelectedIndexes.slice(
-              0,
-              selectedPosition
-            );
-
-          renderReorderDictation();
-        });
-      });
-
-    checkReorderBtn.disabled =
-      dictationSelectedIndexes.length !==
-      dictationTokens.length;
+      /*
+        採点後に表示するメッセージ
+      */
+      feedback: ""
+    };
   }
 
-    function checkReorderDictation() {
+  /*
+    指定した文で選択済みの単語を取得します。
+  */
+  function getSentenceSelectedTokens(
+    state
+  ) {
+    return state.selectedIndexes
+      .map(index => {
+        return state.tokens[index];
+      })
+      .filter(token => {
+        return typeof token === "string";
+      });
+  }
+
+  /*
+    指定した文で選択済みの単語を、
+    1つの英文としてつなげます。
+  */
+  function getSentenceSelectedText(
+    state
+  ) {
+    return getSentenceSelectedTokens(
+      state
+    ).join(" ");
+  }
+
+  /*
+    すべての文が正しい順序になっているか確認します。
+  */
+  function isReorderDictationCorrect() {
     if (
       !currentQuestion ||
-      answered
+      !dictationSentenceStates.length
+    ) {
+      return false;
+    }
+
+    return dictationSentenceStates.every(
+      state => {
+        const learnerAnswer =
+          normalizeDictationText(
+            getSentenceSelectedText(state)
+          );
+
+        const correctAnswer =
+          normalizeDictationText(
+            state.sentence
+          );
+
+        return (
+          learnerAnswer === correctAnswer
+        );
+      }
+    );
+  }
+
+    // ============================================================
+  // 1文ずつディクテーション採点
+  // ============================================================
+
+  function checkDictationSentence(
+    sentenceIndex
+  ) {
+    if (
+      answered ||
+      !currentQuestion
     ) {
       return;
     }
+
+    const state =
+      dictationSentenceStates[
+        sentenceIndex
+      ];
 
     if (
-      dictationSelectedIndexes.length !==
-      dictationTokens.length
+      !state ||
+      state.isCorrect
     ) {
-      answerResult.className =
-        "answerResult ng";
-
-      answerResult.textContent =
-        "まだ使っていない単語があります。";
-
       return;
     }
 
-    dictationAttempts += 1;
+    /*
+      まだ単語を全部使っていない
+    */
+    if (
+      state.selectedIndexes.length !==
+      state.tokens.length
+    ) {
+      state.feedback =
+        "まだ使っていない単語があります。";
+
+      renderReorderDictation();
+      return;
+    }
+
+    state.attempts += 1;
+
+    const learnerAnswer =
+      normalizeDictationText(
+        getSentenceSelectedText(
+          state
+        )
+      );
+
+    const correctAnswer =
+      normalizeDictationText(
+        state.sentence
+      );
 
     const isCorrect =
-      isReorderDictationCorrect();
+      learnerAnswer ===
+      correctAnswer;
 
-    answerResult
-      .classList
-      .remove("hidden");
-
+    /*
+      不正解
+    */
     if (!isCorrect) {
-      answerResult.className =
-        "answerResult ng";
-
-      answerResult.textContent =
-        `順番が違います。もう一度並べ替えてください。` +
-        `（解答回数：${dictationAttempts}回）`;
+      state.feedback =
+        `× 順番が違います。もう一度考えてみましょう。（${state.attempts}回目）`;
 
       addAutoWeak(
         currentQuestion.id
@@ -1885,18 +2366,77 @@ function saveCursor(cursor) {
 
       updateWeakInfo();
 
+      renderReorderDictation();
+      return;
+    }
+
+    /*
+      正解
+    */
+    state.isCorrect = true;
+
+    state.feedback =
+      `○ 正解！（${state.attempts}回目）`;
+
+    renderReorderDictation();
+
+    /*
+      すべての文に正解したか確認
+    */
+    const allCorrect =
+      dictationSentenceStates.every(
+        item => {
+          return item.isCorrect;
+        }
+      );
+
+    if (!allCorrect) {
+      return;
+    }
+
+    /*
+      全文完成
+    */
+    completeReorderDictation();
+  }
+
+    // ============================================================
+  // すべての文が完成したときの処理
+  // ============================================================
+
+  function completeReorderDictation() {
+    if (
+      answered ||
+      !currentQuestion
+    ) {
       return;
     }
 
     answered = true;
+
     stopAudio();
+
+    /*
+      全文で何回答え合わせしたか
+    */
+    dictationAttempts =
+      dictationSentenceStates.reduce(
+        (sum, state) => {
+          return (
+            sum +
+            Number(
+              state.attempts || 0
+            )
+          );
+        },
+        0
+      );
 
     answerResult.className =
       "answerResult ok";
 
     answerResult.textContent =
-      `正解です。` +
-      `再生${playCount}回・解答${dictationAttempts}回で完成しました。`;
+      "すべての文が完成しました！";
 
     scriptAnswerEn.textContent =
       currentQuestion.script;
@@ -1909,8 +2449,9 @@ function saveCursor(cursor) {
       .remove("hidden");
 
     explanationText.textContent =
-      currentQuestion.explanation ||
-      "解説はありません。";
+      getDisplayExplanation(
+        currentQuestion.explanation
+      );
 
     explanationBox
       .classList
@@ -1959,17 +2500,767 @@ function saveCursor(cursor) {
       answerId:
         currentQuestion.answerId,
 
-      playCount:
-        playCount,
+      playCount,
 
-      dictationAttempts:
-        dictationAttempts,
+      dictationAttempts,
 
       dictationPassed:
         playCount <= passLimit,
 
-      pointAdded:
-        pointAdded,
+      pointAdded,
+
+      method:
+        "dictation_reorder"
+    });
+  }
+
+  /*
+    語句整序ディクテーションを準備します。
+  */
+  function prepareReorderDictation() {
+    if (!currentQuestion) {
+      return;
+    }
+
+        /*
+      大問2・大問5は
+      スクリプトを1文ずつに分割します。
+
+      大問3などは、
+      スクリプト全体を1文として扱います。
+    */
+    const sentences =
+      (
+        currentQuestion.format === 2 ||
+        currentQuestion.format === 5
+      )
+        ? splitDictationSentences(
+            currentQuestion.script
+          )
+        : [
+            currentQuestion.script
+          ];
+
+    dictationSentenceStates =
+      sentences.map(
+        createDictationSentenceState
+      );
+
+    activeDictationSentenceIndex = 0;
+
+    /*
+      旧方式の変数は空にします。
+    */
+    dictationTokens = [];
+    dictationSelectedIndexes = [];
+
+    dictationAttempts = 0;
+
+    reorderDictationPanel
+      .classList
+      .remove("hidden");
+
+    fullDictationPanel
+      .classList
+      .add("hidden");
+
+    renderReorderDictation();
+  }
+
+    /*
+    文ごとの音声読み上げで使用する音声です。
+  */
+  let currentSentenceUtterance = null;
+  let currentSentencePlayButton = null;
+
+  /*
+    ブラウザに登録されている英語音声を取得します。
+  */
+  function getEnglishSpeechVoice() {
+    if (
+      !("speechSynthesis" in window)
+    ) {
+      return null;
+    }
+
+    const voices =
+      window.speechSynthesis.getVoices();
+
+    if (!voices.length) {
+      return null;
+    }
+
+    /*
+      まずアメリカ英語を探し、
+      なければ他の英語音声を使用します。
+    */
+    return (
+      voices.find(voice => {
+        return /^en-US/i.test(voice.lang);
+      }) ||
+      voices.find(voice => {
+        return /^en/i.test(voice.lang);
+      }) ||
+      null
+    );
+  }
+
+  /*
+    指定した1文だけを読み上げます。
+  */
+  function playDictationSentence(
+    sentence,
+    button
+  ) {
+    const text =
+      String(sentence || "").trim();
+
+    if (!text) {
+      return;
+    }
+
+    if (
+      !("speechSynthesis" in window)
+    ) {
+      answerResult.className =
+        "answerResult ng";
+
+      answerResult.textContent =
+        "このブラウザでは文ごとの音声再生を利用できません。";
+
+      return;
+    }
+
+    /*
+      すでに読み上げ中の場合は停止します。
+    */
+    window.speechSynthesis.cancel();
+
+    if (currentSentencePlayButton) {
+      currentSentencePlayButton
+        .classList
+        .remove("isPlaying");
+
+      currentSentencePlayButton.textContent =
+        "▶ この文を聞く";
+    }
+
+    const utterance =
+      new SpeechSynthesisUtterance(text);
+
+    const voice =
+      getEnglishSpeechVoice();
+
+    if (voice) {
+      utterance.voice = voice;
+      utterance.lang = voice.lang;
+    } else {
+      utterance.lang = "en-US";
+    }
+
+    /*
+      ページ上部で選択している再生速度を反映します。
+      SpeechSynthesisのrateは音声によって差があるため、
+      極端な値にならないよう調整します。
+    */
+    const selectedRate =
+  Number(
+    dictationSentenceSpeed?.value ||
+    1
+  );
+
+    utterance.rate =
+      Math.min(
+        1.4,
+        Math.max(
+          0.7,
+          selectedRate
+        )
+      );
+
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+    currentSentenceUtterance =
+      utterance;
+
+    currentSentencePlayButton =
+      button;
+
+    button.classList.add(
+      "isPlaying"
+    );
+
+    button.textContent =
+      "■ 停止";
+
+    utterance.onend = () => {
+      button.classList.remove(
+        "isPlaying"
+      );
+
+      button.textContent =
+        "▶ この文を聞く";
+
+      if (
+        currentSentencePlayButton ===
+        button
+      ) {
+        currentSentencePlayButton =
+          null;
+
+        currentSentenceUtterance =
+          null;
+      }
+    };
+
+    utterance.onerror = event => {
+      /*
+        cancelによる終了は通常の停止として扱います。
+      */
+      if (
+        event.error !== "canceled" &&
+        event.error !== "interrupted"
+      ) {
+        console.warn(
+          "文の読み上げに失敗しました。",
+          event
+        );
+      }
+
+      button.classList.remove(
+        "isPlaying"
+      );
+
+      button.textContent =
+        "▶ この文を聞く";
+
+      if (
+        currentSentencePlayButton ===
+        button
+      ) {
+        currentSentencePlayButton =
+          null;
+
+        currentSentenceUtterance =
+          null;
+      }
+    };
+
+    window.speechSynthesis.speak(
+      utterance
+    );
+  }
+
+  /*
+    文ごとの読み上げを停止します。
+  */
+  function stopDictationSentenceAudio() {
+    if (
+      "speechSynthesis" in window
+    ) {
+      window.speechSynthesis.cancel();
+    }
+
+    if (currentSentencePlayButton) {
+      currentSentencePlayButton
+        .classList
+        .remove("isPlaying");
+
+      currentSentencePlayButton.textContent =
+        "▶ この文を聞く";
+    }
+
+    currentSentencePlayButton = null;
+    currentSentenceUtterance = null;
+  }
+
+
+  /*
+    文ごとの解答欄と単語バンクを表示します。
+  */
+  function renderReorderDictation() {
+    dictationAnswerArea.innerHTML = "";
+
+    dictationSentenceStates.forEach(
+      (state, sentenceIndex) => {
+        /*
+          1文分の外側のカード
+        */
+        const block =
+          document.createElement("section");
+
+        block.className =
+          "dictationSentenceBlock";
+
+        /*
+          文番号と音声ボタンを並べる見出し
+        */
+        const sentenceHeader =
+          document.createElement("div");
+
+        sentenceHeader.className =
+          "dictationSentenceHeader";
+
+        /*
+          「文1」「文2」などの表示
+        */
+        const label =
+          document.createElement("div");
+
+        label.className =
+          "dictationSentenceLabel";
+
+        label.textContent =
+          dictationSentenceStates.length > 1
+            ? `文 ${sentenceIndex + 1}`
+            : "英文";
+
+        sentenceHeader.appendChild(label);
+
+        /*
+          この文だけを読み上げるボタン
+        */
+        const sentencePlayBtn =
+          document.createElement("button");
+
+        sentencePlayBtn.type =
+          "button";
+
+        sentencePlayBtn.className =
+          "dictationSentencePlayBtn";
+
+        sentencePlayBtn.textContent =
+          "▶ この文を聞く";
+
+        sentencePlayBtn.setAttribute(
+          "aria-label",
+          `文${sentenceIndex + 1}を再生`
+        );
+
+        sentencePlayBtn.addEventListener(
+          "click",
+          () => {
+            /*
+              同じボタンを再度押した場合は停止します。
+            */
+            if (
+              currentSentencePlayButton ===
+              sentencePlayBtn
+            ) {
+              stopDictationSentenceAudio();
+              return;
+            }
+
+            playDictationSentence(
+              state.sentence,
+              sentencePlayBtn
+            );
+          }
+        );
+
+        sentenceHeader.appendChild(
+          sentencePlayBtn
+        );
+
+        block.appendChild(
+          sentenceHeader
+        );
+
+        /*
+          選択済みの単語を表示する解答欄
+        */
+        const answerArea =
+          document.createElement("div");
+
+        answerArea.className =
+          "dictationAnswerArea";
+
+        const selectedTokens =
+          getSentenceSelectedTokens(state);
+
+        if (selectedTokens.length) {
+          selectedTokens.forEach(
+            (token, selectedPosition) => {
+              const chip =
+                document.createElement(
+                  "button"
+                );
+
+              chip.type = "button";
+              chip.className = "wordChip";
+              chip.textContent = token;
+
+              chip.title =
+                "クリックするとこの語以降を戻します";
+
+              chip.addEventListener(
+                "click",
+                () => {
+                  if (
+  answered ||
+  state.isCorrect
+) {
+  return;
+}
+
+                  activeDictationSentenceIndex =
+                    sentenceIndex;
+
+                  /*
+                    押した単語と、それ以降の単語を
+                    単語バンクへ戻します。
+                  */
+                  state.selectedIndexes =
+                    state.selectedIndexes.slice(
+                      0,
+                      selectedPosition
+                    );
+
+                  renderReorderDictation();
+                }
+              );
+
+              answerArea.appendChild(chip);
+            }
+          );
+        } else {
+          const note =
+            document.createElement("span");
+
+          note.className = "muted";
+
+          note.textContent =
+            "下の単語を、聞こえた順番に選んでください。";
+
+          answerArea.appendChild(note);
+        }
+
+        block.appendChild(answerArea);
+
+        /*
+          この文専用の単語バンク
+        */
+        const bank =
+          document.createElement("div");
+
+        bank.className = "wordBank";
+
+        state.tokens.forEach(
+          (token, tokenIndex) => {
+            const isUsed =
+              state.selectedIndexes.includes(
+                tokenIndex
+              );
+
+            const btn =
+              document.createElement("button");
+
+            btn.type = "button";
+            btn.className = "wordChip";
+            btn.textContent = token;
+
+            if (isUsed) {
+              btn.classList.add("used");
+              btn.disabled = true;
+            }
+
+            btn.addEventListener(
+              "click",
+              () => {
+                if (
+                  answered ||
+                  state.isCorrect ||
+                  state.selectedIndexes.includes(
+                    tokenIndex
+                  )
+                ) {
+                  return;
+                }
+
+                activeDictationSentenceIndex =
+                  sentenceIndex;
+
+                state.selectedIndexes.push(
+                  tokenIndex
+                );
+
+                renderReorderDictation();
+              }
+            );
+
+            bank.appendChild(btn);
+          }
+        );
+
+        block.appendChild(bank);
+
+                /*
+          この文専用の答え合わせ
+        */
+        const sentenceCheckArea =
+          document.createElement(
+            "div"
+          );
+
+        sentenceCheckArea.className =
+          "dictationSentenceCheckArea";
+
+        const sentenceCheckBtn =
+          document.createElement(
+            "button"
+          );
+
+        sentenceCheckBtn.type =
+          "button";
+
+        sentenceCheckBtn.className =
+          "primary dictationSentenceCheckBtn";
+
+        /*
+          正解済みなら押せない
+        */
+        sentenceCheckBtn.disabled =
+          state.isCorrect ||
+          state.selectedIndexes.length !==
+            state.tokens.length;
+
+        sentenceCheckBtn.textContent =
+          state.isCorrect
+            ? "✓ この文は正解"
+            : "この文を答え合わせ";
+
+        sentenceCheckBtn.addEventListener(
+          "click",
+          () => {
+            checkDictationSentence(
+              sentenceIndex
+            );
+          }
+        );
+
+        sentenceCheckArea.appendChild(
+          sentenceCheckBtn
+        );
+
+        /*
+          ○×メッセージ
+        */
+        if (state.feedback) {
+          const feedback =
+            document.createElement(
+              "div"
+            );
+
+          feedback.className =
+            state.isCorrect
+              ? "dictationSentenceFeedback correct"
+              : "dictationSentenceFeedback wrong";
+
+          feedback.textContent =
+            state.feedback;
+
+          sentenceCheckArea.appendChild(
+            feedback
+          );
+        }
+
+        block.appendChild(
+          sentenceCheckArea
+        );
+
+        dictationAnswerArea.appendChild(
+          block
+        );
+      }
+    );
+
+    /*
+      すべての文ですべての単語を使ったときだけ、
+      「解答する」を押せるようにします。
+    */
+    checkReorderBtn.disabled =
+      !dictationSentenceStates.length ||
+      dictationSentenceStates.some(
+        state => {
+          return (
+            state.selectedIndexes.length !==
+            state.tokens.length
+          );
+        }
+      );
+  }
+
+  /*
+    語句整序ディクテーションを採点します。
+  */
+  function checkReorderDictation() {
+    if (
+      !currentQuestion ||
+      answered
+    ) {
+      return;
+    }
+
+    /*
+      単語を使い切っていない文があるか確認します。
+    */
+    const incompleteIndex =
+      dictationSentenceStates.findIndex(
+        state => {
+          return (
+            state.selectedIndexes.length !==
+            state.tokens.length
+          );
+        }
+      );
+
+    if (incompleteIndex >= 0) {
+      answerResult.className =
+        "answerResult ng";
+
+      answerResult.textContent =
+        dictationSentenceStates.length > 1
+          ? `文${incompleteIndex + 1}に、まだ使っていない単語があります。`
+          : "まだ使っていない単語があります。";
+
+      return;
+    }
+
+    dictationAttempts += 1;
+
+    const isCorrect =
+      isReorderDictationCorrect();
+
+    answerResult
+      .classList
+      .remove("hidden");
+
+    if (!isCorrect) {
+      /*
+        間違っている文番号を取得します。
+      */
+      const wrongIndexes =
+        dictationSentenceStates
+          .map((state, index) => {
+            const learnerAnswer =
+              normalizeDictationText(
+                getSentenceSelectedText(
+                  state
+                )
+              );
+
+            const correctAnswer =
+              normalizeDictationText(
+                state.sentence
+              );
+
+            return learnerAnswer ===
+              correctAnswer
+                ? -1
+                : index + 1;
+          })
+          .filter(index => {
+            return index > 0;
+          });
+
+      answerResult.className =
+        "answerResult ng";
+
+      answerResult.textContent =
+        dictationSentenceStates.length > 1
+          ? `文${wrongIndexes.join(
+              "・"
+            )}の順番が違います。もう一度並べ替えてください。（解答回数：${dictationAttempts}回）`
+          : `順番が違います。もう一度並べ替えてください。（解答回数：${dictationAttempts}回）`;
+
+      addAutoWeak(
+        currentQuestion.id
+      );
+
+      updateWeakInfo();
+
+      return;
+    }
+
+    /*
+      全文正解
+    */
+    answered = true;
+
+    stopAudio();
+
+    answerResult.className =
+      "answerResult ok";
+
+    answerResult.textContent =
+      `正解です。再生${playCount}回・解答${dictationAttempts}回で完成しました。`;
+
+    scriptAnswerEn.textContent =
+      currentQuestion.script;
+
+    scriptAnswerJa.textContent =
+      currentQuestion.scriptJa;
+
+    scriptAnswerBox
+      .classList
+      .remove("hidden");
+
+    /*
+      解説内のA〜Dを、
+      現在表示されている選択肢番号に変換します。
+    */
+    explanationText.textContent =
+      getDisplayExplanation(
+        currentQuestion.explanation
+      );
+
+    explanationBox
+      .classList
+      .remove("hidden");
+
+    afterAnswerActions
+      .classList
+      .remove("hidden");
+
+    nextQuestionBtn.disabled = false;
+
+    removeAutoWeak(
+      currentQuestion.id
+    );
+
+    renderManualWeakButton();
+    updateWeakInfo();
+
+    const pointAdded =
+      awardListeningPoint(
+        currentQuestion.id,
+        "dictation_reorder"
+      );
+
+    addLearningLog(true);
+
+    const passLimit =
+      clampInt(
+        dictationPassCount?.value,
+        1,
+        5,
+        3
+      );
+
+    sessionResults.push({
+      id: currentQuestion.id,
+      isCorrect: true,
+      selectedId: "",
+      answerId:
+        currentQuestion.answerId,
+      playCount,
+      dictationAttempts,
+
+      dictationPassed:
+        playCount <= passLimit,
+
+      pointAdded,
 
       method:
         "dictation_reorder"
@@ -2129,8 +3420,9 @@ function saveCursor(cursor) {
       .remove("hidden");
 
     explanationText.textContent =
-      currentQuestion.explanation ||
-      "解説はありません。";
+      getDisplayExplanation(
+        currentQuestion.explanation
+      );
 
     explanationBox
       .classList
@@ -2603,12 +3895,82 @@ function saveCursor(cursor) {
 
     choicesEl.innerHTML =
       "";
+    
+        /*
+      大問5の状態を初期化
+    */
+    type5SelectedAnswers = {};
+
+    if (type5QuestionList) {
+      type5QuestionList.innerHTML =
+        "";
+    }
+
+    if (type5CheckBtn) {
+      type5CheckBtn.disabled =
+        true;
+    }
+
+    if (type5Result) {
+      type5Result.className =
+        "type5Result hidden";
+
+      type5Result.textContent =
+        "";
+    }
+
+    if (type5ModePanel) {
+      type5ModePanel
+        .classList
+        .add("hidden");
+    }
+
+    if (type5ScriptAction) {
+      type5ScriptAction
+        .classList
+        .add("hidden");
+    }
+
+    if (type5ReviewCard) {
+      type5ReviewCard
+        .classList
+        .add("hidden");
+    }
+
+    if (type5FixedFooter) {
+      type5FixedFooter
+        .classList
+        .add("hidden");
+    }
+
+    if (type5NextBtn) {
+      type5NextBtn.disabled =
+        true;
+    }
+
+    document.body.classList.remove(
+      "type5FooterOpen"
+    );
+
+    /*
+      通常の次へボタンは
+      いったん元に戻す
+    */
+    nextQuestionBtn
+      .classList
+      .remove("hidden");
+
+    closeType5ScriptSheet();
 
     /*
       ディクテーションの状態も初期化
     */
     dictationTokens = [];
     dictationSelectedIndexes = [];
+
+    dictationSentenceStates = [];
+    activeDictationSentenceIndex = 0;
+
     dictationAttempts = 0;
 
     if (dictationAnswerArea) {
@@ -2817,22 +4179,86 @@ function saveCursor(cursor) {
     /*
       4択リスニング
     */
-    if (
+       if (
       method === "quiz"
     ) {
-      audioMessage.textContent =
-        "音声を聞いて、最も適切な応答を選んでください。";
 
-      currentChoices =
-        shuffleChoices.checked
-          ? shuffleArray(
-              currentQuestion.choices
-            )
-          : [
-              ...currentQuestion.choices
-            ];
+      /*
+        大問5
+      */
+      if (
+        Number(
+          currentQuestion.format
+        ) === 5
+      ) {
+        currentChoices = [];
+      
+                /*
+          大問5では専用固定フッターの
+          「次へ」を使う
+        */
+        nextQuestionBtn
+          .classList
+          .add("hidden");
 
-      renderChoices();
+        /*
+          通常4択画面は隠す
+        */
+        quizModePanel
+          .classList
+          .add("hidden");
+
+        /*
+          大問5専用画面を表示
+        */
+        type5ModePanel
+          .classList
+          .remove("hidden");
+
+        dictationModePanel
+          .classList
+          .add("hidden");
+
+        overlappingModePanel
+          .classList
+          .add("hidden");
+
+        shadowingModePanel
+          .classList
+          .add("hidden");
+
+        audioMessage.textContent =
+          "英文を聞いて、5つの問題に答えてください。";
+
+        renderType5Quiz();
+
+      /*
+        大問2・3
+      */
+      } else {
+
+        type5ModePanel
+          .classList
+          .add("hidden");
+
+        quizModePanel
+          .classList
+          .remove("hidden");
+
+        audioMessage.textContent =
+          "音声を聞いて、最も適切な応答を選んでください。";
+
+        currentChoices =
+          shuffleChoices.checked
+            ? shuffleArray(
+                currentQuestion.choices
+              )
+            : [
+                ...currentQuestion.choices
+              ];
+
+        renderChoices();
+      }
 
     /*
       ディクテーション
@@ -2858,11 +4284,25 @@ function saveCursor(cursor) {
         .classList
         .add("hidden");
 
-      const selectedDictationType =
-        String(
-          dictationType?.value ||
-          "reorder"
-        );
+            const selectedDictationType =
+        Number(
+          currentQuestion.format
+        ) === 5
+          ? "reorder"
+          : String(
+              dictationType?.value ||
+              "reorder"
+            );
+
+      if (
+        Number(
+          currentQuestion.format
+        ) === 5 &&
+        dictationType
+      ) {
+        dictationType.value =
+          "reorder";
+      }
 
       /*
         語句並べ替え
@@ -2980,6 +4420,714 @@ function saveCursor(cursor) {
     }
   }
 
+    /*
+    元データの選択肢IDが、
+    現在何番目に表示されているかを取得します。
+
+    例：
+    元データのAがシャッフル後3番目なら3を返します。
+  */
+  function getChoiceDisplayNumber(
+    choiceId
+  ) {
+    const index =
+      currentChoices.findIndex(
+        choice => {
+          return (
+            String(choice.id) ===
+            String(choiceId)
+          );
+        }
+      );
+
+    return index >= 0
+      ? index + 1
+      : null;
+  }
+
+  /*
+    解説文に含まれるA〜Dを、
+    現在の表示順に対応した
+    「選択肢1〜4」へ置き換えます。
+
+    例：
+    Aがシャッフル後3番目の場合
+
+    「Aが正解です」
+        ↓
+    「選択肢3が正解です」
+  */
+  function getDisplayExplanation(
+    rawExplanation
+  ) {
+    const source =
+      String(
+        rawExplanation ||
+        "解説はありません。"
+      );
+
+    if (!currentChoices.length) {
+      return source;
+    }
+
+    const idToLabel = {};
+
+    currentChoices.forEach(
+      (choice, index) => {
+        const choiceId =
+          String(choice.id)
+            .toUpperCase();
+
+        idToLabel[choiceId] =
+          `選択肢${index + 1}`;
+      }
+    );
+
+    /*
+      単語として独立しているA〜Dだけを変換します。
+
+      そのため、英文内の通常の文字まで
+      誤って置き換えることを防げます。
+    */
+    return source.replace(
+      /(^|[^A-Za-z0-9_])([A-D])(?=($|[^A-Za-z0-9_]))/g,
+
+      (
+        match,
+        before,
+        choiceId
+      ) => {
+        return (
+          before +
+          (
+            idToLabel[choiceId] ||
+            choiceId
+          )
+        );
+      }
+    );
+  }
+
+    // ============================================================
+  // 大問5：5問一括回答
+  // ============================================================
+
+    function renderType5Quiz() {
+    if (
+      !currentQuestion ||
+      Number(currentQuestion.format) !== 5
+    ) {
+      return;
+    }
+
+    type5SelectedAnswers = {};
+
+    type5QuestionList.innerHTML =
+      "";
+
+    type5Result.className =
+      "type5Result hidden";
+
+    type5Result.textContent =
+      "";
+
+    type5CheckBtn.disabled =
+      true;
+
+    /*
+      全文スクリプトボタンは
+      答え合わせ前には表示しない
+    */
+    type5ScriptAction
+      .classList
+      .add("hidden");
+
+    closeType5ScriptSheet();
+
+    const questions =
+      Array.isArray(
+        currentQuestion.questions
+      )
+        ? currentQuestion.questions
+        : [];
+
+    questions.forEach(
+      (
+        subQuestion,
+        questionIndex
+      ) => {
+
+        const card =
+          document.createElement(
+            "div"
+          );
+
+        card.className =
+          "type5QuestionCard";
+
+        card.dataset.questionId =
+          subQuestion.id;
+
+        /*
+          Q番号
+        */
+        const head =
+          document.createElement(
+            "div"
+          );
+
+        head.className =
+          "type5QuestionHead";
+
+        head.textContent =
+          `Q${questionIndex + 1}`;
+
+        /*
+          問題文
+        */
+        const stem =
+          document.createElement(
+            "div"
+          );
+
+        stem.className =
+          "type5Stem";
+
+        stem.textContent =
+          subQuestion.stem;
+
+        /*
+          選択肢
+        */
+        const choicesBox =
+          document.createElement(
+            "div"
+          );
+
+        choicesBox.className =
+          "type5Choices";
+
+        const displayChoices =
+          shuffleChoices.checked
+            ? shuffleArray(
+                subQuestion.choices
+              )
+            : [
+                ...subQuestion.choices
+              ];
+
+        displayChoices.forEach(
+          (
+            choice,
+            choiceIndex
+          ) => {
+
+            const btn =
+              document.createElement(
+                "button"
+              );
+
+            btn.type =
+              "button";
+
+            btn.className =
+              "type5ChoiceBtn";
+
+            btn.dataset.questionId =
+              subQuestion.id;
+
+            btn.dataset.choiceId =
+              choice.id;
+
+            btn.innerHTML = `
+              <span class="type5ChoiceNumber">
+                ${choiceIndex + 1}
+              </span>
+
+              <span class="type5ChoiceText">
+
+                <span class="type5ChoiceEn">
+                  ${escapeHtml(
+                    choice.text
+                  )}
+                </span>
+
+                <span class="type5ChoiceJa">
+                  ${escapeHtml(
+                    choice.ja ||
+                    "日本語訳はありません。"
+                  )}
+                </span>
+
+              </span>
+            `;
+
+            btn.addEventListener(
+              "click",
+              () => {
+                selectType5Choice(
+                  subQuestion.id,
+                  choice.id,
+                  btn
+                );
+              }
+            );
+
+            choicesBox.appendChild(
+              btn
+            );
+          }
+        );
+
+        /*
+          ○×表示
+        */
+        const miniResult =
+          document.createElement(
+            "div"
+          );
+
+        miniResult.className =
+          "type5MiniResult hidden";
+
+        miniResult.dataset.resultFor =
+          subQuestion.id;
+
+        /*
+          根拠表示
+        */
+        const reviewBox =
+          document.createElement(
+            "div"
+          );
+
+        reviewBox.className =
+          "type5ReviewBox hidden";
+
+        reviewBox.dataset.reviewFor =
+          subQuestion.id;
+
+        reviewBox.innerHTML = `
+          <div class="type5EvidenceTitle">
+            根拠
+          </div>
+
+          <div class="type5EvidenceEn">
+            ${escapeHtml(
+              subQuestion.evidence ||
+              "根拠英文はありません。"
+            )}
+          </div>
+
+          <div class="type5EvidenceJa">
+            ${escapeHtml(
+              subQuestion.evidenceJa ||
+              "日本語訳はありません。"
+            )}
+          </div>
+        `;
+
+        card.appendChild(
+          head
+        );
+
+        card.appendChild(
+          stem
+        );
+
+        card.appendChild(
+          choicesBox
+        );
+
+        card.appendChild(
+          miniResult
+        );
+
+        card.appendChild(
+          reviewBox
+        );
+
+        type5QuestionList.appendChild(
+          card
+        );
+      }
+    );
+  }
+
+
+  function selectType5Choice(
+    questionId,
+    choiceId,
+    clickedButton
+  ) {
+    if (answered) {
+      return;
+    }
+
+    /*
+      選択内容を保存
+    */
+    type5SelectedAnswers[
+      String(questionId)
+    ] = String(choiceId);
+
+    /*
+      同じ設問のselectedをいったん解除
+    */
+    type5QuestionList
+      .querySelectorAll(
+        `.type5ChoiceBtn[data-question-id="${questionId}"]`
+      )
+      .forEach(btn => {
+        btn.classList.remove(
+          "selected"
+        );
+      });
+
+    clickedButton.classList.add(
+      "selected"
+    );
+
+    /*
+      5問すべて回答したら
+      答え合わせ可能にする
+    */
+    const questions =
+      Array.isArray(
+        currentQuestion?.questions
+      )
+        ? currentQuestion.questions
+        : [];
+
+    const allSelected =
+      questions.length > 0 &&
+      questions.every(q => {
+        return !!type5SelectedAnswers[
+          String(q.id)
+        ];
+      });
+
+    type5CheckBtn.disabled =
+      !allSelected;
+  }
+
+
+    function checkType5Answers() {
+    if (
+      answered ||
+      !currentQuestion ||
+      Number(currentQuestion.format) !== 5
+    ) {
+      return;
+    }
+
+    const questions =
+      Array.isArray(
+        currentQuestion.questions
+      )
+        ? currentQuestion.questions
+        : [];
+
+    const allSelected =
+      questions.length > 0 &&
+      questions.every(q => {
+        return !!type5SelectedAnswers[
+          String(q.id)
+        ];
+      });
+
+    if (!allSelected) {
+      return;
+    }
+
+    answered = true;
+
+// この長文問題に1回取り組んだことを記録
+incrementAttemptCount(
+  currentQuestion.id
+);
+
+let correctCount = 0;
+
+    questions.forEach(
+      subQuestion => {
+
+        const questionId =
+          String(
+            subQuestion.id
+          );
+
+        const selectedId =
+          String(
+            type5SelectedAnswers[
+              questionId
+            ] || ""
+          );
+
+        const answerId =
+          String(
+            subQuestion.answerId
+          );
+
+        const isCorrect =
+          selectedId === answerId;
+
+        if (isCorrect) {
+          correctCount += 1;
+        }
+
+        /*
+          問題カード
+        */
+        const card =
+          type5QuestionList
+            .querySelector(
+              `.type5QuestionCard[data-question-id="${questionId}"]`
+            );
+
+        if (card) {
+          card.classList.add(
+            "answered"
+          );
+
+          card.classList.add(
+            isCorrect
+              ? "correct"
+              : "wrong"
+          );
+        }
+
+        /*
+          選択肢採点
+        */
+        type5QuestionList
+          .querySelectorAll(
+            `.type5ChoiceBtn[data-question-id="${questionId}"]`
+          )
+          .forEach(btn => {
+
+            btn.disabled =
+              true;
+
+            const choiceId =
+              String(
+                btn.dataset.choiceId ||
+                ""
+              );
+
+            btn.classList.remove(
+              "selected"
+            );
+
+            /*
+              正解は緑
+            */
+            if (
+              choiceId === answerId
+            ) {
+              btn.classList.add(
+                "correct"
+              );
+
+            /*
+              選んだ誤答は赤
+            */
+            } else if (
+              choiceId === selectedId &&
+              !isCorrect
+            ) {
+              btn.classList.add(
+                "wrong"
+              );
+            }
+          });
+
+        /*
+          ○×
+        */
+        const miniResult =
+          type5QuestionList
+            .querySelector(
+              `[data-result-for="${questionId}"]`
+            );
+
+        if (miniResult) {
+          miniResult.className =
+            isCorrect
+              ? "type5MiniResult ok"
+              : "type5MiniResult ng";
+
+          miniResult.textContent =
+            isCorrect
+              ? "○ 正解"
+              : "× 不正解";
+        }
+
+        /*
+          根拠を表示
+        */
+        const reviewBox =
+          type5QuestionList
+            .querySelector(
+              `[data-review-for="${questionId}"]`
+            );
+
+        if (reviewBox) {
+          reviewBox.classList.remove(
+            "hidden"
+          );
+        }
+
+        /*
+          結果記録
+        */
+        sessionResults.push({
+          id:
+            questionId,
+
+          parentId:
+            currentQuestion.id,
+
+          format:
+            5,
+
+          method:
+            "quiz",
+
+          isCorrect:
+            isCorrect,
+
+          selectedId:
+            selectedId,
+
+          answerId:
+            answerId,
+
+          playCount:
+            playCount,
+
+          pointAdded:
+            0
+        });
+      }
+    );
+
+        type5Result.className =
+      correctCount ===
+      questions.length
+        ? "type5Result ok"
+        : "type5Result ng";
+
+    type5Result.textContent =
+      `${correctCount} / ` +
+      `${questions.length} 正解`;
+    type5CheckBtn.disabled =
+      true;
+
+        /*
+      採点後：
+      復習カードを表示
+    */
+    type5ReviewCard
+      .classList
+      .remove("hidden");
+
+    /*
+      固定フッターを表示
+    */
+    type5FixedFooter
+      .classList
+      .remove("hidden");
+
+    type5ScriptAction
+      .classList
+      .remove("hidden");
+
+    type5NextBtn.disabled =
+      false;
+
+    document.body.classList.add(
+      "type5FooterOpen"
+    );
+  }
+
+
+    // ============================================================
+  // 大問5：全文スクリプト ボトムシート
+  // ============================================================
+
+  function openType5ScriptSheet() {
+    if (
+      !currentQuestion ||
+      Number(currentQuestion.format) !== 5 ||
+      !answered
+    ) {
+      return;
+    }
+
+    type5FullScriptEn.textContent =
+      currentQuestion.script ||
+      "英文スクリプトはありません。";
+
+    type5FullScriptJa.textContent =
+      currentQuestion.scriptJa ||
+      "日本語訳はありません。";
+
+    type5ScriptSheetOverlay
+      .classList
+      .remove("hidden");
+
+    document.body.classList.add(
+      "type5SheetOpen"
+    );
+  }
+
+
+  function closeType5ScriptSheet() {
+    if (!type5ScriptSheetOverlay) {
+      return;
+    }
+
+    type5ScriptSheetOverlay
+      .classList
+      .add("hidden");
+
+    document.body.classList.remove(
+      "type5SheetOpen"
+    );
+
+    /*
+      シートを閉じたら音声も停止
+    */
+    try {
+      questionAudio.pause();
+      questionAudio.currentTime = 0;
+    } catch (error) {
+      console.warn(
+        "大問5スクリプト音声の停止に失敗しました。",
+        error
+      );
+    }
+  }
+
+
+  async function playType5ScriptAudio() {
+    if (
+      !currentQuestion ||
+      Number(currentQuestion.format) !== 5
+    ) {
+      return;
+    }
+
+    /*
+      復習用再生なので、
+      本番の再生回数には加算しない
+    */
+    await playAudio({
+      countAsPlay: false
+    });
+  }
+  
   // ============================================================
   // 選択肢表示
   // ============================================================
@@ -3014,7 +5162,16 @@ function saveCursor(cursor) {
             </span>
 
             <span class="choiceText">
-              ${escapeHtml(choice.text)}
+              <span class="choiceEn">
+                ${escapeHtml(choice.text)}
+              </span>
+
+              <span class="choiceJa">
+                ${escapeHtml(
+                  choice.ja ||
+                  "日本語訳はありません。"
+                )}
+              </span>
             </span>
           `;
 
@@ -3243,7 +5400,12 @@ function saveCursor(cursor) {
 
     answered = true;
 
-    stopAudio();
+// この問題に1回取り組んだことを記録
+incrementAttemptCount(
+  currentQuestion.id
+);
+
+stopAudio();
 
     const isCorrect =
       String(selectedId) ===
@@ -3257,6 +5419,12 @@ function saveCursor(cursor) {
       )
       .forEach(btn => {
         btn.disabled = true;
+
+        /*
+          answeredクラスが付くと、
+          CSSによって日本語訳が表示されます。
+        */
+        btn.classList.add("answered");
 
         const choiceId =
           String(
@@ -3311,8 +5479,9 @@ function saveCursor(cursor) {
       .remove("hidden");
 
     explanationText.textContent =
-      currentQuestion.explanation ||
-      "解説はありません。";
+      getDisplayExplanation(
+        currentQuestion.explanation
+      );
 
     explanationBox
       .classList
@@ -3954,9 +6123,16 @@ function playProblemListAudio(
     getSelectedFormat()
   );
 
+const attemptedCount =
+  list.filter(q => {
+    return (
+      getAttemptCount(q.id) > 0
+    );
+  }).length;
+
 problemListSummary.textContent =
-  `大問${listFormat}形式・全${list.length}問。` +
-  "問題文、選択肢、正答、日本語訳を確認できます。";
+  `大問${listFormat}形式・全${list.length}問 ／ ` +
+  `取り組み済み ${attemptedCount}問`;
 
     problemListBody.innerHTML =
       "";
@@ -3969,14 +6145,97 @@ problemListSummary.textContent =
       );
 
     list.forEach(
-      (
-        q,
-        index
-      ) => {
-        const weak =
-          getWeakState(
-            q.id
-          );
+  (
+    q,
+    index
+  ) => {
+    const weak =
+      getWeakState(
+        q.id
+      );
+
+    const attemptCount =
+      getAttemptCount(
+        q.id
+      );
+
+    const attemptLabel =
+      attemptCount > 0
+        ? `取り組み済み・${attemptCount}回`
+        : "未挑戦";
+
+    // ============================================================
+// 大問5は「1長文 = 1問」の専用一覧カード
+// ============================================================
+
+if (
+  Number(q.format) === 5
+) {
+  const item =
+    document.createElement(
+      "div"
+    );
+
+  item.className =
+    "resultItem listeningProblemCard";
+
+  const statusClass =
+    attemptCount > 0
+      ? "attemptDone"
+      : "attemptNotYet";
+
+  item.innerHTML = `
+    <div class="listeningProblemCardHead">
+
+      <div class="listeningProblemNumber">
+        No.${index + 1}
+      </div>
+
+      <div
+        class="listeningAttemptBadge ${statusClass}"
+      >
+        ${
+          escapeHtml(
+            attemptLabel
+          )
+        }
+      </div>
+
+    </div>
+
+    <div class="listeningProblemTitle">
+      ${
+        escapeHtml(
+          q.title ||
+          q.id
+        )
+      }
+    </div>
+
+    <div class="listeningProblemMeta">
+      ${escapeHtml(q.id)}
+    </div>
+
+    <div class="listeningProblemAction">
+
+      <button
+        type="button"
+        class="primary problemListStartBtn"
+        data-question-id="${escapeHtml(q.id)}"
+      >
+        ▶ この問題を解く
+      </button>
+
+    </div>
+  `;
+
+  problemListBody
+    .appendChild(
+      item
+    );
+
+  return;
+}
 
         const correct =
           q.choices.find(
@@ -4027,13 +6286,26 @@ problemListSummary.textContent =
           <div class="resultItemHead">
             <div>
               <div class="resultItemId">
-                ${index + 1}.
-                ${escapeHtml(q.id)}
-              </div>
+  ${index + 1}.
+  ${escapeHtml(q.id)}
+</div>
 
-              <div class="muted">
-                ${escapeHtml(q.type)}
-              </div>
+<div class="muted">
+  ${escapeHtml(q.type)}
+</div>
+
+<div
+  class="
+    listeningAttemptBadge
+    ${
+      attemptCount > 0
+        ? "attemptDone"
+        : "attemptNotYet"
+    }
+  "
+>
+  ${escapeHtml(attemptLabel)}
+</div>
             </div>
 
             <button
@@ -4109,6 +6381,17 @@ problemListSummary.textContent =
 >
   もう一度答える
 </button>
+
+
+<div class="listeningProblemAction">
+  <button
+    type="button"
+    class="primary problemListStartBtn"
+    data-question-id="${escapeHtml(q.id)}"
+  >
+    ▶ この問題を解く
+  </button>
+</div>
 
  <div
   class="problemListAnswerBox ${
@@ -4198,6 +6481,64 @@ problemListSummary.textContent =
           .appendChild(item);
       }
     );
+
+
+    // ============================================================
+// 一覧から、この問題だけを解く
+// ============================================================
+
+problemListBody
+  .querySelectorAll(
+    ".problemListStartBtn"
+  )
+  .forEach(btn => {
+
+    btn.addEventListener(
+      "click",
+      () => {
+
+        const questionId =
+          String(
+            btn.dataset.questionId ||
+            ""
+          );
+
+        const question =
+          questionById.get(
+            questionId
+          );
+
+        if (!question) {
+          window.alert(
+            "問題データを取得できませんでした。"
+          );
+
+          return;
+        }
+
+        // 一覧で再生中の音声があれば止める
+        stopProblemListAudio();
+
+        // 通常のリスニング問題モードにする
+        setSelectedMethod(
+          "quiz"
+        );
+
+        // 問題形式も対象問題に合わせる
+        formatSelect.value =
+          String(
+            question.format
+          );
+
+        // 指定した1問だけで演習開始
+        startSession({
+          explicitQuestions: [
+            question
+          ]
+        });
+      }
+    );
+  });
 
     // ============================================================
 // 問題一覧内のボタン操作
@@ -4736,21 +7077,56 @@ if (!problemListAnswersVisible) {
     "click",
     () => {
       if (
-        !dictationSelectedIndexes.length ||
-        answered
+        answered ||
+        !dictationSentenceStates.length
       ) {
         return;
       }
 
-      dictationSelectedIndexes.pop();
+      /*
+        最後に操作した文を取得します。
+      */
+      let state =
+        dictationSentenceStates[
+          activeDictationSentenceIndex
+        ];
+
+      /*
+        最後に操作した文に単語がなければ、
+        後ろの文から選択済みの文を探します。
+      */
+      if (
+        !state ||
+        !state.selectedIndexes.length
+      ) {
+        state = [
+          ...dictationSentenceStates
+        ]
+          .reverse()
+          .find(item => {
+            return (
+              item.selectedIndexes.length
+            );
+          });
+      }
+
+      if (!state) {
+        return;
+      }
+
+      activeDictationSentenceIndex =
+        dictationSentenceStates.indexOf(
+          state
+        );
+
+      state.selectedIndexes.pop();
 
       renderReorderDictation();
 
       answerResult.className =
         "answerResult hidden";
 
-      answerResult.textContent =
-        "";
+      answerResult.textContent = "";
     }
   );
 
@@ -4761,7 +7137,13 @@ if (!problemListAnswersVisible) {
         return;
       }
 
-      dictationSelectedIndexes = [];
+      dictationSentenceStates.forEach(
+        state => {
+          state.selectedIndexes = [];
+        }
+      );
+
+      activeDictationSentenceIndex = 0;
 
       renderReorderDictation();
 
@@ -4858,6 +7240,55 @@ if (!problemListAnswersVisible) {
       ) {
         completeShadowingBtn.disabled =
           false;
+      }
+    }
+  );
+    // ============================================================
+  // 3秒戻る
+  // ============================================================
+
+  rewind3Btn.addEventListener(
+    "click",
+    () => {
+      /*
+        音声ファイルがまだ読み込まれていない場合
+      */
+      if (
+        !questionAudio.src
+      ) {
+        return;
+      }
+
+      /*
+        現在再生中かどうかを記録
+      */
+      const wasPlaying =
+        !questionAudio.paused &&
+        !questionAudio.ended;
+
+      /*
+        現在位置から3秒戻す。
+        0秒より前には行かない。
+      */
+      questionAudio.currentTime =
+        Math.max(
+          0,
+          questionAudio.currentTime - 3
+        );
+
+      /*
+        再生中だった場合は、
+        戻した位置からそのまま再生を続ける。
+      */
+      if (wasPlaying) {
+        questionAudio
+          .play()
+          .catch(error => {
+            console.warn(
+              "3秒戻した後の再生に失敗しました。",
+              error
+            );
+          });
       }
     }
   );
@@ -4977,6 +7408,126 @@ if (!problemListAnswersVisible) {
   );
 
   // ============================================================
+  // 大問5：一括答え合わせ
+  // ============================================================
+
+  type5CheckBtn.addEventListener(
+    "click",
+    checkType5Answers
+  );
+
+    type5NextBtn.addEventListener(
+    "click",
+    () => {
+
+      type5FixedFooter
+        .classList
+        .add("hidden");
+
+      document.body.classList.remove(
+        "type5FooterOpen"
+      );
+
+      goNextQuestion();
+    }
+  );
+
+    // ============================================================
+  // 大問5：この長文を復習
+  // ============================================================
+
+  type5ReviewDictationBtn.addEventListener(
+    "click",
+    () => {
+      reviewDictationBtn.click();
+    }
+  );
+
+  type5ReviewOverlappingBtn.addEventListener(
+    "click",
+    () => {
+      reviewOverlappingBtn.click();
+    }
+  );
+
+  type5ReviewShadowingBtn.addEventListener(
+    "click",
+    () => {
+      reviewShadowingBtn.click();
+    }
+  );
+
+    // ============================================================
+  // 大問5：固定フッターから復習
+  // ============================================================
+
+  type5FooterDictationBtn.addEventListener(
+    "click",
+    () => {
+      reviewDictationBtn.click();
+    }
+  );
+
+  type5FooterOverlappingBtn.addEventListener(
+    "click",
+    () => {
+      reviewOverlappingBtn.click();
+    }
+  );
+
+  type5FooterShadowingBtn.addEventListener(
+    "click",
+    () => {
+      reviewShadowingBtn.click();
+    }
+  );
+
+    type5ScriptOpenBtn.addEventListener(
+    "click",
+    openType5ScriptSheet
+  );
+
+  type5ScriptCloseBtn.addEventListener(
+    "click",
+    closeType5ScriptSheet
+  );
+
+  type5ScriptPlayBtn.addEventListener(
+    "click",
+    playType5ScriptAudio
+  );
+
+  type5ScriptStopBtn.addEventListener(
+    "click",
+    () => {
+      try {
+        questionAudio.pause();
+        questionAudio.currentTime = 0;
+      } catch (error) {
+        console.warn(
+          "大問5スクリプト音声の停止に失敗しました。",
+          error
+        );
+      }
+    }
+  );
+
+  /*
+    暗い背景部分を押しても閉じる
+  */
+  type5ScriptSheetOverlay.addEventListener(
+    "click",
+    event => {
+      if (
+        event.target ===
+        type5ScriptSheetOverlay
+      ) {
+        closeType5ScriptSheet();
+      }
+    }
+  );
+
+  // ============================================================
   // 次の問題
   // ============================================================
 
@@ -4989,7 +7540,6 @@ if (!problemListAnswersVisible) {
   // ============================================================
   // 設定へ戻る
   // ============================================================
-
   backBtn.addEventListener(
     "click",
     () => {
@@ -5217,14 +7767,33 @@ if (!problemListAnswersVisible) {
         .classList
         .add("hidden");
 
-      /*
-        設定されているディクテーション方式を確認
+           /*
+        大問5は必ず
+        1文ずつの語句整序ディクテーションにする
       */
       const selectedDictationType =
-        String(
-          dictationType?.value ||
-          "reorder"
-        );
+        Number(
+          currentQuestion.format
+        ) === 5
+          ? "reorder"
+          : String(
+              dictationType?.value ||
+              "reorder"
+            );
+
+      /*
+        大問5では設定欄も
+        「語句を並べ替える」に合わせておく
+      */
+      if (
+        Number(
+          currentQuestion.format
+        ) === 5 &&
+        dictationType
+      ) {
+        dictationType.value =
+          "reorder";
+      }
 
       /*
         語句整序
@@ -5503,5 +8072,25 @@ showOnly(
   }
 
   initialize();
+
+  /*
+    答え合わせ後のスクリプト欄から、
+    問題音声をもう一度再生します。
+
+    countAsPlayをfalseにすることで、
+    問題中の再生回数には加算しません。
+  */
+  playScriptAudioBtn.addEventListener(
+    "click",
+    async () => {
+      if (!currentQuestion) {
+        return;
+      }
+
+      await playAudio({
+        countAsPlay: false
+      });
+    }
+  );
 
 });
