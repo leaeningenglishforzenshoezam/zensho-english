@@ -9,7 +9,8 @@
 // - ニガテ：自動（間違いで入る）＋手動（ピン留め）
 // - ニガテ演習は「自動＋手動」
 // - ニガテ演習で正解：自動は解除 / 手動は残る
-// - 手動チェックOFFは「完全削除」（自動も手動も消す）
+// - 手動チェックOFFは手動ニガテだけ解除
+// - 自動ニガテが残っている場合は自動ニガテを維持
 // ★学習ログ（ホーム用）に 1問ごとに加算
 // ★ゴイモン：大問9正解で ぶんみゃく +1
 // ★ゴイモン表示は折りたたみ式
@@ -50,6 +51,7 @@ const orderModeEl = document.getElementById("orderMode");
 
 
   const autoReadEl = document.getElementById("autoRead");
+  const resetCursorBtn = document.getElementById("resetCursor");
   const poolInfo = document.getElementById("poolInfo");
   const weakInfo = document.getElementById("weakInfo");
 
@@ -268,6 +270,7 @@ const weakPinEmptyEl = document.getElementById("weakPinEmpty");
 [sentenceSetModeEl, "sentenceSetMode"],
 [orderModeEl, "orderMode"],
     [autoReadEl, "autoRead"],
+    [resetCursorBtn, "resetCursor"],
     [poolInfo, "poolInfo"],
     [weakInfo, "weakInfo"],
     [statsEl, "stats"],
@@ -334,8 +337,25 @@ function getActiveSentenceRawData() {
   return a;
 }
 
-function getCursorKey(blockValue) {
-  return `${getSentenceSetMode()}__${String(blockValue || "all")}`;
+function getSelectedBlockIds() {
+  return [...blockSelect.querySelectorAll('input[type="checkbox"]:checked')]
+    .map(input => Number(input.value))
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b);
+}
+
+function getSelectedBlockSignature() {
+  const ids = getSelectedBlockIds();
+  if (!ids.length) return "none";
+  if (ids.length === blocks.length) return "all";
+  return ids.join("-");
+}
+
+function getCursorKey() {
+  const start = String(rangeStartInput?.value || "").trim() || "auto";
+  const end = String(rangeEndInput?.value || "").trim() || "auto";
+
+  return `${getSentenceSetMode()}__${getSelectedBlockSignature()}__${start}-${end}`;
 }
   const GOIMON_UI_KEY = `zensho_sentence_goimon_ui_v1_lv${lv}`;
   const GLOBAL_BLOCK_KEY = `zensho_block_global_lv${lv}_v1`;
@@ -867,9 +887,14 @@ function renderSentenceExamplesHtml(en) {
       return;
     }
     if (map[k]) {
-      delete map[k];
-      saveWeakMap(map);
-    }
+  map[k].pin = false;
+
+  if (!map[k].auto) {
+    delete map[k];
+  }
+
+  saveWeakMap(map);
+}
   }
 
   function removeAutoIfNotPinned(id) {
@@ -963,21 +988,25 @@ function renderCurrentManualWeakButton() {
   }
 
   function renderBlockSelect() {
-    blockSelect.innerHTML = "";
-    const optAll = document.createElement("option");
-    optAll.value = "all";
-    optAll.textContent = "全範囲";
-    blockSelect.appendChild(optAll);
+  blockSelect.innerHTML = "";
 
-    for (const b of blocks) {
-      const opt = document.createElement("option");
-      opt.value = String(b.id);
-      opt.textContent = `Block ${b.id}（${b.start}〜${b.end}）`;
-      blockSelect.appendChild(opt);
-    }
+  for (const b of blocks) {
+    const label = document.createElement("label");
+    label.className = "quizBlockItem";
 
-    blockSelect.value = "all";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.value = String(b.id);
+    input.checked = true;
+
+    const text = document.createElement("span");
+    text.textContent = `Block ${b.id}`;
+
+    label.appendChild(input);
+    label.appendChild(text);
+    blockSelect.appendChild(label);
   }
+}
 
  function getBaseRangeByBlockValue(v) {
   if (v === "all") return [0, Math.max(0, words.length - 1)];
@@ -1043,18 +1072,73 @@ function getRangeByBlockValue(v) {
     return list;
   }
 
+  function buildEligibleQuestionsBySelectedBlocks() {
+  const selectedIds = new Set(getSelectedBlockIds());
+
+  if (!selectedIds.size) return [];
+
+  let startNo = Number(rangeStartInput?.value);
+  let endNo = Number(rangeEndInput?.value);
+
+  const hasStart = Number.isFinite(startNo) && startNo >= 1;
+  const hasEnd = Number.isFinite(endNo) && endNo >= 1;
+
+  startNo = hasStart ? Math.floor(startNo) : 1;
+  endNo = hasEnd ? Math.floor(endNo) : Math.max(1, words.length);
+
+  if (startNo > endNo) {
+    const tmp = startNo;
+    startNo = endNo;
+    endNo = tmp;
+  }
+
+  startNo = Math.max(1, Math.min(startNo, words.length));
+  endNo = Math.max(1, Math.min(endNo, words.length));
+
+  const list = [];
+
+  for (let i = 0; i < fixed.length; i++) {
+    const q = fixed[i];
+
+    if (!selectedIds.has(Number(q.blockId))) continue;
+
+    const no = Number(q.wordIndex) + 1;
+    if (!Number.isFinite(no) || no < 1) continue;
+    if (no < startNo || no > endNo) continue;
+
+    list.push(i);
+  }
+
+  return list;
+}
+
 function updatePoolInfo() {
   rebuildFixedData();
 
-  const [s, e] = getRangeByBlockValue(blockSelect.value);
-  const eligible = buildEligibleQuestionsByRange(s, e);
+  const ids = getSelectedBlockIds();
+  const eligible = buildEligibleQuestionsBySelectedBlocks();
 
-  const startNo = s + 1;
-  const endNo = e + 1;
+  if (!ids.length) {
+    poolInfo.textContent = "Blockを1つ以上選んでください。";
+    return;
+  }
+
+  const blockText =
+    ids.length === blocks.length
+      ? "全Block"
+      : `Block ${ids.join("・")}`;
+
+  const startText = String(rangeStartInput?.value || "").trim();
+  const endText = String(rangeEndInput?.value || "").trim();
+
+  const rangeText =
+    startText || endText
+      ? ` / 単語No.${startText || "1"}〜${endText || words.length}`
+      : "";
 
   poolInfo.textContent =
     `この設定で出題可能：${eligible.length}問` +
-    `（${getSentenceSetLabel()} / 単語No.${startNo}〜${endNo}）`;
+    `（${getSentenceSetLabel()} / ${blockText}${rangeText}）`;
 }
 
   function updateWeakInfo() {
@@ -1271,11 +1355,11 @@ function resetUIForNewQuestion() {
   function orderModeText() {
   if (session.mode === "weak") return "ニガテ順";
   if (session.orderMode === "retry") return "同セット再挑戦";
-  if (session.orderMode === "start") return "先頭";
-  if (session.orderMode === "continue") return "続き";
-  if (session.orderMode === "weak_order") return "苦手順";
+  if (session.orderMode === "continue") return "順番";
+  if (session.orderMode === "weak_order") return "ニガテ優先";
   return "ランダム";
 }
+
   function renderQuestion() {
     if (session.mode === "weak") {
       const c = weakCounts();
@@ -1514,11 +1598,10 @@ const isCorrect = !isUnknown && (norm(choice) === correctChoiceNorm);
 }
 
   function blockSelectLabel(v) {
-  const [s, e] = getRangeByBlockValue(v);
-  const rangeText = `単語No.${s + 1}〜${e + 1}`;
+  if (v === "all") return "全Block";
+  if (!v || v === "none") return "Block未選択";
 
-  if (v === "all") return `全範囲 / ${rangeText}`;
-  return `Block ${v} / ${rangeText}`;
+  return `Block ${String(v).split("-").join("・")}`;
 }
 
   function isPinned(id) {
@@ -2261,8 +2344,19 @@ function renderSummary(autoCleared) {
   function startNormalSession() {
   rebuildFixedData();
 
-  const [s, e] = getRangeByBlockValue(blockSelect.value);
-  const eligible = buildEligibleQuestionsByRange(s, e);
+  const selectedIds = getSelectedBlockIds();
+
+  if (!selectedIds.length) {
+    alert("学習するBlockを1つ以上選んでください。");
+    return;
+  }
+
+  const eligible = buildEligibleQuestionsBySelectedBlocks();
+
+  if (!eligible.length) {
+    alert("この条件では出題できる問題がありません。Blockや単語No.の範囲を確認してください。");
+    return;
+  }
 
   let limit = Number(countInput.value);
   if (!Number.isFinite(limit) || limit < 1) limit = 20;
@@ -2270,8 +2364,8 @@ function renderSummary(autoCleared) {
 
   session.mode = "normal";
   session.sentenceSetMode = getSentenceSetMode();
-  session.cursorKey = getCursorKey(blockSelect.value);
-  session.blockValue = blockSelect.value;
+  session.cursorKey = getCursorKey();
+  session.blockValue = getSelectedBlockSignature();
   session.eligible = eligible;
   session.limit = Math.max(1, limit);
   session.answered = 0;
@@ -2280,21 +2374,20 @@ function renderSummary(autoCleared) {
   session.orderMode = String(orderModeEl.value || "continue");
 
   if (session.orderMode === "random") {
-    session.order = shuffle(eligible);
-    session.cursor = 0;
-  } else if (session.orderMode === "weak_order") {
-    session.order = sortWeakQuestionIndexes(eligible);
-    session.cursor = 0;
-  } else {
-    session.order = [...eligible];
+  session.order = shuffle(eligible);
+  session.cursor = 0;
+} else if (session.orderMode === "weak_order") {
+  session.order = sortWeakQuestionIndexes(eligible);
+  session.cursor = 0;
+} else {
+  session.order = [...eligible];
+  session.cursor = loadCursor(session.cursorKey);
 
-    if (session.orderMode === "start") {
-      session.cursor = 0;
-      saveCursor(session.cursorKey, 0);
-    } else {
-      session.cursor = loadCursor(session.cursorKey);
-    }
+  if (session.cursor >= session.order.length) {
+    session.cursor = 0;
+    saveCursor(session.cursorKey, 0);
   }
+}
 
   session.autoRead = !!autoReadEl.checked;
   session.askedOrder = [];
@@ -2356,7 +2449,7 @@ function renderSummary(autoCleared) {
     limit = Math.min(limit, eligible.length);
 
     session.mode = "weak";
-    session.blockValue = blockSelect.value;
+    session.blockValue = "all";
     session.eligible = eligible;
     session.limit = Math.max(1, limit);
     session.answered = 0;
@@ -2464,6 +2557,23 @@ session.askedOrder = [];
   updatePoolInfo();
 });
 
+const selectAllBlocksBtn = document.getElementById("selectAllBlocks");
+const clearBlocksBtn = document.getElementById("clearBlocks");
+
+selectAllBlocksBtn?.addEventListener("click", () => {
+  blockSelect.querySelectorAll('input[type="checkbox"]').forEach(input => {
+    input.checked = true;
+  });
+  updatePoolInfo();
+});
+
+clearBlocksBtn?.addEventListener("click", () => {
+  blockSelect.querySelectorAll('input[type="checkbox"]').forEach(input => {
+    input.checked = false;
+  });
+  updatePoolInfo();
+});
+
 sentenceSetModeEl.addEventListener("change", () => {
   rebuildFixedData();
 
@@ -2487,9 +2597,37 @@ rangeEndInput.addEventListener("input", updatePoolInfo);
 countInput.addEventListener("input", updatePoolInfo);
 orderModeEl.addEventListener("change", updatePoolInfo);
 
+resetCursorBtn.addEventListener("click", () => {
+  saveCursor(getCursorKey(), 0);
+  alert("現在の条件の「続きから」を先頭に戻しました。");
+  updatePoolInfo();
+});
+
   autoReadEl.addEventListener("change", () => {
     saveSettings({ autoRead: !!autoReadEl.checked });
   });
+
+  function applyGoimonLearningQuery() {
+  const params = new URLSearchParams(location.search);
+  const ability = params.get("goimonAbility");
+  const count = Number(params.get("goimonCount"));
+
+  if (ability !== "bunmyaku" || !Number.isFinite(count) || count < 1) return false;
+
+  const safeCount = Math.max(1, Math.floor(count));
+  countInput.value = String(safeCount);
+  orderModeEl.value = "random";
+
+  const route = document.getElementById("goimonTrainingRoute");
+  const routeText = document.getElementById("goimonTrainingRouteText");
+
+  if (route) route.classList.remove("hidden");
+  if (routeText) routeText.textContent = `ぶんみゃくを伸ばす ${safeCount}問セット`;
+
+  updatePoolInfo();
+  setTimeout(() => startBtn.click(), 0);
+  return true;
+}
 
   startBtn.addEventListener("click", startNormalSession);
 
@@ -2699,7 +2837,7 @@ orderModeEl.addEventListener("change", updatePoolInfo);
     openSharedEvolution();
   });
 
-  function init() {
+function init() {
   const s = loadSettings();
   autoReadEl.checked = !!s.autoRead;
 
@@ -2714,6 +2852,8 @@ orderModeEl.addEventListener("change", updatePoolInfo);
   if (typeof window.renderSentenceGoimonMini === "function") {
     window.renderSentenceGoimonMini();
   }
+
+  applyGoimonLearningQuery();
 }
 
 init();
