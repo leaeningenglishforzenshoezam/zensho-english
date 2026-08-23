@@ -333,7 +333,9 @@
         <button id="lv1" class="btn">全商英検 1級</button>
         <button id="lv2" class="btn">全商英検 2級</button>
         <button id="refresh" class="btn">更新</button>
-        <button id="resetGlobal" class="btn danger" style="margin-left:auto;">この級の横断記録を全消去</button>
+        <button id="resetGlobal" class="btn danger" style="margin-left:auto;">
+  この級のBlock進捗をリセット
+</button>
       </div>
 
       <div class="filterBar">
@@ -342,12 +344,13 @@
         <div class="muted">%</div>
 
         <div class="muted" style="margin-left:12px;">表示</div>
-        <select id="statusFilter">
-          <option value="all">すべて</option>
-          <option value="needs_review">要復習のみ</option>
-          <option value="ok">良好のみ</option>
-          <option value="untouched">未挑戦のみ</option>
-        </select>
+       <select id="statusFilter">
+  <option value="all">すべて</option>
+  <option value="needs_review">要復習のみ</option>
+  <option value="learning">学習中のみ</option>
+  <option value="clear">目安クリアのみ</option>
+  <option value="untouched">未挑戦のみ</option>
+</select>
       </div>
 
       <div class="summaryGrid">
@@ -378,6 +381,27 @@
       <div id="blockGrid" class="blockGrid"></div>
       <div id="emptyState" class="emptyBox" style="display:none;">この条件に合うBlockはありません。</div>
     </div>
+
+    <div class="card">
+  <div class="row" style="justify-content:space-between;">
+    <div>
+      <div style="font-weight:800;">大問別・演習進捗</div>
+      <div class="muted" style="margin-top:4px;">
+        Blockに分かれない問題形式の学習状況です。
+      </div>
+    </div>
+  </div>
+
+  <div id="examGrid" class="blockGrid"></div>
+
+  <div
+    id="examEmpty"
+    class="emptyBox"
+    style="display:none;"
+  >
+    まだ記録がありません。
+  </div>
+</div>
   </div>
 
   <script src="words_1kyu.js"></script>
@@ -386,6 +410,8 @@
   <script src="blocks_2kyu.js"></script>
   <script src="dataset.js"></script>
   <script src="global_stats.js"></script>
+  <script src="learning_categories.js"></script>
+  <script src="learning_log.js"></script>
   <script src="goimon.js"></script>
   <script src="progress.js"></script>
 </body>
