@@ -2239,3 +2239,2353 @@ a {
 .trainingGroup.supportGroup .trainingGroupIcon {
   background: #fff3d6;
 }
+
+/* =========================================================
+   HOME UI REBUILD
+   index.html（body.homePage）専用
+========================================================= */
+
+.homePage {
+  background: #f5f7fb;
+}
+
+
+/* -------------------------
+   ホーム全体の横幅
+------------------------- */
+
+.homePage .wrap.homeWrap {
+  max-width: 1180px;
+  padding: 28px 22px 36px;
+}
+
+
+/* -------------------------
+   ページタイトル
+------------------------- */
+
+.homeHero {
+  margin-bottom: 14px;
+}
+
+.homeEyebrow,
+.homeSectionKicker {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #6b7280;
+}
+
+.homeHero h1 {
+  margin: 4px 0 5px;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.homeHeroSub {
+  margin: 0;
+  color: #5f6672;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+
+/* -------------------------
+   級切替
+------------------------- */
+
+.homeLevelCard {
+  margin-bottom: 14px;
+}
+
+
+/* -------------------------
+   学習メニュー見出し
+------------------------- */
+
+.homeLearningSection {
+  margin-bottom: 16px;
+}
+
+.homeSectionHead {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 2px 10px;
+}
+
+.homeSectionTitle {
+  margin: 2px 0 0;
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+.homeSectionHint {
+  color: #69707b;
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   PC：学習メニュー3列
+========================================================= */
+
+.homePage .trainingMenuGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+
+/* 既存trainingGroupのmarginを解除 */
+
+.homePage
+.trainingMenuGrid
+.trainingGroup {
+  margin: 0;
+}
+
+
+/* -------------------------
+   学習カテゴリカード
+------------------------- */
+
+.homePage .trainingMenuCard {
+  padding: 15px;
+
+  background: #fff;
+
+  border:
+    1px solid #e1e6ee;
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 2px 10px
+    rgba(20, 31, 52, 0.05);
+}
+
+
+/* リスニングだけ少し色を変える */
+
+.homePage
+.trainingMenuCard.listeningGroup {
+  background: #fbf9ff;
+  border-color: #ddd1f3;
+}
+
+
+.homePage .trainingGroupHead {
+  margin-bottom: 10px;
+}
+
+
+.homePage .trainingGroupIcon {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 12px;
+
+  font-size: 22px;
+}
+
+
+.homePage .trainingGroupTitle {
+  font-size: 16px;
+}
+
+
+.homePage .trainingGroupSub {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+
+/* -------------------------
+   メニューボタン
+------------------------- */
+
+.trainingMenuButtons {
+  display: grid;
+  gap: 7px;
+}
+
+
+.homePage
+.trainingMenuButtons
+.btn {
+  margin: 0;
+
+  min-height: 42px;
+
+  padding:
+    10px 11px;
+
+  font-size: 14px;
+
+  text-align: left;
+
+  border-radius: 10px;
+
+  box-shadow: none;
+}
+
+
+/* ボタン左の小さな矢印 */
+
+.homePage
+.trainingMenuButtons
+.btn::before {
+  content: "›";
+
+  margin-right: 7px;
+
+  font-weight: 900;
+}
+
+
+/* -------------------------
+   リスニング補足
+------------------------- */
+
+.trainingMenuTip {
+  margin-top: 10px;
+
+  padding:
+    10px 11px;
+
+  border-radius: 10px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.75
+    );
+
+  color: #665d78;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   ゴイモン
+========================================================= */
+
+.goimonHomeCard {
+  margin-top: 2px;
+}
+
+
+/* =========================================================
+   今日の学習
+========================================================= */
+
+.todayLearningCard {
+  padding: 16px;
+}
+
+
+.todayLearningHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 12px;
+}
+
+
+.todayLearningTitle {
+  margin-top: 2px;
+
+  font-size: 19px;
+  font-weight: 900;
+}
+
+
+.todayLearningLevel {
+  padding:
+    6px 10px;
+
+  border-radius: 999px;
+
+  background: #edf4ff;
+
+  color: #245cb1;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+
+/* -------------------------
+   今日の3指標
+------------------------- */
+
+.todayStatsGrid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 9px;
+}
+
+
+.todayStat {
+  padding:
+    12px 10px;
+
+  border:
+    1px solid #e5e9f0;
+
+  border-radius: 12px;
+
+  background: #fafbfd;
+
+  text-align: center;
+}
+
+
+.todayStatValue {
+  font-size: 24px;
+  font-weight: 900;
+
+  line-height: 1.1;
+
+  color: #111827;
+}
+
+
+.todayStatLabel {
+  margin-top: 4px;
+
+  color: #69707b;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+
+.todayLearningNote {
+  margin-top: 9px;
+
+  color: #5f6672;
+
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+
+/* -------------------------
+   おすすめ・進捗
+------------------------- */
+
+.homeSupportActions {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 8px;
+
+  margin-top: 10px;
+}
+
+
+.homeSupportActions .btn {
+  margin: 0;
+}
+
+
+/* -------------------------
+   フッター
+------------------------- */
+
+.homeFooterCard {
+  padding:
+    13px 16px;
+}
+
+
+.homeFooterText {
+  margin-top: 0;
+}
+
+
+/* =========================================================
+   タブレット
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .homePage
+  .wrap.homeWrap {
+    max-width: 720px;
+  }
+
+
+  .homePage
+  .trainingMenuGrid {
+    grid-template-columns: 1fr;
+    gap: 11px;
+  }
+
+
+  .trainingMenuTip {
+    display: none;
+  }
+
+}
+
+
+/* =========================================================
+   スマホ
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .homePage
+  .wrap.homeWrap {
+    max-width: 520px;
+
+    padding:
+      16px 12px 24px;
+  }
+
+
+  .homeHero {
+    margin-bottom: 10px;
+  }
+
+
+  .homeHero h1 {
+    font-size: 23px;
+  }
+
+
+  .homeHeroSub {
+    font-size: 12px;
+  }
+
+
+  .homeSectionHead {
+    display: block;
+
+    margin-bottom: 8px;
+  }
+
+
+  .homeSectionHint {
+    margin-top: 3px;
+  }
+
+
+  .homePage
+  .trainingMenuCard {
+    padding: 13px;
+  }
+
+
+  .homePage
+  .trainingMenuButtons
+  .btn {
+    min-height: 44px;
+
+    padding:
+      11px 12px;
+
+    font-size: 15px;
+  }
+
+
+  .todayStatsGrid {
+    gap: 6px;
+  }
+
+
+  .todayStat {
+    padding:
+      10px 5px;
+  }
+
+
+  .todayStatValue {
+    font-size: 21px;
+  }
+
+
+  .homeSupportActions {
+    grid-template-columns: 1fr;
+  }
+  }
+/* =========================================================
+   HOME：ゴイモンカード 新UI
+========================================================= */
+
+.homePage .goimonHomeCard {
+  padding: 16px;
+}
+
+
+/* -------------------------
+   上部
+------------------------- */
+
+.goimonHomeHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.goimonHomeTitle {
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.goimonHomeSub {
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #6b7280;
+}
+
+
+/* 段階 */
+
+.goimonStageBadge {
+  flex: 0 0 auto;
+  min-width: 92px;
+  padding: 7px 10px;
+  border: 1px solid #f0dfbc;
+  border-radius: 10px;
+  background: #fffaf0;
+  text-align: right;
+}
+
+.goimonStageBadgeLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #8a6a2d;
+  line-height: 1.2;
+}
+
+.goimonStageBadgeValue {
+  margin-top: 2px;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.2;
+  color: #2b2418;
+}
+
+
+/* -------------------------
+   画像＋情報
+------------------------- */
+
+.goimonHomeMain {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+}
+
+.goimonHomeImageWrap {
+  width: 110px;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #f0e3c8;
+  border-radius: 16px;
+  background: #fffaf1;
+}
+
+.goimonHomeImageWrap img {
+  display: block;
+  max-width: 98px;
+  max-height: 98px;
+}
+
+.goimonHomeInfo {
+  min-width: 0;
+}
+
+.goimonHomeName {
+  font-size: 21px;
+  font-weight: 900;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.goimonHomeMeta {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #555;
+}
+
+
+/* -------------------------
+   進化ゲージ
+------------------------- */
+
+.goimonHomeProgress {
+  margin-top: 12px;
+}
+
+.goimonHomeProgressHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.goimonHomeProgressText {
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #4d5561;
+  line-height: 1.3;
+}
+
+.goimonHomeProgressPercent {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 900;
+  color: #76561d;
+}
+
+.goimonHomeProgressTrack {
+  width: 100%;
+  height: 9px;
+  overflow: hidden;
+
+  border-radius: 999px;
+  background: #eee8dd;
+}
+
+.goimonHomeProgressFill {
+  width: 0;
+  height: 100%;
+
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      90deg,
+      #e2b754 0%,
+      #d39820 100%
+    );
+
+  transition: width 0.25s ease;
+}
+
+
+/* -------------------------
+   吹き出し
+------------------------- */
+
+.goimonHomeSpeech {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 7px;
+  align-items: start;
+
+  margin-top: 12px;
+}
+
+.goimonHomeSpeechIcon {
+  padding-top: 8px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.homePage .goimonSpeechBubble {
+  min-height: auto;
+
+  padding: 8px 11px;
+
+  border: 1px solid #f0e0bc;
+  border-radius: 10px;
+
+  background: #fffdf7;
+
+  color: #55421c;
+
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.homePage .goimonSpeechBubble::before {
+  display: none;
+}
+
+
+/* -------------------------
+   ボタン
+------------------------- */
+
+.goimonHomeActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.goimonHomeActions .btn {
+  margin: 0;
+}
+
+.goimonHomeActions #openGoimonSheetBtn {
+  flex: 1 1 auto;
+}
+
+.goimonHomeActions #evolutionNoticeBtn {
+  flex: 1 1 auto;
+}
+
+
+/* -------------------------
+   バナー
+------------------------- */
+
+.homePage .goimonBanner {
+  margin-top: 10px;
+}
+
+
+/* =========================================================
+   PC
+========================================================= */
+
+@media (min-width: 901px) {
+
+  .homePage .goimonHomeCard {
+    padding: 18px 20px;
+  }
+
+  .goimonHomeMain {
+    grid-template-columns:
+      130px minmax(0, 1fr);
+  }
+
+  .goimonHomeImageWrap {
+    width: 130px;
+    height: 130px;
+  }
+
+  .goimonHomeImageWrap img {
+    max-width: 116px;
+    max-height: 116px;
+  }
+
+  .goimonHomeName {
+    font-size: 23px;
+  }
+
+  .goimonHomeMeta {
+    font-size: 15px;
+  }
+
+  .goimonHomeProgressText {
+    font-size: 14px;
+  }
+
+}
+
+
+/* =========================================================
+   スマホ
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .homePage .goimonHomeCard {
+    padding: 13px;
+  }
+
+  .goimonHomeHead {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .goimonHomeTitle {
+    font-size: 18px;
+  }
+
+  .goimonHomeSub {
+    font-size: 11px;
+  }
+
+  .goimonStageBadge {
+    min-width: 78px;
+    padding: 6px 8px;
+  }
+
+  .goimonStageBadgeValue {
+    font-size: 14px;
+  }
+
+  .goimonHomeMain {
+    grid-template-columns:
+      88px minmax(0, 1fr);
+    gap: 11px;
+  }
+
+  .goimonHomeImageWrap {
+    width: 88px;
+    height: 88px;
+    border-radius: 13px;
+  }
+
+  .goimonHomeImageWrap img {
+    max-width: 78px;
+    max-height: 78px;
+  }
+
+  .goimonHomeName {
+    font-size: 17px;
+  }
+
+  .goimonHomeMeta {
+    margin-top: 2px;
+    font-size: 12px;
+  }
+
+  .goimonHomeProgress {
+    margin-top: 8px;
+  }
+
+  .goimonHomeProgressText {
+    font-size: 11px;
+  }
+
+  .goimonHomeProgressPercent {
+    font-size: 11px;
+  }
+
+  .goimonHomeProgressTrack {
+    height: 7px;
+  }
+
+  .goimonHomeSpeech {
+    margin-top: 9px;
+  }
+
+  .homePage .goimonSpeechBubble {
+    padding: 7px 9px;
+    font-size: 12px;
+  }
+
+  .goimonHomeActions {
+    margin-top: 9px;
+  }
+  }
+
+  /* =========================================================
+   GOIMON DETAIL UI 2026
+========================================================= */
+
+
+/* =========================================================
+   詳細シート全体
+========================================================= */
+
+.homePage .bottomSheet.goimonDetailSheet {
+  width: min(94vw, 980px);
+  max-width: 980px;
+  max-height: 90vh;
+
+  border-radius: 22px 22px 0 0;
+}
+
+
+.goimonDetailInner {
+  padding:
+    0 20px 24px;
+}
+
+
+/* =========================================================
+   ヘッダー
+========================================================= */
+
+.goimonDetailHead {
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+
+  border-bottom:
+    1px solid #eceff3;
+}
+
+
+.goimonDetailKicker {
+  margin-bottom: 2px;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  letter-spacing: .14em;
+
+  color: #9a7026;
+}
+
+
+.goimonDetailHead .sheetTitle {
+  font-size: 21px;
+}
+
+
+/* =========================================================
+   1. 現在のゴイモン
+========================================================= */
+
+.goimonDetailHero {
+  display: grid;
+
+  grid-template-columns:
+    240px minmax(0, 1fr);
+
+  gap: 20px;
+
+  align-items: center;
+
+  padding: 18px;
+
+  border:
+    1px solid #eadfc9;
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fffdf8 0%,
+      #fff 70%
+    );
+}
+
+
+/* 画像 */
+
+.goimonDetailHeroImage {
+  min-width: 0;
+}
+
+
+.goimonDetailHeroImage
+.goimonImageBox {
+  width: 100%;
+  height: 220px;
+  min-height: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border-radius: 16px;
+
+  background: #fffaf1;
+}
+
+
+.goimonDetailHeroImage
+.goimonImageBox img {
+  width: auto;
+  height: auto;
+
+  max-width: 92%;
+  max-height: 200px;
+
+  object-fit: contain;
+}
+
+
+.goimonImageTapHint {
+  margin-top: 5px;
+
+  text-align: center;
+
+  color: #8a8175;
+
+  font-size: 10px;
+}
+
+
+/* ゴイモン情報 */
+
+.goimonDetailHeroInfo {
+  min-width: 0;
+}
+
+
+.goimonDetailSectionLabel {
+  font-size: 11px;
+  font-weight: 800;
+
+  color: #8b7652;
+}
+
+
+.goimonDetailHeroName {
+  margin-top: 2px;
+
+  font-size: 29px;
+  font-weight: 900;
+
+  line-height: 1.2;
+
+  word-break: break-word;
+}
+
+
+.goimonDetailBadges {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 6px;
+
+  margin-top: 8px;
+}
+
+
+.goimonDetailBadge {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  padding:
+    5px 8px;
+
+  border:
+    1px solid #e3dfd5;
+
+  border-radius: 999px;
+
+  background: #fff;
+
+  font-size: 11px;
+}
+
+
+.goimonDetailBadge span {
+  color: #777;
+}
+
+
+.goimonDetailBadge strong {
+  font-size: 12px;
+}
+
+
+.goimonDetailHeroDesc {
+  margin-top: 10px;
+
+  color: #555;
+
+  font-size: 13px;
+
+  line-height: 1.55;
+}
+
+
+/* Lv / pt / 世代 / 名前 */
+
+.goimonDetailMetaGrid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 7px;
+
+  margin-top: 12px;
+}
+
+
+.goimonDetailMetaItem {
+  padding:
+    8px 7px;
+
+  border:
+    1px solid #ececec;
+
+  border-radius: 10px;
+
+  background: #fafafa;
+
+  text-align: center;
+}
+
+
+.goimonDetailMetaItem span {
+  display: block;
+
+  margin-bottom: 2px;
+
+  color: #777;
+
+  font-size: 10px;
+}
+
+
+.goimonDetailMetaItem strong {
+  display: block;
+
+  font-size: 14px;
+
+  line-height: 1.3;
+
+  word-break: break-word;
+}
+
+
+/* 図鑑・名前 */
+
+.goimonDetailQuickActions {
+  display: flex;
+
+  gap: 7px;
+
+  margin-top: 10px;
+}
+
+
+.goimonDetailQuickActions .btn {
+  width: auto;
+
+  flex: 1;
+
+  margin: 0;
+
+  padding:
+    8px 10px;
+
+  font-size: 13px;
+}
+
+
+/* 名前変更エリア */
+
+.goimonNicknameCompact {
+  margin-top: 9px;
+
+  padding: 10px;
+
+  border:
+    1px solid #dce6f6;
+
+  border-radius: 11px;
+
+  background: #f8fbff;
+}
+
+
+.goimonNicknameCompact.hidden {
+  display: none;
+}
+
+
+.goimonNicknameCompact
+.nicknameRow {
+  margin-top: 7px;
+}
+
+
+.goimonNicknameCompact
+.nicknameInput {
+  padding:
+    9px 10px;
+
+  font-size: 14px;
+}
+
+
+.goimonNicknameActions {
+  display: flex;
+
+  gap: 6px;
+
+  margin-top: 7px;
+}
+
+
+.goimonNicknameActions .btn {
+  margin: 0;
+
+  padding:
+    8px 10px;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   共通セクション
+========================================================= */
+
+.goimonDetailSection {
+  margin-top: 12px;
+
+  padding: 16px;
+
+  border:
+    1px solid #e6e9ee;
+
+  border-radius: 16px;
+
+  background: #fff;
+}
+
+
+.goimonDetailSectionHead {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 12px;
+}
+
+
+.goimonDetailSectionHead.compact {
+  margin-bottom: 10px;
+}
+
+
+.goimonDetailSectionKicker {
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: .12em;
+
+  color: #8b93a0;
+}
+
+
+.goimonDetailSectionTitle {
+  margin: 2px 0 0;
+
+  font-size: 18px;
+  font-weight: 900;
+
+  line-height: 1.2;
+}
+
+
+/* =========================================================
+   2. 次の進化
+========================================================= */
+
+.goimonEvolutionSection {
+  background:
+    linear-gradient(
+      180deg,
+      #fffdf8 0%,
+      #fff 100%
+    );
+}
+
+
+.goimonEvolutionRemain {
+  color: #9a6713;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  text-align: right;
+}
+
+
+.goimonEvolutionRoute {
+  display: grid;
+
+  grid-template-columns:
+    1fr auto 1fr;
+
+  gap: 10px;
+
+  align-items: center;
+
+  margin-bottom: 12px;
+}
+
+
+.goimonEvolutionRouteItem {
+  padding:
+    9px 10px;
+
+  border:
+    1px solid #e8e8e8;
+
+  border-radius: 11px;
+
+  background: #fafafa;
+
+  text-align: center;
+}
+
+
+.goimonEvolutionRouteItem.featured {
+  border-color: #ead49d;
+
+  background: #fff9e9;
+}
+
+
+.goimonEvolutionRouteLabel {
+  display: block;
+
+  margin-bottom: 2px;
+
+  color: #777;
+
+  font-size: 10px;
+}
+
+
+.goimonEvolutionRouteItem strong {
+  font-size: 15px;
+}
+
+
+.goimonEvolutionArrow {
+  color: #a47b31;
+
+  font-size: 20px;
+
+  font-weight: 900;
+}
+
+
+.goimonEvolutionProgressTop {
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-bottom: 6px;
+
+  color: #656565;
+
+  font-size: 11px;
+}
+
+
+.goimonEvolutionProgressTop strong {
+  color: #333;
+}
+
+
+.goimonDetailProgressTrack {
+  height: 10px;
+}
+
+
+.goimonEvolutionHint {
+  margin-top: 7px;
+
+  color: #777;
+
+  font-size: 10px;
+
+  line-height: 1.4;
+}
+
+
+/* =========================================================
+   下段 PC 2カラム
+========================================================= */
+
+.goimonDetailLowerGrid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, .9fr)
+    minmax(0, 1.1fr);
+
+  gap: 12px;
+}
+
+
+.goimonDetailLowerGrid
+.goimonDetailSection {
+  height: fit-content;
+}
+
+
+/* =========================================================
+   3. 能力
+========================================================= */
+
+.goimonAbilityRow {
+  padding: 8px 0;
+
+  border-top:
+    1px solid #f0f1f3;
+}
+
+
+.goimonAbilityRow:first-of-type {
+  border-top: 0;
+}
+
+
+.goimonAbilityTop {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-bottom: 5px;
+}
+
+
+.goimonAbilityName {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+
+.goimonAbilityNumbers {
+  display: flex;
+
+  align-items: baseline;
+
+  gap: 7px;
+}
+
+
+.goimonAbilityNumbers strong {
+  font-size: 15px;
+}
+
+
+.goimonAbilityNumbers span {
+  min-width: 35px;
+
+  color: #777;
+
+  font-size: 11px;
+
+  text-align: right;
+}
+
+
+/* progress */
+
+.goimonAbilityBar {
+  width: 100%;
+  height: 7px;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  border: 0;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #edf0f3;
+}
+
+
+.goimonAbilityBar::-webkit-progress-bar {
+  background: #edf0f3;
+
+  border-radius: 999px;
+}
+
+
+.goimonAbilityBar::-webkit-progress-value {
+  background:
+    linear-gradient(
+      90deg,
+      #83a8ee,
+      #537fd2
+    );
+
+  border-radius: 999px;
+}
+
+
+.goimonAbilityBar::-moz-progress-bar {
+  background:
+    linear-gradient(
+      90deg,
+      #83a8ee,
+      #537fd2
+    );
+
+  border-radius: 999px;
+}
+
+
+/* =========================================================
+   4. コレクション
+========================================================= */
+
+.goimonCollectionBlock {
+  margin-bottom: 10px;
+}
+
+
+.goimonCollectionLabel {
+  margin-bottom: 6px;
+
+  color: #666;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+
+/* 既存履歴を少しコンパクトに */
+
+.goimonCollectionSection
+.goimonHistoryRow {
+  gap: 6px;
+
+  overflow-x: auto;
+
+  padding-bottom: 3px;
+}
+
+
+.goimonCollectionSection
+.goimonHistoryChip {
+  min-width: 76px;
+
+  padding: 7px;
+}
+
+
+.goimonCollectionSection
+.goimonHistoryImgWrap {
+  width: 46px;
+  height: 46px;
+}
+
+
+.goimonCollectionSection
+.goimonHistoryImgWrap img {
+  max-width: 42px;
+  max-height: 42px;
+}
+
+
+.goimonCollectionSummary {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 8px;
+
+  padding-top: 9px;
+
+  border-top:
+    1px solid #eee;
+}
+
+
+.goimonCollectionSummaryText {
+  color: #666;
+
+  font-size: 11px;
+}
+
+
+.goimonCollectionSummary .btn {
+  width: auto;
+
+  margin: 0;
+
+  padding:
+    7px 10px;
+
+  font-size: 12px;
+}
+
+
+/* 保存箱 */
+
+.goimonCollectionSection
+.archiveList {
+  margin-top: 9px;
+}
+
+
+/* =========================================================
+   育成管理
+========================================================= */
+
+.goimonManagement {
+  margin-top: 10px;
+
+  border:
+    1px solid #e7e8eb;
+
+  border-radius: 11px;
+
+  background: #fafafa;
+
+  overflow: hidden;
+}
+
+
+.goimonManagement summary {
+  padding:
+    9px 11px;
+
+  cursor: pointer;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  list-style: none;
+}
+
+
+.goimonManagement summary::-webkit-details-marker {
+  display: none;
+}
+
+
+.goimonManagement summary::after {
+  content: "＋";
+
+  float: right;
+
+  color: #777;
+}
+
+
+.goimonManagement[open]
+summary::after {
+  content: "−";
+}
+
+
+.goimonManagementBody {
+  padding:
+    0 10px 10px;
+
+  border-top:
+    1px solid #e7e8eb;
+}
+
+
+.goimonManagementBody .btn {
+  margin:
+    7px 0 0;
+
+  padding:
+    8px 10px;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   スマホ
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .homePage
+  .bottomSheet.goimonDetailSheet {
+    width: 100%;
+    max-width: 100%;
+
+    max-height: 92vh;
+
+    border-radius:
+      18px 18px 0 0;
+  }
+
+
+  .goimonDetailInner {
+    padding:
+      0 12px 18px;
+  }
+
+
+  .goimonDetailHero {
+    grid-template-columns:
+      105px minmax(0, 1fr);
+
+    gap: 11px;
+
+    padding: 12px;
+  }
+
+
+  .goimonDetailHeroImage
+  .goimonImageBox {
+    height: 105px;
+  }
+
+
+  .goimonDetailHeroImage
+  .goimonImageBox img {
+    max-height: 98px;
+  }
+
+
+  .goimonImageTapHint {
+    display: none;
+  }
+
+
+  .goimonDetailHeroName {
+    font-size: 20px;
+  }
+
+
+  .goimonDetailHeroDesc {
+    margin-top: 7px;
+
+    font-size: 11px;
+
+    line-height: 1.4;
+  }
+
+
+  .goimonDetailBadges {
+    margin-top: 6px;
+  }
+
+
+  .goimonDetailBadge {
+    padding:
+      4px 6px;
+
+    font-size: 9px;
+  }
+
+
+  .goimonDetailBadge strong {
+    font-size: 10px;
+  }
+
+
+  .goimonDetailMetaGrid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 5px;
+
+    margin-top: 8px;
+  }
+
+
+  .goimonDetailMetaItem {
+    padding: 6px;
+  }
+
+
+  .goimonDetailMetaItem strong {
+    font-size: 12px;
+  }
+
+
+  .goimonDetailQuickActions {
+    flex-direction: column;
+  }
+
+
+  .goimonDetailQuickActions .btn {
+    width: 100%;
+  }
+
+
+  .goimonDetailSection {
+    padding: 12px;
+
+    margin-top: 9px;
+
+    border-radius: 13px;
+  }
+
+
+  .goimonDetailSectionTitle {
+    font-size: 16px;
+  }
+
+
+  .goimonDetailSectionHead {
+    margin-bottom: 9px;
+  }
+
+
+  .goimonEvolutionRemain {
+    max-width: 140px;
+
+    font-size: 11px;
+  }
+
+
+  .goimonEvolutionRoute {
+    gap: 5px;
+  }
+
+
+  .goimonEvolutionRouteItem {
+    padding:
+      7px 5px;
+  }
+
+
+  .goimonEvolutionRouteItem strong {
+    font-size: 12px;
+  }
+
+
+  .goimonEvolutionArrow {
+    font-size: 15px;
+  }
+
+
+  .goimonEvolutionProgressTop {
+    display: block;
+  }
+
+
+  .goimonEvolutionProgressTop strong {
+    display: block;
+
+    margin-top: 2px;
+  }
+
+
+  .goimonDetailLowerGrid {
+    grid-template-columns: 1fr;
+
+    gap: 0;
+  }
+
+
+  .goimonCollectionSummary {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+
+  .goimonCollectionSummary .btn {
+    width: 100%;
+  }
+
+}
+
+/* =========================================================
+   GOIMON ABILITY → LEARNING NAV
+========================================================= */
+
+.goimonAbilityGuideText {
+  margin-top: 4px;
+
+  color: #777;
+
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+
+/* -------------------------
+   能力行をクリック可能に
+------------------------- */
+
+.goimonAbilityClickable {
+  position: relative;
+
+  margin:
+    0 -7px;
+
+  padding:
+    10px 7px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  transition:
+    background .15s ease,
+    transform .15s ease,
+    box-shadow .15s ease;
+}
+
+
+.goimonAbilityClickable:hover {
+  background: #f8faff;
+}
+
+
+.goimonAbilityClickable:focus-visible {
+  outline:
+    2px solid #83a8ee;
+
+  outline-offset: 2px;
+}
+
+
+.goimonAbilityClickable.active {
+  background: #f3f7ff;
+
+  box-shadow:
+    inset 0 0 0 1px #cddcff;
+}
+
+
+.goimonAbilityNameWrap {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+}
+
+
+.goimonAbilityRight {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+}
+
+
+.goimonAbilityArrow {
+  color: #9ba3ae;
+
+  font-size: 22px;
+  font-weight: 700;
+
+  line-height: 1;
+
+  transition:
+    transform .15s ease;
+}
+
+
+.goimonAbilityClickable.active
+.goimonAbilityArrow {
+  transform:
+    rotate(90deg);
+
+  color: #5078c9;
+}
+
+
+.goimonAbilityDesc {
+  margin-top: 4px;
+
+  color: #828894;
+
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+
+/* -------------------------
+   伸ばしどき
+------------------------- */
+
+.goimonAbilityGrowBadge {
+  padding:
+    2px 6px;
+
+  border-radius: 999px;
+
+  background: #fff3cf;
+
+  color: #8a600d;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   学習パネル
+========================================================= */
+
+.goimonAbilityLearningPanel {
+  margin-top: 12px;
+
+  padding: 13px;
+
+  border:
+    1px solid #cddcff;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f8fbff 0%,
+      #fff 100%
+    );
+}
+
+
+.goimonAbilityLearningPanel.hidden {
+  display: none;
+}
+
+
+.goimonAbilityLearningHead {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 10px;
+}
+
+
+.goimonAbilityLearningKicker {
+  color: #6782b5;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  letter-spacing: .12em;
+}
+
+
+.goimonAbilityLearningTitle {
+  margin-top: 2px;
+
+  font-size: 17px;
+  font-weight: 900;
+}
+
+
+.goimonAbilityLearningClose {
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 auto;
+
+  border: 0;
+  border-radius: 8px;
+
+  background: #edf1f6;
+
+  color: #666;
+
+  font-size: 17px;
+
+  cursor: pointer;
+}
+
+
+.goimonAbilityLearningDesc {
+  margin-top: 5px;
+
+  color: #626975;
+
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   おすすめカード
+========================================================= */
+
+.goimonRecommendedTraining {
+  margin-top: 11px;
+
+  padding: 12px;
+
+  border:
+    1px solid #bfd3ff;
+
+  border-radius: 12px;
+
+  background: #fff;
+}
+
+
+.goimonRecommendedLabel {
+  color: #3869c7;
+
+  font-size: 10px;
+  font-weight: 900;
+}
+
+
+.goimonRecommendedName {
+  margin-top: 3px;
+
+  font-size: 16px;
+  font-weight: 900;
+}
+
+
+.goimonRecommendedReward {
+  margin-top: 3px;
+
+  color: #42609b;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+
+.goimonRecommendedReason {
+  margin-top: 7px;
+
+  padding:
+    7px 8px;
+
+  border-radius: 8px;
+
+  background: #f4f7fc;
+
+  color: #646b75;
+
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+
+/* -------------------------
+   5 / 10 / 20問
+------------------------- */
+
+.goimonRecommendedCountTitle {
+  margin-top: 10px;
+
+  color: #666;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+
+.goimonRecommendedCounts {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 6px;
+
+  margin-top: 5px;
+}
+
+
+.goimonCountBtn {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 48px;
+
+  padding:
+    6px;
+
+  border:
+    1px solid #dbe1eb;
+
+  border-radius: 9px;
+
+  background: #fff;
+
+  cursor: pointer;
+}
+
+
+.goimonCountBtn:hover {
+  border-color: #9ab6ea;
+
+  background: #f7faff;
+}
+
+
+.goimonCountBtn.recommended {
+  border-color: #8baded;
+
+  background: #eef4ff;
+}
+
+
+.goimonCountBtn strong {
+  font-size: 13px;
+}
+
+
+.goimonCountBtn span {
+  margin-top: 2px;
+
+  color: #777;
+
+  font-size: 8px;
+}
+
+
+/* =========================================================
+   その他の学習
+========================================================= */
+
+.goimonOtherTraining {
+  margin-top: 11px;
+}
+
+
+.goimonOtherTrainingTitle {
+  margin-bottom: 5px;
+
+  color: #666;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+
+.goimonOtherTrainingList {
+  display: grid;
+
+  gap: 5px;
+}
+
+
+.goimonOtherTrainingBtn {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 8px;
+
+  padding:
+    8px 9px;
+
+  border:
+    1px solid #e4e7ec;
+
+  border-radius: 9px;
+
+  background: #fff;
+
+  text-align: left;
+
+  cursor: pointer;
+}
+
+
+.goimonOtherTrainingBtn:hover {
+  border-color: #c9d8f2;
+
+  background: #fafcff;
+}
+
+
+.goimonOtherTrainingMain {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+.goimonOtherTrainingMain strong {
+  font-size: 11px;
+}
+
+
+.goimonOtherTrainingMain small {
+  margin-top: 2px;
+
+  color: #777;
+
+  font-size: 9px;
+
+  line-height: 1.35;
+}
+
+
+.goimonOtherTrainingArrow {
+  flex: 0 0 auto;
+
+  color: #999;
+
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   スマホ
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .goimonAbilityClickable {
+    padding:
+      9px 6px;
+  }
+
+
+  .goimonAbilityDesc {
+    font-size: 9px;
+  }
+
+
+  .goimonAbilityLearningPanel {
+    padding: 11px;
+  }
+
+
+  .goimonRecommendedCounts {
+    gap: 5px;
+  }
+
+
+  .goimonCountBtn {
+    min-height: 46px;
+  }
+
+}
+
