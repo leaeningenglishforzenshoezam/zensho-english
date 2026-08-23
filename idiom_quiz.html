@@ -124,11 +124,12 @@
       display: none !important;
     }
 
-    .choiceGrid {
-      display:grid;
-      gap:10px;
-      margin-top: 14px;
-    }
+   .choiceGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
 
     .choiceBtn {
       text-align:left;
@@ -175,10 +176,19 @@
       margin-top:1px;
     }
 
-    .choiceText {
-      flex:1 1 auto;
-      min-width:0;
-    }
+    .unknownChoiceBtn {
+  grid-column: 1 / -1;
+  justify-content: center;
+  text-align: center;
+  font-weight: 800;
+  background: #f7f7f7;
+  border-style: dashed;
+  min-height: 48px;
+}
+
+.unknownChoiceBtn:hover {
+  background: #f0f0f0;
+}
 
     .questionNoLine {
       text-align:center;
@@ -567,11 +577,19 @@
     }
 
     .weakBtnActive {
-      background: #fff0f4;
-      border-color: #f2a0b5;
-      color: #ad3159;
-      font-weight: 700;
-    }
+  background: #ffe3ec;
+  border-color: #e26b91;
+  color: #8f2145;
+  font-weight: 800;
+  box-shadow: 0 0 0 2px rgba(226, 107, 145, 0.12);
+}
+
+.listOrderBtnActive {
+  background: #eaf2ff;
+  border-color: #2b7cff;
+  color: #1251b5;
+  font-weight: 800;
+}
 
     .goimonToggleBox {
       display: flex;
@@ -786,30 +804,298 @@
         width: 100%;
       }
     }
+
+    .listRangeWrap {
+  margin-bottom: 10px;
+}
+
+.listRangeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.listRangeInput {
+  width: 90px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 16px;
+  background: #fff;
+}
+
+@media (max-width: 520px) {
+  .listRangeInput {
+    width: 82px;
+  }
+}
+
+/* ===== イディオム：コンパクト学習ヘッダー ===== */
+.trainingHeader{position:relative;display:flex;align-items:center;gap:10px;min-height:50px;box-sizing:border-box;margin-bottom:10px;padding:7px 10px;border:1px solid #e2e7ef;border-radius:12px;background:#fff;box-shadow:0 1px 4px rgba(30,50,80,.05)}
+.trainingBackHome{flex:0 0 auto;color:#405064;font-size:14px;font-weight:800;text-decoration:none}
+.trainingBackHome:hover{color:#2b7cff}
+.trainingDivider{flex:0 0 auto;width:1px;height:24px;background:#dfe4ea}
+.trainingPageTitle{flex:0 0 auto;font-size:18px;font-weight:900}
+.trainingAbilityBadge{flex:0 0 auto;padding:5px 9px;border:1px solid #d8e6f6;border-radius:999px;background:#f3f8ff;color:#3e628e;font-size:12px;font-weight:800}
+.trainingLevelBadge{display:none}
+.trainingMore{position:relative;margin-left:auto;flex:0 0 auto}
+.trainingMore>summary{list-style:none;cursor:pointer;padding:7px 10px;border:1px solid #dce3ec;border-radius:9px;background:#f8fafc;color:#465467;font-size:12px;font-weight:800;user-select:none}
+.trainingMore>summary::-webkit-details-marker{display:none}
+.trainingMore[open]>summary{background:#edf4ff;color:#2862bd;border-color:#b8cff5}
+.trainingMoreCard{position:absolute;z-index:50;top:42px;right:0;width:310px;padding:10px;border:1px solid #dfe5ec;border-radius:12px;background:#fff;box-shadow:0 8px 24px rgba(30,50,80,.14)}
+.trainingMoreTitle{margin-bottom:8px;color:#66717f;font-size:11px;font-weight:800}
+.trainingMoreGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.trainingMoreGrid a{display:flex;align-items:center;justify-content:center;min-height:34px;padding:5px 4px;border:1px solid #e3e7ec;border-radius:8px;background:#fafbfc;color:#44505e;font-size:11px;font-weight:700;text-align:center;text-decoration:none}
+.trainingMoreGrid a:hover{background:#f0f5ff;border-color:#bfd3f5;color:#285eae}
+.trainingMoreGrid a.active{background:#edf4ff;border-color:#9dbcf0;color:#2862bd}
+
+@media(max-width:600px){
+  .trainingHeader{gap:7px;min-height:48px;padding:6px 8px}
+  .trainingBackHome{font-size:12px}
+  .trainingPageTitle{font-size:15px}
+  .trainingAbilityBadge{padding:4px 7px;font-size:11px}
+  .trainingMore>summary{width:34px;overflow:hidden;white-space:nowrap;padding:7px 8px;font-size:0;text-align:center}
+  .trainingMore>summary::after{content:"＋";font-size:18px}
+  .trainingMoreCard{position:fixed;top:58px;left:10px;right:10px;width:auto}
+}
+
+@media(max-width:480px){
+  .trainingAbilityBadge{display:none}
+}
+/* ===== イディオム：出題条件 ===== */
+.quizSetupCard{padding:14px}
+.quizSetupHead{margin-bottom:10px}
+.quizSetupTitle{font-size:17px;font-weight:900}
+.quizSetupSub{margin-top:2px;color:#6b7280;font-size:11px}
+
+.idiomSetupTopGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.idiomSetupBottomGrid{display:grid;grid-template-columns:.65fr 1fr;gap:8px;margin-top:8px}
+
+.quizSetupControl{min-width:0;padding:8px;border:1px solid #e5e9ef;border-radius:9px;background:#fafbfc}
+.quizSetupLabel{margin-bottom:5px;color:#3f4b5a;font-size:13px;font-weight:900}
+.quizSetupSelect{width:100%;height:36px;box-sizing:border-box;padding:5px 7px;font-size:12px}
+
+.idiomRangeLine{display:flex;align-items:center;gap:5px}
+.idiomRangeLine input{width:100%;min-width:0;height:36px;box-sizing:border-box}
+.idiomRangeLine span{flex:0 0 auto;color:#707783;font-size:12px}
+
+.quizCountLine{display:flex;align-items:center;gap:5px}
+.quizCountLine input{width:100%;min-width:0;height:36px;box-sizing:border-box}
+.quizCountLine span{flex:0 0 auto;font-size:12px;font-weight:700}
+
+.quizAdvanced{margin-top:9px;border-top:1px solid #edf0f3}
+.quizAdvanced>summary{padding:8px 2px 2px;list-style:none;cursor:pointer;color:#526070;font-size:11px;font-weight:800}
+.quizAdvanced>summary::-webkit-details-marker{display:none}
+.quizAdvanced[open]>summary{color:#2862bd}
+.quizAdvancedBody{margin-top:6px;padding:9px;border:1px solid #e8ebef;border-radius:9px;background:#fafafa}
+
+.quizCheckItem{display:flex;align-items:center;gap:9px;cursor:pointer}
+.quizCheckItem input{width:17px;height:17px;flex:0 0 auto}
+.quizCheckItem .quizSetupLabel{margin-bottom:1px}
+.quizSetupHelp{color:#808792;font-size:10px;line-height:1.45}
+
+.quizSetupInfo{margin-top:8px;color:#77808c;font-size:10px;line-height:1.4}
+.quizStartButton{display:block;width:100%;margin-top:10px;padding:12px;font-size:15px;font-weight:900}
+
+.quizSubActions{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:7px}
+.quizSubActions button{margin:0;padding:8px 5px;font-size:11px;font-weight:700}
+
+@media(max-width:520px){
+  .idiomSetupTopGrid{grid-template-columns:1fr}
+  .idiomSetupBottomGrid{grid-template-columns:.7fr 1fr;gap:6px}
+  .quizSetupSub{display:none}
+}
+
+.quizAdvancedDivider{height:1px;margin:9px 0;background:#e6e9ed}
+.quizResetBtn{margin:0;padding:6px 8px;font-size:11px}
+
+/* ===== イディオム：問題モード ===== */
+#questionMode{
+  width:100%;
+  height:44px;
+  box-sizing:border-box;
+  padding:6px 10px;
+  font-size:17px;
+  font-weight:900;
+}
+
+#questionMode option{
+  font-size:17px;
+  font-weight:700;
+}
+
+/* 問題モードの例：横断エリア */
+.idiomModeGuideWide{
+  margin-top:8px;
+  padding:12px;
+  border:1px solid #dfe5ec;
+  border-radius:10px;
+  background:#f8fafc;
+}
+
+.idiomModeExampleTitle{
+  margin:0 0 9px;
+  color:#344355;
+  font-size:15px;
+  font-weight:900;
+}
+
+/* 3つのモードカード */
+.idiomModeCards{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+}
+
+.idiomModeCard{
+  min-width:0;
+  margin:0;
+  padding:10px;
+  border:1px solid #dfe4ea;
+  border-radius:10px;
+  background:#fff;
+  text-align:center;
+  transition:border-color .15s ease,background .15s ease,box-shadow .15s ease;
+}
+
+.idiomModeCard:hover{
+  border-color:#aac4ec;
+  background:#f6f9ff;
+}
+
+.idiomModeCard.active{
+  border:2px solid #5d97ea;
+  background:#edf4ff;
+  box-shadow:0 0 0 2px rgba(43,124,255,.08);
+}
+
+/* モード名 */
+.idiomModeCardTitle{
+  color:#26384a;
+  font-size:15px;
+  font-weight:900;
+  line-height:1.4;
+}
+
+.idiomModeCard.active .idiomModeCardTitle{
+  color:#225bab;
+}
+
+/* 英語→日本語など */
+.idiomModeCardSub{
+  margin-top:3px;
+  color:#7a8490;
+  font-size:11px;
+  font-weight:700;
+}
+
+/* 例題部分 */
+.idiomModeExample{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:88px;
+  box-sizing:border-box;
+  margin-top:8px;
+  padding:8px 6px;
+  border-radius:8px;
+  background:#fafbfc;
+  color:#333;
+  font-size:13px;
+  line-height:1.5;
+  text-align:center;
+}
+
+.idiomModeExample strong{
+  font-size:15px;
+  line-height:1.5;
+}
+
+.idiomModeArrow{
+  margin:3px 0;
+  color:#687687;
+  font-size:15px;
+  font-weight:900;
+}
+
+/* スマホ */
+@media(max-width:520px){
+  .idiomModeGuideWide{
+    padding:9px;
+  }
+
+  .idiomModeCards{
+    grid-template-columns:1fr;
+    gap:6px;
+  }
+
+  .idiomModeCard{
+    padding:8px 10px;
+  }
+
+  .idiomModeCardTitle{
+    font-size:14px;
+  }
+
+  .idiomModeCardSub{
+    font-size:10px;
+  }
+
+  .idiomModeExample{
+    min-height:auto;
+    margin-top:6px;
+    padding:7px 6px;
+    font-size:12px;
+  }
+
+  .idiomModeExample strong{
+    font-size:14px;
+  }
+}
   </style>
 </head>
 <body>
   <div class="wrap">
 
-    <div class="card topNavBox">
-      <div class="topNavTitle">学習ページ移動</div>
-      <div class="topNav">
-        <a href="index.html">ホーム</a>
+    <header class="trainingHeader">
+  <a href="index.html" class="trainingBackHome">← ホーム</a>
+
+  <span class="trainingDivider"></span>
+
+  <strong class="trainingPageTitle">イディオム</strong>
+
+  <span class="trainingAbilityBadge">
+    ちえ +0.5・ことば +0.5
+  </span>
+
+  <span id="levelBadge" class="trainingLevelBadge"></span>
+
+  <details class="trainingMore">
+    <summary>＋ 他の学習ページ</summary>
+
+    <div class="trainingMoreCard">
+      <div class="trainingMoreTitle">他の学習ページへ</div>
+
+      <div class="trainingMoreGrid">
         <a href="study.html">暗記</a>
         <a href="quiz.html">英→日</a>
         <a href="quiz_jaen.html">日→英</a>
         <a href="audio_quiz.html">音声→意味</a>
         <a href="idiom_quiz.html" class="active">イディオム</a>
         <a href="accent.html">大問1</a>
+        <a href="listening.html">リスニング</a>
+        <a href="dialogue.html">大問8</a>
         <a href="sentence.html">大問9</a>
+        <a href="q10.html">大問10</a>
         <a href="paraphrase_quiz.html">大問11</a>
         <a href="reorder.html">大問12</a>
-        <a href="list.html">一覧</a>
-        <a href="progress.html">進捗</a>
       </div>
     </div>
-
-    <div id="levelBadge"></div>
+  </details>
+</header>
 
     <div class="goimonToggleBox">
       <button id="toggleGoimon" type="button" class="goimonToggleBtn">ゴイモンの様子を見る</button>
@@ -844,69 +1130,186 @@
       </div>
     </div>
 
-    <div class="card" id="setupBox">
+    
       <div class="row">
         <div>
-          <div style="font-size:18px; font-weight:700;">イディオムクイズ</div>
-          <div class="muted" style="margin-top:4px;">
-            意味問題・同義表現問題を切り替えられます。<br>
-            解答後はその場で解答カードを表示し、Enter / Space / → で次に進めます。数字 1〜4 で解答できます。
-          </div>
-        </div>
-      </div>
+         
+    <div class="card quizSetupCard" id="setupBox">
 
-      <div class="hr"></div>
-
-      <div class="row" style="justify-content:flex-start;">
-        <div>
-          <div class="muted">問題モード</div>
-          <select id="questionMode">
-  <option value="meaning" selected>意味を選ぶ</option>
-  <option value="synonym">同義表現を選ぶ</option>
-  <option value="expression_from_meaning">英語表現を選ぶ</option>
-</select>
-        </div>
-        <div>
-  <div class="muted">問題No.</div>
-  <div style="display:flex; align-items:center; gap:6px;">
-    <input id="rangeStart" type="number" min="1" value="1" style="width:90px;">
-<span>〜</span>
-<input id="rangeEnd" type="number" min="1" value="287" style="width:90px;">
+  <div class="quizSetupHead">
+    <div class="quizSetupTitle">出題条件</div>
+    <div class="quizSetupSub">出題形式と範囲を選んでスタート</div>
   </div>
-</div>
 
-        <div>
-  <div class="muted">問題数</div>
-  <input id="questionCount" type="number" min="1" step="1" value="50" style="width:90px;">
-</div>
+  <div class="idiomSetupTopGrid">
 
-        <div>
-          <div class="muted">出題順</div>
-          <select id="quizMode">
-            <option value="order">はじめから</option>
-            <option value="order_continue">続きから</option>
-            <option value="random">ランダム</option>
-            <option value="weak">ニガテ順</option>
-          </select>
-        </div>
+    <div class="quizSetupControl">
+      <div class="quizSetupLabel">問題モード</div>
 
-        <div>
-          <div class="muted">読み上げ</div>
-          <label style="display:flex; align-items:center; gap:8px; padding-top:10px;">
-            <input type="checkbox" id="autoRead" />
-            <span>自動読み上げ</span>
-          </label>
-        </div>
-      </div>
+      <select id="questionMode" class="quizSetupSelect">
+        <option value="meaning" selected>意味を選ぶ</option>
+        <option value="synonym">同義表現を選ぶ</option>
+        <option value="expression_from_meaning">英語表現を選ぶ</option>
+      </select>
+    </div>
 
-      <div class="muted" id="poolInfo" style="margin-top:10px;"></div>
+    <div class="quizSetupControl">
+      <div class="quizSetupLabel">問題No.</div>
 
-      <div class="row" style="justify-content:flex-start; margin-top:12px;">
-        <button id="startBtn" class="primary" type="button">開始</button>
-        <button id="openProblemListBtn" type="button">問題一覧を見る</button>
-        <button id="openWeakListBtn" type="button">ニガテ一覧を見る</button>
+      <div class="idiomRangeLine">
+        <input id="rangeStart" type="number" min="1" value="1">
+        <span>〜</span>
+        <input id="rangeEnd" type="number" min="1" value="287">
       </div>
     </div>
+
+  </div>
+
+  <div class="idiomModeGuideWide">
+
+    <div class="idiomModeExampleTitle">
+      問題モードの例
+    </div>
+
+    <div class="idiomModeCards">
+
+      <button type="button"
+        class="idiomModeCard active"
+        data-question-mode="meaning">
+
+        <div class="idiomModeCardTitle">
+          意味を選ぶ
+        </div>
+
+        <div class="idiomModeCardSub">
+          英語 → 日本語
+        </div>
+
+        <div class="idiomModeExample">
+          <strong>look forward to</strong>
+          <span class="idiomModeArrow">↓</span>
+          <span>～を楽しみに待つ</span>
+        </div>
+
+      </button>
+
+      <button type="button"
+        class="idiomModeCard"
+        data-question-mode="synonym">
+
+        <div class="idiomModeCardTitle">
+          同義表現を選ぶ
+        </div>
+
+        <div class="idiomModeCardSub">
+          英語 → 別の英語
+        </div>
+
+        <div class="idiomModeExample">
+          <strong>at once</strong>
+          <span class="idiomModeArrow">↓</span>
+          <span>immediately</span>
+        </div>
+
+      </button>
+
+      <button type="button"
+        class="idiomModeCard"
+        data-question-mode="expression_from_meaning">
+
+        <div class="idiomModeCardTitle">
+          英語表現を選ぶ
+        </div>
+
+        <div class="idiomModeCardSub">
+          日本語 → 英語
+        </div>
+
+        <div class="idiomModeExample">
+          <strong>「時々」</strong>
+          <span class="idiomModeArrow">↓</span>
+          <span>once in a while</span>
+        </div>
+
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="idiomSetupBottomGrid">
+
+    <div class="quizSetupControl">
+      <div class="quizSetupLabel">問題数</div>
+
+      <div class="quizCountLine">
+        <input id="questionCount" type="number" min="1" step="1" value="50">
+        <span>問</span>
+      </div>
+    </div>
+
+    <div class="quizSetupControl">
+      <div class="quizSetupLabel">出題順</div>
+
+      <select id="quizMode" class="quizSetupSelect">
+        <option value="order_continue">順番に出題（続きから）</option>
+        <option value="random">ランダムで出題</option>
+        <option value="weak">ニガテ優先</option>
+      </select>
+    </div>
+
+  </div>
+
+  <details class="quizAdvanced">
+    <summary>＋ 詳細設定</summary>
+
+    <div class="quizAdvancedBody">
+
+      <label class="quizCheckItem">
+        <input type="checkbox" id="autoRead">
+
+        <div>
+          <div class="quizSetupLabel">自動読み上げ</div>
+          <div class="quizSetupHelp">
+            問題表示時に英語表現を自動で読み上げます。
+          </div>
+        </div>
+      </label>
+
+      <div class="quizAdvancedDivider"></div>
+
+      <div class="quizAdvancedItem">
+        <div class="quizSetupLabel">順番モード</div>
+
+        <button id="resetCursorBtn" class="quizResetBtn" type="button">
+          続き位置を先頭に戻す
+        </button>
+
+        <div class="quizSetupHelp">
+          現在の問題モード・問題No.範囲の続き位置を先頭に戻します。
+        </div>
+      </div>
+
+    </div>
+  </details>
+
+  <div class="quizSetupInfo" id="poolInfo"></div>
+
+  <button id="startBtn" class="primary quizStartButton" type="button">
+    ▶ この条件でテスト開始
+  </button>
+
+  <div class="quizSubActions">
+    <button id="openProblemListBtn" type="button">問題一覧</button>
+    <button id="openWeakListBtn" type="button">ニガテ一覧</button>
+  </div>
+
+</div>
+
+ 
+
+
+
 
     <div class="card hidden" id="focusIdiomBox">
       <div style="font-size:18px; font-weight:700;">関連イディオム</div>
@@ -945,6 +1348,36 @@
 
             <div class="listToolbar">
         <div class="listToolbarTitle">一覧を検索・表示切り替え</div>
+        <div class="listRangeWrap">
+  <div class="muted">表示する問題No.</div>
+
+  <div class="listRangeRow">
+    <input
+      id="problemListRangeStart"
+      type="number"
+      min="1"
+      value="1"
+      class="listRangeInput"
+    >
+
+    <span>〜</span>
+
+    <input
+      id="problemListRangeEnd"
+      type="number"
+      min="1"
+      value="287"
+      class="listRangeInput"
+    >
+
+    <button
+      id="problemListRangeApplyBtn"
+      type="button"
+    >
+      適用
+    </button>
+  </div>
+</div>
 
         <div class="listSearchWrap">
           <input
@@ -961,6 +1394,7 @@
 
        <div class="listToolbarBtns">
   <button id="problemWeakOnlyBtn" type="button">苦手のみ表示</button>
+  <button id="problemRandomOrderBtn" type="button">ランダム順に表示</button>
   <button id="problemMaskMeaningBtn" type="button">意味を一括で隠す</button>
   <button id="problemMaskSynonymBtn" type="button">同義表現を一括で隠す</button>
 </div>
@@ -1071,6 +1505,8 @@
   </script>
   <script src="idiom_data_1kyu.js"></script>
   <script src="idiom_examples_1kyu.js"></script>
+  <script src="learning_categories.js"></script>
+  <script src="learning_log.js"></script>
   <script src="goimon_dialogues.js"></script>
   <script src="goimon_dex.js"></script>
   <script src="goimon_rules.js"></script>
