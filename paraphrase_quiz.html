@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>大問11風演習（全商英検）</title>
+  <title>大問11演習</title>
   <link rel="stylesheet" href="style.css">
   <style>
     body {
@@ -544,32 +544,395 @@
     align-items: flex-start;
   }
 }
-    
 
+/* ===== 大問11：コンパクト学習ヘッダー ===== */
+.trainingHeader{position:relative;display:flex;align-items:center;gap:10px;min-height:50px;box-sizing:border-box;margin-bottom:10px;padding:7px 10px;border:1px solid #e2e7ef;border-radius:12px;background:#fff;box-shadow:0 1px 4px rgba(30,50,80,.05)}
+.trainingBackHome{flex:0 0 auto;color:#405064;font-size:14px;font-weight:800;text-decoration:none}
+.trainingBackHome:hover{color:#2b7cff}
+.trainingDivider{flex:0 0 auto;width:1px;height:24px;background:#dfe4ea}
+.trainingPageTitle{flex:0 0 auto;font-size:18px;font-weight:900}
+.trainingAbilityBadge{flex:0 0 auto;padding:5px 9px;border:1px solid #d8e6f6;border-radius:999px;background:#f3f8ff;color:#3e628e;font-size:12px;font-weight:800}
+.trainingLevelBadge{display:none}
+.trainingMore{position:relative;margin-left:auto;flex:0 0 auto}
+.trainingMore>summary{list-style:none;cursor:pointer;padding:7px 10px;border:1px solid #dce3ec;border-radius:9px;background:#f8fafc;color:#465467;font-size:12px;font-weight:800;user-select:none}
+.trainingMore>summary::-webkit-details-marker{display:none}
+.trainingMore[open]>summary{background:#edf4ff;color:#2862bd;border-color:#b8cff5}
+.trainingMoreCard{position:absolute;z-index:50;top:42px;right:0;width:310px;padding:10px;border:1px solid #dfe5ec;border-radius:12px;background:#fff;box-shadow:0 8px 24px rgba(30,50,80,.14)}
+.trainingMoreTitle{margin-bottom:8px;color:#66717f;font-size:11px;font-weight:800}
+.trainingMoreGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.trainingMoreGrid a{display:flex;align-items:center;justify-content:center;min-height:34px;padding:5px 4px;border:1px solid #e3e7ec;border-radius:8px;background:#fafbfc;color:#44505e;font-size:11px;font-weight:700;text-align:center;text-decoration:none}
+.trainingMoreGrid a:hover{background:#f0f5ff;border-color:#bfd3f5;color:#285eae}
+.trainingMoreGrid a.active{background:#edf4ff;border-color:#9dbcf0;color:#2862bd}
+
+@media(max-width:600px){
+  .trainingHeader{gap:7px;min-height:48px;padding:6px 8px}
+  .trainingBackHome{font-size:12px}
+  .trainingPageTitle{font-size:15px}
+  .trainingAbilityBadge{padding:4px 7px;font-size:11px}
+  .trainingMore>summary{width:34px;overflow:hidden;white-space:nowrap;padding:7px 8px;font-size:0;text-align:center}
+  .trainingMore>summary::after{content:"＋";font-size:18px}
+  .trainingMoreCard{position:fixed;top:58px;left:10px;right:10px;width:auto}
+}
+
+@media(max-width:480px){
+  .trainingAbilityBadge{display:none}
+}
+
+
+.rangeTypeCardDesc strong{
+  color:#285eae;
+  font-weight:900;
+}
+
+.rangeTypeNote{
+  color:#7b8490;
+  font-size:9px;
+  font-weight:700;
+}
+
+.rangeGoalMessage strong{
+  color:#285eae;
+  font-size:13px;
+  font-weight:900;
+}
+
+.rangeGoalMessage span{
+  color:#5e6b7a;
+  font-size:11px;
+  line-height:1.55;
+}
+
+/* 選択カード */
+.rangeTypeCards{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+
+.rangeTypeCard{
+  min-width:0;
+  overflow:hidden;
+  border:1px solid #dfe4ea;
+  border-radius:11px;
+  background:#fafbfc;
+}
+
+.rangeTypeCardHead{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  min-height:92px;
+  box-sizing:border-box;
+  padding:10px;
+  cursor:pointer;
+  background:#fff;
+}
+
+.rangeTypeCardHead input[type="radio"]{
+  width:18px;
+  height:18px;
+  margin:2px 0 0;
+  flex:0 0 auto;
+}
+
+.rangeTypeCardHeadText{
+  min-width:0;
+  flex:1 1 auto;
+}
+
+.rangeTypeBadge{
+  display:inline-block;
+  margin-bottom:4px;
+  padding:2px 7px;
+  border-radius:999px;
+  background:#eaf2ff;
+  color:#285eae;
+  font-size:9px;
+  font-weight:900;
+}
+
+.rangeTypeBadgeReview{
+  background:#f3f0ff;
+  color:#6550a8;
+}
+
+.rangeTypeCardTitle{
+  color:#26384a;
+  font-size:15px;
+  font-weight:900;
+  line-height:1.4;
+}
+
+.rangeTypeCardDesc{
+  margin-top:3px;
+  color:#727c87;
+  font-size:10px;
+  line-height:1.5;
+}
+
+/* 選択中カードを強調 */
+.rangeTypeCard:has(input[name="rangeType"]:checked){
+  border-color:#79a7ee;
+  box-shadow:0 0 0 2px rgba(43,124,255,.07);
+}
+
+.rangeTypeCard:has(input[name="rangeType"]:checked) .rangeTypeCardHead{
+  background:#f4f8ff;
+}
+
+.rangeTypeCard:has(input[name="rangeType"]:checked) .rangeTypeCardTitle{
+  color:#225bab;
+}
+
+/* No.入力部分 */
+.rangeCardInput{
+  padding:9px 10px 10px;
+  border-top:1px solid #e8ebef;
+  background:#fafbfc;
+}
+
+.rangeCardLabel{
+  margin-bottom:5px;
+  color:#465362;
+  font-size:12px;
+  font-weight:900;
+}
+
+.rangeInputRow{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+
+.rangeInputRow input{
+  width:100%;
+  min-width:0;
+  height:36px;
+  box-sizing:border-box;
+}
+
+.rangeInputRow span{
+  flex:0 0 auto;
+  color:#727b86;
+  font-size:12px;
+}
+
+.rangeCardResult{
+  margin-top:7px;
+  color:#285eae;
+  font-size:11px;
+  font-weight:800;
+  line-height:1.45;
+}
+
+.rangeCardHint{
+  margin-top:6px;
+  color:#828a94;
+  font-size:9px;
+  line-height:1.45;
+}
+
+/* 問題数・出題順・読み上げ */
+.paraphraseSetupBottom{
+  display:grid;
+  grid-template-columns:.65fr 1fr 1.25fr;
+  gap:8px;
+  margin-top:9px;
+}
+
+.paraphraseSetupControl{
+  min-width:0;
+  padding:8px;
+  border:1px solid #e5e9ef;
+  border-radius:9px;
+  background:#fafbfc;
+}
+
+.paraphraseSetupLabel{
+  margin-bottom:5px;
+  color:#3f4b5a;
+  font-size:13px;
+  font-weight:900;
+}
+
+.paraphraseSetupControl select{
+  width:100%;
+  height:38px;
+  box-sizing:border-box;
+}
+
+.paraphraseCountLine{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+
+.paraphraseCountLine input{
+  width:100%;
+  min-width:0;
+  height:38px;
+  box-sizing:border-box;
+}
+
+.paraphraseCountLine span{
+  flex:0 0 auto;
+  font-size:12px;
+  font-weight:700;
+}
+
+.paraphraseAutoRead{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  min-height:38px;
+  cursor:pointer;
+  font-size:11px;
+  font-weight:700;
+}
+
+.paraphraseAutoRead input{
+  width:17px;
+  height:17px;
+  flex:0 0 auto;
+}
+
+@media(max-width:600px){
+  .rangeTypeCards{
+    grid-template-columns:1fr;
+  }
+
+  .rangeTypeCardHead{
+    min-height:auto;
+  }
+
+  .paraphraseSetupBottom{
+    grid-template-columns:.7fr 1fr;
+  }
+
+  .paraphraseSetupControl:last-child{
+    grid-column:1 / -1;
+  }
+}
+
+    
+/* ===== 大問11：設定画面 文字サイズ調整 ===== */
+
+.rangeTypeBadge{
+  font-size:11px;
+}
+
+.rangeTypeCardTitle{
+  font-size:17px;
+}
+
+.rangeTypeCardDesc{
+  margin-top:4px;
+  font-size:12px;
+  line-height:1.6;
+}
+
+.rangeTypeCardDesc strong{
+  font-size:12px;
+}
+
+.rangeTypeNote{
+  font-size:11px;
+  line-height:1.5;
+}
+
+.rangeCardLabel{
+  font-size:14px;
+}
+
+.rangeInputRow input{
+  font-size:16px;
+}
+
+.rangeInputRow span{
+  font-size:14px;
+}
+
+.rangeCardResult{
+  font-size:13px;
+}
+
+.rangeCardHint{
+  font-size:11px;
+  line-height:1.5;
+}
+
+.paraphraseSetupLabel{
+  font-size:14px;
+}
+
+.paraphraseSetupControl select{
+  font-size:14px;
+}
+
+.paraphraseCountLine input{
+  font-size:16px;
+}
+
+.paraphraseCountLine span{
+  font-size:13px;
+}
+
+.paraphraseAutoRead{
+  font-size:13px;
+}
+
+.rangeTypeCardHead{
+  padding:12px;
+}
+
+.rangeCardInput{
+  padding:11px 12px 12px;
+}
+
+.paraphraseSetupControl{
+  padding:10px;
+}
   </style>
 </head>
 <body>
   <div class="wrap">
 
-    <div class="card topNavBox">
-      <div class="topNavTitle">学習ページ移動</div>
-      <div class="topNav">
-        <a href="index.html">ホーム</a>
+    <header class="trainingHeader">
+  <a href="index.html" class="trainingBackHome">← ホーム</a>
+
+  <span class="trainingDivider"></span>
+
+  <strong class="trainingPageTitle">大問11 言い換え</strong>
+
+  <span class="trainingAbilityBadge">
+    ことば +0.5・ぶんみゃく +0.5
+  </span>
+
+  <span id="levelBadge" class="trainingLevelBadge"></span>
+
+  <details class="trainingMore">
+    <summary>＋ 他の学習ページ</summary>
+
+    <div class="trainingMoreCard">
+      <div class="trainingMoreTitle">他の学習ページへ</div>
+
+      <div class="trainingMoreGrid">
         <a href="study.html">暗記</a>
         <a href="quiz.html">英→日</a>
         <a href="quiz_jaen.html">日→英</a>
         <a href="audio_quiz.html">音声→意味</a>
-         <a href="idiom_quiz.html">イディオム</a>
+        <a href="idiom_quiz.html">イディオム</a>
         <a href="accent.html">大問1</a>
+        <a href="listening.html">リスニング</a>
+        <a href="dialogue.html">大問8</a>
         <a href="sentence.html">大問9</a>
+        <a href="q10.html">大問10</a>
         <a href="paraphrase_quiz.html" class="active">大問11</a>
         <a href="reorder.html">大問12</a>
-        <a href="list.html">一覧</a>
-        <a href="progress.html">進捗</a>
       </div>
     </div>
-
-    <div id="levelBadge"></div>
+  </details>
+</header>
     <div class="goimonToggleBox">
   <button id="toggleGoimon" type="button" class="goimonToggleBtn">ゴイモンの様子を見る</button>
   <button id="evolutionNoticeBtn" type="button" class="evoNoticeBtn hidden">あれ、ゴイモンの様子が…！？</button>
@@ -579,7 +942,7 @@
   <div class="miniGoimonHead">
     <div>
       <div class="miniGoimonTitle">現在のゴイモン</div>
-      <div class="miniGoimonSub">大問11風問題の正解で「ことば +0.5」「ぶんみゃく +0.5」されます。</div>
+      <div class="miniGoimonSub">大問11問題の正解で「ことば +0.5」「ぶんみゃく +0.5」されます。</div>
     </div>
     <div class="miniGoimonStage">
       <div class="miniGoimonStageLabel">現在の段階</div>
@@ -606,7 +969,7 @@
     <div class="card" id="setupBox">
       <div class="row">
         <div>
-          <div style="font-size:18px; font-weight:700;">大問11風演習</div>
+         <div style="font-size:20px; font-weight:900;">大問11 言い換え演習</div>
           <div class="muted" style="margin-top:4px;">
             上の文と同じ意味になるように、下の文の空所に入る表現を4択で選びます。<br>
             イディオムページ寄りの設定・結果・ニガテ管理つき版です。
@@ -616,39 +979,174 @@
 
       <div class="hr"></div>
 
-      <div class="row" style="justify-content:flex-start;">
-        <div>
-          <div class="muted">問題No.</div>
-          <div style="display:flex; align-items:center; gap:6px;">
-            <input id="rangeStart" type="number" min="1" value="1" style="width:90px;">
-            <span>〜</span>
-            <input id="rangeEnd" type="number" min="1" value="141" style="width:90px;">
-          </div>
-        </div>
+      <div class="setupGroup">
 
-        <div>
-  <div class="muted">問題数</div>
-  <input id="questionCount" type="number" min="1" step="1" value="25" style="width:90px;">
+ 
+
+  <div class="rangeTypeCards">
+
+    <!-- 大問11番号から選ぶ -->
+    <div class="rangeTypeCard">
+
+      <label class="rangeTypeCardHead">
+        <input
+          type="radio"
+          name="rangeType"
+          value="paraphrase"
+          id="rangeTypeParaphrase"
+          checked
+        >
+
+        <div class="rangeTypeCardHeadText">
+          <div class="rangeTypeBadge">基本</div>
+          <div class="rangeTypeCardTitle">大問11を順番に学習</div>
+          <div class="rangeTypeCardDesc">
+  大問11の問題番号を指定して学習します。<br>
+  <strong>最終的には全問題クリアを目指そう！</strong>
 </div>
+        </div>
+      </label>
 
-        <div>
-          <div class="muted">出題順</div>
-          <select id="quizMode">
-            <option value="order">はじめから</option>
-            <option value="order_continue" selected>続きから</option>
-            <option value="random">ランダム</option>
-            <option value="weak">ニガテ順</option>
-          </select>
+      <div
+        id="paraphraseRangeBox"
+        class="rangeInputBox rangeCardInput"
+      >
+        <div class="rangeCardLabel">大問11 No.</div>
+
+        <div class="rangeInputRow">
+          <input
+            id="rangeStart"
+            type="number"
+            min="1"
+            value="1"
+          >
+
+          <span>〜</span>
+
+          <input
+            id="rangeEnd"
+            type="number"
+            min="1"
+            value="141"
+          >
         </div>
 
-        <div>
-          <div class="muted">読み上げ</div>
-          <label style="display:flex; align-items:center; gap:8px; padding-top:10px;">
-            <input type="checkbox" id="autoRead" checked />
-            <span>上の文を自動読み上げ</span>
-          </label>
-        </div>
+        <div class="rangeCardHint">
+  基本の学習ルート
+</div>
       </div>
+
+    </div>
+
+
+    <!-- イディオムから選ぶ -->
+    <div class="rangeTypeCard">
+
+      <label class="rangeTypeCardHead">
+        <input
+          type="radio"
+          name="rangeType"
+          value="idiom"
+          id="rangeTypeIdiom"
+        >
+
+        <div class="rangeTypeCardHeadText">
+          <div class="rangeTypeBadge rangeTypeBadgeReview">復習</div>
+          <div class="rangeTypeCardTitle">イディオムから復習</div>
+          <div class="rangeTypeCardDesc">
+  覚えたイディオムに関連する大問11を解きます。<br>
+  <span class="rangeTypeNote">
+    ※すべての大問11をカバーするわけではありません。
+  </span>
+</div>
+        </div>
+      </label>
+
+      <div
+        id="idiomRangeBox"
+        class="rangeInputBox rangeCardInput hidden"
+      >
+        <div class="rangeCardLabel">イディオム No.</div>
+
+        <div class="rangeInputRow">
+          <input
+            id="idiomRangeStart"
+            type="number"
+            min="1"
+            value="1"
+          >
+
+          <span>〜</span>
+
+          <input
+            id="idiomRangeEnd"
+            type="number"
+            min="1"
+            value="287"
+          >
+        </div>
+
+        <div
+          id="idiomRangeInfo"
+          class="rangeCardResult"
+        ></div>
+
+        <div class="rangeCardHint">
+  イディオム学習後の復習におすすめ
+</div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="paraphraseSetupBottom">
+
+    <div class="paraphraseSetupControl">
+      <div class="paraphraseSetupLabel">問題数</div>
+
+      <div class="paraphraseCountLine">
+        <input
+          id="questionCount"
+          type="number"
+          min="1"
+          step="1"
+          value="25"
+        >
+        <span>問</span>
+      </div>
+    </div>
+
+
+    <div class="paraphraseSetupControl">
+      <div class="paraphraseSetupLabel">出題順</div>
+
+      <select id="quizMode">
+        <option value="order">はじめから</option>
+        <option value="order_continue" selected>続きから</option>
+        <option value="random">ランダム</option>
+        <option value="weak">ニガテ順</option>
+      </select>
+    </div>
+
+
+    <div class="paraphraseSetupControl">
+      <div class="paraphraseSetupLabel">読み上げ</div>
+
+      <label class="paraphraseAutoRead">
+        <input
+          type="checkbox"
+          id="autoRead"
+          checked
+        >
+        <span>上の文を自動読み上げ</span>
+      </label>
+    </div>
+
+  </div>
+
+</div>
 
       <div class="muted" id="poolInfo" style="margin-top:10px;"></div>
 
@@ -779,6 +1277,8 @@
   </script>
   <script src="paraphrase_data_1kyu.js"></script>
   <script src="idiom_data_1kyu.js"></script>
+  <script src="learning_categories.js"></script>
+<script src="learning_log.js"></script>
   <script src="goimon_dialogues.js"></script>
 <script src="goimon_dex.js"></script>
 <script src="goimon_rules.js"></script>
@@ -917,6 +1417,673 @@
 @media (max-width: 520px) {
   .paraSummaryValue {
     font-size: 14px;
+  }
+}
+
+.rangeTypeChoices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.rangeTypeChoice {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border: 1px solid #d9dde3;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.rangeTypeChoice:has(input:checked) {
+  border-color: #2b7cff;
+  background: #edf4ff;
+  font-weight: 700;
+}
+
+.rangeInputBox {
+  margin-top: 10px;
+}
+
+.rangeInputRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rangeInputRow input {
+  width: 90px;
+}
+/* ========================================
+   大問11：解答後フィードバック compact版
+======================================== */
+
+.feedbackBox {
+  padding: 14px 16px !important;
+}
+
+.feedbackStatus {
+  margin: 0 0 8px !important;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.feedbackLabel {
+  margin: 12px 0 3px !important;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.feedbackText {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 0.96rem;
+  line-height: 1.55;
+}
+
+
+/* 不正解時の正答 */
+
+.feedbackCorrectAnswerBox {
+  margin: 0 0 10px !important;
+}
+
+.feedbackCorrectAnswerBox .feedbackLabel {
+  margin-top: 0 !important;
+}
+
+.feedbackCorrectAnswer {
+  margin: 2px 0 0 !important;
+  padding: 0 !important;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+
+/* ========================================
+   言い換えポイント
+======================================== */
+
+.paraphrasePointBox {
+  margin: 10px 0 12px !important;
+  padding: 11px 13px !important;
+  border: 1px solid #dbe4ef;
+  border-radius: 11px;
+  background: #f8fbff;
+}
+
+.paraphrasePointTitle {
+  margin: 0 0 7px !important;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.paraphraseTransform {
+  padding: 8px 10px !important;
+  border-radius: 9px;
+  background: #fff;
+  text-align: center;
+}
+
+.paraphraseTransformFrom,
+.paraphraseTransformTo {
+  margin: 0 !important;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.paraphraseTransformArrow {
+  padding: 1px 0 !important;
+  margin: 0 !important;
+  font-size: 1.05rem;
+  line-height: 1.1;
+}
+
+.paraphrasePointNote {
+  margin: 7px 0 0 !important;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+
+/* ========================================
+   関連イディオム
+======================================== */
+
+.relatedIdiomExplanation {
+  margin: 12px 0 0 !important;
+}
+
+.relatedIdiomHeading {
+  margin: 0 0 6px !important;
+}
+
+.relatedIdiomList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.relatedIdiomCard {
+  margin: 0 !important;
+  padding: 9px 10px !important;
+  border: 1px solid #dde3ea;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.relatedIdiomExpression {
+  margin: 0 !important;
+  font-size: 0.94rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.relatedIdiomJa {
+  margin: 2px 0 0 !important;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.relatedIdiomSub {
+  margin: 4px 0 0 !important;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.relatedIdiomSub span {
+  margin-right: 4px;
+  font-weight: 800;
+}
+
+.relatedIdiomNote {
+  margin: 5px 0 0 !important;
+  padding: 5px 0 0 !important;
+  border-top: 1px solid #edf0f4;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+
+/* その他の関連表現 */
+
+.relatedIdiomSecondary {
+  margin: 7px 0 0 !important;
+}
+
+.relatedIdiomSecondaryTitle {
+  margin: 0 0 4px !important;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.relatedIdiomChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.relatedIdiomChip {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 5px;
+  margin: 0 !important;
+  padding: 5px 8px !important;
+  border: 1px solid #e1e5ea;
+  border-radius: 8px;
+  background: #fafbfc;
+}
+
+.relatedIdiomChipEn {
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.relatedIdiomChipJa {
+  font-size: 0.7rem;
+  line-height: 1.3;
+  opacity: 0.75;
+}
+
+
+/* ========================================
+   完成文・訳・正解語
+======================================== */
+
+.feedbackSentenceSection {
+  margin: 12px 0 0 !important;
+  padding: 9px 0 0 !important;
+  border-top: 1px solid #e5e9ee;
+}
+
+.feedbackSentenceSection .feedbackLabel:first-child {
+  margin-top: 0 !important;
+}
+
+
+/* スマホ */
+
+@media (max-width: 700px) {
+  .feedbackBox {
+    padding: 12px !important;
+  }
+
+  .relatedIdiomList {
+    grid-template-columns: 1fr;
+  }
+
+  .relatedIdiomChip {
+    display: flex;
+    width: 100%;
+  }
+}
+
+/* ========================================
+   誤答選択肢の意味
+======================================== */
+
+.wrongChoiceMeaningBox {
+  margin: 10px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid #e8ebef;
+}
+
+.wrongChoiceMeaningTitle {
+  margin-bottom: 5px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.wrongChoiceMeaningList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.wrongChoiceMeaningChip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  padding: 4px 7px;
+  border: 1px solid #e1e5ea;
+  border-radius: 7px;
+  background: #fafbfc;
+  font-size: 0.76rem;
+  line-height: 1.3;
+}
+
+.wrongChoiceEn {
+  font-weight: 700;
+}
+
+.wrongChoiceEqual {
+  opacity: 0.55;
+}
+
+.wrongChoiceJa {
+  opacity: 0.82;
+}
+
+/* 生徒が実際に選んだ誤答 */
+.wrongChoiceMeaningChip.selectedWrongMeaning {
+  border-color: #e7a7a7;
+  background: #fff2f2;
+}
+
+.wrongChoiceMark {
+  font-weight: 900;
+}
+
+@media (max-width: 600px) {
+  .wrongChoiceMeaningList {
+    gap: 4px;
+  }
+
+  .wrongChoiceMeaningChip {
+    font-size: 0.73rem;
+    padding: 4px 6px;
+  }
+}
+
+/* ========================================
+   大問11：解答後フィードバック 見やすさ改善版
+======================================== */
+
+.feedbackBox {
+  padding: 12px 14px !important;
+}
+
+.feedbackStatus {
+  margin: 0 0 8px !important;
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.feedbackLabel {
+  margin: 10px 0 2px !important;
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.feedbackText {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 1.08rem;
+  line-height: 1.42;
+}
+
+
+/* 不正解時の正答 */
+
+.feedbackCorrectAnswerBox {
+  margin: 0 0 8px !important;
+  line-height: 1.3;
+}
+
+.feedbackCorrectAnswerBox .feedbackLabel {
+  margin: 0 !important;
+  font-size: 0.95rem;
+}
+
+.feedbackCorrectAnswer {
+  margin: 0 0 0 4px !important;
+  padding: 0 !important;
+  font-size: 1.12rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+
+/* ========================================
+   言い換えポイント
+======================================== */
+
+.paraphrasePointBox {
+  margin: 10px 0 10px !important;
+  padding: 10px 12px !important;
+  border: 1px solid #dbe4ef;
+  border-radius: 10px;
+  background: #f8fbff;
+}
+
+.paraphrasePointTitle {
+  margin: 0 0 6px !important;
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.paraphraseTransform {
+  padding: 8px 10px !important;
+  border-radius: 8px;
+  background: #fff;
+  text-align: center;
+}
+
+.paraphraseTransformFrom,
+.paraphraseTransformTo {
+  margin: 0 !important;
+  font-size: 1.18rem;
+  font-weight: 800;
+  line-height: 1.28;
+  word-break: break-word;
+}
+
+.paraphraseTransformArrow {
+  padding: 0 !important;
+  margin: 2px 0 !important;
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.paraphrasePointNote {
+  margin: 6px 0 0 !important;
+  font-size: 1rem;
+  line-height: 1.42;
+}
+
+
+/* ========================================
+   完成文・日本語
+======================================== */
+
+.feedbackSentenceSection {
+  margin: 10px 0 0 !important;
+  padding: 8px 0 0 !important;
+  border-top: 1px solid #e5e9ee;
+}
+
+.feedbackSentenceSection .feedbackLabel:first-child {
+  margin-top: 0 !important;
+}
+
+
+/* ========================================
+   誤答選択肢の意味
+======================================== */
+
+.wrongChoiceMeaningBox {
+  margin: 9px 0 0 !important;
+  padding-top: 7px !important;
+  border-top: 1px solid #e8ebef;
+}
+
+.wrongChoiceMeaningTitle {
+  margin: 0 0 5px !important;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.wrongChoiceMeaningList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.wrongChoiceMeaningChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 7px;
+  border: 1px solid #e1e5ea;
+  border-radius: 7px;
+  background: #fafbfc;
+  font-size: 0.88rem;
+  line-height: 1.25;
+}
+
+.wrongChoiceEn {
+  font-weight: 700;
+}
+
+.wrongChoiceEqual {
+  opacity: 0.55;
+}
+
+.wrongChoiceJa {
+  opacity: 0.88;
+}
+
+.wrongChoiceMeaningChip.selectedWrongMeaning {
+  border-color: #e7a7a7;
+  background: #fff2f2;
+}
+
+.wrongChoiceMark {
+  font-weight: 900;
+}
+
+
+/* ========================================
+   関連イディオム
+======================================== */
+
+.relatedIdiomExplanation {
+  margin: 10px 0 0 !important;
+}
+
+.relatedIdiomHeading {
+  margin: 0 0 6px !important;
+}
+
+.relatedIdiomList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 7px;
+}
+
+.relatedIdiomCard {
+  margin: 0 !important;
+  padding: 9px 10px !important;
+  border: 1px solid #dde3ea;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.relatedIdiomExpression {
+  margin: 0 !important;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.28;
+}
+
+.relatedIdiomJa {
+  margin: 2px 0 0 !important;
+  font-size: 0.97rem;
+  font-weight: 700;
+  line-height: 1.32;
+}
+
+.relatedIdiomSub {
+  margin: 4px 0 0 !important;
+  font-size: 0.9rem;
+  line-height: 1.32;
+}
+
+.relatedIdiomSub span {
+  margin-right: 4px;
+  font-weight: 800;
+}
+
+.relatedIdiomNote {
+  margin: 5px 0 0 !important;
+  padding: 5px 0 0 !important;
+  border-top: 1px solid #edf0f4;
+  font-size: 0.9rem;
+  line-height: 1.38;
+}
+
+
+/* その他の関連表現 */
+
+.relatedIdiomSecondary {
+  margin: 7px 0 0 !important;
+}
+
+.relatedIdiomSecondaryTitle {
+  margin: 0 0 4px !important;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.relatedIdiomChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.relatedIdiomChip {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 5px;
+  margin: 0 !important;
+  padding: 5px 8px !important;
+  border: 1px solid #e1e5ea;
+  border-radius: 8px;
+  background: #fafbfc;
+}
+
+.relatedIdiomChipEn {
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.relatedIdiomChipJa {
+  font-size: 0.8rem;
+  line-height: 1.25;
+  opacity: 0.8;
+}
+
+
+/* ========================================
+   スマホ
+======================================== */
+
+@media (max-width: 700px) {
+  .feedbackBox {
+    padding: 11px !important;
+  }
+
+  .feedbackStatus {
+    font-size: 1.28rem;
+  }
+
+  .feedbackLabel {
+    font-size: 0.9rem;
+  }
+
+  .feedbackText {
+    font-size: 1rem;
+  }
+
+  .paraphraseTransformFrom,
+  .paraphraseTransformTo {
+    font-size: 1.08rem;
+  }
+
+  .paraphrasePointNote {
+    font-size: 0.94rem;
+  }
+
+  .relatedIdiomExpression {
+    font-size: 0.98rem;
+  }
+
+  .relatedIdiomJa {
+    font-size: 0.9rem;
+  }
+
+  .relatedIdiomSub,
+  .relatedIdiomNote {
+    font-size: 0.84rem;
+  }
+
+  .wrongChoiceMeaningChip {
+    font-size: 0.82rem;
+  }
+
+  .relatedIdiomChipEn {
+    font-size: 0.84rem;
+  }
+
+  .relatedIdiomChipJa {
+    font-size: 0.74rem;
   }
 }
 </style>
