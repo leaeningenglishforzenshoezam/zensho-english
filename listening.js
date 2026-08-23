@@ -11,8 +11,11 @@
 // - ゴイモン「おんかん」+1
 // - 結果画面
 //
-// ※ ディクテーション、オーバーラッピング、シャドーイングは
-//    次の段階で本実装します。
+// - 4択リスニング
+// - ディクテーション
+// - オーバーラッピング
+// - シャドーイング
+// - 大問5形式対応
 
 document.addEventListener("DOMContentLoaded", () => {
   "use strict";
@@ -2477,7 +2480,14 @@ function saveCursor(cursor) {
         "dictation_reorder"
       );
 
-    addLearningLog(true);
+    if (
+  typeof window.zenshoLogAttempt === "function"
+) {
+  window.zenshoLogAttempt(
+    "listening",
+    1
+  );
+}
 
     const passLimit =
       clampInt(
@@ -3238,7 +3248,14 @@ function saveCursor(cursor) {
         "dictation_reorder"
       );
 
-    addLearningLog(true);
+    if (
+  typeof window.zenshoLogAttempt === "function"
+) {
+  window.zenshoLogAttempt(
+    "listening",
+    1
+  );
+}
 
     const passLimit =
       clampInt(
@@ -3448,7 +3465,14 @@ function saveCursor(cursor) {
         "dictation_full"
       );
 
-    addLearningLog(true);
+    if (
+  typeof window.zenshoLogAttempt === "function"
+) {
+  window.zenshoLogAttempt(
+    "listening",
+    1
+  );
+}
 
     const passLimit =
       clampInt(
@@ -3614,14 +3638,23 @@ function saveCursor(cursor) {
       false;
 
     const pointAdded =
-      awardListeningPoint(
-        currentQuestion.id,
-        "overlapping"
-      );
+  awardListeningPoint(
+    currentQuestion.id,
+    "overlapping"
+  );
 
-    addLearningLog(true);
+// ★ v1.1 共通学習ログ
+// 正誤判定のない練習なので attempt のみ記録
+if (
+  typeof window.zenshoLogAttempt === "function"
+) {
+  window.zenshoLogAttempt(
+    "listening",
+    1
+  );
+}
 
-    sessionResults.push({
+sessionResults.push({
       id:
         currentQuestion.id,
 
@@ -3819,14 +3852,23 @@ function saveCursor(cursor) {
       false;
 
     const pointAdded =
-      awardListeningPoint(
-        currentQuestion.id,
-        "shadowing"
-      );
+  awardListeningPoint(
+    currentQuestion.id,
+    "shadowing"
+  );
 
-    addLearningLog(true);
+// ★ v1.1 共通学習ログ
+// 正誤判定のない練習なので attempt のみ記録
+if (
+  typeof window.zenshoLogAttempt === "function"
+) {
+  window.zenshoLogAttempt(
+    "listening",
+    1
+  );
+}
 
-    sessionResults.push({
+sessionResults.push({
       id:
         currentQuestion.id,
 
@@ -4842,6 +4884,12 @@ function saveCursor(cursor) {
 
     answered = true;
 
+    const pointAdded =
+  awardListeningPoint(
+    currentQuestion.id,
+    "quiz"
+  );
+
 // この長文問題に1回取り組んだことを記録
 incrementAttemptCount(
   currentQuestion.id
@@ -4875,6 +4923,8 @@ let correctCount = 0;
         if (isCorrect) {
           correctCount += 1;
         }
+        // ★ v1.1 共通学習ログ
+addLearningLog(isCorrect);
 
         /*
           問題カード
@@ -8029,6 +8079,38 @@ function registerQuizShortcuts() {
   });
 }
 
+function applyGoimonLearningQuery() {
+  const params = new URLSearchParams(location.search);
+  const ability = params.get("goimonAbility");
+  const count = Number(params.get("goimonCount"));
+
+  if (ability !== "onkan" || !Number.isFinite(count) || count < 1) return false;
+
+  const safeCount = Math.max(1, Math.floor(count));
+
+  setSelectedMethod("quiz");
+  orderMode.value = "random";
+
+  if ([5, 10, 20, 30].includes(safeCount)) {
+    questionCount.value = String(safeCount);
+    customCountWrap.classList.add("hidden");
+  } else {
+    questionCount.value = "custom";
+    customCountInput.value = String(safeCount);
+    customCountWrap.classList.remove("hidden");
+  }
+
+  const route = document.getElementById("goimonTrainingRoute");
+  const routeText = document.getElementById("goimonTrainingRouteText");
+
+  if (route) route.classList.remove("hidden");
+  if (routeText) routeText.textContent = `おんかんを伸ばす ${safeCount}問セット`;
+
+  updatePoolInfo();
+  setTimeout(() => startBtn.click(), 0);
+  return true;
+}
+
   // ============================================================
   // 初期化
   // ============================================================
@@ -8069,6 +8151,8 @@ registerQuizShortcuts();
 showOnly(
   "setup"
 );
+
+applyGoimonLearningQuery();applyGoimonLearningQuery();
   }
 
   initialize();
