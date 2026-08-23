@@ -61,6 +61,7 @@ let individuallyRevealedExamples =
 let timerIntervalId = null;
 let timerStartedAt = null;
 let sessionStarted = false;
+let goimonSetLimit = 0;
 
 let currentSettings = {
   order: "sequential",
@@ -245,6 +246,37 @@ document.addEventListener(
   initializeQ10Page
 );
 
+function applyGoimonLearningQuery() {
+  const p = new URLSearchParams(location.search);
+  const ability = p.get("goimonAbility");
+  const count = Number(p.get("goimonCount"));
+
+  if (ability !== "bunmyaku" || !Number.isFinite(count) || count < 1) return false;
+
+  const numbers = q10Questions.map(q => Number(q.number)).filter(Number.isFinite);
+  goimonSetLimit = Math.min(3, Math.max(1, Math.floor(count)));
+
+  currentSettings = {
+    order:"random",
+    startNumber:Math.min(...numbers),
+    endNumber:Math.max(...numbers)
+  };
+
+  currentQuestionIndex = 0;
+  choiceOrders = {};
+  createQuestionSet();
+  sessionStarted = true;
+
+  settingsModalOverlay.hidden = true;
+  settingsModal.hidden = true;
+  document.body.classList.remove("setup-mode");
+  restoreBodyScroll();
+
+  saveState();
+  renderCurrentQuestion();
+  return true;
+}
+
 function initializeQ10Page() {
   validateQuestionData();
 
@@ -273,10 +305,14 @@ function initializeQ10Page() {
   setupEventListeners();
 
   document.body.classList.add(
-    "setup-mode"
-  );
+  "setup-mode"
+);
 
+createSettingsGuideModal();
+
+if (!applyGoimonLearningQuery()) {
   openSettingsModal();
+}
 }
 
 /* =========================================================
@@ -620,6 +656,10 @@ function createQuestionSet() {
       return a.number - b.number;
     });
   }
+
+  if (goimonSetLimit > 0) {
+  questionSet = questionSet.slice(0, goimonSetLimit);
+}
 
   if (
     currentQuestionIndex >=
@@ -1506,6 +1546,16 @@ function checkCurrentAnswers() {
     details,
     checkedAt: Date.now()
   };
+
+  // ★ v1.1 共通学習ログ
+if (typeof window.zenshoLogAdd === "function") {
+  BLANK_IDS.forEach((blankId) => {
+    window.zenshoLogAdd(
+      "q10",
+      !!details[blankId]?.isCorrect
+    );
+  });
+}
 
   recordQuestionAttempt(
   question,
@@ -3296,15 +3346,27 @@ function openSettingsModal() {
 }
 
 function closeSettingsModal() {
-  /*
-   * 初回表示時は、出題設定を確定するまで
-   * 閉じられないようにします。
-   */
 
+  /*
+   * 初回設定中
+   */
   if (!sessionStarted) {
+
+    settingsModalOverlay.hidden =
+      true;
+
+    settingsModal.hidden =
+      true;
+
+    showSettingsGuide();
+
     return;
   }
 
+
+  /*
+   * 問題開始後
+   */
   settingsModalOverlay.hidden =
     true;
 
@@ -3317,6 +3379,7 @@ function closeSettingsModal() {
 
   restoreBodyScroll();
 
+
   const question =
     getCurrentQuestion();
 
@@ -3325,6 +3388,618 @@ function closeSettingsModal() {
       question
     );
   }
+}
+
+/* =========================================================
+   初回設定ガイド
+========================================================= */
+
+let settingsGuideOverlay = null;
+let settingsGuideModal = null;
+
+
+function createSettingsGuideModal() {
+
+  if (document.getElementById("settingsGuideOverlay")) {
+
+    settingsGuideOverlay =
+      document.getElementById(
+        "settingsGuideOverlay"
+      );
+
+    settingsGuideModal =
+      document.getElementById(
+        "settingsGuideModal"
+      );
+
+    return;
+  }
+
+
+  const style =
+    document.createElement("style");
+
+  style.textContent = `
+    .settings-guide-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      background: rgba(0, 0, 0, 0.46);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      box-sizing: border-box;
+    }
+
+    .settings-guide-overlay[hidden] {
+      display: none !important;
+    }
+
+    .settings-guide-modal {
+      position: relative;
+      z-index: 9999;
+      width: min(620px, 100%);
+      max-height: calc(100vh - 36px);
+      overflow-y: auto;
+      background: #fff;
+      border-radius: 20px;
+      padding: 24px;
+      box-sizing: border-box;
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.2);
+    }
+
+    .settings-guide-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 42px;
+      height: 42px;
+      border: 0;
+      border-radius: 50%;
+      background: #f1f3f5;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .settings-guide-heading {
+      margin: 0;
+      padding-right: 50px;
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .settings-guide-lead {
+      margin: 8px 0 18px;
+      color: #555;
+      line-height: 1.7;
+    }
+
+    .settings-guide-visual {
+      display: flex;
+      justify-content: center;
+      margin: 4px 0 20px;
+    }
+
+    .settings-guide-image {
+      width: min(220px, 62%);
+      height: auto;
+      display: block;
+    }
+
+    .settings-guide-options {
+      display: grid;
+      gap: 12px;
+    }
+
+    .settings-guide-option {
+      border: 1px solid #dfe3e8;
+      border-radius: 16px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .settings-guide-option-title {
+      margin: 0 0 5px;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .settings-guide-option-setting {
+      margin: 0 0 5px;
+      font-weight: 700;
+    }
+
+    .settings-guide-option-note {
+      margin: 0 0 12px;
+      color: #666;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .settings-guide-use {
+      width: 100%;
+      min-height: 44px;
+      border: 0;
+      border-radius: 12px;
+      background: #2673e8;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .settings-guide-footer {
+      display: grid;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .settings-guide-back {
+      min-height: 48px;
+      border: 1px solid #cfd5dc;
+      border-radius: 12px;
+      background: #fff;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .settings-guide-home {
+      min-height: 46px;
+      border: 0;
+      background: transparent;
+      color: #555;
+      text-decoration: underline;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    @media (max-width: 520px) {
+      .settings-guide-modal {
+        padding: 20px 16px;
+      }
+
+      .settings-guide-heading {
+        font-size: 21px;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+
+
+  settingsGuideOverlay =
+    document.createElement("div");
+
+  settingsGuideOverlay.id =
+    "settingsGuideOverlay";
+
+  settingsGuideOverlay.className =
+    "settings-guide-overlay";
+
+  settingsGuideOverlay.hidden =
+    true;
+
+
+  settingsGuideModal =
+    document.createElement("div");
+
+  settingsGuideModal.id =
+    "settingsGuideModal";
+
+  settingsGuideModal.className =
+    "settings-guide-modal";
+
+
+  const guideImage = `
+    <svg
+      viewBox="0 0 260 160"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect
+        x="48"
+        y="90"
+        width="164"
+        height="48"
+        rx="12"
+        fill="#eef4ff"
+      />
+
+      <circle
+        cx="130"
+        cy="57"
+        r="36"
+        fill="#ffe7a8"
+      />
+
+      <circle cx="118" cy="52" r="4" fill="#333"/>
+      <circle cx="142" cy="52" r="4" fill="#333"/>
+
+      <path
+        d="M119 68 Q130 77 141 68"
+        fill="none"
+        stroke="#333"
+        stroke-width="4"
+        stroke-linecap="round"
+      />
+
+      <rect
+        x="78"
+        y="101"
+        width="48"
+        height="28"
+        rx="4"
+        fill="#fff"
+        stroke="#4776d0"
+        stroke-width="3"
+      />
+
+      <rect
+        x="134"
+        y="101"
+        width="48"
+        height="28"
+        rx="4"
+        fill="#fff"
+        stroke="#4776d0"
+        stroke-width="3"
+      />
+
+      <path
+        d="M130 103 L130 133"
+        stroke="#4776d0"
+        stroke-width="3"
+      />
+
+      <circle
+        cx="191"
+        cy="38"
+        r="19"
+        fill="#fff3c4"
+      />
+
+      <text
+        x="191"
+        y="45"
+        text-anchor="middle"
+        font-size="25"
+      >?</text>
+    </svg>
+  `;
+
+  const imageSrc =
+    "data:image/svg+xml;charset=UTF-8," +
+    encodeURIComponent(guideImage);
+
+
+  const maxQuestionNumber =
+    q10Questions.reduce(
+      function (max, question) {
+        return Math.max(
+          max,
+          Number(question.number) || 0
+        );
+      },
+      1
+    );
+
+
+  settingsGuideModal.innerHTML = `
+    <button
+      type="button"
+      class="settings-guide-close"
+      id="closeSettingsGuideButton"
+      aria-label="おすすめ設定を閉じる"
+    >
+      ×
+    </button>
+
+    <h2 class="settings-guide-heading">
+      どの設定で始めればいい？
+    </h2>
+
+    <p class="settings-guide-lead">
+      大問10は1問に読む量が多いので、
+      最初は少ない問題数から取り組むのがおすすめです。
+    </p>
+
+    <div class="settings-guide-visual">
+      <img
+        class="settings-guide-image"
+        src="${imageSrc}"
+        alt="学習設定について考えているイラスト"
+      >
+    </div>
+
+
+    <div class="settings-guide-options">
+
+      <section class="settings-guide-option">
+
+        <h3 class="settings-guide-option-title">
+          🌱 はじめて取り組む
+        </h3>
+
+        <p class="settings-guide-option-setting">
+          No.1〜2 ／ 番号順
+        </p>
+
+        <p class="settings-guide-option-note">
+          まずは2問程度で、本文の読み方と5つの空欄の解き方に慣れよう。
+        </p>
+
+        <button
+          type="button"
+          class="settings-guide-use"
+          data-guide-order="sequential"
+          data-guide-start="1"
+          data-guide-end="2"
+        >
+          この設定にする
+        </button>
+
+      </section>
+
+
+      <section class="settings-guide-option">
+
+        <h3 class="settings-guide-option-title">
+          🔀 復習したい
+        </h3>
+
+        <p class="settings-guide-option-setting">
+          No.1〜5 ／ ランダム
+        </p>
+
+        <p class="settings-guide-option-note">
+          一度取り組んだ範囲を、順番に頼らず解けるか確認しよう。
+        </p>
+
+        <button
+          type="button"
+          class="settings-guide-use"
+          data-guide-order="random"
+          data-guide-start="1"
+          data-guide-end="5"
+        >
+          この設定にする
+        </button>
+
+      </section>
+
+
+      <section class="settings-guide-option">
+
+        <h3 class="settings-guide-option-title">
+          🎯 未挑戦を進めたい
+        </h3>
+
+        <p class="settings-guide-option-setting">
+          全範囲 ／ 挑戦回数が少ない順
+        </p>
+
+        <p class="settings-guide-option-note">
+          まだ解いていない長文から優先して取り組もう。
+        </p>
+
+        <button
+          type="button"
+          class="settings-guide-use"
+          data-guide-order="unattempted"
+          data-guide-start="1"
+          data-guide-end="${maxQuestionNumber}"
+        >
+          この設定にする
+        </button>
+
+      </section>
+
+    </div>
+
+
+    <div class="settings-guide-footer">
+
+      <button
+        type="button"
+        class="settings-guide-back"
+        id="backToSettingsButton"
+      >
+        出題設定に戻る
+      </button>
+
+      <button
+        type="button"
+        class="settings-guide-home"
+        id="settingsGuideHomeButton"
+      >
+        ホームに戻る
+      </button>
+
+    </div>
+  `;
+
+
+  settingsGuideOverlay.appendChild(
+    settingsGuideModal
+  );
+
+  document.body.appendChild(
+    settingsGuideOverlay
+  );
+
+
+  document
+    .getElementById(
+      "closeSettingsGuideButton"
+    )
+    .addEventListener(
+      "click",
+      hideGuideAndReturnToSettings
+    );
+
+
+  document
+    .getElementById(
+      "backToSettingsButton"
+    )
+    .addEventListener(
+      "click",
+      hideGuideAndReturnToSettings
+    );
+
+
+  document
+    .getElementById(
+      "settingsGuideHomeButton"
+    )
+    .addEventListener(
+      "click",
+      function () {
+        window.location.href =
+          "index.html";
+      }
+    );
+
+
+  settingsGuideOverlay.addEventListener(
+    "click",
+    function (event) {
+
+      if (
+        event.target ===
+        settingsGuideOverlay
+      ) {
+        hideGuideAndReturnToSettings();
+      }
+    }
+  );
+
+
+  settingsGuideModal
+    .querySelectorAll(
+      "[data-guide-order]"
+    )
+    .forEach(function (button) {
+
+      button.addEventListener(
+        "click",
+        function () {
+
+          applyRecommendedSettingsToForm(
+            button.dataset.guideOrder,
+            Number(
+              button.dataset.guideStart
+            ),
+            Number(
+              button.dataset.guideEnd
+            )
+          );
+        }
+      );
+    });
+}
+
+
+function showSettingsGuide() {
+
+  createSettingsGuideModal();
+
+  settingsGuideOverlay.hidden =
+    false;
+
+  document.body.style.overflow =
+    "hidden";
+}
+
+
+function hideSettingsGuide() {
+
+  if (!settingsGuideOverlay) {
+    return;
+  }
+
+  settingsGuideOverlay.hidden =
+    true;
+}
+
+
+function hideGuideAndReturnToSettings() {
+
+  hideSettingsGuide();
+
+  openSettingsModal();
+}
+
+
+function applyRecommendedSettingsToForm(
+  order,
+  startNumber,
+  endNumber
+) {
+
+  const maxNumber =
+    q10Questions.reduce(
+      function (max, question) {
+        return Math.max(
+          max,
+          Number(question.number) || 0
+        );
+      },
+      1
+    );
+
+
+  const safeStart =
+    Math.max(
+      1,
+      Math.min(
+        Number(startNumber) || 1,
+        maxNumber
+      )
+    );
+
+
+  const safeEnd =
+    Math.max(
+      safeStart,
+      Math.min(
+        Number(endNumber) || maxNumber,
+        maxNumber
+      )
+    );
+
+
+  const orderInput =
+    document.querySelector(
+      `input[name="questionOrder"][value="${order}"]`
+    );
+
+
+  if (orderInput) {
+    orderInput.checked =
+      true;
+  }
+
+
+  questionRangeStart.value =
+    String(safeStart);
+
+  questionRangeEnd.value =
+    String(safeEnd);
+
+
+  hideSettingsGuide();
+
+
+  settingsModalOverlay.hidden =
+    false;
+
+  settingsModal.hidden =
+    false;
+
+  document.body.style.overflow =
+    "hidden";
 }
 
 function applyQuestionSettings() {
