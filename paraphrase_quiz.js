@@ -15,8 +15,14 @@
   };
 
   const DEFAULT_SETTINGS = {
+  rangeType: "paraphrase",
+
   rangeStart: "1",
   rangeEnd: "",
+
+  idiomRangeStart: "1",
+  idiomRangeEnd: "",
+
   questionCount: "25",
   quizMode: "order_continue",
   autoRead: true
@@ -88,9 +94,49 @@
     summaryBox: document.getElementById("summaryBox"),
     actionBar: document.getElementById("actionBar"),
 
-rangeStart: document.getElementById("rangeStart"),
-rangeEnd: document.getElementById("rangeEnd"),
-questionCount: document.getElementById("questionCount"),
+rangeStart:
+  document.getElementById("rangeStart"),
+
+rangeEnd:
+  document.getElementById("rangeEnd"),
+
+rangeTypeParaphrase:
+  document.getElementById(
+    "rangeTypeParaphrase"
+  ),
+
+rangeTypeIdiom:
+  document.getElementById(
+    "rangeTypeIdiom"
+  ),
+
+paraphraseRangeBox:
+  document.getElementById(
+    "paraphraseRangeBox"
+  ),
+
+idiomRangeBox:
+  document.getElementById(
+    "idiomRangeBox"
+  ),
+
+idiomRangeStart:
+  document.getElementById(
+    "idiomRangeStart"
+  ),
+
+idiomRangeEnd:
+  document.getElementById(
+    "idiomRangeEnd"
+  ),
+
+idiomRangeInfo:
+  document.getElementById(
+    "idiomRangeInfo"
+  ),
+
+questionCount:
+  document.getElementById("questionCount"),
 quizMode: document.getElementById("quizMode"),
 autoRead: document.getElementById("autoRead"),
 poolInfo: document.getElementById("poolInfo"),
@@ -133,6 +179,9 @@ poolInfo: document.getElementById("poolInfo"),
     continueBtn: document.getElementById("continueBtn"),
     backToSetupBtn: document.getElementById("backToSetupBtn")
   };
+
+  let goimonCountOverride = 0;
+  let goimonModeOverride = "";
 
   const state = {
     sessionItems: [],
@@ -206,6 +255,18 @@ poolInfo: document.getElementById("poolInfo"),
   return Math.min(Math.floor(num), max);
 }
 
+function getRangeType() {
+  const checked =
+    document.querySelector(
+      'input[name="rangeType"]:checked'
+    );
+
+  return checked &&
+    checked.value === "idiom"
+      ? "idiom"
+      : "paraphrase";
+}
+
 function getMaxDisplayNo() {
   const nums = DATA
     .map(function (item, index) {
@@ -216,6 +277,26 @@ function getMaxDisplayNo() {
     });
 
   return nums.length ? Math.max.apply(null, nums) : DATA.length;
+}
+
+function getMaxIdiomDisplayNo() {
+  const nums =
+    IDIOM_DATA
+      .map(function (item, index) {
+        return Number(
+          item.displayNo || index + 1
+        );
+      })
+      .filter(function (n) {
+        return (
+          Number.isFinite(n) &&
+          n >= 1
+        );
+      });
+
+  return nums.length
+    ? Math.max.apply(null, nums)
+    : IDIOM_DATA.length;
 }
 
 function getQuestionDisplayNo(item, index) {
@@ -246,21 +327,207 @@ function getRangeValues() {
   return { startNo, endNo, maxNo };
 }
 
+function getIdiomRangeValues() {
+  const maxNo =
+    getMaxIdiomDisplayNo();
+
+  let startNo =
+    Number(
+      el.idiomRangeStart
+        ? el.idiomRangeStart.value
+        : 1
+    );
+
+  let endNo =
+    Number(
+      el.idiomRangeEnd
+        ? el.idiomRangeEnd.value
+        : maxNo
+    );
+
+
+  if (
+    !Number.isFinite(startNo) ||
+    startNo < 1
+  ) {
+    startNo = 1;
+  }
+
+  if (
+    !Number.isFinite(endNo) ||
+    endNo < 1
+  ) {
+    endNo = maxNo;
+  }
+
+
+  startNo =
+    Math.floor(startNo);
+
+  endNo =
+    Math.floor(endNo);
+
+
+  if (startNo > endNo) {
+    const temp = startNo;
+    startNo = endNo;
+    endNo = temp;
+  }
+
+
+  startNo =
+    Math.max(
+      1,
+      Math.min(startNo, maxNo)
+    );
+
+  endNo =
+    Math.max(
+      1,
+      Math.min(endNo, maxNo)
+    );
+
+
+  return {
+    startNo,
+    endNo,
+    maxNo
+  };
+}
+
+function getTargetNoteIdsFromIdiomRange() {
+  const range =
+    getIdiomRangeValues();
+
+  const noteIds = [];
+
+  IDIOM_DATA.forEach(
+    function (item, index) {
+
+      const displayNo =
+        Number(
+          item.displayNo ||
+          index + 1
+        );
+
+      if (
+        !Number.isFinite(displayNo) ||
+        displayNo < range.startNo ||
+        displayNo > range.endNo
+      ) {
+        return;
+      }
+
+
+      const ids =
+        normalizeStringArray(
+          item.noteIds ||
+          item.noteId
+        )
+          .map(normalizeNoteId)
+          .filter(Boolean);
+
+
+      ids.forEach(function (id) {
+        noteIds.push(id);
+      });
+    }
+  );
+
+
+  return Array.from(
+    new Set(noteIds)
+  );
+}
+
 function getRangedData() {
-  const range = getRangeValues();
+
+  const rangeType =
+    getRangeType();
+
+
+  /*
+   * ============================
+   * 大問11番号で指定
+   * ============================
+   */
+  if (rangeType === "paraphrase") {
+
+    const range =
+      getRangeValues();
+
+    return DATA
+      .map(function (item, index) {
+        return {
+          ...item,
+          _originalIndex: index,
+          _rangeIndex: -1
+        };
+      })
+
+      .filter(function (item, index) {
+
+        const no =
+          getQuestionDisplayNo(
+            item,
+            index
+          );
+
+        return (
+          Number.isFinite(no) &&
+          no >= range.startNo &&
+          no <= range.endNo
+        );
+      })
+
+      .map(function (item, index) {
+        return {
+          ...item,
+          _rangeIndex: index,
+          _index: index
+        };
+      });
+  }
+
+
+  /*
+   * ============================
+   * イディオム番号で指定
+   * ============================
+   */
+
+  const targetNoteIds =
+    getTargetNoteIdsFromIdiomRange();
+
+
+  if (!targetNoteIds.length) {
+    return [];
+  }
+
 
   return DATA
     .map(function (item, index) {
       return {
         ...item,
-        _originalIndex: index,
-        _rangeIndex: -1
+        _originalIndex: index
       };
     })
-    .filter(function (item, index) {
-      const no = getQuestionDisplayNo(item, index);
-      return Number.isFinite(no) && no >= range.startNo && no <= range.endNo;
+
+    .filter(function (item) {
+
+      const questionNoteIds =
+        getQuestionNoteIds(item);
+
+      return questionNoteIds.some(
+        function (noteId) {
+
+          return targetNoteIds.includes(
+            noteId
+          );
+        }
+      );
     })
+
     .map(function (item, index) {
       return {
         ...item,
@@ -270,9 +537,93 @@ function getRangedData() {
     });
 }
 
+function updateRangeTypeUi() {
+
+  const rangeType =
+    getRangeType();
+
+
+  if (el.paraphraseRangeBox) {
+
+    el.paraphraseRangeBox
+      .classList.toggle(
+        "hidden",
+        rangeType !== "paraphrase"
+      );
+  }
+
+
+  if (el.idiomRangeBox) {
+
+    el.idiomRangeBox
+      .classList.toggle(
+        "hidden",
+        rangeType !== "idiom"
+      );
+  }
+
+
+  updateIdiomRangeInfo();
+}
+
+function updateIdiomRangeInfo() {
+
+  if (!el.idiomRangeInfo) {
+    return;
+  }
+
+
+  if (
+    getRangeType() !== "idiom"
+  ) {
+
+    el.idiomRangeInfo.textContent =
+      "";
+
+    return;
+  }
+
+
+  const range =
+    getIdiomRangeValues();
+
+  const count =
+    getRangedData().length;
+
+
+  el.idiomRangeInfo.textContent =
+    `イディオムNo.${range.startNo}〜` +
+    `${range.endNo}に対応する` +
+    `大問11問題：${count}問`;
+}
+
 function getCursorRangeKey() {
-  const range = getRangeValues();
-  return `${range.startNo}-${range.endNo}`;
+
+  const rangeType =
+    getRangeType();
+
+
+  if (rangeType === "idiom") {
+
+    const range =
+      getIdiomRangeValues();
+
+    return (
+      `idiom:` +
+      `${range.startNo}-` +
+      `${range.endNo}`
+    );
+  }
+
+
+  const range =
+    getRangeValues();
+
+  return (
+    `paraphrase:` +
+    `${range.startNo}-` +
+    `${range.endNo}`
+  );
 }
 
   function readWeakAutoMap() {
@@ -312,6 +663,20 @@ function getCursorRangeKey() {
     map[id] = (map[id] || 0) + 1;
     saveWeakAutoMap(map);
   }
+
+  function decrementParaphraseWeak(id) {
+  const map = readWeakAutoMap();
+  const current = Number(map[id] || 0);
+  const next = Math.max(0, current - 1);
+
+  if (next <= 0) {
+    delete map[id];
+  } else {
+    map[id] = next;
+  }
+
+  saveWeakAutoMap(map);
+}
 
   function getQuestionNoteIds(item) {
     return normalizeStringArray(item.noteIds || item.noteId)
@@ -394,25 +759,96 @@ function setCursor(value) {
 }
 
   function getSavedSettings() {
-  const saved = readJSON(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
+  const saved =
+    readJSON(
+      STORAGE_KEYS.settings,
+      DEFAULT_SETTINGS
+    );
+
   return {
-    rangeStart: saved.rangeStart || DEFAULT_SETTINGS.rangeStart,
-    rangeEnd: saved.rangeEnd || DEFAULT_SETTINGS.rangeEnd,
-    questionCount: saved.questionCount || DEFAULT_SETTINGS.questionCount,
-    quizMode: saved.quizMode || DEFAULT_SETTINGS.quizMode,
-    autoRead: typeof saved.autoRead === "boolean" ? saved.autoRead : DEFAULT_SETTINGS.autoRead
+
+    rangeType:
+      saved.rangeType ||
+      DEFAULT_SETTINGS.rangeType,
+
+    rangeStart:
+      saved.rangeStart ||
+      DEFAULT_SETTINGS.rangeStart,
+
+    rangeEnd:
+      saved.rangeEnd ||
+      DEFAULT_SETTINGS.rangeEnd,
+
+    idiomRangeStart:
+      saved.idiomRangeStart ||
+      DEFAULT_SETTINGS.idiomRangeStart,
+
+    idiomRangeEnd:
+      saved.idiomRangeEnd ||
+      DEFAULT_SETTINGS.idiomRangeEnd,
+
+    questionCount:
+      saved.questionCount ||
+      DEFAULT_SETTINGS.questionCount,
+
+    quizMode:
+      saved.quizMode ||
+      DEFAULT_SETTINGS.quizMode,
+
+    autoRead:
+      typeof saved.autoRead ===
+      "boolean"
+        ? saved.autoRead
+        : DEFAULT_SETTINGS.autoRead
   };
 }
 
   function saveCurrentSettings() {
+
   const settings = {
-    rangeStart: el.rangeStart ? el.rangeStart.value : "1",
-    rangeEnd: el.rangeEnd ? el.rangeEnd.value : String(getMaxDisplayNo()),
-    questionCount: el.questionCount.value,
-    quizMode: el.quizMode.value,
-    autoRead: el.autoRead.checked
+
+    rangeType:
+      getRangeType(),
+
+    rangeStart:
+      el.rangeStart
+        ? el.rangeStart.value
+        : "1",
+
+    rangeEnd:
+      el.rangeEnd
+        ? el.rangeEnd.value
+        : String(
+            getMaxDisplayNo()
+          ),
+
+    idiomRangeStart:
+      el.idiomRangeStart
+        ? el.idiomRangeStart.value
+        : "1",
+
+    idiomRangeEnd:
+      el.idiomRangeEnd
+        ? el.idiomRangeEnd.value
+        : String(
+            getMaxIdiomDisplayNo()
+          ),
+
+    questionCount:
+      el.questionCount.value,
+
+    quizMode:
+      el.quizMode.value,
+
+    autoRead:
+      el.autoRead.checked
   };
-  writeJSON(STORAGE_KEYS.settings, settings);
+
+
+  writeJSON(
+    STORAGE_KEYS.settings,
+    settings
+  );
 }
 
   function modeLabel(mode) {
@@ -518,28 +954,97 @@ function setCursor(value) {
   }
 
   function updatePoolInfo() {
-  const weakMap = readWeakAutoMap();
-  const manualMap = readManualWeakMap();
-  const rangedData = getRangedData();
-  const range = getRangeValues();
 
-  const autoWeakItems = Object.keys(weakMap).filter(function (id) {
-    return (weakMap[id] || 0) > 0;
-  }).length;
+  const weakMap =
+    readWeakAutoMap();
 
-  const autoWeakTotal = Object.values(weakMap).reduce(function (sum, value) {
-    return sum + Number(value || 0);
-  }, 0);
+  const manualMap =
+    readManualWeakMap();
 
-  const manualWeakItems = Object.keys(manualMap).length;
-  const cursor = rangedData.length ? (getCursor() % rangedData.length) : 0;
+  const rangedData =
+    getRangedData();
+
+  const rangeType =
+    getRangeType();
+
+
+  const autoWeakItems =
+    Object.keys(weakMap)
+      .filter(function (id) {
+        return (
+          weakMap[id] || 0
+        ) > 0;
+      })
+      .length;
+
+
+  const autoWeakTotal =
+    Object.values(weakMap)
+      .reduce(
+        function (sum, value) {
+
+          return (
+            sum +
+            Number(value || 0)
+          );
+
+        },
+        0
+      );
+
+
+  const manualWeakItems =
+    Object.keys(
+      manualMap
+    ).length;
+
+
+  const cursor =
+    rangedData.length
+      ? getCursor() %
+        rangedData.length
+      : 0;
+
+
+  let rangeLabel = "";
+
+
+  if (rangeType === "idiom") {
+
+    const range =
+      getIdiomRangeValues();
+
+    rangeLabel =
+      `イディオムNo.` +
+      `${range.startNo}〜` +
+      `${range.endNo}`;
+
+  } else {
+
+    const range =
+      getRangeValues();
+
+    rangeLabel =
+      `大問11 No.` +
+      `${range.startNo}〜` +
+      `${range.endNo}`;
+  }
+
 
   el.poolInfo.textContent =
-    `出題範囲：No.${range.startNo}〜${range.endNo} / ` +
-    `この範囲の問題数：${rangedData.length}件 / ` +
-    `続きからの次回開始位置：${rangedData.length ? cursor + 1 : 0}番目 / ` +
-    `自動ニガテ：${autoWeakItems}件（累計ミス ${autoWeakTotal}回） / ` +
+    `出題基準：${rangeLabel} / ` +
+    `出題可能：${rangedData.length}問 / ` +
+    `続きから：${
+      rangedData.length
+        ? cursor + 1
+        : 0
+    }番目 / ` +
+    `自動ニガテ：${autoWeakItems}件` +
+    `（累計ミス ${autoWeakTotal}回） / ` +
     `手動ニガテ：${manualWeakItems}件`;
+
+
+  updateIdiomRangeInfo();
 }
 
   function getWeakListItems() {
@@ -705,28 +1210,602 @@ function setCursor(value) {
     }
   }
 
-  function buildFeedbackHtml(question, isCorrect) {
-  const completedB = question.b.replace("( )", question.answer);
+function getRelatedIdioms(question) {
+  if (!question) return [];
+
+  const noteIds = getQuestionNoteIds(question);
+  if (!noteIds.length) return [];
+
+  const result = IDIOM_DATA.filter(function (idiom) {
+    const idiomNoteIds = normalizeStringArray(
+      idiom.noteIds || idiom.noteId
+    )
+      .map(normalizeNoteId)
+      .filter(Boolean);
+
+    return idiomNoteIds.some(function (noteId) {
+      return noteIds.includes(noteId);
+    });
+  });
+
+  // 同じ表現が重複していた場合に備えて除去
+  const seen = new Set();
+
+  return result.filter(function (idiom) {
+    const key =
+      String(idiom.expression || "")
+        .trim()
+        .toLowerCase();
+
+    if (!key || seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
+
+
+function normalizePhraseForMatch(text) {
+  return String(text || "")
+    .toLowerCase()
+    .replace(/[’‘]/g, "'")
+    .replace(/[“”"]/g, "")
+    .replace(/[.,!?;:()[\]{}]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+
+function getIdiomMatchScore(idiom, question) {
+  if (!idiom || !question) return 0;
+
+  const expression =
+    normalizePhraseForMatch(idiom.expression);
+
+  const pointA =
+    normalizePhraseForMatch(question.pointA);
+
+  const pointB =
+    normalizePhraseForMatch(question.pointB);
+
+  if (!expression) return 0;
+
+  // 完全に含まれている場合は最優先
+  if (
+    pointA.includes(expression) ||
+    pointB.includes(expression)
+  ) {
+    return 100;
+  }
+
+  /*
+    too ... to do
+    have difficulty doing
+    ask A for B
+    のような抽象表現にもある程度対応する。
+  */
+  const ignoreWords = new Set([
+    "a",
+    "b",
+    "s",
+    "do",
+    "doing",
+    "one",
+    "ones",
+    "one's",
+    "someone",
+    "something",
+    "the",
+    "to"
+  ]);
+
+  const tokens = expression
+    .replace(/\.\.\./g, " ")
+    .split(/\s+/)
+    .map(function (token) {
+      return token.replace(/[^a-z']/g, "");
+    })
+    .filter(function (token) {
+      return (
+        token &&
+        token.length >= 2 &&
+        !ignoreWords.has(token)
+      );
+    });
+
+  if (!tokens.length) return 0;
+
+  const target = `${pointA} ${pointB}`;
+
+  let hit = 0;
+
+  tokens.forEach(function (token) {
+    if (target.includes(token)) {
+      hit += 1;
+    }
+  });
+
+  return hit / tokens.length;
+}
+
+
+function splitRelatedIdioms(question) {
+  const relatedIdioms =
+    getRelatedIdioms(question);
+
+  if (!relatedIdioms.length) {
+    return {
+      primary: [],
+      secondary: []
+    };
+  }
+
+  const scored = relatedIdioms
+    .map(function (idiom, index) {
+      return {
+        idiom: idiom,
+        score: getIdiomMatchScore(
+          idiom,
+          question
+        ),
+        index: index
+      };
+    })
+    .sort(function (a, b) {
+      if (b.score !== a.score) {
+        return b.score - a.score;
+      }
+
+      return a.index - b.index;
+    });
+
+  /*
+    問題文の pointA / pointB と
+    実際に対応している表現を主表現とする。
+  */
+  let primary = scored
+    .filter(function (entry) {
+      return entry.score >= 0.6;
+    })
+    .slice(0, 2)
+    .map(function (entry) {
+      return entry.idiom;
+    });
+
+  /*
+    自動判定できなかった場合でも、
+    noteId が一致している先頭2件を詳しく表示。
+  */
+  if (!primary.length) {
+    primary = scored
+      .slice(0, 2)
+      .map(function (entry) {
+        return entry.idiom;
+      });
+  }
+
+  const primaryIds = new Set(
+    primary.map(function (idiom) {
+      return idiom.id;
+    })
+  );
+
+  const secondary = scored
+    .map(function (entry) {
+      return entry.idiom;
+    })
+    .filter(function (idiom) {
+      return !primaryIds.has(idiom.id);
+    });
+
+  return {
+    primary: primary,
+    secondary: secondary
+  };
+}
+
+
+function buildParaphrasePointHtml(question) {
+  if (!question) return "";
+
+  const pointA =
+    String(question.pointA || "").trim();
+
+  const pointB =
+    String(question.pointB || "").trim();
+
+  const pointNote =
+    String(question.pointNote || "").trim();
+
+  if (!pointA && !pointB && !pointNote) {
+    return "";
+  }
 
   return `
-    <div class="feedbackStatus">${isCorrect ? "正解" : "不正解"}</div>
+    <div class="paraphrasePointBox">
 
-    ${!isCorrect ? `
-      <div class="feedbackLabel">正解</div>
-      <div class="feedbackText">${escapeHtml(question.answer)}</div>
-    ` : ""}
+      <div class="paraphrasePointTitle">
+        言い換えポイント
+      </div>
 
-    <div class="feedbackLabel">下の文（完成形）</div>
-    <div class="feedbackText">${escapeHtml(completedB)}</div>
+      ${
+        pointA || pointB
+          ? `
+            <div class="paraphraseTransform">
 
-    <div class="feedbackLabel">日本語訳</div>
-    <div class="feedbackText">${escapeHtml(question.ja || "")}</div>
+              ${
+                pointA
+                  ? `
+                    <div class="paraphraseTransformFrom">
+                      ${escapeHtml(pointA)}
+                    </div>
+                  `
+                  : ""
+              }
 
-    <div class="feedbackLabel">正解語の意味</div>
-    <div class="feedbackText">${escapeHtml(question.answerJa || "")}</div>
+              ${
+                pointA && pointB
+                  ? `
+                    <div class="paraphraseTransformArrow">
+                      ↓
+                    </div>
+                  `
+                  : ""
+              }
 
-    <div class="feedbackLabel">解説</div>
-    <div class="feedbackText">${escapeHtml(question.note || "")}</div>
+              ${
+                pointB
+                  ? `
+                    <div class="paraphraseTransformTo">
+                      ${escapeHtml(pointB)}
+                    </div>
+                  `
+                  : ""
+              }
+
+            </div>
+          `
+          : ""
+      }
+
+      ${
+        pointNote
+          ? `
+            <div class="paraphrasePointNote">
+              ${escapeHtml(pointNote)}
+            </div>
+          `
+          : ""
+      }
+
+    </div>
+  `;
+}
+
+
+function buildPrimaryIdiomCard(idiom) {
+  if (!idiom) return "";
+
+  const paraphraseText =
+    Array.isArray(idiom.paraphraseTo) &&
+    idiom.paraphraseTo.length
+      ? idiom.paraphraseTo.join(" / ")
+      : "";
+
+  const antonymText =
+    Array.isArray(idiom.antonyms) &&
+    idiom.antonyms.length
+      ? idiom.antonyms.join(" / ")
+      : "";
+
+  return `
+    <div class="relatedIdiomCard">
+
+      <div class="relatedIdiomExpression">
+        ${escapeHtml(idiom.expression || "")}
+      </div>
+
+      ${
+        idiom.ja
+          ? `
+            <div class="relatedIdiomJa">
+              ${escapeHtml(idiom.ja)}
+            </div>
+          `
+          : ""
+      }
+
+      ${
+        paraphraseText
+          ? `
+            <div class="relatedIdiomSub">
+              <span>同義表現</span>
+              ${escapeHtml(paraphraseText)}
+            </div>
+          `
+          : ""
+      }
+
+      ${
+        antonymText
+          ? `
+            <div class="relatedIdiomSub">
+              <span>反意表現</span>
+              ${escapeHtml(antonymText)}
+            </div>
+          `
+          : ""
+      }
+
+      ${
+        idiom.note
+          ? `
+            <div class="relatedIdiomNote">
+              ${escapeHtml(idiom.note)}
+            </div>
+          `
+          : ""
+      }
+
+    </div>
+  `;
+}
+
+
+function buildSecondaryIdiomHtml(idioms) {
+  if (!Array.isArray(idioms) || !idioms.length) {
+    return "";
+  }
+
+  return `
+    <div class="relatedIdiomSecondary">
+
+      <div class="relatedIdiomSecondaryTitle">
+        その他の関連表現
+      </div>
+
+      <div class="relatedIdiomChips">
+
+        ${idioms.map(function (idiom) {
+          return `
+            <div class="relatedIdiomChip">
+              <span class="relatedIdiomChipEn">
+                ${escapeHtml(
+                  idiom.expression || ""
+                )}
+              </span>
+
+              ${
+                idiom.ja
+                  ? `
+                    <span class="relatedIdiomChipJa">
+                      ${escapeHtml(idiom.ja)}
+                    </span>
+                  `
+                  : ""
+              }
+            </div>
+          `;
+        }).join("")}
+
+      </div>
+
+    </div>
+  `;
+}
+
+
+function buildRelatedIdiomsHtml(question) {
+  const groups =
+    splitRelatedIdioms(question);
+
+  if (
+    !groups.primary.length &&
+    !groups.secondary.length
+  ) {
+    return "";
+  }
+
+  return `
+    <div class="relatedIdiomExplanation">
+
+      <div class="feedbackLabel relatedIdiomHeading">
+        関連する重要表現
+      </div>
+
+      ${
+        groups.primary.length
+          ? `
+            <div class="relatedIdiomList">
+              ${groups.primary
+                .map(buildPrimaryIdiomCard)
+                .join("")}
+            </div>
+          `
+          : ""
+      }
+
+      ${buildSecondaryIdiomHtml(
+        groups.secondary
+      )}
+
+    </div>
+  `;
+}
+
+
+function buildWrongChoiceMeaningsHtml(question) {
+  if (!question) return "";
+
+  const choices = Array.isArray(question.choices)
+    ? question.choices
+    : [];
+
+  const choiceJa = Array.isArray(question.choiceJa)
+    ? question.choiceJa
+    : [];
+
+  if (!choices.length || !choiceJa.length) {
+    return "";
+  }
+
+  const wrongChoices = choices
+    .map(function (choice, index) {
+      return {
+        choice: choice,
+        ja: choiceJa[index] || "",
+        selected:
+          choice === state.selectedChoice
+      };
+    })
+    .filter(function (item) {
+      return (
+        item.choice !== question.answer &&
+        item.ja
+      );
+    });
+
+  if (!wrongChoices.length) {
+    return "";
+  }
+
+  return `
+    <div class="wrongChoiceMeaningBox">
+
+      <div class="wrongChoiceMeaningTitle">
+        誤答の意味
+      </div>
+
+      <div class="wrongChoiceMeaningList">
+
+        ${wrongChoices.map(function (item) {
+          return `
+            <span class="wrongChoiceMeaningChip ${
+              item.selected
+                ? "selectedWrongMeaning"
+                : ""
+            }">
+
+              ${
+                item.selected
+                  ? `<span class="wrongChoiceMark">×</span>`
+                  : ""
+              }
+
+              <span class="wrongChoiceEn">
+                ${escapeHtml(item.choice)}
+              </span>
+
+              <span class="wrongChoiceEqual">
+                ＝
+              </span>
+
+              <span class="wrongChoiceJa">
+                ${escapeHtml(item.ja)}
+              </span>
+
+            </span>
+          `;
+        }).join("")}
+
+      </div>
+
+    </div>
+  `;
+}
+
+  function buildFeedbackHtml(question, isCorrect) {
+  const completedB =
+    question.b.replace(
+      "( )",
+      question.answer
+    );
+
+  const pointHtml =
+    buildParaphrasePointHtml(question);
+
+  const idiomHtml =
+    buildRelatedIdiomsHtml(question);
+
+  const wrongChoiceHtml =
+    buildWrongChoiceMeaningsHtml(question);
+
+  return `
+    <div class="feedbackStatus">
+      ${isCorrect ? "正解" : "不正解"}
+    </div>
+
+    ${
+      !isCorrect
+        ? `
+          <div class="feedbackCorrectAnswerBox">
+            <span class="feedbackLabel">
+              正解：
+            </span>
+
+            <span class="feedbackCorrectAnswer">
+              ${escapeHtml(question.answer)}
+            </span>
+          </div>
+        `
+        : ""
+    }
+
+    ${pointHtml}
+
+    <div class="feedbackSentenceSection">
+
+      <div class="feedbackLabel">
+        完成文
+      </div>
+
+      <div class="feedbackText">
+        ${escapeHtml(completedB)}
+      </div>
+
+      <div class="feedbackLabel">
+        日本語
+      </div>
+
+      <div class="feedbackText">
+        ${escapeHtml(question.ja || "")}
+      </div>
+
+    </div>
+
+    ${wrongChoiceHtml}
+
+    ${idiomHtml}
+
+    ${
+      !idiomHtml && question.answerJa
+        ? `
+          <div class="feedbackLabel">
+            正解語の意味
+          </div>
+
+          <div class="feedbackText">
+            ${escapeHtml(question.answerJa)}
+          </div>
+        `
+        : ""
+    }
+
+    ${
+      question.note
+        ? `
+          <div class="feedbackLabel">
+            補足
+          </div>
+
+          <div class="feedbackText">
+            ${escapeHtml(question.note)}
+          </div>
+        `
+        : ""
+    }
   `;
 }
 
@@ -740,12 +1819,25 @@ function setCursor(value) {
 
     state.answered = true;
     if (isCorrect) {
-      state.score += 1;
-      awardParaphraseGoimonCorrect();
-    } else {
-      incrementParaphraseWeak(question.id);
-      incrementIdiomWeakLinks(noteIds);
-    }
+  state.score += 1;
+
+  // 大問11の自動ニガテを1減らす
+  decrementParaphraseWeak(question.id);
+
+  // ゴイモン加点
+  awardParaphraseGoimonCorrect();
+} else {
+  // 大問11の自動ニガテを1増やす
+  incrementParaphraseWeak(question.id);
+
+  // 関連するイディオムにも弱点を連携
+  incrementIdiomWeakLinks(noteIds);
+}
+
+// 共通学習ログへ記録
+if (typeof window.zenshoLogAdd === "function") {
+  window.zenshoLogAdd("paraphrase_quiz", isCorrect);
+}
 
     const buttons = Array.from(el.choicesBox.querySelectorAll("button"));
     buttons.forEach(function (btn) {
@@ -992,15 +2084,49 @@ function setCursor(value) {
 
   if (!rangedData.length) {
     const range = getRangeValues();
-    alert(`No.${range.startNo}〜${range.endNo} の範囲に出題できる問題がありません。`);
+   if (!rangedData.length) {
+
+  if (
+    getRangeType() ===
+    "idiom"
+  ) {
+
+    const range =
+      getIdiomRangeValues();
+
+    alert(
+      `イディオムNo.${range.startNo}〜` +
+      `${range.endNo}に対応する` +
+      `大問11問題がありません。`
+    );
+
+  } else {
+
+    const range =
+      getRangeValues();
+
+    alert(
+      `大問11 No.${range.startNo}〜` +
+      `${range.endNo}の範囲に` +
+      `出題できる問題がありません。`
+    );
+  }
+
+
+  updatePoolInfo();
+
+  return;
+}
     updatePoolInfo();
     return;
   }
 
   saveCurrentSettings();
 
-  const count = countToNumber(el.questionCount.value, rangedData.length);
-  const mode = el.quizMode.value;
+const count = goimonCountOverride || countToNumber(el.questionCount.value, rangedData.length);
+const mode = goimonModeOverride || el.quizMode.value;
+goimonCountOverride = 0;
+goimonModeOverride = "";
 
   state.mode = mode;
   resetSessionState();
@@ -1096,20 +2222,79 @@ function handleKeyboardShortcut(event) {
 }
 
   function restoreSettingsToForm() {
-  const settings = getSavedSettings();
-  const maxNo = getMaxDisplayNo();
+
+  const settings =
+    getSavedSettings();
+
+  const maxNo =
+    getMaxDisplayNo();
+
+  const maxIdiomNo =
+    getMaxIdiomDisplayNo();
+
+
+  if (
+    settings.rangeType ===
+    "idiom"
+  ) {
+
+    if (el.rangeTypeIdiom) {
+      el.rangeTypeIdiom.checked =
+        true;
+    }
+
+  } else {
+
+    if (el.rangeTypeParaphrase) {
+      el.rangeTypeParaphrase.checked =
+        true;
+    }
+  }
+
 
   if (el.rangeStart) {
-    el.rangeStart.value = settings.rangeStart || "1";
+
+    el.rangeStart.value =
+      settings.rangeStart ||
+      "1";
   }
+
 
   if (el.rangeEnd) {
-    el.rangeEnd.value = settings.rangeEnd || String(maxNo);
+
+    el.rangeEnd.value =
+      settings.rangeEnd ||
+      String(maxNo);
   }
 
-  el.questionCount.value = settings.questionCount;
-  el.quizMode.value = settings.quizMode;
-  el.autoRead.checked = settings.autoRead;
+
+  if (el.idiomRangeStart) {
+
+    el.idiomRangeStart.value =
+      settings.idiomRangeStart ||
+      "1";
+  }
+
+
+  if (el.idiomRangeEnd) {
+
+    el.idiomRangeEnd.value =
+      settings.idiomRangeEnd ||
+      String(maxIdiomNo);
+  }
+
+
+  el.questionCount.value =
+    settings.questionCount;
+
+  el.quizMode.value =
+    settings.quizMode;
+
+  el.autoRead.checked =
+    settings.autoRead;
+
+
+  updateRangeTypeUi();
 }
 
   function handleListAreaClick(event) {
@@ -1150,6 +2335,18 @@ function handleKeyboardShortcut(event) {
     window.history.replaceState({}, "", url.toString());
     refreshRelatedParaphraseBox();
   }
+
+  function applyGoimonLearningQuery() {
+  const ability = URL_PARAMS.get("goimonAbility");
+  const count = Number(URL_PARAMS.get("goimonCount"));
+
+  if (!["kotoba","bunmyaku"].includes(ability) || !Number.isFinite(count) || count < 1) return;
+
+  goimonCountOverride = Math.floor(count);
+  goimonModeOverride = "random";
+
+  setTimeout(() => el.startBtn.click(), 0);
+}
 
   function init() {
     updateLevelBadge();
@@ -1263,6 +2460,63 @@ function handleKeyboardShortcut(event) {
       showBox("setup");
     });
 
+    if (el.rangeTypeParaphrase) {
+
+  el.rangeTypeParaphrase
+    .addEventListener(
+      "change",
+      function () {
+
+        updateRangeTypeUi();
+        saveCurrentSettings();
+        updatePoolInfo();
+      }
+    );
+}
+
+
+if (el.rangeTypeIdiom) {
+
+  el.rangeTypeIdiom
+    .addEventListener(
+      "change",
+      function () {
+
+        updateRangeTypeUi();
+        saveCurrentSettings();
+        updatePoolInfo();
+      }
+    );
+}
+
+
+if (el.idiomRangeStart) {
+
+  el.idiomRangeStart
+    .addEventListener(
+      "input",
+      function () {
+
+        saveCurrentSettings();
+        updatePoolInfo();
+      }
+    );
+}
+
+
+if (el.idiomRangeEnd) {
+
+  el.idiomRangeEnd
+    .addEventListener(
+      "input",
+      function () {
+
+        saveCurrentSettings();
+        updatePoolInfo();
+      }
+    );
+}
+
    if (el.rangeStart) {
   el.rangeStart.addEventListener("input", function () {
     saveCurrentSettings();
@@ -1290,6 +2544,8 @@ el.quizMode.addEventListener("change", function () {
 el.autoRead.addEventListener("change", function () {
   saveCurrentSettings();
 });
+
+applyGoimonLearningQuery();
   }
 
   const PARAPHRASE_GOIMON_DELTA = { kotoba: 0.5, bunmyaku: 0.5 };
@@ -1349,6 +2605,7 @@ el.autoRead.addEventListener("change", function () {
     renderParaphraseGoimonMini();
   }
 
+  
   init();
   initParaphraseGoimonMini();
 })();
