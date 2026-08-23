@@ -39,9 +39,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const qMetaEl = document.getElementById("qMeta");
   const questionEl = document.getElementById("question");
   const choicesEl = document.getElementById("choices");
-  const resultEl = document.getElementById("result");
-  const nextBtn = document.getElementById("nextQ");
-  const startBtn = document.getElementById("startTest");
+ const resultEl = document.getElementById("result");
+const nextBtn = document.getElementById("nextQ");
+const nextBtnTop = document.getElementById("nextQTop");
+const startBtn = document.getElementById("startTest");
 
   const rangeStartEl = document.getElementById("rangeStart");
   const rangeEndEl = document.getElementById("rangeEnd");
@@ -83,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   [
     [statsEl,"stats"],[qMetaEl,"qMeta"],[questionEl,"question"],[choicesEl,"choices"],[resultEl,"result"],
-    [nextBtn,"nextQ"],[startBtn,"startTest"],
+    [nextBtn,"nextQ"],[nextBtnTop,"nextQTop"],[startBtn,"startTest"],
     [rangeStartEl,"rangeStart"],[rangeEndEl,"rangeEnd"],[limitEl,"limitCount"],
     [blockSelectEl,"blockSelect"],[blockStatsEl,"blockStats"],
     [weakInfoEl,"weakInfo"],
@@ -98,6 +99,14 @@ document.addEventListener("DOMContentLoaded", () => {
     [levelBadgeEl,"levelBadge"],[goimonToggleBtn,"goimonToggleBtn"],[goimonPanel,"goimonPanel"],
     [evolutionNoticeBtn,"evolutionNoticeBtn"]
   ].forEach(([el,n]) => must(el,n));
+
+  function setNextButtonState(disabled, text = "次の問題") {
+  nextBtn.disabled = disabled;
+  nextBtn.textContent = text;
+
+  nextBtnTop.disabled = disabled;
+  nextBtnTop.textContent = text;
+}
 
   function safeParse(key) {
     const raw = localStorage.getItem(key);
@@ -1068,7 +1077,7 @@ function renderWrongSummaryList() {
       qMetaEl.textContent = "";
       choicesEl.innerHTML = "";
       resultEl.textContent = "";
-      nextBtn.disabled = true;
+      setNextButtonState(true, "次の問題");
       return;
     }
 
@@ -1079,9 +1088,7 @@ function renderWrongSummaryList() {
 
    answeredThisQuestion = false;
 
-nextBtn.disabled = true;
-nextBtn.textContent =
-  "次の問題";
+setNextButtonState(true, "次の問題");
 
 resultEl.textContent = "";
 
@@ -1213,17 +1220,13 @@ if (autoSpeakQ) speakEnglish(current.en);
     updateSettingsSummary();
     renderGoimonStatus();
 
-    nextBtn.disabled = false;
-
-if (
+    if (
   session.answered >=
   session.limit
 ) {
-  nextBtn.textContent =
-    "結果を見る";
+  setNextButtonState(false, "結果を見る");
 } else {
-  nextBtn.textContent =
-    "次の問題";
+  setNextButtonState(false, "次の問題");
 }
   }
 
@@ -1270,6 +1273,10 @@ if (
     renderQuestion();
   }
 );
+
+nextBtnTop.addEventListener("click", () => {
+  nextBtn.click();
+});
 
   startBtn.addEventListener("click", () => {
     const selectedBlockIds = getSelectedBlockIds();
