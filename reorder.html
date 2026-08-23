@@ -605,30 +605,286 @@
   color: #ad3159;
   font-weight: 700;
 }
+
+/* ===== 大問12：コンパクト学習ヘッダー ===== */
+.trainingHeader{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:50px;
+  box-sizing:border-box;
+  margin-bottom:10px;
+  padding:7px 10px;
+  border:1px solid #e2e7ef;
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 1px 4px rgba(30,50,80,.05);
+}
+
+.trainingBackHome{
+  flex:0 0 auto;
+  color:#405064;
+  font-size:14px;
+  font-weight:800;
+  text-decoration:none;
+}
+
+.trainingBackHome:hover{
+  color:#2b7cff;
+}
+
+.trainingDivider{
+  flex:0 0 auto;
+  width:1px;
+  height:24px;
+  background:#dfe4ea;
+}
+
+.trainingPageTitle{
+  flex:0 0 auto;
+  font-size:18px;
+  font-weight:900;
+}
+
+.trainingAbilityBadge{
+  flex:0 0 auto;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+}
+
+.trainingAbilityBadge.bunmyaku{
+  border:1px solid #d9cff7;
+  background:#f4f0ff;
+  color:#6048a8;
+}
+
+.trainingLevelBadge{
+  display:none;
+}
+
+.trainingMore{
+  position:relative;
+  margin-left:auto;
+  flex:0 0 auto;
+}
+
+.trainingMore>summary{
+  list-style:none;
+  cursor:pointer;
+  padding:7px 10px;
+  border:1px solid #dce3ec;
+  border-radius:9px;
+  background:#f8fafc;
+  color:#465467;
+  font-size:12px;
+  font-weight:800;
+  user-select:none;
+}
+
+.trainingMore>summary::-webkit-details-marker{
+  display:none;
+}
+
+.trainingMore[open]>summary{
+  background:#edf4ff;
+  color:#2862bd;
+  border-color:#b8cff5;
+}
+
+.trainingMoreCard{
+  position:absolute;
+  z-index:50;
+  top:42px;
+  right:0;
+  width:310px;
+  padding:10px;
+  border:1px solid #dfe5ec;
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 8px 24px rgba(30,50,80,.14);
+}
+
+.trainingMoreTitle{
+  margin-bottom:8px;
+  color:#66717f;
+  font-size:11px;
+  font-weight:800;
+}
+
+.trainingMoreGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+}
+
+.trainingMoreGrid a{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  padding:5px 4px;
+  border:1px solid #e3e7ec;
+  border-radius:8px;
+  background:#fafbfc;
+  color:#44505e;
+  font-size:11px;
+  font-weight:700;
+  text-align:center;
+  text-decoration:none;
+}
+
+.trainingMoreGrid a:hover{
+  background:#f0f5ff;
+  border-color:#bfd3f5;
+  color:#285eae;
+}
+
+.trainingMoreGrid a.active{
+  background:#edf4ff;
+  border-color:#9dbcf0;
+  color:#2862bd;
+}
+
+@media(max-width:600px){
+  .trainingHeader{
+    gap:7px;
+    min-height:48px;
+    padding:6px 8px;
+  }
+
+  .trainingBackHome{
+    font-size:12px;
+  }
+
+  .trainingPageTitle{
+    font-size:15px;
+  }
+
+  .trainingAbilityBadge{
+    padding:4px 7px;
+    font-size:11px;
+  }
+
+  .trainingMore>summary{
+    width:34px;
+    overflow:hidden;
+    white-space:nowrap;
+    padding:7px 8px;
+    font-size:0;
+    text-align:center;
+  }
+
+  .trainingMore>summary::after{
+    content:"＋";
+    font-size:18px;
+  }
+
+  .trainingMoreCard{
+    position:fixed;
+    top:58px;
+    left:10px;
+    right:10px;
+    width:auto;
+  }
+}
+
+@media(max-width:480px){
+  .trainingAbilityBadge{
+    display:none;
+  }
+}
+
+/* ===== 大問12：出題条件 ===== */
+.quizSetupCard{padding:14px}
+.quizSetupHead{margin-bottom:10px}
+.quizSetupTitle{font-size:17px;font-weight:900}
+.quizSetupSub{margin-top:2px;color:#6b7280;font-size:11px}
+
+.quizSetupGrid{display:grid;grid-template-columns:.65fr 1fr;gap:8px}
+.quizSetupControl{min-width:0;padding:8px;border:1px solid #e5e9ef;border-radius:9px;background:#fafbfc}
+.quizSetupLabel{margin-bottom:5px;color:#3f4b5a;font-size:13px;font-weight:900}
+
+.quizCountLine{display:flex;align-items:center;gap:5px}
+.quizCountLine input{width:100%;min-width:0;height:36px;box-sizing:border-box}
+.quizCountLine span{flex:0 0 auto;font-size:12px;font-weight:700}
+.quizOrderSelect{width:100%;height:36px;box-sizing:border-box;padding:5px 7px;font-size:12px}
+
+.reorderBonusBox{margin-top:8px;padding:9px;border:1px solid #e1e7f3;border-radius:9px;background:#f8fbff}
+.reorderBonusHelp{color:#6b7280;font-size:10px;line-height:1.45}
+.reorderSetupBonusRow{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:7px}
+.reorderSetupBonusRow .bonusBtn{margin:0;padding:7px 5px;font-size:11px}
+
+.quizAdvanced{margin-top:9px;border-top:1px solid #edf0f3}
+.quizAdvanced>summary{padding:8px 2px 2px;list-style:none;cursor:pointer;color:#526070;font-size:11px;font-weight:800}
+.quizAdvanced>summary::-webkit-details-marker{display:none}
+.quizAdvanced[open]>summary{color:#2862bd}
+.quizAdvancedBody{display:grid;gap:8px;margin-top:6px;padding:9px;border:1px solid #e8ebef;border-radius:9px;background:#fafafa}
+.quizAdvancedItem{padding-bottom:0}
+
+.quizRangeLine{display:flex;align-items:center;gap:6px}
+.quizRangeLine input{width:90px}
+.quizSetupHelp{margin-top:4px;color:#808792;font-size:10px}
+
+.quizSetupInfo{margin-top:8px;color:#77808c;font-size:10px;line-height:1.4}
+
+.quizStartButton{display:block;width:100%;margin-top:10px;padding:12px;font-size:15px;font-weight:900}
+
+.quizSubActions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:7px}
+.quizSubActions button{margin:0;padding:8px 5px;font-size:11px;font-weight:700}
+
+@media(max-width:520px){
+  .quizSetupGrid{grid-template-columns:.7fr 1fr;gap:6px}
+  .quizSetupSub{display:none}
+  .reorderSetupBonusRow{grid-template-columns:repeat(2,1fr)}
+  .quizSubActions{grid-template-columns:1fr}
+}
+.quizResetBtn{margin:0;padding:6px 8px;font-size:11px}
+.quizAdvancedItem{padding-bottom:8px;border-bottom:1px solid #eceff2}
+.quizAdvancedItem:last-child{padding-bottom:0;border-bottom:0}
   </style>
 </head>
 <body>
   <div class="wrap">
 
-    <div class="card topNavBox">
-      <div class="topNavTitle">学習ページ移動</div>
-      <div class="topNav">
-    <a href="index.html">ホーム</a>
-    <a href="study.html">暗記</a>
-    <a href="quiz.html">英→日</a>
-    <a href="quiz_jaen.html">日→英</a>
-    <a href="audio_quiz.html">音声→意味</a>
-    <a href="idiom_quiz.html">イディオム</a>
-    <a href="accent.html">大問1</a>
-    <a href="sentence.html">大問9</a>
-    <a href="paraphrase_quiz.html">大問11</a>
-    <a href="reorder.html" class="active">大問12</a>
-    <a href="list.html">一覧</a>
-    <a href="progress.html">進捗</a>
+   <header class="trainingHeader">
+  <a href="index.html" class="trainingBackHome">← ホーム</a>
+
+  <span class="trainingDivider"></span>
+
+  <strong class="trainingPageTitle">大問12 語句整序</strong>
+
+  <span class="trainingAbilityBadge bunmyaku">
+    ぶんみゃく +0.5 ＋ 選択能力 +1.5
+  </span>
+
+  <span id="levelBadge" class="trainingLevelBadge"></span>
+
+  <details class="trainingMore">
+    <summary>＋ 他の学習ページ</summary>
+
+    <div class="trainingMoreCard">
+      <div class="trainingMoreTitle">他の学習ページへ</div>
+
+      <div class="trainingMoreGrid">
+        <a href="study.html">暗記</a>
+        <a href="quiz.html">英→日</a>
+        <a href="quiz_jaen.html">日→英</a>
+        <a href="audio_quiz.html">音声→意味</a>
+        <a href="idiom_quiz.html">イディオム</a>
+        <a href="accent.html">大問1</a>
+        <a href="listening.html">リスニング</a>
+        <a href="dialogue.html">大問8</a>
+        <a href="sentence.html">大問9</a>
+        <a href="q10.html">大問10</a>
+        <a href="paraphrase_quiz.html">大問11</a>
+        <a href="reorder.html" class="active">大問12</a>
       </div>
     </div>
-
-    <div id="levelBadge"></div>
+  </details>
+</header>
 
     <div class="goimonToggleBox">
       <button id="toggleGoimon" type="button" class="goimonToggleBtn">ゴイモンの様子を見る</button>
@@ -662,64 +918,98 @@
         正解：ぶんみゃく +0.5 ＋ ぶんみゃく +1.5
       </div>
 
-      <div class="bonusRow" id="bonusStatButtons">
-        <button type="button" class="bonusBtn" data-stat="chie">ボーナス先：ちえ</button>
-        <button type="button" class="bonusBtn" data-stat="kotoba">ボーナス先：ことば</button>
-        <button type="button" class="bonusBtn" data-stat="onkan">ボーナス先：おんかん</button>
-        <button type="button" class="bonusBtn" data-stat="bunmyaku">ボーナス先：ぶんみゃく</button>
+     
+    </div>
+
+   <div class="card quizSetupCard" id="setupBox">
+
+  <div class="quizSetupHead">
+    <div class="quizSetupTitle">出題条件</div>
+    <div class="quizSetupSub">問題数・出題順・ゴイモンの育成先を選んでスタート</div>
+  </div>
+
+  <div class="quizSetupGrid">
+
+    <div class="quizSetupControl">
+      <div class="quizSetupLabel">問題数</div>
+      <div class="quizCountLine">
+        <input id="countInput" type="number" min="1" step="1" value="10">
+        <span>問</span>
       </div>
     </div>
 
-    <div class="card" id="setupBox">
-      <div class="row">
-        <div>
-          <div style="font-size:18px; font-weight:700;">大問12演習（語句整序）</div>
-          <div class="muted" style="margin-top:4px;">
-            英文だけを見て、4つの語句カードを正しい順に並べます。日本語訳は答え合わせ後に表示されます。
-          </div>
+    <div class="quizSetupControl">
+      <div class="quizSetupLabel">出題順</div>
+      <select id="orderMode" class="quizOrderSelect">
+  <option value="continue" selected>順番に出題（続きから）</option>
+  <option value="random">ランダムで出題</option>
+  <option value="weak">ニガテ優先</option>
+</select>
+    </div>
+
+  </div>
+
+  <div class="reorderBonusBox">
+    <div>
+      <div class="quizSetupLabel">ゴイモン育成ボーナス</div>
+      <div class="reorderBonusHelp">正解すると「ぶんみゃく +0.5」に加えて、選んだ能力が +1.5 されます。</div>
+    </div>
+
+    <div class="bonusRow reorderSetupBonusRow" id="bonusStatButtons">
+      <button type="button" class="bonusBtn" data-stat="chie">ちえ</button>
+      <button type="button" class="bonusBtn" data-stat="kotoba">ことば</button>
+      <button type="button" class="bonusBtn" data-stat="onkan">おんかん</button>
+      <button type="button" class="bonusBtn" data-stat="bunmyaku">ぶんみゃく</button>
+    </div>
+  </div>
+
+  <details class="quizAdvanced">
+    <summary>＋ 詳細設定</summary>
+
+    <div class="quizAdvancedBody">
+
+      <div class="quizAdvancedItem">
+        <div class="quizSetupLabel">問題番号を直接指定</div>
+
+        <div class="quizRangeLine">
+          <input id="startNoInput" type="number" min="1" step="1" value="1">
+          <span>〜</span>
+          <input id="endNoInput" type="number" min="1" step="1" value="9999">
+        </div>
+
+        <div class="quizSetupHelp">
+          出題する問題番号の範囲を指定できます。
         </div>
       </div>
 
-      <div class="hr"></div>
+      <div class="quizAdvancedItem">
+  <div class="quizSetupLabel">順番モード</div>
 
-     <div class="row" style="justify-content:flex-start;">
+  <button id="resetCursorBtn" class="quizResetBtn" type="button">
+    続き位置を先頭に戻す
+  </button>
 
-  <div>
-    <div class="muted">開始番号</div>
-    <input id="startNoInput" type="number" min="1" step="1" value="1" style="width:120px;" />
+  <div class="quizSetupHelp">
+    「順番に出題」を次回から先頭の問題に戻します。
   </div>
-
-  <div>
-    <div class="muted">終了番号</div>
-    <input id="endNoInput" type="number" min="1" step="1" value="9999" style="width:120px;" />
-  </div>
-
-  <div>
-    <div class="muted">問題数</div>
-    <input id="countInput" type="number" min="1" step="1" value="10" style="width:120px;" />
-  </div>
-
-  <div>
-    <div class="muted">出題順</div>
-    <select id="orderMode">
-      <option value="start">先頭から</option>
-      <option value="continue" selected>続きから</option>
-      <option value="random">ランダム</option>
-      <option value="weak">苦手順</option>
-    </select>
-  </div>
-
- </div>
-
-      <div class="muted" id="poolInfo" style="margin-top:10px;"></div>
-
-      <div class="row" style="justify-content:flex-start; margin-top:12px;">
-  <button id="startBtn" class="primary" type="button">開始</button>
-  <button id="openProblemListBtn" type="button">問題一覧を見る</button>
-  <button id="openWeakListBtn" type="button">苦手問題一覧を見る</button>
-  <button id="openGrammarTagListBtn" type="button">文法タグ一覧</button>
 </div>
+
     </div>
+  </details>
+
+  <div id="poolInfo" class="quizSetupInfo"></div>
+
+  <button id="startBtn" class="primary quizStartButton" type="button">
+    ▶ この条件でテスト開始
+  </button>
+
+  <div class="quizSubActions">
+    <button id="openProblemListBtn" type="button">問題一覧</button>
+    <button id="openWeakListBtn" type="button">ニガテ問題</button>
+    <button id="openGrammarTagListBtn" type="button">文法タグ一覧</button>
+  </div>
+
+</div>
 
     <div class="card" id="problemListBox" style="display:none;">
   <div class="problemListHead">
@@ -837,6 +1127,8 @@
     window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
   </script>
 
+  <script src="learning_categories.js"></script>
+  <script src="learning_log.js"></script>
   <script src="goimon_dialogues.js"></script>
   <script src="goimon_dex.js"></script>
   <script src="goimon_rules.js"></script>
