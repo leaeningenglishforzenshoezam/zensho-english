@@ -1,10 +1,10 @@
-// reorder.js（新規作成）
-// 語句整序（試作版）
+// reorder.js
+// 大問12 語句整序
 // - 英文だけを見て4つの語句を並べる
 // - 日本語訳は答え合わせ後に表示
 // - grammarTags から共通文法カードを表示
 // - 出題順：先頭から / 続きから / ランダム
-// - ゴイモン：正解で ぶんみゃく +1 ＋ ボーナス先 +1
+// - ゴイモン：正解で ぶんみゃく +0.5 ＋ 選択した能力 +1.5
 // - ボーナス先は ちえ / ことば / おんかん / ぶんみゃく
 // - 進化通知は goimon.js の共通演出を利用
 // - 既存の goimon.js / goimon_rules.js は変更なしで使う版
@@ -36,10 +36,11 @@ const problemListEmpty = $("problemListEmpty");
   const summaryBackBtn = $("summaryBackBtn");
 
   const countInput = $("countInput");
-  const orderModeEl = $("orderMode");
-  const startNoInput = $("startNoInput");
-  const endNoInput = $("endNoInput");
-  const poolInfo = $("poolInfo");
+const orderModeEl = $("orderMode");
+const startNoInput = $("startNoInput");
+const endNoInput = $("endNoInput");
+const resetCursorBtn = $("resetCursorBtn");
+const poolInfo = $("poolInfo");
 
   const statsEl = $("stats");
   const hintBtn = $("hintBtn");
@@ -74,7 +75,7 @@ const problemListEmpty = $("problemListEmpty");
   const SETTINGS_KEY = `zensho_reorder_settings_v1_lv${lv}`;
   const AUTO_WEAK_KEY = `zensho_reorder_auto_weak_v1_lv${lv}`;
   const MANUAL_WEAK_KEY = `zensho_reorder_manual_weak_v1_lv${lv}`;
-  const LOG_KEY = `zensho_learning_log_v1_lv${lv}`;
+  
 
   const grammarTagListBox = $("grammarTagListBox");
 const openGrammarTagListBtn = $("openGrammarTagListBtn");
@@ -114,45 +115,7 @@ const grammarTagListEmpty = $("grammarTagListEmpty");
     localStorage.setItem(key, JSON.stringify(value));
   }
 
-  function pad2(n) {
-  return String(n).padStart(2, "0");
-}
-
-function todayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
-}
-
-function loadLearningLog() {
-  const obj = safeParse(LOG_KEY);
-  return (obj && typeof obj === "object") ? obj : {};
-}
-
-function saveLearningLog(obj) {
-  saveJson(LOG_KEY, obj || {});
-}
-
-function addLearningLogResult(categoryKey, isCorrect) {
-  const log = loadLearningLog();
-  const dayKey = todayKey();
-
-  if (!log[dayKey] || typeof log[dayKey] !== "object") {
-    log[dayKey] = {};
-  }
-
-  if (!log[dayKey][categoryKey] || typeof log[dayKey][categoryKey] !== "object") {
-    log[dayKey][categoryKey] = { attempt: 0, correct: 0, wrong: 0 };
-  }
-
-  log[dayKey][categoryKey].attempt += 1;
-  if (isCorrect) {
-    log[dayKey][categoryKey].correct += 1;
-  } else {
-    log[dayKey][categoryKey].wrong += 1;
-  }
-
-  saveLearningLog(log);
-}
+  
 
   function escapeHtml(s) {
     return String(s ?? "")
@@ -942,15 +905,20 @@ function renderWeakList() {
 }
 
   function addReorderGoimonProgress() {
-    try {
-      if (!window.GoimonUI || typeof window.GoimonUI.addPoints !== "function") return;
-      window.GoimonUI.addPoints(getBonusDelta(), "sentence");
-      renderReorderGoimonMini();
-      renderEvolutionNotice();
-    } catch (e) {
-      console.warn("addReorderGoimonProgress failed:", e);
-    }
+  try {
+    if (!window.GoimonUI || typeof window.GoimonUI.addPoints !== "function") return;
+
+    window.GoimonUI.addPoints(
+      getBonusDelta(),
+      "reorder"
+    );
+
+    renderReorderGoimonMini();
+    renderEvolutionNotice();
+  } catch (e) {
+    console.warn("addReorderGoimonProgress failed:", e);
   }
+}
 
   function renderAnswerSlots() {
     answerSlots.innerHTML = "";
@@ -1271,7 +1239,9 @@ function getRangeFilteredIndexes(startNo, endNo) {
 
   const isCorrect = arraysEqual(selectedIds, current.answer);
 
-  addLearningLogResult("reorder", isCorrect);
+  if (typeof window.zenshoLogAdd === "function") {
+  window.zenshoLogAdd("reorder", isCorrect);
+}
 
   if (isCorrect) {
     session.correct += 1;
@@ -1576,25 +1546,24 @@ function renderSummary() {
   let order = [];
   let cursor = 0;
 
-  if (orderMode === "random") {
-    order = shuffle(baseOrder);
-    cursor = 0;
-  } else if (orderMode === "start") {
-    order = baseOrder;
-    cursor = 0;
-    saveCursor(0);
-  } else if (orderMode === "weak") {
-    order = buildWeakOrder().filter(i => baseOrder.includes(i));
-    if (!order.length) {
-      alert("指定範囲内に苦手問題がありません。");
-      return;
-    }
-    cursor = 0;
-  } else {
-    order = baseOrder;
-    const savedCursor = loadCursor();
-    cursor = savedCursor >= order.length ? 0 : savedCursor;
+ if (orderMode === "random") {
+  order = shuffle(baseOrder);
+  cursor = 0;
+} else if (orderMode === "weak") {
+  order = buildWeakOrder().filter(i => baseOrder.includes(i));
+
+  if (!order.length) {
+    alert("指定範囲内にニガテ問題がありません。");
+    return;
   }
+
+  cursor = 0;
+} else {
+  order = baseOrder;
+
+  const savedCursor = loadCursor();
+  cursor = savedCursor >= order.length ? 0 : savedCursor;
+}
 
   const limit = Math.min(requestedLimit, order.length);
 
@@ -1646,6 +1615,20 @@ function renderSummary() {
     }
   }
 
+  function applyGoimonLearningQuery() {
+  const p = new URLSearchParams(location.search);
+  const ability = p.get("goimonAbility");
+  const count = Number(p.get("goimonCount"));
+
+  if (ability !== "bunmyaku" || !Number.isFinite(count) || count < 1) return;
+
+  countInput.value = String(Math.floor(count));
+  orderModeEl.value = "random";
+  renderPoolInfo();
+
+  setTimeout(() => startBtn.click(), 0);
+}
+
   function init() {
     const settings = loadSettings();
     countInput.value = String(settings.count || 10);
@@ -1658,6 +1641,7 @@ function renderSummary() {
     bindBonusButtons();
     initGoimonBindings();
     showSetup();
+    applyGoimonLearningQuery();
 
     toggleGoimonBtn.addEventListener("click", () => {
       goimonUi.open = !goimonUi.open;
@@ -1666,6 +1650,10 @@ function renderSummary() {
     });
 
     startBtn.addEventListener("click", startSession);
+    resetCursorBtn.addEventListener("click", () => {
+  saveCursor(0);
+  alert("続き位置を先頭に戻しました。");
+});
 
     backBtn.addEventListener("click", () => {
       showSetup();
