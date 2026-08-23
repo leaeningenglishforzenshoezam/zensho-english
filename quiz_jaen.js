@@ -48,7 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const limitEl = document.getElementById("limitCount");
 
   const blockSelectEl = document.getElementById("blockSelect");
-  const applyBlockBtn = document.getElementById("applyBlock");
   const blockStatsEl = document.getElementById("blockStats");
 
   const weakInfoEl = document.getElementById("weakInfo");
@@ -86,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
     [statsEl,"stats"],[qMetaEl,"qMeta"],[questionEl,"question"],[choicesEl,"choices"],[resultEl,"result"],
     [nextBtn,"nextQ"],[startBtn,"startTest"],
     [rangeStartEl,"rangeStart"],[rangeEndEl,"rangeEnd"],[limitEl,"limitCount"],
-    [blockSelectEl,"blockSelect"],[applyBlockBtn,"applyBlock"],[blockStatsEl,"blockStats"],
+    [blockSelectEl,"blockSelect"],[blockStatsEl,"blockStats"],
     [weakInfoEl,"weakInfo"],
     [speakQBtn,"speakQ"],[autoSpeakQEl,"autoSpeakQ"],
     [toggleSettingsBtn,"toggleSettings"],[settingsArea,"settingsArea"],[settingsSummaryEl,"settingsSummary"],[setupBox,"setupBox"],
@@ -334,7 +333,7 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(ORDER_CURSOR_KEY, JSON.stringify({ start, end, cursor }));
   }
 
-  let autoSpeakQ = false;
+  let autoSpeakQ = true;
   let quizMode = "order";
   function loadSettings() {
     const raw = localStorage.getItem(SETTINGS_KEY);
@@ -398,13 +397,54 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getBlockAccText(blockId) {
-    const k = String(blockId);
-    const s = statsMap[k];
-    if (!s || s.attempted === 0) return "未受験";
-    const pct = Math.round((s.correct / s.attempted) * 100);
-    const tag = pct >= PASS_LINE ? "✅ 合格" : "🟡 挑戦中";
-    return `${tag}（${pct}%｜${s.correct}/${s.attempted}）`;
+  const MIN_JUDGED_ATTEMPTS = 20;
+
+  const k = String(blockId);
+  const s = statsMap[k];
+
+  if (
+    !s ||
+    !Number(s.attempted)
+  ) {
+    return "未挑戦";
   }
+
+  const attempted =
+    Number(s.attempted || 0);
+
+  const correct =
+    Number(s.correct || 0);
+
+  const accuracy =
+    Math.round(
+      (correct / attempted) * 100
+    );
+
+  if (
+    attempted <
+    MIN_JUDGED_ATTEMPTS
+  ) {
+    const remaining =
+      MIN_JUDGED_ATTEMPTS -
+      attempted;
+
+    return (
+      `🟡 学習中` +
+      `（${accuracy}%｜${correct}/${attempted}` +
+      `｜目安判定まであと${remaining}問）`
+    );
+  }
+
+  const tag =
+    accuracy >= PASS_LINE
+      ? "✅ 目安クリア"
+      : "🟡 要復習";
+
+  return (
+    `${tag}` +
+    `（${accuracy}%｜${correct}/${attempted}）`
+  );
+}
 
   let session = {
     active: false,
@@ -458,9 +498,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function summaryRangeText() {
-    if (blockSelectEl.value === "all") return "全範囲";
-    return `Block ${blockSelectEl.value}`;
-  }
+  const ids = getSelectedBlockIds();
+  if (!ids.length) return "Block未選択";
+  if (ids.length === blocks.length) return "全Block";
+  return `Block ${ids.join("・")}`;
+}
 
   function updateSettingsSummary() {
     if (settingsOpen) {
@@ -485,60 +527,111 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSettingsSummary();
   });
 
-  function renderBlockSelect() {
-    blockSelectEl.innerHTML = "";
+  function getSelectedBlockIds() {
+  return [...blockSelectEl.querySelectorAll('input[type="checkbox"]:checked')]
+    .map(input => Number(input.value))
+    .filter(Number.isFinite);
+}
 
-    const optAll = document.createElement("option");
-    optAll.value = "all";
-    optAll.textContent = `全範囲（1〜${words.length}）`;
-    blockSelectEl.appendChild(optAll);
+function getSelectedWordIndexes() {
+  const selectedIds = new Set(getSelectedBlockIds());
+  if (!selectedIds.size) return [];
 
-    for (const b of blocks) {
-      const opt = document.createElement("option");
-      opt.value = String(b.id);
-      opt.textContent = `Block ${b.id}（${b.start}〜${b.end}）`;
-      blockSelectEl.appendChild(opt);
-    }
+  const indexes = [];
 
-    if (!blockSelectEl.value) blockSelectEl.value = "all";
-    renderBlockStatsLine();
-    updateSettingsSummary();
-  }
+  blocks.forEach(b => {
+    if (!selectedIds.has(Number(b.id))) return;
 
-  function applySelectedBlockToRange() {
-    const v = blockSelectEl.value;
-    if (v === "all") {
-      rangeStartEl.value = "1";
-      rangeEndEl.value = String(words.length);
-    } else {
-      const b = getBlockById(Number(v));
-      if (b) {
-        rangeStartEl.value = String(b.start);
-        rangeEndEl.value = String(b.end);
-      }
-    }
-  }
+    const start = Math.max(1, Number(b.start));
+    const end = Math.min(words.length, Number(b.end));
 
-  function renderBlockStatsLine() {
-    const v = blockSelectEl.value;
-    if (v === "all") {
-      blockStatsEl.textContent = `Block累計正答率：全範囲（合格 ${PASS_LINE}%）`;
-      return;
-    }
-    const id = Number(v);
-    blockStatsEl.textContent = `このBlockの累計正答率：${getBlockAccText(id)}（合格 ${PASS_LINE}%）`;
-  }
-
-  blockSelectEl.addEventListener("change", () => {
-    renderBlockStatsLine();
-    updateSettingsSummary();
+    for (let no = start; no <= end; no++) indexes.push(no - 1);
   });
 
-  applyBlockBtn.addEventListener("click", () => {
-    applySelectedBlockToRange();
+  return [...new Set(indexes)].sort((a,b) => a - b);
+}
+
+function getActiveIndexes(s, e) {
+  return getSelectedWordIndexes().filter(i => i >= s && i <= e);
+}
+
+function renderBlockStatsLine() {
+  const ids = getSelectedBlockIds();
+  const indexes = getSelectedWordIndexes();
+
+  if (!ids.length) {
+    blockStatsEl.textContent = "Blockを1つ以上選んでください。";
+    return;
+  }
+
+  const label = ids.length === blocks.length
+    ? "全Block"
+    : `Block ${ids.join("・")}`;
+
+  blockStatsEl.textContent = `選択中：${label}｜対象 ${indexes.length}語`;
+}
+
+function renderBlockSelect() {
+  blockSelectEl.innerHTML = "";
+
+  blocks.forEach(b => {
+    const label = document.createElement("label");
+    label.className = "quizBlockItem";
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.value = String(b.id);
+    input.checked = true;
+
+    const text = document.createElement("span");
+    text.textContent = `Block ${b.id}`;
+
+    label.appendChild(input);
+    label.appendChild(text);
+    blockSelectEl.appendChild(label);
+  });
+
+  applySelectedBlockToRange();
+}
+
+function applySelectedBlockToRange() {
+  const indexes = getSelectedWordIndexes();
+
+  if (!indexes.length) {
+    rangeStartEl.value = "";
+    rangeEndEl.value = "";
     renderBlockStatsLine();
     updateSettingsSummary();
+    return;
+  }
+
+  rangeStartEl.value = String(indexes[0] + 1);
+  rangeEndEl.value = String(indexes[indexes.length - 1] + 1);
+
+  renderBlockStatsLine();
+  updateSettingsSummary();
+}
+
+blockSelectEl.addEventListener("change", () => {
+  applySelectedBlockToRange();
+});
+
+const selectAllBlocksBtn = document.getElementById("selectAllBlocks");
+const clearBlocksBtn = document.getElementById("clearBlocks");
+
+selectAllBlocksBtn?.addEventListener("click", () => {
+  blockSelectEl.querySelectorAll('input[type="checkbox"]').forEach(input => {
+    input.checked = true;
   });
+  applySelectedBlockToRange();
+});
+
+clearBlocksBtn?.addEventListener("click", () => {
+  blockSelectEl.querySelectorAll('input[type="checkbox"]').forEach(input => {
+    input.checked = false;
+  });
+  applySelectedBlockToRange();
+});
 
   resetOrderBtn.addEventListener("click", () => {
     if (!confirm("順番モードの進捗を最初からに戻しますか？")) return;
@@ -584,54 +677,74 @@ document.addEventListener("DOMContentLoaded", () => {
 }
 
   function makeChoices(correctWord, s, e) {
-    const candidates = [];
-    for (let i = s; i <= e; i++) {
-      const w = words[i];
-      if (w.en !== correctWord.en) candidates.push(w.en);
-    }
-    const uniq = Array.from(new Set(candidates));
-    const picked = shuffle(uniq).slice(0, 3);
-    while (picked.length < 3) picked.push("（該当なし）");
-    return shuffle([correctWord.en, ...picked]);
-  }
+  const active = getActiveIndexes(s, e);
+  const candidates = [];
+
+  active.forEach(i => {
+    const w = words[i];
+    if (w && w.en !== correctWord.en) candidates.push(w.en);
+  });
+
+  const uniq = Array.from(new Set(candidates));
+  const picked = shuffle(uniq).slice(0, 3);
+
+  while (picked.length < 3) picked.push("（該当なし）");
+
+  return shuffle([correctWord.en, ...picked]);
+}
 
   function pickIndex_order(s, e) {
-    if (orderCursor < s || orderCursor > e) orderCursor = s;
-    const idx = orderCursor;
-    orderCursor++;
-    if (orderCursor > e) orderCursor = s;
-    saveOrderCursor(s, e, orderCursor);
-    return idx;
-  }
+  const active = getActiveIndexes(s, e);
+  if (!active.length) return null;
+
+  let pos = active.findIndex(i => i >= orderCursor);
+  if (pos < 0) pos = 0;
+
+  const idx = active[pos];
+  const nextPos = (pos + 1) % active.length;
+
+  orderCursor = active[nextPos];
+  saveOrderCursor(s, e, orderCursor);
+
+  return idx;
+}
 
   function pickIndex_random(s, e) {
-    const remain = [];
-    for (let i = s; i <= e; i++) {
-      if (!askedSet.has(words[i].en)) remain.push(i);
-    }
-    const pool = remain.length ? remain : (() => {
-      const all = [];
-      for (let i = s; i <= e; i++) all.push(i);
-      return all;
-    })();
-    return pool[Math.floor(Math.random() * pool.length)];
-  }
+  const active = getActiveIndexes(s, e);
+  if (!active.length) return null;
+
+  const remain = active.filter(i => !askedSet.has(words[i].en));
+  const pool = remain.length ? remain : active;
+
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
   function pickIndex_weak(s, e) {
-    const arr = [];
-    for (let i = s; i <= e; i++) arr.push({ i, p: getPoint(words[i].en) });
-    const maxP = Math.max(...arr.map(x => x.p));
-    if (maxP <= 0) return pickIndex_random(s, e);
+  const active = getActiveIndexes(s, e);
+  if (!active.length) return null;
 
-    arr.sort((a, b) => b.p - a.p);
-    const top = arr.slice(0, Math.min(10, arr.length)).filter(x => x.p > 0);
-    const cand = shuffle(top);
+  const arr = active.map(i => ({
+    i,
+    p: getPoint(words[i].en)
+  }));
 
-    for (const x of cand) {
-      if (!askedSet.has(words[x.i].en)) return x.i;
-    }
-    return cand[0].i;
+  const maxP = Math.max(...arr.map(x => x.p));
+  if (maxP <= 0) return pickIndex_random(s, e);
+
+  arr.sort((a,b) => b.p - a.p);
+
+  const top = arr
+    .filter(x => x.p > 0)
+    .slice(0, Math.min(10, arr.length));
+
+  const cand = shuffle(top);
+
+  for (const x of cand) {
+    if (!askedSet.has(words[x.i].en)) return x.i;
   }
+
+  return cand.length ? cand[0].i : pickIndex_random(s, e);
+}
 
   function pickCorrectIndex(s, e) {
     if (quizMode === "order") return pickIndex_order(s, e);
@@ -648,6 +761,7 @@ document.addEventListener("DOMContentLoaded", () => {
       idx = session.retryOrder.shift();
     } else {
       idx = pickCorrectIndex(s, e);
+      if (idx == null) return null;
     }
 
     askedSet.add(words[idx].en);
@@ -827,17 +941,14 @@ function renderWrongSummaryList() {
       ">
         ${
           passed
-            ? "合格ライン達成"
+            ? "目安達成"
             : "もう一度挑戦"
         }
       </div>
     </div>
   `;
 
-  const rangeText =
-    blockSelectEl.value === "all"
-      ? "全範囲"
-      : `Block ${blockSelectEl.value}`;
+  const rangeText = summaryRangeText();
 
   finalBlockLineEl.innerHTML = `
     <div class="summaryMeta">
@@ -846,7 +957,7 @@ function renderWrongSummaryList() {
       出題モード：${escapeHtml(modeText())}
       ／ 全商英検${escapeHtml(LV)}級
       <br>
-      合格ライン：${PASS_LINE}%
+      今回の目安：${PASS_LINE}%
     </div>
   `;
 
@@ -1067,7 +1178,7 @@ current.choices.forEach((text, index) => {
 
       markCorrectButtonGreen();
 
-      setPoint(current.en, getPoint(current.en) + 2);
+      setPoint(current.en, getPoint(current.en) + 1);
       saveWeakPoints();
 
       if (!wrongMap[current.en]) {
@@ -1087,12 +1198,14 @@ if (lastAsked) {
     correct;
 }
 
-if (window.GlobalStats && current.blockId) {
-      window.GlobalStats.addQuizJaEn(current.blockId, correct);
-    }
-    if (current.blockId) addBlockResult(current.blockId, correct);
+if (current.blockId) {
+  addBlockResult(
+    current.blockId,
+    correct
+  );
+}
 
-    if (autoSpeakQ) speakEnglish(current.en);
+if (autoSpeakQ) speakEnglish(current.en);
 
     renderStats();
     updateWeakInfo();
@@ -1159,6 +1272,12 @@ if (
 );
 
   startBtn.addEventListener("click", () => {
+    const selectedBlockIds = getSelectedBlockIds();
+
+if (!selectedBlockIds.length) {
+  alert("学習するBlockを1つ以上選んでください。");
+  return;
+}
     let s = Number(rangeStartEl.value) - 1;
     let e = Number(rangeEndEl.value) - 1;
     let l = Number(limitEl.value);
@@ -1322,30 +1441,185 @@ if (
   
 
   function applyQuery() {
-    const p = new URLSearchParams(location.search);
 
-    const start = Number(p.get("start"));
-    const end = Number(p.get("end"));
-    const mode = p.get("mode");
-    const autostart = p.get("autostart");
-
-    if (Number.isFinite(start) && start >= 1) rangeStartEl.value = String(start);
-    if (Number.isFinite(end) && end >= 1) rangeEndEl.value = String(end);
-
-    if (modeSelectEl && (mode === "order" || mode === "random" || mode === "weak")) {
-      modeSelectEl.value = mode;
-      quizMode = mode;
-      saveSettings();
-    }
+  const p =
+    new URLSearchParams(
+      location.search
+    );
 
 
+  const start =
+    Number(
+      p.get("start")
+    );
 
-    updateSettingsSummary();
+  const end =
+    Number(
+      p.get("end")
+    );
 
-    if (autostart === "1") {
-      setTimeout(() => startBtn.click(), 0);
-    }
+  const mode =
+    p.get("mode");
+
+  const autostart =
+    p.get("autostart");
+
+
+  /* ---------------------------------
+     ゴイモン学習導線
+  --------------------------------- */
+
+  const goimonAbility =
+    p.get(
+      "goimonAbility"
+    );
+
+  const goimonCount =
+    Number(
+      p.get(
+        "goimonCount"
+      )
+    );
+
+
+  const fromGoimon =
+    goimonAbility === "kotoba" &&
+    Number.isFinite(
+      goimonCount
+    ) &&
+    goimonCount > 0;
+
+
+  /* ---------------------------------
+     通常URL設定
+  --------------------------------- */
+
+  if (
+    Number.isFinite(start) &&
+    start >= 1
+  ) {
+
+    rangeStartEl.value =
+      String(start);
+
   }
+
+
+  if (
+    Number.isFinite(end) &&
+    end >= 1
+  ) {
+
+    rangeEndEl.value =
+      String(end);
+
+  }
+
+
+  if (
+    modeSelectEl &&
+    (
+      mode === "order" ||
+      mode === "random" ||
+      mode === "weak"
+    )
+  ) {
+
+    modeSelectEl.value =
+      mode;
+
+    quizMode =
+      mode;
+
+    saveSettings();
+
+  }
+
+
+  /* ---------------------------------
+     ゴイモンから来た場合
+  --------------------------------- */
+
+  if (fromGoimon) {
+
+    limitEl.value =
+      String(
+        Math.floor(
+          goimonCount
+        )
+      );
+
+
+    quizMode =
+      "random";
+
+
+    if (modeSelectEl) {
+
+      modeSelectEl.value =
+        "random";
+
+    }
+
+
+    saveSettings();
+
+
+    const route =
+      document.getElementById(
+        "goimonTrainingRoute"
+      );
+
+    const routeText =
+      document.getElementById(
+        "goimonTrainingRouteText"
+      );
+
+
+    if (route) {
+
+      route.classList.remove(
+        "hidden"
+      );
+
+    }
+
+
+    if (routeText) {
+
+      routeText.textContent =
+        `ことばを伸ばす ${Math.floor(goimonCount)}問セット`;
+
+    }
+
+  }
+
+
+  session.limit =
+    Number(
+      limitEl.value
+    ) ||
+    session.limit;
+
+
+  updateSettingsSummary();
+
+
+  if (
+    fromGoimon ||
+    autostart === "1"
+  ) {
+
+    setTimeout(
+      () => {
+        startBtn.click();
+      },
+      0
+    );
+
+  }
+
+}
 
   goimonToggleBtn.addEventListener("click", () => {
     uiState.goimonOpen = !uiState.goimonOpen;
