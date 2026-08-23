@@ -985,6 +985,42 @@
     display:none;
   }
 }
+
+/* ===== 問題文横の「次の問題」 ===== */
+
+.questionTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.questionTopRow #question {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.nextButtonTop {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 9px 14px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* スマホ */
+@media (max-width: 480px) {
+  .questionTopRow {
+    gap: 8px;
+  }
+
+  .nextButtonTop {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}
   </style>
 </head>
 
@@ -1160,7 +1196,18 @@
     <div id="stats" style="margin-bottom:8px;"></div>
     <div id="qMeta" class="muted" style="margin-bottom:8px;"></div>
 
-    <div id="question">テスト未開始</div>
+    <div class="questionTopRow">
+  <div id="question">テスト未開始</div>
+
+  <button
+    id="nextQTop"
+    type="button"
+    class="nextButton nextButtonTop"
+    disabled
+  >
+    次の問題
+  </button>
+</div>
 
     <div style="margin-bottom:10px;">
       <button id="speakQ" type="button">🔊 発音</button>
