@@ -20,7 +20,7 @@
 const DEFAULT_SETTINGS = {
   questionMode: "meaning",
   questionCount: "50",
-  quizMode: "order",
+  quizMode: "order_continue",
   autoRead: false,
   rangeStart: "1",
   rangeEnd: "287"
@@ -55,13 +55,14 @@ const DEFAULT_SETTINGS = {
     playBox: document.getElementById("playBox"),
     summaryBox: document.getElementById("summaryBox"),
 
-    questionMode: document.getElementById("questionMode"),
-    questionCount: document.getElementById("questionCount"),
-    quizMode: document.getElementById("quizMode"),
-    autoRead: document.getElementById("autoRead"),
-    rangeStart: document.getElementById("rangeStart"),
+   questionMode: document.getElementById("questionMode"),
+questionCount: document.getElementById("questionCount"),
+quizMode: document.getElementById("quizMode"),
+autoRead: document.getElementById("autoRead"),
+rangeStart: document.getElementById("rangeStart"),
 rangeEnd: document.getElementById("rangeEnd"),
-    poolInfo: document.getElementById("poolInfo"),
+resetCursorBtn: document.getElementById("resetCursorBtn"),
+poolInfo: document.getElementById("poolInfo"),
 
     startBtn: document.getElementById("startBtn"),
     openProblemListBtn: document.getElementById("openProblemListBtn"),
@@ -76,7 +77,10 @@ rangeEnd: document.getElementById("rangeEnd"),
     problemSearchClearBtn: document.getElementById("problemSearchClearBtn"),
     problemSearchInfo: document.getElementById("problemSearchInfo"),
     problemWeakOnlyBtn: document.getElementById("problemWeakOnlyBtn"),
-
+    problemListRangeStart: document.getElementById("problemListRangeStart"),
+problemListRangeEnd: document.getElementById("problemListRangeEnd"),
+problemListRangeApplyBtn: document.getElementById("problemListRangeApplyBtn"),
+    problemRandomOrderBtn: document.getElementById("problemRandomOrderBtn"),
     weakList: document.getElementById("weakList"),
     weakListEmpty: document.getElementById("weakListEmpty"),
 
@@ -114,12 +118,19 @@ rangeEnd: document.getElementById("rangeEnd"),
     evolutionNoticeBtn: document.getElementById("evolutionNoticeBtn")
   };
 
+  let goimonCountOverride = 0;
+  let goimonModeOverride = "";
+
   const state = {
   questionMode: "meaning",
   mode: "order",
 
-  problemWeakOnly: false,
-    sessionItems: [],
+problemWeakOnly: false,
+
+problemListRandomOrder: false,
+problemListRandomIds: [],
+
+sessionItems: [],
     currentIndex: 0,
     score: 0,
     answered: false,
@@ -390,6 +401,20 @@ function openGoogleSearch(query) {
     writeJSON(getWeakKey(questionMode), map);
   }
 
+  function decrementWeak(questionMode, id) {
+  const weakMap = getWeakMap(questionMode);
+  const current = Number(weakMap[id] || 0);
+  const next = Math.max(0, current - 1);
+
+  if (next <= 0) {
+    delete weakMap[id];
+  } else {
+    weakMap[id] = next;
+  }
+
+  saveWeakMap(questionMode, weakMap);
+}
+
   function incrementWeak(questionMode, id) {
     const weakMap = getWeakMap(questionMode);
     weakMap[id] = (weakMap[id] || 0) + 1;
@@ -410,6 +435,23 @@ function openGoogleSearch(query) {
     const map = getManualWeakMap();
     return !!map[id];
   }
+
+  function toggleManualWeak(id) {
+  if (!id) return false;
+
+  const map = getManualWeakMap();
+  const nextValue = !map[id];
+
+  if (nextValue) {
+    map[id] = true;
+  } else {
+    delete map[id];
+  }
+
+  saveManualWeakMap(map);
+
+  return nextValue;
+}
 
   function clearWeakItem(
   questionMode,
@@ -621,14 +663,19 @@ function getSavedSettings() {
   const savedStart = saved.rangeStart || DEFAULT_SETTINGS.rangeStart || "1";
   const savedEnd = saved.rangeEnd || DEFAULT_SETTINGS.rangeEnd || String(maxNo);
 
-  return {
-    questionMode: saved.questionMode || DEFAULT_SETTINGS.questionMode,
-    questionCount: saved.questionCount || DEFAULT_SETTINGS.questionCount,
-    quizMode: saved.quizMode || DEFAULT_SETTINGS.quizMode,
-    autoRead: !!saved.autoRead,
-    rangeStart: savedStart,
-    rangeEnd: String(Math.min(Number(savedEnd) || maxNo, maxNo))
-  };
+  const savedQuizMode =
+  saved.quizMode === "order"
+    ? "order_continue"
+    : (saved.quizMode || DEFAULT_SETTINGS.quizMode);
+
+return {
+  questionMode: saved.questionMode || DEFAULT_SETTINGS.questionMode,
+  questionCount: saved.questionCount || DEFAULT_SETTINGS.questionCount,
+  quizMode: savedQuizMode,
+  autoRead: !!saved.autoRead,
+  rangeStart: savedStart,
+  rangeEnd: String(Math.min(Number(savedEnd) || maxNo, maxNo))
+};
 }
 
 function saveCurrentSettings() {
@@ -690,6 +737,90 @@ function getNoRange() {
   endNo = Math.max(1, Math.min(endNo, maxNo));
 
   return { startNo, endNo, maxNo };
+}
+
+function syncProblemListRangeFromSetup() {
+  if (!el.problemListRangeStart || !el.problemListRangeEnd) {
+    return;
+  }
+
+  const range = getNoRange();
+
+  el.problemListRangeStart.value =
+    String(range.startNo);
+
+  el.problemListRangeEnd.value =
+    String(range.endNo);
+}
+
+
+function applyProblemListRangeToSetup() {
+  if (!el.problemListRangeStart || !el.problemListRangeEnd) {
+    return;
+  }
+
+  const maxNo = getMaxDisplayNo();
+
+  let startNo =
+    Number(el.problemListRangeStart.value);
+
+  let endNo =
+    Number(el.problemListRangeEnd.value);
+
+  if (!Number.isFinite(startNo)) {
+    startNo = 1;
+  }
+
+  if (!Number.isFinite(endNo)) {
+    endNo = maxNo;
+  }
+
+  startNo = Math.floor(startNo);
+  endNo = Math.floor(endNo);
+
+  startNo =
+    Math.max(
+      1,
+      Math.min(startNo, maxNo)
+    );
+
+  endNo =
+    Math.max(
+      1,
+      Math.min(endNo, maxNo)
+    );
+
+  if (startNo > endNo) {
+    const temp = startNo;
+    startNo = endNo;
+    endNo = temp;
+  }
+
+  el.problemListRangeStart.value =
+    String(startNo);
+
+  el.problemListRangeEnd.value =
+    String(endNo);
+
+  if (el.rangeStart) {
+    el.rangeStart.value =
+      String(startNo);
+  }
+
+  if (el.rangeEnd) {
+    el.rangeEnd.value =
+      String(endNo);
+  }
+
+  saveCurrentSettings();
+
+  // ランダム表示中なら、
+  // 新しい範囲でランダム順を作り直す
+  if (state.problemListRandomOrder) {
+    createProblemRandomOrder();
+  }
+
+  renderProblemList();
 }
 
 function filterByNoRange(list) {
@@ -775,6 +906,53 @@ function updateProblemWeakOnlyButton() {
     el.problemWeakOnlyBtn.textContent = "苦手のみ表示";
     el.problemWeakOnlyBtn.classList.remove("weakBtnActive");
   }
+}
+
+function updateProblemRandomOrderButton() {
+  if (!el.problemRandomOrderBtn) return;
+
+  if (state.problemListRandomOrder) {
+    el.problemRandomOrderBtn.textContent = "番号順に戻す";
+    el.problemRandomOrderBtn.classList.add("listOrderBtnActive");
+  } else {
+    el.problemRandomOrderBtn.textContent = "ランダム順に表示";
+    el.problemRandomOrderBtn.classList.remove("listOrderBtnActive");
+  }
+}
+
+function createProblemRandomOrder() {
+  const rangeData =
+    filterByNoRange(DATA);
+
+  state.problemListRandomIds =
+    shuffle(
+      rangeData.map(function (item) {
+        return item.id;
+      })
+    );
+}
+
+function applyProblemListOrder(list) {
+  if (!state.problemListRandomOrder) {
+    return list.slice();
+  }
+
+  if (!state.problemListRandomIds.length) {
+    createProblemRandomOrder();
+  }
+
+  const rank = new Map(
+    state.problemListRandomIds.map(function (id, index) {
+      return [id, index];
+    })
+  );
+
+  return list.slice().sort(function (a, b) {
+    return (
+      (rank.get(a.id) ?? Number.MAX_SAFE_INTEGER) -
+      (rank.get(b.id) ?? Number.MAX_SAFE_INTEGER)
+    );
+  });
 }
 
 function getCursorRangeKey() {
@@ -1078,9 +1256,19 @@ function getAvailableDataForMode(questionMode, options) {
           <button type="button" data-action="toggle-synonym" data-item-id="${item.id}">
             ${synonymMasked ? "同義表現を表示" : "同義表現を隠す"}
           </button>
-          <button type="button" data-action="toggle-manual-weak" data-item-id="${item.id}" class="${manualWeak ? "weakBtnActive" : ""}">
-            ${manualWeak ? "苦手解除" : "苦手に追加"}
-          </button>
+          <button
+  type="button"
+  data-action="toggle-manual-weak"
+  data-item-id="${item.id}"
+  class="${manualWeak ? "weakBtnActive" : ""}"
+  aria-pressed="${manualWeak ? "true" : "false"}"
+>
+  ${
+    manualWeak
+      ? "✓ 苦手登録済み（解除）"
+      : "苦手に追加"
+  }
+</button>
           ${
   showClearWeakButton
     ? `
@@ -1161,8 +1349,10 @@ function getAvailableDataForMode(questionMode, options) {
       return;
     }
 
-    const weakMap = getWeakMap(el.questionMode.value);
-    const list = getFilteredProblemList();
+const weakMap = getWeakMap(el.questionMode.value);
+const list = applyProblemListOrder(
+  getFilteredProblemList()
+);
 
     if (!list.length) {
       el.problemListEmpty.classList.remove("hidden");
@@ -1182,24 +1372,38 @@ function getAvailableDataForMode(questionMode, options) {
       el.problemList.appendChild(div.firstElementChild);
     });
 
-    if (el.problemSearchInfo) {
-      const total = filterByNoRange(DATA).length;
-      const query = getProblemSearchQuery();
+   if (el.problemSearchInfo) {
+  const total =
+    filterByNoRange(DATA).length;
 
-     if (state.problemWeakOnly) {
-  el.problemSearchInfo.textContent =
-    query
-      ? `苦手 ${list.length}件を表示（検索中）`
-      : `苦手 ${list.length}件を表示`;
-} else {
-  el.problemSearchInfo.textContent =
-    query
-      ? `${list.length}件 / ${total}件を表示`
-      : `${total}件を表示`;
+  const query =
+    getProblemSearchQuery();
+
+  const range =
+    getNoRange();
+
+  const rangeLabel =
+    `No.${range.startNo}〜${range.endNo}`;
+
+  if (state.problemWeakOnly) {
+
+    el.problemSearchInfo.textContent =
+      query
+        ? `${rangeLabel} / 苦手 ${list.length}件を表示（検索中）`
+        : `${rangeLabel} / 苦手 ${list.length}件を表示`;
+
+  } else {
+
+    el.problemSearchInfo.textContent =
+      query
+        ? `${rangeLabel} / ${list.length}件 / ${total}件を表示`
+        : `${rangeLabel} / ${total}件を表示`;
+
+  }
 }
-    }
 
-    updateProblemWeakOnlyButton();
+updateProblemWeakOnlyButton();
+updateProblemRandomOrderButton();
 updateBulkMaskButtonLabels();
   }
 
@@ -1331,20 +1535,60 @@ function clearAnswerCard() {
 
     const choices = getChoicesForQuestion(question, state.questionMode);
 
-    choices.forEach(function (choiceText, index) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "choiceBtn";
-      btn.dataset.choiceText = choiceText;
-      btn.innerHTML = `
-        <span class="choiceIndex">${index + 1}</span>
-        <span class="choiceText">${escapeHtml(choiceText)}</span>
-      `;
-      btn.addEventListener("click", function () {
-        answerQuestion(choiceText, btn);
-      });
-      el.choicesBox.appendChild(btn);
-    });
+choices.forEach(function (choiceText, index) {
+  const btn = document.createElement("button");
+
+  btn.type = "button";
+  btn.className = "choiceBtn";
+  btn.dataset.choiceText = choiceText;
+
+  btn.innerHTML = `
+    <span class="choiceIndex">${index + 1}</span>
+    <span class="choiceText">${escapeHtml(choiceText)}</span>
+  `;
+
+  btn.addEventListener("click", function () {
+    answerQuestion(
+      choiceText,
+      btn,
+      false
+    );
+  });
+
+  el.choicesBox.appendChild(btn);
+});
+
+
+const unknownBtn =
+  document.createElement("button");
+
+unknownBtn.type = "button";
+
+unknownBtn.className =
+  "choiceBtn unknownChoiceBtn";
+
+unknownBtn.dataset.unknown = "1";
+
+unknownBtn.innerHTML = `
+  <span class="choiceText">
+    わからない
+  </span>
+`;
+
+unknownBtn.addEventListener(
+  "click",
+  function () {
+    answerQuestion(
+      "わからない",
+      unknownBtn,
+      true
+    );
+  }
+);
+
+el.choicesBox.appendChild(
+  unknownBtn
+);
 
     if (el.autoRead.checked && state.questionMode !== "expression_from_meaning") {
   speak(question.expression);
@@ -1519,7 +1763,11 @@ function clearAnswerCard() {
 
 
 
-  function answerQuestion(selectedText, clickedButton) {
+  function answerQuestion(
+  selectedText,
+  clickedButton,
+  isUnknown
+) {
     if (state.answered) return;
 
     const question = state.sessionItems[state.currentIndex];
@@ -1527,15 +1775,33 @@ function clearAnswerCard() {
 
     state.answered = true;
 
-    const correctText = getCorrectAnswerText(question, state.questionMode);
-    const isCorrect = selectedText === correctText;
+    const correctText =
+  getCorrectAnswerText(
+    question,
+    state.questionMode
+  );
+
+const isCorrect =
+  !isUnknown &&
+  selectedText === correctText;
 
     if (isCorrect) {
-      state.score += 1;
-      awardIdiomGoimonCorrect();
-    } else {
-      incrementWeak(state.questionMode, question.id);
-    }
+  state.score += 1;
+
+  // 自動弱点を1減らす
+  decrementWeak(state.questionMode, question.id);
+
+  // ゴイモン加点
+  awardIdiomGoimonCorrect();
+} else {
+  // 自動弱点を1増やす
+  incrementWeak(state.questionMode, question.id);
+}
+
+// 共通学習ログへ記録
+if (typeof window.zenshoLogAdd === "function") {
+  window.zenshoLogAdd("idiom_quiz", isCorrect);
+}
 
     const buttons = Array.from(el.choicesBox.querySelectorAll("button"));
     buttons.forEach(function (btn) {
@@ -1715,8 +1981,10 @@ if (el.originSearchBtn) {
 
     saveCurrentSettings();
 
-    const count = countToNumber(el.questionCount.value, available.length);
-    const mode = el.quizMode.value;
+const count = goimonCountOverride || countToNumber(el.questionCount.value, available.length);
+const mode = goimonModeOverride || el.quizMode.value;
+goimonCountOverride = 0;
+goimonModeOverride = "";
 
     state.questionMode = questionMode;
     state.mode = mode;
@@ -1845,6 +2113,36 @@ if (el.rangeEnd) {
         renderProblemList();
         return;
       }
+
+      if (action === "clear-weak-item") {
+  const item =
+    getItemById(itemId);
+
+  const name =
+    item
+      ? item.expression
+      : itemId;
+
+  const shouldDelete =
+    window.confirm(
+      `「${name}」を苦手一覧から削除しますか？`
+    );
+
+  if (!shouldDelete) {
+    return;
+  }
+
+  clearWeakItem(
+    el.questionMode.value,
+    itemId
+  );
+
+  updatePoolInfo();
+  renderWeakList();
+  renderProblemList();
+
+  return;
+}
 
       if (action === "go-paraphrase") {
         openParaphraseForIdiom(itemId);
@@ -2036,6 +2334,41 @@ if (el.rangeEnd) {
     renderIdiomGoimonMini();
   }
 
+  function applyGoimonLearningQuery() {
+  const ability = URL_PARAMS.get("goimonAbility");
+  const count = Number(URL_PARAMS.get("goimonCount"));
+
+  if (!["chie","kotoba"].includes(ability) || !Number.isFinite(count) || count < 1) return;
+
+  goimonCountOverride = Math.floor(count);
+  goimonModeOverride = "random";
+
+  setTimeout(() => el.startBtn.click(), 0);
+}
+
+function updateQuestionModeCards() {
+  const currentMode = el.questionMode.value;
+
+  document.querySelectorAll(".idiomModeCard").forEach(function (card) {
+    card.classList.toggle(
+      "active",
+      card.dataset.questionMode === currentMode
+    );
+  });
+}
+
+function bindQuestionModeCards() {
+  document.querySelectorAll(".idiomModeCard").forEach(function (card) {
+    card.addEventListener("click", function () {
+      const mode = card.dataset.questionMode;
+      if (!mode) return;
+
+      el.questionMode.value = mode;
+      el.questionMode.dispatchEvent(new Event("change"));
+    });
+  });
+}
+
   function init() {
     if (!Array.isArray(DATA) || DATA.length === 0) {
       alert("idiom_data_1kyu.js のデータが読み込めていません。");
@@ -2043,6 +2376,8 @@ if (el.rangeEnd) {
     }
 
     restoreSettingsToForm();
+    bindQuestionModeCards();
+updateQuestionModeCards();
     updateLevelBadge();
     updatePoolInfo();
     renderProblemList();
@@ -2063,10 +2398,24 @@ if (el.rangeEnd) {
       startQuiz(false);
     });
 
-    el.openProblemListBtn.addEventListener("click", function () {
-      renderProblemList();
-      showBox("problemList");
-    });
+    if (el.resetCursorBtn) {
+  el.resetCursorBtn.addEventListener("click", function () {
+    setCursor(el.questionMode.value, 0);
+    alert("この問題モード・問題No.範囲の続き位置を先頭に戻しました。");
+  });
+}
+
+    el.openProblemListBtn.addEventListener(
+  "click",
+  function () {
+
+    syncProblemListRangeFromSetup();
+
+    renderProblemList();
+
+    showBox("problemList");
+  }
+);
 
     el.openWeakListBtn.addEventListener("click", function () {
       renderWeakList();
@@ -2129,6 +2478,25 @@ if (el.rangeEnd) {
 
     renderProblemList();
   });
+}
+
+if (el.problemRandomOrderBtn) {
+  el.problemRandomOrderBtn.addEventListener(
+    "click",
+    function () {
+
+      state.problemListRandomOrder =
+        !state.problemListRandomOrder;
+
+      if (
+        state.problemListRandomOrder
+      ) {
+        createProblemRandomOrder();
+      }
+
+      renderProblemList();
+    }
+  );
 }
 
     el.problemList.addEventListener("click", handleListAreaClick);
@@ -2227,12 +2595,13 @@ if (el.originSearchBtn) {
     
 
     el.questionMode.addEventListener("change", function () {
-      updatePoolInfo();
-      renderProblemList();
-      renderWeakList();
-      updateBulkMaskButtonLabels();
-      saveCurrentSettings();
-    });
+  updateQuestionModeCards();
+  updatePoolInfo();
+  renderProblemList();
+  renderWeakList();
+  updateBulkMaskButtonLabels();
+  saveCurrentSettings();
+});
 
     el.questionCount.addEventListener("change", function () {
       updatePoolInfo();
@@ -2261,10 +2630,40 @@ if (el.rangeEnd) {
     saveCurrentSettings();
   });
 }
+if (el.problemListRangeApplyBtn) {
+  el.problemListRangeApplyBtn.addEventListener(
+    "click",
+    function () {
+      applyProblemListRangeToSetup();
+    }
+  );
+}
+
+[
+  el.problemListRangeStart,
+  el.problemListRangeEnd
+].forEach(function (input) {
+
+  if (!input) return;
+
+  input.addEventListener(
+    "keydown",
+    function (event) {
+
+      if (event.key === "Enter") {
+        event.preventDefault();
+
+        applyProblemListRangeToSetup();
+      }
+    }
+  );
+});
 
     document.addEventListener("keydown", handleKeyboardShortcut);
-  }
+  applyGoimonLearningQuery();
+}
 
+  
   init();
   initIdiomGoimonMini();
 })();
