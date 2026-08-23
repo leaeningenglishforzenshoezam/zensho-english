@@ -800,28 +800,138 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* ===== コンパクト学習ヘッダー ===== */
+.trainingHeader{position:relative;display:flex;align-items:center;gap:10px;min-height:50px;box-sizing:border-box;margin-bottom:10px;padding:7px 10px;border:1px solid #e2e7ef;border-radius:12px;background:#fff;box-shadow:0 1px 4px rgba(30,50,80,.05)}
+.trainingBackHome{flex:0 0 auto;color:#405064;font-size:14px;font-weight:800;text-decoration:none}
+.trainingBackHome:hover{color:#2b7cff}
+.trainingDivider{flex:0 0 auto;width:1px;height:24px;background:#dfe4ea}
+.trainingPageTitle{flex:0 0 auto;font-size:18px;font-weight:900}
+.trainingAbilityBadge{flex:0 0 auto;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}
+.trainingAbilityBadge.onkan{border:1px solid #cfe0ff;background:#eef5ff;color:#315eae}
+.trainingMore{position:relative;margin-left:auto;flex:0 0 auto}
+.trainingMore>summary{list-style:none;cursor:pointer;padding:7px 10px;border:1px solid #dce3ec;border-radius:9px;background:#f8fafc;color:#465467;font-size:12px;font-weight:800;user-select:none}
+.trainingMore>summary::-webkit-details-marker{display:none}
+.trainingMore[open]>summary{background:#edf4ff;color:#2862bd;border-color:#b8cff5}
+.trainingMoreCard{position:absolute;z-index:50;top:42px;right:0;width:310px;padding:10px;border:1px solid #dfe5ec;border-radius:12px;background:#fff;box-shadow:0 8px 24px rgba(30,50,80,.14)}
+.trainingMoreTitle{margin-bottom:8px;color:#66717f;font-size:11px;font-weight:800}
+.trainingMoreGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.trainingMoreGrid a{display:flex;align-items:center;justify-content:center;min-height:34px;padding:5px 4px;border:1px solid #e3e7ec;border-radius:8px;background:#fafbfc;color:#44505e;font-size:11px;font-weight:700;text-align:center;text-decoration:none}
+.trainingMoreGrid a:hover{background:#f0f5ff;border-color:#bfd3f5;color:#285eae}
+.trainingMoreGrid a.active{background:#edf4ff;border-color:#9dbcf0;color:#2862bd}
+.trainingLevelBadge{display:none}
+
+@media(max-width:520px){
+  .trainingHeader{gap:7px;min-height:48px;padding:6px 8px}
+  .trainingBackHome{font-size:12px}
+  .trainingPageTitle{font-size:15px}
+  .trainingAbilityBadge{padding:4px 7px;font-size:11px}
+  .trainingMore>summary{width:34px;overflow:hidden;white-space:nowrap;padding:7px 8px;font-size:0;text-align:center}
+  .trainingMore>summary::after{content:"＋";font-size:18px}
+  .trainingMoreCard{position:fixed;top:58px;left:10px;right:10px;width:auto}
+}
+
+/* ===== 大問1：出題条件 ===== */
+.quizSetupCard{padding:14px}
+.quizSetupHead{margin-bottom:10px}
+.quizSetupTitle{font-size:17px;font-weight:900}
+.quizSetupSub{margin-top:2px;color:#6b7280;font-size:11px}
+
+.quizSetupGrid{display:grid;grid-template-columns:1.8fr .6fr 1fr;gap:8px;align-items:start}
+.quizSetupControl{min-width:0;padding:8px;border:1px solid #e5e9ef;border-radius:9px;background:#fafbfc}
+.quizSetupLabel{margin-bottom:5px;color:#3f4b5a;font-size:13px;font-weight:900}
+
+.quizBlockSelectLine{display:flex;align-items:center;gap:5px}
+.quizBlockSelectLine select{width:100%;min-width:0;height:36px;box-sizing:border-box;font-size:12px;padding:5px 7px}
+.quizBlockApplyBtn{flex:0 0 auto;padding:7px 8px;border-radius:7px;font-size:11px;font-weight:700}
+
+.quizSetupInfo{margin-top:5px;color:#77808c;font-size:10px;line-height:1.35}
+
+.quizCountLine{display:flex;align-items:center;gap:5px}
+.quizCountLine input{width:100%;min-width:0;height:36px;box-sizing:border-box}
+.quizCountLine span{flex:0 0 auto;font-size:12px;font-weight:700}
+
+.quizOrderControl select{width:100%;height:36px;box-sizing:border-box;font-size:12px;padding:5px 7px}
+
+.quizAdvanced{margin-top:9px;border-top:1px solid #edf0f3}
+.quizAdvanced>summary{padding:8px 2px 2px;list-style:none;cursor:pointer;color:#526070;font-size:11px;font-weight:800}
+.quizAdvanced>summary::-webkit-details-marker{display:none}
+.quizAdvanced[open]>summary{color:#2862bd}
+
+.quizAdvancedBody{display:grid;gap:8px;margin-top:6px;padding:9px;border:1px solid #e8ebef;border-radius:9px;background:#fafafa}
+.quizAdvancedItem{padding-bottom:8px;border-bottom:1px solid #eceff2}
+.quizAdvancedItem:last-of-type{padding-bottom:0;border-bottom:0}
+
+.quizRangeLine{display:flex;align-items:center;gap:6px}
+.quizRangeLine input{width:90px}
+
+.quizCheckLine{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700}
+
+.quizResetBtn{margin:0;padding:6px 8px;font-size:11px}
+.quizSetupHelp{margin-top:4px;color:#808792;font-size:10px}
+
+.quizStartButton{display:block;width:100%;margin-top:10px;padding:12px;font-size:15px;font-weight:900}
+.quizWeakListBtn{display:block;width:100%;margin-top:7px;padding:9px;background:#fff;color:#526070;font-size:12px;font-weight:700}
+
+@media(max-width:600px){
+  .quizSetupGrid{grid-template-columns:.65fr 1fr;gap:6px}
+  .quizBlockControl{grid-column:1/-1}
+  .quizSetupSub{display:none}
+}
+
+.quizBlockActions{display:flex;gap:4px;margin-bottom:5px}
+.quizBlockActionBtn{margin:0;padding:4px 7px;border:1px solid #dce3ec;border-radius:6px;background:#fff;color:#536071;font-size:11px;font-weight:700;cursor:pointer}
+.quizBlockGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;max-height:92px;overflow-y:auto;padding:5px;border:1px solid #e3e7ec;border-radius:7px;background:#fff}
+.quizBlockItem{display:flex;align-items:center;gap:4px;min-width:0;padding:4px 5px;border:1px solid #e5e8ed;border-radius:6px;background:#fafbfc;cursor:pointer;font-size:12px;font-weight:800;white-space:nowrap}
+.quizBlockItem:has(input:checked){border-color:#8db4f7;background:#edf4ff;color:#285eae}
+.quizBlockItem input{width:15px;height:15px;margin:0;flex:0 0 auto}
+
+@media(max-width:600px){
+  .quizBlockGrid{grid-template-columns:repeat(4,minmax(0,1fr));max-height:86px}
+}
   </style>
 </head>
 <body>
   <div class="wrap">
 
-    <div class="card topNavBox">
-      <div class="topNavTitle">学習ページ移動</div>
-      <div class="topNav">
-        <a href="index.html">ホーム</a>
+    <header class="trainingHeader">
+  <a href="index.html" class="trainingBackHome">← ホーム</a>
+  <span class="trainingDivider"></span>
+
+  <strong class="trainingPageTitle">大問1 アクセント</strong>
+
+  <span class="trainingAbilityBadge onkan">おんかん +1</span>
+
+  <span id="levelBadge" class="trainingLevelBadge"></span>
+
+  <details class="trainingMore">
+    <summary>＋ 他の学習ページ</summary>
+
+    <div class="trainingMoreCard">
+      <div class="trainingMoreTitle">他の学習ページへ</div>
+
+      <div class="trainingMoreGrid">
         <a href="study.html">暗記</a>
         <a href="quiz.html">英→日</a>
         <a href="quiz_jaen.html">日→英</a>
+
         <a href="audio_quiz.html">音声→意味</a>
         <a href="idiom_quiz.html">イディオム</a>
         <a href="accent.html" class="active">大問1</a>
+
+        <a href="listening.html">リスニング</a>
+        <a href="dialogue.html">大問8</a>
         <a href="sentence.html">大問9</a>
+
+        <a href="q10.html">大問10</a>
         <a href="paraphrase_quiz.html">大問11</a>
         <a href="reorder.html">大問12</a>
-        <a href="list.html">一覧</a>
-        <a href="progress.html">進捗</a>
       </div>
     </div>
+  </details>
+</header>
+
+<div id="errorArea"></div>
 
     <div id="levelBadge"></div>
     <div id="errorArea"></div>
@@ -902,71 +1012,94 @@
       </div>
     </div>
 
-    <div class="card" id="setupBox">
-      <div class="row" style="justify-content:flex-start;">
-        <div>
-          <div style="font-size:18px; font-weight:800;">アクセント演習（大問1風）</div>
-          <div class="muted" style="margin-top:4px;">
-            音節区切りを見て、第一強勢の位置を選びます。
-          </div>
-        </div>
+    <div class="card quizSetupCard" id="setupBox">
+
+  <div class="quizSetupHead">
+    <div class="quizSetupTitle">出題条件</div>
+    <div class="quizSetupSub">範囲・問題数・出題順を選んでスタート</div>
+  </div>
+
+  <div class="quizSetupGrid">
+
+   <div class="quizSetupControl quizBlockControl">
+  <div class="quizSetupLabel">出題範囲</div>
+
+  <div class="quizBlockActions">
+    <button id="selectAllBlocks" type="button" class="quizBlockActionBtn">すべて選択</button>
+    <button id="clearBlocks" type="button" class="quizBlockActionBtn">選択解除</button>
+  </div>
+
+  <div id="blockSelect" class="quizBlockGrid"></div>
+  <div id="blockStats" class="quizSetupInfo"></div>
+</div>
+
+    <div class="quizSetupControl quizCountControl">
+      <div class="quizSetupLabel">問題数</div>
+
+      <div class="quizCountLine">
+        <input id="limitCount" type="number" min="1" value="50">
+        <span>問</span>
       </div>
-
-      <div class="hr"></div>
-
-      <div class="row" style="justify-content:flex-start;">
-        <div>
-          <div class="muted">Block</div>
-          <select id="blockSelect"></select>
-        </div>
-
-        <div style="padding-top:22px;">
-          <button id="applyBlock" type="button">このBlockを範囲に反映</button>
-        </div>
-
-        <div id="blockStats" class="muted" style="padding-top:26px;"></div>
-      </div>
-
-      <div class="row" style="justify-content:flex-start; margin-top:10px;">
-        <div>
-          <div class="muted">出題範囲（番号）</div>
-          <div>
-            <input id="rangeStart" type="number" min="1" value="1" style="width:110px;"> 〜
-            <input id="rangeEnd" type="number" min="1" value="500" style="width:110px;">
-          </div>
-        </div>
-
-        <div>
-          <div class="muted">出題数</div>
-          <input id="limitCount" type="number" min="1" value="10" style="width:110px;">
-        </div>
-
-        <div>
-          <div class="muted">出題順</div>
-          <select id="modeSelect">
-            <option value="head">先頭から</option>
-            <option value="continue">続きから</option>
-            <option value="random">ランダム</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="row" style="justify-content:flex-start; margin-top:10px;">
-        <label style="font-size:14px;">
-          <input id="autoSpeakAfter" type="checkbox">
-          解答後に自動発音（英語）
-        </label>
-
-        <button id="resetCursor" type="button">🔄 続きからをリセット</button>
-      </div>
-
-            <div class="row" style="justify-content:flex-start; margin-top:12px;">
-        <button id="startBtn" class="primary" type="button">開始</button>
-        <button id="openAccentWeakListBtn" type="button">アクセント苦手単語一覧を見る</button>
-      </div>
-
-      <div id="setupInfo" class="muted" style="margin-top:10px;"></div>
     </div>
+
+    <div class="quizSetupControl quizOrderControl">
+      <div class="quizSetupLabel">出題順</div>
+
+      <select id="modeSelect">
+        <option value="continue">順番に出題（続きから）</option>
+        <option value="random">ランダムで出題</option>
+        <option value="weak">ニガテ順に出題</option>
+      </select>
+    </div>
+
+  </div>
+
+  <details class="quizAdvanced">
+    <summary>＋ 詳細設定</summary>
+
+    <div class="quizAdvancedBody">
+
+      <div class="quizAdvancedItem">
+        <div class="quizSetupLabel">問題番号を直接指定</div>
+
+        <div class="quizRangeLine">
+          <input id="rangeStart" type="number" min="1" value="1">
+          <span>〜</span>
+          <input id="rangeEnd" type="number" min="1" value="500">
+        </div>
+      </div>
+
+      <div class="quizAdvancedItem">
+        <label class="quizCheckLine">
+          <input id="autoSpeakAfter" type="checkbox" checked>
+          <span>解答後に自動発音する</span>
+        </label>
+      </div>
+
+      <div class="quizAdvancedItem">
+        <button id="resetCursor" type="button" class="quizResetBtn">
+          順番モードを先頭に戻す
+        </button>
+
+        <div class="quizSetupHelp">
+          「続きから」の開始位置をリセットします。
+        </div>
+      </div>
+
+      <div id="setupInfo" class="quizSetupInfo"></div>
+
+    </div>
+  </details>
+
+  <button id="startBtn" class="primary quizStartButton" type="button">
+    ▶ この条件でテスト開始
+  </button>
+
+  <button id="openAccentWeakListBtn" class="quizWeakListBtn" type="button">
+    アクセント苦手単語一覧を見る
+  </button>
+
+</div>
 
 
         <div class="card" id="accentWeakListBox" style="display:none;">
@@ -1073,7 +1206,7 @@
   <script src="accent_1kyu.js"></script>
   <script src="accent_2kyu.js"></script>
   <script src="accent_rules.js"></script>
-
+  <script src="learning_categories.js"></script>
   <script src="learning_log.js"></script>
   <script src="goimon_dialogues.js"></script>
   <script src="goimon_dex.js"></script>
