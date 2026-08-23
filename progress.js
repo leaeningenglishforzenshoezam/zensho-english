@@ -1,468 +1,1944 @@
-// progress.js（丸ごと置き換え）
-// Blockごとの横断進捗をカード表示し、そのまま各ページへ飛べる版
-// 対応項目：暗記 / 英→日 / 日→英 / アクセント / 大問9 / 音声→意味
-// 追加：ゴイモン画像 + ゴイモン視点コメント
+// progress.js
+// ゴイモン v1.1 進捗ページ
+//
+// ① Block別進捗
+//    暗記 / 英→日 / 日→英 / アクセント / 大問9 / 音声→意味
+//
+// ② 大問別・演習進捗
+//    learning_log.js の共通ログから表示
+//
+// ※ ゴイモン本体の保存データには触れない
+// ※ 既存Block保存キーも変更しない
 
 document.addEventListener("DOMContentLoaded", () => {
+  "use strict";
+
   const LEVEL_KEY = "zensho_level_v1";
 
-  const badge = document.getElementById("levelBadge");
-  const blockGrid = document.getElementById("blockGrid");
-  const emptyState = document.getElementById("emptyState");
+  // 「目安クリア」と判定するために必要な
+// 最低の正誤判定問題数
+const MIN_JUDGED_ATTEMPTS = 20;
 
-  const btnLv1 = document.getElementById("lv1");
-  const btnLv2 = document.getElementById("lv2");
-  const btnRefresh = document.getElementById("refresh");
-  const btnResetGlobal = document.getElementById("resetGlobal");
-  const passLineEl = document.getElementById("passLine");
-  const statusFilterEl = document.getElementById("statusFilter");
+  const badge =
+    document.getElementById("levelBadge");
 
-  const summaryMain = document.getElementById("summaryMain");
-  const summarySub = document.getElementById("summarySub");
-  const summaryRecommend = document.getElementById("summaryRecommend");
-  const summaryRecommendSub = document.getElementById("summaryRecommendSub");
-  const summaryMemo = document.getElementById("summaryMemo");
-  const summaryMemoSub = document.getElementById("summaryMemoSub");
+  const blockGrid =
+    document.getElementById("blockGrid");
 
-  const progressGoimonImage = document.getElementById("progressGoimonImage");
-  const progressGoimonName = document.getElementById("progressGoimonName");
-  const progressGoimonMeta = document.getElementById("progressGoimonMeta");
-  const progressGoimonComment = document.getElementById("progressGoimonComment");
+  const emptyState =
+    document.getElementById("emptyState");
+
+  const examGrid =
+    document.getElementById("examGrid");
+
+  const examEmpty =
+    document.getElementById("examEmpty");
+
+  const btnLv1 =
+    document.getElementById("lv1");
+
+  const btnLv2 =
+    document.getElementById("lv2");
+
+  const btnRefresh =
+    document.getElementById("refresh");
+
+  const btnResetGlobal =
+    document.getElementById("resetGlobal");
+
+  const passLineEl =
+    document.getElementById("passLine");
+
+  const statusFilterEl =
+    document.getElementById("statusFilter");
+
+  const summaryMain =
+    document.getElementById("summaryMain");
+
+  const summarySub =
+    document.getElementById("summarySub");
+
+  const summaryRecommend =
+    document.getElementById("summaryRecommend");
+
+  const summaryRecommendSub =
+    document.getElementById("summaryRecommendSub");
+
+  const summaryMemo =
+    document.getElementById("summaryMemo");
+
+  const summaryMemoSub =
+    document.getElementById("summaryMemoSub");
+
+  const progressGoimonImage =
+    document.getElementById("progressGoimonImage");
+
+  const progressGoimonName =
+    document.getElementById("progressGoimonName");
+
+  const progressGoimonMeta =
+    document.getElementById("progressGoimonMeta");
+
+  const progressGoimonComment =
+    document.getElementById("progressGoimonComment");
+
+
+  // ============================================================
+  // 基本
+  // ============================================================
 
   function getLevel() {
-    return localStorage.getItem(LEVEL_KEY) || "1";
+    return (
+      localStorage.getItem(LEVEL_KEY) ||
+      "1"
+    );
   }
 
+
   function setLevel(lv) {
-    localStorage.setItem(LEVEL_KEY, String(lv));
+    localStorage.setItem(
+      LEVEL_KEY,
+      String(lv)
+    );
+
+    window.ACTIVE_LEVEL =
+      String(lv);
   }
+
 
   function getActiveDataset() {
     const lv = getLevel();
+
     window.ACTIVE_LEVEL = lv;
 
     if (lv === "2") {
-      window.WORDS = window.WORDS_2KYU || window.WORDS || [];
-      window.BLOCKS = window.BLOCKS_2KYU || window.BLOCKS || [];
+      window.WORDS =
+        window.WORDS_2KYU ||
+        [];
+
+      window.BLOCKS =
+        window.BLOCKS_2KYU ||
+        [];
     } else {
-      window.WORDS = window.WORDS_1KYU || window.WORDS || [];
-      window.BLOCKS = window.BLOCKS_1KYU || window.BLOCKS || [];
+      window.WORDS =
+        window.WORDS_1KYU ||
+        [];
+
+      window.BLOCKS =
+        window.BLOCKS_1KYU ||
+        [];
     }
-    return { lv, words: window.WORDS || [], blocks: window.BLOCKS || [] };
+
+    return {
+      lv,
+      words:
+        window.WORDS || [],
+      blocks:
+        window.BLOCKS || []
+    };
   }
+
+
+  // ============================================================
+  // Block進捗
+  // ============================================================
 
   function globalKey(lv) {
-    return `zensho_block_global_lv${lv}_v1`;
+    return (
+      `zensho_block_global_lv${lv}_v1`
+    );
   }
 
+
   function loadGlobal(lv) {
-    const raw = localStorage.getItem(globalKey(lv));
-    if (!raw) return { byBlock: {} };
+    const raw =
+      localStorage.getItem(
+        globalKey(lv)
+      );
+
+    if (!raw) {
+      return {
+        byBlock: {}
+      };
+    }
+
     try {
-      const obj = JSON.parse(raw);
-      if (obj && typeof obj === "object") {
-        if (!obj.byBlock || typeof obj.byBlock !== "object") obj.byBlock = {};
+      const obj =
+        JSON.parse(raw);
+
+      if (
+        obj &&
+        typeof obj === "object"
+      ) {
+        if (
+          !obj.byBlock ||
+          typeof obj.byBlock !== "object"
+        ) {
+          obj.byBlock = {};
+        }
+
         return obj;
       }
     } catch {}
-    return { byBlock: {} };
+
+    return {
+      byBlock: {}
+    };
   }
 
-  function pct(correct, attempted) {
-    if (!attempted || attempted <= 0) return null;
-    return Math.round((correct / attempted) * 100);
-  }
 
   function ensureRec(rec) {
-    const r = rec && typeof rec === "object" ? rec : {};
-    if (typeof r.studyDone !== "number") r.studyDone = 0;
+    const r =
+      rec &&
+      typeof rec === "object"
+        ? rec
+        : {};
 
-    if (typeof r.quizAttempted !== "number") r.quizAttempted = 0;
-    if (typeof r.quizCorrect !== "number") r.quizCorrect = 0;
+    if (
+      typeof r.studyDone !== "number"
+    ) {
+      r.studyDone = 0;
+    }
 
-    if (typeof r.quizAttemptedJaEn !== "number") r.quizAttemptedJaEn = 0;
-    if (typeof r.quizCorrectJaEn !== "number") r.quizCorrectJaEn = 0;
+    if (
+      typeof r.quizAttempted !== "number"
+    ) {
+      r.quizAttempted = 0;
+    }
 
-    if (typeof r.accentAttempted !== "number") r.accentAttempted = 0;
-    if (typeof r.accentCorrect !== "number") r.accentCorrect = 0;
+    if (
+      typeof r.quizCorrect !== "number"
+    ) {
+      r.quizCorrect = 0;
+    }
 
-    if (typeof r.sentenceAttempted !== "number") r.sentenceAttempted = 0;
-    if (typeof r.sentenceCorrect !== "number") r.sentenceCorrect = 0;
+    if (
+      typeof r.quizAttemptedJaEn !==
+      "number"
+    ) {
+      r.quizAttemptedJaEn = 0;
+    }
 
-    if (typeof r.audioAttempted !== "number") r.audioAttempted = 0;
-    if (typeof r.audioCorrect !== "number") r.audioCorrect = 0;
+    if (
+      typeof r.quizCorrectJaEn !==
+      "number"
+    ) {
+      r.quizCorrectJaEn = 0;
+    }
+
+    if (
+      typeof r.accentAttempted !==
+      "number"
+    ) {
+      r.accentAttempted = 0;
+    }
+
+    if (
+      typeof r.accentCorrect !==
+      "number"
+    ) {
+      r.accentCorrect = 0;
+    }
+
+    if (
+      typeof r.sentenceAttempted !==
+      "number"
+    ) {
+      r.sentenceAttempted = 0;
+    }
+
+    if (
+      typeof r.sentenceCorrect !==
+      "number"
+    ) {
+      r.sentenceCorrect = 0;
+    }
+
+    if (
+      typeof r.audioAttempted !==
+      "number"
+    ) {
+      r.audioAttempted = 0;
+    }
+
+    if (
+      typeof r.audioCorrect !==
+      "number"
+    ) {
+      r.audioCorrect = 0;
+    }
 
     return r;
   }
 
-  function statusLabel(correct, attempted, passLine) {
-    if (!attempted || attempted <= 0) {
-      return { text: "未挑戦", cls: "ng" };
+
+  function pct(
+    correct,
+    attempted
+  ) {
+    if (
+      !attempted ||
+      attempted <= 0
+    ) {
+      return null;
     }
-    const p = pct(correct, attempted);
-    if (p >= passLine) {
-      return { text: `${p}%`, cls: "ok" };
-    }
-    return { text: `${p}%`, cls: "mid" };
+
+    return Math.round(
+      (correct / attempted) *
+      100
+    );
   }
 
-  function overallJudge(rec, passLine) {
-    const items = [
-      pct(rec.quizCorrect, rec.quizAttempted),
-      pct(rec.quizCorrectJaEn, rec.quizAttemptedJaEn),
-      pct(rec.accentCorrect, rec.accentAttempted),
-      pct(rec.sentenceCorrect, rec.sentenceAttempted),
-      pct(rec.audioCorrect, rec.audioAttempted)
+
+  // ============================================================
+  // ステータス
+  // ============================================================
+
+  function makeStatus(
+  accuracy,
+  attempted,
+  passLine,
+  judgedAttempts = attempted
+) {
+  if (
+    !attempted ||
+    attempted <= 0
+  ) {
+    return {
+      text: "未挑戦",
+      cls: "ng",
+      key: "untouched"
+    };
+  }
+
+  if (
+    accuracy === null
+  ) {
+    return {
+      text: "学習中",
+      cls: "mid",
+      key: "learning"
+    };
+  }
+
+  // 正誤判定された問題数がまだ少ない
+  if (
+    Number(judgedAttempts || 0) <
+    MIN_JUDGED_ATTEMPTS
+  ) {
+    return {
+      text: "学習中",
+      cls: "mid",
+      key: "learning"
+    };
+  }
+
+  if (
+    accuracy < passLine
+  ) {
+    return {
+      text: "要復習",
+      cls: "mid",
+      key: "needs_review"
+    };
+  }
+
+  return {
+    text: "目安クリア",
+    cls: "ok",
+    key: "clear"
+  };
+}
+
+
+  function overallBlockJudge(
+    rec,
+    passLine
+  ) {
+    const scored = [
+      {
+        attempted:
+          rec.quizAttempted,
+        accuracy:
+          pct(
+            rec.quizCorrect,
+            rec.quizAttempted
+          )
+      },
+      {
+        attempted:
+          rec.quizAttemptedJaEn,
+        accuracy:
+          pct(
+            rec.quizCorrectJaEn,
+            rec.quizAttemptedJaEn
+          )
+      },
+      {
+        attempted:
+          rec.accentAttempted,
+        accuracy:
+          pct(
+            rec.accentCorrect,
+            rec.accentAttempted
+          )
+      },
+      {
+        attempted:
+          rec.sentenceAttempted,
+        accuracy:
+          pct(
+            rec.sentenceCorrect,
+            rec.sentenceAttempted
+          )
+      },
+      {
+        attempted:
+          rec.audioAttempted,
+        accuracy:
+          pct(
+            rec.audioCorrect,
+            rec.audioAttempted
+          )
+      }
     ];
+
 
     const touched =
       rec.studyDone > 0 ||
-      rec.quizAttempted > 0 ||
-      rec.quizAttemptedJaEn > 0 ||
-      rec.accentAttempted > 0 ||
-      rec.sentenceAttempted > 0 ||
-      rec.audioAttempted > 0;
+      scored.some(
+        item =>
+          item.attempted > 0
+      );
 
-    if (!touched) return { text: "未挑戦", cls: "ng", key: "untouched" };
 
-    const hasGood = items.some(v => v !== null && v >= passLine);
-    if (hasGood) return { text: "良好", cls: "ok", key: "ok" };
+    if (!touched) {
+      return {
+        text: "未挑戦",
+        cls: "ng",
+        key: "untouched"
+      };
+    }
 
-    return { text: "要復習", cls: "mid", key: "needs_review" };
+
+    const hasLow =
+  scored.some(
+    item =>
+      item.attempted >=
+        MIN_JUDGED_ATTEMPTS &&
+      item.accuracy !== null &&
+      item.accuracy < passLine
+  );
+
+
+    if (hasLow) {
+      return {
+        text: "要復習",
+        cls: "mid",
+        key: "needs_review"
+      };
+    }
+
+
+    const allScoredEnough =
+  scored.every(
+    item =>
+      item.attempted >=
+      MIN_JUDGED_ATTEMPTS
+  );
+
+
+    if (
+      rec.studyDone > 0 &&
+      allScoredEnough
+    ) {
+      return {
+        text: "目安クリア",
+        cls: "ok",
+        key: "clear"
+      };
+    }
+
+
+    return {
+      text: "学習中",
+      cls: "mid",
+      key: "learning"
+    };
   }
 
-  function buildUrl(page, start, end, extra = "") {
-    const base = `${page}?start=${start}&end=${end}`;
-    return extra ? `${base}&${extra}` : base;
+
+  function filterMatch(
+    judgeKey,
+    filterValue
+  ) {
+    if (
+      filterValue === "all"
+    ) {
+      return true;
+    }
+
+    return (
+      judgeKey === filterValue
+    );
   }
 
-  function categoryWeaknessScore(rec, category, passLine) {
-    if (category === "study") {
-      return rec.studyDone > 0 ? 1000 : -1000;
+
+  // ============================================================
+  // Block内おすすめ
+  // ============================================================
+
+  function categoryPriorityScore(
+  rec,
+  category,
+  passLine
+) {
+  /*
+   * 数字が小さいほど
+   * 「次におすすめする優先度が高い」
+   */
+
+  // --------------------------------
+  // 暗記
+  // --------------------------------
+
+  if (
+    category === "study"
+  ) {
+    // まだ一度も意味確認をしていない
+    if (
+      rec.studyDone <= 0
+    ) {
+      return -1200;
     }
 
-    if (category === "quiz_enja") {
-      const p = pct(rec.quizCorrect, rec.quizAttempted);
-      return p === null ? -900 : (p >= passLine ? 1000 + p : p);
-    }
+    // 一度取り組んでいれば、
+    // 問題演習を優先する
+    return 1500;
+  }
 
-    if (category === "quiz_jaen") {
-      const p = pct(rec.quizCorrectJaEn, rec.quizAttemptedJaEn);
-      return p === null ? -900 : (p >= passLine ? 1000 + p : p);
-    }
+  // --------------------------------
+  // 正誤のあるBlock学習
+  // --------------------------------
 
-    if (category === "accent") {
-      const p = pct(rec.accentCorrect, rec.accentAttempted);
-      return p === null ? -900 : (p >= passLine ? 1000 + p : p);
-    }
+  const config = {
+    quiz_enja: {
+      correct:
+        rec.quizCorrect,
+      attempted:
+        rec.quizAttempted
+    },
 
-    if (category === "sentence") {
-      const p = pct(rec.sentenceCorrect, rec.sentenceAttempted);
-      return p === null ? -900 : (p >= passLine ? 1000 + p : p);
-    }
+    quiz_jaen: {
+      correct:
+        rec.quizCorrectJaEn,
+      attempted:
+        rec.quizAttemptedJaEn
+    },
 
-    if (category === "audio_quiz") {
-      const p = pct(rec.audioCorrect, rec.audioAttempted);
-      return p === null ? -900 : (p >= passLine ? 1000 + p : p);
-    }
+    accent: {
+      correct:
+        rec.accentCorrect,
+      attempted:
+        rec.accentAttempted
+    },
 
+    sentence: {
+      correct:
+        rec.sentenceCorrect,
+      attempted:
+        rec.sentenceAttempted
+    },
+
+    audio_quiz: {
+      correct:
+        rec.audioCorrect,
+      attempted:
+        rec.audioAttempted
+    }
+  };
+
+  const target =
+    config[category];
+
+  if (!target) {
     return 9999;
   }
 
-  function getBestAction(rec, passLine) {
+  const attempted =
+    Number(
+      target.attempted || 0
+    );
+
+  const correct =
+    Number(
+      target.correct || 0
+    );
+
+  // --------------------------------
+  // ① 未挑戦
+  // --------------------------------
+
+  if (
+    attempted <= 0
+  ) {
+    return -1000;
+  }
+
+  // --------------------------------
+  // ② 20問未満
+  // --------------------------------
+
+  if (
+    attempted <
+    MIN_JUDGED_ATTEMPTS
+  ) {
+    /*
+     * 取り組み数が少ないものほど
+     * 優先する。
+     *
+     * 1問 → -899
+     * 10問 → -890
+     * 19問 → -881
+     */
+    return (
+      -900 +
+      attempted
+    );
+  }
+
+  const accuracy =
+    pct(
+      correct,
+      attempted
+    );
+
+  // 念のため
+  if (
+    accuracy === null
+  ) {
+    return -800;
+  }
+
+  // --------------------------------
+  // ③ 20問以上・目安未満
+  // --------------------------------
+
+  if (
+    accuracy < passLine
+  ) {
+    /*
+     * 正答率が低いほど
+     * 優先度を高くする。
+     *
+     * 40% → 40
+     * 70% → 70
+     */
+    return accuracy;
+  }
+
+  // --------------------------------
+  // ④ 目安クリア
+  // --------------------------------
+
+  return (
+    1000 +
+    accuracy
+  );
+}
+
+
+  function getBestAction(
+    rec,
+    passLine
+  ) {
     const candidates = [
-      { key: "quiz_enja", label: "英→日", page: "quiz.html", extra: "autostart=1" },
-      { key: "quiz_jaen", label: "日→英", page: "quiz_jaen.html", extra: "autostart=1" },
-      { key: "accent", label: "アクセント", page: "accent.html", extra: "" },
-      { key: "sentence", label: "大問9", page: "sentence.html", extra: "" },
-      { key: "audio_quiz", label: "音声→意味", page: "audio_quiz.html", extra: "autostart=1" },
-      { key: "study", label: "暗記", page: "study.html", extra: "" }
+      {
+        key: "quiz_enja",
+        label: "英→日",
+        page: "quiz.html",
+        extra: "autostart=1"
+      },
+      {
+        key: "quiz_jaen",
+        label: "日→英",
+        page:
+          "quiz_jaen.html",
+        extra: "autostart=1"
+      },
+      {
+        key: "accent",
+        label: "アクセント",
+        page: "accent.html",
+        extra: ""
+      },
+      {
+        key: "sentence",
+        label: "大問9",
+        page: "sentence.html",
+        extra: ""
+      },
+      {
+        key: "audio_quiz",
+        label: "音声→意味",
+        page:
+          "audio_quiz.html",
+        extra: "autostart=1"
+      },
+      {
+        key: "study",
+        label: "暗記",
+        page: "study.html",
+        extra: ""
+      }
     ];
 
+
     return candidates
-      .map(c => ({ ...c, score: categoryWeaknessScore(rec, c.key, passLine) }))
-      .sort((a, b) => a.score - b.score)[0];
+      .map(c => ({
+        ...c,
+       score:
+  categoryPriorityScore(
+    rec,
+    c.key,
+    passLine
+  )
+      }))
+      .sort(
+        (a, b) =>
+          a.score - b.score
+      )[0];
   }
 
-  function makeStatusBox(label, correct, attempted, passLine, extraText = "") {
-    const st = statusLabel(correct, attempted, passLine);
-    return `
-      <div class="statusBox">
-        <div class="statusLabel">${label}</div>
-        <div class="statusValue">
-          <span class="pill ${st.cls}">${st.text}</span>
-        </div>
-        <div class="statusLabel" style="margin-top:6px;">${extraText}</div>
+
+  function buildUrl(
+    page,
+    start,
+    end,
+    extra = ""
+  ) {
+    const base =
+      `${page}?start=${start}` +
+      `&end=${end}`;
+
+    return extra
+      ? `${base}&${extra}`
+      : base;
+  }
+
+
+  function makeStatusBox(
+  label,
+  correct,
+  attempted,
+  passLine
+) {
+  const accuracy =
+    pct(
+      correct,
+      attempted
+    );
+
+  const status =
+    makeStatus(
+      accuracy,
+      attempted,
+      passLine,
+      attempted
+    );
+
+  const resultText =
+    accuracy === null
+      ? "未挑戦"
+      : `${correct}/${attempted}`;
+
+  const remaining =
+    Math.max(
+      0,
+      MIN_JUDGED_ATTEMPTS -
+        Number(attempted || 0)
+    );
+
+  const progressText =
+    remaining > 0
+      ? `目安判定まで あと${remaining}問`
+      : status.text;
+
+  return `
+    <div class="statusBox">
+      <div class="statusLabel">
+        ${label}
       </div>
-    `;
+
+      <div class="statusValue">
+        <span class="pill ${status.cls}">
+          ${
+            accuracy === null
+              ? status.text
+              : `${accuracy}%`
+          }
+        </span>
+      </div>
+
+      <div
+        class="statusLabel"
+        style="margin-top:6px;"
+      >
+        ${resultText}
+      </div>
+
+      <div
+        class="statusLabel"
+        style="margin-top:4px;"
+      >
+        ${progressText}
+      </div>
+    </div>
+  `;
+}
+
+
+  // ============================================================
+  // learning_log 全期間集計
+  // ============================================================
+
+  function getAllTimeLearningSummary(
+    level
+  ) {
+    if (
+      !window.ZenshoLearningLog ||
+      typeof window.ZenshoLearningLog.readLog !==
+      "function"
+    ) {
+      return {};
+    }
+
+
+    const log =
+      window.ZenshoLearningLog.readLog(
+        level
+      ) || {};
+
+
+    const result = {};
+
+
+    Object.values(log)
+      .forEach(day => {
+        if (
+          !day ||
+          typeof day !== "object"
+        ) {
+          return;
+        }
+
+
+        Object.entries(day)
+          .forEach(
+            ([category, raw]) => {
+
+              const slot =
+                raw &&
+                typeof raw === "object"
+                  ? raw
+                  : {};
+
+
+              if (!result[category]) {
+                result[category] = {
+                  attempt: 0,
+                  correct: 0,
+                  wrong: 0
+                };
+              }
+
+
+              result[
+                category
+              ].attempt +=
+                Number(
+                  slot.attempt || 0
+                );
+
+              result[
+                category
+              ].correct +=
+                Number(
+                  slot.correct || 0
+                );
+
+              result[
+                category
+              ].wrong +=
+                Number(
+                  slot.wrong || 0
+                );
+            }
+          );
+      });
+
+
+    Object.values(result)
+      .forEach(slot => {
+        const judged =
+          slot.correct +
+          slot.wrong;
+
+        slot.accuracy =
+          judged > 0
+            ? Math.round(
+                (
+                  slot.correct /
+                  judged
+                ) * 100
+              )
+            : null;
+      });
+
+
+    return result;
   }
 
-  function filterMatch(judgeKey, filterValue) {
-    if (filterValue === "all") return true;
-    return judgeKey === filterValue;
+
+  // ============================================================
+  // 大問別カテゴリ
+  // ============================================================
+
+  const BLOCK_CATEGORY_KEYS =
+    new Set([
+      "study",
+      "quiz_enja",
+      "quiz_jaen",
+      "audio_quiz",
+      "accent",
+      "sentence"
+    ]);
+
+
+  function getExamCategories(
+    level
+  ) {
+    if (
+      !window.LearningCategories ||
+      typeof window
+        .LearningCategories
+        .getProgressCategories !==
+        "function"
+    ) {
+      return [];
+    }
+
+
+    return window
+      .LearningCategories
+      .getProgressCategories(level)
+      .filter(category => {
+        return !BLOCK_CATEGORY_KEYS.has(
+          category.key
+        );
+      });
   }
 
-  function getGoimonComment(goimon, recommendBlock, recommendAction) {
-    const type = String(goimon?.type || "nagomi");
-    const stage = String(goimon?.stage || "egg");
-    const stats = goimon?.stats || { chie: 0, kotoba: 0, onkan: 0, bunmyaku: 0 };
 
-    const weakest = Object.entries(stats).sort((a, b) => a[1] - b[1])[0][0];
+  function getLastStudyText(
+    categoryKey,
+    level
+  ) {
+    if (
+      !window.ZenshoLearningLog ||
+      typeof window
+        .ZenshoLearningLog
+        .getLastStudyDate !==
+        "function"
+    ) {
+      return "";
+    }
 
-    const typeLeadMap = {
-      nagomi: "今日は全体を見ながら進めると、いい流れになりそうだよ。",
-      hirameki: "理解を深める学習をすると、もっと冴えてきそうだね。",
-      tsumugi: "ことばを自分で出す練習をすると、伸びが出やすいよ。",
-      shirabe: "音やリズムに耳を向けると、今の育ち方に合っているよ。",
-      yomitoki: "文の流れを追う学習を重ねると、力がつながっていきそうだね。"
-    };
 
-    const weakestMap = {
-      chie: "ちえが少し低めだから、英→日や音声→意味で土台を整えたいね。",
-      kotoba: "ことばが少し低めだから、日→英で思い出す練習が効きそうだよ。",
-      onkan: "おんかんが少し低めだから、アクセントや音声→意味が合いそうだね。",
-      bunmyaku: "ぶんみゃくが少し低めだから、大問9で前後の流れを見たいところだよ。"
-    };
+    const date =
+      window.ZenshoLearningLog
+        .getLastStudyDate(
+          categoryKey,
+          level
+        );
 
-    const recommendText = (recommendBlock && recommendAction)
-      ? `今なら Block ${recommendBlock.id} の「${recommendAction.label}」から入るのがおすすめだよ。`
-      : "今日のおすすめから始めてみよう。";
 
-    const stageText =
-      stage === "egg" ? "まだ序盤だから、まずは気楽に1つ進めよう。" :
-      stage === "child" ? "少しずつ形ができてきたね。" :
-      stage === "growth" ? "だいぶ育ってきたから、復習の精度も意識したいね。" :
-      stage === "mid" ? "かなり力がついてきたね。弱いところを埋めるとさらに安定しそう。" :
-      "ここまで育っているから、仕上げの一歩を丁寧に重ねたいね。";
+    if (!date) {
+      return "まだ記録なし";
+    }
 
-    return `${typeLeadMap[type] || typeLeadMap.nagomi} ${weakestMap[weakest] || ""} ${recommendText} ${stageText}`;
+
+    return `最終学習：${date}`;
   }
 
-  function renderGoimonPanel(recommendBlock, recommendAction) {
-    if (!window.GoimonUI || typeof window.GoimonUI.loadCurrent !== "function") {
-      progressGoimonComment.textContent = "ゴイモン情報を読み込めませんでした。";
+
+  function renderExamProgress(
+    level,
+    passLine,
+    filterValue
+  ) {
+    if (
+      !examGrid ||
+      !examEmpty
+    ) {
       return;
     }
 
-    const g = window.GoimonUI.loadCurrent();
+
+    const categories =
+      getExamCategories(level);
+
+    const summary =
+      getAllTimeLearningSummary(
+        level
+      );
+
+
+    const html = [];
+
+
+    categories.forEach(category => {
+      const slot =
+        summary[category.key] || {
+          attempt: 0,
+          correct: 0,
+          wrong: 0,
+          accuracy: null
+        };
+
+
+      const judgedAttempts =
+  Number(slot.correct || 0) +
+  Number(slot.wrong || 0);
+
+const status =
+  makeStatus(
+    slot.accuracy,
+    slot.attempt,
+    passLine,
+    judgedAttempts
+  );
+
+
+      if (
+        !filterMatch(
+          status.key,
+          filterValue
+        )
+      ) {
+        return;
+      }
+
+
+      const accuracyText =
+        slot.accuracy === null
+          ? "—"
+          : `${slot.accuracy}%`;
+
+
+      const resultText =
+        slot.correct +
+          slot.wrong >
+        0
+          ? `${slot.correct}/${slot.correct + slot.wrong}`
+          : `${slot.attempt}回`;
+
+
+      const lastText =
+        getLastStudyText(
+          category.key,
+          level
+        );
+
+
+      html.push(`
+        <div class="blockCard">
+
+          <div class="blockHead">
+            <div>
+              <div class="blockTitle">
+                ${category.label}
+              </div>
+
+              <div class="blockRange">
+                ${lastText}
+              </div>
+            </div>
+
+            <div>
+              <span
+                class="pill ${status.cls}"
+              >
+                ${status.text}
+              </span>
+            </div>
+          </div>
+
+
+          <div class="statusGrid">
+
+            <div class="statusBox">
+              <div class="statusLabel">
+                正答率
+              </div>
+
+              <div class="statusValue">
+                ${accuracyText}
+              </div>
+
+              <div
+                class="statusLabel"
+                style="margin-top:6px;"
+              >
+                ${resultText}
+              </div>
+            </div>
+
+
+            <div class="statusBox">
+              <div class="statusLabel">
+                取り組み回数
+              </div>
+
+              <div class="statusValue">
+                ${slot.attempt}
+              </div>
+
+              <div
+                class="statusLabel"
+                style="margin-top:6px;"
+              >
+                共通学習ログ
+              </div>
+            </div>
+
+          </div>
+
+
+          <div class="actionArea">
+            <div class="actionTitle">
+              この学習へ進む
+            </div>
+
+            <div class="actionButtons">
+              <button
+                class="miniBtn recommend"
+                data-url="${category.page}"
+              >
+                ${category.shortLabel || category.label}を学習
+              </button>
+            </div>
+          </div>
+
+        </div>
+      `);
+    });
+
+
+    examGrid.innerHTML =
+      html.join("");
+
+
+    examEmpty.style.display =
+      html.length
+        ? "none"
+        : "block";
+
+
+    examGrid
+      .querySelectorAll(
+        "button[data-url]"
+      )
+      .forEach(btn => {
+        btn.addEventListener(
+          "click",
+          () => {
+            const url =
+              btn.getAttribute(
+                "data-url"
+              );
+
+            if (url) {
+              location.href = url;
+            }
+          }
+        );
+      });
+  }
+
+
+  // ============================================================
+  // ゴイモン
+  // ============================================================
+
+  function getGoimonComment(
+  goimon,
+  recommendBlock,
+  recommendAction
+) {
+  const type =
+    String(
+      goimon?.type ||
+      "nagomi"
+    );
+
+  const stage =
+    String(
+      goimon?.stage ||
+      "egg"
+    );
+
+  const stats =
+    goimon?.stats || {
+      chie: 0,
+      kotoba: 0,
+      onkan: 0,
+      bunmyaku: 0
+    };
+
+  const abilityLabels = {
+    chie: "ちえ",
+    kotoba: "ことば",
+    onkan: "おんかん",
+    bunmyaku: "ぶんみゃく"
+  };
+
+  /*
+   * 能力値は英語力の診断ではなく、
+   * どんな学習をしてきたかによって育つ値。
+   *
+   * そのため「弱い能力」とは表現しない。
+   */
+  const sortedStats =
+    Object.entries(stats)
+      .map(([key, value]) => {
+        return [
+          key,
+          Number(value || 0)
+        ];
+      })
+      .sort(
+        (a, b) =>
+          b[1] - a[1]
+      );
+
+  const highestAbility =
+    sortedStats[0]?.[0] ||
+    "chie";
+
+  const highestLabel =
+    abilityLabels[
+      highestAbility
+    ] || highestAbility;
+
+  const values =
+    sortedStats.map(
+      item => item[1]
+    );
+
+  const maxValue =
+    Math.max(
+      ...values,
+      0
+    );
+
+  const minValue =
+    Math.min(
+      ...values,
+      0
+    );
+
+  const spread =
+    maxValue - minValue;
+
+  const typeLeadMap = {
+    nagomi:
+      "いろいろな学習に取り組みながら、バランスよく育っているゴイモンだよ。",
+
+    hirameki:
+      "単語や意味を確認する学習を重ねてきた育ち方が表れているね。",
+
+    tsumugi:
+      "ことばを思い出したり表現したりする学習を重ねてきた育ち方だね。",
+
+    yomitoki:
+      "文や文章の流れを考える学習を重ねてきた育ち方が表れているよ。",
+
+    shirabe:
+      "英語の音やアクセントに触れる学習を重ねてきた育ち方だね。",
+
+    hibiki:
+      "音と意味を結びつける学習を重ねてきた育ち方が表れているよ。",
+
+    kotonoha:
+      "ことばと文脈を行き来する学習を重ねてきた育ち方だね。",
+
+    mr_uno:
+      "いろいろな学び方を経験してきたゴイモンだね。これまでの学習の積み重ねが表れているよ。"
+  };
+
+  /*
+   * 能力差は「弱点」ではなく、
+   * 育て方の特徴として説明する。
+   */
+  let balanceText = "";
+
+  if (spread <= 5) {
+    balanceText =
+      "4つの能力が比較的バランスよく育っているね。";
+  } else {
+    balanceText =
+      `今は「${highestLabel}」が特によく育っているよ。` +
+      "これまで取り組んできた学習の特徴が表れているね。";
+  }
+
+  /*
+   * 学習成績から計算したおすすめは、
+   * ゴイモンの能力値とは分けて表示する。
+   */
+  const recommendText =
+    recommendBlock &&
+    recommendAction
+      ? (
+          `学習記録を見ると、` +
+          `次は Block ${recommendBlock.id} の` +
+          `「${recommendAction.label}」がおすすめだよ。`
+        )
+      : (
+          "学習記録を見ながら、今日取り組む学習を一つ選んでみよう。"
+        );
+
+  const stageText =
+    stage === "egg"
+      ? "まだ育成は始まったばかり。いろいろな学習を試してみよう。"
+      : stage === "child"
+      ? "少しずつ、これまでの学び方が姿に表れてきたね。"
+      : stage === "growth"
+      ? "学習を重ねて、育て方の特徴がだんだん見えてきたね。"
+      : stage === "mid"
+      ? "かなり育ってきたね。これからどんな育て方をするかでも姿は変わっていくよ。"
+      : "ここまでの学習の積み重ねが、今の姿にしっかり表れているね。";
+
+  return (
+    `${typeLeadMap[type] || typeLeadMap.nagomi} ` +
+    `${balanceText} ` +
+    `${recommendText} ` +
+    `${stageText}`
+  );
+}
+
+
+  function renderGoimonPanel(
+    recommendBlock,
+    recommendAction
+  ) {
+    if (
+      !window.GoimonUI ||
+      typeof window
+        .GoimonUI
+        .loadCurrent !==
+        "function"
+    ) {
+      progressGoimonComment
+        .textContent =
+        "ゴイモン情報を読み込めませんでした。";
+
+      return;
+    }
+
+
+    const g =
+      window.GoimonUI
+        .loadCurrent();
+
+
     if (!g) {
-      progressGoimonComment.textContent = "ゴイモン情報を読み込めませんでした。";
       return;
     }
 
-    const name = (typeof window.GoimonUI.getGoimonPrimaryName === "function")
-      ? window.GoimonUI.getGoimonPrimaryName(g)
-      : "ゴイモン";
 
-    const stage = (typeof window.GoimonUI.getStageLabel === "function")
-      ? window.GoimonUI.getStageLabel(g.stage)
-      : String(g.stage || "");
+    const name =
+      typeof window
+        .GoimonUI
+        .getGoimonPrimaryName ===
+        "function"
+        ? window.GoimonUI
+            .getGoimonPrimaryName(g)
+        : "ゴイモン";
 
-    const pointText = (typeof window.GoimonUI.formatPoint === "function")
-      ? window.GoimonUI.formatPoint(g.totalPoints || 0)
-      : String(g.totalPoints || 0);
 
-    progressGoimonImage.src = g.imageKey || "images/goimon/goimon_egg.png";
-    progressGoimonImage.alt = name;
-    progressGoimonName.textContent = name;
-    progressGoimonMeta.textContent = `Lv ${g.level} / ${pointText} pt / ${stage}`;
-    progressGoimonComment.textContent = getGoimonComment(g, recommendBlock, recommendAction);
+    const stage =
+      typeof window
+        .GoimonUI
+        .getStageLabel ===
+        "function"
+        ? window.GoimonUI
+            .getStageLabel(g.stage)
+        : String(
+            g.stage || ""
+          );
+
+
+    const pointText =
+      typeof window
+        .GoimonUI
+        .formatPoint ===
+        "function"
+        ? window.GoimonUI
+            .formatPoint(
+              g.totalPoints || 0
+            )
+        : String(
+            g.totalPoints || 0
+          );
+
+
+    progressGoimonImage.src =
+      g.imageKey ||
+      "images/goimon/goimon_egg.png";
+
+    progressGoimonImage.alt =
+      name;
+
+    progressGoimonName.textContent =
+      name;
+
+    progressGoimonMeta.textContent =
+      `Lv ${g.level} / ` +
+      `${pointText} pt / ` +
+      `${stage}`;
+
+    progressGoimonComment.textContent =
+      getGoimonComment(
+        g,
+        recommendBlock,
+        recommendAction
+      );
   }
+
+
+  // ============================================================
+  // メイン描画
+  // ============================================================
 
   function render() {
-    const { lv, words, blocks } = getActiveDataset();
-    const g = loadGlobal(lv);
-    const passLine = Number(passLineEl.value) || 80;
-    const filterValue = statusFilterEl.value || "all";
+    const {
+      lv,
+      words,
+      blocks
+    } =
+      getActiveDataset();
 
-    badge.textContent = `現在：全商英検 ${lv}級`;
-    btnLv1.classList.toggle("primary", lv === "1");
-    btnLv2.classList.toggle("primary", lv === "2");
 
-    if (!blocks.length) {
-      blockGrid.innerHTML = "";
-      emptyState.style.display = "block";
-      emptyState.textContent = "BLOCKS が見つかりません。";
-      summaryMain.textContent = "—";
-      summarySub.textContent = "—";
-      summaryRecommend.textContent = "—";
-      summaryRecommendSub.textContent = "—";
-      summaryMemo.textContent = "—";
-      summaryMemoSub.textContent = "—";
-      renderGoimonPanel(null, null);
-      return;
-    }
+    const global =
+      loadGlobal(lv);
 
-    let totalStudy = 0;
-    let totalEnjaAttempted = 0;
-    let totalEnjaCorrect = 0;
-    let totalJaenAttempted = 0;
-    let totalJaenCorrect = 0;
-    let totalAccentAttempted = 0;
-    let totalAccentCorrect = 0;
-    let totalSentenceAttempted = 0;
-    let totalSentenceCorrect = 0;
-    let totalAudioAttempted = 0;
-    let totalAudioCorrect = 0;
+
+    const passLine =
+      Number(
+        passLineEl.value
+      ) || 80;
+
+
+    const filterValue =
+      statusFilterEl.value ||
+      "all";
+
+
+    badge.textContent =
+      `現在：全商英検 ${lv}級`;
+
+
+    btnLv1.classList.toggle(
+      "primary",
+      lv === "1"
+    );
+
+    btnLv2.classList.toggle(
+      "primary",
+      lv === "2"
+    );
+
 
     let needsReviewCount = 0;
-    let okCount = 0;
+    let learningCount = 0;
+    let clearCount = 0;
     let untouchedCount = 0;
+
+
+    let totalStudy = 0;
+
 
     let recommendBlock = null;
     let recommendAction = null;
     let recommendScore = 999999;
 
+
     const cardHtmlList = [];
 
-    for (const b of blocks) {
-      const id = String(b.id);
-      const rec = ensureRec(g.byBlock[id] || {});
 
-      totalStudy += rec.studyDone;
+    blocks.forEach(b => {
+      const id =
+        String(b.id);
 
-      totalEnjaAttempted += rec.quizAttempted;
-      totalEnjaCorrect += rec.quizCorrect;
+      const rec =
+        ensureRec(
+          global.byBlock[id] ||
+          {}
+        );
 
-      totalJaenAttempted += rec.quizAttemptedJaEn;
-      totalJaenCorrect += rec.quizCorrectJaEn;
 
-      totalAccentAttempted += rec.accentAttempted;
-      totalAccentCorrect += rec.accentCorrect;
+      totalStudy +=
+        rec.studyDone;
 
-      totalSentenceAttempted += rec.sentenceAttempted;
-      totalSentenceCorrect += rec.sentenceCorrect;
 
-      totalAudioAttempted += rec.audioAttempted;
-      totalAudioCorrect += rec.audioCorrect;
+      const judge =
+        overallBlockJudge(
+          rec,
+          passLine
+        );
 
-      const judge = overallJudge(rec, passLine);
-      if (judge.key === "needs_review") needsReviewCount++;
-      if (judge.key === "ok") okCount++;
-      if (judge.key === "untouched") untouchedCount++;
 
-      const bestAction = getBestAction(rec, passLine);
-      if (bestAction.score < recommendScore) {
-        recommendScore = bestAction.score;
-        recommendBlock = b;
-        recommendAction = bestAction;
+      if (
+        judge.key ===
+        "needs_review"
+      ) {
+        needsReviewCount++;
       }
 
-      if (!filterMatch(judge.key, filterValue)) continue;
+      if (
+        judge.key ===
+        "learning"
+      ) {
+        learningCount++;
+      }
 
-      const enjaPct = pct(rec.quizCorrect, rec.quizAttempted);
-      const jaenPct = pct(rec.quizCorrectJaEn, rec.quizAttemptedJaEn);
-      const accentPct = pct(rec.accentCorrect, rec.accentAttempted);
-      const sentencePct = pct(rec.sentenceCorrect, rec.sentenceAttempted);
-      const audioPct = pct(rec.audioCorrect, rec.audioAttempted);
+      if (
+        judge.key ===
+        "clear"
+      ) {
+        clearCount++;
+      }
 
-      const start = Number(b.start);
-      const end = Number(b.end);
+      if (
+        judge.key ===
+        "untouched"
+      ) {
+        untouchedCount++;
+      }
 
-      const studyLabel = rec.studyDone > 0 ? `${rec.studyDone}回` : "未";
-      const bestUrl = buildUrl(bestAction.page, start, end, bestAction.extra);
 
-      const html = `
+      const bestAction =
+        getBestAction(
+          rec,
+          passLine
+        );
+
+
+      if (
+        bestAction &&
+        bestAction.score <
+          recommendScore
+      ) {
+        recommendScore =
+          bestAction.score;
+
+        recommendBlock = b;
+
+        recommendAction =
+          bestAction;
+      }
+
+
+      if (
+        !filterMatch(
+          judge.key,
+          filterValue
+        )
+      ) {
+        return;
+      }
+
+
+      const start =
+        Number(b.start);
+
+      const end =
+        Number(b.end);
+
+
+      const studyLabel =
+        rec.studyDone > 0
+          ? `${rec.studyDone}回`
+          : "未";
+
+
+      const bestUrl =
+        buildUrl(
+          bestAction.page,
+          start,
+          end,
+          bestAction.extra
+        );
+
+
+      cardHtmlList.push(`
         <div class="blockCard">
+
           <div class="blockHead">
             <div>
-              <div class="blockTitle">Block ${b.id}</div>
-              <div class="blockRange">${b.start}〜${b.end}</div>
+              <div class="blockTitle">
+                Block ${b.id}
+              </div>
+
+              <div class="blockRange">
+                ${b.start}〜${b.end}
+              </div>
             </div>
-            <div><span class="pill ${judge.cls}">${judge.text}</span></div>
+
+            <div>
+              <span class="pill ${judge.cls}">
+                ${judge.text}
+              </span>
+            </div>
           </div>
+
 
           <div class="statusGrid">
+
             <div class="statusBox">
-              <div class="statusLabel">暗記</div>
-              <div class="statusValue">${studyLabel}</div>
-              <div class="statusLabel" style="margin-top:6px;">意味を確認して進めた回数</div>
+              <div class="statusLabel">
+                暗記
+              </div>
+
+              <div class="statusValue">
+                ${studyLabel}
+              </div>
+
+              <div
+                class="statusLabel"
+                style="margin-top:6px;"
+              >
+                意味を確認して進めた回数
+              </div>
             </div>
 
-            ${makeStatusBox("英→日", rec.quizCorrect, rec.quizAttempted, passLine, enjaPct === null ? "未挑戦" : `${rec.quizCorrect}/${rec.quizAttempted}`)}
-            ${makeStatusBox("日→英", rec.quizCorrectJaEn, rec.quizAttemptedJaEn, passLine, jaenPct === null ? "未挑戦" : `${rec.quizCorrectJaEn}/${rec.quizAttemptedJaEn}`)}
-            ${makeStatusBox("アクセント", rec.accentCorrect, rec.accentAttempted, passLine, accentPct === null ? "未挑戦" : `${rec.accentCorrect}/${rec.accentAttempted}`)}
-            ${makeStatusBox("大問9", rec.sentenceCorrect, rec.sentenceAttempted, passLine, sentencePct === null ? "未挑戦" : `${rec.sentenceCorrect}/${rec.sentenceAttempted}`)}
-            ${makeStatusBox("音声→意味", rec.audioCorrect, rec.audioAttempted, passLine, audioPct === null ? "未挑戦" : `${rec.audioCorrect}/${rec.audioAttempted}`)}
+
+            ${makeStatusBox(
+              "英→日",
+              rec.quizCorrect,
+              rec.quizAttempted,
+              passLine
+            )}
+
+
+            ${makeStatusBox(
+              "日→英",
+              rec.quizCorrectJaEn,
+              rec.quizAttemptedJaEn,
+              passLine
+            )}
+
+
+            ${makeStatusBox(
+              "アクセント",
+              rec.accentCorrect,
+              rec.accentAttempted,
+              passLine
+            )}
+
+
+            ${makeStatusBox(
+              "大問9",
+              rec.sentenceCorrect,
+              rec.sentenceAttempted,
+              passLine
+            )}
+
+
+            ${makeStatusBox(
+              "音声→意味",
+              rec.audioCorrect,
+              rec.audioAttempted,
+              passLine
+            )}
+
           </div>
+
 
           <div class="actionArea">
-            <div class="actionTitle">このBlockから始める</div>
+            <div class="actionTitle">
+              このBlockから始める
+            </div>
+
             <div class="actionButtons">
-              <button class="miniBtn recommend" data-url="${bestUrl}">おすすめ：${bestAction.label}</button>
-              <button class="miniBtn" data-url="${buildUrl("study.html", start, end)}">暗記</button>
-              <button class="miniBtn" data-url="${buildUrl("quiz.html", start, end, "autostart=1")}">英→日</button>
-              <button class="miniBtn" data-url="${buildUrl("quiz_jaen.html", start, end, "autostart=1")}">日→英</button>
-              <button class="miniBtn" data-url="${buildUrl("accent.html", start, end)}">アクセント</button>
-              <button class="miniBtn" data-url="${buildUrl("sentence.html", start, end)}">大問9</button>
-              <button class="miniBtn" data-url="${buildUrl("audio_quiz.html", start, end, "autostart=1")}">音声→意味</button>
+
+              <button
+                class="miniBtn recommend"
+                data-url="${bestUrl}"
+              >
+                おすすめ：${bestAction.label}
+              </button>
+
+              <button
+                class="miniBtn"
+                data-url="${buildUrl(
+                  "study.html",
+                  start,
+                  end
+                )}"
+              >
+                暗記
+              </button>
+
+              <button
+                class="miniBtn"
+                data-url="${buildUrl(
+                  "quiz.html",
+                  start,
+                  end,
+                  "autostart=1"
+                )}"
+              >
+                英→日
+              </button>
+
+              <button
+                class="miniBtn"
+                data-url="${buildUrl(
+                  "quiz_jaen.html",
+                  start,
+                  end,
+                  "autostart=1"
+                )}"
+              >
+                日→英
+              </button>
+
+              <button
+                class="miniBtn"
+                data-url="${buildUrl(
+                  "accent.html",
+                  start,
+                  end
+                )}"
+              >
+                アクセント
+              </button>
+
+              <button
+                class="miniBtn"
+                data-url="${buildUrl(
+                  "sentence.html",
+                  start,
+                  end
+                )}"
+              >
+                大問9
+              </button>
+
+              <button
+                class="miniBtn"
+                data-url="${buildUrl(
+                  "audio_quiz.html",
+                  start,
+                  end,
+                  "autostart=1"
+                )}"
+              >
+                音声→意味
+              </button>
+
             </div>
           </div>
+
         </div>
-      `;
-      cardHtmlList.push(html);
-    }
-
-    blockGrid.innerHTML = cardHtmlList.join("");
-    emptyState.style.display = cardHtmlList.length ? "none" : "block";
-
-    const enjaAllPct = pct(totalEnjaCorrect, totalEnjaAttempted);
-    const jaenAllPct = pct(totalJaenCorrect, totalJaenAttempted);
-    const accentAllPct = pct(totalAccentCorrect, totalAccentAttempted);
-    const sentenceAllPct = pct(totalSentenceCorrect, totalSentenceAttempted);
-    const audioAllPct = pct(totalAudioCorrect, totalAudioAttempted);
-
-    summaryMain.textContent = `${blocks.length} Block / ${words.length}語`;
-    summarySub.textContent =
-      `要復習 ${needsReviewCount} / 良好 ${okCount} / 未挑戦 ${untouchedCount}`;
-
-    if (recommendBlock && recommendAction) {
-      summaryRecommend.textContent = `Block ${recommendBlock.id} の ${recommendAction.label}`;
-      summaryRecommendSub.textContent = `今いちばん始めやすい候補です。`;
-    } else {
-      summaryRecommend.textContent = "候補なし";
-      summaryRecommendSub.textContent = "表示条件に合うBlockがありません。";
-    }
-
-    summaryMemo.textContent = `暗記 ${totalStudy}回`;
-    summaryMemoSub.textContent =
-      `英→日 ${enjaAllPct === null ? "未" : `${enjaAllPct}%`} / ` +
-      `日→英 ${jaenAllPct === null ? "未" : `${jaenAllPct}%`} / ` +
-      `アクセント ${accentAllPct === null ? "未" : `${accentAllPct}%`} / ` +
-      `大問9 ${sentenceAllPct === null ? "未" : `${sentenceAllPct}%`} / ` +
-      `音声→意味 ${audioAllPct === null ? "未" : `${audioAllPct}%`}`;
-
-    renderGoimonPanel(recommendBlock, recommendAction);
-
-    blockGrid.querySelectorAll("button[data-url]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const url = btn.getAttribute("data-url");
-        if (url) location.href = url;
-      });
+      `);
     });
+
+
+    blockGrid.innerHTML =
+      cardHtmlList.join("");
+
+
+    emptyState.style.display =
+      cardHtmlList.length
+        ? "none"
+        : "block";
+
+
+    summaryMain.textContent =
+      `${blocks.length} Block / ` +
+      `${words.length}語`;
+
+
+    summarySub.textContent =
+      `要復習 ${needsReviewCount} / ` +
+      `学習中 ${learningCount} / ` +
+      `目安クリア ${clearCount} / ` +
+      `未挑戦 ${untouchedCount}`;
+
+
+    if (
+      recommendBlock &&
+      recommendAction
+    ) {
+      summaryRecommend.textContent =
+        `Block ${recommendBlock.id} の ` +
+        `${recommendAction.label}`;
+
+      summaryRecommendSub.textContent =
+        "Block学習の中から、今取り組みやすい候補を表示しています。";
+    } else {
+      summaryRecommend.textContent =
+        "候補なし";
+
+      summaryRecommendSub.textContent =
+        "まだおすすめを計算できません。";
+    }
+
+
+    const learningSummary =
+      getAllTimeLearningSummary(
+        lv
+      );
+
+
+    const totalAttempts =
+      Object.values(
+        learningSummary
+      ).reduce(
+        (
+          sum,
+          slot
+        ) =>
+          sum +
+          Number(
+            slot.attempt || 0
+          ),
+        0
+      );
+
+
+    summaryMemo.textContent =
+      `${totalAttempts}問・回`;
+
+
+    summaryMemoSub.textContent =
+      `共通学習ログの累計 / ` +
+      `暗記完了 ${totalStudy}回`;
+
+
+    renderExamProgress(
+      lv,
+      passLine,
+      filterValue
+    );
+
+
+    renderGoimonPanel(
+      recommendBlock,
+      recommendAction
+    );
+
+
+    blockGrid
+      .querySelectorAll(
+        "button[data-url]"
+      )
+      .forEach(btn => {
+        btn.addEventListener(
+          "click",
+          () => {
+            const url =
+              btn.getAttribute(
+                "data-url"
+              );
+
+            if (url) {
+              location.href = url;
+            }
+          }
+        );
+      });
   }
 
-  btnLv1.addEventListener("click", () => {
-    setLevel("1");
-    render();
-  });
 
-  btnLv2.addEventListener("click", () => {
-    setLevel("2");
-    render();
-  });
+  // ============================================================
+  // イベント
+  // ============================================================
 
-  btnRefresh.addEventListener("click", () => render());
-  passLineEl.addEventListener("change", () => render());
-  statusFilterEl.addEventListener("change", () => render());
+  btnLv1.addEventListener(
+    "click",
+    () => {
+      setLevel("1");
+      render();
+    }
+  );
 
-  btnResetGlobal.addEventListener("click", () => {
-    const lv = getLevel();
-    if (!confirm(`全商英検 ${lv}級の横断記録をすべて削除しますか？`)) return;
-    localStorage.removeItem(globalKey(lv));
-    alert("横断記録を削除しました。");
-    render();
-  });
+
+  btnLv2.addEventListener(
+    "click",
+    () => {
+      setLevel("2");
+      render();
+    }
+  );
+
+
+  btnRefresh.addEventListener(
+    "click",
+    render
+  );
+
+
+  passLineEl.addEventListener(
+    "change",
+    render
+  );
+
+
+  statusFilterEl.addEventListener(
+    "change",
+    render
+  );
+
+
+  btnResetGlobal.addEventListener(
+    "click",
+    () => {
+      const lv =
+        getLevel();
+
+
+      const ok =
+        confirm(
+          `全商英検 ${lv}級の` +
+          `Block進捗だけを削除しますか？\n\n` +
+          `ゴイモン・学習ログ・苦手記録は削除されません。`
+        );
+
+
+      if (!ok) {
+        return;
+      }
+
+
+      localStorage.removeItem(
+        globalKey(lv)
+      );
+
+
+      alert(
+        "Block進捗を削除しました。\n" +
+        "ゴイモンと学習ログはそのままです。"
+      );
+
+
+      render();
+    }
+  );
+
 
   render();
 });
