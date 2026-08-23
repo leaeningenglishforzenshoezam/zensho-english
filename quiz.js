@@ -60,7 +60,8 @@ const WEAK_KEY = `zensho_quiz_weak_points_enja_v2_lv${LV}`;
   const questionEl = document.getElementById("question");
   const choicesEl = document.getElementById("choices");
   const resultEl = document.getElementById("result");
-  const nextBtn = document.getElementById("nextQ");
+const nextBtn = document.getElementById("nextQ");
+const nextBtnTop = document.getElementById("nextQTop");
   const startBtn = document.getElementById("startTest");
 
   const rangeStartEl = document.getElementById("rangeStart");
@@ -97,6 +98,13 @@ const WEAK_KEY = `zensho_quiz_weak_points_enja_v2_lv${LV}`;
   const goimonCardEl = document.getElementById("goimonCard");
   const evolutionNoticeBtn = document.getElementById("evolutionNoticeBtn");
 
+  function setNextButtonState(disabled, text = "次の問題") {
+  nextBtn.disabled = disabled;
+  nextBtn.textContent = text;
+
+  nextBtnTop.disabled = disabled;
+  nextBtnTop.textContent = text;
+}
   function must(el, name) {
     if (!el) throw new Error(`quiz.html に #${name} が見つかりません`);
   }
@@ -1174,8 +1182,7 @@ clearBlocksBtn?.addEventListener("click", () => {
       qMetaEl.textContent = "";
       choicesEl.innerHTML = "";
       resultEl.textContent = "";
-      nextBtn.disabled = true;
-      nextBtn.textContent = "次の問題";
+      setNextButtonState(true, "次の問題");
       return;
     }
 
@@ -1185,8 +1192,7 @@ clearBlocksBtn?.addEventListener("click", () => {
     }
 
     answeredThisQuestion = false;
-    nextBtn.disabled = true;
-    nextBtn.textContent = "次の問題";
+    setNextButtonState(true, "次の問題");
     resultEl.textContent = "";
 
     current = makeQuestion();
@@ -1356,13 +1362,11 @@ resultEl.innerHTML = `
     updateSettingsSummary();
     renderEvolutionNotice();
 
-    nextBtn.disabled = false;
-
     if (session.answered >= session.limit) {
-      nextBtn.textContent = "結果を見る";
-    } else {
-      nextBtn.textContent = "次の問題";
-    }
+  setNextButtonState(false, "結果を見る");
+} else {
+  setNextButtonState(false, "次の問題");
+}
   }
 
   function renderWeakBadges(en) {
@@ -1598,6 +1602,10 @@ resultEl.innerHTML = `
 
     renderQuestion();
   });
+
+  nextBtnTop.addEventListener("click", () => {
+  nextBtn.click();
+});
 
   startBtn.addEventListener("click", () => {
 
