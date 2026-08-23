@@ -339,7 +339,7 @@
         <a href="sentence.html">大問9</a>
         <a href="reorder.html">大問12</a>
         <a href="idiom_quiz.html">イディオム</a>
-        <a href="paraphrase_quiz.html">大問11風</a>
+        <a href="paraphrase_quiz.html">大問11</a>
         <a href="list.html">一覧</a>
         <a href="progress.html">進捗</a>
         <a href="recommended.html" class="active">今日のおすすめ</a>
@@ -351,9 +351,9 @@
         <div>
           <h1>今日のおすすめ</h1>
           <p class="sub">
-            今の学習状況に合わせて、最初にやるとよさそうな学習を1つ選びます。<br>
-            迷ったときは、まずここから始めれば大丈夫です。
-          </p>
+  学習記録から「合格に向けて次に取り組みたい学習」を提案します。<br>
+  ゴイモンの育て方から選びたいときは、育成おすすめも確認できます。
+</p>
         </div>
         <div class="row">
           <a href="index.html">← ホーム</a>
@@ -373,7 +373,7 @@
 
     <div class="card">
       <div class="heroBox">
-        <div class="heroLead">今日のおすすめ</div>
+        <div class="heroLead">合格に向けたおすすめ</div>
         <div id="pickInfo" class="heroMain">おすすめを読み込み中…</div>
         <div id="pickDetail" class="heroSub">少し待ってください。</div>
       </div>
@@ -390,7 +390,36 @@
         <button id="goStudy" class="btn gray" type="button">別候補：暗記から始める</button>
       </div>
 
-      <button id="goProgress" class="btn gray" type="button">進捗を見てから決める</button>
+      <div class="reasonBox" style="margin-top:18px;">
+  <div class="reasonLabel">ゴイモン育成おすすめ</div>
+
+  <div
+    id="growInfo"
+    style="
+      font-size:18px;
+      font-weight:800;
+      line-height:1.6;
+      margin-bottom:8px;
+    "
+  >
+    育成おすすめを読み込み中…
+  </div>
+
+  <div
+    id="growDetail"
+    class="reasonText"
+  >
+    ゴイモンの育ち方を確認しています。
+  </div>
+
+  <button
+    id="startGrow"
+    class="btn soft"
+    type="button"
+  >
+    この育成おすすめを始める
+  </button>
+</div>
     </div>
 
     <div class="card">
@@ -467,7 +496,10 @@
     }
   </script>
 
-  <script src="goimon.js"></script>
-  <script src="recommended.js"></script>
+<script src="learning_categories.js"></script>
+<script src="learning_log.js"></script>
+
+<script src="goimon.js"></script>
+<script src="recommended.js"></script>
 </body>
 </html>
