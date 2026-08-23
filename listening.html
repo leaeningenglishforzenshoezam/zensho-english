@@ -14,12 +14,30 @@
 <body>
   <div class="wrap">
 
-    <!-- 学習ページ共通ナビ -->
-    <div class="card topNavBox">
-      <div class="topNavTitle">学習ページ移動</div>
+  <header class="trainingHeader">
+  <a href="index.html" class="trainingBackHome">← ホーム</a>
 
-      <nav class="topNav" aria-label="学習ページ移動">
-        <a href="index.html">ホーム</a>
+  <span class="trainingDivider"></span>
+
+  <strong class="trainingPageTitle">リスニング</strong>
+
+  <span class="trainingAbilityBadge">
+    おんかん +1
+  </span>
+
+  <div id="goimonTrainingRoute" class="goimonTrainingRoute hidden">
+    <span id="goimonTrainingRouteText"></span>
+  </div>
+
+  <div id="levelBadge" class="trainingLevelBadge"></div>
+
+  <details class="trainingMore">
+    <summary>＋ 他の学習ページ</summary>
+
+    <div class="trainingMoreCard">
+      <div class="trainingMoreTitle">他の学習ページへ</div>
+
+      <div class="trainingMoreGrid">
         <a href="study.html">暗記</a>
         <a href="quiz.html">英→日</a>
         <a href="quiz_jaen.html">日→英</a>
@@ -27,15 +45,15 @@
         <a href="idiom_quiz.html">イディオム</a>
         <a href="accent.html">大問1</a>
         <a href="listening.html" class="active">リスニング</a>
+        <a href="dialogue.html">大問8</a>
         <a href="sentence.html">大問9</a>
+        <a href="q10.html">大問10</a>
         <a href="paraphrase_quiz.html">大問11</a>
         <a href="reorder.html">大問12</a>
-        <a href="list.html">一覧</a>
-        <a href="progress.html">進捗</a>
-      </nav>
+      </div>
     </div>
-
-    <div id="levelBadge">現在：全商英検 1級（リスニング演習）</div>
+  </details>
+</header>
 
     <!-- ゴイモン -->
     <div class="card">
@@ -1297,6 +1315,7 @@
   </script>
 
   <script src="learning_log.js"></script>
+  <script src="learning_categories.js"></script>
   <script src="goimon_dialogues.js"></script>
   <script src="goimon_dex.js"></script>
   <script src="goimon_rules.js"></script>
