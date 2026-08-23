@@ -700,30 +700,490 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* ===== 大問9：学習ページヘッダー ===== */
+.trainingHeader {
+  margin-bottom:14px;
+  padding:16px;
+  border:1px solid #e2e7ef;
+  border-radius:16px;
+  background:linear-gradient(135deg,#fff 0%,#f7faff 100%);
+  box-shadow:0 2px 8px rgba(30,50,80,.05);
+}
+
+.trainingHeaderTop {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.trainingBackHome {
+  color:#526070;
+  font-size:12px;
+  font-weight:700;
+  text-decoration:none;
+}
+
+.trainingBackHome:hover { color:#2b7cff; }
+
+.trainingHeader #levelBadge.trainingLevelBadge {
+  margin:0;
+  padding:5px 9px;
+  border-radius:999px;
+  background:#edf3ff;
+  color:#315d9d;
+  font-size:11px;
+  font-weight:800;
+}
+
+.trainingHeaderMain {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+
+.trainingHeaderKicker {
+  margin-bottom:2px;
+  color:#6e83a7;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.13em;
+}
+
+.trainingHeaderTitle {
+  margin:0;
+  font-size:25px;
+  font-weight:900;
+  line-height:1.2;
+}
+
+.trainingHeaderSub {
+  margin:5px 0 0;
+  color:#68717c;
+  font-size:12px;
+  line-height:1.45;
+}
+
+.trainingAbilityBadge {
+  flex:0 0 auto;
+  min-width:88px;
+  padding:9px 11px;
+  border-radius:12px;
+  text-align:center;
+}
+
+.trainingAbilityBadge.bunmyaku {
+  border:1px solid #efd6b7;
+  background:#fff7eb;
+  color:#97611f;
+}
+
+.trainingAbilityLabel {
+  display:block;
+  margin-bottom:2px;
+  font-size:9px;
+  opacity:.75;
+}
+
+.trainingAbilityBadge strong {
+  display:block;
+  font-size:14px;
+}
+
+.goimonTrainingRoute {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin-top:12px;
+  padding:9px 11px;
+  border:1px solid #efd9a9;
+  border-radius:10px;
+  background:#fffaf0;
+}
+
+.goimonTrainingRouteIcon { flex:0 0 auto; font-size:19px; }
+.goimonTrainingRoute strong { display:block; color:#81560c; font-size:11px; }
+.goimonTrainingRoute span { display:block; margin-top:1px; color:#776447; font-size:10px; }
+
+.trainingQuickNav {
+  display:flex;
+  gap:6px;
+  margin-top:12px;
+  padding-top:11px;
+  border-top:1px solid #edf0f4;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+.trainingQuickNav a {
+  flex:0 0 auto;
+  padding:6px 9px;
+  border:1px solid #e1e5eb;
+  border-radius:999px;
+  background:#fff;
+  color:#505966;
+  text-decoration:none;
+  font-size:10px;
+  font-weight:700;
+  white-space:nowrap;
+}
+
+.trainingQuickNav a.active {
+  border-color:#8db4f7;
+  background:#edf4ff;
+  color:#2862bd;
+}
+
+@media (max-width:520px) {
+  .trainingHeader { padding:13px; }
+  .trainingHeaderMain { align-items:flex-start; }
+  .trainingHeaderTitle { font-size:21px; }
+  .trainingHeaderSub { font-size:11px; }
+  .trainingAbilityBadge { min-width:72px; padding:7px 8px; }
+  .trainingAbilityBadge strong { font-size:12px; }
+}
+
+/* ===== 大問9：コンパクト学習ヘッダー ===== */
+.trainingHeader.compactTrainingHeader{
+  position:relative;
+  display:block;
+  box-sizing:border-box;
+  margin:0 0 10px;
+  padding:7px 10px;
+  border:1px solid #e2e7ef;
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 1px 4px rgba(30,50,80,.05);
+}
+
+.compactTrainingHeaderMain{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:36px;
+}
+
+.compactTrainingHeader .trainingBackHome{
+  flex:0 0 auto;
+  color:#405064;
+  font-size:14px;
+  font-weight:800;
+  text-decoration:none;
+}
+
+.compactTrainingHeader .trainingBackHome:hover{
+  color:#2b7cff;
+}
+
+.trainingDivider{
+  flex:0 0 auto;
+  width:1px;
+  height:24px;
+  background:#dfe4ea;
+}
+
+.compactTrainingPageTitle{
+  flex:0 0 auto;
+  font-size:18px;
+  font-weight:900;
+}
+
+.compactTrainingAbilityBadge{
+  flex:0 0 auto;
+  padding:5px 9px;
+  border:1px solid #efd6b7;
+  border-radius:999px;
+  background:#fff7eb;
+  color:#97611f;
+  font-size:12px;
+  font-weight:800;
+}
+
+.compactTrainingLevelBadge{
+  display:none;
+}
+
+.compactTrainingHeader .trainingMore{
+  position:relative;
+  margin-left:auto;
+  flex:0 0 auto;
+}
+
+.compactTrainingHeader .trainingMore>summary{
+  list-style:none;
+  cursor:pointer;
+  padding:7px 10px;
+  border:1px solid #dce3ec;
+  border-radius:9px;
+  background:#f8fafc;
+  color:#465467;
+  font-size:12px;
+  font-weight:800;
+  user-select:none;
+}
+
+.compactTrainingHeader .trainingMore>summary::-webkit-details-marker{
+  display:none;
+}
+
+.compactTrainingHeader .trainingMore[open]>summary{
+  background:#edf4ff;
+  color:#2862bd;
+  border-color:#b8cff5;
+}
+
+.compactTrainingHeader .trainingMoreCard{
+  position:absolute;
+  z-index:50;
+  top:42px;
+  right:0;
+  width:310px;
+  padding:10px;
+  border:1px solid #dfe5ec;
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 8px 24px rgba(30,50,80,.14);
+}
+
+.compactTrainingHeader .trainingMoreTitle{
+  margin-bottom:8px;
+  color:#66717f;
+  font-size:11px;
+  font-weight:800;
+}
+
+.compactTrainingHeader .trainingMoreGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+}
+
+.compactTrainingHeader .trainingMoreGrid a{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  padding:5px 4px;
+  border:1px solid #e3e7ec;
+  border-radius:8px;
+  background:#fafbfc;
+  color:#44505e;
+  font-size:11px;
+  font-weight:700;
+  text-align:center;
+  text-decoration:none;
+}
+
+.compactTrainingHeader .trainingMoreGrid a:hover{
+  background:#f0f5ff;
+  border-color:#bfd3f5;
+  color:#285eae;
+}
+
+.compactTrainingHeader .trainingMoreGrid a.active{
+  background:#edf4ff;
+  border-color:#9dbcf0;
+  color:#2862bd;
+}
+
+/* ゴイモンから来た場合だけヘッダー下段に表示 */
+.compactTrainingHeader .goimonTrainingRoute{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin-top:7px;
+  padding:7px 9px;
+  border:1px solid #efd9a9;
+  border-radius:9px;
+  background:#fffaf0;
+}
+
+.compactTrainingHeader .goimonTrainingRoute.hidden{
+  display:none !important;
+}
+
+.compactTrainingHeader .goimonTrainingRouteIcon{
+  flex:0 0 auto;
+  font-size:17px;
+}
+
+.compactTrainingHeader .goimonTrainingRoute strong{
+  display:block;
+  color:#81560c;
+  font-size:11px;
+}
+
+.compactTrainingHeader .goimonTrainingRoute span{
+  display:block;
+  margin-top:1px;
+  color:#776447;
+  font-size:10px;
+}
+
+@media(max-width:520px){
+  .trainingHeader.compactTrainingHeader{
+    padding:6px 8px;
+  }
+
+  .compactTrainingHeaderMain{
+    gap:7px;
+    min-height:36px;
+  }
+
+  .compactTrainingHeader .trainingBackHome{
+    font-size:12px;
+  }
+
+  .compactTrainingPageTitle{
+    font-size:16px;
+  }
+
+  .compactTrainingAbilityBadge{
+    padding:4px 7px;
+    font-size:10px;
+  }
+
+  .compactTrainingHeader .trainingMore>summary{
+    width:34px;
+    overflow:hidden;
+    white-space:nowrap;
+    padding:7px 8px;
+    font-size:0;
+    text-align:center;
+  }
+
+  .compactTrainingHeader .trainingMore>summary::after{
+    content:"＋";
+    font-size:18px;
+  }
+
+  .compactTrainingHeader .trainingMoreCard{
+    position:fixed;
+    top:58px;
+    left:10px;
+    right:10px;
+    width:auto;
+  }
+}
+
+/* ===== 大問9：出題条件 ===== */
+.quizSetupCard{padding:14px}
+.quizSetupHead{margin-bottom:10px}
+.quizSetupTitle{font-size:17px;font-weight:900}
+.quizSetupSub{margin-top:2px;color:#6b7280;font-size:11px}
+
+.quizSetupGrid{display:grid;grid-template-columns:1.8fr .6fr 1fr;gap:8px;align-items:start}
+.quizSetupControl{min-width:0;padding:8px;border:1px solid #e5e9ef;border-radius:9px;background:#fafbfc}
+.quizSetupLabel{margin-bottom:5px;color:#3f4b5a;font-size:13px;font-weight:900}
+
+.quizBlockControl select,
+.quizOrderControl select{width:100%;height:36px;box-sizing:border-box;padding:5px 7px;font-size:12px}
+
+.quizCountLine{display:flex;align-items:center;gap:5px}
+.quizCountLine input{width:100%;min-width:0;height:36px;box-sizing:border-box}
+.quizCountLine span{flex:0 0 auto;font-size:12px;font-weight:700}
+
+.quizSetupInfo{margin-top:5px;color:#77808c;font-size:10px;line-height:1.4}
+
+.sentenceSetBox{margin-top:8px;padding:8px;border:1px solid #e5e9ef;border-radius:9px;background:#fafbfc}
+.sentenceSetBox select{width:100%;height:36px;box-sizing:border-box;padding:5px 7px;font-size:12px}
+
+.quizAdvanced{margin-top:9px;border-top:1px solid #edf0f3}
+.quizAdvanced>summary{padding:8px 2px 2px;list-style:none;cursor:pointer;color:#526070;font-size:11px;font-weight:800}
+.quizAdvanced>summary::-webkit-details-marker{display:none}
+.quizAdvanced[open]>summary{color:#2862bd}
+
+.quizAdvancedBody{display:grid;gap:8px;margin-top:6px;padding:9px;border:1px solid #e8ebef;border-radius:9px;background:#fafafa}
+.quizAdvancedItem{padding-bottom:8px;border-bottom:1px solid #eceff2}
+.quizAdvancedItem:last-child{padding-bottom:0;border-bottom:0}
+
+.quizRangeLine{display:flex;align-items:center;gap:6px}
+.quizRangeLine input{width:90px}
+.quizSetupHelp{margin-top:4px;color:#808792;font-size:10px}
+.quizCheckLine{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700}
+
+.quizStartButton{display:block;width:100%;margin-top:10px;padding:12px;font-size:15px;font-weight:900}
+
+.quizSubActions{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+.quizSubActions button{flex:1 1 140px;margin:0;padding:8px;font-size:11px;font-weight:700}
+
+.sentenceWeakInfo{margin-top:7px}
+
+@media(max-width:600px){
+  .quizSetupGrid{grid-template-columns:.65fr 1fr;gap:6px}
+  .quizBlockControl{grid-column:1/-1}
+  .quizSetupSub{display:none}
+}
+
+.quizBlockActions{display:flex;gap:4px;margin-bottom:5px}
+.quizBlockActionBtn{margin:0;padding:4px 7px;border:1px solid #dce3ec;border-radius:6px;background:#fff;color:#536071;font-size:11px;font-weight:700;cursor:pointer}
+.quizBlockGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;max-height:92px;overflow-y:auto;padding:5px;border:1px solid #e3e7ec;border-radius:7px;background:#fff}
+.quizBlockItem{display:flex;align-items:center;gap:4px;min-width:0;padding:4px 5px;border:1px solid #e5e8ed;border-radius:6px;background:#fafbfc;cursor:pointer;font-size:12px;font-weight:800;white-space:nowrap}
+.quizBlockItem:has(input:checked){border-color:#8db4f7;background:#edf4ff;color:#285eae}
+.quizBlockItem input{width:15px;height:15px;margin:0;flex:0 0 auto}
+.quizResetBtn{margin:0;padding:6px 8px;border:1px solid #ddd;border-radius:8px;background:#fff;font-size:11px;cursor:pointer}
+
+@media(max-width:600px){
+  .quizBlockGrid{grid-template-columns:repeat(4,minmax(0,1fr));max-height:86px}
+}
+    
   </style>
 </head>
 <body>
   <div class="wrap">
 
-    <div class="card topNavBox">
-      <div class="topNavTitle">学習ページ移動</div>
-      <div class="topNav">
-    <a href="index.html">ホーム</a>
-    <a href="study.html">暗記</a>
-    <a href="quiz.html">英→日</a>
-    <a href="quiz_jaen.html">日→英</a>
-    <a href="audio_quiz.html">音声→意味</a>
-    <a href="idiom_quiz.html">イディオム</a>
-    <a href="accent.html">大問1</a>
-    <a href="sentence.html"class="active">大問9</a>
-    <a href="paraphrase_quiz.html">大問11</a>
-    <a href="reorder.html">大問12</a>
-    <a href="list.html">一覧</a>
-    <a href="progress.html">進捗</a>
-      </div>
-    </div>
+    <header class="trainingHeader compactTrainingHeader">
 
-    <div id="levelBadge"></div>
+  <div class="compactTrainingHeaderMain">
+    <a href="index.html" class="trainingBackHome">← ホーム</a>
+
+    <span class="trainingDivider"></span>
+
+    <strong class="compactTrainingPageTitle">大問9</strong>
+
+    <span class="compactTrainingAbilityBadge">ぶんみゃく +1</span>
+
+    <span id="levelBadge" class="compactTrainingLevelBadge"></span>
+
+    <details class="trainingMore">
+      <summary>＋ 他の学習ページ</summary>
+
+      <div class="trainingMoreCard">
+        <div class="trainingMoreTitle">他の学習ページへ</div>
+
+        <div class="trainingMoreGrid">
+          <a href="study.html">暗記</a>
+          <a href="quiz.html">英→日</a>
+          <a href="quiz_jaen.html">日→英</a>
+
+          <a href="audio_quiz.html">音声→意味</a>
+          <a href="idiom_quiz.html">イディオム</a>
+          <a href="accent.html">大問1</a>
+
+          <a href="listening.html">リスニング</a>
+          <a href="dialogue.html">大問8</a>
+          <a href="sentence.html" class="active">大問9</a>
+
+          <a href="q10.html">大問10</a>
+          <a href="paraphrase_quiz.html">大問11</a>
+          <a href="reorder.html">大問12</a>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="goimonTrainingRoute hidden" id="goimonTrainingRoute">
+    <div class="goimonTrainingRouteIcon">🐣</div>
+    <div>
+      <strong>ゴイモンおすすめ学習</strong>
+      <span id="goimonTrainingRouteText">ぶんみゃくを伸ばす10問セット</span>
+    </div>
+  </div>
+
+</header>
 
     <div class="goimonToggleBox">
       <button id="toggleGoimon" type="button" class="goimonToggleBtn">ゴイモンの様子を見る</button>
@@ -758,70 +1218,108 @@
       </div>
     </div>
 
-    <div class="card" id="setupBox">
-      <div class="row">
-        <div>
-          <div style="font-size:18px; font-weight:700;">大問9演習（語句補充問題）</div>
-          <div class="muted" style="margin-top:4px;">ブロック・問題数・出題順を選んで開始できます。</div>
+    <div class="card quizSetupCard" id="setupBox">
+
+  <div class="quizSetupHead">
+    <div class="quizSetupTitle">出題条件</div>
+    <div class="quizSetupSub">範囲・問題セット・問題数・出題順を選んでスタート</div>
+  </div>
+
+  <div class="quizSetupGrid">
+
+    <div class="quizSetupControl quizBlockControl">
+  <div class="quizSetupLabel">出題範囲</div>
+
+  <div class="quizBlockActions">
+    <button id="selectAllBlocks" type="button" class="quizBlockActionBtn">すべて選択</button>
+    <button id="clearBlocks" type="button" class="quizBlockActionBtn">選択解除</button>
+  </div>
+
+  <div id="blockSelect" class="quizBlockGrid"></div>
+  <div id="poolInfo" class="quizSetupInfo"></div>
+</div>
+
+    <div class="quizSetupControl quizCountControl">
+      <div class="quizSetupLabel">問題数</div>
+
+      <div class="quizCountLine">
+        <input id="countInput" type="number" min="1" step="1" value="50">
+        <span>問</span>
+      </div>
+    </div>
+
+    <div class="quizSetupControl quizOrderControl">
+      <div class="quizSetupLabel">出題順</div>
+
+      <select id="orderMode">
+  <option value="continue" selected>順番に出題（続きから）</option>
+  <option value="random">ランダムで出題</option>
+  <option value="weak_order">ニガテ優先</option>
+</select>
+    </div>
+
+  </div>
+
+  <div class="sentenceSetBox">
+    <div class="quizSetupLabel">問題セット</div>
+
+    <select id="sentenceSetMode">
+      <option value="a" selected>Aセット</option>
+      <option value="b">Bセット</option>
+      <option value="mix">ミックス</option>
+    </select>
+  </div>
+
+  <details class="quizAdvanced">
+    <summary>＋ 詳細設定</summary>
+
+    <div class="quizAdvancedBody">
+
+      <div class="quizAdvancedItem">
+        <div class="quizSetupLabel">単語No.を直接指定</div>
+
+        <div class="quizRangeLine">
+          <input id="rangeStartInput" type="number" min="1" step="1" placeholder="開始">
+          <span>〜</span>
+          <input id="rangeEndInput" type="number" min="1" step="1" placeholder="終了">
+        </div>
+
+        <div class="quizSetupHelp">
+          Block内でさらに出題範囲を絞ることができます。
         </div>
       </div>
 
-      <div class="hr"></div>
+      <div class="quizAdvancedItem">
+        <label class="quizCheckLine">
+          <input id="autoRead" type="checkbox">
+          <span>問題表示時と解答後に自動読み上げする</span>
+        </label>
+      </div>
 
-      <div class="row" style="justify-content:flex-start;">
-        <div>
-  <div class="muted">ブロック</div>
-  <select id="blockSelect"></select>
-</div>
+      <div class="quizAdvancedItem">
+  <button id="resetCursor" type="button" class="quizResetBtn">
+    順番モードを先頭に戻す
+  </button>
 
-<div>
-  <div class="muted">単語No.</div>
-  <div style="display:flex; align-items:center; gap:6px;">
-    <input id="rangeStartInput" type="number" min="1" step="1" placeholder="開始" style="width:90px;" />
-    <span>〜</span>
-    <input id="rangeEndInput" type="number" min="1" step="1" placeholder="終了" style="width:90px;" />
+  <div class="quizSetupHelp">
+    現在選択しているBlock・問題セット・番号範囲の続き位置をリセットします。
   </div>
 </div>
 
-<div>
-  <div class="muted">問題数</div>
-  <input id="countInput" type="number" min="1" step="1" value="50" style="width:120px;" />
-</div>
+    </div>
+  </details>
 
-<div>
-  <div class="muted">問題セット</div>
-  <select id="sentenceSetMode">
-    <option value="a" selected>Aセット</option>
-    <option value="b">Bセット</option>
-    <option value="mix">ミックス</option>
-  </select>
-</div>
+  <button id="startBtn" class="primary quizStartButton" type="button">
+    ▶ この条件でテスト開始
+  </button>
 
-        <div>
-          <div class="muted">出題順</div>
-          <select id="orderMode">
-            <option value="start">先頭から</option>
-            <option value="continue" selected>続きから</option>
-            <option value="random">ランダム</option>
-            <option value="weak_order">苦手順</option>
-          </select>
-        </div>
+  <div class="quizSubActions">
+    <button id="openProblemListBtn" type="button">問題一覧を見る</button>
+    <button id="startWeakBtn" type="button">ニガテだけ解く</button>
+    <button id="clearWeakBtn" class="danger" type="button">ニガテ全消去</button>
+  </div>
 
-        <div style="padding-top:22px;">
-          <label><input id="autoRead" type="checkbox" /> 自動読み上げ（問題表示時）</label>
-        </div>
-      </div>
-
-      <div class="muted" id="poolInfo" style="margin-top:10px;"></div>
-
-      <div class="row" style="justify-content:flex-start; margin-top:12px;">
-        <button id="startBtn" class="primary" type="button">開始</button>
-        <button id="openProblemListBtn" type="button">問題一覧を見る</button>
-        <button id="startWeakBtn" type="button">ニガテだけ解く</button>
-        <button id="clearWeakBtn" class="danger" type="button">ニガテ全消去</button>
-      </div>
-
-      <div class="muted" id="weakInfo" style="margin-top:10px;"></div>
+  <div id="weakInfo" class="quizSetupInfo sentenceWeakInfo"></div>
 
       <div class="weakBox">
         <div class="weakHead">
@@ -1002,7 +1500,7 @@
       window.BLOCKS_2KYU = window.BLOCKS_2KYU || [];
     }
   </script>
-
+  <script src="learning_categories.js"></script>
   <script src="learning_log.js"></script>
   <script src="goimon_dialogues.js"></script>
   <script src="goimon_dex.js"></script>
