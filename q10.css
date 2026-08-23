@@ -1,730 +1,2493 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  >
-
-  <meta
-    name="description"
-    content="全商英検1級 大問10 長文空欄補充問題の学習ページ"
-  >
-
-  <title>長文空欄補充｜全商英検1級</title>
-
-  <link rel="stylesheet" href="q10.css">
-</head>
-
-<body class="setup-mode">
-
-  <div class="q10-app">
-
-    <!-- =========================
-         上部ヘッダー
-    ========================== -->
-    <header class="app-header">
-
-      <div class="header-left">
-
-        <a
-          href="index.html"
-          class="back-link"
-          aria-label="ホームへ戻る"
-        >
-          ← ホーム
-        </a>
-
-        <div class="header-title-area">
-          <p class="page-label">全商英検1級・大問10</p>
-          <h1 class="page-title">Reading Completion</h1>
-        </div>
-
-      </div>
-
-      <div class="header-actions">
-
-        <button
-          type="button"
-          id="openWeakListButton"
-          class="header-button"
-        >
-          苦手語句
-        </button>
-
-        <button
-          type="button"
-          id="openSettingsButton"
-          class="header-button"
-        >
-          ⚙ 出題条件
-        </button>
-
-      </div>
-
-    </header>
-
-
-    <!-- =========================
-         問題情報
-    ========================== -->
-    <section
-      class="question-status"
-      aria-label="問題の進行状況"
-    >
-
-      <div class="status-top">
-
-        <div>
-          <p
-            id="questionCategory"
-            class="question-category"
-          >
-            Original Reading
-          </p>
-
-          <h2
-            id="questionTitle"
-            class="question-title"
-          >
-            Question Title
-          </h2>
-
-          <p
-            id="questionTitleJa"
-            class="question-title-ja"
-          >
-            日本語テーマ
-          </p>
-        </div>
-
-        <div class="question-meta-area">
-
-          <div
-            class="question-timer"
-            aria-label="この問題の経過時間"
-          >
-            <span class="timer-label">TIME</span>
-            <span id="questionTimer">00:00</span>
-          </div>
-
-          <div class="question-number-area">
-            <span id="currentQuestionNumber">1</span>
-            <span class="question-number-separator">/</span>
-            <span id="totalQuestionNumber">5</span>
-          </div>
-
-        </div>
-
-      </div>
-
-      <div
-        class="progress-track"
-        aria-hidden="true"
-      >
-        <div
-          id="progressBar"
-          class="progress-bar"
-        ></div>
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         問題エリア
-    ========================== -->
-    <main class="question-layout">
-
-      <!-- 左：長文 -->
-      <section
-        class="passage-panel"
-        aria-labelledby="passageHeading"
-      >
-
-        <div class="panel-heading">
-
-          <div>
-            <p class="panel-label">Passage</p>
-            <h2 id="passageHeading">英文</h2>
-          </div>
-
-          <button
-            type="button"
-            id="resetAnswersButton"
-            class="reset-button"
-          >
-            ↻ やり直す
-          </button>
-
-        </div>
-
-        <p
-          id="instructionText"
-          class="instruction-text"
-        >
-          本文を読み、空所ごとに最も適切な語句を選んでください。
-        </p>
-
-        <div
-          id="passageContainer"
-          class="passage-container"
-          aria-live="polite"
-        >
-          <!-- q10_page.jsで英文を表示 -->
-        </div>
-
-      </section>
-
-
-      <!-- 右：5問の選択肢 -->
-      <aside
-        class="answers-panel desktop-answers"
-        aria-labelledby="answersHeading"
-      >
-
-        <div class="panel-heading">
-
-          <div>
-            <p class="panel-label">Questions</p>
-            <h2 id="answersHeading">解答欄</h2>
-          </div>
-
-          <p
-            id="answeredCountLabel"
-            class="answered-count-label"
-          >
-            0 / 5 回答
-          </p>
-
-        </div>
-
-        <div
-          id="answersContainer"
-          class="answers-container"
-        >
-          <!-- q10_page.jsで5問を表示 -->
-        </div>
-
-      </aside>
-
-    </main>
-
-
-    <!-- =========================
-         採点結果
-    ========================== -->
-    <section
-      id="resultPanel"
-      class="result-panel"
-      aria-live="polite"
-      hidden
-    >
-
-      <div class="result-summary">
-
-        <div>
-          <p class="panel-label">Result</p>
-          <h2 id="resultTitle">採点結果</h2>
-        </div>
-
-        <p
-          id="resultScore"
-          class="result-score"
-        >
-          0 / 5
-        </p>
-
-      </div>
-
-      <p
-        id="resultMessage"
-        class="result-message"
-      ></p>
-
-    </section>
-
-
-    <!-- =========================
-         空欄ごとの解説
-    ========================== -->
-    <section
-      id="explanationsPanel"
-      class="review-section"
-      hidden
-    >
-
-      <div class="section-heading">
-        <div>
-          <p class="panel-label">Answer Review</p>
-          <h2>空欄の解説</h2>
-        </div>
-      </div>
-
-      <div
-        id="explanationsContainer"
-        class="explanations-container"
-      >
-        <!-- 正答理由・誤答理由 -->
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         全文日本語訳
-    ========================== -->
-    <section
-      id="translationPanel"
-      class="review-section"
-      hidden
-    >
-
-      <button
-        type="button"
-        id="toggleTranslationButton"
-        class="section-toggle-button"
-        aria-expanded="false"
-      >
-        <span>
-          <span class="panel-label">Japanese Translation</span>
-          <strong>全文日本語訳</strong>
-        </span>
-
-        <span
-          id="translationToggleIcon"
-          aria-hidden="true"
-        >
-          ＋
-        </span>
-      </button>
-
-      <div
-        id="translationContainer"
-        class="translation-container"
-        hidden
-      >
-        <!-- 段落ごとの全文訳 -->
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         文ごとの復習
-    ========================== -->
-    <section
-      id="sentenceReviewPanel"
-      class="review-section"
-      hidden
-    >
-
-      <div class="section-heading">
-
-        <div>
-          <p class="panel-label">Sentence Review</p>
-          <h2>文ごとの復習</h2>
-        </div>
-
-        <p class="review-help">
-          文をクリックすると、日本語訳と重要語句を確認できます。
-        </p>
-
-      </div>
-
-      <div
-        id="sentenceReviewContainer"
-        class="sentence-review-container"
-      >
-        <!-- 文ごとの復習カード -->
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         下部操作
-    ========================== -->
-    <nav
-      class="question-actions"
-      aria-label="問題操作"
-    >
-
-      <button
-        type="button"
-        id="previousQuestionButton"
-        class="action-button secondary-button"
-      >
-        前の問題
-      </button>
-
-      <button
-        type="button"
-        id="checkAnswerButton"
-        class="action-button primary-button"
-        disabled
-      >
-        5問すべてに答えてください
-      </button>
-
-      <button
-        type="button"
-        id="nextQuestionButton"
-        class="action-button secondary-button"
-      >
-        次の問題
-      </button>
-
-    </nav>
-
-  </div>
-
-
-  <!-- =========================
-       スマホ用解答ボトムシート
-  ========================== -->
-  <div
-    id="mobileSheetOverlay"
-    class="mobile-sheet-overlay"
-    hidden
-  ></div>
-
-  <section
-    id="mobileAnswersSheet"
-    class="mobile-answers-sheet"
-    aria-labelledby="mobileAnswersHeading"
-    aria-modal="true"
-    role="dialog"
-    hidden
-  >
-
-    <div class="sheet-handle-area">
-      <span class="sheet-handle"></span>
-    </div>
-
-    <div class="mobile-sheet-header">
-
-      <div>
-        <p
-          id="mobileActiveBlankLabel"
-          class="active-blank-label"
-        >
-          空所 ⓐ
-        </p>
-
-        <h2 id="mobileAnswersHeading">
-          選択肢を選ぶ
-        </h2>
-      </div>
-
-      <button
-        type="button"
-        id="closeMobileSheetButton"
-        class="close-sheet-button"
-        aria-label="選択肢を閉じる"
-      >
-        ×
-      </button>
-
-    </div>
-
-    <div
-      id="mobileAnswersContainer"
-      class="mobile-answers-container"
-    >
-      <!-- 選択中の空欄の4択 -->
-    </div>
-
-  </section>
-
-
-  <!-- =========================
-       文の復習ボトムシート
-  ========================== -->
-  <div
-    id="sentenceSheetOverlay"
-    class="mobile-sheet-overlay"
-    hidden
-  ></div>
-
-  <section
-    id="sentenceReviewSheet"
-    class="sentence-review-sheet"
-    aria-labelledby="sentenceReviewSheetHeading"
-    aria-modal="true"
-    role="dialog"
-    hidden
-  >
-
-    <div class="sheet-handle-area">
-      <span class="sheet-handle"></span>
-    </div>
-
-    <div class="mobile-sheet-header">
-
-      <div>
-        <p class="panel-label">Sentence Review</p>
-        <h2 id="sentenceReviewSheetHeading">
-          文の復習
-        </h2>
-      </div>
-
-      <button
-        type="button"
-        id="closeSentenceSheetButton"
-        class="close-sheet-button"
-        aria-label="復習画面を閉じる"
-      >
-        ×
-      </button>
-
-    </div>
-
-    <div
-      id="sentenceReviewSheetContent"
-      class="sentence-review-sheet-content"
-    ></div>
-
-  </section>
-
-
-  <!-- =========================
-       苦手語句一覧
-  ========================== -->
-  <div
-    id="weakListOverlay"
-    class="settings-modal-overlay"
-    hidden
-  ></div>
-
-  <section
-    id="weakListModal"
-    class="weak-list-modal"
-    aria-labelledby="weakListTitle"
-    aria-modal="true"
-    role="dialog"
-    hidden
-  >
-
-    <div class="settings-modal-header">
-
-      <div>
-        <p class="panel-label">Weak Expressions</p>
-        <h2 id="weakListTitle">苦手語句一覧</h2>
-      </div>
-
-      <button
-        type="button"
-        id="closeWeakListButton"
-        class="close-sheet-button"
-        aria-label="苦手語句一覧を閉じる"
-      >
-        ×
-      </button>
-
-    </div>
-
-    <div class="weak-list-controls">
-
-      <button
-        type="button"
-        id="toggleWeakMeaningsButton"
-        class="small-control-button"
-      >
-        日本語を隠す
-      </button>
-
-      <button
-        type="button"
-        id="toggleWeakExamplesButton"
-        class="small-control-button"
-      >
-        例文訳を隠す
-      </button>
-
-    </div>
-
-    <div
-      id="weakListContainer"
-      class="weak-list-container"
-    >
-      <!-- 登録された苦手語句 -->
-    </div>
-
-  </section>
-
-
-  <!-- =========================
-       出題設定
-  ========================== -->
-  <div
-    id="settingsModalOverlay"
-    class="settings-modal-overlay"
-    hidden
-  ></div>
-
-  <section
-    id="settingsModal"
-    class="settings-modal"
-    aria-labelledby="settingsModalTitle"
-    aria-modal="true"
-    role="dialog"
-    hidden
-  >
-
-    <div class="settings-modal-header">
-
-      <div>
-        <p class="panel-label">Question Settings</p>
-        <h2 id="settingsModalTitle">出題設定</h2>
-      </div>
-
-      <button
-        type="button"
-        id="closeSettingsButton"
-        class="close-sheet-button"
-        aria-label="出題設定を閉じる"
-      >
-        ×
-      </button>
-
-    </div>
-
-    <div class="settings-form">
-
-      <fieldset class="setting-group">
-
-        <legend>出題順</legend>
-
-        <label class="setting-option">
-          <input
-            type="radio"
-            name="questionOrder"
-            value="sequential"
-            checked
-          >
-          <span>
-            <strong>順番</strong>
-            <small>問題番号順に出題します</small>
-          </span>
-        </label>
-
-        <label class="setting-option">
-          <input
-            type="radio"
-            name="questionOrder"
-            value="random"
-          >
-          <span>
-            <strong>ランダム</strong>
-            <small>問題の順番をシャッフルします</small>
-          </span>
-        </label>
-
-        <label class="setting-option">
-  <input
-    type="radio"
-    name="questionOrder"
-    value="unattempted"
-  >
-  <span>
-    <strong>未挑戦優先</strong>
-    <small>解いた回数が少ない問題から出題します</small>
-  </span>
-</label>
-
-      </fieldset>
-
-      <fieldset class="setting-group">
-
-        <legend>出題範囲</legend>
-
-        <label
-          for="questionRangeStart"
-          class="range-label"
-        >
-          開始問題
-        </label>
-
-        <select
-          id="questionRangeStart"
-          class="setting-select"
-        ></select>
-
-        <label
-          for="questionRangeEnd"
-          class="range-label"
-        >
-          終了問題
-        </label>
-
-        <select
-          id="questionRangeEnd"
-          class="setting-select"
-        ></select>
-
-      </fieldset>
-
-      <fieldset class="setting-group question-history-group">
-
-  <legend>学習履歴</legend>
-
-  <div
-    id="questionHistorySummary"
-    
-    class="question-history-summary"
-  >
-    挑戦済み 0問 ／ 未挑戦 35問 ／ 合計 0回
-  </div>
-
-  <p class="question-history-help">
-  問題番号を押すと、その問題だけを解けます。
-</p>
-
-  <div
-    id="questionAttemptList"
-    class="question-attempt-list"
-  >
-    <!-- JavaScriptで問題ごとの挑戦回数を表示 -->
-  </div>
-
-</fieldset>
-
-    </div>
-
-    <div class="settings-modal-actions">
-
-      <button
-        type="button"
-        id="cancelSettingsButton"
-        class="action-button secondary-button"
-      >
-        キャンセル
-      </button>
-
-      <button
-        type="button"
-        id="applySettingsButton"
-        class="action-button primary-button"
-      >
-        問題を開始する
-      </button>
-
-    </div>
-
-  </section>
-
-  <script src="learning_categories.js"></script>
-  <script src="learning_log.js"></script>
-  <script src="goimon_rules.js"></script>
-  <script src="goimon_dex.js"></script>
-  <script src="goimon_dialogues.js"></script>
-  <script src="goimon.js"></script>
-
-  <script src="q10_data.js"></script>
-  <script src="q10_page.js"></script>
-
-</body>
-</html>
+/* =========================================================
+   基本設定
+========================================================= */
+
+:root {
+  --bg: #f4f6fb;
+  --panel: #ffffff;
+  --panel-soft: #f8f9fc;
+  --panel-blue: #f4f7ff;
+
+  --text-main: #1f2937;
+  --text-sub: #6b7280;
+  --text-light: #9ca3af;
+
+  --border: #dfe3eb;
+  --border-strong: #c9cfda;
+
+  --primary: #3f5f9f;
+  --primary-dark: #304a7e;
+  --primary-soft: #edf2ff;
+  --primary-pale: #f7f9ff;
+
+  --success: #2f7d4a;
+  --success-soft: #eaf7ef;
+  --success-border: #91c6a2;
+
+  --danger: #b84747;
+  --danger-soft: #fcecec;
+  --danger-border: #e0a2a2;
+
+  --warning: #9a6b16;
+  --warning-soft: #fff6df;
+  --warning-border: #e1c374;
+
+  --shadow-sm: 0 4px 14px rgba(25, 38, 70, 0.06);
+  --shadow-md: 0 12px 32px rgba(25, 38, 70, 0.12);
+  --shadow-lg: 0 20px 54px rgba(25, 38, 70, 0.18);
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+
+  --header-height: 76px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+
+  color: var(--text-main);
+  background: var(--bg);
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Hiragino Kaku Gothic ProN",
+    "Hiragino Sans",
+    "Yu Gothic",
+    "Meiryo",
+    sans-serif;
+
+  line-height: 1.7;
+}
+
+button,
+select,
+input {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+button,
+a,
+select,
+input {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 3px solid rgba(63, 95, 159, 0.24);
+  outline-offset: 2px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+
+/* =========================================================
+   ページ全体
+========================================================= */
+
+.q10-app {
+  width: min(1440px, 100%);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding-bottom: 120px;
+}
+
+
+/* =========================================================
+   ヘッダー
+========================================================= */
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  min-height: var(--header-height);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  padding: 14px 28px;
+
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid var(--border);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.header-left {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.header-actions {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.back-link {
+  flex-shrink: 0;
+
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 700;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.back-link:hover {
+  color: var(--primary-dark);
+  transform: translateX(-2px);
+}
+
+.header-title-area {
+  min-width: 0;
+}
+
+.page-label,
+.panel-label {
+  margin: 0 0 2px;
+
+  color: var(--primary);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page-title {
+  margin: 0;
+
+  overflow: hidden;
+
+  color: var(--text-main);
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-button {
+  flex-shrink: 0;
+
+  min-height: 42px;
+  padding: 8px 16px;
+
+  color: var(--primary);
+  background: var(--primary-soft);
+  border: 1px solid transparent;
+  border-radius: 999px;
+
+  font-size: 0.86rem;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.header-button:hover {
+  background: #e1e9ff;
+  border-color: #c7d4f7;
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   問題情報・進捗
+========================================================= */
+
+.question-status {
+  margin: 24px 28px 0;
+  padding: 20px 22px;
+
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.status-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.question-category {
+  display: inline-flex;
+  align-items: center;
+
+  margin: 0 0 5px;
+  padding: 4px 10px;
+
+  color: var(--primary);
+  background: var(--primary-soft);
+  border-radius: 999px;
+
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.question-title {
+  margin: 0;
+
+  color: var(--text-main);
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  line-height: 1.4;
+}
+
+.question-title-ja {
+  margin: 4px 0 0;
+
+  color: var(--text-sub);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.question-meta-area {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.question-timer {
+  min-width: 88px;
+  padding: 7px 11px;
+
+  color: var(--text-main);
+  text-align: center;
+
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.timer-label {
+  display: block;
+
+  margin-bottom: 1px;
+
+  color: var(--text-light);
+  font-size: 0.61rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+}
+
+#questionTimer {
+  font-size: 0.9rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.question-number-area {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+
+  color: var(--text-sub);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+#currentQuestionNumber {
+  color: var(--primary);
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
+.question-number-separator {
+  color: var(--text-light);
+}
+
+.progress-track {
+  width: 100%;
+  height: 8px;
+  margin-top: 16px;
+
+  overflow: hidden;
+
+  background: #e9edf5;
+  border-radius: 999px;
+}
+
+.progress-bar {
+  width: 0;
+  height: 100%;
+
+  background: var(--primary);
+  border-radius: inherit;
+
+  transition: width 0.35s ease;
+}
+
+
+/* =========================================================
+   メインレイアウト
+========================================================= */
+
+.question-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(330px, 3fr);
+  align-items: start;
+  gap: 22px;
+
+  padding: 22px 28px 0;
+}
+
+.passage-panel,
+.answers-panel,
+.result-panel,
+.review-section {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.passage-panel {
+  min-width: 0;
+  padding: 24px;
+}
+
+.answers-panel {
+  position: sticky;
+  top: calc(var(--header-height) + 22px);
+
+  min-width: 0;
+  max-height: calc(100vh - var(--header-height) - 44px);
+  padding: 22px;
+
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #c8cfdd transparent;
+}
+
+.answers-panel::-webkit-scrollbar {
+  width: 7px;
+}
+
+.answers-panel::-webkit-scrollbar-thumb {
+  background: #c8cfdd;
+  border-radius: 999px;
+}
+
+.panel-heading,
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.panel-heading h2,
+.section-heading h2 {
+  margin: 0;
+
+  color: var(--text-main);
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+.instruction-text {
+  margin: 14px 0 20px;
+
+  color: var(--text-sub);
+  font-size: 0.9rem;
+}
+
+.reset-button,
+.text-button {
+  flex-shrink: 0;
+
+  padding: 5px 0;
+
+  color: var(--primary);
+  background: transparent;
+  border: 0;
+
+  font-size: 0.82rem;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.reset-button:hover,
+.text-button:hover {
+  text-decoration: underline;
+}
+
+.answered-count-label {
+  margin: 3px 0 0;
+
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   長文本文
+========================================================= */
+
+.passage-container {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.passage-paragraph {
+  margin: 0;
+  padding: 0;
+
+  color: var(--text-main);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1rem, 1.3vw, 1.08rem);
+  line-height: 2;
+  letter-spacing: 0.005em;
+}
+
+.passage-sentence {
+  position: relative;
+
+  border-radius: 7px;
+
+  transition:
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.passage-sentence.review-enabled {
+  cursor: pointer;
+}
+
+.passage-sentence.review-enabled:hover,
+.passage-sentence.review-enabled.active {
+  background: var(--primary-soft);
+  box-shadow: 0 0 0 4px var(--primary-soft);
+}
+
+.inline-blank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 74px;
+  min-height: 34px;
+  margin: 0 3px;
+  padding: 2px 10px;
+
+  vertical-align: middle;
+
+  color: var(--primary-dark);
+  background: var(--primary-soft);
+  border: 2px dashed #aebfe8;
+  border-radius: 8px;
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  line-height: 1.35;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.inline-blank:hover {
+  background: #e4ebff;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.inline-blank.active {
+  background: #dfe8ff;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(63, 95, 159, 0.12);
+}
+
+.inline-blank.answered {
+  border-style: solid;
+}
+
+.inline-blank.correct {
+  color: var(--success);
+  background: var(--success-soft);
+  border-color: var(--success-border);
+}
+
+.inline-blank.incorrect {
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-color: var(--danger-border);
+}
+
+.inline-blank-label {
+  margin-right: 5px;
+
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.inline-blank-text {
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   右側：5問の解答カード
+========================================================= */
+
+.answers-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  margin-top: 18px;
+}
+
+.answer-card {
+  padding: 14px;
+
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.answer-card.active {
+  background: var(--primary-pale);
+  border-color: #aebfe8;
+  box-shadow: 0 0 0 3px rgba(63, 95, 159, 0.08);
+}
+
+.answer-card.correct {
+  background: var(--success-soft);
+  border-color: var(--success-border);
+}
+
+.answer-card.incorrect {
+  background: var(--danger-soft);
+  border-color: var(--danger-border);
+}
+
+.answer-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  margin-bottom: 10px;
+}
+
+.answer-blank-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  color: #ffffff;
+  background: var(--primary);
+  border-radius: 50%;
+
+  font-size: 0.83rem;
+  font-weight: 900;
+}
+
+.answer-card.correct .answer-blank-label {
+  background: var(--success);
+}
+
+.answer-card.incorrect .answer-blank-label {
+  background: var(--danger);
+}
+
+.answer-status {
+  color: var(--text-light);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.answer-card.correct .answer-status {
+  color: var(--success);
+}
+
+.answer-card.incorrect .answer-status {
+  color: var(--danger);
+}
+
+.answer-choice-list {
+  display: grid;
+  gap: 8px;
+}
+
+.answer-choice-button {
+  width: 100%;
+  min-height: 43px;
+  padding: 9px 11px;
+
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 22px;
+  align-items: center;
+  gap: 9px;
+
+  color: var(--text-main);
+  text-align: left;
+
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.answer-choice-button:hover:not(:disabled) {
+  background: var(--primary-soft);
+  border-color: #b5c4e8;
+  transform: translateY(-1px);
+}
+
+.answer-choice-button.selected {
+  color: var(--primary-dark);
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(63, 95, 159, 0.09);
+}
+
+.answer-choice-button.correct-choice {
+  color: var(--success);
+  background: var(--success-soft);
+  border-color: var(--success-border);
+}
+
+.answer-choice-button.wrong-choice {
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-color: var(--danger-border);
+}
+
+.answer-choice-button:disabled {
+  cursor: default;
+}
+
+.choice-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 26px;
+  height: 26px;
+
+  color: var(--text-sub);
+  background: var(--panel-soft);
+  border-radius: 50%;
+
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.answer-choice-button.selected .choice-number {
+  color: #ffffff;
+  background: var(--primary);
+}
+
+.answer-choice-button.correct-choice .choice-number {
+  color: #ffffff;
+  background: var(--success);
+}
+
+.answer-choice-button.wrong-choice .choice-number {
+  color: #ffffff;
+  background: var(--danger);
+}
+
+.choice-text {
+  min-width: 0;
+
+  font-size: 0.88rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.choice-result-icon {
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   採点結果
+========================================================= */
+
+.result-panel {
+  margin: 22px 28px 0;
+  padding: 22px 24px;
+}
+
+.result-summary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.result-summary h2 {
+  margin: 0;
+
+  font-size: 1.25rem;
+}
+
+.result-score {
+  margin: 0;
+
+  color: var(--primary);
+  font-size: 1.6rem;
+  font-weight: 900;
+}
+
+.result-message {
+  margin: 13px 0 0;
+
+  color: var(--text-sub);
+  font-size: 0.93rem;
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   採点後の共通セクション
+========================================================= */
+
+.review-section {
+  margin: 22px 28px 0;
+  padding: 22px 24px;
+}
+
+.review-help {
+  margin: 4px 0 0;
+
+  color: var(--text-sub);
+  font-size: 0.82rem;
+  text-align: right;
+}
+
+
+/* =========================================================
+   空欄ごとの解説
+========================================================= */
+
+.explanations-container {
+  display: grid;
+  gap: 16px;
+
+  margin-top: 18px;
+}
+
+.explanation-card {
+  padding: 17px;
+
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.explanation-card.correct {
+  border-left: 5px solid var(--success);
+}
+
+.explanation-card.incorrect {
+  border-left: 5px solid var(--danger);
+}
+
+.explanation-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  margin-bottom: 12px;
+}
+
+.explanation-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin: 0;
+
+  font-size: 1rem;
+}
+
+.explanation-blank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  color: #ffffff;
+  background: var(--primary);
+  border-radius: 50%;
+
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.explanation-result-label {
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.explanation-card.correct .explanation-result-label {
+  color: var(--success);
+}
+
+.explanation-card.incorrect .explanation-result-label {
+  color: var(--danger);
+}
+
+.answer-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+
+  margin-bottom: 13px;
+}
+
+.answer-comparison-box {
+  padding: 10px 12px;
+
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+
+.answer-comparison-label {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: var(--text-light);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.answer-comparison-value {
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.answer-comparison-box.correct-answer {
+  color: var(--success);
+  background: var(--success-soft);
+  border-color: var(--success-border);
+}
+
+.answer-comparison-box.user-wrong {
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-color: var(--danger-border);
+}
+
+.explanation-main {
+  margin: 0;
+
+  color: var(--text-main);
+  font-size: 0.9rem;
+  line-height: 1.75;
+}
+
+.wrong-reasons {
+  margin-top: 14px;
+  padding-top: 13px;
+
+  border-top: 1px solid var(--border);
+}
+
+.wrong-reasons-title {
+  margin: 0 0 8px;
+
+  color: var(--text-sub);
+  font-size: 0.79rem;
+  font-weight: 900;
+}
+
+.wrong-reason-list {
+  display: grid;
+  gap: 7px;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.wrong-reason-item {
+  display: grid;
+  grid-template-columns: minmax(100px, 160px) minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+
+  color: var(--text-sub);
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.wrong-choice-label {
+  min-width: 0;
+
+  color: var(--danger);
+  font-weight: 900;
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.wrong-reason-item > span:last-child {
+  min-width: 0;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+
+/* =========================================================
+   全文日本語訳
+========================================================= */
+
+.section-toggle-button {
+  width: 100%;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  text-align: left;
+
+  background: transparent;
+  border: 0;
+
+  cursor: pointer;
+}
+
+.section-toggle-button strong {
+  display: block;
+
+  color: var(--text-main);
+  font-size: 1.18rem;
+}
+
+#translationToggleIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+
+  color: var(--primary);
+  background: var(--primary-soft);
+  border-radius: 50%;
+
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.translation-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  margin-top: 20px;
+  padding-top: 18px;
+
+  border-top: 1px solid var(--border);
+}
+
+.translation-paragraph {
+  margin: 0;
+
+  color: var(--text-main);
+  font-size: 0.92rem;
+  line-height: 1.9;
+}
+
+
+/* =========================================================
+   文ごとの復習
+========================================================= */
+
+.sentence-review-container {
+  display: grid;
+  gap: 10px;
+
+  margin-top: 18px;
+}
+
+.sentence-review-item {
+  overflow: hidden;
+
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.sentence-review-item.open {
+  border-color: #b7c5e5;
+  box-shadow: 0 5px 16px rgba(25, 38, 70, 0.07);
+}
+
+.sentence-review-button {
+  width: 100%;
+  padding: 13px 15px;
+
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 10px;
+
+  text-align: left;
+
+  background: transparent;
+  border: 0;
+
+  cursor: pointer;
+}
+
+.sentence-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 30px;
+  height: 30px;
+
+  color: var(--primary);
+  background: var(--primary-soft);
+  border-radius: 50%;
+
+  font-size: 0.73rem;
+  font-weight: 900;
+}
+
+.sentence-review-en {
+  min-width: 0;
+
+  color: var(--text-main);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.94rem;
+  line-height: 1.65;
+}
+
+.sentence-toggle-icon {
+  color: var(--text-light);
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.sentence-review-content {
+  padding: 0 15px 15px 59px;
+}
+
+.sentence-review-ja {
+  margin: 0;
+
+  color: var(--text-sub);
+  font-size: 0.88rem;
+  line-height: 1.8;
+}
+
+.expression-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  margin-top: 13px;
+}
+
+.expression-item {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.8fr) minmax(0, 1.2fr) auto;
+  align-items: center;
+  gap: 10px;
+
+  padding: 9px 10px;
+
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+
+.expression-en {
+  color: var(--primary-dark);
+  font-size: 0.84rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.expression-ja {
+  color: var(--text-sub);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.add-weak-button {
+  flex-shrink: 0;
+
+  min-height: 34px;
+  padding: 6px 10px;
+
+  color: var(--primary);
+  background: var(--primary-soft);
+  border: 1px solid #c6d2ee;
+  border-radius: 8px;
+
+  font-size: 0.74rem;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.add-weak-button:hover {
+  background: #e1e9ff;
+}
+
+.add-weak-button.registered {
+  color: var(--success);
+  background: var(--success-soft);
+  border-color: var(--success-border);
+}
+
+.expression-item.no-register {
+  grid-template-columns: minmax(120px, 0.8fr) minmax(0, 1.2fr);
+}
+
+
+/* =========================================================
+   苦手語句一覧
+========================================================= */
+
+.weak-list-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 110;
+
+  width: min(760px, calc(100% - 32px));
+  max-height: calc(100vh - 40px);
+  padding: 22px;
+
+  overflow-y: auto;
+
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+
+  transform: translate(-50%, -50%);
+  animation: modalIn 0.22s ease;
+}
+
+.weak-list-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  margin-top: 16px;
+  padding-bottom: 16px;
+
+  border-bottom: 1px solid var(--border);
+}
+
+.small-control-button {
+  min-height: 36px;
+  padding: 7px 11px;
+
+  color: var(--primary);
+  background: var(--primary-soft);
+  border: 1px solid #c8d4ef;
+  border-radius: 9px;
+
+  font-size: 0.76rem;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.small-control-button:hover {
+  background: #e1e9ff;
+}
+
+.weak-list-container {
+  display: grid;
+  gap: 12px;
+
+  margin-top: 18px;
+}
+
+.weak-empty-message {
+  padding: 28px 18px;
+
+  color: var(--text-sub);
+  text-align: center;
+
+  background: var(--panel-soft);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.weak-expression-card {
+  padding: 15px;
+
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.weak-expression-card.learned {
+  opacity: 0.68;
+}
+
+.weak-expression-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.weak-expression-title {
+  margin: 0;
+
+  color: var(--primary-dark);
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.weak-expression-meaning {
+  margin: 4px 0 0;
+
+  color: var(--text-main);
+  font-size: 0.88rem;
+}
+
+.weak-expression-source {
+  margin: 9px 0 0;
+
+  color: var(--text-light);
+  font-size: 0.73rem;
+  font-weight: 700;
+}
+
+.weak-example {
+  margin-top: 12px;
+  padding: 11px 12px;
+
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+
+.weak-example-en {
+  margin: 0;
+
+  color: var(--text-main);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.86rem;
+  line-height: 1.65;
+}
+
+.weak-example-ja {
+  margin: 5px 0 0;
+
+  color: var(--text-sub);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.weak-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  margin-top: 12px;
+}
+
+.weak-action-button {
+  min-height: 34px;
+  padding: 6px 10px;
+
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  font-size: 0.74rem;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.weak-action-button.learned-button {
+  color: var(--success);
+  border-color: var(--success-border);
+}
+
+.weak-action-button.remove-button {
+  color: var(--danger);
+  border-color: var(--danger-border);
+}
+
+
+/* =========================================================
+   下部操作ボタン
+========================================================= */
+
+.question-actions {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  z-index: 40;
+
+  width: min(1440px, 100%);
+  min-height: 86px;
+  padding:
+    14px
+    max(28px, env(safe-area-inset-right))
+    calc(14px + env(safe-area-inset-bottom))
+    max(28px, env(safe-area-inset-left));
+
+  display: grid;
+  grid-template-columns: 1fr minmax(220px, 1.35fr) 1fr;
+  align-items: center;
+  gap: 12px;
+
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -8px 24px rgba(25, 38, 70, 0.08);
+
+  transform: translateX(-50%);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.action-button {
+  min-height: 48px;
+  padding: 10px 16px;
+
+  border: 1px solid transparent;
+  border-radius: 12px;
+
+  font-size: 0.9rem;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease,
+    opacity 0.18s ease;
+}
+
+.action-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.action-button:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
+.primary-button {
+  color: #ffffff;
+  background: var(--primary);
+}
+
+.primary-button:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+
+.secondary-button {
+  color: var(--primary);
+  background: var(--primary-soft);
+  border-color: #c8d4ef;
+}
+
+.secondary-button:hover:not(:disabled) {
+  background: #e1e9ff;
+}
+
+
+/* =========================================================
+   オーバーレイ・ボトムシート
+========================================================= */
+
+.mobile-sheet-overlay,
+.settings-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+
+  background: rgba(22, 29, 45, 0.48);
+
+  animation: fadeIn 0.2s ease;
+}
+
+.mobile-answers-sheet,
+.sentence-review-sheet {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+
+  max-height: 82vh;
+  padding:
+    0
+    18px
+    calc(20px + env(safe-area-inset-bottom));
+
+  overflow-y: auto;
+
+  background: #ffffff;
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -12px 36px rgba(25, 38, 70, 0.2);
+
+  animation: sheetUp 0.24s ease;
+}
+
+.sheet-handle-area {
+  display: flex;
+  justify-content: center;
+
+  padding: 10px 0 7px;
+}
+
+.sheet-handle {
+  width: 42px;
+  height: 5px;
+
+  background: #d4d8e0;
+  border-radius: 999px;
+}
+
+.mobile-sheet-header,
+.settings-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 10px 0 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.mobile-sheet-header h2,
+.settings-modal-header h2 {
+  margin: 0;
+
+  font-size: 1.18rem;
+}
+
+.close-sheet-button {
+  flex-shrink: 0;
+
+  width: 40px;
+  height: 40px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--text-main);
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+
+  font-size: 1.35rem;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.mobile-answers-container {
+  display: grid;
+  gap: 10px;
+
+  padding-top: 16px;
+}
+
+.active-blank-label {
+  margin: 0 0 3px;
+
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.sentence-review-sheet-content {
+  padding-top: 16px;
+}
+
+.sheet-sentence-en {
+  margin: 0;
+
+  color: var(--text-main);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.sheet-sentence-ja {
+  margin: 10px 0 0;
+
+  color: var(--text-sub);
+  font-size: 0.9rem;
+  line-height: 1.75;
+}
+
+
+/* =========================================================
+   出題設定モーダル
+========================================================= */
+
+.settings-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 110;
+
+  width: min(520px, calc(100% - 32px));
+  max-height: calc(100vh - 40px);
+  padding: 22px;
+
+  overflow-y: auto;
+
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+
+  transform: translate(-50%, -50%);
+  animation: modalIn 0.22s ease;
+}
+
+.settings-modal-header {
+  padding-top: 0;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+
+  margin-top: 20px;
+}
+
+.setting-group {
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+}
+
+.setting-group legend {
+  width: 100%;
+  margin-bottom: 10px;
+
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.setting-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+
+  margin-top: 9px;
+  padding: 12px;
+
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+
+  cursor: pointer;
+}
+
+.setting-option input {
+  flex-shrink: 0;
+
+  width: 18px;
+  height: 18px;
+  margin: 3px 0 0;
+
+  accent-color: var(--primary);
+}
+
+.setting-option span {
+  min-width: 0;
+}
+
+.setting-option strong {
+  display: block;
+
+  color: var(--text-main);
+  font-size: 0.9rem;
+}
+
+.setting-option small {
+  display: block;
+
+  margin-top: 2px;
+
+  color: var(--text-sub);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.range-label {
+  display: block;
+
+  margin: 12px 0 5px;
+
+  color: var(--text-sub);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.setting-select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 11px;
+
+  color: var(--text-main);
+  background: #ffffff;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+
+  cursor: pointer;
+}
+
+.settings-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  margin-top: 24px;
+}
+
+
+/* =========================================================
+   アニメーション
+========================================================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheetUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+
+/* =========================================================
+   出題設定中
+========================================================= */
+
+body.setup-mode .question-status,
+body.setup-mode .question-layout,
+body.setup-mode .result-panel,
+body.setup-mode .review-section,
+body.setup-mode .question-actions {
+  visibility: hidden;
+}
+
+
+/* =========================================================
+   タブレット
+========================================================= */
+
+@media (max-width: 1050px) {
+  .question-layout {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 16px;
+
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+
+  .question-status,
+  .result-panel,
+  .review-section {
+    margin-right: 18px;
+    margin-left: 18px;
+  }
+
+  .passage-panel {
+    padding: 21px;
+  }
+
+  .answers-panel {
+    padding: 18px;
+  }
+
+  .passage-paragraph {
+    font-size: 1rem;
+  }
+
+  .expression-item {
+    grid-template-columns: minmax(110px, 0.8fr) minmax(0, 1.2fr);
+  }
+
+  .expression-item .add-weak-button {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
+
+/* =========================================================
+   スマートフォン
+========================================================= */
+
+@media (max-width: 720px) {
+  :root {
+    --header-height: 66px;
+  }
+
+  body {
+    background: #f7f8fb;
+  }
+
+  .q10-app {
+    padding-bottom: 108px;
+  }
+
+  .app-header {
+    min-height: var(--header-height);
+    padding: 10px 12px;
+  }
+
+  .header-left {
+    gap: 10px;
+  }
+
+  .back-link {
+    font-size: 0.78rem;
+  }
+
+  .page-label {
+    font-size: 0.61rem;
+  }
+
+  .page-title {
+    max-width: 150px;
+    font-size: 0.98rem;
+  }
+
+  .header-actions {
+    gap: 6px;
+  }
+
+  .header-button {
+    min-height: 38px;
+    padding: 7px 9px;
+
+    font-size: 0.7rem;
+  }
+
+  .question-status {
+    margin: 12px 12px 0;
+    padding: 15px;
+  }
+
+  .status-top {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .question-category {
+    font-size: 0.67rem;
+  }
+
+  .question-title {
+    font-size: 1.02rem;
+  }
+
+  .question-title-ja {
+    font-size: 0.77rem;
+  }
+
+  .question-meta-area {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 7px;
+  }
+
+  .question-timer {
+    min-width: 74px;
+    padding: 5px 8px;
+  }
+
+  .question-number-area {
+    font-size: 0.77rem;
+  }
+
+  #currentQuestionNumber {
+    font-size: 1.12rem;
+  }
+
+  .progress-track {
+    height: 6px;
+    margin-top: 12px;
+  }
+
+  .question-layout {
+    display: block;
+
+    padding: 12px 12px 0;
+  }
+
+  .passage-panel {
+    padding: 17px 16px;
+  }
+
+  .desktop-answers {
+    display: none;
+  }
+
+  .panel-heading h2,
+  .section-heading h2 {
+    font-size: 1.08rem;
+  }
+
+  .instruction-text {
+    margin-top: 10px;
+    margin-bottom: 16px;
+
+    font-size: 0.79rem;
+  }
+
+  .reset-button {
+    font-size: 0.73rem;
+  }
+
+  .passage-container {
+    gap: 18px;
+  }
+
+  .passage-paragraph {
+    font-size: 1rem;
+    line-height: 1.95;
+  }
+
+  .inline-blank {
+    min-width: 67px;
+    min-height: 32px;
+    padding: 2px 8px;
+
+    font-size: 0.82rem;
+  }
+
+  .result-panel,
+  .review-section {
+    margin: 12px 12px 0;
+    padding: 17px 16px;
+  }
+
+  .result-score {
+    font-size: 1.35rem;
+  }
+
+  .review-help {
+    display: none;
+  }
+
+  .answer-comparison {
+    grid-template-columns: 1fr;
+  }
+
+  .explanation-card {
+    padding: 14px;
+  }
+
+  .explanation-heading {
+    align-items: flex-start;
+  }
+
+  .wrong-reason-item {
+  grid-template-columns: 1fr;
+  gap: 3px;
+
+  padding-bottom: 8px;
+
+  font-size: 0.8rem;
+}
+
+.wrong-reason-item:not(:last-child) {
+  border-bottom: 1px solid var(--border);
+}
+
+  .sentence-review-button {
+    grid-template-columns: 30px minmax(0, 1fr) 24px;
+    padding: 11px 12px;
+  }
+
+  .sentence-review-en {
+    font-size: 0.87rem;
+  }
+
+  .sentence-review-content {
+    padding: 0 12px 13px 52px;
+  }
+
+  .expression-item,
+  .expression-item.no-register {
+    grid-template-columns: 1fr;
+    gap: 5px;
+
+    padding: 9px;
+  }
+
+  .expression-item .add-weak-button {
+    grid-column: auto;
+    justify-self: start;
+
+    margin-top: 3px;
+  }
+
+  .question-actions {
+    min-height: 82px;
+    padding:
+      12px
+      max(12px, env(safe-area-inset-right))
+      calc(12px + env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
+
+    grid-template-columns: 0.9fr 1.35fr 0.9fr;
+    gap: 7px;
+  }
+
+  .action-button {
+    min-height: 46px;
+    padding: 8px 7px;
+
+    font-size: 0.75rem;
+    line-height: 1.3;
+  }
+
+  .settings-modal,
+  .weak-list-modal {
+    width: calc(100% - 24px);
+    max-height: calc(100vh - 24px);
+    padding: 18px;
+  }
+
+  .weak-expression-head {
+    flex-direction: column;
+  }
+
+  .weak-list-controls {
+    align-items: stretch;
+  }
+
+  .small-control-button {
+    flex: 1 1 140px;
+  }
+}
+
+
+/* =========================================================
+   小さいスマートフォン
+========================================================= */
+
+@media (max-width: 390px) {
+  .page-title {
+    max-width: 116px;
+  }
+
+  .header-button {
+    padding-right: 7px;
+    padding-left: 7px;
+
+    font-size: 0.65rem;
+  }
+
+  .question-status {
+    padding: 13px;
+  }
+
+  .question-title {
+    font-size: 0.94rem;
+  }
+
+  .passage-panel {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .passage-paragraph {
+    font-size: 0.96rem;
+  }
+
+  .inline-blank {
+    min-width: 61px;
+    padding-right: 6px;
+    padding-left: 6px;
+
+    font-size: 0.77rem;
+  }
+
+  .question-actions {
+    grid-template-columns: 0.82fr 1.36fr 0.82fr;
+  }
+
+  .action-button {
+    padding-right: 4px;
+    padding-left: 4px;
+
+    font-size: 0.68rem;
+  }
+
+  .settings-modal-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================================
+   タッチ端末
+========================================================= */
+
+@media (hover: none) {
+  .header-button:hover,
+  .inline-blank:hover,
+  .answer-choice-button:hover:not(:disabled),
+  .action-button:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+
+/* =========================================================
+   動きを減らす設定
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================
+   重要語句の意味マスク
+========================================================= */
+
+.expression-meaning-button {
+  width: 100%;
+  min-height: 36px;
+  padding: 7px 10px;
+
+  color: var(--text-sub);
+  text-align: left;
+
+  background: #eef0f4;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  font-size: 0.82rem;
+  line-height: 1.5;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.expression-meaning-button:hover {
+  background: #e5e8ee;
+  border-color: var(--border-strong);
+}
+
+.expression-meaning-button.masked {
+  color: var(--text-light);
+  text-align: center;
+  letter-spacing: 0.08em;
+}
+
+.expression-meaning-button.revealed {
+  color: var(--text-sub);
+  text-align: left;
+  letter-spacing: normal;
+
+  background: #ffffff;
+  border-color: #c7d4ef;
+}
+
+/* =========================================================
+   苦手語句一覧の意味・例文訳マスク
+========================================================= */
+
+.weak-mask-button {
+  width: 100%;
+  min-height: 38px;
+  margin-top: 7px;
+  padding: 8px 11px;
+
+  text-align: left;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  font-size: 0.84rem;
+  line-height: 1.6;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.weak-mask-button.masked {
+  color: var(--text-light);
+  text-align: center;
+
+  background:
+    repeating-linear-gradient(
+      135deg,
+      #eef0f4,
+      #eef0f4 8px,
+      #e5e8ee 8px,
+      #e5e8ee 16px
+    );
+
+  border-color: #d7dbe3;
+  font-weight: 800;
+}
+
+.weak-mask-button.revealed {
+  color: var(--text-main);
+  text-align: left;
+
+  background: #ffffff;
+  border-color: #c6d2ee;
+}
+
+.weak-mask-button.example-mask {
+  margin-top: 9px;
+
+  color: var(--text-sub);
+  font-size: 0.8rem;
+}
+
+.weak-mask-button:hover {
+  border-color: var(--primary);
+}
+
+/* =========================================================
+   出題設定：学習履歴
+========================================================= */
+
+.question-history-group {
+  min-width: 0;
+}
+
+.question-history-summary {
+  margin-bottom: 12px;
+  padding: 11px 13px;
+
+  color: var(--primary-dark);
+  background: var(--primary-soft);
+  border: 1px solid #cfdbf7;
+  border-radius: 10px;
+
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+.question-attempt-list {
+  display: grid;
+  gap: 7px;
+
+  max-height: 260px;
+  padding-right: 4px;
+
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.question-attempt-item {
+  width: 100%;
+
+  display: grid;
+  grid-template-columns:
+    50px
+    minmax(0, 1fr)
+    auto
+    18px;
+  align-items: center;
+  gap: 9px;
+
+  min-width: 0;
+  padding: 9px 10px;
+
+  color: inherit;
+  text-align: left;
+
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.question-attempt-item.unattempted {
+  background: #ffffff;
+}
+
+.question-attempt-number {
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.question-attempt-title {
+  min-width: 0;
+
+  overflow: hidden;
+
+  color: var(--text-main);
+  font-size: 0.78rem;
+  font-weight: 700;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.question-attempt-count {
+  min-width: 48px;
+  padding: 3px 8px;
+
+  color: var(--text-sub);
+  text-align: center;
+
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.question-attempt-item.unattempted
+.question-attempt-count {
+  color: var(--warning);
+  background: var(--warning-soft);
+  border-color: var(--warning-border);
+}
+
+@media (max-width: 640px) {
+  .question-attempt-list {
+    max-height: 220px;
+  }
+
+  .question-attempt-item {
+    grid-template-columns: 45px minmax(0, 1fr) auto;
+    gap: 7px;
+  }
+
+  .question-attempt-title {
+    font-size: 0.74rem;
+  }
+}
+
+.question-attempt-item:hover {
+  background: var(--primary-soft);
+  border-color: #b5c4e8;
+  box-shadow:
+    0 3px 10px
+    rgba(25, 38, 70, 0.08);
+
+  transform: translateY(-1px);
+}
+
+.question-attempt-item:active {
+  transform: translateY(0);
+}
+
+.question-attempt-item:focus-visible {
+  outline:
+    3px solid
+    rgba(63, 95, 159, 0.24);
+
+  outline-offset: 2px;
+}
+
+.question-attempt-item.unattempted {
+  background: #ffffff;
+}
+
+.question-attempt-item.unattempted:hover {
+  background: var(--warning-soft);
+  border-color:
+    var(--warning-border);
+}
+
+.question-attempt-arrow {
+  color: var(--text-light);
+  font-size: 1.25rem;
+  font-weight: 900;
+  line-height: 1;
+
+  transition:
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.question-attempt-item:hover
+.question-attempt-arrow {
+  color: var(--primary);
+  transform: translateX(2px);
+}
+
+@media (max-width: 640px) {
+  .question-attempt-list {
+    max-height: 220px;
+  }
+
+  .question-attempt-item {
+    grid-template-columns:
+      45px
+      minmax(0, 1fr)
+      auto
+      15px;
+
+    gap: 7px;
+  }
+
+  .question-attempt-title {
+    font-size: 0.74rem;
+  }
+}
+
+.question-history-help {
+  margin:
+    -4px 0 10px;
+
+  color: var(--text-sub);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
