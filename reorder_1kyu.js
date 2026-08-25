@@ -1606,7 +1606,7 @@ window.REORDER_1KYU = [
       { id: "c3", text: "complain" },
       { id: "c4", text: "does" }
     ],
-    answer: ["c1", "c2", "c3", "c4"],
+    answer: ["c4", "c1", "c2", "c3"],
     completed: "The speaker does nothing but complain loudly about the audience.",
     ja: "その話し手は聴衆について文句ばかり言っています。",
     grammarTags: ["idiom"],
