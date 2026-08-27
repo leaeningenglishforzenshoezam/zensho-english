@@ -161,7 +161,7 @@
     ["P1_189",153,"N189","Mika is interested in international business.","Mika takes an ( ) in international business.",["interest","account","advantage","effect"],"interest"],
     ["P1_190",154,"N190","Please pay attention to changes in the schedule.","Please take ( ) of changes in the schedule.",["notice","pride","part","place"],"notice"],
     ["P1_191",155,"N191","Take care not to forget your ticket.","Be ( ) not to forget your ticket.",["careful","afraid","familiar","fluent"],"careful"],
-    ["P1_192",156,"N192","We are supposed to submit the report by Friday.","We are ( ) to submit the report by Friday.",["expected","forced","allowed","willing"],"expected"],
+    ["P1_192",156,"N192","We are supposed to submit the report by Friday.","We are ( ) to submit the report by Friday.",["expected","enabled","allowed","willing"],"expected"],
     ["P1_193",157,"N193","My grandmother is accustomed to living alone.","My grandmother is ( ) to living alone.",["used","ready","supposed","likely"],"used"],
     ["P1_194",158,"N194","She studied hard in order to pass the exam.","She studied hard ( ) pass the exam.",["so as to","in case of","as far as","no matter"],"so as to"],
     ["P1_195",159,"N195","Use this button if there is an emergency.","Use this button ( ) an emergency.",["in case of","according to","in spite of","as a result of"],"in case of"],
