@@ -1977,3 +1977,171 @@ body.type5FooterOpen .wrap {
     display:none;
   }
 }
+
+/* =========================================================
+   問題の選び方
+========================================================= */
+
+.questionSelectModeCards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.questionSelectModeCard {
+  position: relative;
+  min-height: 82px;
+  padding: 12px;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+}
+
+.questionSelectModeCard:hover {
+  background: #fbfdff;
+  border-color: #9bbfff;
+}
+
+.questionSelectModeCard.selected {
+  background: #eef5ff;
+  border: 2px solid #2b7cff;
+}
+
+.questionSelectModeCard input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.questionSelectModeTitle {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.questionSelectModeText {
+  margin-top: 5px;
+  color: #666;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.questionSelectionPanel {
+  margin-top: 12px;
+  padding: 12px;
+  background: #fafafa;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+}
+
+
+/* =========================================================
+   問題番号選択
+========================================================= */
+
+.manualQuestionHead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.manualQuestionTitle {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.manualQuestionMethodLabel {
+  margin-top: 4px;
+  color: #555;
+  font-size: 12px;
+}
+
+.manualQuestionSelectionCount {
+  padding: 6px 10px;
+  color: #215ba8;
+  background: #eef5ff;
+  border: 1px solid #c9dcff;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.manualQuestionGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.manualQuestionBtn {
+  min-height: 70px;
+  padding: 9px 5px;
+  text-align: center;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.manualQuestionBtn:hover {
+  background: #f8fbff;
+  border-color: #9bbfff;
+}
+
+.manualQuestionBtn.selected {
+  background: #eaf2ff;
+  border: 2px solid #2b7cff;
+}
+
+.manualQuestionNumber {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.manualQuestionAttempt {
+  display: block;
+  margin-top: 5px;
+  color: #777;
+  font-size: 11px;
+}
+
+.manualQuestionBtn.attempted .manualQuestionAttempt {
+  color: #26713a;
+  font-weight: 700;
+}
+
+.manualQuestionActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.manualSelectedQuestionText {
+  margin-top: 10px;
+  color: #555;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .questionSelectModeCards {
+    grid-template-columns: 1fr;
+  }
+
+  .manualQuestionGrid {
+    grid-template-columns:
+      repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
+  .manualQuestionGrid {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+}
