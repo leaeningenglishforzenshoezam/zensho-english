@@ -39,6 +39,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const ATTEMPT_KEY =
   `zensho_listening_attempts_v1_lv${lv}`;
 
+  const METHOD_ATTEMPT_KEY =
+  `zensho_listening_method_attempts_v1_lv${lv}`;
+
   const METHOD_LABELS = {
     quiz: "リスニング問題",
     dictation: "ディクテーション",
@@ -79,6 +82,61 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const customCountInput =
     document.getElementById("customCountInput");
+
+  const questionSelectModeCards =
+  document.getElementById(
+    "questionSelectModeCards"
+  );
+
+const autoQuestionSettings =
+  document.getElementById(
+    "autoQuestionSettings"
+  );
+
+const manualQuestionSettings =
+  document.getElementById(
+    "manualQuestionSettings"
+  );
+
+const manualQuestionGrid =
+  document.getElementById(
+    "manualQuestionGrid"
+  );
+
+const manualQuestionEmpty =
+  document.getElementById(
+    "manualQuestionEmpty"
+  );
+
+const manualQuestionMethodLabel =
+  document.getElementById(
+    "manualQuestionMethodLabel"
+  );
+
+const manualQuestionSelectionCount =
+  document.getElementById(
+    "manualQuestionSelectionCount"
+  );
+
+const manualSelectedQuestionText =
+  document.getElementById(
+    "manualSelectedQuestionText"
+  );
+
+const selectAllQuestionsBtn =
+  document.getElementById(
+    "selectAllQuestionsBtn"
+  );
+
+const selectUnattemptedQuestionsBtn =
+  document.getElementById(
+    "selectUnattemptedQuestionsBtn"
+  );
+
+const clearSelectedQuestionsBtn =
+  document.getElementById(
+    "clearSelectedQuestionsBtn"
+  );
 
   const methodCards =
     document.getElementById("methodCards");
@@ -898,18 +956,218 @@ function getQuestionsByFormat(
   });
 }
 
+// ============================================================
+// 問題番号から選択
+// ============================================================
+
+function getSelectedManualQuestions() {
+  return getQuestionsByFormat()
+    .filter(question => {
+      return selectedQuestionIds.has(
+        String(question.id)
+      );
+    });
+}
+
+function updateManualSelectionInfo() {
+  const selected =
+    getSelectedManualQuestions();
+
+  manualQuestionSelectionCount
+    .textContent =
+      `選択中 ${selected.length}問`;
+
+  if (!selected.length) {
+    manualSelectedQuestionText
+      .textContent =
+        "問題を選択してください。";
+
+    return;
+  }
+
+  const all =
+    getQuestionsByFormat();
+
+  const labels =
+    selected.map(question => {
+      const index =
+        all.findIndex(q => {
+          return (
+            String(q.id) ===
+            String(question.id)
+          );
+        });
+
+      return `No.${index + 1}`;
+    });
+
+  manualSelectedQuestionText
+    .textContent =
+      `選択中：${labels.join("・")}`;
+}
+
+function renderManualQuestionSelector() {
+  if (!manualQuestionGrid) {
+    return;
+  }
+
+  const questions =
+    getQuestionsByFormat();
+
+  const method =
+    getSelectedMethod();
+
+  manualQuestionMethodLabel
+    .textContent =
+      `現在：${
+        METHOD_LABELS[method] ||
+        "リスニング問題"
+      }`;
+
+  manualQuestionGrid.innerHTML =
+    "";
+
+  manualQuestionEmpty
+    .classList
+    .toggle(
+      "hidden",
+      questions.length > 0
+    );
+
+  questions.forEach(
+    (question, index) => {
+
+      const id =
+        String(question.id);
+
+      const attemptCount =
+        getMethodAttemptCount(
+          id,
+          method
+        );
+
+      const button =
+        document.createElement(
+          "button"
+        );
+
+      button.type =
+        "button";
+
+      button.className =
+        [
+          "manualQuestionBtn",
+          selectedQuestionIds.has(id)
+            ? "selected"
+            : "",
+          attemptCount > 0
+            ? "attempted"
+            : "unattempted"
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+      button.innerHTML = `
+        <span class="manualQuestionNumber">
+          No.${index + 1}
+        </span>
+
+        <span class="manualQuestionAttempt">
+          ${
+            attemptCount > 0
+              ? `${attemptCount}回`
+              : "未挑戦"
+          }
+        </span>
+      `;
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          if (
+            selectedQuestionIds.has(
+              id
+            )
+          ) {
+            selectedQuestionIds.delete(
+              id
+            );
+          } else {
+            selectedQuestionIds.add(
+              id
+            );
+          }
+
+          renderManualQuestionSelector();
+        }
+      );
+
+      manualQuestionGrid
+        .appendChild(
+          button
+        );
+    }
+  );
+
+  updateManualSelectionInfo();
+  updateStartButton();
+}
+
+function updateStartButton() {
+  const mode =
+    getQuestionSelectMode();
+
+  if (
+    mode === "manual"
+  ) {
+    const count =
+      getSelectedManualQuestions()
+        .length;
+
+    startBtn.disabled =
+      count === 0;
+
+    startBtn.textContent =
+      count > 0
+        ? `▶ 選んだ${count}問を始める`
+        : "▶ 問題を選んでください";
+
+    startWeakBtn
+      .classList
+      .add("hidden");
+
+    return;
+  }
+
+  const count =
+    getQuestionsByFormat()
+      .length;
+
+  startBtn.disabled =
+    count === 0;
+
+  startBtn.textContent =
+    "▶ 学習を始める";
+
+  startWeakBtn
+    .classList
+    .remove("hidden");
+}
+
 function updatePoolInfo() {
   const format =
     getSelectedFormat();
 
   const count =
-    getQuestionsByFormat(format).length;
+    getQuestionsByFormat(
+      format
+    ).length;
 
   poolInfo.textContent =
     `大問${format}形式：全${count}問`;
 
-  startBtn.disabled =
-    count === 0;
+  updateStartButton();
 }
 
 // ============================================================
@@ -1007,11 +1265,199 @@ function incrementAttemptCount(
     counts
   );
 }
+// ============================================================
+// 学習方法別の取り組み回数
+// ============================================================
+
+function loadMethodAttemptCounts() {
+  try {
+    const raw =
+      localStorage.getItem(
+        METHOD_ATTEMPT_KEY
+      );
+
+    if (!raw) {
+      return {};
+    }
+
+    const parsed =
+      JSON.parse(raw);
+
+    return (
+      parsed &&
+      typeof parsed === "object"
+        ? parsed
+        : {}
+    );
+  } catch (error) {
+    console.warn(
+      "学習方法別の取り組み回数を読み込めませんでした。",
+      error
+    );
+
+    return {};
+  }
+}
+
+function saveMethodAttemptCounts(
+  counts
+) {
+  try {
+    localStorage.setItem(
+      METHOD_ATTEMPT_KEY,
+      JSON.stringify(
+        counts || {}
+      )
+    );
+  } catch (error) {
+    console.warn(
+      "学習方法別の取り組み回数を保存できませんでした。",
+      error
+    );
+  }
+}
+
+function normalizeAttemptMethod(
+  method
+) {
+  const value =
+    String(method || "");
+
+  if (
+    value === "dictation_reorder" ||
+    value === "dictation_full"
+  ) {
+    return "dictation";
+  }
+
+  if (METHOD_LABELS[value]) {
+    return value;
+  }
+
+  return "quiz";
+}
+
+function getMethodAttemptCount(
+  questionId,
+  method = getSelectedMethod()
+) {
+  const id =
+    String(questionId || "");
+
+  if (!id) {
+    return 0;
+  }
+
+  const safeMethod =
+    normalizeAttemptMethod(
+      method
+    );
+
+  const counts =
+    loadMethodAttemptCounts();
+
+  return Math.max(
+    0,
+    Number(
+      counts[id]?.[safeMethod] ||
+      0
+    )
+  );
+}
+
+function incrementMethodAttemptCount(
+  questionId,
+  method
+) {
+  const id =
+    String(questionId || "");
+
+  if (!id) {
+    return;
+  }
+
+  const safeMethod =
+    normalizeAttemptMethod(
+      method
+    );
+
+  const counts =
+    loadMethodAttemptCounts();
+
+  if (
+    !counts[id] ||
+    typeof counts[id] !== "object"
+  ) {
+    counts[id] = {};
+  }
+
+  counts[id][safeMethod] =
+    Math.max(
+      0,
+      Number(
+        counts[id][safeMethod] ||
+        0
+      )
+    ) + 1;
+
+  saveMethodAttemptCounts(
+    counts
+  );
+}
+
+/*
+  これまでのリスニング問題の回数を
+  新しいquiz回数へ引き継ぐ
+*/
+function migrateLegacyQuizAttempts() {
+  const oldCounts =
+    loadAttemptCounts();
+
+  const newCounts =
+    loadMethodAttemptCounts();
+
+  let changed = false;
+
+  Object.keys(oldCounts)
+    .forEach(id => {
+
+      if (
+        !newCounts[id] ||
+        typeof newCounts[id] !==
+          "object"
+      ) {
+        newCounts[id] = {};
+      }
+
+      if (
+        newCounts[id].quiz ===
+        undefined
+      ) {
+        newCounts[id].quiz =
+          Math.max(
+            0,
+            Number(
+              oldCounts[id] || 0
+            )
+          );
+
+        changed = true;
+      }
+    });
+
+  if (changed) {
+    saveMethodAttemptCounts(
+      newCounts
+    );
+  }
+}
 
   // ============================================================
   // 状態
   // ============================================================
 
+  let selectedQuestionIds =
+  new Set();
   let sessionQuestions = [];
   let currentIndex = 0;
   let currentQuestion = null;
@@ -1142,6 +1588,69 @@ function incrementAttemptCount(
       Math.max(min, n)
     );
   }
+
+  function getQuestionSelectMode() {
+  const checked =
+    document.querySelector(
+      'input[name="questionSelectMode"]:checked'
+    );
+
+  return String(
+    checked?.value || "auto"
+  );
+}
+
+function setQuestionSelectMode(
+  mode
+) {
+  const safeMode =
+    mode === "manual"
+      ? "manual"
+      : "auto";
+
+  document
+    .querySelectorAll(
+      'input[name="questionSelectMode"]'
+    )
+    .forEach(input => {
+      input.checked =
+        input.value === safeMode;
+    });
+
+  document
+    .querySelectorAll(
+      ".questionSelectModeCard"
+    )
+    .forEach(card => {
+      card.classList.toggle(
+        "selected",
+        card.dataset.selectMode ===
+          safeMode
+      );
+    });
+
+  autoQuestionSettings
+    .classList
+    .toggle(
+      "hidden",
+      safeMode !== "auto"
+    );
+
+  manualQuestionSettings
+    .classList
+    .toggle(
+      "hidden",
+      safeMode !== "manual"
+    );
+
+  if (
+    safeMode === "manual"
+  ) {
+    renderManualQuestionSelector();
+  }
+
+  updateStartButton();
+}
 
   function getSelectedMethod() {
     const checked =
@@ -1278,6 +1787,7 @@ function incrementAttemptCount(
       questionCount: "10",
       customCount: 10,
       method: "quiz",
+      questionSelectMode: "auto",
       dictationType: "reorder",
       dictationPassCount: "3",
       playbackRate: "1",
@@ -1333,6 +1843,9 @@ function incrementAttemptCount(
 
       method:
         getSelectedMethod(),
+
+      questionSelectMode:
+  getQuestionSelectMode(),
 
       dictationType: String(
         dictationType?.value ||
@@ -1395,6 +1908,11 @@ function incrementAttemptCount(
     setSelectedMethod(
       settings.method || "quiz"
     );
+
+    setQuestionSelectMode(
+  settings.questionSelectMode ||
+  "auto"
+);
 
     if (dictationType) {
       dictationType.value =
@@ -1994,6 +2512,13 @@ function saveCursor(cursor) {
   function buildSessionQuestions(
     forceWeak = false
   ) {
+    if (
+  !forceWeak &&
+  getQuestionSelectMode() ===
+    "manual"
+) {
+  return getSelectedManualQuestions();
+}
     const pool =
       getSessionPool(
         forceWeak
@@ -2474,13 +2999,18 @@ function saveCursor(cursor) {
     renderManualWeakButton();
     updateWeakInfo();
 
-    const pointAdded =
-      awardListeningPoint(
-        currentQuestion.id,
-        "dictation_reorder"
-      );
+   const pointAdded =
+  awardListeningPoint(
+    currentQuestion.id,
+    "dictation_reorder"
+  );
 
-    if (
+incrementMethodAttemptCount(
+  currentQuestion.id,
+  "dictation"
+);
+
+if (
   typeof window.zenshoLogAttempt === "function"
 ) {
   window.zenshoLogAttempt(
@@ -3242,13 +3772,18 @@ function saveCursor(cursor) {
     renderManualWeakButton();
     updateWeakInfo();
 
-    const pointAdded =
-      awardListeningPoint(
-        currentQuestion.id,
-        "dictation_reorder"
-      );
+   const pointAdded =
+  awardListeningPoint(
+    currentQuestion.id,
+    "dictation_reorder"
+  );
 
-    if (
+incrementMethodAttemptCount(
+  currentQuestion.id,
+  "dictation"
+);
+
+if (
   typeof window.zenshoLogAttempt === "function"
 ) {
   window.zenshoLogAttempt(
@@ -3460,12 +3995,17 @@ function saveCursor(cursor) {
     updateWeakInfo();
 
     const pointAdded =
-      awardListeningPoint(
-        currentQuestion.id,
-        "dictation_full"
-      );
+  awardListeningPoint(
+    currentQuestion.id,
+    "dictation_full"
+  );
 
-    if (
+incrementMethodAttemptCount(
+  currentQuestion.id,
+  "dictation"
+);
+
+if (
   typeof window.zenshoLogAttempt === "function"
 ) {
   window.zenshoLogAttempt(
@@ -3642,6 +4182,11 @@ function saveCursor(cursor) {
     currentQuestion.id,
     "overlapping"
   );
+
+incrementMethodAttemptCount(
+  currentQuestion.id,
+  "overlapping"
+);
 
 // ★ v1.1 共通学習ログ
 // 正誤判定のない練習なので attempt のみ記録
@@ -3856,6 +4401,13 @@ sessionResults.push({
     currentQuestion.id,
     "shadowing"
   );
+
+incrementMethodAttemptCount(
+  currentQuestion.id,
+  "shadowing"
+);
+
+// ★ v1.1 共通学習ログ
 
 // ★ v1.1 共通学習ログ
 // 正誤判定のない練習なので attempt のみ記録
@@ -4891,8 +5443,9 @@ sessionResults.push({
   );
 
 // この長文問題に1回取り組んだことを記録
-incrementAttemptCount(
-  currentQuestion.id
+incrementMethodAttemptCount(
+  currentQuestion.id,
+  "quiz"
 );
 
 let correctCount = 0;
@@ -5450,9 +6003,9 @@ addLearningLog(isCorrect);
 
     answered = true;
 
-// この問題に1回取り組んだことを記録
-incrementAttemptCount(
-  currentQuestion.id
+incrementMethodAttemptCount(
+  currentQuestion.id,
+  "quiz"
 );
 
 stopAudio();
@@ -6892,13 +7445,20 @@ if (!problemListAnswersVisible) {
       saveSettings
     );
 
-  formatSelect
+formatSelect
   .addEventListener(
     "change",
     () => {
       saveSettings();
       updatePoolInfo();
       updateWeakInfo();
+
+      if (
+        getQuestionSelectMode() ===
+        "manual"
+      ) {
+        renderManualQuestionSelector();
+      }
     }
   );
 
@@ -6959,6 +7519,106 @@ if (!problemListAnswersVisible) {
       }
     );
 
+    // ============================================================
+// 問題の選び方
+// ============================================================
+
+questionSelectModeCards
+  .addEventListener(
+    "change",
+    event => {
+
+      const target =
+        event.target;
+
+      if (
+        !target ||
+        !target.matches(
+          'input[name="questionSelectMode"]'
+        )
+      ) {
+        return;
+      }
+
+      setQuestionSelectMode(
+        target.value
+      );
+
+      saveSettings();
+    }
+  );
+
+
+// ============================================================
+// 問題番号 一括操作
+// ============================================================
+
+selectAllQuestionsBtn
+  .addEventListener(
+    "click",
+    () => {
+
+      getQuestionsByFormat()
+        .forEach(question => {
+          selectedQuestionIds.add(
+            String(question.id)
+          );
+        });
+
+      renderManualQuestionSelector();
+    }
+  );
+
+selectUnattemptedQuestionsBtn
+  .addEventListener(
+    "click",
+    () => {
+
+      const method =
+        getSelectedMethod();
+
+      getQuestionsByFormat()
+        .forEach(question => {
+
+          const id =
+            String(question.id);
+
+          selectedQuestionIds.delete(
+            id
+          );
+
+          if (
+            getMethodAttemptCount(
+              id,
+              method
+            ) === 0
+          ) {
+            selectedQuestionIds.add(
+              id
+            );
+          }
+        });
+
+      renderManualQuestionSelector();
+    }
+  );
+
+clearSelectedQuestionsBtn
+  .addEventListener(
+    "click",
+    () => {
+
+      getQuestionsByFormat()
+        .forEach(question => {
+          selectedQuestionIds.delete(
+            String(question.id)
+          );
+        });
+
+      renderManualQuestionSelector();
+    }
+  );
+
   // ============================================================
   // 学習方法選択
   // ============================================================
@@ -6976,10 +7636,17 @@ if (!problemListAnswersVisible) {
         )
       ) {
         setSelectedMethod(
-          target.value
-        );
+  target.value
+);
 
-        saveSettings();
+saveSettings();
+
+if (
+  getQuestionSelectMode() ===
+  "manual"
+) {
+  renderManualQuestionSelector();
+}
       }
     }
   );
@@ -6997,11 +7664,18 @@ if (!problemListAnswersVisible) {
       }
 
       setSelectedMethod(
-        card.dataset.method ||
-        "quiz"
-      );
+  card.dataset.method ||
+  "quiz"
+);
 
-      saveSettings();
+saveSettings();
+
+if (
+  getQuestionSelectMode() ===
+  "manual"
+) {
+  renderManualQuestionSelector();
+}
     }
   );
 
@@ -8116,16 +8790,18 @@ function applyGoimonLearningQuery() {
   // ============================================================
 
   function initialize() {
-    updateLevelBadge();
+  updateLevelBadge();
 
-    const settings =
-      loadSettings();
+  const settings =
+    loadSettings();
 
-    applySettings(
-      settings
-    );
+  migrateLegacyQuizAttempts();
 
-    updatePoolInfo();
+  applySettings(
+    settings
+  );
+
+  updatePoolInfo();
 
     if (
   !allQuestions.length
