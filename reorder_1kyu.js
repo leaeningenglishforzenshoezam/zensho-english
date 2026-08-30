@@ -22,11 +22,11 @@ window.REORDER_1KYU = [
   },
   {
     id: "R1_PASTLIKE_002",
-    stemBefore: "He makes it",
+    stemBefore: "He makes",
     stemAfter: "English every day.",
     chunks: [
-      { id: "c1", text: "a" },
-      { id: "c2", text: "rule" },
+      { id: "c1", text: "it" },
+      { id: "c2", text: "a rule" },
       { id: "c3", text: "to" },
       { id: "c4", text: "practice" }
     ],
