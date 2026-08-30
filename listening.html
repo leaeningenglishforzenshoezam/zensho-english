@@ -142,71 +142,36 @@
       <div class="hr"></div>
 
       <!-- 大問形式 -->
-      <div class="controlRow">
-        <div class="controlGroup wide">
-          <div class="controlLabel">大問形式</div>
+<div class="controlRow">
 
-         <select id="formatSelect">
-  <option value="2">
-    大問2形式（適切な発話）
-  </option>
+  <div class="controlGroup wide">
+    <div class="controlLabel">大問形式</div>
 
-  <option value="3">
-    大問3形式（適切な応答）
-  </option>
+    <select id="formatSelect">
 
-  <option value="4" disabled>
-    大問4形式（問題準備中）
-  </option>
+      <option value="2">
+        大問2形式（適切な発話）
+      </option>
 
-  <option value="5">
-    大問5形式（長文内容一致）
-  </option>
-</select>
-        </div>
+      <option value="3">
+        大問3形式（適切な応答）
+      </option>
 
-        <div class="controlGroup">
-          <div class="controlLabel">出題順</div>
+      <option value="4" disabled>
+        大問4形式（問題準備中）
+      </option>
 
-          <select id="orderMode">
-            <option value="order">先頭から</option>
-            <option value="continue">続きから</option>
-            <option value="random">ランダム</option>
-            <option value="weak">ニガテから</option>
-          </select>
-        </div>
+      <option value="5">
+        大問5形式（長文内容一致）
+      </option>
 
-        <div class="controlGroup">
-          <div class="controlLabel">問題数</div>
+    </select>
+  </div>
 
-          <select id="questionCount">
-            <option value="5">5問</option>
-            <option value="10" selected>10問</option>
-            <option value="20">20問</option>
-            <option value="30">30問</option>
-            <option value="all">すべて</option>
-            <option value="custom">自由入力</option>
-          </select>
-        </div>
+</div>
 
-        <div
-          id="customCountWrap"
-          class="controlGroup hidden"
-        >
-          <div class="controlLabel">自由入力</div>
 
-          <input
-            id="customCountInput"
-            type="number"
-            min="1"
-            max="200"
-            step="1"
-            value="10"
-          />
-        </div>
-      </div>
-
-      <div class="hr"></div>
+<div class="hr"></div>
 
       <!-- 学習方法 -->
       <div class="controlLabel">学習方法</div>
@@ -278,6 +243,259 @@
           </div>
         </label>
       </div>
+
+      <!-- ======================================================
+     問題の選び方
+======================================================= -->
+
+<div class="hr"></div>
+
+<div class="controlLabel">
+  問題の選び方
+</div>
+
+<div
+  id="questionSelectModeCards"
+  class="questionSelectModeCards"
+>
+
+
+
+  <!-- おまかせ出題 -->
+  <label
+    class="questionSelectModeCard selected"
+    data-select-mode="auto"
+  >
+
+    <input
+      type="radio"
+      name="questionSelectMode"
+      value="auto"
+      checked
+    />
+
+    <div class="questionSelectModeTitle">
+      おまかせ出題
+    </div>
+
+    <div class="questionSelectModeText">
+      出題順や問題数を指定して学習します。
+    </div>
+
+  </label>
+
+
+  <!-- 問題番号から選ぶ -->
+  <label
+    class="questionSelectModeCard"
+    data-select-mode="manual"
+  >
+
+    <input
+      type="radio"
+      name="questionSelectMode"
+      value="manual"
+    />
+
+    <div class="questionSelectModeTitle">
+      問題番号から選ぶ
+    </div>
+
+    <div class="questionSelectModeText">
+      学習したい問題を自分で選択します。
+    </div>
+
+  </label>
+
+</div>
+
+
+<!-- ======================================================
+     おまかせ出題の設定
+======================================================= -->
+
+<div
+  id="autoQuestionSettings"
+  class="questionSelectionPanel"
+>
+
+  <div class="controlRow">
+
+    <!-- 出題順 -->
+    <div class="controlGroup">
+
+      <div class="controlLabel">
+        出題順
+      </div>
+
+      <select id="orderMode">
+
+        <option value="order">
+          先頭から
+        </option>
+
+        <option value="continue">
+          続きから
+        </option>
+
+        <option value="random">
+          ランダム
+        </option>
+
+        <option value="weak">
+          ニガテから
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <!-- 問題数 -->
+    <div class="controlGroup">
+
+      <div class="controlLabel">
+        問題数
+      </div>
+
+      <select id="questionCount">
+
+        <option value="5">
+          5問
+        </option>
+
+        <option
+          value="10"
+          selected
+        >
+          10問
+        </option>
+
+        <option value="20">
+          20問
+        </option>
+
+        <option value="30">
+          30問
+        </option>
+
+        <option value="all">
+          すべて
+        </option>
+
+        <option value="custom">
+          自由入力
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <!-- 自由入力 -->
+    <div
+      id="customCountWrap"
+      class="controlGroup hidden"
+    >
+
+      <div class="controlLabel">
+        自由入力
+      </div>
+
+      <input
+        id="customCountInput"
+        type="number"
+        min="1"
+        max="200"
+        step="1"
+        value="10"
+      />
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ======================================================
+     問題番号から選ぶ
+======================================================= -->
+
+<div
+  id="manualQuestionSettings"
+  class="questionSelectionPanel hidden"
+>
+
+  <div class="manualQuestionHead">
+
+    <div>
+      <div class="manualQuestionTitle">
+        問題番号を選ぶ
+      </div>
+
+      <div
+        id="manualQuestionMethodLabel"
+        class="manualQuestionMethodLabel"
+      >
+        現在：🎧 リスニング問題
+      </div>
+    </div>
+
+    <div
+      id="manualQuestionSelectionCount"
+      class="manualQuestionSelectionCount"
+    >
+      選択中 0問
+    </div>
+
+  </div>
+
+  <div
+    id="manualQuestionGrid"
+    class="manualQuestionGrid"
+  ></div>
+
+  <div
+    id="manualQuestionEmpty"
+    class="muted hidden"
+    style="margin-top:12px;"
+  >
+    選択できる問題がありません。
+  </div>
+
+  <div class="manualQuestionActions">
+
+    <button
+      id="selectAllQuestionsBtn"
+      type="button"
+    >
+      すべて選択
+    </button>
+
+    <button
+      id="selectUnattemptedQuestionsBtn"
+      type="button"
+    >
+      未挑戦だけ
+    </button>
+
+    <button
+      id="clearSelectedQuestionsBtn"
+      type="button"
+    >
+      選択解除
+    </button>
+
+  </div>
+
+  <div
+    id="manualSelectedQuestionText"
+    class="manualSelectedQuestionText"
+  >
+    問題を選択してください。
+  </div>
+
+</div>
 
       <!-- ディクテーション設定 -->
       <div
