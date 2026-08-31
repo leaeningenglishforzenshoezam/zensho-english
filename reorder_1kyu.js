@@ -85,22 +85,22 @@ window.REORDER_1KYU = [
   },
   {
     id: "R1_PASTLIKE_005",
-    stemBefore: "",
-    stemAfter: "water, these animals can survive.",
+    stemBefore: "You can borrow my car as",
+    stemAfter: "the gas tank.",
     chunks: [
-      { id: "c1", text: "As" },
+      { id: "c1", text: "refil" },
       { id: "c2", text: "long" },
       { id: "c3", text: "as" },
-      { id: "c4", text: "there is" }
+      { id: "c4", text: "you" }
     ],
-    answer: ["c1", "c2", "c3", "c4"],
-    completed: "As long as there is water, these animals can survive.",
-    ja: "水がある限り、これらの動物は生き残ることができます。",
+    answer: ["c2", "c3", "c4", "c1"],
+    completed: "You can borrow my car as long as you refil the gas tank.",
+    ja: "ガソリンを補充するなら、私の車を借りていいですよ。",
     grammarTags: ["as_long_as"],
     grammarFocus: [
-     "as long as は接続詞のまとまりで、『〜である限り』という意味を表します。まず As / long / as の3語をひとかたまりで見ます。",
-    "そのあと there is を続けると、後ろの water につながって there is water という存在の文が完成します。",
-    "つまり、[as long as] で条件を作り、その中に [there is water] を入れる構造です。条件節全体で『水がある限り』という意味になります。"
+     "as long as は接続詞のまとまりで、『〜である限り』という意味を表します。まず 1s / long / as の3語をひとかたまりで見ます。",
+    "refil は re「再び」fil「満タンにする(full)」で「補充する」という意味。飲み物のおかわりのことも指す。",
+    "as long as you refil the gas tankで、「ガソリンのタンクを補充する限り」という直訳になる。他の人の車を借りるときはガソリンを元の状態にして返すというのが暗黙のルールだ。"
     ],
     note: "as long as で『〜である限り』を表します。"
   },
