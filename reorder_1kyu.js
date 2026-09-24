@@ -2021,12 +2021,12 @@ window.REORDER_1KYU = [
   {
     id: "R1_PASTLIKE_097",
     stemBefore: "Foreign travel will",
-    stemAfter: "a broader view of the world.",
+    stemAfter: " view of the world.",
     chunks: [
       { id: "c1", text: "help" },
       { id: "c2", text: "you" },
       { id: "c3", text: "get" },
-      { id: "c4", text: "a" }
+      { id: "c4", text: "a broader" }
     ],
     answer: ["c1", "c2", "c3", "c4"],
     completed: "Foreign travel will help you get a broader view of the world.",
