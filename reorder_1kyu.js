@@ -902,7 +902,8 @@ window.REORDER_1KYU = [
     grammarFocus: [
       "空所の前に keep があるので、その後ろには『目的語 → 補語』の流れを考えます。keep O Cの形で「OをCの状態に保つ」という意味。",
       "informは「知らせる」という意味で、keep me informed of ... は『私に…を知らせておく』という意味になります。",
-      "前半のNever did I imagineの部分は、Never(否定の副詞)が文頭に出ているため、did I imagineのように疑問文の語順になっています。"
+      "前半のNever did I imagineの部分は、Never(否定の副詞)が文頭に出ているため、did I imagineのように疑問文の語順になっています。",
+      "本文にあるthis difficultのthisは「こんなに」という意でdifficultを修飾する副詞です。"
     ],
     note: "keep A informed of ... で『Aに…を知らせておく』を表します。"
   },
