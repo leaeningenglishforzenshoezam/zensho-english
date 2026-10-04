@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+  <meta
+    name="description"
+    content="全商英検1級 大問7 要約空所補充の演習"
+  >
+  <title>要約空所補充｜全商英検1級・大問7</title>
+  <link rel="stylesheet" href="q7.css">
+</head>
+
+<body>
+  <header class="app-header">
+    <a href="index.html" class="home-link">← ホーム</a>
+
+    <div class="header-title">
+      <p class="eyebrow">全商英検1級・大問7</p>
+      <h1>Summary Completion</h1>
+    </div>
+
+    <button id="showSets" type="button" hidden>
+      SET一覧
+    </button>
+  </header>
+
+  <p id="storageNotice" class="notice" role="status" hidden></p>
+
+  <main>
+    <section
+      id="setSelection"
+      class="set-selection"
+      aria-labelledby="setHeading"
+    >
+      <p class="eyebrow">Reading Practice</p>
+
+      <h2 id="setHeading" tabindex="-1">
+        SETを選んで始めよう
+      </h2>
+
+      <p>
+        Summary Bの空所を選び、Passage Aを読みながら答えよう。
+        5問中4問以上で合格です。
+      </p>
+
+     <a href="q7_vocab.html" class="vocab-entry">
+  <span class="vocab-entry-icon" aria-hidden="true">📘</span>
+
+  <span class="vocab-entry-text">
+    <strong>SET別の語句クイズ</strong>
+    <span>語句を覚える・間違えた語句を復習する</span>
+  </span>
+
+  <span class="vocab-entry-arrow" aria-hidden="true">→</span>
+</a>
+<div id="setList" class="set-list"></div>
+      <noscript>
+        この演習を使うにはJavaScriptを有効にしてください。
+      </noscript>
+    </section>
+
+    <section
+      id="exercise"
+      class="exercise"
+      aria-label="読解演習"
+      hidden
+    >
+      <div class="exercise-toolbar">
+        <div class="set-status">
+          <h2 id="setTitle"></h2>
+
+          <span
+            id="answeredCount"
+            role="status"
+            aria-live="polite"
+          >
+            0 / 5 回答
+          </span>
+        </div>
+
+        <div class="reading-controls">
+          <div
+            class="mobile-tabs"
+            aria-label="読む文章を切り替え"
+          >
+            <button
+              type="button"
+              id="summaryTab"
+              aria-pressed="true"
+            >
+              Summary B
+            </button>
+
+            <button
+              type="button"
+              id="passageTab"
+              aria-pressed="false"
+            >
+              Passage Aを見る
+            </button>
+          </div>
+
+          <nav
+            id="blankNav"
+            class="blank-nav"
+            aria-label="空所へ移動"
+          ></nav>
+
+          <span id="activeLabel" class="active-label">
+            解答中：(a)
+          </span>
+        </div>
+      </div>
+
+      <div
+        id="readingLayout"
+        class="reading-layout"
+        data-mobile-view="summary"
+      >
+        <!-- PCの左側／スマホの本文画面 -->
+        <section
+          id="passagePanel"
+          class="reading-panel passage-panel"
+          aria-labelledby="passageHeading"
+          tabindex="0"
+        >
+          <div class="panel-heading">
+            <p class="eyebrow">Passage A</p>
+            <h3 id="passageHeading"></h3>
+          </div>
+
+          <div
+            id="passageContent"
+            lang="en"
+            class="english-text"
+          ></div>
+
+          <details
+            id="passageTranslation"
+            class="translation"
+            hidden
+          >
+            <summary>Passage Aの日本語訳を見る</summary>
+            <div id="passageJaContent" lang="ja"></div>
+          </details>
+
+          <button
+            id="returnToSummary"
+            type="button"
+            class="mobile-return"
+          >
+            解答に戻る
+          </button>
+        </section>
+
+        <!-- PCの右側／スマホの解答画面 -->
+        <div id="summaryColumn" class="summary-column">
+          <!-- 上側：要約 -->
+          <section
+            id="summaryPanel"
+            class="reading-panel summary-panel"
+            aria-labelledby="summaryHeading"
+            tabindex="0"
+          >
+            <div class="panel-heading">
+              <p class="eyebrow">Summary B</p>
+              <h3 id="summaryHeading">要約・解答</h3>
+
+              <p class="help">
+                空所を押すと、要約の下に4択を表示します。
+              </p>
+            </div>
+
+            <div
+              id="summaryContent"
+              lang="en"
+              class="english-text"
+            ></div>
+
+            <p
+              id="answerHint"
+              class="answer-hint"
+              role="status"
+              aria-live="polite"
+            ></p>
+
+            <section
+              id="resultPanel"
+              class="result-panel"
+              aria-labelledby="resultHeading"
+              hidden
+            >
+              <h3 id="resultHeading"></h3>
+              <p id="resultScore" class="result-score"></p>
+              <p id="resultMessage"></p>
+            </section>
+
+            <div
+              id="questionsContent"
+              class="questions-content"
+            ></div>
+
+            <details
+              id="summaryTranslation"
+              class="translation"
+              hidden
+            >
+              <summary>Summary Bの日本語訳を見る</summary>
+              <div id="summaryJaContent" lang="ja"></div>
+            </details>
+          </section>
+
+          <!-- 下側：選択中の空所の4択 -->
+          <section
+            id="choicePanel"
+            class="choice-panel"
+            aria-labelledby="sheetHeading"
+            hidden
+          >
+            <div class="choice-panel-header">
+              <h3 id="sheetHeading" aria-live="polite">
+                空所 (a) の選択肢
+              </h3>
+
+              <button id="closeSheet" type="button">
+                要約を広く読む
+              </button>
+            </div>
+
+            <div
+              id="sheetChoices"
+              class="choice-panel-scroll"
+            ></div>
+
+            <div class="choice-panel-actions">
+              <button id="sheetPassage" type="button">
+                Passage Aを確認する
+              </button>
+
+              <button id="sheetNext" type="button">
+                次の空所 →
+              </button>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <footer class="exercise-actions">
+        <button id="retryButton" type="button">
+          やり直す
+        </button>
+
+        <p id="actionStatus" aria-live="polite">
+          全5問を選んで採点
+        </p>
+
+        <button
+          id="gradeButton"
+          type="button"
+          class="primary"
+        >
+          採点する
+        </button>
+      </footer>
+    </section>
+  </main>
+
+  <script src="q7_data.js"></script>
+  <script src="q7_page.js"></script>
+</body>
+</html>
