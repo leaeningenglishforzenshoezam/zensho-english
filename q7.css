@@ -1,0 +1,255 @@
+/* 大問10の配色・角丸・文字組みに合わせた、大問7専用スタイル。 */
+:root{--bg:#f4f6fb;--panel:#fff;--soft:#f8f9fc;--text:#1f2937;--muted:#6b7280;--border:#dfe3eb;--primary:#3f5f9f;--primary-soft:#edf2ff;--success:#2f7d4a;--danger:#b84747;--header:76px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;line-height:1.7}button,input{font:inherit}button{cursor:pointer;color:inherit;min-height:44px;padding:9px 16px;background:var(--panel);border:1px solid var(--border);border-radius:10px}button:hover{background:var(--primary-soft)}button:disabled{cursor:default;opacity:.6}a{color:var(--primary)}[hidden]{display:none!important}button:focus-visible,a:focus-visible,summary:focus-visible,.reading-panel:focus-visible{outline:3px solid #92abe1;outline-offset:3px}h1,h2,h3,p{margin-top:0}.eyebrow{color:var(--primary);font-size:.75rem;font-weight:800;letter-spacing:.08em;margin:0 0 3px}.app-header{height:var(--header);padding:10px 28px;display:flex;align-items:center;gap:24px;border-bottom:1px solid var(--border);background:var(--panel)}.home-link{text-decoration:none;font-weight:700;white-space:nowrap}.header-title{flex:1;min-width:0}.header-title h1{margin:0;font-size:1.3rem;line-height:1.3}.app-header button{color:var(--primary);background:var(--primary-soft)}.notice{padding:10px 20px;margin:0;background:#fff6df;color:#7b561a;font-size:.9rem}.set-selection{max-width:1040px;margin:0 auto;padding:40px 24px}.set-selection h2{font-size:1.65rem;margin-bottom:10px}.set-selection>p:not(.eyebrow){color:var(--muted)}.set-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:28px}.set-card{border:1px solid var(--border);border-radius:16px;padding:24px;background:var(--panel);box-shadow:0 4px 14px #1926460f}.set-card h3{margin:8px 0 14px;font-size:1.25rem}.set-history{color:var(--muted);font-size:.9rem;min-height:55px}.set-card .primary{width:100%;margin-top:14px}.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.8rem;background:var(--primary-soft);color:var(--primary)}.badge.passed{background:#eaf7ef;color:var(--success)}.primary{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:700}.primary:hover{background:#304a7e}.exercise{height:calc(100dvh - var(--header));min-height:460px;max-width:1440px;margin:auto;display:flex;flex-direction:column}.notice:not([hidden])+main .exercise{height:calc(100dvh - var(--header) - 64px)}.exercise-toolbar{padding:12px 26px;background:var(--bg);flex-shrink:0}.set-status{display:flex;align-items:center;justify-content:space-between;gap:12px}.set-status h2{margin:0;font-size:1.15rem}.set-status>span{white-space:nowrap;font-size:.88rem;color:var(--muted)}.reading-controls{display:flex;gap:12px;align-items:center;margin-top:8px}.blank-nav{display:flex;gap:6px}.blank-nav button{min-width:44px;padding:5px 10px;min-height:38px}.blank-nav button[aria-current="true"]{outline:2px solid var(--primary);outline-offset:-2px}.blank-nav button.answered{background:var(--primary-soft)}.active-label{font-size:.85rem;color:var(--primary);font-weight:700}.mobile-tabs,.mobile-return{display:none}.reading-layout{min-height:0;flex:1;display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:4px 26px 16px}.reading-panel{min-width:0;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:26px;box-shadow:0 4px 14px #1926460f}.panel-heading h3{margin:0 0 12px;font-size:1.15rem}.help{font-size:.83rem;color:var(--muted);margin-bottom:18px}.english-text{font-family:Georgia,"Times New Roman",serif;font-size:1.1rem;line-height:1.95;overflow-wrap:break-word}.english-text p{margin:0 0 1.3em}.blank-button{display:inline-block;font-family:inherit;min-width:64px;min-height:40px;padding:2px 12px;margin:0 3px;background:var(--primary-soft);color:var(--primary);font-weight:700;vertical-align:baseline;border-color:#b8c9eb}.blank-button.answered{background:#dae6ff}.blank-button.missing{border:2px solid var(--danger);background:#fcecec}.blank-button.correct{color:var(--success);background:#eaf7ef;border-color:#91c6a2}.blank-button.incorrect{color:var(--danger);background:#fcecec;border-color:#e0a2a2}.answer-hint{font-size:.9rem;color:var(--danger);margin-bottom:12px}.question-card{border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;scroll-margin-top:12px}.question-card h4{margin:0 0 10px;color:var(--primary)}.choice-option{display:flex;gap:10px;align-items:flex-start;padding:12px;background:var(--soft);border:1px solid var(--border);border-radius:10px;margin:8px 0;cursor:pointer;overflow-wrap:anywhere}.choice-option:hover{background:var(--primary-soft)}.choice-option.selected{border-color:var(--primary);background:var(--primary-soft)}.choice-option input{accent-color:var(--primary);margin:7px 0 0;flex-shrink:0}.choice-number{font-weight:700;color:var(--primary);min-width:18px}.choice-text{font-family:Georgia,"Times New Roman",serif;font-size:1.02rem;line-height:1.6}.choice-ja{font-family:inherit;display:block;font-size:.85rem;color:var(--muted);margin-top:5px}.review-choice{cursor:default}.review-choice.correct-choice{background:#eaf7ef;border-color:#91c6a2}.review-choice.wrong-choice{background:#fcecec;border-color:#e0a2a2}.review-label{font-size:.83rem;display:block;font-weight:700}.review-line{font-size:.92rem;margin:0 0 10px}.result-panel{padding:20px;border:1px solid #91c6a2;border-radius:14px;background:#eaf7ef;margin:22px 0}.result-panel.failed{border-color:#e0a2a2;background:#fcecec}.result-panel h3{margin-bottom:8px}.result-score{font-size:2rem;font-weight:800;margin:0}.result-panel p:last-child{margin:4px 0 0}.translation{border-top:1px solid var(--border);padding-top:15px;margin:24px 0}.translation summary{cursor:pointer;color:var(--primary);font-weight:700;padding:8px 0}.translation div{font-size:.95rem;line-height:1.9;padding-top:12px}.exercise-actions{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--panel);padding:12px 26px max(12px,env(safe-area-inset-bottom));border-top:1px solid var(--border)}.exercise-actions p{font-size:.85rem;color:var(--muted);margin:0}.exercise-actions .primary{min-width:160px}.choice-sheet{width:min(620px,calc(100% - 32px));border:1px solid var(--border);border-radius:18px;padding:22px;max-height:85dvh;overflow-y:auto;color:var(--text);background:var(--panel);box-shadow:0 20px 54px #1926462e}.choice-sheet::backdrop{background:#18243766}.sheet-header{display:flex;align-items:center;justify-content:space-between;gap:12px}.sheet-header h2{font-size:1.1rem;margin:0}.sheet-header button{font-size:1.4rem;padding:4px 12px}.sheet-context{font-family:Georgia,"Times New Roman",serif;font-size:.98rem;line-height:1.8;padding:14px;margin:14px 0;background:var(--soft);border-radius:10px}.sheet-context mark{background:#dae6ff;color:var(--primary);font-weight:700}.sheet-actions{display:flex;justify-content:space-between;gap:8px;margin-top:16px}.sheet-actions button{font-size:.86rem}.sheet-handle{display:none}
+@media(max-width:799px){:root{--header:68px}.app-header{padding:8px 14px;gap:12px}.home-link{font-size:.85rem}.header-title h1{font-size:1rem}.header-title .eyebrow{font-size:.65rem}.app-header button{padding:7px 10px;font-size:.82rem}.set-selection{padding:28px 16px}.set-selection h2{font-size:1.35rem}.set-list{grid-template-columns:1fr;gap:14px;margin-top:20px}.set-card{padding:20px}.exercise{min-height:360px}.exercise-toolbar{padding:10px 14px}.set-status h2{font-size:1rem}.set-status>span{font-size:.8rem}.reading-controls{flex-wrap:wrap;gap:8px}.mobile-tabs{display:flex;flex-basis:100%;gap:8px}.mobile-tabs button{flex:1;font-size:.88rem;padding:8px 10px}.mobile-tabs button[aria-pressed="true"]{background:var(--primary);color:#fff;border-color:var(--primary)}.blank-nav{gap:5px}.blank-nav button{min-width:36px;min-height:36px;padding:4px 8px;font-size:.88rem}.active-label{font-size:.78rem}.reading-layout{display:block;padding:0 12px 10px}.reading-panel{height:100%;padding:20px 18px;scrollbar-gutter:auto;border-radius:12px}.reading-layout[data-mobile-view="summary"] .passage-panel,.reading-layout[data-mobile-view="passage"] .summary-panel{display:none}.english-text{font-size:1.06rem;line-height:1.95}.mobile-return{display:block;width:100%;color:var(--primary);margin-top:20px}.questions-content{display:none}.summary-panel.graded .questions-content{display:block}.exercise-actions{padding:10px 14px max(10px,env(safe-area-inset-bottom));gap:10px}.exercise-actions button{padding:9px 12px;font-size:.9rem}.exercise-actions .primary{min-width:130px;flex:1}.exercise-actions p{display:none}.choice-sheet{position:fixed;inset:auto 0 0;margin:0;width:100%;max-height:80dvh;border-radius:20px 20px 0 0;padding:12px 18px max(20px,env(safe-area-inset-bottom))}.sheet-handle{display:block;width:38px;height:4px;border-radius:4px;background:#c9cfda;margin:0 auto 12px}.choice-text{font-size:1rem}.sheet-context{max-height:130px;overflow-y:auto;margin:10px 0}.sheet-actions button{min-height:44px}.blank-button{min-width:58px}.result-score{font-size:1.8rem}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+/* =========================================
+   要約と選択肢を同時に表示する追加スタイル
+========================================= */
+
+.summary-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+
+.summary-column > .summary-panel {
+  flex: 1 1 0;
+  height: auto;
+  min-height: 0;
+}
+
+/* 下側の選択肢パネル */
+.choice-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 48%;
+
+  min-height: 0;
+  overflow: hidden;
+
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 4px 14px #1926460f;
+}
+
+.choice-panel-header,
+.choice-panel-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+
+  padding: 10px 16px;
+}
+
+.choice-panel-header {
+  border-bottom: 1px solid var(--border);
+}
+
+.choice-panel-header h3 {
+  margin: 0;
+  font-size: .95rem;
+  color: var(--primary);
+}
+
+.choice-panel-header button {
+  min-height: 36px;
+  padding: 5px 10px;
+  font-size: .78rem;
+}
+
+/* 選択肢だけをスクロールする領域 */
+.choice-panel-scroll {
+  flex: 1 1 0;
+  min-height: 0;
+
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  padding: 4px 16px;
+}
+
+.choice-panel-actions {
+  border-top: 1px solid var(--border);
+}
+
+.choice-panel-actions button {
+  font-size: .82rem;
+}
+
+/* 選択中の空所がある段落 */
+.active-summary-paragraph {
+  background: var(--primary-soft);
+  border-radius: 10px;
+  box-shadow: 0 0 0 8px var(--primary-soft);
+}
+
+/* 選択中の空所 */
+.blank-button.active-blank {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* スマホ */
+@media (max-width: 799px) {
+  /* 本文画面では、要約と選択肢をまとめて隠す */
+  .reading-layout[data-mobile-view="passage"] .summary-column {
+    display: none;
+  }
+
+  .choice-panel {
+    flex-basis: 50%;
+    border-radius: 12px;
+  }
+
+  .choice-panel-header,
+  .choice-panel-actions {
+    padding: 7px 10px;
+  }
+
+  .choice-panel-header h3 {
+    font-size: .83rem;
+  }
+
+  .choice-panel-header button {
+    font-size: .73rem;
+  }
+
+  .choice-panel-scroll {
+    padding: 2px 10px;
+  }
+
+  .choice-panel-scroll .choice-option {
+    padding: 9px;
+    margin: 6px 0;
+  }
+
+  .choice-panel-scroll .choice-text {
+    font-size: .97rem;
+  }
+
+  .choice-panel-actions button {
+    padding: 6px 9px;
+    min-height: 38px;
+    font-size: .75rem;
+  }
+}
+
+/* =========================================
+   採点後の段落別日本語訳
+========================================= */
+
+.english-text p.paragraph-translation {
+  margin: -10px 0 28px;
+  padding: 12px 14px;
+
+  color: var(--text);
+  background: #f4f7ff;
+
+  border-left: 3px solid #b8c9eb;
+  border-radius: 0 10px 10px 0;
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Hiragino Sans",
+    "Yu Gothic",
+    "Meiryo",
+    sans-serif;
+
+  font-size: .92rem;
+  line-height: 1.85;
+  letter-spacing: normal;
+}
+
+@media (max-width: 799px) {
+  .english-text p.paragraph-translation {
+    padding: 10px 12px;
+    margin-bottom: 24px;
+    font-size: .88rem;
+  }
+}
+
+/* 語句クイズへの入口 */
+.vocab-entry {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  margin: 24px 0 8px;
+  padding: 20px 24px;
+  background: var(--primary);
+  color: #fff;
+  text-decoration: none;
+  border: 1px solid var(--primary);
+  border-radius: 16px;
+  box-shadow: 0 5px 14px #19264620;
+}
+
+.vocab-entry:hover {
+  background: #304a7e;
+  border-color: #304a7e;
+}
+
+.vocab-entry:focus-visible {
+  outline: 3px solid #92abe1;
+  outline-offset: 4px;
+}
+
+.vocab-entry-icon {
+  flex-shrink: 0;
+  font-size: 1.8rem;
+}
+
+.vocab-entry-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.vocab-entry-text strong {
+  display: block;
+  font-size: 1.15rem;
+  line-height: 1.5;
+}
+
+.vocab-entry-text > span {
+  display: block;
+  margin-top: 4px;
+  font-size: .88rem;
+  line-height: 1.6;
+}
+
+.vocab-entry-arrow {
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+@media (max-width: 799px) {
+  .vocab-entry {
+    gap: 12px;
+    margin-top: 20px;
+    padding: 18px 16px;
+    border-radius: 12px;
+  }
+
+  .vocab-entry-icon {
+    font-size: 1.5rem;
+  }
+
+  .vocab-entry-text strong {
+    font-size: 1.05rem;
+  }
+
+  .vocab-entry-text > span {
+    font-size: .8rem;
+  }
+}
