@@ -1627,7 +1627,7 @@
   "in favor of",
   "～に賛成して",
   n(),
-  ["supporting", "in support of"],
+  ["be for", "in support of"],
   ["against", "opposed to"],
   "意見・提案・計画などに賛成することを表す。be in favor of A の形でもよく使う。",
   "前置詞表現"
