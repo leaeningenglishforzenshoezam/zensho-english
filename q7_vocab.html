@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SET別の語句クイズ｜大問7</title>
+
+  <link rel="stylesheet" href="q7.css">
+  <link rel="stylesheet" href="q7_vocab.css">
+</head>
+
+<body>
+  <header class="app-header">
+    <a href="q7.html" class="home-link">← 大問7</a>
+
+    <div class="header-title">
+      <p class="eyebrow">全商英検1級・大問7</p>
+      <h1>語句クイズ</h1>
+    </div>
+
+    <button id="backToSets" hidden>SET一覧</button>
+  </header>
+
+  <main class="vocab-main">
+    <p id="storageNotice" class="notice" role="status" hidden></p>
+
+    <div class="vocab-settings">
+      <label>
+        <input id="autoSpeak" type="checkbox">
+        自動発音
+      </label>
+      <span id="speechNotice" role="status"></span>
+    </div>
+
+    <section id="selection">
+      <h2 id="selectionHeading" tabindex="-1">
+        SET別に語句を練習しよう
+      </h2>
+
+      <p>
+        英語の意味を4択から選びます。
+        間違えた語句は、正解すると復習対象から外れます。
+      </p>
+
+      <div id="vocabSets" class="set-list"></div>
+    </section>
+
+        <section id="setup" hidden aria-labelledby="setupTitle">
+      <h2 id="setupTitle" tabindex="-1"></h2>
+      <p id="setupStats"></p>
+
+      <form id="quizSettings" class="vocab-panel">
+        <div class="range-inputs">
+          <label>
+            開始する語句番号
+            <input
+              id="startNumber"
+              type="number"
+              min="1"
+              step="1"
+              value="1"
+              required
+              inputmode="numeric"
+            >
+          </label>
+
+          <label>
+            一度に解く問題数
+            <input
+              id="questionCount"
+              type="number"
+              min="1"
+              step="1"
+              value="10"
+              required
+              inputmode="numeric"
+            >
+          </label>
+        </div>
+
+        <p id="rangePreview" role="status" aria-live="polite"></p>
+
+        <p class="range-help">
+          開始番号から番号順に出題します。
+          残りが指定数より少ない場合は、最後の番号まで出題します。
+          復習では開始番号以降の間違えた語句を番号順に出題します。
+        </p>
+
+        <div class="vocab-actions">
+          <button type="submit" class="primary">
+            指定した範囲で始める
+          </button>
+          <button id="startWeak" type="button">
+            間違えた語句だけ
+          </button>
+        </div>
+
+        <p id="setupMessage" role="status"></p>
+      </form>
+
+      <h3>語句一覧</h3>
+      <p>
+        「ここから」を押すと開始番号を設定できます。
+        番号はSETごとに1から振っています。
+      </p>
+
+      <div class="vocab-table-wrap">
+        <table class="vocab-table">
+          <caption class="sr-only">
+            語句番号・英語・日本語・学習状況
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">番号</th>
+              <th scope="col">英語・日本語</th>
+              <th scope="col">学習状況</th>
+              <th scope="col">開始</th>
+            </tr>
+          </thead>
+          <tbody id="wordList"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section
+      id="quiz"
+      class="vocab-panel"
+      hidden
+      aria-labelledby="quizTitle"
+    >
+      <p id="quizTitle" class="eyebrow"></p>
+      <p id="counter" role="status"></p>
+      <p id="wordNumber" class="eyebrow"></p>
+
+      <div class="word-row">
+        <h2 id="word" lang="en" tabindex="-1"></h2>
+        <button id="speak" aria-label="英語の語句を発音する">
+          🔊 発音
+        </button>
+      </div>
+
+      <div
+        id="options"
+        class="vocab-options"
+        role="group"
+        aria-label="日本語の意味を選ぶ"
+      ></div>
+
+      <div id="feedback" role="status" hidden></div>
+
+      <button id="next" class="primary" hidden>
+        次の語句 →
+      </button>
+
+      <details id="context" class="vocab-context" hidden>
+        <summary>元の英文と日本語訳を確認する</summary>
+        <p id="contextSource"></p>
+        <p id="contextEn" lang="en"></p>
+        <p id="contextJa"></p>
+      </details>
+    </section>
+
+    <section id="result" class="vocab-panel" hidden>
+      <h2 id="resultTitle" tabindex="-1">練習結果</h2>
+      <p id="vocabScore" class="result-score"></p>
+      <p id="resultMessage"></p>
+
+      <div id="reviewList"></div>
+
+            <div class="vocab-actions">
+        <button id="nextBatch" class="primary">
+          続きの範囲へ
+        </button>
+        <button id="again">
+          同じ語句でもう一度
+        </button>
+        <button id="weakAgain">
+          間違えた語句を復習
+        </button>
+        <button id="toSetup">
+          語句一覧・設定へ
+        </button>
+      </div>
+    </section>
+
+    <noscript>このクイズにはJavaScriptが必要です。</noscript>
+  </main>
+
+  <script src="q7_data.js"></script>
+  <script src="q7_vocab_data.js"></script>
+  <script src="q7_vocab.js"></script>
+</body>
+</html>
