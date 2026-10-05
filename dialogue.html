@@ -16,6 +16,7 @@
   <title>会話文完成問題｜全商英検1級</title>
 
   <link rel="stylesheet" href="dialogue.css">
+  <link rel="stylesheet" href="question_setup.css">
 </head>
 
 <body class="setup-mode">
@@ -38,7 +39,7 @@
 
         <div class="header-title-area">
           <p class="page-label">全商英検1級・大問8</p>
-          <h1 class="page-title">Dialogue Completion</h1>
+          <h1 class="page-title">会話文完成</h1>
         </div>
       </div>
 
@@ -48,10 +49,168 @@
   class="header-button"
   aria-label="出題条件を変更する"
 >
-  ⚙ 出題条件を変更
+  問題を選ぶ
 </button>
 
     </header>
+
+  <section
+    id="settingsModal"
+    class="settings-modal question-setup" tabindex="-1"
+    aria-labelledby="settingsModalTitle"
+    hidden
+  >
+
+    <div class="settings-modal-header">
+
+      <div>
+        <p class="panel-label">Practice</p>
+        <h2 id="settingsModalTitle">問題を選ぶ</h2>
+        <p class="setup-help">範囲と出題順を選んで開始。下の一覧から直接選ぶこともできます。</p>
+      </div>
+
+      <button
+        type="button"
+        id="closeSettingsButton"
+        class="action-button secondary-button"
+        aria-label="問題に戻る"
+      >
+        問題に戻る
+      </button>
+
+    </div>
+
+    <div class="settings-form setup-controls">
+
+      <fieldset class="setting-group">
+
+        <legend>出題順</legend>
+
+        <label class="setting-option">
+          <input
+            type="radio"
+            name="questionOrder"
+            value="sequential"
+            checked
+          >
+          <span>
+            <strong>順番</strong>
+            <small>問題番号順に出題します</small>
+          </span>
+        </label>
+
+        <label class="setting-option">
+          <input
+            type="radio"
+            name="questionOrder"
+            value="random"
+          >
+          <span>
+            <strong>ランダム</strong>
+            <small>問題の順番をシャッフルします</small>
+          </span>
+        </label>
+
+        <label class="setting-option">
+  <input
+    type="radio"
+    name="questionOrder"
+    value="unattempted"
+  >
+  <span>
+    <strong>未挑戦優先</strong>
+    <small>
+      解いた回数が少ない問題から出題します
+    </small>
+  </span>
+</label>
+
+      </fieldset>
+
+      <fieldset class="setting-group">
+
+        <legend>出題範囲</legend>
+        <p class="setup-help">開始と終了を同じ番号にすると、１問だけ練習できます。</p>
+
+        <label
+          for="questionRangeStart"
+          class="range-label"
+        >
+          開始問題
+        </label>
+
+        <select
+          id="questionRangeStart"
+          class="setting-select"
+        >
+          <!-- dialogue_page.jsで生成 -->
+        </select>
+
+        <label
+          for="questionRangeEnd"
+          class="range-label"
+        >
+          終了問題
+        </label>
+
+        <select
+          id="questionRangeEnd"
+          class="setting-select"
+        >
+          <!-- dialogue_page.jsで生成 -->
+        </select>
+
+      </fieldset>
+
+
+
+    </div>
+
+    <div class="settings-modal-actions">
+
+      <button
+        type="button"
+        id="cancelSettingsButton"
+        class="action-button secondary-button"
+      >
+        問題に戻る
+      </button>
+
+      <button
+  type="button"
+  id="applySettingsButton"
+  class="action-button primary-button"
+>
+  ▶ この条件で開始
+</button>
+
+    </div>
+
+
+      <fieldset
+  class="setting-group question-history-group"
+>
+
+  <legend>問題一覧・学習履歴</legend>
+
+  <div
+    id="questionHistorySummary"
+    class="question-history-summary"
+  >
+    挑戦済み 0問 ／ 未挑戦 30問 ／ 合計 0回
+  </div>
+
+  <p class="question-history-help">テーマを押すと、その問題から番号順に開始します。</p>
+
+  <div
+    id="questionAttemptList"
+    class="question-attempt-list"
+  >
+    <!-- dialogue_page.jsで問題一覧を表示 -->
+  </div>
+
+</fieldset>
+  </section>
 
 
     <!-- =========================
@@ -331,163 +490,7 @@
     hidden
   ></div>
 
-  <section
-    id="settingsModal"
-    class="settings-modal"
-    aria-labelledby="settingsModalTitle"
-    aria-modal="true"
-    role="dialog"
-    hidden
-  >
 
-    <div class="settings-modal-header">
-
-      <div>
-        <p class="panel-label">Question Settings</p>
-        <h2 id="settingsModalTitle">出題設定</h2>
-      </div>
-
-      <button
-        type="button"
-        id="closeSettingsButton"
-        class="close-sheet-button"
-        aria-label="出題設定を閉じる"
-      >
-        ×
-      </button>
-
-    </div>
-
-    <div class="settings-form">
-
-      <fieldset class="setting-group">
-
-        <legend>出題順</legend>
-
-        <label class="setting-option">
-          <input
-            type="radio"
-            name="questionOrder"
-            value="sequential"
-            checked
-          >
-          <span>
-            <strong>順番</strong>
-            <small>問題番号順に出題します</small>
-          </span>
-        </label>
-
-        <label class="setting-option">
-          <input
-            type="radio"
-            name="questionOrder"
-            value="random"
-          >
-          <span>
-            <strong>ランダム</strong>
-            <small>問題の順番をシャッフルします</small>
-          </span>
-        </label>
-
-        <label class="setting-option">
-  <input
-    type="radio"
-    name="questionOrder"
-    value="unattempted"
-  >
-  <span>
-    <strong>未挑戦優先</strong>
-    <small>
-      解いた回数が少ない問題から出題します
-    </small>
-  </span>
-</label>
-
-      </fieldset>
-
-      <fieldset class="setting-group">
-
-        <legend>出題範囲</legend>
-
-        <label
-          for="questionRangeStart"
-          class="range-label"
-        >
-          開始問題
-        </label>
-
-        <select
-          id="questionRangeStart"
-          class="setting-select"
-        >
-          <!-- dialogue_page.jsで生成 -->
-        </select>
-
-        <label
-          for="questionRangeEnd"
-          class="range-label"
-        >
-          終了問題
-        </label>
-
-        <select
-          id="questionRangeEnd"
-          class="setting-select"
-        >
-          <!-- dialogue_page.jsで生成 -->
-        </select>
-
-      </fieldset>
-
-      <fieldset
-  class="setting-group question-history-group"
->
-
-  <legend>学習履歴・問題選択</legend>
-
-  <div
-    id="questionHistorySummary"
-    class="question-history-summary"
-  >
-    挑戦済み 0問 ／ 未挑戦 30問 ／ 合計 0回
-  </div>
-
-  <p class="question-history-help">
-    問題を押すと、その問題から番号順に開始します。
-  </p>
-
-  <div
-    id="questionAttemptList"
-    class="question-attempt-list"
-  >
-    <!-- dialogue_page.jsで問題一覧を表示 -->
-  </div>
-
-</fieldset>
-
-    </div>
-
-    <div class="settings-modal-actions">
-
-      <button
-        type="button"
-        id="cancelSettingsButton"
-        class="action-button secondary-button"
-      >
-        キャンセル
-      </button>
-
-      <button
-  type="button"
-  id="applySettingsButton"
-  class="action-button primary-button"
->
-  問題を開始する
-</button>
-
-    </div>
-
-  </section>
 
 
 <script src="learning_categories.js"></script>
@@ -502,3 +505,4 @@
 
 </body>
 </html>
+
