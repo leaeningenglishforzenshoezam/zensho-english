@@ -233,6 +233,10 @@
               大問1演習（アクセント）
             </button>
 
+            <button class="btn primary" id="goQ7">
+  大問7演習（要約空所補充）
+</button>
+
             <button
               class="btn primary"
               id="goDialogue"
@@ -382,18 +386,30 @@
 
   <div class="goimonHomeSpeech">
 
-    <div class="goimonHomeSpeechIcon">
-      💬
-    </div>
+  <div class="goimonHomeSpeechIcon">
+    💬
+  </div>
+
+  <div class="goimonHomeSpeechContent">
 
     <div
       class="goimonSpeechBubble"
       id="goimonSpeechText"
     >
-      今日もいっしょに進もう。
+      今日の学習を見て、おすすめを考えるよ。
     </div>
 
+    <button
+      type="button"
+      class="goimonAdviceActionBtn hidden"
+      id="goimonAdviceActionBtn"
+    >
+      おすすめの学習へ
+    </button>
+
   </div>
+
+</div>
 
 
   <div
@@ -1821,11 +1837,14 @@
   </script>
 
 
-  <script src="goimon_dialogues.js"></script>
-  <script src="developer_messages.js"></script>
-  <script src="goimon_dex.js"></script>
-  <script src="goimon_rules.js"></script>
-  <script src="goimon.js"></script>
+<script src="learning_categories.js"></script>
+<script src="learning_log.js"></script>
+
+<script src="goimon_dialogues.js"></script>
+<script src="developer_messages.js"></script>
+<script src="goimon_rules.js"></script>
+<script src="goimon_dex.js"></script>
+<script src="goimon.js"></script>
 
 
   <script>
@@ -2880,6 +2899,12 @@
             "accent.html";
         }
       );
+
+      document
+  .getElementById("goQ7")
+  .addEventListener("click", () => {
+    location.href = "q7.html";
+  });
 
 
     document
