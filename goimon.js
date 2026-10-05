@@ -636,6 +636,39 @@ if (eventKey === "listening") {
     }
   }
 
+  // Home advice is separate from saved reactions to learning and evolution.
+  // Reuse it during redraws, and refresh when the level or learning record changes.
+  let homeAdviceCache = null;
+
+  function getHomeAdvice(g) {
+    const dialogues = window.GoimonDialogues;
+    if (!dialogues || typeof dialogues.getCoachingMessage !== "function") {
+      return null;
+    }
+
+    const level = getLevel();
+    const signature = JSON.stringify([
+      level,
+      g.type,
+      new Date().toDateString(),
+      loadJson(`zensho_learning_log_v1_lv${level}`, null)
+    ]);
+
+    if (!homeAdviceCache || homeAdviceCache.signature !== signature) {
+      homeAdviceCache = {
+        signature,
+        message: dialogues.getCoachingMessage({
+          level,
+          typeKey: g.type,
+          allowTrivia: false,
+          forceAdvice: true
+        })
+      };
+    }
+
+    return homeAdviceCache.message;
+  }
+
   function getNextThresholdForStage(stage) {
     return STAGE_POINT_THRESHOLDS[stage] || null;
   }
@@ -1253,9 +1286,23 @@ function addReading10Perfect() {
       subText.textContent = dex?.description || getTypeDescription(g.type);
     }
 
-    maybeSeedSpeech();
-    const last = getLastEventState();
-    if (speech) speech.textContent = last.speech || "今日もいっしょに進もう。";
+    if (speech) {
+      const advice = getHomeAdvice(g);
+      speech.textContent = advice?.text || "まず英→日で、覚えている単語と迷う単語を確かめよう。";
+
+      const actionButton = document.getElementById("goimonAdviceActionBtn");
+      if (actionButton) {
+        const action = advice?.action;
+        const category = action?.category && window.LearningCategories?.getCategory(action.category);
+        const available = !category || category.levels?.includes(getLevel());
+        const page = action?.page || category?.page;
+        const hasAction = Boolean(page && available);
+        actionButton.classList.toggle("hidden", !hasAction);
+        actionButton.disabled = !hasAction;
+        actionButton.textContent = action?.label || "おすすめの学習へ";
+        actionButton.onclick = hasAction ? () => { location.href = page; } : null;
+      }
+    }
   }
 
   function renderNicknamePromptCard(g) {
