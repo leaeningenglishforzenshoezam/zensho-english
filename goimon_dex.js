@@ -7,7 +7,7 @@ window.GOIMON_DEX = {
     egg: "たまご",
     child: "幼体",
     growth: "成長体",
-    mid: "中間体",
+    mid: "中級体",
     final: "上級体"
   },
 
@@ -241,3 +241,19 @@ window.GoimonDex = {
     return window.GOIMON_DEX?.species?.[speciesKey]?.[stageKey] || null;
   }
 };
+
+
+// 大問別の特別キャラ。goimon_rules.js の確定画像・説明を登録する。
+for (const config of Object.values(window.GOIMON_SPECIAL_CONFIG || {})) {
+  const stages = {child:"幼体", growth:"成長体", mid:"中級体", final:"上級体"};
+  const species = {label:config.label};
+  for (const [stage, label] of Object.entries(stages)) {
+    species[stage] = {
+      name:config.names[stage] || `${config.label}・${label}`,
+      description:config.descriptions?.[stage] || "学習の累計達成で解放された特別な系統。",
+      image:config.images[stage] || window.GOIMON_DEX.species[config.fallbackSpecies][stage].image
+    };
+  }
+  window.GOIMON_DEX.species[config.route] = species;
+  window.GOIMON_DEX.speciesOrder.push(config.route);
+}
