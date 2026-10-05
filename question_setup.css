@@ -1,0 +1,79 @@
+/* Shared, inline question selection for 大問8 / 大問10. */
+.question-setup.settings-modal {
+  position: static;
+  width: calc(100% - 32px);
+  max-height: none;
+  margin: 20px 16px;
+  padding: 22px;
+  overflow: visible;
+  transform: none;
+  animation: none;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+}
+.question-setup[hidden] { display: none !important; }
+.setup-help {
+  margin: 6px 0 12px;
+  color: var(--text-sub);
+  font-size: .8rem;
+  line-height: 1.6;
+}
+.question-setup .settings-modal-header { align-items: flex-start; gap: 16px; }
+.question-setup .settings-modal-header > div { min-width: 0; }
+.question-setup #closeSettingsButton { flex-shrink: 0; padding: 9px 12px; font-size: .8rem; }
+.question-setup .setup-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 16px;
+}
+.question-setup .setting-group { min-width: 0; }
+.question-setup .setting-option { margin: 0 0 8px; }
+.question-setup .setting-option:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--primary-soft, #eef5ff);
+}
+.question-setup .settings-modal-actions {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0 24px;
+}
+.question-setup #applySettingsButton { flex: 1; }
+.question-setup .question-history-group {
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.question-setup .question-attempt-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-height: none;
+  overflow: visible;
+  padding: 0;
+  gap: 8px;
+}
+.question-setup .question-attempt-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 64px;
+  padding: 12px;
+  text-align: left;
+}
+.question-setup .question-attempt-title {
+  white-space: normal;
+  overflow: visible;
+  display: block;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  -webkit-line-clamp: unset;
+}
+.question-setup .question-attempt-arrow { grid-column: auto; grid-row: auto; }
+body.setup-mode #openSettingsButton { display: none; }
+@media (max-width: 600px) {
+  .question-setup.settings-modal { width: calc(100% - 24px); padding: 16px; margin: 12px; }
+  .question-setup .setup-controls { grid-template-columns: 1fr; gap: 16px; }
+  .question-setup .question-attempt-list { grid-template-columns: 1fr; }
+  .question-setup .question-attempt-item { gap: 8px; }
+  .question-setup .settings-modal-actions { flex-direction: column-reverse; }
+}
