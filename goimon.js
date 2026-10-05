@@ -48,6 +48,9 @@ window.GoimonUI = (function () {
     kotonoha: "ことのは系",
     mr_uno: "MR.UNO"
   };
+  for (const config of Object.values(window.GOIMON_SPECIAL_CONFIG || {})) {
+    TYPE_LABELS[config.route] = config.label;
+  }
 
   // 学習モードごとの標準加算値
   const POINT_RULES = {
@@ -758,6 +761,27 @@ if (eventKey === "listening") {
     return updated;
   }
 
+  function addLearningPointsOnce(claimId, delta, eventKey) {
+    if (!claimId) return false;
+    let g = ensureCurrent();
+    if (!g.learningRewardClaims || typeof g.learningRewardClaims !== "object") g.learningRewardClaims = {};
+    if (g.learningRewardClaims[claimId]) return false;
+    g.learningRewardClaims[claimId] = true;
+    // 取得済みIDとポイントを、同じ個体データへの一回の保存で確定する。
+    applyDeltaToGoimon(g, delta, eventKey);
+    renderHome(); renderAllMiniHooks();
+    return true;
+  }
+
+  function addQ7ReadingResult(claimId, correct) {
+    if (!Number.isInteger(correct) || correct < 0 || correct > 5) return false;
+    return addLearningPointsOnce(`q7:${claimId}`, {bunmyaku:correct * 2 + (correct === 5 ? 10 : 0)}, "sentence");
+  }
+
+  function addQ7VocabCorrect(claimId) {
+    return addLearningPointsOnce(`q7-vocab:${claimId}`, {chie:1}, "quiz_enja");
+  }
+
   function addPointsByRuleKey(ruleKey) {
     const rule = POINT_RULES[ruleKey];
     if (!rule) return ensureCurrent();
@@ -1297,6 +1321,28 @@ function isMrUnoUnlocked() {
   return false;
 }
 
+  function getAvailableSpecialRoutes() {
+    const routes = [];
+    if (isMrUnoUnlocked()) routes.push({id:"mr_uno", label:"MR.UNO"});
+    for (const config of Object.values(window.GOIMON_SPECIAL_CONFIG || {})) {
+      if (window.GoimonAchievements?.isUnlocked(config.route)) routes.push({id:config.route, label:config.label});
+    }
+    return routes;
+  }
+
+  function selectSpecialRoute(route) {
+    if (route && !getAvailableSpecialRoutes().some(r => r.id === route)) return false;
+    let g = ensureCurrent();
+    if (g.stage !== "egg") return false;
+    g.specialRoute = route || "";
+    // すでに進化可能なたまごでも、選び直しをすぐ反映する。
+    g = determinePendingEvolution(g);
+    saveCurrent(g);
+    setLastEventState({eventKey:"", speech:route ? "特別な道を選びました。次の進化から反映されます。" : "いつもの道に戻りました。"});
+    renderHome();
+    return true;
+  }
+
   function renderSpecialRouteBanner(g) {
     const card = document.getElementById("goimonSpecialRouteBanner");
     const title = card?.querySelector(".goimonBannerTitle");
@@ -1306,19 +1352,36 @@ function isMrUnoUnlocked() {
 
     if (!card || !title || !text || !selectBtn || !clearBtn) return;
 
-    const unlocked = isMrUnoUnlocked() && g.stage === "egg";
-    card.classList.toggle("hidden", !unlocked);
-    if (!unlocked) return;
-
-    title.textContent = "？？？";
+    const routes = g.stage === "egg" ? getAvailableSpecialRoutes() : [];
+    g = ensureCurrent();
+    card.classList.toggle("hidden", !routes.length);
+    if (!routes.length) return;
+    title.textContent = "特別な進化ルート";
     selectBtn.textContent = "特別な道を選ぶ";
     clearBtn.textContent = "元に戻す";
-
-    if (g.specialRoute === "mr_uno") {
-      text.textContent = "何か特別な気配を選択中です。次の進化から反映されます。";
-    } else {
-      text.textContent = "何か特別な気配を感じる……。このたまごは、いつもと違う道を選べるようです。";
+    clearBtn.disabled = !g.specialRoute;
+    const selected = routes.find(r => r.id === g.specialRoute);
+    text.textContent = selected ? `${selected.label}を選択中。次の進化から反映されます。` : "解放したルートから一つ選べます。進化前なら変更できます。";
+    let list = document.getElementById("goimonSpecialRouteList");
+    if (!list) {
+      list = document.createElement("div"); list.id = "goimonSpecialRouteList";
+      list.hidden = true; list.setAttribute("role", "group");
+      list.setAttribute("aria-label", "特別な進化ルートの選択");
+      list.style.cssText = "margin-top:14px;width:100%;";
+      card.appendChild(list);
     }
+    selectBtn.setAttribute("aria-controls", list.id);
+    selectBtn.setAttribute("aria-expanded", String(!list.hidden));
+    list.replaceChildren();
+    routes.forEach(route => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = `${route.id === g.specialRoute ? "✓ " : ""}${route.label}`;
+      button.setAttribute("aria-pressed", String(route.id === g.specialRoute));
+      button.style.cssText = "width:100%;min-height:48px;padding:12px;margin-bottom:10px;text-align:left;white-space:normal;overflow-wrap:anywhere;";
+      button.addEventListener("click", () => selectSpecialRoute(route.id));
+      list.appendChild(button);
+    });
   }
 
     function renderDetailSheet(g) {
@@ -1433,7 +1496,8 @@ function isMrUnoUnlocked() {
         chip.className = "goimonHistoryChip";
         chip.innerHTML = `
           <div class="goimonHistoryImgWrap">
-            <img src="${escapeHtml(item.imageKey || STAGE_IMAGES.egg)}" alt="${escapeHtml(item.label || "ゴイモン")}">
+            <img src="${escapeHtml((window.GOIMON_SPECIAL_CONFIG && Object.values(window.GOIMON_SPECIAL_CONFIG).some(config => config.route === item.type)
+              ? getImageFor(item.type, item.stage) : item.imageKey) || STAGE_IMAGES.egg)}" alt="${escapeHtml(item.label || "ゴイモン")}">
           </div>
           <div class="goimonHistoryStage">${escapeHtml(getStageLabel(item.stage || "egg"))}</div>
           <div class="goimonHistoryName">${escapeHtml(item.label || "ゴイモン")}</div>
@@ -1717,22 +1781,17 @@ function isMrUnoUnlocked() {
 
     if (selectMrUnoBtn) {
       selectMrUnoBtn.addEventListener("click", () => {
-        if (!isMrUnoUnlocked()) return;
-        const g = ensureCurrent();
-        if (g.stage !== "egg") return;
-        g.specialRoute = "mr_uno";
-        saveCurrent(g);
-        setLastEventState({ eventKey: "", speech: "何か特別な気配が、このたまごに宿っている……。" });
-        renderHome();
+        const list = document.getElementById("goimonSpecialRouteList");
+        if (!list || ensureCurrent().stage !== "egg") return;
+        list.hidden = !list.hidden;
+        selectMrUnoBtn.setAttribute("aria-expanded", String(!list.hidden));
+        if (!list.hidden) list.querySelector("button")?.focus();
       });
     }
 
     if (clearSpecialBtn) {
       clearSpecialBtn.addEventListener("click", () => {
-        const g = ensureCurrent();
-        g.specialRoute = "";
-        saveCurrent(g);
-        renderHome();
+        selectSpecialRoute("");
       });
     }
 
@@ -1894,10 +1953,15 @@ function isMrUnoUnlocked() {
     }
   }
 
-  migrateLegacyDataIfNeeded();
-  maybeSeedSpeech();
-  ensureCurrent();
-  markDiscovered("nagomi", "egg");
+  // 保存領域が利用できない環境でも、各学習ページの演習は継続する。
+  try {
+    migrateLegacyDataIfNeeded();
+    maybeSeedSpeech();
+    ensureCurrent();
+    markDiscovered("nagomi", "egg");
+  } catch (error) {
+    console.warn("ゴイモンの保存領域を初期化できませんでした。", error);
+  }
 
   return {
     ensureCurrent,
@@ -1914,6 +1978,10 @@ function isMrUnoUnlocked() {
     getDisplayDescription,
     getGoimonPrimaryName,
     getImageFor,
+    getAvailableSpecialRoutes,
+    selectSpecialRoute,
+    addQ7ReadingResult,
+    addQ7VocabCorrect,
 
     addPoints,
 addPointsByRuleKey,
@@ -2349,6 +2417,10 @@ window.GoimonDexUI = (function () {
     if (!mrUnoDiscovered && currentSpecies !== "mr_uno") {
       order = order.filter(speciesKey => speciesKey !== "mr_uno");
     }
+    order = order.filter(speciesKey => {
+      if (!window.GOIMON_RULES?.specialRoutes?.[speciesKey]?.achievementRoute) return true;
+      return currentSpecies === speciesKey || ["child", "growth", "mid", "final"].some(stage => isUnlocked(speciesKey, stage));
+    });
 
     let html = "";
     html += buildEggNodeHtml(currentSpecies, currentStage);
