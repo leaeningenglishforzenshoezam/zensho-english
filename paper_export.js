@@ -167,14 +167,23 @@
     const type = host.dataset.paperType;
     const source = type === "q7" ? window.q7Sets : type === "q8" ? dialogueQuestions : q10Questions;
     const data = uniqueSources(source).map(q => normalize(type, q));
-    host.innerHTML = `<h3>紙で解く・教材を保存</h3>
+    host.innerHTML = `<button type="button" id="paperExportToggle" class="paper-export-toggle" aria-expanded="false" aria-controls="paperExportPanel">問題を紙で解きたい人はこちら <span aria-hidden="true">▼</span></button>
+      <div id="paperExportPanel" class="paper-export-panel" hidden><h3>紙で解く・教材を保存</h3>
       <fieldset class="paper-export-selection"><legend>ダウンロードする問題（複数選択可）</legend>
       <div class="paper-select-actions"><button type="button" id="paperSelectAll">すべて選択</button><button type="button" id="paperSelectNone">選択解除</button>${type !== "q7" ? '<button type="button" id="paperSelectRange">現在の出題範囲を選択</button>' : ""}</div>
       <div class="paper-question-list">${data.map((q, i) => `<label class="paper-question-item"><input type="checkbox" name="paperQuestion" value="${i}"><span><strong>${type === "q7" ? "SET" : "問題"} ${q.number}</strong> ${escape(q.titleJa || q.title)}</span></label>`).join("")}</div>
       <p id="paperSelectedCount" aria-live="polite"></p></fieldset>
       <label>出力内容 <select id="paperExportMode"><option value="both">問題＋解答・日本語訳</option><option value="questions">問題のみ</option><option value="answers">解答・日本語訳のみ</option></select></label>
       <div class="paper-export-actions"><button type="button" id="exportPaperPdf">PDFで出力</button><button type="button" id="exportPaperText">テキストをダウンロード</button></div>
-      <p>チェックした問題を出力します。PDFは印刷画面で保存できます。選択肢は元データの番号順です。</p><p id="paperExportStatus" role="status" aria-live="polite"></p>`;
+      <p>チェックした問題を出力します。PDFは印刷画面で保存できます。選択肢は元データの番号順です。</p><p id="paperExportStatus" role="status" aria-live="polite"></p></div>`;
+    const toggle = document.getElementById("paperExportToggle");
+    const panel = document.getElementById("paperExportPanel");
+    toggle.addEventListener("click", () => {
+      const expanded = toggle.getAttribute("aria-expanded") !== "true";
+      toggle.setAttribute("aria-expanded", String(expanded));
+      panel.hidden = !expanded;
+      toggle.querySelector("span").textContent = expanded ? "▲" : "▼";
+    });
     const inputs = [...host.querySelectorAll('input[name="paperQuestion"]')];
     function updateCount() {
       const count = inputs.filter(input => input.checked).length;

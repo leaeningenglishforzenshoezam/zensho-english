@@ -1,5 +1,6 @@
-.paper-export {
-  margin: 18px 0;
+.paper-export { margin: 18px 0; }
+.paper-export-panel {
+  margin-top: 12px;
   padding: 16px;
   border: 1px solid #dce3ec;
   border-radius: 12px;
@@ -32,3 +33,8 @@
   .paper-export label { align-items: stretch; flex-direction: column; }
   .paper-question-list { grid-template-columns: 1fr; }
 }
+
+.paper-export-panel[hidden] { display: none !important; }
+.paper-export .paper-export-toggle { width: 100%; text-align: left; }
+.paper-export-toggle span { float: right; margin-left: 8px; }
+.paper-export-toggle:focus-visible { outline: 3px solid #8db4f7; outline-offset: 3px; }
