@@ -1,0 +1,34 @@
+.paper-export {
+  margin: 18px 0;
+  padding: 16px;
+  border: 1px solid #dce3ec;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #243047;
+}
+.paper-export h3 { margin: 0 0 10px; font-size: 1rem; }
+.paper-export label { display: flex; align-items: center; gap: 10px; min-width: 0; margin: 8px 0; font-size: .9rem; }
+.paper-export select { max-width: 100%; min-width: 0; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; color: #243047; font: inherit; }
+.paper-export-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.paper-export button { padding: 10px 16px; border: 1px solid #315eae; border-radius: 8px; background: #fff; color: #315eae; font: inherit; font-weight: 700; cursor: pointer; }
+.paper-export #exportPaperPdf { background: #315eae; color: #fff; }
+.paper-export p { margin: 10px 0 0; font-size: .78rem; line-height: 1.6; }
+.paper-export-selection { margin: 10px 0; padding: 0; border: 0; min-width: 0; }
+.paper-export-selection legend { font-size: .9rem; font-weight: 700; margin-bottom: 8px; }
+.paper-select-actions { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.paper-select-actions button { padding: 6px 9px; font-size: .78rem; border-color: #cbd5e1; }
+.paper-question-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 260px; overflow-y: auto; padding: 4px; }
+.paper-export label.paper-question-item { display: flex; flex-direction: row; align-items: flex-start; gap: 8px; margin: 0; padding: 9px; border: 1px solid #dce3ec; border-radius: 8px; background: #fff; cursor: pointer; font-size: .8rem; }
+.paper-question-item input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; accent-color: #315eae; }
+.paper-question-item span { min-width: 0; overflow-wrap: anywhere; }
+.paper-question-item:has(input:checked) { border-color: #8db4f7; background: #edf4ff; }
+.paper-export button:disabled { opacity: .5; cursor: default; }
+.paper-export-range { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.paper-export-range label { flex-direction: column; align-items: stretch; }
+.paper-export [role="status"]:empty { display: none; }
+@media (max-width: 600px) {
+  .paper-export-range { grid-template-columns: 1fr; gap: 0; }
+  .paper-export-actions { flex-direction: column; }
+  .paper-export label { align-items: stretch; flex-direction: column; }
+  .paper-question-list { grid-template-columns: 1fr; }
+}
