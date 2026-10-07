@@ -63,6 +63,9 @@ const BEGINNER_THRESHOLDS = {
   const pickDetail =
     document.getElementById("pickDetail");
 
+  const guideMessage = document.getElementById("guideMessage");
+  const pickReason = document.getElementById("pickReason");
+
   const startPrimaryBtn =
     document.getElementById("startEnja");
 
@@ -1143,6 +1146,13 @@ function getBeginnerFlowCandidate(
         "おすすめを表示できませんでした。";
 
       pickDetail.textContent = "";
+      currentPrimaryPlan = null;
+      if (guideMessage) guideMessage.textContent = "学習ページから選んでみよう";
+      if (pickReason) pickReason.textContent = "下の「学習ページを選ぶ」から始められます。";
+      if (startPrimaryBtn) startPrimaryBtn.disabled = true;
+      [altBtn1, altBtn2].forEach(button => {
+        if (button) { button.disabled = true; button.dataset.url = ""; }
+      });
 
       return;
     }
@@ -1156,10 +1166,25 @@ function getBeginnerFlowCandidate(
     badge.textContent =
       `現在：全商英検 ${plan.lv}級`;
 
-   pickInfo.textContent =
-  plan.beginnerFlow
-    ? `まずは「${label}」から始めよう`
-    : `今日は「${label}」から始めよう`;
+    const shortLabel = c.category.shortLabel || label;
+    pickInfo.textContent = c.block
+      ? `${shortLabel}｜単語${c.start}〜${c.end}`
+      : `${shortLabel}｜級全体`;
+
+    if (guideMessage) {
+      guideMessage.textContent = plan.beginnerFlow
+        ? `まずは${shortLabel}から！`
+        : `今日は${shortLabel}に挑戦！`;
+    }
+    if (pickReason) {
+      pickReason.textContent = plan.beginnerFlow
+        ? "基礎から順番に進めよう。"
+        : c.attempted <= 0
+          ? "まだ取り組んでいない学習です。"
+          : c.accuracy !== null && (c.judgedAttempts ?? c.attempted) >= MIN_JUDGED_ATTEMPTS && c.accuracy < plan.passLine
+            ? "目安まで、もう少し復習しよう。"
+            : "学習記録から選んだ次の一歩です。";
+    }
 
     const place =
       c.block
@@ -1196,7 +1221,7 @@ function getBeginnerFlowCandidate(
         false;
 
       startPrimaryBtn.textContent =
-        `このおすすめで始める（${c.category.shortLabel || label}）`;
+        "この学習を始める →";
     }
 
     const alt1 =
