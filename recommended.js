@@ -1154,12 +1154,10 @@ function getBeginnerFlowCandidate(
       c.category.label;
 
     badge.textContent =
-      `現在：全商英検 ${plan.lv}級`;
+      `全商英検 ${plan.lv}級`;
 
    pickInfo.textContent =
-  plan.beginnerFlow
-    ? `まずは「${label}」から始めよう`
-    : `今日は「${label}」から始めよう`;
+  label;
 
     const place =
       c.block
@@ -1175,18 +1173,11 @@ function getBeginnerFlowCandidate(
           )
         : `${c.accuracy}%`;
 
-    pickDetail.textContent =
-      [
-        `おすすめ範囲：${place}`,
-        `現在の記録：${result}`,
-        "",
-        candidateReason(
-          c,
-          plan.passLine
-        ),
-        "",
-        "※「目安クリア」は合格や定着を保証するものではなく、学習を進めるための目安です。"
-      ].join("\n");
+    document.getElementById("pickRange").textContent = place;
+    document.getElementById("pickRecordLabel").textContent =
+      c.accuracy === null ? "記録" : "正答率";
+    document.getElementById("pickRecord").textContent = result;
+    pickDetail.textContent = candidateReason(c, plan.passLine);
 
     currentPrimaryPlan =
       c;
@@ -1196,7 +1187,7 @@ function getBeginnerFlowCandidate(
         false;
 
       startPrimaryBtn.textContent =
-        `このおすすめで始める（${c.category.shortLabel || label}）`;
+        `学習を始める →`;
     }
 
     const alt1 =
@@ -1211,7 +1202,7 @@ function getBeginnerFlowCandidate(
 
       altBtn1.textContent =
         alt1
-          ? `別候補：${alt1.category.shortLabel || alt1.category.label}`
+          ? `${alt1.category.shortLabel || alt1.category.label}`
           : "別候補なし";
 
       altBtn1.dataset.url =
@@ -1226,7 +1217,7 @@ function getBeginnerFlowCandidate(
 
       altBtn2.textContent =
         alt2
-          ? `別候補：${alt2.category.shortLabel || alt2.category.label}`
+          ? `${alt2.category.shortLabel || alt2.category.label}`
           : "別候補なし";
 
       altBtn2.dataset.url =
@@ -1437,21 +1428,14 @@ function getBeginnerFlowCandidate(
       plan.category.label;
 
     growInfo.textContent =
-  `育て方を広げるなら「${label}」`;
+  `「${plan.abilityLabel}」を育てよう`;
 
     const place =
       plan.candidate.block
         ? `Block ${plan.candidate.block.id}（${plan.candidate.start}〜${plan.candidate.end}）`
         : "級全体";
 
-   growDetail.textContent =
-  [
-    `次に育てる候補：${plan.abilityLabel}`,
-    `おすすめ学習：${label}`,
-    `おすすめ範囲：${place}`,
-    "",
-    "これは英語力の弱点判定ではなく、現在のゴイモンの育ち方とは違う方向も試すための育成候補です。"
-  ].join("\n");
+    growDetail.textContent = `${label} · ${place}`;
 
     currentGrowPlan =
       plan.candidate;
@@ -1461,7 +1445,7 @@ function getBeginnerFlowCandidate(
         false;
 
       startGrowBtn.textContent =
-  `「${plan.category.shortLabel || label}」で育て方を広げる`;
+  `「${plan.category.shortLabel || label}」で育てる →`;
     }
   }
 
@@ -1588,6 +1572,9 @@ function getBeginnerFlowCandidate(
       .addEventListener(
         "change",
         () => {
+          const value = Number(passLineEl.value);
+          passLineEl.value = String(Number.isFinite(value) && passLineEl.value !== ""
+            ? Math.min(100, Math.max(1, Math.round(value))) : 80);
           renderAll(true);
         }
       );
@@ -1596,3 +1583,4 @@ function getBeginnerFlowCandidate(
 
   renderAll(true);
 });
+
