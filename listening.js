@@ -2426,6 +2426,7 @@ function saveCursor(cursor) {
   function addLearningLog(
     isCorrect
   ) {
+    window.ListeningProgress?.record(lv, currentQuestion?.format, !!isCorrect);
     try {
       if (
         typeof window.zenshoLogAdd
@@ -8801,6 +8802,12 @@ function applyGoimonLearningQuery() {
     settings
   );
 
+  // 進捗ページから指定した大問の設定画面へ進む。
+  const requestedFormat = new URLSearchParams(location.search).get("format");
+  if (["2", "3", "5"].includes(requestedFormat)) {
+    formatSelect.value = requestedFormat;
+    setSelectedMethod("quiz");
+  }
   updatePoolInfo();
 
     if (
@@ -8828,7 +8835,7 @@ showOnly(
   "setup"
 );
 
-applyGoimonLearningQuery();applyGoimonLearningQuery();
+applyGoimonLearningQuery();
   }
 
   initialize();
@@ -8854,3 +8861,4 @@ applyGoimonLearningQuery();applyGoimonLearningQuery();
   );
 
 });
+

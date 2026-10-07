@@ -1,418 +1,57 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ブロック進捗</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
-      background:#f7f7f7;
-      margin:0;
-      color:#111;
-    }
-    .wrap {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 18px 12px 32px;
-    }
-    .card {
-      background:#fff;
-      border:1px solid #ddd;
-      border-radius:12px;
-      padding:14px;
-      margin-bottom:12px;
-      box-shadow:0 1px 3px rgba(0,0,0,0.05);
-    }
-    h1 {
-      margin: 0 0 8px;
-      font-size: 20px;
-    }
-    .muted {
-      color:#666;
-      font-size: 13px;
-      line-height: 1.6;
-    }
-    .row {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-    a {
-      color:#2b7cff;
-      text-decoration:none;
-    }
-    button {
-      padding: 10px 12px;
-      border: 0;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .btn {
-      background:#efefef;
-      color:#111;
-    }
-    .btn.primary {
-      background:#2b7cff;
-      color:#fff;
-    }
-    .btn.danger {
-      background:#fff3f3;
-      color:#a10000;
-      border:1px solid #efc7c7;
-    }
-    input, select {
-      padding: 9px 10px;
-      border:1px solid #ddd;
-      border-radius:10px;
-      font-size:14px;
-      background:#fff;
-    }
-    .pill {
-      display:inline-block;
-      padding:5px 10px;
-      border-radius:999px;
-      font-size:12px;
-      background:#f0f4ff;
-      color:#2b7cff;
-      white-space:nowrap;
-    }
-    .pill.ok {
-      background:#edf9f0;
-      color:#167a2e;
-    }
-    .pill.mid {
-      background:#fff6e8;
-      color:#9a5a00;
-    }
-    .pill.ng {
-      background:#fff0f0;
-      color:#b00020;
-    }
-
-    .goimonPanel {
-      display:grid;
-      grid-template-columns: 120px 1fr;
-      gap:14px;
-      align-items:center;
-      border:1px solid #eee3ce;
-      border-radius:14px;
-      background:#fffaf2;
-      padding:14px;
-      margin-top:12px;
-    }
-    .goimonImageWrap {
-      width:120px;
-      height:120px;
-      border-radius:14px;
-      background:#fff;
-      border:1px solid #ecdcbc;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden;
-    }
-    .goimonImageWrap img {
-      max-width:100px;
-      max-height:100px;
-      display:block;
-    }
-    .goimonTitle {
-      font-size:18px;
-      font-weight:800;
-      margin-bottom:4px;
-    }
-    .goimonMeta {
-      font-size:13px;
-      color:#555;
-      margin-bottom:10px;
-    }
-    .goimonBubble {
-      position:relative;
-      background:#fff;
-      border:1px solid #e6e6e6;
-      border-radius:14px;
-      padding:12px 14px;
-      line-height:1.7;
-      font-size:14px;
-    }
-    .goimonBubble::before {
-      content:"";
-      position:absolute;
-      left:-8px;
-      top:20px;
-      width:14px;
-      height:14px;
-      background:#fff;
-      border-left:1px solid #e6e6e6;
-      border-bottom:1px solid #e6e6e6;
-      transform:rotate(45deg);
-    }
-
-    .summaryGrid {
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap:10px;
-      margin-top:12px;
-    }
-    .summaryBox {
-      border:1px solid #eee;
-      border-radius:12px;
-      background:#fafafa;
-      padding:12px;
-    }
-    .summaryLabel {
-      font-size:12px;
-      color:#666;
-      margin-bottom:6px;
-    }
-    .summaryValue {
-      font-size:20px;
-      font-weight:800;
-      line-height:1.2;
-    }
-    .summarySub {
-      margin-top:6px;
-      font-size:12px;
-      color:#555;
-      line-height:1.5;
-    }
-
-    .filterBar {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-top:10px;
-    }
-
-    .blockGrid {
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-      margin-top:12px;
-    }
-
-    .blockCard {
-      border:1px solid #e6e6e6;
-      border-radius:14px;
-      background:#fff;
-      padding:14px;
-    }
-    .blockHead {
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:10px;
-      margin-bottom:10px;
-    }
-    .blockTitle {
-      font-size:17px;
-      font-weight:800;
-      margin:0 0 4px;
-    }
-    .blockRange {
-      font-size:13px;
-      color:#666;
-    }
-
-    .statusGrid {
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:8px;
-      margin-top:8px;
-    }
-    .statusBox {
-      border:1px solid #eee;
-      border-radius:12px;
-      background:#fafafa;
-      padding:10px 10px;
-    }
-    .statusLabel {
-      font-size:12px;
-      color:#666;
-      margin-bottom:5px;
-    }
-    .statusValue {
-      font-size:15px;
-      font-weight:800;
-      line-height:1.3;
-    }
-
-    .actionArea {
-      margin-top:12px;
-      border-top:1px solid #eee;
-      padding-top:12px;
-    }
-    .actionTitle {
-      font-size:13px;
-      font-weight:700;
-      margin-bottom:8px;
-      color:#444;
-    }
-    .actionButtons {
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-    }
-    .miniBtn {
-      padding:9px 11px;
-      border-radius:10px;
-      border:1px solid #ddd;
-      background:#fff;
-      cursor:pointer;
-      font-size:13px;
-    }
-    .miniBtn.recommend {
-      background:#eef5ff;
-      border-color:#c9dbff;
-      color:#21468f;
-      font-weight:800;
-    }
-
-    .emptyBox {
-      border:1px dashed #d7d7d7;
-      border-radius:12px;
-      padding:18px;
-      color:#666;
-      background:#fcfcfc;
-      text-align:center;
-    }
-
-    @media (max-width: 760px) {
-      .goimonPanel {
-        grid-template-columns: 1fr;
-      }
-      .goimonImageWrap {
-        width:100%;
-        height:110px;
-      }
-      .goimonBubble::before {
-        display:none;
-      }
-      .summaryGrid {
-        grid-template-columns: 1fr;
-      }
-      .blockGrid {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>学習の進捗 | GOIMON</title>
+  <link rel="stylesheet" href="progress.css">
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <div class="row" style="justify-content:space-between;">
-        <div>
-          <h1>ブロック進捗</h1>
-          <div class="muted">
-            Blockごとの学習状況をまとめて確認できます。<br>
-            このページから、そのまま各範囲の学習にも進めます。
-          </div>
-        </div>
-        <div class="row">
-          <a href="index.html">← ホーム</a>
-          <span id="levelBadge" class="pill"></span>
-        </div>
-      </div>
-
-      <div id="goimonPanel" class="goimonPanel">
-        <div class="goimonImageWrap">
-          <img id="progressGoimonImage" src="images/goimon/goimon_egg.png" alt="ゴイモン" />
-        </div>
-        <div>
-          <div class="goimonTitle" id="progressGoimonName">なごみ系のたまご</div>
-          <div class="goimonMeta" id="progressGoimonMeta">Lv 1 / 0 pt / たまご期</div>
-          <div class="goimonBubble" id="progressGoimonComment">今日はどこを復習するとよさそうかな。</div>
-        </div>
-      </div>
-
-      <div class="row" style="margin-top:12px;">
-        <button id="lv1" class="btn">全商英検 1級</button>
-        <button id="lv2" class="btn">全商英検 2級</button>
-        <button id="refresh" class="btn">更新</button>
-        <button id="resetGlobal" class="btn danger" style="margin-left:auto;">
-  この級のBlock進捗をリセット
-</button>
-      </div>
-
-      <div class="filterBar">
-        <div class="muted">合格ライン</div>
-        <input id="passLine" type="number" min="1" max="100" value="80" />
-        <div class="muted">%</div>
-
-        <div class="muted" style="margin-left:12px;">表示</div>
-       <select id="statusFilter">
-  <option value="all">すべて</option>
-  <option value="needs_review">要復習のみ</option>
-  <option value="learning">学習中のみ</option>
-  <option value="clear">目安クリアのみ</option>
-  <option value="untouched">未挑戦のみ</option>
-</select>
-      </div>
-
-      <div class="summaryGrid">
-        <div class="summaryBox">
-          <div class="summaryLabel">全体まとめ</div>
-          <div class="summaryValue" id="summaryMain">—</div>
-          <div class="summarySub" id="summarySub">—</div>
-        </div>
-        <div class="summaryBox">
-          <div class="summaryLabel">おすすめ復習対象</div>
-          <div class="summaryValue" id="summaryRecommend">—</div>
-          <div class="summarySub" id="summaryRecommendSub">—</div>
-        </div>
-        <div class="summaryBox">
-          <div class="summaryLabel">記録メモ</div>
-          <div class="summaryValue" id="summaryMemo">—</div>
-          <div class="summarySub" id="summaryMemoSub">—</div>
-        </div>
-      </div>
+  <main class="wrap">
+    <nav class="top"><a href="index.html">← ホーム</a><a href="recommended.html">今日のおすすめ →</a></nav>
+    <header><h1>学習の進捗</h1><p class="muted">進んだ範囲を確認して、次の学習へ。</p></header>
+    <div class="levelSwitch" role="group" aria-label="対象級">
+      <button id="lv1" type="button">全商英検 1級</button><button id="lv2" type="button">全商英検 2級</button>
     </div>
-
-    <div class="card">
-      <div class="row" style="justify-content:space-between;">
-        <div style="font-weight:800;">Block別一覧</div>
-        <div class="muted">暗記 / 英→日 / 日→英 / アクセント / 大問9 / 音声→意味</div>
-      </div>
-
-      <div id="blockGrid" class="blockGrid"></div>
-      <div id="emptyState" class="emptyBox" style="display:none;">この条件に合うBlockはありません。</div>
+    <section class="overview" aria-labelledby="overviewTitle">
+      <div class="between"><h2 id="overviewTitle">ブロックの達成状況</h2><strong id="clearCount">—</strong></div>
+      <progress id="clearProgress" value="0" max="1" aria-label="目安クリアしたブロック数"></progress>
+      <p id="summary" class="muted" aria-live="polite"></p>
+    </section>
+    <div class="tabs" role="group" aria-label="進捗の種類">
+      <button type="button" data-view="blocks" aria-pressed="true">ブロック別</button>
+      <button type="button" data-view="exams" aria-pressed="false">大問別</button>
+      <button type="button" data-view="listening" aria-pressed="false">リスニング</button>
     </div>
-
-    <div class="card">
-  <div class="row" style="justify-content:space-between;">
-    <div>
-      <div style="font-weight:800;">大問別・演習進捗</div>
-      <div class="muted" style="margin-top:4px;">
-        Blockに分かれない問題形式の学習状況です。
-      </div>
+    <div class="filters" role="group" aria-label="状態で絞り込み">
+      <button type="button" data-filter="all" aria-pressed="true">すべて</button>
+      <button type="button" data-filter="needs_review" aria-pressed="false">要復習</button>
+      <button type="button" data-filter="learning" aria-pressed="false">学習中</button>
+      <button type="button" data-filter="untouched" aria-pressed="false">未挑戦</button>
+      <button type="button" data-filter="clear" aria-pressed="false">目安クリア</button>
     </div>
-  </div>
-
-  <div id="examGrid" class="blockGrid"></div>
-
-  <div
-    id="examEmpty"
-    class="emptyBox"
-    style="display:none;"
-  >
-    まだ記録がありません。
-  </div>
-</div>
-  </div>
-
-  <script src="words_1kyu.js"></script>
-  <script src="blocks_1kyu.js"></script>
-  <script src="words_2kyu.js"></script>
-  <script src="blocks_2kyu.js"></script>
-  <script src="dataset.js"></script>
-  <script src="global_stats.js"></script>
+    <div class="between section-heading"><h2 id="listTitle">ブロック別</h2><span id="resultCount" class="muted" aria-live="polite"></span></div>
+    <p id="viewNote" class="muted"></p>
+    <div id="cards" class="grid"></div>
+    <p id="emptyState" class="empty" hidden>この条件に合う記録はありません。</p>
+    <details class="settings">
+      <summary>表示・判定の設定</summary>
+      <div class="settingRow"><label for="passLine">正答率の目安</label><span><input id="passLine" type="number" min="1" max="100" step="1" value="80"> %</span><button id="refresh" type="button">記録を更新</button></div>
+      <p class="muted">各演習は20問以上の正誤記録があり、正答率が目安以上なら「目安クリア」です。ブロック全体では、暗記の記録と5種類すべての演習のクリアが必要です。単語の習得数や試験の合格を保証するものではありません。</p>
+      <p class="muted">大問7は既存のSET判定（5問中4問以上）を使います。リスニングの取り組み数は音声教材単位、正答率は設問単位です。</p>
+    </details>
+    <details class="settings resetSettings">
+      <summary>ブロック記録の管理</summary>
+      <p class="muted">選択中の級のブロック記録のみを削除します。大問別・リスニング・ゴイモン・苦手記録は残ります。</p>
+      <button id="resetGlobal" class="danger" type="button">この級のブロック記録をリセット</button>
+    </details>
+    <p id="notice" class="muted" role="status"></p>
+  </main>
+  <script src="words_1kyu.js"></script><script src="words_2kyu.js"></script>
+  <script src="blocks_1kyu.js"></script><script src="blocks_2kyu.js"></script>
   <script src="learning_categories.js"></script>
-  <script src="learning_log.js"></script>
-  <script src="goimon.js"></script>
-  <script src="progress.js"></script>
+  <script src="q7_data.js"></script>
+  <script src="listening_type2_1kyu.js"></script><script src="listening_type3_1kyu.js"></script><script src="listening_type5_1kyu.js"></script>
+  <script src="listening_progress.js"></script><script src="progress_data.js"></script><script src="progress.js"></script>
 </body>
 </html>

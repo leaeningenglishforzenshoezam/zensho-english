@@ -2837,11 +2837,26 @@ resetCursorBtn.addEventListener("click", () => {
     openSharedEvolution();
   });
 
+  function applyProgressRangeQuery() {
+    const params = new URLSearchParams(location.search);
+    const start = Number(params.get("start"));
+    const end = Number(params.get("end"));
+    if (!Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end < start) return;
+    const selected = new Set(blocks.filter(b => Number(b.end) >= start && Number(b.start) <= end).map(b => String(b.id)));
+    if (!selected.size) return;
+    blockSelect.querySelectorAll('input[type="checkbox"]').forEach(input => {
+      input.checked = selected.has(String(input.value));
+    });
+    rangeStartInput.value = String(start);
+    rangeEndInput.value = String(end);
+  }
+
 function init() {
   const s = loadSettings();
   autoReadEl.checked = !!s.autoRead;
 
   renderBlockSelect();
+  applyProgressRangeQuery();
   updatePoolInfo();
   updateWeakInfo();
   renderWeakManagement();
@@ -2905,3 +2920,4 @@ if (!answeredThis && /^[1-5]$/.test(key)) {
 });
 
 });
+

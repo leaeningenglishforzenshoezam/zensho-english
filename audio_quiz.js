@@ -1628,7 +1628,21 @@ function applyGoimonLearningQuery() {
   setTimeout(() => startBtn.click(), 0);
 }
 
-  function init() {
+    function applyProgressRangeQuery() {
+    const params = new URLSearchParams(location.search);
+    const start = Number(params.get("start"));
+    const end = Number(params.get("end"));
+    if (!Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end < start) return;
+    const selected = new Set(BLOCKS.filter(b => Number(b.end) >= start && Number(b.start) <= end).map(b => String(b.id)));
+    if (!selected.size) return;
+    blockSelect.querySelectorAll('input[type="checkbox"]').forEach(input => {
+      input.checked = selected.has(String(input.value));
+    });
+    rangeStart.value = String(start);
+    rangeEnd.value = String(end);
+  }
+
+function init() {
     if (!Array.isArray(WORDS) || WORDS.length === 0) {
       showError("WORDS が読み込めていません。words_1kyu.js / words_2kyu.js の読み込みを確認してください。");
       return;
@@ -1640,6 +1654,7 @@ function applyGoimonLearningQuery() {
 
     renderBlockSelect();
 applySelectedBlockToRange();
+applyProgressRangeQuery();
 
     const settings = loadSettings();
     autoPlay.checked = !!settings.autoPlay;
@@ -1659,3 +1674,4 @@ applyGoimonLearningQuery();
 
   init();
 });
+
