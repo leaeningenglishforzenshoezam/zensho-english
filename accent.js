@@ -2017,7 +2017,21 @@ clearBlocksBtn?.addEventListener("click", () => {
   setTimeout(() => startBtn.click(), 0);
 }
 
-  function init() {
+    function applyProgressRangeQuery() {
+    const params = new URLSearchParams(location.search);
+    const start = Number(params.get("start"));
+    const end = Number(params.get("end"));
+    if (!Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end < start) return;
+    const selected = new Set(blocks.filter(b => Number(b.end) >= start && Number(b.start) <= end).map(b => String(b.id)));
+    if (!selected.size) return;
+    blockSelect.querySelectorAll('input[type="checkbox"]').forEach(input => {
+      input.checked = selected.has(String(input.value));
+    });
+    rangeStartEl.value = String(start);
+    rangeEndEl.value = String(end);
+  }
+
+function init() {
     const hasWeak = [...modeSelect.options].some(o => o.value === "weak");
     if (!hasWeak) {
       const opt = document.createElement("option");
@@ -2032,6 +2046,7 @@ clearBlocksBtn?.addEventListener("click", () => {
 
     renderBlockSelect();
 applySelectedBlockToRange();
+applyProgressRangeQuery();
 updateSetupInfo();
     renderGoimonVisibility();
     renderEvolutionNotice();
@@ -2070,3 +2085,4 @@ updateSetupInfo();
     });
   }
 });
+
