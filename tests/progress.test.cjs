@@ -69,6 +69,9 @@ const route=listen.match(/const requestedFormat = new URLSearchParams[\s\S]*?\n 
 for(const format of ['2','3','5']){let updated=0;const env={URLSearchParams,location:{search:'?format='+format},formatSelect:{value:'3'},setSelectedMethod:m=>assert.equal(m,'quiz'),updatePoolInfo:()=>updated++};vm.createContext(env);vm.runInContext(route,env);assert.equal(env.formatSelect.value,format);assert.equal(updated,1);}
 // Every script used by the rewritten page is available and loads in declared order.
 const fresh={crypto:require("node:crypto").webcrypto,addEventListener(){},window:null,console,Date,URLSearchParams,localStorage:storage,document:{addEventListener:()=>{}}};fresh.window=fresh;vm.createContext(fresh);
-for(const [,file] of source('progress.html').matchAll(/<script src="([^"]+)"/g))vm.runInContext(source(file),fresh);
+for(const [,file] of source('progress.html').matchAll(/<script src="([^"]+)"/g)){
+  // DOM-dependent deferred account bar is exercised by cloud-browser.cjs.
+  if(file==='cloud_auto.js')new vm.Script(source(file));else vm.runInContext(source(file),fresh);
+}
 assert(fresh.BLOCKS_2KYU.length>0);assert(fresh.q7Sets.length>0);
 console.log('PASS: shared recorders, repeat-grading guards, listening format routing, complete page script loading.');

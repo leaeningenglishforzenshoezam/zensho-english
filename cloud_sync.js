@@ -5,11 +5,11 @@
   const AUTH_KEY='goimon_cloud_session_v1';
   const ACTIVE_KEY='goimon_cloud_v2:active';
   function savedSession(){try{const x=JSON.parse(sessionStorage.getItem(AUTH_KEY)||'null');return x?.apiBase===cfg.apiBase?x:null;}catch{return null;}}
-  function forget(){token=null;userId=null;conflict=null;details=null;profileRevision=0;profileReady=false;editing=false;try{sessionStorage.removeItem(AUTH_KEY);}catch{}}
+  function forget(){token=null;userId=null;conflict=null;details=null;profileRevision=0;profileReady=false;editing=false;try{sessionStorage.removeItem(AUTH_KEY);}catch{}window.dispatchEvent(new Event('goimon-auth-changed'));}
   function validateSession(x,withToken=true){
     if(!x || typeof x.userId!=='string' || !/^[a-zA-Z0-9-]{1,128}$/.test(x.userId) || !Number.isSafeInteger(x.expiresAt) || x.expiresAt*1000<=Date.now() || (withToken&&!/^gs1_[a-f0-9]{64}$/.test(x.token)))throw Error('ログイン情報が無効です。Googleで再ログインしてください。');
   }
-  function remember(x){validateSession(x);token=x.token;userId=x.userId;try{sessionStorage.setItem(AUTH_KEY,JSON.stringify({...x,apiBase:cfg.apiBase}));return true;}catch{return false;}}
+  function remember(x){validateSession(x);token=x.token;userId=x.userId;try{sessionStorage.setItem(AUTH_KEY,JSON.stringify({...x,apiBase:cfg.apiBase}));window.dispatchEvent(new Event('goimon-auth-changed'));return true;}catch{return false;}}
   function assertAccount(){if(!userId || localStorage.getItem(ACTIVE_KEY)!==userId){forget();throw Error('別のタブでアカウントが切り替わりました。Googleで再ログインしてください。');}}
 
   const message=t=>{$('status').textContent=t;};
@@ -53,10 +53,12 @@
   function checkRemote(r){if(!Number.isSafeInteger(r.revision)||r.revision<0)throw Error('invalid_revision');if(r.snapshot)S.validate(r.snapshot);else if(r.revision!==0)throw Error('missing_snapshot');}
   function localUnchanged(before){if(!equal(current(),before))throw Error('同期中に別のタブで学習しました。端末の変更は残っています。もう一度同期してください。');}
   function apply(before,data,revision){
-    localUnchanged(before);P.recovery(userId,before);
+    localUnchanged(before);
     const device=Object.fromEntries(Object.entries(before.data).filter(([k])=>!S.allowed(k)));
-    P.write(userId,{data:{...device,...data},base:data,revision});
-    conflict=null;message('同期しました。学習ページを開き直すと新しい記録が使われます。');
+    const next={data:{...device,...data},base:data,revision};
+    if(!equal(before,next)){if(!equal(before.data,next.data))P.recovery(userId,before);P.write(userId,next);}
+    try{const key='goimon_cloud_v2:auto:'+userId,m=JSON.parse(localStorage.getItem(key)||'{}');localStorage.setItem(key,JSON.stringify({...m,checkedAt:Date.now(),retryAt:0,failures:0,conflict:false}));}catch{}
+    conflict=null;message(savedSession()?'同期しました。学習中は自動保存されます。このまま学習へ進めます。':'同期しました。ブラウザの設定によりログインを保持できないため、学習後の保存には再ログインが必要です。');
   }
   async function sync(){
     assertAccount();
@@ -78,8 +80,8 @@
   }
   function studentFields(){const student=$('user-role').value==='student';$('student-fields').hidden=!student;for(const id of ['grade','exam-level']){$(id).required=student;$(id).disabled=!student;}}
   function fillProfile(){const p=details||{};$('username').value=p.username||'';$('user-role').value=p.role||'';$('grade').value=p.grade||'';$('exam-level').value=p.examLevel||'';studentFields();}
-  function acceptProfile(r){if(r.userId!==userId || !Number.isSafeInteger(r.revision)||r.revision<0 || (r.revision===0)!==!r.profile)throw Error('プロフィールを確認できませんでした。');details=r.profile;profileRevision=r.revision;profileReady=true;editing=false;fillProfile();}
-  async function loadProfile(){assertAccount();const r=await request('GET',undefined,token,'profile');assertAccount();acceptProfile(r);if(!details)message('ログインできました。続けてプロフィールを登録してください。');}
+  function acceptProfile(r){if(r.userId!==userId || !Number.isSafeInteger(r.revision)||r.revision<0 || (r.revision===0)!==!r.profile)throw Error('プロフィールを確認できませんでした。');details=r.profile;profileRevision=r.revision;profileReady=true;editing=false;fillProfile();try{const s=savedSession();if(s&&s.userId===userId){sessionStorage.setItem(AUTH_KEY,JSON.stringify({...s,displayName:details?.username||''}));window.dispatchEvent(new Event('goimon-auth-changed'));}}catch{}}
+  async function loadProfile(){assertAccount();const r=await request('GET',undefined,token,'profile');assertAccount();acceptProfile(r);if(!details)message('ログインできました。続けてプロフィールを登録してください。');else await sync();}
   $('user-role').onchange=studentFields;
   $('edit-profile').onclick=()=>{editing=true;fillProfile();message('プロフィールを編集できます。変更後は「変更を保存する」を押してください。');render();};
   $('cancel-profile').onclick=()=>{editing=false;fillProfile();render();};
@@ -90,7 +92,7 @@
     if(!['student','teacher'].includes(role))throw Error('生徒か教員を選んでください。');
     const profile={username,role,grade:role==='student'?$('grade').value:null,examLevel:role==='student'?$('exam-level').value:null};
     if(role==='student'&&(!['1','2','3','other'].includes(profile.grade)||!['1','2','3','undecided'].includes(profile.examLevel)))throw Error('学年と受験級を選んでください。');
-    try{const r=await request('POST',{expectedRevision:profileRevision,profile},token,'profile');assertAccount();acceptProfile(r);message('プロフィールを保存しました。「同期する」で学習記録を保存・引き継ぎできます。');}
+    try{const r=await request('POST',{expectedRevision:profileRevision,profile},token,'profile');assertAccount();acceptProfile(r);await sync();}
     catch(error){if(error.status===409){profileReady=false;message('別の端末でプロフィールが更新されています。入力内容は残しています。「プロフィールを再取得」で最新の内容を確認してから編集してください。');}else throw error;}
   });};
   $('sync').onclick=()=>run(sync);
@@ -102,7 +104,7 @@
   $('import-guest').onclick=()=>run(async()=>{
     assertAccount();const p=current();if(Object.keys(p.data).length||p.revision)throw Error('初回だけ引き継ぎできます');
     if(!confirm('この端末のゲスト記録を、このGoogleアカウントにコピーしますか？'))return;
-    const data=P.collect();S.validate(snap(P.cloudData(data)));P.write(userId,{...p,data});message('コピーしました。「同期する」でクラウドに保存してください。');
+    const data=P.collect();S.validate(snap(P.cloudData(data)));P.write(userId,{...p,data});await sync();
   });
   $('logout').onclick=async()=>{
     if(busy)return;busy=true;const previous=token||savedSession()?.token;epoch++;forget();P.logout();

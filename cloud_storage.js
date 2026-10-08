@@ -8,7 +8,7 @@
   let lockState=account?'pending':'guest',pending=null,pendingBase=null,release=null;
   const tabId=root.crypto.randomUUID();
   function read(id){const raw=native.getItem(profileKey(id));return raw?JSON.parse(raw):{data:{},base:{},revision:0};}
-  function write(id,p){native.setItem(profileKey(id),JSON.stringify(p));}
+  function write(id,p){native.setItem(profileKey(id),JSON.stringify(p));root.dispatchEvent(new Event('goimon-profile-written'));}
   function collect(){const data={};for(let i=0;i<native.length;i++){const k=native.key(i);if(/^(zensho_|q7|q10|dialogue|goimon_)/.test(k)&&!k.startsWith(PREFIX))data[k]=native.getItem(k);}return data;}
   function recovery(id,p){const key=PREFIX+'recovery:'+id+':'+Date.now()+':'+Math.random();native.setItem(key,JSON.stringify(p));return key;}
   function mutate(k,v){
@@ -46,7 +46,7 @@
             if(JSON.stringify(read(account))!==pendingBase)throw Error('profile_changed');
             write(account,pending);pending=null;
           }
-          lockState='owned';await new Promise(resolve=>{release=resolve;});
+          lockState='owned';root.dispatchEvent(new Event('goimon-storage-ready'));await new Promise(resolve=>{release=resolve;});
         } catch(error){lockState='blocked';root.GOIMONPendingRecovery={account,profile:pending};root.dispatchEvent(new Event('goimon-storage-error'));}
       });
       root.addEventListener('pagehide',()=>{lockState='blocked';release?.();});
@@ -54,9 +54,9 @@
     } else lockState='blocked';
   }
   root.GOIMONStorage=storage;
-  root.GOIMONProfiles={account,read,write,recovery,collect,profileKey,
-    activate(id){if(!/^[a-zA-Z0-9-]{1,128}$/.test(id))throw Error('invalid_account');native.setItem(ACTIVE,id);},
-    logout(){native.removeItem(ACTIVE);},
+  root.GOIMONProfiles={account,isWriter:()=>lockState==='owned',read,write,recovery,collect,profileKey,
+    activate(id){if(!/^[a-zA-Z0-9-]{1,128}$/.test(id))throw Error('invalid_account');native.setItem(ACTIVE,id);root.dispatchEvent(new Event('goimon-auth-changed'));},
+    logout(){native.removeItem(ACTIVE);root.dispatchEvent(new Event('goimon-auth-changed'));},
     cloudData(data){return Object.fromEntries(Object.entries(data).filter(([k])=>root.GOIMONCloudSchema.allowed(k)));}
   };
   root.addEventListener('goimon-storage-error',()=>{

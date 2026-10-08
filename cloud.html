@@ -1,7 +1,10 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>マイアカウント | GOIMON</title>
 <script src="cloud_schema.js"></script><script src="cloud_storage.js"></script><script src="cloud_config.js"></script>
-<link rel="stylesheet" href="cloud.css"></head>
+<link rel="stylesheet" href="cloud.css"><link rel="stylesheet" href="cloud_auto.css">
+<script src="cloud_autosave.js" defer></script>
+<script src="cloud_auto.js" defer></script>
+</head>
 <body><main>
 <nav><a href="index.html">← 学習に戻る</a><span class="brand">GOIMON</span></nav>
 <header><span class="eyebrow">MY ACCOUNT</span><h1>学びの続きを、<br>どの端末でも。</h1><p>学習の記録も、育てたゴイモンも。<br>Googleアカウントで、大切な続きを保存できます。</p></header>
@@ -19,7 +22,7 @@
 </section>
 <section id="profile-summary-panel" class="card compact" hidden><div class="row"><div><span class="eyebrow">YOUR PROFILE</span><h2 id="display-name"></h2><p id="profile-summary"></p></div><button id="edit-profile">変更する</button></div></section>
 <button id="reload-profile" hidden>プロフィールを再取得</button>
-<section id="sync-panel" class="card" hidden><span class="eyebrow">CLOUD SAVE</span><h2>学習の続きを保存する</h2><p>学習が終わったら「同期する」。別の端末では、学習を始める前に同期してください。</p><button id="sync" class="primary wide" disabled>同期する</button><p class="hint">保存はこのボタンで行います。自動保存ではありません。</p><a class="action" href="index.html">学習に進む →</a>
+<section id="sync-panel" class="card" hidden><span class="eyebrow">CLOUD SAVE</span><h2>学習記録は自動で保存</h2><p>ログイン後は学習するだけ。変更をまとめてクラウドへ自動保存します。別の端末では、ログイン時に保存済みの記録を取り込みます。</p><button id="sync" class="wide" disabled>今すぐ保存・確認</button><p class="hint">画面上部で保存状態を確認できます。通信待ちの記録は端末に残り、再接続後に保存します。閉じる直前の変更は、次にGOIMONを開いたときに送信される場合があります。</p><a class="action" href="index.html">学習に進む →</a>
 <div id="conflict" class="conflict" hidden><h3>両方の端末で記録が変わっています</h3><p>自動上書きを止めました。使う記録を選んでください。選ばなかった端末データも復旧用に残ります。</p><details><summary>競合した項目を見る</summary><pre id="conflict-keys"></pre></details><button id="use-local">この端末の記録を使う</button><button id="use-remote">クラウドの記録を使う</button><button id="export-conflict">両方のデータを書き出す</button></div>
 <button id="import-guest" disabled>この端末のゲスト記録を引き継ぐ</button><p class="hint">初回の空アカウントで利用できます。元のゲスト記録も残ります。</p></section>
 <details class="tools"><summary>バックアップ・復旧</summary><p>通信できないときも、端末にある記録を書き出せます。</p><button id="backup">バックアップを書き出す</button><button id="recovery">復旧用データを書き出す</button></details>
