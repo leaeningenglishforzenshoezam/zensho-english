@@ -1,11 +1,11 @@
 (() => {
   'use strict';
   const P=GOIMONProfiles,S=GOIMONCloudSchema,cfg=GOIMON_CLOUD_CONFIG,$=id=>document.getElementById(id);
-  let token=null,userId=null,busy=false,conflict=null,epoch=0;
+  let token=null,userId=null,busy=false,conflict=null,epoch=0,details=null,profileRevision=0,profileReady=false,editing=false;
   const AUTH_KEY='goimon_cloud_session_v1';
   const ACTIVE_KEY='goimon_cloud_v2:active';
   function savedSession(){try{const x=JSON.parse(sessionStorage.getItem(AUTH_KEY)||'null');return x?.apiBase===cfg.apiBase?x:null;}catch{return null;}}
-  function forget(){token=null;userId=null;conflict=null;try{sessionStorage.removeItem(AUTH_KEY);}catch{}}
+  function forget(){token=null;userId=null;conflict=null;details=null;profileRevision=0;profileReady=false;editing=false;try{sessionStorage.removeItem(AUTH_KEY);}catch{}}
   function validateSession(x,withToken=true){
     if(!x || typeof x.userId!=='string' || !/^[a-zA-Z0-9-]{1,128}$/.test(x.userId) || !Number.isSafeInteger(x.expiresAt) || x.expiresAt*1000<=Date.now() || (withToken&&!/^gs1_[a-f0-9]{64}$/.test(x.token)))throw Error('ログイン情報が無効です。Googleで再ログインしてください。');
   }
@@ -18,8 +18,23 @@
   const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
   function render(){
     $('sync').disabled=busy||!userId;
+    $('login-panel').hidden=!!userId;
+    $('registration').hidden=!userId||!profileReady||(!editing&&!!details);
+    $('profile-summary-panel').hidden=!userId||!details||editing;
+    $('sync-panel').hidden=!userId||!details||editing;
+    $('registration-title').textContent=details?'プロフィールを編集':'あなたのことを教えてください';
+    $('reload-profile').hidden=!userId||profileReady;
+    $('reload-profile').disabled=busy;
+    $('profile-fields').disabled=busy;
+    $('save-profile').disabled=busy;
+    $('edit-profile').disabled=busy;
+    $('cancel-profile').hidden=!details;
+    $('cancel-profile').disabled=busy;
+    $('save-profile').textContent=details?'変更を保存する':'プロフィールを登録する';
+    if(details){$('display-name').textContent=details.username; $('profile-summary').textContent=details.role==='teacher'?'教員':`生徒 · ${details.grade==='other'?'その他':'高校'+details.grade+'年'} · ${details.examLevel==='undecided'?'受験級は未定':details.examLevel+'級を目指す'}`;}
     $('import-guest').disabled=busy||!userId||Object.keys(current().data).length>0||current().revision!==0;
     $('logout').disabled=busy;
+    $('logout').hidden=!userId&&!localStorage.getItem(ACTIVE_KEY)&&!savedSession();
     $('resume').hidden=!!userId||!savedSession();$('resume').disabled=busy;
     $('account').textContent=userId?'Googleログイン済み（このタブで継続中）':'ログインしていません';
     for(const id of ['use-local','use-remote'])$(id).disabled=busy;
@@ -61,6 +76,23 @@
     S.validate(snap(merged));P.recovery(userId,{...c.before,conflict:c});
     const result=await request('POST',{expectedRevision:c.revision,snapshot:snap(merged)});apply(c.before,merged,result.revision);
   }
+  function studentFields(){const student=$('user-role').value==='student';$('student-fields').hidden=!student;for(const id of ['grade','exam-level']){$(id).required=student;$(id).disabled=!student;}}
+  function fillProfile(){const p=details||{};$('username').value=p.username||'';$('user-role').value=p.role||'';$('grade').value=p.grade||'';$('exam-level').value=p.examLevel||'';studentFields();}
+  function acceptProfile(r){if(r.userId!==userId || !Number.isSafeInteger(r.revision)||r.revision<0 || (r.revision===0)!==!r.profile)throw Error('プロフィールを確認できませんでした。');details=r.profile;profileRevision=r.revision;profileReady=true;editing=false;fillProfile();}
+  async function loadProfile(){assertAccount();const r=await request('GET',undefined,token,'profile');assertAccount();acceptProfile(r);if(!details)message('ログインできました。続けてプロフィールを登録してください。');}
+  $('user-role').onchange=studentFields;
+  $('edit-profile').onclick=()=>{editing=true;fillProfile();message('プロフィールを編集できます。変更後は「変更を保存する」を押してください。');render();};
+  $('cancel-profile').onclick=()=>{editing=false;fillProfile();render();};
+  $('reload-profile').onclick=()=>run(loadProfile);
+  $('profile-form').onsubmit=event=>{event.preventDefault();return run(async()=>{
+    assertAccount();const username=$('username').value.trim().normalize('NFC'),role=$('user-role').value;
+    if([...username].length<1||[...username].length>24||/[\p{Cc}\p{Cf}<>]/u.test(username))throw Error('ユーザー名は1〜24文字で入力してください。制御文字や < > は使えません。');
+    if(!['student','teacher'].includes(role))throw Error('生徒か教員を選んでください。');
+    const profile={username,role,grade:role==='student'?$('grade').value:null,examLevel:role==='student'?$('exam-level').value:null};
+    if(role==='student'&&(!['1','2','3','other'].includes(profile.grade)||!['1','2','3','undecided'].includes(profile.examLevel)))throw Error('学年と受験級を選んでください。');
+    try{const r=await request('POST',{expectedRevision:profileRevision,profile},token,'profile');assertAccount();acceptProfile(r);message('プロフィールを保存しました。「同期する」で学習記録を保存・引き継ぎできます。');}
+    catch(error){if(error.status===409){profileReady=false;message('別の端末でプロフィールが更新されています。入力内容は残しています。「プロフィールを再取得」で最新の内容を確認してから編集してください。');}else throw error;}
+  });};
   $('sync').onclick=()=>run(sync);
   $('use-local').onclick=()=>run(()=>resolve('local'));
   $('use-remote').onclick=()=>run(()=>resolve('remote'));
@@ -85,7 +117,8 @@
     const session=await request('POST',undefined,credential,'session');validateSession(session);if(e!==epoch)return;
     P.activate(session.userId);const persisted=remember(session);
     if(previous)try{await request('DELETE',undefined,previous,'session');}catch{}
-    message(persisted?'ログインしました。同じタブでは画面を移動してもログインが続きます。':'ログインしました。ブラウザの設定により認証情報を保持できないため、この画面のみで利用できます。');
+    message(persisted?'ログインしました。同じタブでは画面を移動してもログインが続きます。':'ログインしました。この画面のみで利用できます。');
+    fillProfile();await loadProfile();
   });
   async function restoreSession(){
     const saved=savedSession();if(!saved)return;
@@ -96,7 +129,7 @@
     catch(error){if(error.status===401)forget();throw error;}
     validateSession(remote,false);
     if(remote.userId!==saved.userId || localStorage.getItem(ACTIVE_KEY)!==saved.userId){forget();throw Error('アカウントが一致しません。Googleで再ログインしてください。');}
-    remember({...remote,token:saved.token});message('ログインを継続しています。「同期する」で学習記録を保存できます。');
+    remember({...remote,token:saved.token});message('ログインを継続しています。「同期する」で学習記録を保存できます。');await loadProfile();
   }
   $('resume').onclick=()=>run(restoreSession);
   window.addEventListener('storage',event=>{if(event.key===ACTIVE_KEY && userId && event.newValue!==userId){epoch++;forget();render();message('別のタブで学習先が変わりました。Googleで再ログインしてください。');}});

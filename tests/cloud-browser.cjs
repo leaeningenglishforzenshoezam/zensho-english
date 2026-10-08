@@ -10,6 +10,10 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
  if(process.env.GOIMON_CHROMIUM_PATH){options.executablePath=process.env.GOIMON_CHROMIUM_PATH;options.args=['--no-sandbox','--disable-gpu'];}
  browser=await chromium.launch(options);
  const context=await browser.newContext();await context.route('**/*',r=>new URL(r.request().url()).hostname==='localhost'?r.continue():r.abort());
+ const capture=async(page,path)=>{
+   if(process.env.GOIMON_TEST_FONT_DIR){const dir=process.env.GOIMON_TEST_FONT_DIR;let css=fs.readFileSync(require('node:path').join(dir,'400.css'),'utf8');css=css.replace(/url\(([^)]+)\)/g,(_,u)=>'url(data:font/woff2;base64,'+fs.readFileSync(require('node:path').join(dir,u.replace(/['"]/g,''))).toString('base64')+')');await page.addStyleTag({content:css+'body{font-family:"Noto Sans JP",sans-serif}'});await page.evaluate(()=>document.fonts.ready);}
+   await page.screenshot({path,fullPage:true});
+ };
  const p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('dialog',d=>d.accept());
  await p.goto('http://localhost:8879/index.html');await p.evaluate(()=>localStorage.setItem('q7SetHistory_v1','{"guest":{"attempts":2}}'));
  const pages=fs.readdirSync(require('node:path').join(__dirname,'..')).filter(f=>f.endsWith('.html')&&!f.startsWith('google'));
@@ -17,7 +21,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
  assert.deepEqual(errors,[],'page JS errors');
  let cloud={},offline=false,apiStatus=0,dropAfterWrite=false,concurrentWrite=false,postCount=0;
  await context.route('**/cloud_config.js',r=>r.fulfill({contentType:'text/javascript',body:'window.GOIMON_CLOUD_CONFIG={googleClientId:"test",apiBase:"https://api.test"}'}));
- const sessions=new Map();let serial=0;
+ const sessions=new Map(),profiles={};let serial=0;
  await context.route('https://api.test/**',async r=>{
    if(offline)return r.abort();if(apiStatus)return r.fulfill({status:apiStatus,json:{error:'injected_failure'}});
    const credential=r.request().headers().authorization.split(' ')[1],method=r.request().method();
@@ -27,6 +31,12 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
      const x=sessions.get(credential);return r.fulfill({status:x?200:401,json:x||{error:'unauthorized'}});
    }
    const id=sessions.get(credential)?.userId;if(!id)return r.fulfill({status:401,json:{error:'unauthorized'}});
+   if(new URL(r.request().url()).pathname.endsWith('/profile')){
+     const current=profiles[id]||{revision:id==='C'?0:1,profile:id==='C'?null:{username:'テスト'+id,role:'teacher',grade:null,examLevel:null}};
+     if(method==='GET')return r.fulfill({json:{userId:id,...current}});
+     const b=r.request().postDataJSON();if(b.expectedRevision!==current.revision)return r.fulfill({status:409,json:{error:'profile_conflict'}});
+     profiles[id]={revision:current.revision+1,profile:b.profile};return r.fulfill({json:{userId:id,...profiles[id]}});
+   }
    const s=cloud[id]||{revision:0,snapshot:null};
    if(method==='POST'){postCount++;if(concurrentWrite){concurrentWrite=false;cloud[id]={...s,revision:s.revision+1};return r.fulfill({status:409,json:{error:'revision_conflict'}});}const b=r.request().postDataJSON();if(b.expectedRevision!==s.revision)return r.fulfill({status:409,json:{error:'revision_conflict'}});cloud[id]={revision:s.revision+1,snapshot:b.snapshot};if(dropAfterWrite){dropAfterWrite=false;return r.abort();}return r.fulfill({json:{revision:cloud[id].revision}});}
    return r.fulfill({json:{userId:id,...s}});
@@ -82,7 +92,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
  await go(p);
 
  await p.evaluate(()=>document.querySelector('#logout').onclick());
- const guestDownload=p.waitForEvent('download');await p.locator('#backup').click();const guestFile=await guestDownload;
+ await p.locator('.tools summary').click();const guestDownload=p.waitForEvent('download');await p.locator('#backup').click();const guestFile=await guestDownload;
  const guestBackup=JSON.parse(fs.readFileSync(await guestFile.path(),'utf8'));assert.equal(guestBackup.account,null);assert.equal(guestBackup.data.q7SetHistory_v1,'{"guest":{"attempts":2}}');
  console.log('PASS: backup after logout exports guest data, not the previous account');
  await p.reload();await p.waitForFunction(()=>!document.querySelector('#logout').disabled);assert.match(await p.locator('#account').textContent(),/ログインしていません/);
@@ -97,5 +107,14 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
  await login(p,'A');const other=await context.newPage();await go(other);await login(other,'B');await p.waitForFunction(()=>document.querySelector('#sync').disabled);assert.equal(await p.evaluate(()=>sessionStorage.getItem('goimon_cloud_session_v1')),null);await go(p);assert.equal(await p.evaluate(()=>localStorage.getItem('goimon_cloud_v2:active')),'B');assert.deepEqual(await profile(),before);await other.close();
  await login(p,'A');const logoutToken=await p.evaluate(()=>JSON.parse(sessionStorage.getItem('goimon_cloud_session_v1')).token);await p.evaluate(()=>document.querySelector('#logout').onclick());assert.equal(sessions.has(logoutToken),false);await go(p);assert.match(await p.locator('#account').textContent(),/ログインしていません/);
  console.log('PASS: session survives navigation/reload; offline retry, expiry, revocation, cross-tab switch and logout are safe');
- await p.screenshot({path:'/tmp/goimon-cloud-screen.png',fullPage:true});assert.deepEqual(errors,[]);console.log(`PASS: ${pages.length} pages × guest/account; import, sync, conflict resolution, offline, account switch, guest preservation`);
+ await login(p,'C');await p.locator('#registration').waitFor({state:'visible'});assert.equal(await p.locator('#sync-panel').isVisible(),false);
+ await p.locator('#username').fill('みかん');await p.locator('#user-role').selectOption('student');await p.locator('#grade').selectOption('2');await p.locator('#exam-level').selectOption('1');await p.locator('#save-profile').click();await p.locator('#profile-summary-panel').waitFor({state:'visible'});assert.equal(profiles.C.profile.grade,'2');assert.equal(profiles.C.profile.examLevel,'1');
+ await p.reload();await p.locator('#profile-summary-panel').waitFor({state:'visible'});assert.equal(await p.locator('#display-name').textContent(),'みかん');
+ await p.locator('#edit-profile').click();await p.locator('#username').fill('更新中');apiStatus=500;await p.locator('#save-profile').click();await p.waitForFunction(()=>!document.querySelector('#save-profile').disabled);apiStatus=0;assert.equal(await p.locator('#username').inputValue(),'更新中');assert.equal(profiles.C.profile.username,'みかん');
+ profiles.C.revision++;await p.locator('#save-profile').click();await p.locator('#reload-profile').waitFor({state:'visible'});assert.equal(profiles.C.profile.username,'みかん');await p.locator('#reload-profile').click();await p.locator('#profile-summary-panel').waitFor({state:'visible'});
+ await p.locator('#edit-profile').click();await p.locator('#user-role').selectOption('teacher');assert.equal(await p.locator('#student-fields').isVisible(),false);await p.locator('#save-profile').click();await p.locator('#profile-summary-panel').waitFor({state:'visible'});assert.equal(profiles.C.profile.grade,null);assert.equal(profiles.C.profile.examLevel,null);
+ await p.setViewportSize({width:390,height:844});await p.locator('#edit-profile').click();await p.locator('#user-role').selectOption('student');await capture(p,'/tmp/goimon-profile-mobile.png');assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await p.locator('#cancel-profile').click();await login(p,'B');assert.equal(await p.locator('#display-name').textContent(),'テストB');assert.equal(profiles.C.profile.username,'みかん');
+ console.log('PASS: profile onboarding, reload, failed save retention, conflict, teacher fields and account separation; mobile fits');
+ await capture(p,'/tmp/goimon-cloud-screen.png');assert.deepEqual(errors,[]);console.log(`PASS: ${pages.length} pages × guest/account; import, sync, conflict resolution, offline, account switch, guest preservation`);
  }finally{await browser?.close();server.kill()}})().catch(e=>{console.error(e);process.exit(1)});

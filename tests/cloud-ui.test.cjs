@@ -8,7 +8,7 @@ function setup(){
  const c={console,crypto:crypto.webcrypto,Event,TextEncoder,AbortController,setTimeout,clearTimeout,localStorage,sessionStorage,confirm:()=>true,alert(){},addEventListener(){},dispatchEvent(){},navigator:{locks:{request:async(k,opts,fn)=>(fn||opts)({})}},document:{getElementById:node,createElement:()=>({}),head:{appendChild(){}}},GOIMON_CLOUD_CONFIG:{apiBase:'https://api.test',googleClientId:'test'},fetch:async(url,o)=>{
    if(offline)throw Error('offline');const credential=o.headers.Authorization.split(' ')[1];
    if(url.endsWith('/session')){if(o.method==='POST'){const token='gs1_'+String(++serial).padStart(64,'0'),x={token,userId:credential,expiresAt:Math.floor(Date.now()/1000)+86400};sessions.set(token,x);return {ok:true,json:async()=>x};}if(o.method==='DELETE'){sessions.delete(credential);return {ok:true,json:async()=>({ok:true})};}const x=sessions.get(credential);return {ok:!!x,status:x?200:401,json:async()=>x||{}};}
-   const id=sessions.get(credential)?.userId;if(!id)return {ok:false,status:401,json:async()=>({})};const s=cloud[id]||{revision:0,snapshot:null};
+   const id=sessions.get(credential)?.userId;if(!id)return {ok:false,status:401,json:async()=>({})};if(url.endsWith('/profile'))return {ok:true,json:async()=>({userId:id,revision:1,profile:{username:'テスト',role:'teacher',grade:null,examLevel:null}})};const s=cloud[id]||{revision:0,snapshot:null};
    if(hook){const fn=hook;hook=null;fn();}
    if(o.method==='GET')return {ok:true,json:async()=>({userId:id,...s})};const b=JSON.parse(o.body);
    if(b.expectedRevision!==s.revision)return {ok:false,status:409,json:async()=>({})};cloud[id]={revision:s.revision+1,snapshot:b.snapshot};return {ok:true,json:async()=>({revision:cloud[id].revision})};

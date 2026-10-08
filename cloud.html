@@ -1,16 +1,27 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GOIMON クラウド保存</title>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>マイアカウント | GOIMON</title>
 <script src="cloud_schema.js"></script><script src="cloud_storage.js"></script><script src="cloud_config.js"></script>
-<style>body{font-family:system-ui,sans-serif;background:#f3f6fa;color:#20334d;margin:0;padding:24px}main{max-width:680px;margin:auto;background:white;padding:28px;border-radius:20px}h1{font-size:1.6rem}button,a.action{display:inline-block;padding:12px 16px;margin:5px 4px 5px 0;border:1px solid #bdcbd9;border-radius:10px;background:white;color:#174e80;font:inherit;cursor:pointer}button:disabled{opacity:.45;cursor:default}#status{padding:16px;background:#eaf1f7;white-space:pre-wrap;overflow-wrap:anywhere}small{color:#53667a}.primary{background:#174e80!important;color:white!important}section{border-top:1px solid #e1e7ef;margin-top:22px;padding-top:18px}pre{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#174e80}</style>
-</head><body><main><a href="index.html">← 学習に戻る</a><h1>Googleログイン・クラウド保存</h1>
-<p>保存した学習記録とゴイモンを、別のスマホやPCへ引き継げます。学習後はこの画面で「同期する」を押してください。</p>
-<div id="google-button"></div><p id="account">ログインしていません</p><p id="profile"></p>
-<button id="resume" hidden>ログイン状態を再確認</button>
-<button id="sync" class="primary" disabled>同期する</button><button id="logout">ゲストに戻る</button>
+<link rel="stylesheet" href="cloud.css"></head>
+<body><main>
+<nav><a href="index.html">← 学習に戻る</a><span class="brand">GOIMON</span></nav>
+<header><span class="eyebrow">MY ACCOUNT</span><h1>学びの続きを、<br>どの端末でも。</h1><p>学習の記録も、育てたゴイモンも。<br>Googleアカウントで、大切な続きを保存できます。</p></header>
+<ol class="steps" aria-label="ご利用の流れ"><li>1 ログイン</li><li>2 プロフィール</li><li>3 保存・学習</li></ol>
 <p id="status" role="status" aria-live="polite">準備中</p>
-<div id="conflict" hidden><p>両方で同じ記録が変わっています。内容を確認して使うデータを選んでください。選ばなかった端末データも復旧用に残ります。</p><pre id="conflict-keys"></pre><button id="export-conflict">両方のデータを書き出す</button><button id="use-local">この端末の記録を使う</button><button id="use-remote">クラウドの記録を使う</button></div>
-<section><h2>この端末のデータ</h2><button id="backup">バックアップを書き出す</button><button id="import-guest" disabled>ゲストの記録を初回引き継ぎ</button>
-<p><small>ゲストの記録は元のまま残します。Googleアカウントごとに端末内のデータを分けて保存します。オフラインでも選択中のアカウントで学習できます。認証が切れたら再ログインして同期してください。</small></p>
-<button id="recovery">復旧用データを書き出す</button></section>
-<p><small>保存対象：学習進捗、苦手問題、育成・進化・図鑑・会話履歴。Googleのパスワードは取得しません。Googleの認証情報は保存しません。GOIMON専用のログイン情報をこのタブで最大24時間保持します。</small></p>
+<section class="card" id="login-panel"><span class="eyebrow">STEP 1</span><h2>Googleでログイン</h2><p>初めての方も、登録済みの方もこちらから。</p><div id="google-button"></div><p class="hint">ログインなしでも、これまでどおり学習できます。</p></section>
+<div class="account-line"><span id="account">ログインしていません</span><button id="logout" class="text-button">ログアウトしてゲストに戻る</button></div>
+<p id="profile" class="hint"></p><button id="resume" hidden>ログイン状態を再確認</button>
+<section id="registration" class="card" hidden><span class="eyebrow">YOUR PROFILE</span><h2 id="registration-title">あなたのことを教えてください</h2><p>学年や目標に合った学習案内に役立てるための情報です。登録後も変更できます。</p>
+<form id="profile-form">
+<fieldset id="profile-fields"><label for="username">ユーザー名 <span class="required">必須</span></label><input id="username" name="username" maxlength="48" required autocomplete="nickname" placeholder="例：ごいもん太郎" aria-describedby="username-hint"><small id="username-hint">1〜24文字。本名を使う必要はありません。同じ名前でも登録できます。</small>
+<label for="user-role">あなたの区分 <span class="required">必須</span></label><select id="user-role" name="role" required><option value="">選んでください</option><option value="student">生徒</option><option value="teacher">教員</option></select>
+<div id="student-fields" hidden><div class="field-grid"><div><label for="grade">学年 <span class="required">必須</span></label><select id="grade" name="grade"><option value="">選んでください</option><option value="1">高校1年</option><option value="2">高校2年</option><option value="3">高校3年</option><option value="other">その他</option></select></div><div><label for="exam-level">全商英検の受験級 <span class="required">必須</span></label><select id="exam-level" name="examLevel"><option value="">選んでください</option><option value="1">1級</option><option value="2">2級</option><option value="3">3級</option><option value="undecided">未定</option></select></div></div><small>これから目指す級を選んでください。</small></div>
+</fieldset><p class="hint">登録情報は学習案内・サービス改善のために運営者が確認します。他の利用者には公開しません。学校名・連絡先は登録不要です。</p><button id="save-profile" class="primary" type="submit">プロフィールを登録する</button><button id="cancel-profile" type="button" hidden>キャンセル</button></form>
+</section>
+<section id="profile-summary-panel" class="card compact" hidden><div class="row"><div><span class="eyebrow">YOUR PROFILE</span><h2 id="display-name"></h2><p id="profile-summary"></p></div><button id="edit-profile">変更する</button></div></section>
+<button id="reload-profile" hidden>プロフィールを再取得</button>
+<section id="sync-panel" class="card" hidden><span class="eyebrow">CLOUD SAVE</span><h2>学習の続きを保存する</h2><p>学習が終わったら「同期する」。別の端末では、学習を始める前に同期してください。</p><button id="sync" class="primary wide" disabled>同期する</button><p class="hint">保存はこのボタンで行います。自動保存ではありません。</p><a class="action" href="index.html">学習に進む →</a>
+<div id="conflict" class="conflict" hidden><h3>両方の端末で記録が変わっています</h3><p>自動上書きを止めました。使う記録を選んでください。選ばなかった端末データも復旧用に残ります。</p><details><summary>競合した項目を見る</summary><pre id="conflict-keys"></pre></details><button id="use-local">この端末の記録を使う</button><button id="use-remote">クラウドの記録を使う</button><button id="export-conflict">両方のデータを書き出す</button></div>
+<button id="import-guest" disabled>この端末のゲスト記録を引き継ぐ</button><p class="hint">初回の空アカウントで利用できます。元のゲスト記録も残ります。</p></section>
+<details class="tools"><summary>バックアップ・復旧</summary><p>通信できないときも、端末にある記録を書き出せます。</p><button id="backup">バックアップを書き出す</button><button id="recovery">復旧用データを書き出す</button></details>
+<footer>保存対象：学習進捗・苦手問題・育成・進化履歴・図鑑など。<br>Googleのパスワードは取得しません。同じタブでは最大24時間ログインが続きます。共用端末では利用後にログアウトしてください。</footer>
 </main><script src="cloud_sync.js"></script></body></html>

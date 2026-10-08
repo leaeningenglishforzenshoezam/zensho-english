@@ -1,4 +1,5 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { handleProfile } from './profile.js';
 import { validateSnapshot } from './validation.js';
 import { bearer, createSession, authenticateSession, revokeSession } from './session.js';
 
@@ -93,7 +94,7 @@ export default {
     try {
       const url=new URL(request.url);
       if (url.pathname==='/health' && request.method==='GET') result=response({ok:true});
-      else if ((url.pathname==='/api/v1/save' && ['GET','POST'].includes(request.method)) || (url.pathname==='/api/v1/session' && ['GET','POST','DELETE'].includes(request.method))) {
+      else if ((['/api/v1/save','/api/v1/profile'].includes(url.pathname) && ['GET','POST'].includes(request.method)) || (url.pathname==='/api/v1/session' && ['GET','POST','DELETE'].includes(request.method))) {
         if(!env.RATE_LIMITER || !env.AUTH_RATE_LIMITER) return response({error:'rate_limiter_not_configured'},503,headers);
         const limited=await env.AUTH_RATE_LIMITER.limit({key:'ip:'+ (request.headers.get('CF-Connecting-IP')||'unknown')});
         if(!limited.success)return response({error:'rate_limited'},429,{...headers,'retry-after':'60'});
@@ -113,7 +114,7 @@ export default {
           if(bearer(request).startsWith('gs1_'))userId=(await authenticateSession(request,env.DB)).userId;
           else userId=await getUserId(env.DB,await authenticate(request,env));
           if(!(await env.RATE_LIMITER.limit({key:'user:'+userId})).success)return response({error:'rate_limited'},429,headers);
-          result=request.method==='GET' ? response({userId,...await publicSave(env.DB,userId)}) : await handleSave(request,env,userId);
+          result=url.pathname==='/api/v1/profile' ? await handleProfile(request,env.DB,userId) : request.method==='GET' ? response({userId,...await publicSave(env.DB,userId)}) : await handleSave(request,env,userId);
         }
       } else result=response({error:'not_found'},404);
     } catch(error) {
