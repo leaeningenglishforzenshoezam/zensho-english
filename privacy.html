@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>プライバシーポリシー | GOIMON</title><link rel="stylesheet" href="cloud.css"><style>.policy h1{font-size:clamp(1.7rem,5vw,2.4rem)}.policy section{margin:28px 0}.policy h2{margin-top:24px}.policy li{margin:8px 0}.policy a{overflow-wrap:anywhere}.policy .notice{background:#fff8e9;padding:16px;border-radius:10px}.policy header{padding-bottom:0}</style></head>
+<body><main class="policy"><nav><a href="index.html">← トップに戻る</a><span class="brand">GOIMON</span></nav>
+<header><span class="eyebrow">PRIVACY</span><h1>プライバシーポリシー</h1><p>学習の記録を、どのように扱うか。</p></header>
+<p class="notice">公開前の確認用案です。作成日：2026年10月9日。保存・削除の運用を確認したうえで、正式な適用日を掲載します。</p>
+<section><h2>1. 運営者とお問い合わせ</h2><p>GOIMONは個人が運営する英語学習サービスです。学校が運営する公式サービスではありません。</p><p>窓口：GOIMON運営者<br>メール：<a href="mailto:goimon.admin@gmail.com">goimon.admin@gmail.com</a></p></section>
+<section><h2>2. 取得・保存する情報</h2><ul>
+<li><strong>ログイン情報：</strong>Googleから本人確認用のIDトークンを受け取り、検証します。トークンにはメールアドレス・名前・画像URLなどが含まれる場合がありますが、GOIMONのユーザーデータベースにはGoogleアカウントの識別子とGOIMON内のIDを保存し、Googleのメールアドレス・名前・画像やIDトークンそのものは保存しません。Googleのパスワードは取得しません。</li>
+<li><strong>プロフィール：</strong>ご自身で入力するユーザー名、生徒／教員の区分、生徒の場合は学年・受験級。ユーザー名に本名を使う必要はなく、学校名や住所の入力も求めません。</li>
+<li><strong>学習記録：</strong>学習進捗、解答・苦手問題の記録、GOIMONの育成状態、進化履歴、図鑑、ゲーム内の会話履歴など、保存対象のデータ。</li>
+<li><strong>サービス管理情報：</strong>登録・更新日時、保存の世代番号、ログイン状態を管理する情報。通信時のIPアドレスはAPIのアクセス回数制限に利用します。</li>
+<li><strong>お問い合わせ：</strong>メールの送信元アドレス、本文、添付資料など、対応のために提供いただく情報。</li>
+</ul></section>
+<section><h2>3. 利用目的</h2><ul><li>ログインと学習データの保存・引き継ぎ</li><li>学年・受験級に応じた学習支援</li><li>不具合対応と利用状況を踏まえた改善</li></ul><p>運営者は、これらの目的に必要な範囲で登録情報や学習記録を確認します。現在、登録情報を利用した宣伝メールの配信や勧誘は行いません。</p></section>
+<section><h2>4. 端末内の保存とクラウド保存</h2><p>ログインせずに学習する場合も、学習記録をブラウザの保存領域（localStorage）に保存します。ログイン後はアカウントごとに端末内の記録を分け、同期操作によってクラウドと記録をやり取りします。プロフィールは登録・変更操作時にクラウドへ保存します。</p><p>GOIMON専用の認証情報は、このタブの保存領域（sessionStorage）に保持し、最大24時間で期限が切れます。サーバーには認証情報のハッシュを保存します。共用端末では利用後にログアウトしてください。ログアウトだけでは学習記録は削除されません。</p></section>
+<section><h2>5. 外部サービスと情報の取り扱い</h2><p>Google Identity Servicesをログインに、Cloudflare Workers・D1をAPIとデータ保存に、GitHub Pagesをページ配信に使用します。お問い合わせはGmailで受け付けます。これらのサービスには利用に伴う通信が発生し、各事業者がIPアドレス等の通信情報を扱う場合があります。データが日本国外で処理・保存される場合があります。</p><ul><li><a href="https://policies.google.com/privacy">Googleのプライバシーポリシー</a></li><li><a href="https://www.cloudflare.com/privacypolicy/">Cloudflareのプライバシーポリシー</a></li><li><a href="https://docs.github.com/ja/site-policy/privacy-policies/github-general-privacy-statement">GitHubのプライバシー声明</a></li></ul><p>登録情報や学習記録を他の利用者に公開する機能はありません。「教員」の区分を選んでも他人の情報を閲覧できません。運営者はこれらの情報を販売しません。外部サービスの利用、本人の同意がある場合、法令に基づく場合等を除き、第三者に提供しません。</p></section>
+<section><h2>6. 保存期間と削除</h2><p>プロフィールと最新の学習記録は、利用継続とデータ引き継ぎのために保存します。当面、一定期間利用がないことだけを理由とした自動削除は行いません。</p><p>現在の検証版では、復旧用の過去データについても自動削除は行っていません。クラウドの過去データを30日間に限定する仕組みは、公開前に整備・確認する予定です。</p><p>登録情報やクラウドの学習記録の削除を希望する場合は、下記の窓口へご連絡ください。本人確認後、原則30日以内を目安に対応し、時間を要する場合はご案内します。アカウント全体の削除では、プロフィール・最新の学習記録・過去の復旧用データ・ログイン情報を対象とします。基盤サービスのバックアップの扱いは別途確認し、ご案内します。</p><p>クラウドの削除では、各端末の記録やご自身がダウンロードしたバックアップは消えません。削除後の再同期で端末の記録を送信しないよう、必要な端末側の操作も個別にご案内します。ブラウザのサイトデータの削除は、同じサイトの他の記録も消す場合があるため、実行前に対象を確認してください。</p><p>お問い合わせの記録は対応とその確認に必要な期間保存し、不要になった情報は削除します。</p></section>
+<section><h2>7. 確認・訂正・削除のご相談</h2><p>プロフィールはログイン後の画面で変更できます。保存情報の確認、訂正、利用停止、削除に関するご相談は、<a href="mailto:goimon.admin@gmail.com">goimon.admin@gmail.com</a>へお送りください。</p><p>メールにはご希望の内容を記載してください。ご本人のアカウントかどうかを確認する方法は、必要に応じて運営者からご案内します。パスワードや認証トークンは送らないでください。未成年の方も理解しにくい点があれば、ご本人または保護者からご相談いただけます。</p></section>
+<section><h2>8. 安全管理と変更のお知らせ</h2><p>通信の暗号化、サーバーでの認証、アカウントごとのアクセス制御、入力データの検証などにより情報を保護します。目的や取り扱いを変更する場合はこのページを更新し、重要な変更はサービス内でお知らせします。必要な場合には別途同意を確認します。</p></section>
+<footer><a href="cloud.html">ログイン・クラウド保存へ</a> · <a href="index.html">トップへ</a></footer></main></body></html>

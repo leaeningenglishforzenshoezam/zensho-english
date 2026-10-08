@@ -7,7 +7,7 @@
 <header><span class="eyebrow">MY ACCOUNT</span><h1>学びの続きを、<br>どの端末でも。</h1><p>学習の記録も、育てたゴイモンも。<br>Googleアカウントで、大切な続きを保存できます。</p></header>
 <ol class="steps" aria-label="ご利用の流れ"><li>1 ログイン</li><li>2 プロフィール</li><li>3 保存・学習</li></ol>
 <p id="status" role="status" aria-live="polite">準備中</p>
-<section class="card" id="login-panel"><span class="eyebrow">STEP 1</span><h2>Googleでログイン</h2><p>初めての方も、登録済みの方もこちらから。</p><div id="google-button"></div><p class="hint">ログインなしでも、これまでどおり学習できます。</p></section>
+<section class="card" id="login-panel"><span class="eyebrow">STEP 1</span><h2>Googleでログイン</h2><p>初めての方も、登録済みの方もこちらから。</p><p class="hint">ログイン前に<a href="privacy.html">プライバシーポリシー</a>をご確認ください。</p><div id="google-button"></div><p class="hint">ログインなしでも、これまでどおり学習できます。</p></section>
 <div class="account-line"><span id="account">ログインしていません</span><button id="logout" class="text-button">ログアウトしてゲストに戻る</button></div>
 <p id="profile" class="hint"></p><button id="resume" hidden>ログイン状態を再確認</button>
 <section id="registration" class="card" hidden><span class="eyebrow">YOUR PROFILE</span><h2 id="registration-title">あなたのことを教えてください</h2><p>学年や目標に合った学習案内に役立てるための情報です。登録後も変更できます。</p>
@@ -15,7 +15,7 @@
 <fieldset id="profile-fields"><label for="username">ユーザー名 <span class="required">必須</span></label><input id="username" name="username" maxlength="48" required autocomplete="nickname" placeholder="例：ごいもん太郎" aria-describedby="username-hint"><small id="username-hint">1〜24文字。本名を使う必要はありません。同じ名前でも登録できます。</small>
 <label for="user-role">あなたの区分 <span class="required">必須</span></label><select id="user-role" name="role" required><option value="">選んでください</option><option value="student">生徒</option><option value="teacher">教員</option></select>
 <div id="student-fields" hidden><div class="field-grid"><div><label for="grade">学年 <span class="required">必須</span></label><select id="grade" name="grade"><option value="">選んでください</option><option value="1">高校1年</option><option value="2">高校2年</option><option value="3">高校3年</option><option value="other">その他</option></select></div><div><label for="exam-level">全商英検の受験級 <span class="required">必須</span></label><select id="exam-level" name="examLevel"><option value="">選んでください</option><option value="1">1級</option><option value="2">2級</option><option value="3">3級</option><option value="undecided">未定</option></select></div></div><small>これから目指す級を選んでください。</small></div>
-</fieldset><p class="hint">登録情報は学習案内・サービス改善のために運営者が確認します。他の利用者には公開しません。学校名・連絡先は登録不要です。</p><button id="save-profile" class="primary" type="submit">プロフィールを登録する</button><button id="cancel-profile" type="button" hidden>キャンセル</button></form>
+</fieldset><p class="hint">登録情報は学習案内・サービス改善のために運営者が確認します。他の利用者には公開しません。学校名・連絡先は登録不要です。詳しくは<a href="privacy.html">プライバシーポリシー</a>をご確認ください。</p><button id="save-profile" class="primary" type="submit">プロフィールを登録する</button><button id="cancel-profile" type="button" hidden>キャンセル</button></form>
 </section>
 <section id="profile-summary-panel" class="card compact" hidden><div class="row"><div><span class="eyebrow">YOUR PROFILE</span><h2 id="display-name"></h2><p id="profile-summary"></p></div><button id="edit-profile">変更する</button></div></section>
 <button id="reload-profile" hidden>プロフィールを再取得</button>
@@ -23,5 +23,5 @@
 <div id="conflict" class="conflict" hidden><h3>両方の端末で記録が変わっています</h3><p>自動上書きを止めました。使う記録を選んでください。選ばなかった端末データも復旧用に残ります。</p><details><summary>競合した項目を見る</summary><pre id="conflict-keys"></pre></details><button id="use-local">この端末の記録を使う</button><button id="use-remote">クラウドの記録を使う</button><button id="export-conflict">両方のデータを書き出す</button></div>
 <button id="import-guest" disabled>この端末のゲスト記録を引き継ぐ</button><p class="hint">初回の空アカウントで利用できます。元のゲスト記録も残ります。</p></section>
 <details class="tools"><summary>バックアップ・復旧</summary><p>通信できないときも、端末にある記録を書き出せます。</p><button id="backup">バックアップを書き出す</button><button id="recovery">復旧用データを書き出す</button></details>
-<footer>保存対象：学習進捗・苦手問題・育成・進化履歴・図鑑など。<br>Googleのパスワードは取得しません。同じタブでは最大24時間ログインが続きます。共用端末では利用後にログアウトしてください。</footer>
+<footer>保存対象：学習進捗・苦手問題・育成・進化履歴・図鑑など。<br>Googleのパスワードは取得しません。同じタブでは最大24時間ログインが続きます。共用端末では利用後にログアウトしてください。<br><a href="privacy.html">プライバシーポリシー</a> · <a href="mailto:goimon.admin@gmail.com">お問い合わせ</a></footer>
 </main><script src="cloud_sync.js"></script></body></html>
