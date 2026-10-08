@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const LEVEL_KEY = "zensho_level_v1";
   const lv = String(
     window.ACTIVE_LEVEL ||
-    localStorage.getItem(LEVEL_KEY) ||
+    GOIMONStorage.getItem(LEVEL_KEY) ||
     "1"
   );
 
@@ -1177,7 +1177,7 @@ function updatePoolInfo() {
 function loadAttemptCounts() {
   try {
     const raw =
-      localStorage.getItem(
+      GOIMONStorage.getItem(
         ATTEMPT_KEY
       );
 
@@ -1208,7 +1208,7 @@ function saveAttemptCounts(
   counts
 ) {
   try {
-    localStorage.setItem(
+    GOIMONStorage.setItem(
       ATTEMPT_KEY,
       JSON.stringify(
         counts || {}
@@ -1272,7 +1272,7 @@ function incrementAttemptCount(
 function loadMethodAttemptCounts() {
   try {
     const raw =
-      localStorage.getItem(
+      GOIMONStorage.getItem(
         METHOD_ATTEMPT_KEY
       );
 
@@ -1303,7 +1303,7 @@ function saveMethodAttemptCounts(
   counts
 ) {
   try {
-    localStorage.setItem(
+    GOIMONStorage.setItem(
       METHOD_ATTEMPT_KEY,
       JSON.stringify(
         counts || {}
@@ -1800,7 +1800,7 @@ function setQuestionSelectMode(
   function loadSettings() {
     const saved =
       safeParse(
-        localStorage.getItem(
+        GOIMONStorage.getItem(
           SETTINGS_KEY
         ),
         {}
@@ -1876,7 +1876,7 @@ function setQuestionSelectMode(
   }
 
   function saveSettings() {
-    localStorage.setItem(
+    GOIMONStorage.setItem(
       SETTINGS_KEY,
       JSON.stringify(
         collectSettings()
@@ -1979,7 +1979,7 @@ function setQuestionSelectMode(
   function loadWeakMap() {
     const obj =
       safeParse(
-        localStorage.getItem(
+        GOIMONStorage.getItem(
           WEAK_KEY
         ),
         {}
@@ -2023,7 +2023,7 @@ function setQuestionSelectMode(
   }
 
   function saveWeakMap(map) {
-    localStorage.setItem(
+    GOIMONStorage.setItem(
       WEAK_KEY,
       JSON.stringify(map || {})
     );
@@ -2182,7 +2182,7 @@ function setQuestionSelectMode(
   function loadCursor() {
   const obj =
     safeParse(
-      localStorage.getItem(
+      GOIMONStorage.getItem(
         CURSOR_KEY
       ),
       {}
@@ -2210,7 +2210,7 @@ function setQuestionSelectMode(
 function saveCursor(cursor) {
   const obj =
     safeParse(
-      localStorage.getItem(
+      GOIMONStorage.getItem(
         CURSOR_KEY
       ),
       {}
@@ -2228,7 +2228,7 @@ function saveCursor(cursor) {
       Number(cursor || 0)
     );
 
-  localStorage.setItem(
+  GOIMONStorage.setItem(
     CURSOR_KEY,
     JSON.stringify(obj)
   );

@@ -96,7 +96,7 @@ const BEGINNER_THRESHOLDS = {
 
   function getLevel() {
     return String(
-      localStorage.getItem(LEVEL_KEY) ||
+      GOIMONStorage.getItem(LEVEL_KEY) ||
       "1"
     );
   }
@@ -131,7 +131,7 @@ const BEGINNER_THRESHOLDS = {
 
   function safeParse(key) {
     const raw =
-      localStorage.getItem(key);
+      GOIMONStorage.getItem(key);
 
     if (!raw) return null;
 

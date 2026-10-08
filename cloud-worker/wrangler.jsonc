@@ -1,0 +1,27 @@
+{
+  "name": "goimon-cloud-api-staging",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  "vars": {
+    "GOOGLE_CLIENT_ID": "860663516644-f7u8dqa2bdfemr0pnmcoi6j8v5oktslr.apps.googleusercontent.com",
+    "ALLOWED_ORIGIN": "https://leaeningenglishforzenshoezam.github.io"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "goimon-cloud",
+      "database_id": "d7c3db26-cc15-4215-ab55-6abcb4a2ab1e",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": {
+        "limit": 60,
+        "period": 60
+      }
+    }
+  ]
+}

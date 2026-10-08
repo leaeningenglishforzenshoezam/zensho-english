@@ -15,7 +15,7 @@ const PASS_LINE = 80;
 
 const LEVEL_KEY = "zensho_level_v1";
 function getLevel() {
-  return localStorage.getItem(LEVEL_KEY) || "1";
+  return GOIMONStorage.getItem(LEVEL_KEY) || "1";
 }
 const LV = getLevel();
 
@@ -146,7 +146,7 @@ const nextBtnTop = document.getElementById("nextQTop");
   ].forEach(([el, n]) => must(el, n));
 
   function safeParse(key) {
-    const raw = localStorage.getItem(key);
+    const raw = GOIMONStorage.getItem(key);
     if (!raw) return null;
     try {
       return JSON.parse(raw);
@@ -367,7 +367,7 @@ function renderSentenceExamplesHtml(en) {
   }
 
   function saveGlobal(g) {
-    localStorage.setItem(GLOBAL_BLOCK_KEY, JSON.stringify(g));
+    GOIMONStorage.setItem(GLOBAL_BLOCK_KEY, JSON.stringify(g));
   }
 
   function addGlobalEnJa(blockId, isCorrect) {
@@ -412,7 +412,7 @@ function renderSentenceExamplesHtml(en) {
   }
 
   function loadWeakPoints() {
-    const raw = localStorage.getItem(WEAK_KEY);
+    const raw = GOIMONStorage.getItem(WEAK_KEY);
     if (!raw) return;
 
     try {
@@ -422,7 +422,7 @@ function renderSentenceExamplesHtml(en) {
   }
 
   function saveWeakPoints() {
-    localStorage.setItem(WEAK_KEY, JSON.stringify(weakPoints));
+    GOIMONStorage.setItem(WEAK_KEY, JSON.stringify(weakPoints));
   }
 
   function getPoint(en) {
@@ -436,7 +436,7 @@ function renderSentenceExamplesHtml(en) {
   }
 
   function loadManualWeakMap() {
-    const raw = localStorage.getItem(MANUAL_WEAK_KEY);
+    const raw = GOIMONStorage.getItem(MANUAL_WEAK_KEY);
     if (!raw) return;
 
     try {
@@ -446,7 +446,7 @@ function renderSentenceExamplesHtml(en) {
   }
 
   function saveManualWeakMap() {
-    localStorage.setItem(MANUAL_WEAK_KEY, JSON.stringify(manualWeakMap));
+    GOIMONStorage.setItem(MANUAL_WEAK_KEY, JSON.stringify(manualWeakMap));
   }
 
   function isManualWeak(en) {
@@ -486,7 +486,7 @@ function renderSentenceExamplesHtml(en) {
   };
 
   function loadOrderCursor(start, end) {
-    const raw = localStorage.getItem(ORDER_CURSOR_KEY);
+    const raw = GOIMONStorage.getItem(ORDER_CURSOR_KEY);
     if (!raw) return start;
 
     try {
@@ -500,14 +500,14 @@ function renderSentenceExamplesHtml(en) {
   }
 
   function saveOrderCursor(start, end, cursor) {
-    localStorage.setItem(ORDER_CURSOR_KEY, JSON.stringify({ start, end, cursor }));
+    GOIMONStorage.setItem(ORDER_CURSOR_KEY, JSON.stringify({ start, end, cursor }));
   }
 
   let autoSpeakQ = true;
   let quizMode = "order";
 
   function loadSettings() {
-    const raw = localStorage.getItem(SETTINGS_KEY);
+    const raw = GOIMONStorage.getItem(SETTINGS_KEY);
     if (!raw) return;
 
     try {
@@ -522,13 +522,13 @@ function renderSentenceExamplesHtml(en) {
   }
 
   function saveSettings() {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify({ autoSpeakQ, quizMode }));
+    GOIMONStorage.setItem(SETTINGS_KEY, JSON.stringify({ autoSpeakQ, quizMode }));
   }
 
   let statsMap = {};
 
   function loadBlockStats() {
-    const raw = localStorage.getItem(BLOCK_STATS_KEY);
+    const raw = GOIMONStorage.getItem(BLOCK_STATS_KEY);
     if (!raw) return;
 
     try {
@@ -537,7 +537,7 @@ function renderSentenceExamplesHtml(en) {
   }
 
   function saveBlockStats() {
-    localStorage.setItem(BLOCK_STATS_KEY, JSON.stringify(statsMap));
+    GOIMONStorage.setItem(BLOCK_STATS_KEY, JSON.stringify(statsMap));
   }
 
   function addBlockResult(blockId, isCorrect) {
@@ -630,7 +630,7 @@ function getBlockAccText(blockId) {
   let goimonUi = loadGoimonUiState();
 
   function saveGoimonUiState() {
-    localStorage.setItem(GOIMON_UI_KEY, JSON.stringify(goimonUi));
+    GOIMONStorage.setItem(GOIMON_UI_KEY, JSON.stringify(goimonUi));
   }
 
   function renderGoimonVisibility() {

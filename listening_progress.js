@@ -3,7 +3,7 @@
   'use strict';
   const key = level => `zensho_listening_progress_v1_lv${level}`;
   function read(level) {
-    try { const x = JSON.parse(localStorage.getItem(key(level)) || '{}'); return x && typeof x === 'object' && !Array.isArray(x) ? x : {}; }
+    try { const x = JSON.parse(GOIMONStorage.getItem(key(level)) || '{}'); return x && typeof x === 'object' && !Array.isArray(x) ? x : {}; }
     catch (_) { return {}; }
   }
   const count = n => Number.isFinite(Number(n)) ? Math.max(0, Math.floor(Number(n))) : 0;
@@ -12,7 +12,7 @@
     try {
       const data = read(level), old = data[format] || {};
       data[format] = { correct: count(old.correct) + Number(correct), wrong: count(old.wrong) + Number(!correct), lastAt: Date.now() };
-      localStorage.setItem(key(level), JSON.stringify(data));
+      GOIMONStorage.setItem(key(level), JSON.stringify(data));
     } catch (error) { console.warn('大問別の正誤記録を保存できませんでした。', error); }
   }
   window.ListeningProgress = { read, record };

@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const LEVEL_KEY = "zensho_level_v1";
-  const LV = localStorage.getItem(LEVEL_KEY) || "1";
+  const LV = GOIMONStorage.getItem(LEVEL_KEY) || "1";
   const GOIMON_UI_KEY = `zensho_accent_goimon_ui_v1_lv${LV}`;
   const GLOBAL_BLOCK_KEY = `zensho_block_global_lv${LV}_v1`;
   const WEAK_KEY = `zensho_accent_weak_v1_lv${LV}`;
@@ -343,11 +343,11 @@ function renderBlockStatsLine() {
 }
 
   function saveGlobal(g) {
-    localStorage.setItem(GLOBAL_BLOCK_KEY, JSON.stringify(g));
+    GOIMONStorage.setItem(GLOBAL_BLOCK_KEY, JSON.stringify(g));
   }
 
   function loadGlobal() {
-  const raw = localStorage.getItem(GLOBAL_BLOCK_KEY);
+  const raw = GOIMONStorage.getItem(GLOBAL_BLOCK_KEY);
 
   if (!raw) {
     return { byBlock: {} };
@@ -402,7 +402,7 @@ function renderBlockStatsLine() {
   }
 
   function loadWeak() {
-    const raw = localStorage.getItem(WEAK_KEY);
+    const raw = GOIMONStorage.getItem(WEAK_KEY);
     if (!raw) return {};
     try {
       const o = JSON.parse(raw);
@@ -413,7 +413,7 @@ function renderBlockStatsLine() {
   }
 
   function saveWeak(obj) {
-    localStorage.setItem(WEAK_KEY, JSON.stringify(obj));
+    GOIMONStorage.setItem(WEAK_KEY, JSON.stringify(obj));
   }
 
   function getWeakPoint(map, no) {
@@ -430,7 +430,7 @@ function renderBlockStatsLine() {
   }
 
   function loadManualWeak() {
-    const raw = localStorage.getItem(MANUAL_WEAK_KEY);
+    const raw = GOIMONStorage.getItem(MANUAL_WEAK_KEY);
     if (!raw) return {};
     try {
       const o = JSON.parse(raw);
@@ -441,7 +441,7 @@ function renderBlockStatsLine() {
   }
 
   function saveManualWeak(obj) {
-    localStorage.setItem(MANUAL_WEAK_KEY, JSON.stringify(obj));
+    GOIMONStorage.setItem(MANUAL_WEAK_KEY, JSON.stringify(obj));
   }
 
   function isManualWeak(manualMap, no) {
@@ -465,7 +465,7 @@ function renderBlockStatsLine() {
   }
 
   function safeParse(key) {
-    const raw = localStorage.getItem(key);
+    const raw = GOIMONStorage.getItem(key);
     if (!raw) return null;
     try { return JSON.parse(raw); } catch { return null; }
   }
@@ -484,7 +484,7 @@ function renderBlockStatsLine() {
   let accentWeakListUi = loadAccentWeakListUi();
 
   function saveAccentWeakListUi() {
-    localStorage.setItem(ACCENT_WEAK_LIST_UI_KEY, JSON.stringify(accentWeakListUi));
+    GOIMONStorage.setItem(ACCENT_WEAK_LIST_UI_KEY, JSON.stringify(accentWeakListUi));
   }
 
   function updateAccentWeakMaskButtons() {
@@ -538,7 +538,7 @@ function renderBlockStatsLine() {
     const obj = safeParse(CURSOR_KEY) || {};
     const k = cursorKeyOfRange(startNo, endNo);
     obj[k] = Math.max(0, Number(cursor) || 0);
-    localStorage.setItem(CURSOR_KEY, JSON.stringify(obj));
+    GOIMONStorage.setItem(CURSOR_KEY, JSON.stringify(obj));
   }
 
   function buildPool(startNo, endNo) {
@@ -1306,7 +1306,7 @@ function updateSetupInfo() {
   let goimonUi = loadGoimonUiState();
 
   function saveGoimonUiState() {
-    localStorage.setItem(GOIMON_UI_KEY, JSON.stringify(goimonUi));
+    GOIMONStorage.setItem(GOIMON_UI_KEY, JSON.stringify(goimonUi));
   }
 
   function renderGoimonVisibility() {

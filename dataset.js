@@ -3,7 +3,7 @@
 
 (function () {
   const LEVEL_KEY = "zensho_level_v1";
-  const lv = localStorage.getItem(LEVEL_KEY) || "1";
+  const lv = GOIMONStorage.getItem(LEVEL_KEY) || "1";
   window.ACTIVE_LEVEL = lv;
 
   // WORDS / BLOCKS を確定

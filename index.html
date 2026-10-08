@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+<script src="cloud_schema.js"></script>
+<script src="cloud_storage.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>全商英検トレーニング</title>
@@ -8,6 +10,7 @@
 </head>
 
 <body class="homePage">
+<div style="text-align:right;padding:8px 20px"><a href="cloud.html">Googleログイン・クラウド保存</a></div>
   <div class="wrap homeWrap">
 
     <header class="homeHero">
@@ -1811,7 +1814,7 @@
 
   <script>
     window.ACTIVE_LEVEL =
-      localStorage.getItem("zensho_level_v1") || "1";
+      GOIMONStorage.getItem("zensho_level_v1") || "1";
 
     if (window.ACTIVE_LEVEL === "1") {
       window.WORDS =
@@ -1864,14 +1867,14 @@
 
     function getLevel() {
       return (
-        localStorage.getItem(LEVEL_KEY) ||
+        GOIMONStorage.getItem(LEVEL_KEY) ||
         "1"
       );
     }
 
 
     function setLevel(lv) {
-      localStorage.setItem(
+      GOIMONStorage.setItem(
         LEVEL_KEY,
         String(lv)
       );
@@ -1963,7 +1966,7 @@
 
     function safeParse(key) {
       const raw =
-        localStorage.getItem(key);
+        GOIMONStorage.getItem(key);
 
       if (!raw) {
         return null;
@@ -3148,7 +3151,7 @@
 
   function getCurrentLevel() {
     return (
-      localStorage.getItem("zensho_level_v1") ||
+      GOIMONStorage.getItem("zensho_level_v1") ||
       "1"
     );
   }
@@ -3160,7 +3163,7 @@
 
     try {
       return JSON.parse(
-        localStorage.getItem(key) || "{}"
+        GOIMONStorage.getItem(key) || "{}"
       );
     } catch {
       return {};
@@ -3303,7 +3306,7 @@ function renderRecommendedCounts(item) {
     };
 
 
-    localStorage.setItem(
+    GOIMONStorage.setItem(
       GOIMON_LEARNING_REQUEST_KEY,
       JSON.stringify(request)
     );

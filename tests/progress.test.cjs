@@ -2,7 +2,7 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..'),source=f=>fs.readFileSync(path.join(root,f),'utf8');
 const data={},storage={getItem:k=>data[k]??null,setItem:(k,v)=>data[k]=v,removeItem:k=>delete data[k]};
-const c={localStorage:storage,console,Date,URLSearchParams};c.window=c;vm.createContext(c);
+const c={localStorage:storage,console,Date,URLSearchParams};c.GOIMONStorage=storage;c.window=c;vm.createContext(c);
 for(const f of ['words_1kyu.js','words_2kyu.js','blocks_1kyu.js','blocks_2kyu.js','q7_data.js','listening_type2_1kyu.js','listening_type3_1kyu.js','listening_type5_1kyu.js','learning_categories.js','listening_progress.js','progress_data.js'])vm.runInContext(source(f),c);
 const D=c.ProgressData,put=(k,v)=>storage.setItem(k,JSON.stringify(v));
 assert.equal(D.status(0,0,80),'untouched');assert.equal(D.status(19,19,80),'learning');assert.equal(D.status(20,16,80),'clear');assert.equal(D.status(20,15,80),'needs_review');assert.equal(D.status(200,159,80),'needs_review');
@@ -68,7 +68,7 @@ const qsource=source('q7_page.js');assert.match(qsource,/function grade\(\) \{\s
 const route=listen.match(/const requestedFormat = new URLSearchParams[\s\S]*?\n  updatePoolInfo\(\);/)[0];
 for(const format of ['2','3','5']){let updated=0;const env={URLSearchParams,location:{search:'?format='+format},formatSelect:{value:'3'},setSelectedMethod:m=>assert.equal(m,'quiz'),updatePoolInfo:()=>updated++};vm.createContext(env);vm.runInContext(route,env);assert.equal(env.formatSelect.value,format);assert.equal(updated,1);}
 // Every script used by the rewritten page is available and loads in declared order.
-const fresh={window:null,console,Date,URLSearchParams,localStorage:storage,document:{addEventListener:()=>{}}};fresh.window=fresh;vm.createContext(fresh);
+const fresh={crypto:require("node:crypto").webcrypto,addEventListener(){},window:null,console,Date,URLSearchParams,localStorage:storage,document:{addEventListener:()=>{}}};fresh.window=fresh;vm.createContext(fresh);
 for(const [,file] of source('progress.html').matchAll(/<script src="([^"]+)"/g))vm.runInContext(source(file),fresh);
 assert(fresh.BLOCKS_2KYU.length>0);assert(fresh.q7Sets.length>0);
 console.log('PASS: shared recorders, repeat-grading guards, listening format routing, complete page script loading.');

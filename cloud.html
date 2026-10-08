@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GOIMON クラウド保存</title>
+<script src="cloud_schema.js"></script><script src="cloud_storage.js"></script><script src="cloud_config.js"></script>
+<style>body{font-family:system-ui,sans-serif;background:#f3f6fa;color:#20334d;margin:0;padding:24px}main{max-width:680px;margin:auto;background:white;padding:28px;border-radius:20px}h1{font-size:1.6rem}button,a.action{display:inline-block;padding:12px 16px;margin:5px 4px 5px 0;border:1px solid #bdcbd9;border-radius:10px;background:white;color:#174e80;font:inherit;cursor:pointer}button:disabled{opacity:.45;cursor:default}#status{padding:16px;background:#eaf1f7;white-space:pre-wrap;overflow-wrap:anywhere}small{color:#53667a}.primary{background:#174e80!important;color:white!important}section{border-top:1px solid #e1e7ef;margin-top:22px;padding-top:18px}pre{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#174e80}</style>
+</head><body><main><a href="index.html">← 学習に戻る</a><h1>Googleログイン・クラウド保存</h1>
+<p>保存した学習記録とゴイモンを、別のスマホやPCへ引き継げます。学習後はこの画面で「同期する」を押してください。</p>
+<div id="google-button"></div><p id="account">ログインしていません</p><p id="profile"></p>
+<button id="sync" class="primary" disabled>同期する</button><button id="logout">ゲストに戻る</button>
+<p id="status" role="status" aria-live="polite">準備中</p>
+<div id="conflict" hidden><p>両方で同じ記録が変わっています。内容を確認して使うデータを選んでください。選ばなかった端末データも復旧用に残ります。</p><pre id="conflict-keys"></pre><button id="export-conflict">両方のデータを書き出す</button><button id="use-local">この端末の記録を使う</button><button id="use-remote">クラウドの記録を使う</button></div>
+<section><h2>この端末のデータ</h2><button id="backup">バックアップを書き出す</button><button id="import-guest" disabled>ゲストの記録を初回引き継ぎ</button>
+<p><small>ゲストの記録は元のまま残します。Googleアカウントごとに端末内のデータを分けて保存します。オフラインでも選択中のアカウントで学習できます。認証が切れたら再ログインして同期してください。</small></p>
+<button id="recovery">復旧用データを書き出す</button></section>
+<p><small>保存対象：学習進捗、苦手問題、育成・進化・図鑑・会話履歴。Googleのパスワードは取得しません。トークンはこの画面のメモリ内だけに保持します。</small></p>
+</main><script src="cloud_sync.js"></script></body></html>

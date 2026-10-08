@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   'use strict';
   const D=window.ProgressData, $=id=>document.getElementById(id);
   const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  let level=localStorage.getItem('zensho_level_v1')==='2'?'2':'1',view='blocks',filter='all';
+  let level=GOIMONStorage.getItem('zensho_level_v1')==='2'?'2':'1',view='blocks',filter='all';
   const badge=state=>`<span class="badge ${state}">${D.labels[state]}</span>`;
   const matches=state=>filter==='all'||filter===state;
   const url=(page,b)=>`${page}?start=${b.start}&end=${b.end}${['quiz.html','quiz_jaen.html','audio_quiz.html'].includes(page)?'&autostart=1':''}`;
@@ -69,15 +69,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     cards=cards.filter(Boolean);$('cards').innerHTML=cards.join('');$('resultCount').textContent=`${cards.length}件`;$('emptyState').hidden=cards.length>0;
   }
-  for(const lv of ['1','2'])$('lv'+lv).addEventListener('click',()=>{level=lv;localStorage.setItem('zensho_level_v1',lv);render();});
+  for(const lv of ['1','2'])$('lv'+lv).addEventListener('click',()=>{level=lv;GOIMONStorage.setItem('zensho_level_v1',lv);render();});
   document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{view=b.dataset.view;filter='all';render();}));
   document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;render();}));
   $('passLine').addEventListener('change',render);$('refresh').addEventListener('click',render);
   $('resetGlobal').addEventListener('click',()=>{
     if(!confirm(`全商英検${level}級のブロック進捗だけを削除しますか？\n大問別・リスニング・ゴイモン・苦手記録は削除しません。`))return;
-    localStorage.removeItem(`zensho_block_global_lv${level}_v1`);$('notice').textContent=`${level}級のブロック記録をリセットしました。`;render();
+    GOIMONStorage.removeItem(`zensho_block_global_lv${level}_v1`);$('notice').textContent=`${level}級のブロック記録をリセットしました。`;render();
   });
-  window.addEventListener('pageshow',()=>{level=localStorage.getItem('zensho_level_v1')==='2'?'2':'1';render();});
-  window.addEventListener('storage',()=>{level=localStorage.getItem('zensho_level_v1')==='2'?'2':'1';render();});
+  window.addEventListener('pageshow',()=>{level=GOIMONStorage.getItem('zensho_level_v1')==='2'?'2':'1';render();});
+  window.addEventListener('storage',()=>{level=GOIMONStorage.getItem('zensho_level_v1')==='2'?'2':'1';render();});
   render();
 });

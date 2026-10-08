@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   const n = value => Number.isFinite(Number(value)) ? Math.max(0, Math.floor(Number(value))) : 0;
-  function read(key) { try { const x=JSON.parse(localStorage.getItem(key)||'{}'); return x && typeof x==='object' && !Array.isArray(x) ? x : {}; } catch (_) { return {}; } }
+  function read(key) { try { const x=JSON.parse(GOIMONStorage.getItem(key)||'{}'); return x && typeof x==='object' && !Array.isArray(x) ? x : {}; } catch (_) { return {}; } }
   const modes = [
     ['quizAttempted','quizCorrect','英→日','quiz.html'],
     ['quizAttemptedJaEn','quizCorrectJaEn','日→英','quiz_jaen.html'],

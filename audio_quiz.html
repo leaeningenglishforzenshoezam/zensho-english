@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+<script src="cloud_schema.js"></script>
+<script src="cloud_storage.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>音声→意味クイズ</title>
@@ -628,7 +630,7 @@
   <script src="words_1kyu.js"></script>
   <script src="blocks_1kyu.js"></script>
   <script>
-    window.ACTIVE_LEVEL = localStorage.getItem("zensho_level_v1") || "1";
+    window.ACTIVE_LEVEL = GOIMONStorage.getItem("zensho_level_v1") || "1";
     if (window.ACTIVE_LEVEL === "1") {
       window.WORDS = window.WORDS_1KYU || [];
       window.BLOCKS = window.BLOCKS_1KYU || [];
