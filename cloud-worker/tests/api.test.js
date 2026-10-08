@@ -23,9 +23,9 @@ test('Real local D1: concurrent create/update CAS, recovery history, user isolat
  }finally{await mf.dispose()}
 });
 test('CORS, missing token and rate limit fail closed',async()=>{
- const env={GOOGLE_CLIENT_ID:'test-client',ALLOWED_ORIGIN:origin,RATE_LIMITER:{limit:async()=>({success:true})}};
+ const env={GOOGLE_CLIENT_ID:'test-client',ALLOWED_ORIGIN:origin,RATE_LIMITER:{limit:async()=>({success:true})},AUTH_RATE_LIMITER:{limit:async()=>({success:true})}};
  assert.equal((await worker.fetch(new Request('https://test/api/v1/save'),env)).status,403);
  const req=()=>new Request('https://test/api/v1/save',{headers:{Origin:origin}});
  assert.equal((await worker.fetch(req(),env)).status,401);
- env.RATE_LIMITER.limit=async()=>({success:false});assert.equal((await worker.fetch(req(),env)).status,429);
+ env.AUTH_RATE_LIMITER.limit=async()=>({success:false});assert.equal((await worker.fetch(req(),env)).status,429);
 });

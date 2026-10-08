@@ -17,7 +17,20 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
  assert.deepEqual(errors,[],'page JS errors');
  let cloud={},offline=false,apiStatus=0,dropAfterWrite=false,concurrentWrite=false,postCount=0;
  await context.route('**/cloud_config.js',r=>r.fulfill({contentType:'text/javascript',body:'window.GOIMON_CLOUD_CONFIG={googleClientId:"test",apiBase:"https://api.test"}'}));
- await context.route('https://api.test/**',async r=>{if(offline)return r.abort();if(apiStatus)return r.fulfill({status:apiStatus,json:{error:'injected_failure'}});const id=r.request().headers().authorization.split(' ')[1],s=cloud[id]||{revision:0,snapshot:null};if(r.request().method()==='POST'){postCount++;if(concurrentWrite){concurrentWrite=false;cloud[id]={...s,revision:s.revision+1};return r.fulfill({status:409,json:{error:'revision_conflict'}});}const b=r.request().postDataJSON();if(b.expectedRevision!==s.revision)return r.fulfill({status:409,json:{error:'revision_conflict'}});cloud[id]={revision:s.revision+1,snapshot:b.snapshot};if(dropAfterWrite){dropAfterWrite=false;return r.abort();}return r.fulfill({json:{revision:cloud[id].revision}});}return r.fulfill({json:{userId:id,...s}});});
+ const sessions=new Map();let serial=0;
+ await context.route('https://api.test/**',async r=>{
+   if(offline)return r.abort();if(apiStatus)return r.fulfill({status:apiStatus,json:{error:'injected_failure'}});
+   const credential=r.request().headers().authorization.split(' ')[1],method=r.request().method();
+   if(new URL(r.request().url()).pathname.endsWith('/session')){
+     if(method==='POST'){const token='gs1_'+String(++serial).padStart(64,'0'),x={token,userId:credential,expiresAt:Math.floor(Date.now()/1000)+86400};sessions.set(token,x);return r.fulfill({json:x});}
+     if(method==='DELETE'){sessions.delete(credential);return r.fulfill({json:{ok:true}});}
+     const x=sessions.get(credential);return r.fulfill({status:x?200:401,json:x||{error:'unauthorized'}});
+   }
+   const id=sessions.get(credential)?.userId;if(!id)return r.fulfill({status:401,json:{error:'unauthorized'}});
+   const s=cloud[id]||{revision:0,snapshot:null};
+   if(method==='POST'){postCount++;if(concurrentWrite){concurrentWrite=false;cloud[id]={...s,revision:s.revision+1};return r.fulfill({status:409,json:{error:'revision_conflict'}});}const b=r.request().postDataJSON();if(b.expectedRevision!==s.revision)return r.fulfill({status:409,json:{error:'revision_conflict'}});cloud[id]={revision:s.revision+1,snapshot:b.snapshot};if(dropAfterWrite){dropAfterWrite=false;return r.abort();}return r.fulfill({json:{revision:cloud[id].revision}});}
+   return r.fulfill({json:{userId:id,...s}});
+ });
  await p.goto('http://localhost:8879/cloud.html');await p.evaluate(()=>goimonGoogleLogin('A'));
  await p.click('#import-guest');await p.waitForFunction(()=>!document.querySelector('#sync').disabled);await p.click('#sync');await p.waitForFunction(()=>!document.querySelector('#sync').disabled);assert.equal(cloud.A.revision,1);assert(cloud.A.snapshot.data.q7SetHistory_v1);
  await p.evaluate(()=>{const p=GOIMONProfiles.read('A');p.data.q7SetHistory_v1='{"local":{"attempts":4}}';GOIMONProfiles.write('A',p)});
@@ -28,7 +41,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
  assert.equal(await p.evaluate(()=>localStorage.getItem('q7SetHistory_v1')),'{"guest":{"attempts":2}}');
 
  console.log('PASS: 19 pages in guest/account mode and basic browser sync');
- const go=page=>page.goto('http://localhost:8879/cloud.html');
+ const go=async page=>{await page.goto('http://localhost:8879/cloud.html');await page.waitForFunction(()=>!document.querySelector('#logout').disabled)};
  const login=(page,id)=>page.evaluate(id=>goimonGoogleLogin(id),id);
  const sync=page=>page.evaluate(()=>document.getElementById('sync').onclick());
  const profile=()=>p.evaluate(()=>GOIMONProfiles.read('A'));
@@ -41,10 +54,10 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
  for(let i=0;i<3;i++){await p.locator('#choices button').first().click();if(i<2)await p.locator('#nextQTop').click();}
  const learnedOffline=await profile();assert.notDeepEqual(learnedOffline.data,beforeOffline.data);
  assert(learnedOffline.data.zensho_learning_log_v1_lv1);
- await context.setOffline(false);await go(p);await login(p,'A');await sync(p);
+ await context.setOffline(false);const loginCount=serial;await go(p);assert.equal(serial,loginCount);assert.match(await p.locator('#account').textContent(),/Googleログイン済み/);await sync(p);
  assert.equal(cloud.A.snapshot.data.zensho_learning_log_v1_lv1,learnedOffline.data.zensho_learning_log_v1_lv1);
  console.log('PASS: real quiz answers while browser offline; records upload after reconnect');
- for(const status of [401,429,500]){const before=await profile();apiStatus=status;await sync(p);apiStatus=0;assert.deepEqual(await profile(),before);assert(!(await p.locator('#status').textContent()).startsWith('同期しました'));}
+ for(const status of [401,429,500]){await login(p,'A');const before=await profile();apiStatus=status;await sync(p);apiStatus=0;assert.deepEqual(await profile(),before);assert(!(await p.locator('#status').textContent()).startsWith('同期しました'));}
  console.log('PASS: expired token, rate limit and server failure preserve local records');
  await p.evaluate(()=>{const p=GOIMONProfiles.read('A');p.data.q7SetHistory_v1='{"lostResponse":1}';GOIMONProfiles.write('A',p)});
  let before=await profile();dropAfterWrite=true;await sync(p);assert.deepEqual(await profile(),before);const accepted=cloud.A.revision;await sync(p);assert.equal(cloud.A.revision,accepted);assert.equal((await profile()).revision,accepted);
@@ -68,9 +81,21 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
  console.log('PASS: quota failure leaves saved profile intact and exports unsaved data');
  await go(p);
 
- await p.locator('#logout').click();
+ await p.evaluate(()=>document.querySelector('#logout').onclick());
  const guestDownload=p.waitForEvent('download');await p.locator('#backup').click();const guestFile=await guestDownload;
  const guestBackup=JSON.parse(fs.readFileSync(await guestFile.path(),'utf8'));assert.equal(guestBackup.account,null);assert.equal(guestBackup.data.q7SetHistory_v1,'{"guest":{"attempts":2}}');
  console.log('PASS: backup after logout exports guest data, not the previous account');
+ await p.reload();await p.waitForFunction(()=>!document.querySelector('#logout').disabled);assert.match(await p.locator('#account').textContent(),/ログインしていません/);
+ await login(p,'A');const stored=await p.evaluate(()=>JSON.parse(sessionStorage.getItem('goimon_cloud_session_v1')));
+ assert.match(stored.token,/^gs1_[a-f0-9]{64}$/);
+ assert.equal(await p.evaluate(t=>Object.values(localStorage).some(v=>v.includes(t)),stored.token),false);
+ await p.reload();await p.waitForFunction(()=>!document.querySelector('#sync').disabled);assert.equal(serial,Number(stored.token.slice(4)));
+ before=await profile();offline=true;await go(p);assert.match(await p.locator('#account').textContent(),/ログインしていません/);assert.equal(await p.locator('#resume').isVisible(),true);assert.deepEqual(await profile(),before);
+ offline=false;await p.evaluate(()=>document.querySelector('#resume').onclick());assert.match(await p.locator('#account').textContent(),/Googleログイン済み/);
+ sessions.delete(stored.token);await go(p);assert.match(await p.locator('#account').textContent(),/ログインしていません/);assert.equal(await p.evaluate(()=>sessionStorage.getItem('goimon_cloud_session_v1')),null);assert.deepEqual(await profile(),before);
+ await login(p,'A');await p.evaluate(()=>{const x=JSON.parse(sessionStorage.getItem('goimon_cloud_session_v1'));x.expiresAt=1;sessionStorage.setItem('goimon_cloud_session_v1',JSON.stringify(x))});await go(p);assert.match(await p.locator('#account').textContent(),/ログインしていません/);assert.deepEqual(await profile(),before);
+ await login(p,'A');const other=await context.newPage();await go(other);await login(other,'B');await p.waitForFunction(()=>document.querySelector('#sync').disabled);assert.equal(await p.evaluate(()=>sessionStorage.getItem('goimon_cloud_session_v1')),null);await go(p);assert.equal(await p.evaluate(()=>localStorage.getItem('goimon_cloud_v2:active')),'B');assert.deepEqual(await profile(),before);await other.close();
+ await login(p,'A');const logoutToken=await p.evaluate(()=>JSON.parse(sessionStorage.getItem('goimon_cloud_session_v1')).token);await p.evaluate(()=>document.querySelector('#logout').onclick());assert.equal(sessions.has(logoutToken),false);await go(p);assert.match(await p.locator('#account').textContent(),/ログインしていません/);
+ console.log('PASS: session survives navigation/reload; offline retry, expiry, revocation, cross-tab switch and logout are safe');
  await p.screenshot({path:'/tmp/goimon-cloud-screen.png',fullPage:true});assert.deepEqual(errors,[]);console.log(`PASS: ${pages.length} pages × guest/account; import, sync, conflict resolution, offline, account switch, guest preservation`);
  }finally{await browser?.close();server.kill()}})().catch(e=>{console.error(e);process.exit(1)});

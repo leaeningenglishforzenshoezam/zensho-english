@@ -1,5 +1,6 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { validateSnapshot } from './validation.js';
+import { bearer, createSession, authenticateSession, revokeSession } from './session.js';
 
 const jwks = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
 const MAX_REQUEST_BYTES = 920_000;
@@ -10,7 +11,7 @@ function cors(origin, allowed) {
   return origin === allowed ? {
     'access-control-allow-origin':allowed,
     'access-control-allow-headers':'Authorization, Content-Type',
-    'access-control-allow-methods':'GET, POST, OPTIONS',
+    'access-control-allow-methods':'GET, POST, DELETE, OPTIONS',
     'vary':'Origin'
   } : null;
 }
@@ -92,13 +93,28 @@ export default {
     try {
       const url=new URL(request.url);
       if (url.pathname==='/health' && request.method==='GET') result=response({ok:true});
-      else if (url.pathname==='/api/v1/save' && ['GET','POST'].includes(request.method)) {
-        if(!env.RATE_LIMITER) return response({error:'rate_limiter_not_configured'},503,headers);
-        const limited=await env.RATE_LIMITER.limit({key:request.headers.get('CF-Connecting-IP')||'unknown'});
+      else if ((url.pathname==='/api/v1/save' && ['GET','POST'].includes(request.method)) || (url.pathname==='/api/v1/session' && ['GET','POST','DELETE'].includes(request.method))) {
+        if(!env.RATE_LIMITER || !env.AUTH_RATE_LIMITER) return response({error:'rate_limiter_not_configured'},503,headers);
+        const limited=await env.AUTH_RATE_LIMITER.limit({key:'ip:'+ (request.headers.get('CF-Connecting-IP')||'unknown')});
         if(!limited.success)return response({error:'rate_limited'},429,{...headers,'retry-after':'60'});
-        const sub=await authenticate(request,env);
-        const userId=await getUserId(env.DB,sub);
-        result=request.method==='GET' ? response({userId,...await publicSave(env.DB,userId)}) : await handleSave(request,env,userId);
+        if(url.pathname==='/api/v1/session') {
+          if(request.method==='POST') {
+            const sub=await authenticate(request,env);
+            if(!(await env.RATE_LIMITER.limit({key:'google:'+sub})).success)return response({error:'rate_limited'},429,headers);
+            const userId=await getUserId(env.DB,sub);
+            result=response(await createSession(env.DB,userId));
+          } else if(request.method==='GET') {
+            const session=await authenticateSession(request,env.DB);
+            result=response({userId:session.userId,expiresAt:session.expiresAt});
+          } else {await revokeSession(request,env.DB);result=response({ok:true});}
+        } else {
+          // Keep existing staging clients working during the rollout.
+          let userId;
+          if(bearer(request).startsWith('gs1_'))userId=(await authenticateSession(request,env.DB)).userId;
+          else userId=await getUserId(env.DB,await authenticate(request,env));
+          if(!(await env.RATE_LIMITER.limit({key:'user:'+userId})).success)return response({error:'rate_limited'},429,headers);
+          result=request.method==='GET' ? response({userId,...await publicSave(env.DB,userId)}) : await handleSave(request,env,userId);
+        }
       } else result=response({error:'not_found'},404);
     } catch(error) {
       if (error.message==='unauthorized' || error.code?.startsWith('ERR_JWT') || error.code?.startsWith('ERR_JWS') || error.code?.startsWith('ERR_JOSE'))

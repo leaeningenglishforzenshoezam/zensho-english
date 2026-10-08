@@ -5,11 +5,12 @@
 </head><body><main><a href="index.html">← 学習に戻る</a><h1>Googleログイン・クラウド保存</h1>
 <p>保存した学習記録とゴイモンを、別のスマホやPCへ引き継げます。学習後はこの画面で「同期する」を押してください。</p>
 <div id="google-button"></div><p id="account">ログインしていません</p><p id="profile"></p>
+<button id="resume" hidden>ログイン状態を再確認</button>
 <button id="sync" class="primary" disabled>同期する</button><button id="logout">ゲストに戻る</button>
 <p id="status" role="status" aria-live="polite">準備中</p>
 <div id="conflict" hidden><p>両方で同じ記録が変わっています。内容を確認して使うデータを選んでください。選ばなかった端末データも復旧用に残ります。</p><pre id="conflict-keys"></pre><button id="export-conflict">両方のデータを書き出す</button><button id="use-local">この端末の記録を使う</button><button id="use-remote">クラウドの記録を使う</button></div>
 <section><h2>この端末のデータ</h2><button id="backup">バックアップを書き出す</button><button id="import-guest" disabled>ゲストの記録を初回引き継ぎ</button>
 <p><small>ゲストの記録は元のまま残します。Googleアカウントごとに端末内のデータを分けて保存します。オフラインでも選択中のアカウントで学習できます。認証が切れたら再ログインして同期してください。</small></p>
 <button id="recovery">復旧用データを書き出す</button></section>
-<p><small>保存対象：学習進捗、苦手問題、育成・進化・図鑑・会話履歴。Googleのパスワードは取得しません。トークンはこの画面のメモリ内だけに保持します。</small></p>
+<p><small>保存対象：学習進捗、苦手問題、育成・進化・図鑑・会話履歴。Googleのパスワードは取得しません。Googleの認証情報は保存しません。GOIMON専用のログイン情報をこのタブで最大24時間保持します。</small></p>
 </main><script src="cloud_sync.js"></script></body></html>

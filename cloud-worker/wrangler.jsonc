@@ -4,7 +4,7 @@
   "compatibility_date": "2026-10-01",
   "vars": {
     "GOOGLE_CLIENT_ID": "860663516644-f7u8dqa2bdfemr0pnmcoi6j8v5oktslr.apps.googleusercontent.com",
-    "ALLOWED_ORIGIN": "https://leaeningenglishforzenshoezam.github.io"
+    "ALLOWED_ORIGIN": "http://localhost:8765"
   },
   "d1_databases": [
     {
@@ -22,6 +22,15 @@
         "limit": 60,
         "period": 60
       }
+    },
+    {
+      "name": "AUTH_RATE_LIMITER",
+      "namespace_id": "1002",
+      "simple": {
+        "limit": 600,
+        "period": 60
+      }
     }
-  ]
+  ],
+  "preview_urls": false
 }
