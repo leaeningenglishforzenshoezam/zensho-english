@@ -107,7 +107,7 @@ npm test
 npx wrangler deploy --dry-run
 ```
 
-ブラウザ検証はPlaywrightとChromiumを用意し、ルートでHTTPサーバー起動後に `node tests/cloud-browser.cjs`。GoogleとAPIはモック。実Google認証・本番D1接続の証明にはならない。
+ブラウザ検証はPlaywrightとChromiumを用意し `node tests/cloud-browser.cjs`。サーバーはテストが自動起動する。別のChromium実行ファイルは環境変数 `GOIMON_CHROMIUM_PATH` で指定できる。GoogleとAPIはモック。実Google認証・本番D1接続の証明にはならない。
 
 ## 公開前の残作業
 
@@ -123,7 +123,7 @@ npx wrangler deploy --dry-run
 - Worker：7テスト。実署名JWT、ローカルD1、同時作成・更新、履歴、ユーザー分離、サイズ、CORS、認証、レート制限。
 - 既存progress.test.cjs：全項目通過。
 - Wrangler dry-run：成功。リモートデプロイはしていない。
-- 実ブラウザ：Playwright用Chromiumの取得が完了できず未実行。tests/cloud-browser.cjsを用意。Google認証とAPIのモックであり、実サービス接続は別途必要。
+- 実ブラウザ：Chromiumで19画面×ゲスト・アカウントの表示、実クイズのオフライン解答、復帰同期、401/429/500、送信後の応答消失、CAS競合、Web Locks、容量不足・書き出しを自動検証し通過。Googleと保存APIはテスト用応答を使用し、ユーザーの実データにはアクセスしていない。
 - GitHub接続後、検証ブランチへ保存。添付パッチでも再現可能。
 
 公式仕様の参照：
@@ -132,3 +132,22 @@ npx wrangler deploy --dry-run
 - https://developers.cloudflare.com/d1/platform/limits/
 
 2026-10-09: sharpをoverridesで0.35.5に固定。npm audit 0件、Workerテスト7件とdry-run通過。
+
+## 2026-10-09 実機確認と追加自動検証
+
+本人確認済み：実Googleログイン、学習後の保存、別ブラウザへの復元、別アカウント分離、競合停止、クラウド側を選んだ解消。
+こちらのChromium検証：読み込み済みクイズをブラウザのオフライン状態で3問解答し、永続保存と復帰後の送信を確認。実クラウドのユーザー記録は変更せず、APIをモックして障害を注入した。
+
+| ケース | 結果 |
+|---|---|
+| 19画面・ゲストとアカウント各モード | JS例外なし |
+| オフライン解答→再接続→同期 | ローカルの学習ログと送信ログが一致 |
+| 401・429・500 | ローカルプロファイルを維持 |
+| API保存成功後に応答だけ消失 | 再同期で二重更新なし |
+| GETとPOSTの間にクラウド世代が更新 | 競合停止、再試行可能 |
+| 同じアカウントの学習タブと同期画面 | 実Web Locksで同時書込を停止 |
+| 容量不足 | 保存済み状態を維持、未保存コピーをダウンロード可能 |
+| ログアウト後のバックアップ | ゲスト記録を出力 |
+
+最後のケースで、前アカウントのIDを参照する不具合を修正した。クラウド同期先の混在ではなく、手動バックアップの出力対象の問題。
+未確認：実スマホのブラウザ、フロントと実Google・D1を通した無人E2E。実ログイン関連は上記本人確認とWorkerのJWT/D1自動テストを根拠とする。

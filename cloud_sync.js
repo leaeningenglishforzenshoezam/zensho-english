@@ -51,7 +51,7 @@
   $('use-local').onclick=()=>run(()=>resolve('local'));
   $('use-remote').onclick=()=>run(()=>resolve('remote'));
   $('export-conflict').onclick=()=>download(conflict,'goimon-conflict');
-  $('backup').onclick=()=>download({format:'goimon-local-backup-v2',account:userId||P.account,data:userId?current().data:P.account?P.read(P.account).data:P.collect()},'goimon-backup');
+  $('backup').onclick=()=>{const id=userId||localStorage.getItem('goimon_cloud_v2:active')||null;download({format:'goimon-local-backup-v2',account:id,data:id?P.read(id).data:P.collect()},'goimon-backup');};
   $('recovery').onclick=()=>{const data={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith('goimon_cloud_v2:recovery:')||k.startsWith('goimon_cloud_v2:journal:'))data[k]=JSON.parse(localStorage.getItem(k));}download(data,'goimon-recovery');};
   $('import-guest').onclick=()=>run(async()=>{
     const p=current();if(Object.keys(p.data).length||p.revision)throw Error('初回だけ引き継ぎできます');

@@ -1,16 +1,24 @@
-// Run a local server at :8765, then NODE_PATH=<playwright modules> node tests/cloud-browser.cjs
+// Run: NODE_PATH=<playwright modules> node tests/cloud-browser.cjs. Starts its own localhost server.
 const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('node:fs');
-(async()=>{const browser=await chromium.launch({headless:true});try{
- const context=await browser.newContext();await context.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());
+(async()=>{
+ const {spawn}=require('node:child_process');
+ const server=spawn(process.execPath,[require('node:path').join(__dirname,'..','preview-server.cjs')],{env:{...process.env,GOIMON_PREVIEW_PORT:'8879'}});
+ await new Promise((resolve,reject)=>{server.stdout.once('data',resolve);server.once('error',reject);server.once('exit',c=>reject(Error('preview exited '+c)));});
+ let browser;
+ try{
+ const options={headless:true};
+ if(process.env.GOIMON_CHROMIUM_PATH){options.executablePath=process.env.GOIMON_CHROMIUM_PATH;options.args=['--no-sandbox','--disable-gpu'];}
+ browser=await chromium.launch(options);
+ const context=await browser.newContext();await context.route('**/*',r=>new URL(r.request().url()).hostname==='localhost'?r.continue():r.abort());
  const p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('dialog',d=>d.accept());
- await p.goto('http://127.0.0.1:8765/index.html');await p.evaluate(()=>localStorage.setItem('q7SetHistory_v1','{"guest":{"attempts":2}}'));
+ await p.goto('http://localhost:8879/index.html');await p.evaluate(()=>localStorage.setItem('q7SetHistory_v1','{"guest":{"attempts":2}}'));
  const pages=fs.readdirSync(require('node:path').join(__dirname,'..')).filter(f=>f.endsWith('.html')&&!f.startsWith('google'));
- for(const account of [null,'smoke-user']){await p.evaluate(id=>id?GOIMONProfiles.activate(id):GOIMONProfiles.logout(),account);for(const name of pages){await p.goto('http://127.0.0.1:8765/'+name);await p.waitForTimeout(80);}}
+ for(const account of [null,'smoke-user']){await p.evaluate(id=>id?GOIMONProfiles.activate(id):GOIMONProfiles.logout(),account);for(const name of pages){await p.goto('http://localhost:8879/'+name);await p.waitForTimeout(80);}}
  assert.deepEqual(errors,[],'page JS errors');
- let cloud={},offline=false;
+ let cloud={},offline=false,apiStatus=0,dropAfterWrite=false,concurrentWrite=false,postCount=0;
  await context.route('**/cloud_config.js',r=>r.fulfill({contentType:'text/javascript',body:'window.GOIMON_CLOUD_CONFIG={googleClientId:"test",apiBase:"https://api.test"}'}));
- await context.route('https://api.test/**',async r=>{if(offline)return r.abort();const id=r.request().headers().authorization.split(' ')[1],s=cloud[id]||{revision:0,snapshot:null};if(r.request().method()==='POST'){const b=r.request().postDataJSON();if(b.expectedRevision!==s.revision)return r.fulfill({status:409,json:{error:'revision_conflict'}});cloud[id]={revision:s.revision+1,snapshot:b.snapshot};return r.fulfill({json:{revision:cloud[id].revision}});}return r.fulfill({json:{userId:id,...s}});});
- await p.goto('http://127.0.0.1:8765/cloud.html');await p.evaluate(()=>goimonGoogleLogin('A'));
+ await context.route('https://api.test/**',async r=>{if(offline)return r.abort();if(apiStatus)return r.fulfill({status:apiStatus,json:{error:'injected_failure'}});const id=r.request().headers().authorization.split(' ')[1],s=cloud[id]||{revision:0,snapshot:null};if(r.request().method()==='POST'){postCount++;if(concurrentWrite){concurrentWrite=false;cloud[id]={...s,revision:s.revision+1};return r.fulfill({status:409,json:{error:'revision_conflict'}});}const b=r.request().postDataJSON();if(b.expectedRevision!==s.revision)return r.fulfill({status:409,json:{error:'revision_conflict'}});cloud[id]={revision:s.revision+1,snapshot:b.snapshot};if(dropAfterWrite){dropAfterWrite=false;return r.abort();}return r.fulfill({json:{revision:cloud[id].revision}});}return r.fulfill({json:{userId:id,...s}});});
+ await p.goto('http://localhost:8879/cloud.html');await p.evaluate(()=>goimonGoogleLogin('A'));
  await p.click('#import-guest');await p.waitForFunction(()=>!document.querySelector('#sync').disabled);await p.click('#sync');await p.waitForFunction(()=>!document.querySelector('#sync').disabled);assert.equal(cloud.A.revision,1);assert(cloud.A.snapshot.data.q7SetHistory_v1);
  await p.evaluate(()=>{const p=GOIMONProfiles.read('A');p.data.q7SetHistory_v1='{"local":{"attempts":4}}';GOIMONProfiles.write('A',p)});
  cloud.A={revision:2,snapshot:{schemaVersion:1,data:{q7SetHistory_v1:'{"remote":{"attempts":5}}'}}};
@@ -18,5 +26,51 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
  offline=true;await p.click('#sync');await p.waitForFunction(()=>!document.querySelector('#sync').disabled);assert.equal(await p.evaluate(()=>GOIMONProfiles.read('A').data.q7SetHistory_v1),cloud.A.snapshot.data.q7SetHistory_v1);offline=false;
  await p.evaluate(()=>goimonGoogleLogin('B'));await p.click('#sync');await p.waitForFunction(()=>!document.querySelector('#sync').disabled);assert.equal(await p.evaluate(()=>Object.keys(GOIMONProfiles.read('B').data).length),0);
  assert.equal(await p.evaluate(()=>localStorage.getItem('q7SetHistory_v1')),'{"guest":{"attempts":2}}');
+
+ console.log('PASS: 19 pages in guest/account mode and basic browser sync');
+ const go=page=>page.goto('http://localhost:8879/cloud.html');
+ const login=(page,id)=>page.evaluate(id=>goimonGoogleLogin(id),id);
+ const sync=page=>page.evaluate(()=>document.getElementById('sync').onclick());
+ const profile=()=>p.evaluate(()=>GOIMONProfiles.read('A'));
+ await login(p,'A');
+ await p.goto('http://localhost:8879/quiz.html');
+ await p.locator('#limitCount').fill('3');await p.locator('#startTest').click();
+ await p.locator('#choices button').first().waitFor({state:'visible'});
+ const beforeOffline=await profile();
+ await context.setOffline(true);
+ for(let i=0;i<3;i++){await p.locator('#choices button').first().click();if(i<2)await p.locator('#nextQTop').click();}
+ const learnedOffline=await profile();assert.notDeepEqual(learnedOffline.data,beforeOffline.data);
+ assert(learnedOffline.data.zensho_learning_log_v1_lv1);
+ await context.setOffline(false);await go(p);await login(p,'A');await sync(p);
+ assert.equal(cloud.A.snapshot.data.zensho_learning_log_v1_lv1,learnedOffline.data.zensho_learning_log_v1_lv1);
+ console.log('PASS: real quiz answers while browser offline; records upload after reconnect');
+ for(const status of [401,429,500]){const before=await profile();apiStatus=status;await sync(p);apiStatus=0;assert.deepEqual(await profile(),before);assert(!(await p.locator('#status').textContent()).startsWith('同期しました'));}
+ console.log('PASS: expired token, rate limit and server failure preserve local records');
+ await p.evaluate(()=>{const p=GOIMONProfiles.read('A');p.data.q7SetHistory_v1='{"lostResponse":1}';GOIMONProfiles.write('A',p)});
+ let before=await profile();dropAfterWrite=true;await sync(p);assert.deepEqual(await profile(),before);const accepted=cloud.A.revision;await sync(p);assert.equal(cloud.A.revision,accepted);assert.equal((await profile()).revision,accepted);
+ console.log('PASS: accepted save with lost response retries without duplicate overwrite');
+ await p.evaluate(()=>{const p=GOIMONProfiles.read('A');p.data.q7SetHistory_v1='{"race":1}';GOIMONProfiles.write('A',p)});
+ before=await profile();concurrentWrite=true;await sync(p);assert.deepEqual(await profile(),before);assert.match(await p.locator('#status').textContent(),/別の端末/);await sync(p);
+ console.log('PASS: server revision race stops and can retry safely');
+ const learning=await context.newPage();learning.on('dialog',d=>d.accept());await learning.goto('http://localhost:8879/quiz.html');
+ await learning.waitForFunction(async()=>{const q=await navigator.locks.query();return q.held.some(x=>x.name==='goimon-profile-A')});
+ const requests=postCount;await sync(p);assert.match(await p.locator('#status').textContent(),/学習タブを閉じて/);assert.equal(postCount,requests);
+ const blocked=await context.newPage();blocked.on('dialog',d=>d.accept());await blocked.goto('http://localhost:8879/quiz.html');
+ const preserved=await profile();const result=await blocked.evaluate(()=>{try{GOIMONStorage.setItem('q7SetHistory_v1','{"blocked":1}');return false}catch{return true}});assert(result);assert.deepEqual(await profile(),preserved);
+ await blocked.close();await learning.close();await sync(p);assert.match(await p.locator('#status').textContent(),/^同期しました/);
+ console.log('PASS: real Web Locks stop second learning tab and concurrent sync; release on close');
+ await p.goto('http://localhost:8879/quiz.html');
+ before=await profile();await p.evaluate(()=>{window.originalStorageSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k.startsWith('goimon_cloud_v2:profile:'))throw new DOMException('full','QuotaExceededError');return originalStorageSet.call(this,k,v)};try{GOIMONStorage.setItem('q7SetHistory_v1','{"quota":1}')}catch{}});
+ assert.deepEqual(await profile(),before);await p.locator('#goimon-storage-error').waitFor({state:'visible'});
+ const saved=p.waitForEvent('download');await p.locator('#goimon-storage-error button').click();const download=await saved;
+ assert.equal(JSON.parse(fs.readFileSync(await download.path(),'utf8')).profile.data.q7SetHistory_v1,'{"quota":1}');
+ await p.evaluate(()=>{Storage.prototype.setItem=originalStorageSet});
+ console.log('PASS: quota failure leaves saved profile intact and exports unsaved data');
+ await go(p);
+
+ await p.locator('#logout').click();
+ const guestDownload=p.waitForEvent('download');await p.locator('#backup').click();const guestFile=await guestDownload;
+ const guestBackup=JSON.parse(fs.readFileSync(await guestFile.path(),'utf8'));assert.equal(guestBackup.account,null);assert.equal(guestBackup.data.q7SetHistory_v1,'{"guest":{"attempts":2}}');
+ console.log('PASS: backup after logout exports guest data, not the previous account');
  await p.screenshot({path:'/tmp/goimon-cloud-screen.png',fullPage:true});assert.deepEqual(errors,[]);console.log(`PASS: ${pages.length} pages × guest/account; import, sync, conflict resolution, offline, account switch, guest preservation`);
- }finally{await browser.close()}})().catch(e=>{console.error(e);process.exit(1)});
+ }finally{await browser?.close();server.kill()}})().catch(e=>{console.error(e);process.exit(1)});
