@@ -16,7 +16,10 @@
  ${link('index.html?panel=goimon','現在のゴイモンの様子','egg','data-panel="goimon"')}${link('index.html?panel=dex','ゴイモン図鑑','grid','data-panel="dex"')}${link('progress.html','学習履歴・進捗','history')}
  <details class="gn-lessons"><summary>${icon('book')}<span>学習メニュー</span><span class="gn-arrow" aria-hidden="true">⌄</span></summary><div>${lessons.map(([href,label])=>`<a href="${href}">${label}<span aria-hidden="true">›</span></a>`).join('')}</div></details>
  </nav><div class="gn-footer"><a href="privacy.html">プライバシーポリシー</a><a href="mailto:goimon.admin@gmail.com">お問い合わせ</a></div>`;
+ paths.bell='M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4';
+ dialog.querySelector('nav').insertAdjacentHTML('afterbegin',link('announcements.html','お知らせ','bell','id="gn-news"'));
  document.body.append(dialog);
+ const newsScript=document.createElement('script');newsScript.src='cloud_news.js';document.head.append(newsScript);
  let previousOverflow='';
  const home=location.pathname.endsWith('/index.html')||location.pathname.endsWith('/');
  function panel(name){const id={goimon:'openGoimonSheetBtn',dex:'openGoimonDexBtn'}[name];document.getElementById(id)?.click();}
