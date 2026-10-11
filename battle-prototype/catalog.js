@@ -367,8 +367,8 @@
       "rarity": "N",
       "type": "attack",
       "uses": 3,
-      "power": 1.2,
-      "description": "威力1.2の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 1.5,
+      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_scream",
@@ -382,8 +382,8 @@
       "rarity": "N",
       "type": "attack",
       "uses": 4,
-      "power": 1.1,
-      "description": "威力1.1の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 1.4,
+      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_encourage",
@@ -397,8 +397,8 @@
       "rarity": "N",
       "type": "heal",
       "uses": 3,
-      "healFraction": 0.15,
-      "description": "最大HPの15％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
+      "healFraction": 0.25,
+      "description": "最大HPの25％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_concentrate",
@@ -412,9 +412,9 @@
       "rarity": "N",
       "type": "prepare",
       "uses": 3,
-      "nextPower": 1.25,
-      "power": 0.6,
-      "description": "威力0.6の攻撃。正解で次の攻撃を1.25倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "nextPower": 1.75,
+      "power": 1.05,
+      "description": "威力1.05の攻撃。正解で次の攻撃を1.75倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_relieve",
@@ -428,9 +428,9 @@
       "rarity": "N",
       "type": "weaken",
       "uses": 3,
-      "weakFactor": 0.8,
-      "power": 0.7,
-      "description": "威力0.7の攻撃。正解で次の敵の攻撃を80％にする。 使用回数は正誤にかかわらず消費。"
+      "weakFactor": 0.65,
+      "power": 1.1,
+      "description": "威力1.1の攻撃。正解で次の敵の攻撃を65％にする。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_remind",
@@ -444,7 +444,9 @@
       "rarity": "N",
       "type": "replenish",
       "uses": 1,
-      "description": "正解で、使用回数が最も減っている別の技を1回回復。同数なら枠順。回数回復技には使えない。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1の攻撃＋正解で、使用回数が最も減っている別の技を最大1回復。同数なら枠順。上限を超えず、回数回復技には使えない。 使用回数は正誤にかかわらず消費。",
+      "power": 1,
+      "restoreUses": 1
     },
     {
       "id": "N_aid",
@@ -458,8 +460,8 @@
       "rarity": "N",
       "type": "heal",
       "uses": 4,
-      "healFraction": 0.1,
-      "description": "最大HPの10％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
+      "healFraction": 0.2,
+      "description": "最大HPの20％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_praise",
@@ -473,9 +475,9 @@
       "rarity": "N",
       "type": "prepare",
       "uses": 4,
-      "nextPower": 1.2,
-      "power": 0.5,
-      "description": "威力0.5の攻撃。正解で次の攻撃を1.2倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "nextPower": 1.65,
+      "power": 0.95,
+      "description": "威力0.95の攻撃。正解で次の攻撃を1.65倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_pronounce",
@@ -489,8 +491,8 @@
       "rarity": "N",
       "type": "attack",
       "uses": 4,
-      "power": 1.05,
-      "description": "威力1.05の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 1.4,
+      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_rhythm",
@@ -504,9 +506,9 @@
       "rarity": "N",
       "type": "prepare",
       "uses": 3,
-      "nextPower": 1.15,
-      "power": 0.8,
-      "description": "威力0.8の攻撃。正解で次の攻撃を1.15倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "nextPower": 1.6,
+      "power": 1.15,
+      "description": "威力1.15の攻撃。正解で次の攻撃を1.6倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_comfort",
@@ -520,8 +522,8 @@
       "rarity": "N",
       "type": "heal",
       "uses": 4,
-      "healFraction": 0.1,
-      "description": "最大HPの10％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
+      "healFraction": 0.2,
+      "description": "最大HPの20％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_whisper",
@@ -535,8 +537,8 @@
       "rarity": "N",
       "type": "attack",
       "uses": 4,
-      "power": 1.05,
-      "description": "威力1.05の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 1.4,
+      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_mirage",
@@ -550,8 +552,8 @@
       "rarity": "N",
       "type": "attack",
       "uses": 3,
-      "power": 1.2,
-      "description": "威力1.2の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 1.5,
+      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_chase",
@@ -565,8 +567,8 @@
       "rarity": "N",
       "type": "attack",
       "uses": 4,
-      "power": 1.1,
-      "description": "威力1.1の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 1.4,
+      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_flash",
@@ -580,8 +582,8 @@
       "rarity": "N",
       "type": "attack",
       "uses": 2,
-      "power": 1.25,
-      "description": "威力1.25の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 1.65,
+      "description": "威力1.65の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_prepare",
@@ -595,9 +597,9 @@
       "rarity": "N",
       "type": "prepare",
       "uses": 3,
-      "nextPower": 1.25,
-      "power": 0.6,
-      "description": "威力0.6の攻撃。正解で次の攻撃を1.25倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "nextPower": 1.75,
+      "power": 1.05,
+      "description": "威力1.05の攻撃。正解で次の攻撃を1.75倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_confuse",
@@ -611,9 +613,9 @@
       "rarity": "N",
       "type": "weaken",
       "uses": 3,
-      "weakFactor": 0.8,
-      "power": 0.7,
-      "description": "威力0.7の攻撃。正解で次の敵の攻撃を80％にする。 使用回数は正誤にかかわらず消費。"
+      "weakFactor": 0.65,
+      "power": 1.1,
+      "description": "威力1.1の攻撃。正解で次の敵の攻撃を65％にする。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_harmony",
@@ -628,10 +630,10 @@
       "type": "ward",
       "uses": 3,
       "shieldHits": 1,
-      "shieldFactor": 0.8,
-      "wrongShieldFactor": 0.9,
-      "power": 0.7,
-      "description": "威力0.7の攻撃＋次の敵攻撃1回を正解で80％、不正解で90％に軽減。 使用回数は正誤にかかわらず消費。"
+      "shieldFactor": 0.65,
+      "wrongShieldFactor": 0.85,
+      "power": 1.1,
+      "description": "威力1.1の攻撃＋次の敵攻撃1回を正解で65％、不正解で85％に軽減。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_angle",
@@ -645,8 +647,8 @@
       "rarity": "N",
       "type": "attack",
       "uses": 3,
-      "power": 1.15,
-      "description": "威力1.15の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 1.5,
+      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_glance",
@@ -660,9 +662,9 @@
       "rarity": "N",
       "type": "prepare",
       "uses": 4,
-      "nextPower": 1.2,
-      "power": 0.5,
-      "description": "威力0.5の攻撃。正解で次の攻撃を1.2倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "nextPower": 1.65,
+      "power": 0.95,
+      "description": "威力0.95の攻撃。正解で次の攻撃を1.65倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_shade",
@@ -677,10 +679,10 @@
       "type": "ward",
       "uses": 4,
       "shieldHits": 1,
-      "shieldFactor": 0.85,
-      "wrongShieldFactor": 0.95,
-      "power": 0.6,
-      "description": "威力0.6の攻撃＋次の敵攻撃1回を正解で85％、不正解で95％に軽減。 使用回数は正誤にかかわらず消費。"
+      "shieldFactor": 0.75,
+      "wrongShieldFactor": 0.9,
+      "power": 0.95,
+      "description": "威力0.95の攻撃＋次の敵攻撃1回を正解で75％、不正解で90％に軽減。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_mysterious",
@@ -694,8 +696,8 @@
       "rarity": "N",
       "type": "attack",
       "uses": 3,
-      "power": 1.15,
-      "description": "威力1.15の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 1.5,
+      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_image",
@@ -709,9 +711,9 @@
       "rarity": "N",
       "type": "prepare",
       "uses": 3,
-      "nextPower": 1.15,
-      "power": 0.8,
-      "description": "威力0.8の攻撃。正解で次の攻撃を1.15倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "nextPower": 1.6,
+      "power": 1.15,
+      "description": "威力1.15の攻撃。正解で次の攻撃を1.6倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_observe",
@@ -725,9 +727,9 @@
       "rarity": "N",
       "type": "prepare",
       "uses": 2,
-      "nextPower": 1.35,
-      "power": 0.4,
-      "description": "威力0.4の攻撃。正解で次の攻撃を1.35倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "nextPower": 2,
+      "power": 0.9,
+      "description": "威力0.9の攻撃。正解で次の攻撃を2倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_metal",
@@ -741,8 +743,8 @@
       "rarity": "N",
       "type": "attack",
       "uses": 3,
-      "power": 1.2,
-      "description": "威力1.2の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 1.5,
+      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_press",
@@ -756,8 +758,8 @@
       "rarity": "N",
       "type": "attack",
       "uses": 4,
-      "power": 1.1,
-      "description": "威力1.1の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 1.4,
+      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_slice",
@@ -771,8 +773,8 @@
       "rarity": "N",
       "type": "attack",
       "uses": 2,
-      "power": 1.25,
-      "description": "威力1.25の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 1.65,
+      "description": "威力1.65の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_defend",
@@ -787,10 +789,10 @@
       "type": "ward",
       "uses": 3,
       "shieldHits": 1,
-      "shieldFactor": 0.8,
-      "wrongShieldFactor": 0.9,
-      "power": 0.7,
-      "description": "威力0.7の攻撃＋次の敵攻撃1回を正解で80％、不正解で90％に軽減。 使用回数は正誤にかかわらず消費。"
+      "shieldFactor": 0.65,
+      "wrongShieldFactor": 0.85,
+      "power": 1.1,
+      "description": "威力1.1の攻撃＋次の敵攻撃1回を正解で65％、不正解で85％に軽減。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_reduce",
@@ -804,9 +806,9 @@
       "rarity": "N",
       "type": "weaken",
       "uses": 3,
-      "weakFactor": 0.8,
-      "power": 0.7,
-      "description": "威力0.7の攻撃。正解で次の敵の攻撃を80％にする。 使用回数は正誤にかかわらず消費。"
+      "weakFactor": 0.65,
+      "power": 1.1,
+      "description": "威力1.1の攻撃。正解で次の敵の攻撃を65％にする。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_repair",
@@ -820,8 +822,8 @@
       "rarity": "N",
       "type": "heal",
       "uses": 3,
-      "healFraction": 0.15,
-      "description": "最大HPの15％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
+      "healFraction": 0.25,
+      "description": "最大HPの25％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_bind",
@@ -835,9 +837,9 @@
       "rarity": "N",
       "type": "weaken",
       "uses": 3,
-      "weakFactor": 0.85,
-      "power": 0.8,
-      "description": "威力0.8の攻撃。正解で次の敵の攻撃を85％にする。 使用回数は正誤にかかわらず消費。"
+      "weakFactor": 0.7,
+      "power": 1.2,
+      "description": "威力1.2の攻撃。正解で次の敵の攻撃を70％にする。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_decrease",
@@ -851,9 +853,9 @@
       "rarity": "N",
       "type": "weaken",
       "uses": 4,
-      "weakFactor": 0.85,
-      "power": 0.5,
-      "description": "威力0.5の攻撃。正解で次の敵の攻撃を85％にする。 使用回数は正誤にかかわらず消費。"
+      "weakFactor": 0.7,
+      "power": 0.95,
+      "description": "威力0.95の攻撃。正解で次の敵の攻撃を70％にする。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_prevent",
@@ -868,10 +870,10 @@
       "type": "ward",
       "uses": 4,
       "shieldHits": 1,
-      "shieldFactor": 0.85,
-      "wrongShieldFactor": 0.95,
-      "power": 0.6,
-      "description": "威力0.6の攻撃＋次の敵攻撃1回を正解で85％、不正解で95％に軽減。 使用回数は正誤にかかわらず消費。"
+      "shieldFactor": 0.75,
+      "wrongShieldFactor": 0.9,
+      "power": 0.95,
+      "description": "威力0.95の攻撃＋次の敵攻撃1回を正解で75％、不正解で90％に軽減。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_brake",
@@ -885,9 +887,9 @@
       "rarity": "N",
       "type": "weaken",
       "uses": 3,
-      "weakFactor": 0.85,
-      "power": 0.6,
-      "description": "威力0.6の攻撃。正解で次の敵の攻撃を85％にする。 使用回数は正誤にかかわらず消費。"
+      "weakFactor": 0.7,
+      "power": 1.1,
+      "description": "威力1.1の攻撃。正解で次の敵の攻撃を70％にする。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_lock",
@@ -902,10 +904,10 @@
       "type": "ward",
       "uses": 2,
       "shieldHits": 1,
-      "shieldFactor": 0.85,
-      "wrongShieldFactor": 0.95,
-      "power": 0.85,
-      "description": "威力0.85の攻撃＋次の敵攻撃1回を正解で85％、不正解で95％に軽減。 使用回数は正誤にかかわらず消費。"
+      "shieldFactor": 0.7,
+      "wrongShieldFactor": 0.9,
+      "power": 1.25,
+      "description": "威力1.25の攻撃＋次の敵攻撃1回を正解で70％、不正解で90％に軽減。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_stretch",
@@ -919,9 +921,9 @@
       "rarity": "N",
       "type": "prepare",
       "uses": 3,
-      "nextPower": 1.15,
-      "power": 0.8,
-      "description": "威力0.8の攻撃。正解で次の攻撃を1.15倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "nextPower": 1.6,
+      "power": 1.15,
+      "description": "威力1.15の攻撃。正解で次の攻撃を1.6倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "R_echo",
@@ -935,8 +937,8 @@
       "rarity": "R",
       "type": "attack",
       "uses": 2,
-      "power": 1.4,
-      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 1.9,
+      "description": "威力1.9の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "heal",
@@ -950,8 +952,8 @@
       "rarity": "R",
       "type": "heal",
       "uses": 2,
-      "healFraction": 0.25,
-      "description": "最大HPの25％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
+      "healFraction": 0.35,
+      "description": "最大HPの35％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "R_praise",
@@ -965,9 +967,9 @@
       "rarity": "R",
       "type": "prepare",
       "uses": 2,
-      "nextPower": 1.4,
-      "power": 0.8,
-      "description": "威力0.8の攻撃。正解で次の攻撃を1.4倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "nextPower": 2,
+      "power": 1.3,
+      "description": "威力1.3の攻撃。正解で次の攻撃を2倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "R_mirage",
@@ -981,8 +983,8 @@
       "rarity": "R",
       "type": "attack",
       "uses": 2,
-      "power": 1.4,
-      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 1.9,
+      "description": "威力1.9の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "R_disturb",
@@ -996,9 +998,9 @@
       "rarity": "R",
       "type": "weaken",
       "uses": 2,
-      "weakFactor": 0.65,
-      "power": 0.85,
-      "description": "威力0.85の攻撃。正解で次の敵の攻撃を65％にする。 使用回数は正誤にかかわらず消費。"
+      "weakFactor": 0.5,
+      "power": 1.35,
+      "description": "威力1.35の攻撃。正解で次の敵の攻撃を50％にする。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "R_pretend",
@@ -1012,9 +1014,9 @@
       "rarity": "R",
       "type": "prepare",
       "uses": 2,
-      "nextPower": 1.4,
-      "power": 0.8,
-      "description": "威力0.8の攻撃。正解で次の攻撃を1.4倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "nextPower": 2,
+      "power": 1.3,
+      "description": "威力1.3の攻撃。正解で次の攻撃を2倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "R_metal",
@@ -1028,8 +1030,8 @@
       "rarity": "R",
       "type": "attack",
       "uses": 2,
-      "power": 1.4,
-      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 1.9,
+      "description": "威力1.9の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "ward",
@@ -1044,10 +1046,10 @@
       "type": "ward",
       "uses": 2,
       "shieldHits": 2,
-      "shieldFactor": 0.7,
-      "wrongShieldFactor": 0.85,
-      "power": 0.8,
-      "description": "威力0.8の攻撃＋次の敵攻撃2回を正解で70％、不正解で85％に軽減。 使用回数は正誤にかかわらず消費。"
+      "shieldFactor": 0.6,
+      "wrongShieldFactor": 0.8,
+      "power": 1.3,
+      "description": "威力1.3の攻撃＋次の敵攻撃2回を正解で60％、不正解で80％に軽減。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "R_extend",
@@ -1061,7 +1063,9 @@
       "rarity": "R",
       "type": "replenish",
       "uses": 2,
-      "description": "正解で、使用回数が最も減っている別の技を1回回復。同数なら枠順。回数回復技には使えない。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.2の攻撃＋正解で、使用回数が最も減っている別の技を最大2回復。同数なら枠順。上限を超えず、回数回復技には使えない。 使用回数は正誤にかかわらず消費。",
+      "power": 1.2,
+      "restoreUses": 2
     },
     {
       "id": "SR_echo",
@@ -1075,8 +1079,8 @@
       "rarity": "SR",
       "type": "attack",
       "uses": 1,
-      "power": 1.6,
-      "description": "威力1.6の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 2.8,
+      "description": "威力2.8の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "SR_broadcast",
@@ -1090,8 +1094,8 @@
       "rarity": "SR",
       "type": "attack",
       "uses": 2,
-      "power": 1.5,
-      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 2.3,
+      "description": "威力2.3の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "SR_mirage",
@@ -1105,8 +1109,8 @@
       "rarity": "SR",
       "type": "attack",
       "uses": 1,
-      "power": 1.6,
-      "description": "威力1.6の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 2.8,
+      "description": "威力2.8の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "SR_fancy",
@@ -1120,8 +1124,8 @@
       "rarity": "SR",
       "type": "attack",
       "uses": 1,
-      "power": 1.7,
-      "description": "威力1.7の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 3,
+      "description": "威力3の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "SR_metal",
@@ -1135,8 +1139,8 @@
       "rarity": "SR",
       "type": "attack",
       "uses": 1,
-      "power": 1.6,
-      "description": "威力1.6の攻撃。 使用回数は正誤にかかわらず消費。"
+      "power": 2.8,
+      "description": "威力2.8の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "SR_absolute",
@@ -1151,10 +1155,10 @@
       "type": "ward",
       "uses": 1,
       "shieldHits": 2,
-      "shieldFactor": 0.65,
-      "wrongShieldFactor": 0.8,
-      "power": 1.1,
-      "description": "威力1.1の攻撃＋次の敵攻撃2回を正解で65％、不正解で80％に軽減。 使用回数は正誤にかかわらず消費。"
+      "shieldFactor": 0.5,
+      "wrongShieldFactor": 0.75,
+      "power": 1.6,
+      "description": "威力1.6の攻撃＋次の敵攻撃2回を正解で50％、不正解で75％に軽減。 使用回数は正誤にかかわらず消費。"
     }
   ],
   "gear": [

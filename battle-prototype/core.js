@@ -24,13 +24,13 @@ function resolve(b,command,correct){
  const entry={turn:b.turn,side,correct,text:''};b.questions++;if(skill)skill.left--;
  if(side==='player'){
   if(skill?.type==='heal'){entry.text=skill.name+'：HPを'+heal(p,p.maxHp*(skill.healFraction||.25)*(p.id==='tsumugi'?1.3:1)*(correct?1:.5))+'回復';}
-  else if(skill?.type==='replenish'){const target=correct?restoreTarget(p,skill):null;if(target){target.left++;entry.text=skill.name+'：'+target.name+'の使用回数を1回復';}else entry.text=skill.name+'：'+(correct?'回復できる技がありません':'追加効果なし');}
   else{
    let extra=p.nextPower;p.nextPower=1;
    if(p.gearEffect==='courage'&&p.hp<=p.maxHp/2)extra*=1.12;
    if(p.gearEffect==='streak'){if(p.streak>=2){extra*=1.15;p.streak=0;}else p.streak=correct?p.streak+1:0;}
    const attr=skill?.attr||p.attr,amount=damage(p,e,skill?.power||1,correct?1:.5,attr,speedBonus(p,e)*(correct&&attackIds.includes(p.id)?1.1:1)*extra);
    e.hp=Math.max(0,e.hp-amount);entry.text=(skill?.name||'通常攻撃')+'：'+amount+'ダメージ';
+   if(correct&&skill?.type==='replenish'){const target=restoreTarget(p,skill);if(target){const restored=Math.min(skill.restoreUses,target.maxUses-target.left);target.left+=restored;entry.text+='・'+target.name+'の使用回数を'+restored+'回復';}else entry.text+='・回復できる技がありません';}
    if(skill?.type==='ward'){p.shield={hits:skill.shieldHits,factor:correct?skill.shieldFactor:skill.wrongShieldFactor};entry.text+='・盾を展開';}
    if(correct&&skill?.type==='prepare'){p.nextPower=skill.nextPower;entry.text+='・次の攻撃を'+p.nextPower+'倍に準備';}
    if(correct&&skill?.type==='weaken'){e.weaken={hits:1,factor:skill.weakFactor};entry.text+='・次の敵攻撃を弱めた';}
