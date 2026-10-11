@@ -1071,9 +1071,17 @@ function setCursor(value) {
       });
   }
 
+  function dailyExamRankIds(ids,category){
+    let history={};try{history=JSON.parse(localStorage.getItem("goimon_daily_exam_history_v1_lv"+String(UI_LEVEL)+"_"+category)||"{}")||{};}catch(_){}
+    return ids.slice().sort((a,b)=>{
+      const x=history[String(a)]||{},y=history[String(b)]||{};
+      return Number(x.attempts||0)-Number(y.attempts||0)||Number(x.lastSeen||0)-Number(y.lastSeen||0);
+    });
+  }
   function getSessionItems(count, mode) {
   const base = getRangedData();
 
+  if (URL_PARAMS.get("dailyMission")==="exam") {const ordered=dailyExamRankIds(base.map(q=>q.id),"paraphrase_quiz");const byId=new Map(base.map(q=>[String(q.id),q]));return ordered.slice(0,count).map(id=>byId.get(String(id))).filter(Boolean);}
   if (mode === "random") {
     return shuffle(base).slice(0, count);
   }
