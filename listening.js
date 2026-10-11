@@ -4722,7 +4722,7 @@ sessionResults.push({
       ] || null;
 
     if (!currentQuestion) {
-      showSummary();
+      finishSession();
       return;
     }
 
@@ -6170,7 +6170,7 @@ stopAudio();
     const daily = new URLSearchParams(location.search);
     const dailyEnabled=daily.get("dailyMission")==="listening";
     const built =
-      dailyEnabled ? getQuestionsByFormat().slice().sort((a,b)=>{
+      dailyEnabled && explicitQuestions ? explicitQuestions.slice() : dailyEnabled ? getQuestionsByFormat().slice().sort((a,b)=>{
         let history={};try{history=JSON.parse(localStorage.getItem("goimon_daily_exam_history_v1_lv1_listening:"+getSelectedFormat())||"{}")||{};}catch(_){}
         const x=history[String(a.id)]||{},y=history[String(b.id)]||{};
         return Number(x.attempts||0)-Number(y.attempts||0)||Number(x.lastSeen||0)-Number(y.lastSeen||0);
@@ -6182,6 +6182,7 @@ stopAudio();
             forceWeak
           );
 
+    if (dailyEnabled && built.length !== 5) {window.alert("この大問にはデイリーミッション用の5問が揃っていません。");return;}
     if (!built.length) {
       window.alert(
         forceWeak ||
@@ -8821,7 +8822,7 @@ function applyGoimonLearningQuery() {
     setSelectedMethod("quiz");
   }
   updatePoolInfo();
-  if(searchParams.get("dailyMission")==="listening"){setSelectedMethod("quiz");orderMode.value="random";questionCount.value="5";}
+  if(searchParams.get("dailyMission")==="listening"){setSelectedMethod("quiz");orderMode.value="random";questionCount.value="5";if(![2,3,5].includes(Number(requestedFormat)))formatSelect.value="2";}
 
     if (
   !allQuestions.length
