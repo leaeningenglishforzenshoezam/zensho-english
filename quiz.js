@@ -1090,7 +1090,7 @@ clearBlocksBtn?.addEventListener("click", () => {
       if(dailyMissionRequest() && Array.isArray(session.dailyMissionOrder)){if(!session.dailyMissionOrder.length)return null;idx=session.dailyMissionOrder.shift();}
       else idx = pickCorrectIndex(s, e);
 
-      if (weakMode && quizMode !== "order") {
+      if (!dailyMissionRequest() && weakMode && quizMode !== "order") {
         const weakIdxs = [];
 
         for (let i = s; i <= e; i++) {
@@ -1546,6 +1546,7 @@ resultEl.innerHTML = `
     session.correct = 0;
     session.active = true;
     session.retryOrder = null;
+    if(dailyMissionRequest())session.dailyMissionOrder=shuffle(Array.from({length:20},(_,i)=>session.start+i));
 
     askedSet.clear();
     askedLog = [];
@@ -1572,6 +1573,7 @@ resultEl.innerHTML = `
     session.correct = 0;
     session.limit = askedLog.length;
     session.retryOrder = askedLog.map(item => item.no - 1);
+    if(dailyMissionRequest())session.dailyMissionOrder=null;
 
     askedSet.clear();
     askedLog = [];
