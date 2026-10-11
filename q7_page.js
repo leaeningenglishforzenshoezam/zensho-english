@@ -1,4 +1,4 @@
-const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
+const GOIMON_DAILY_RESULT_ACCOUNT = GOIMONStorage.getItem("goimon_cloud_v2:active") || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
 // Daily mission result origin: capture account when this quiz script starts.
 (function () {
@@ -47,7 +47,7 @@ function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_D
 
   function load(key) {
     try {
-      const value = JSON.parse(localStorage.getItem(key) || "{}");
+      const value = JSON.parse(GOIMONStorage.getItem(key) || "{}");
       return validObject(value) ? value : {};
     } catch (_) {
       storageWarning();
@@ -57,7 +57,7 @@ function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_D
 
   function save(key, value) {
     try {
-      localStorage.setItem(key, JSON.stringify(value));
+      GOIMONStorage.setItem(key, JSON.stringify(value));
     } catch (_) {
       storageWarning();
     }
