@@ -218,10 +218,45 @@ function noteDailySetCompletion(level,kind,id){
  history[k]={attempts:Number(history[k]?.attempts||0)+1,lastSeen:Date.now()};
  try{localStorage.setItem(dailySetHistoryKey(level,kind),JSON.stringify(history));return true;}catch(_){return false;}
 }
+function recordReadingSet(payload){
+ const day=dateKey(),level=String(payload?.level||"");
+ if(!payload||payload.day!==day||level!=="1")return {valid:false,completed:false,reason:"invalid_day_or_level"};
+ const daily=getOrCreate(level,day),mission=daily.missions.find(m=>m.slot==="reading");
+ const accepted=["q7","dialogue8","q10"];
+ if(!mission?.available||!accepted.includes(payload.category)||payload.category!==mission.category)
+  return {valid:false,completed:false,reason:"category_mismatch"};
+ if(typeof payload.setId!=="string"||!payload.setId || !Number.isInteger(payload.correct)||!Number.isInteger(payload.total)
+  ||payload.total!==5||payload.correct<0||payload.correct>5)
+  return {valid:false,completed:false,reason:"invalid_set_result"};
+ const selected=daily.readingSetId;
+ if(!selected||payload.setId!==selected)return {valid:false,completed:false,reason:"set_mismatch"};
+ const timestamp=String(payload.finishedAt||"");
+ if(!Number.isFinite(Date.parse(timestamp)))return {valid:false,completed:false,reason:"invalid_timestamp"};
+ const state=readCompletion(level,day),old=state.completed.reading;
+ if(old?.lastSessionId===timestamp)return {valid:true,completed:!!old.completed,duplicate:true,persisted:true};
+ const completed=payload.correct>=4;
+ state.completed.reading={category:mission.category,setId:selected,lastSessionId:timestamp,
+  attempts:Number(old?.attempts||0)+1,bestCorrect:Math.max(payload.correct,Number(old?.bestCorrect||0)),
+  completed:!!old?.completed||completed,
+  completedAt:old?.completedAt||(completed?new Date().toISOString():null)};
+ try{localStorage.setItem(completionKey(level,day),JSON.stringify(state));}catch(_){return {valid:true,completed:state.completed.reading.completed,persisted:false};}
+ noteDailySetCompletion(level,"reading:"+mission.category,selected);
+ return {valid:true,completed:state.completed.reading.completed,correct:payload.correct,total:5,required:4,persisted:true};
+}
+function assignDailyReadingSet(level,category,ids,day=dateKey()){
+ const daily=getOrCreate(level,day),m=daily.missions.find(m=>m.slot==="reading");
+ if(!m?.available||m.category!==category)return null;
+ if(daily.readingSetId)return ids.map(String).includes(daily.readingSetId)?daily.readingSetId:null;
+ const chosen=chooseDailySet(level,"reading:"+category,ids,day);
+ if(!chosen)return null;
+ daily.readingSetId=chosen;
+ try{localStorage.setItem(storageKey(level,day),JSON.stringify(daily));}catch(_){}
+ return chosen;
+}
 function getStatus(level=activeLevel(),day=dateKey()){
  const daily=getOrCreate(level,day),state=readCompletion(level,day);
  const missions=daily.missions.map(m=>{
-  const record=m.slot==="words"?state.completed?.words:(m.slot==="idioms"?state.completed?.idioms:(m.slot==="exam"?state.completed?.exam:(m.slot==="reorder"?state.completed?.reorder:null)));
+  const record=m.slot==="words"?state.completed?.words:(m.slot==="idioms"?state.completed?.idioms:(m.slot==="exam"?state.completed?.exam:(m.slot==="reorder"?state.completed?.reorder:(m.slot==="reading"?state.completed?.reading:null))));
   const matches=record?.category===m.category&&((m.slot!=="words"&&m.slot!=="idioms")||(record?.rangeStart===m.rangeStart&&record?.rangeEnd===m.rangeEnd));
   return {...m,completed:!!(matches&&record.completed),bestCorrect:matches?record.bestCorrect:0,
     attemptCount:matches?record.attempts:0,progress:matches?record.bestCorrect:0};
@@ -234,5 +269,5 @@ function getStatus(level=activeLevel(),day=dateKey()){
      +(basicCompletedCount===3?rules.allBasicBonusStars:0),
    info:"端末上の仮達成記録です。星のかけらの正式付与・クラウド同期は未実装です。"};
 }
-window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus,selectIdiomRange,recordWordSession,recordIdiomSession,recordExamSession,recordReorderSession,rankExamQuestionIds,chooseDailySet,dailySetHistory});
+window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus,selectIdiomRange,recordWordSession,recordIdiomSession,recordExamSession,recordReorderSession,rankExamQuestionIds,chooseDailySet,dailySetHistory,assignDailyReadingSet,recordReadingSet});
 })();
