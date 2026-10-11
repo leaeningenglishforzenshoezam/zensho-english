@@ -1,8 +1,8 @@
 // Feature-gated request adapter. Intentionally NOT wired into index.js.
 import {authenticateSession} from './session.js';
-import {issueWordAttempt,submitWordAttempt,claimWordReward,issueIdiomAttempt,submitIdiomAttempt,claimIdiomReward} from './mission_rewards.js';
+import {issueWordAttempt,submitWordAttempt,claimWordReward,issueIdiomAttempt,submitIdiomAttempt,claimIdiomReward,issueExamAttempt,submitExamAttempt,claimExamReward,claimBasicBonus} from './mission_rewards.js';
 import {readEconomy} from './economy_repository.js';
-const routes=['/api/v1/missions/words/start','/api/v1/missions/words/submit','/api/v1/missions/words/claim','/api/v1/economy','/api/v1/missions/idioms/start','/api/v1/missions/idioms/submit','/api/v1/missions/idioms/claim'];
+const routes=['/api/v1/missions/words/start','/api/v1/missions/words/submit','/api/v1/missions/words/claim','/api/v1/economy','/api/v1/missions/idioms/start','/api/v1/missions/idioms/submit','/api/v1/missions/idioms/claim','/api/v1/missions/exam/start','/api/v1/missions/exam/submit','/api/v1/missions/exam/claim','/api/v1/missions/basic-bonus/claim'];
 const json=(value,status=200,headers={})=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store',...headers}});
 async function body(request){
  if(!request.headers.get('content-type')?.startsWith('application/json'))throw Error('json_required');
@@ -29,13 +29,14 @@ export async function handleMissionDraft(request,env){
   const {userId}=await authenticateSession(request,env.DB);
   if(!(await env.RATE_LIMITER.limit({key:'user:'+userId})).success)return reply({error:'rate_limited'},429);
   if(path==='/api/v1/economy')return reply(await readEconomy(env.DB,userId));
-  const payload=await body(request),isIdiom=path.includes('/idioms/');
-  if(path.endsWith('/start')){exact(payload,isIdiom?['level','mode']:['level']);return reply(isIdiom?await issueIdiomAttempt(env.DB,userId,payload.level,payload.mode):await issueWordAttempt(env.DB,userId,payload.level));}
-  if(path.endsWith('/submit')){exact(payload,['attemptId','answers']);return reply(await (isIdiom?submitIdiomAttempt:submitWordAttempt)(env.DB,userId,payload.attemptId,payload.answers));}
-  exact(payload,['attemptId','operationId','expectedRevision']);return reply(await (isIdiom?claimIdiomReward:claimWordReward)(env.DB,userId,payload.attemptId,payload.operationId,payload.expectedRevision));
+  const payload=await body(request),isIdiom=path.includes('/idioms/'),isExam=path.includes('/exam/');
+  if(path.includes('/basic-bonus/')){exact(payload,['level','date','operationId','expectedRevision']);return reply(await claimBasicBonus(env.DB,userId,payload.level,payload.date,payload.operationId,payload.expectedRevision));}
+  if(path.endsWith('/start')){if(isExam){exact(payload,['level','category','variant']);return reply(await issueExamAttempt(env.DB,userId,payload.level,payload.category,payload.variant));}exact(payload,isIdiom?['level','mode']:['level']);return reply(isIdiom?await issueIdiomAttempt(env.DB,userId,payload.level,payload.mode):await issueWordAttempt(env.DB,userId,payload.level));}
+  if(path.endsWith('/submit')){exact(payload,['attemptId','answers']);return reply(await (isExam?submitExamAttempt:isIdiom?submitIdiomAttempt:submitWordAttempt)(env.DB,userId,payload.attemptId,payload.answers));}
+  exact(payload,['attemptId','operationId','expectedRevision']);return reply(await (isExam?claimExamReward:isIdiom?claimIdiomReward:claimWordReward)(env.DB,userId,payload.attemptId,payload.operationId,payload.expectedRevision));
  }catch(error){
   const name=error.message;
-  const status=name==='unauthorized'?401:name==='request_too_large'?413:name==='json_required'?415:name==='attempt_not_found'?404:['economy_revision_conflict','operation_id_reused','attempt_already_submitted','mission_day_conflict'].includes(name)?409:['invalid_request','invalid_answers','invalid_operation','invalid_revision','invalid_json','mission_not_supported','mission_not_completed','attempt_expired','unsupported_attempt'].includes(name)?400:500;
+  const status=name==='unauthorized'?401:name==='request_too_large'?413:name==='json_required'?415:name==='attempt_not_found'?404:['economy_revision_conflict','operation_id_reused','attempt_already_submitted','mission_day_conflict'].includes(name)?409:['invalid_request','invalid_answers','invalid_operation','invalid_revision','invalid_json','mission_not_supported','mission_not_completed','attempt_expired','unsupported_attempt','invalid_mission_day','basic_missions_not_completed'].includes(name)?400:500;
   return reply({error:status===500?'server_error':name},status);
  }
 }

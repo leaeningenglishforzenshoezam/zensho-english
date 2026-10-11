@@ -34,3 +34,7 @@ See `WORK_AUDIT_2026-10-11.md` for the updated local test evidence. Remote servi
 ## Server reward drafts (2026-10-12)
 
 The feature branch has isolated server-issued/scored attempts for level-1 word EN→JA and idiom meaning/synonym modes. Reward receipts and economy CAS are exercised against persist:false local D1. Idiom grading atomically advances independent mode cursors only after all 15 answers; both modes share a single daily reward slot. The request adapter uses existing application sessions but is NOT wired into the normal Worker. Draft SQL stays outside migrations/. Other formats, the basic bonus, production verification, storage bounds and protected progress adoption remain release gates. No live rewards or client completion imports are enabled. See `MISSION_REWARDS_2026-10-12.md` and `IDIOM_REWARDS_2026-10-12.md`.
+
+## Basic exam and bonus draft checkpoint
+
+Level-1 exam 9 (A/B/mix) and exam 11 now use frozen server-issued daily sets and 10-answer server grading. Basic bonus eligibility requires all three basic slots with matching user/level/JST day/rules version, and SQL guards protect both ordinary and bonus claims within the economy transaction. The feature-only request adapter remains disconnected from index.js; draft SQL is not a production migration. Challenge slots, alternate word modes, browser/server wiring, weak-item selection, bounded history and protected adoption remain outstanding. See `EXAM_BONUS_REWARDS_2026-10-12.md` for the 1198-question answer parity audit and isolated test evidence.
