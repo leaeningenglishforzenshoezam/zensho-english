@@ -2365,7 +2365,7 @@ function renderSummary(autoCleared) {
   }
 
   const dailyExam=new URLSearchParams(location.search).get('dailyMission')==='exam';
-  if(dailyExam){countInput.value='10';orderModeEl.value='random';}
+  if(dailyExam){countInput.value='10';orderModeEl.value='continue';}
   let limit = Number(countInput.value);
   if (!Number.isFinite(limit) || limit < 1) limit = 20;
   if (eligible.length > 0) limit = Math.min(limit, eligible.length);
