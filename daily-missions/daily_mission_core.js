@@ -88,11 +88,33 @@ function recordWordSession(payload){
  catch(_){return {valid:true,completed:record.completed.words.completed,persisted:false,reason:"storage_unavailable"};}
  return {...result,completed:record.completed.words.completed,persisted:true};
 }
+function recordIdiomSession(payload){
+ const today=dateKey(),level=String(payload?.level||"");
+ if(!payload || payload.day!==today || level!=="1")return {valid:false,completed:false,reason:"invalid_day_or_level"};
+ const daily=getOrCreate(level,today),mission=daily.missions.find(m=>m.slot==="idioms");
+ if(!mission || mission.category!=="idiom_quiz" || payload.category!=="idiom_quiz")
+   return {valid:false,completed:false,reason:"mission_mismatch"};
+ if(!["meaning","synonym"].includes(payload.questionMode) || !Array.isArray(payload.attempts))
+   return {valid:false,completed:false,reason:"invalid_mode_or_attempts"};
+ if(payload.attempts.length!==15 || payload.attempts.some(a=>typeof a?.correct!=="boolean" || !Number.isInteger(a?.displayNo))
+    || new Set(payload.attempts.map(a=>a.displayNo)).size!==15)
+   return {valid:false,completed:false,reason:"invalid_question_set"};
+ const correct=payload.attempts.filter(a=>a.correct).length,complete=correct>=12;
+ const record=readCompletion(level,today),previous=record.completed.idioms;
+ record.completed.idioms={category:"idiom_quiz",questionMode:payload.questionMode,
+  attempts:Math.min(100000,Number(previous?.attempts||0)+1),
+  bestCorrect:Math.max(correct,Number(previous?.bestCorrect||0)),
+  completed:!!previous?.completed||complete,
+  completedAt:previous?.completedAt||(complete?new Date().toISOString():null)};
+ try{localStorage.setItem(completionKey(level,today),JSON.stringify(record));}
+ catch(_){return {valid:true,completed:record.completed.idioms.completed,persisted:false,reason:"storage_unavailable"};}
+ return {valid:true,completed:record.completed.idioms.completed,correct,total:15,required:12,persisted:true};
+}
 function getStatus(level=activeLevel(),day=dateKey()){
  const daily=getOrCreate(level,day),state=readCompletion(level,day);
  const missions=daily.missions.map(m=>{
-  const record=m.slot==="words"?state.completed?.words:null;
-  const matches=record?.category===m.category&&record?.rangeStart===m.rangeStart&&record?.rangeEnd===m.rangeEnd;
+  const record=m.slot==="words"?state.completed?.words:(m.slot==="idioms"?state.completed?.idioms:null);
+  const matches=record?.category===m.category&&(m.slot!=="words"||(record?.rangeStart===m.rangeStart&&record?.rangeEnd===m.rangeEnd));
   return {...m,completed:!!(matches&&record.completed),bestCorrect:matches?record.bestCorrect:0,
     attemptCount:matches?record.attempts:0,progress:matches?record.bestCorrect:0};
  });
@@ -104,5 +126,5 @@ function getStatus(level=activeLevel(),day=dateKey()){
      +(basicCompletedCount===3?rules.allBasicBonusStars:0),
    info:"端末上の仮達成記録です。星のかけらの正式付与・クラウド同期は未実装です。"};
 }
-window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus,recordWordSession});
+window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus,recordWordSession,recordIdiomSession});
 })();
