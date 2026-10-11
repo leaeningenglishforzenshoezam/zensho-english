@@ -1970,7 +1970,7 @@ if (el.originSearchBtn) {
     const m=dailyIdiomRequest();if(!m || state.results.length!==15)return;
     const attempts=state.results.map(q=>({displayNo:Number(q.displayNo),correct:q.correct}));
     if(attempts.some(q=>!Number.isInteger(q.displayNo)||typeof q.correct!=="boolean"))return;
-    try{sessionStorage.setItem("goimon_daily_mission_latest_idiom_v1",JSON.stringify({...m,category:"idiom_quiz",questionMode:state.questionMode,attempts}));}catch(_){}
+    try{sessionStorage.setItem("goimon_daily_mission_latest_idiom_v1",JSON.stringify({...m,category:"idiom_quiz",questionMode:state.questionMode,attempts,finishedAt:new Date().toISOString()}));}catch(_){}
   }
 
   function finishQuiz() {
