@@ -1,6 +1,6 @@
-// Daily mission result origin: capture account when this quiz script starts.
 const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
+// Daily mission result origin: capture account when this quiz script starts.
 // audio_quiz.js
 // 音声→意味4択クイズ
 // - 英単語を音で聞いて、日本語の意味を4択で選ぶ
@@ -15,7 +15,6 @@ function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_D
 // - 改修：正解時にゴイモン表示ptをその場更新
 
 document.addEventListener("DOMContentLoaded", () => {
-  const dailyMissionStartAccount=localStorage.getItem("goimon_cloud_v2:active")||"guest";
   function addLearningLog(isCorrect) {
     try {
       if (typeof window.zenshoLogAdd === "function") {
