@@ -63,6 +63,19 @@ function getOrCreate(level=activeLevel(),day=dateKey()){
   if(old?.version===rules.version && old?.level===level && old?.date===day && old.missions?.length===6)return old;
  }catch(_){}
  const missions=selectMissions(level);
+ // Round-robin by completed daily reading category, not overall learning log frequency.
+ const reading=missions.find(m=>m.slot==="reading");
+ if(reading&&level==="1"){
+  const categories=["q7","dialogue8","q10"].filter(category=>candidatesFor(rules.missionSlots.find(slot=>slot.slot==="reading"),level).some(c=>c.category===category));
+  if(categories.length){
+   const key="goimon_daily_reading_rotation_v1_lv"+level;
+   let last="";try{last=localStorage.getItem(key)||"";}catch(_){}
+   const next=categories[(categories.indexOf(last)+1)%categories.length];
+   const selected=rules.missionSlots.find(slot=>slot.slot==="reading").candidates.find(c=>c.category===next);
+   Object.assign(reading,{category:next,page:selected.page||window.LearningCategories?.getCategory(next)?.page||null,count:selected.count??null,required:selected.required??null,requiredPercent:selected.requiredPercent??null});
+   try{localStorage.setItem(key,next);}catch(_){}
+  }
+ }
  const range=selectWordRange(level,day);
  const wordMission=missions.find(m=>m.slot==="words");
  if(wordMission){ if(range){Object.assign(wordMission,range);}else{wordMission.available=false;wordMission.reason="単語データが20語未満です";wordMission.status="unavailable";} }
