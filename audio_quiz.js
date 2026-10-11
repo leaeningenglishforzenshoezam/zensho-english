@@ -1,4 +1,4 @@
-const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
+const GOIMON_DAILY_RESULT_ACCOUNT = GOIMONStorage.getItem("goimon_cloud_v2:active") || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
 // Daily mission result origin: capture account when this quiz script starts.
 // audio_quiz.js
@@ -92,7 +92,7 @@ const backBtn = el("backBtn");
     return;
   }
 
-  const LV = String(window.ACTIVE_LEVEL || localStorage.getItem("zensho_level_v1") || "1");
+  const LV = String(window.ACTIVE_LEVEL || GOIMONStorage.getItem("zensho_level_v1") || "1");
   const WORDS = Array.isArray(window.WORDS) ? window.WORDS : [];
   const BLOCKS = Array.isArray(window.BLOCKS) ? window.BLOCKS : [];
   const GOIMON_UI_KEY = `zensho_audio_quiz_goimon_ui_v1_lv${LV}`;
@@ -108,13 +108,13 @@ const backBtn = el("backBtn");
   }
 
   function safeParse(key) {
-    const raw = localStorage.getItem(key);
+    const raw = GOIMONStorage.getItem(key);
     if (!raw) return null;
     try { return JSON.parse(raw); } catch { return null; }
   }
 
   function saveSettings(obj) {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify({ autoPlay: !!obj.autoPlay }));
+    GOIMONStorage.setItem(SETTINGS_KEY, JSON.stringify({ autoPlay: !!obj.autoPlay }));
   }
 
   function loadSettings() {
@@ -382,7 +382,7 @@ function renderBlockStats() {
   }
 
   function weakSave(obj) {
-    localStorage.setItem(WEAK_KEY, JSON.stringify(obj));
+    GOIMONStorage.setItem(WEAK_KEY, JSON.stringify(obj));
   }
 
   function weakGetPoint(map, key) {
@@ -421,7 +421,7 @@ function renderBlockStats() {
     const obj = safeParse(CURSOR_KEY) || {};
     const k = cursorRangeKey(startNo, endNo);
     obj[k] = Math.max(0, Number(cursor) || 0);
-    localStorage.setItem(CURSOR_KEY, JSON.stringify(obj));
+    GOIMONStorage.setItem(CURSOR_KEY, JSON.stringify(obj));
   }
 
   function updateSetupInfo() {
@@ -1284,7 +1284,7 @@ function restoreSuspendedQuestion() {
   let goimonUi = loadGoimonUiState();
 
   function saveGoimonUiState() {
-    localStorage.setItem(GOIMON_UI_KEY, JSON.stringify(goimonUi));
+    GOIMONStorage.setItem(GOIMON_UI_KEY, JSON.stringify(goimonUi));
   }
 
   function renderAudioQuizGoimonMini() {
