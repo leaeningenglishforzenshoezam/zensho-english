@@ -1143,7 +1143,7 @@ function restoreSuspendedQuestion() {
   }
  
   function finishSession(autoWeakEnd) { 
-    saveDailyMissionResult(askedLog);
+    if(askedLog.length===20)saveDailyMissionResult(askedLog);
     showSummary();
     const tail = (session.mode === "weak" && autoWeakEnd) ? "（この回の苦手出題が終わりました）" : "";
     summaryLine.textContent = `結果：${session.correct} / ${session.answered}（${modeLabel(session.mode)}｜範囲 ${session.startNo}〜${session.endNo}｜${LV}級）${tail}`;
@@ -1184,6 +1184,7 @@ function restoreSuspendedQuestion() {
     session.limit = askedSet.length;
     session.answered = 0;
     session.correct = 0;
+    if(dailyMissionRequest())session.mode="random";
     session.autoPlay = !!autoPlay.checked;
     session.askedSet = [];
 
@@ -1208,6 +1209,7 @@ function restoreSuspendedQuestion() {
     let limit = clamp(limitCount.value, 1, 999999);
     const pool = buildPool(startNo, endNo);
 
+    if (dailyMissionRequest() && pool.length!==20){showError("ミッション指定の20語を用意できません。ブロックと単語データを確認してください。");return;}
     if (pool.length < 4) {
       showError("この範囲では4択を作るのに十分な単語数がありません。範囲を広げてください。");
       return;
@@ -1672,7 +1674,7 @@ function init() {
     renderBlockSelect();
 applySelectedBlockToRange();
 applyProgressRangeQuery(); 
-    if(dailyMissionRequest()){limitCount.value='20';modeSelect.value='random';updateSetupInfo();}
+    if(dailyMissionRequest()){const m=dailyMissionRequest();limitCount.value='20';modeSelect.value='random';rangeStart.value=String(m.start);rangeEnd.value=String(m.end);blockSelect.querySelectorAll('input[type=checkbox]').forEach(el=>{const b=BLOCKS.find(x=>String(x.id)===String(el.value));if(b)el.checked=Number(b.end)>=m.start&&Number(b.start)<=m.end;});updateSetupInfo();}
 
     const settings = loadSettings();
     autoPlay.checked = !!settings.autoPlay;
