@@ -1,7 +1,6 @@
-const GOIMON_DAILY_RESULT_ORIGIN = localStorage.getItem("goimon_cloud_v2:active") || "guest";
-// Daily mission result origin: capture account when this quiz script starts.
 const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
+// Daily mission result origin: capture account when this quiz script starts.
 // reorder.js
 // 大問12 語句整序
 // - 英文だけを見て4つの語句を並べる
@@ -1517,7 +1516,7 @@ function renderSummary() {
   function saveDailyReorderResult(){
     const req=dailyReorderRequest();if(!req||wrongLogs.length!==5)return;
     const attempts=wrongLogs.map(a=>({id:String(a.id),correct:a.isCorrect}));
-    try{sessionStorage.setItem("goimon_daily_mission_latest_reorder_v1",JSON.stringify(goimonDailyStamped({...req,category:"reorder",finishedAt:new Date().toISOString(),missionAccount:GOIMON_DAILY_RESULT_ORIGIN,attempts})));}catch(_){}
+    try{sessionStorage.setItem("goimon_daily_mission_latest_reorder_v1",JSON.stringify(goimonDailyStamped({...req,category:"reorder",finishedAt:new Date().toISOString(),attempts})));}catch(_){}
   }
   function finishSession() {
     saveDailyReorderResult();
