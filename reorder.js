@@ -1509,7 +1509,14 @@ function renderSummary() {
 }
 
 
+  function dailyReorderRequest(){const p=new URLSearchParams(location.search);return p.get("dailyMission")==="reorder"?{day:p.get("missionDate"),level:lv}:null;}
+  function saveDailyReorderResult(){
+    const req=dailyReorderRequest();if(!req||wrongLogs.length!==5)return;
+    const attempts=wrongLogs.map(a=>({id:String(a.id),correct:a.isCorrect}));
+    try{sessionStorage.setItem("goimon_daily_mission_latest_reorder_v1",JSON.stringify({...req,category:"reorder",finishedAt:new Date().toISOString(),attempts}));}catch(_){}
+  }
   function finishSession() {
+    saveDailyReorderResult();
     showSummary();
     renderSummary();
   }
@@ -1520,6 +1527,8 @@ function renderSummary() {
     return;
   }
 
+  const isDaily=!!dailyReorderRequest();
+  if(isDaily){countInput.value="5";orderModeEl.value="random";}
   let requestedLimit = Number(countInput.value);
   if (!Number.isFinite(requestedLimit) || requestedLimit < 1) requestedLimit = 10;
 
@@ -1547,7 +1556,9 @@ function renderSummary() {
   let cursor = 0;
 
  if (orderMode === "random") {
-  order = shuffle(baseOrder);
+  if(isDaily){let history={};try{history=JSON.parse(localStorage.getItem("goimon_daily_exam_history_v1_lv"+lv+"_reorder")||"{}")||{};}catch(_){}
+    order=baseOrder.slice().sort((a,b)=>{const x=history[String(QUESTIONS[a]?.id)]||{},y=history[String(QUESTIONS[b]?.id)]||{};return Number(x.attempts||0)-Number(y.attempts||0)||Number(x.lastSeen||0)-Number(y.lastSeen||0);});
+  }else order = shuffle(baseOrder);
   cursor = 0;
 } else if (orderMode === "weak") {
   order = buildWeakOrder().filter(i => baseOrder.includes(i));
