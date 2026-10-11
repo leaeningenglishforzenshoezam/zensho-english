@@ -5,6 +5,9 @@ import idioms from './data/mission-idioms.json' with {type:'json'};
 import sentenceA from './data/mission-sentenceA.json' with {type:'json'};
 import sentenceB from './data/mission-sentenceB.json' with {type:'json'};
 import paraphrase from './data/mission-paraphrase.json' with {type:'json'};
+import listening from './data/mission-listening.json' with {type:'json'};
+import reading from './data/mission-reading.json' with {type:'json'};
+import reorder from './data/mission-reorder.json' with {type:'json'};
 import {emptyEconomy,validateState,secureRandom} from './economy.js';
 import {readEconomy} from './economy_repository.js';
 const DAY=86400000,token=/^[A-Za-z0-9_-]{16,80}$/;
@@ -15,7 +18,8 @@ export function jstDay(now){time(now);return new Date(now+9*3600000).toISOString
 function pickIndex(length,rng){const r=rng();if(!Number.isFinite(r)||r<0||r>=1)throw Error('invalid_random');return Math.floor(r*length);}
 function shuffle(xs,rng){for(let i=xs.length-1;i>0;i--){const j=pickIndex(i+1,rng);[xs[i],xs[j]]=[xs[j],xs[i]];}return xs;}
 function range(first,day){const days=Math.floor((Date.parse(day)-Date.parse(first))/DAY),blocks=Math.ceil(bank.length/20);if(days<0)throw Error('invalid_first_day');const start=Math.min((days%blocks)*20,bank.length-20);return {rangeStart:start+1,rangeEnd:start+20};}
-function publicAttempt(row){const p=JSON.parse(row.private_json);return {attemptId:row.attempt_id,level:row.level,date:row.mission_day,slot:row.slot,category:row.category,...(p.mode?{mode:p.mode}:{}),...(p.variant?{variant:p.variant}:{}),expiresAt:row.expires_at,rangeStart:p.rangeStart,rangeEnd:p.rangeEnd,questions:p.questions.map(({id,prompt,choices})=>({id,prompt,choices}))};}
+function publicAttempt(row){const p=JSON.parse(row.private_json);return {attemptId:row.attempt_id,level:row.level,date:row.mission_day,slot:row.slot,category:row.category,...Object.fromEntries(['mode','variant','format','setId','title','passage','summary','dialogue','audioFile'].filter(k=>p[k]!==undefined).map(k=>[k,p[k]])),expiresAt:row.expires_at,rangeStart:p.rangeStart,rangeEnd:p.rangeEnd,questions:p.questions.map(q=>q.chunks?{id:q.id,stemBefore:q.stemBefore,stemAfter:q.stemAfter,chunks:q.chunks}:{id:q.id,prompt:q.prompt,choices:q.choices,...(q.audioFile?{audioFile:q.audioFile}:{})})};}
+
 async function find(db,userId,id){return db.prepare('SELECT * FROM mission_attempts WHERE user_id=? AND attempt_id=?').bind(userId,id).first();}
 export async function issueWordAttempt(db,userId,level='1',now=Date.now(),rng=secureRandom){
  identity(userId);if(level!=='1')throw Error('mission_not_supported');const day=jstDay(now);
@@ -37,12 +41,14 @@ async function submitMissionAttempt(db,userId,attemptId,answers,now,slot){
  identity(userId);validId(attemptId);time(now);const row=await find(db,userId,attemptId);if(!row)throw Error('attempt_not_found');
  if(row.slot!==slot||row.level!=='1'||!rules.missionSlots.find(s=>s.slot===slot).candidates.some(c=>c.category===row.category))throw Error('unsupported_attempt');
  const p=JSON.parse(row.private_json),candidate=rules.missionSlots.find(s=>s.slot===slot).candidates.find(c=>c.category===row.category),count=candidate.count;
- if(!Array.isArray(answers)||answers.length!==count||Array.from(answers).some(a=>!Number.isInteger(a)||a<0||a>3))throw Error('invalid_answers');
+ if(!Array.isArray(answers)||answers.length!==count||p.questions.length!==count)throw Error('invalid_answers');
+ if(slot==='reorder'){if(Array.from(answers).some((a,i)=>!Array.isArray(a)||a.length!==p.questions[i].chunks.length||new Set(a).size!==a.length||Array.from(a).some(id=>typeof id!=='string'||!p.questions[i].chunks.some(c=>c.id===id))))throw Error('invalid_answers');}
+ else if(Array.from(answers).some((a,i)=>!Number.isInteger(a)||a<0||a>=p.questions[i].choices.length)||row.category==='dialogue8'&&new Set(answers).size!==answers.length)throw Error('invalid_answers');
  const json=JSON.stringify(answers);
  if(row.submission_json!==null){if(row.submission_json!==json)throw Error('attempt_already_submitted');return {correct:row.score,total:count,completed:!!row.completed,replayed:true};}
  if(now>=row.expires_at||jstDay(now)!==row.mission_day)throw Error('attempt_expired');
  if(p.rulesVersion!==rules.version||p.questions.length!==count)throw Error('unsupported_attempt');
- const correct=answers.reduce((n,a,i)=>n+(a===p.questions[i].answer?1:0),0);
+ const correct=answers.reduce((n,a,i)=>n+((slot==='reorder'?JSON.stringify(a)===JSON.stringify(p.questions[i].answer):a===p.questions[i].answer)?1:0),0);
  const required=candidate.required;
  const done=correct>=required;
  const update=await db.prepare('UPDATE mission_attempts SET submission_json=?,score=?,completed=? WHERE user_id=? AND attempt_id=? AND submission_json IS NULL').bind(json,correct,done?1:0,userId,attemptId).run();
@@ -118,4 +124,29 @@ export async function claimBasicBonus(db,userId,level,day,operationId,expectedRe
  const complete=await db.prepare("SELECT COUNT(DISTINCT slot) AS n FROM mission_attempts WHERE user_id=? AND level=? AND mission_day=? AND completed=1 AND slot IN ('words','idioms','exam') AND json_extract(private_json,'$.rulesVersion')=?").bind(userId,level,day,rules.version).first();
  if(complete.n!==3)throw Error('basic_missions_not_completed');
  return commitReward(db,userId,level,day,'basic_bonus',null,operationId,expectedRevision,rules.allBasicBonusStars);
+}
+
+export const submitChallengeAttempt=async (db,userId,id,answers,slot,now=Date.now())=>{if(!['listening','reading','reorder'].includes(slot))throw Error('mission_not_supported');return submitMissionAttempt(db,userId,id,answers,now,slot);};
+export const claimChallengeReward=async (db,userId,id,op,revision,slot,now=Date.now())=>{if(!['listening','reading','reorder'].includes(slot))throw Error('mission_not_supported');return claimMissionReward(db,userId,id,op,revision,now,slot);};
+export async function issueChallengeAttempt(db,userId,level,slot,now=Date.now(),rng=secureRandom){
+ identity(userId);if(level!=='1'||!['listening','reading','reorder'].includes(slot))throw Error('mission_not_supported');const day=jstDay(now);
+ const cycle=slot==='listening'?['2','3','5']:slot==='reading'?['q7','dialogue8','q10']:['standard'];
+ const rotation=await db.prepare('SELECT last_day,last_variant FROM mission_challenge_rotations WHERE user_id=? AND level=? AND slot=?').bind(userId,level,slot).first();
+ if(rotation&&rotation.last_day>day)throw Error('mission_day_conflict');
+ const variant=cycle[(cycle.indexOf(rotation?.last_variant)+1)%cycle.length];let p={variant,rulesVersion:rules.version};
+ if(slot==='reorder'){
+  p.questions=shuffle([...reorder],rng).slice(0,5).map(q=>{const ids=new Map(q.chunks.map(c=>[c.id,crypto.randomUUID()]));return {id:q.id,stemBefore:q.stemBefore,stemAfter:q.stemAfter,chunks:shuffle(q.chunks.map(c=>({id:ids.get(c.id),text:c.text})),rng),answer:q.answer.map(id=>ids.get(id))};});
+ }else if(slot==='listening'&&variant!=='5'){p.format=Number(variant);p.questions=shuffle([...listening[variant]],rng).slice(0,5);}
+ else{
+  const pool=slot==='listening'?listening[5]:reading[variant],set=pool[pickIndex(pool.length,rng)];p={...p,...structuredClone(set),setId:set.id};delete p.id;if(slot==='listening')p.format=5;
+ }
+ // Select-once daily payload; concurrent devices read the winning stored set.
+ await db.batch([
+  db.prepare('INSERT INTO mission_challenge_days(user_id,level,slot,mission_day,private_json) VALUES (?,?,?,?,?) ON CONFLICT(user_id,level,slot,mission_day) DO NOTHING').bind(userId,level,slot,day,JSON.stringify(p)),
+  db.prepare("INSERT INTO mission_challenge_rotations(user_id,level,slot,last_day,last_variant) SELECT user_id,level,slot,mission_day,json_extract(private_json,'$.variant') FROM mission_challenge_days WHERE user_id=? AND level=? AND slot=? AND mission_day=? ON CONFLICT(user_id,level,slot) DO UPDATE SET last_day=excluded.last_day,last_variant=excluded.last_variant WHERE mission_challenge_rotations.last_day<=excluded.last_day").bind(userId,level,slot,day)
+ ]);
+ const stored=await db.prepare('SELECT private_json FROM mission_challenge_days WHERE user_id=? AND level=? AND slot=? AND mission_day=?').bind(userId,level,slot,day).first(),payload=JSON.parse(stored.private_json);
+ if(payload.rulesVersion!==rules.version)throw Error('unsupported_attempt');const category=slot==='reading'?payload.variant:slot,id=crypto.randomUUID(),expiry=Math.min(now+2*3600000,Date.parse(day+'T00:00:00+09:00')+DAY);
+ await db.prepare('INSERT INTO mission_attempts(user_id,attempt_id,level,mission_day,slot,category,private_json,expires_at) VALUES (?,?,?,?,?,?,?,?)').bind(userId,id,level,day,slot,category,stored.private_json,expiry).run();
+ return publicAttempt(await find(db,userId,id));
 }

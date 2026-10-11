@@ -10,26 +10,26 @@ CREATE TABLE mission_attempts (
  attempt_id TEXT NOT NULL,
  level TEXT NOT NULL CHECK(level='1'),
  mission_day TEXT NOT NULL,
- slot TEXT NOT NULL CHECK(slot IN ('words','idioms','exam')),
- category TEXT NOT NULL CHECK(category IN ('quiz_enja','idiom_quiz','sentence','paraphrase_quiz')),
+ slot TEXT NOT NULL CHECK(slot IN ('words','idioms','exam','listening','reading','reorder')),
+ category TEXT NOT NULL CHECK(category IN ('quiz_enja','idiom_quiz','sentence','paraphrase_quiz','listening','q7','dialogue8','q10','reorder')),
  private_json TEXT NOT NULL CHECK(json_valid(private_json)),
  expires_at INTEGER NOT NULL,
  submission_json TEXT,
- score INTEGER CHECK(score IS NULL OR (typeof(score)='integer' AND score BETWEEN 0 AND CASE WHEN slot='words' THEN 20 WHEN slot='idioms' THEN 15 ELSE 10 END)),
+ score INTEGER CHECK(score IS NULL OR (typeof(score)='integer' AND score BETWEEN 0 AND CASE WHEN slot='words' THEN 20 WHEN slot='idioms' THEN 15 WHEN slot='exam' THEN 10 ELSE 5 END)),
  completed INTEGER NOT NULL DEFAULT 0 CHECK(completed IN (0,1)),
  PRIMARY KEY(user_id,attempt_id),
- CHECK((slot='words' AND category='quiz_enja') OR (slot='idioms' AND category='idiom_quiz') OR (slot='exam' AND category IN ('sentence','paraphrase_quiz'))),
+ CHECK((slot='words' AND category='quiz_enja') OR (slot='idioms' AND category='idiom_quiz') OR (slot='exam' AND category IN ('sentence','paraphrase_quiz')) OR (slot='listening' AND category='listening') OR (slot='reading' AND category IN ('q7','dialogue8','q10')) OR (slot='reorder' AND category='reorder')),
  CHECK(slot!='idioms' OR (json_extract(private_json,'$.mode') IS NOT NULL AND json_extract(private_json,'$.mode') IN ('meaning','synonym'))),
  CHECK((submission_json IS NULL AND score IS NULL AND completed=0) OR
  (submission_json IS NOT NULL AND json_valid(submission_json) AND json_type(submission_json)='array'
- AND json_array_length(submission_json)=CASE WHEN slot='words' THEN 20 WHEN slot='idioms' THEN 15 ELSE 10 END AND score IS NOT NULL
- AND completed=CASE WHEN (slot='words' AND score=20) OR (slot='idioms' AND score>=12) OR (slot='exam' AND score>=8) THEN 1 ELSE 0 END))
+ AND json_array_length(submission_json)=CASE WHEN slot='words' THEN 20 WHEN slot='idioms' THEN 15 WHEN slot='exam' THEN 10 ELSE 5 END AND score IS NOT NULL
+ AND completed=CASE WHEN (slot='words' AND score=20) OR (slot='idioms' AND score>=12) OR (slot='exam' AND score>=8) OR (slot IN ('listening','reading','reorder') AND score>=4) THEN 1 ELSE 0 END))
 );
 CREATE TABLE mission_reward_claims (
  user_id TEXT NOT NULL,
  level TEXT NOT NULL CHECK(level='1'),
  mission_day TEXT NOT NULL,
- slot TEXT NOT NULL CHECK(slot IN ('words','idioms','exam','basic_bonus')),
+ slot TEXT NOT NULL CHECK(slot IN ('words','idioms','exam','listening','reading','reorder','basic_bonus')),
  operation_id TEXT NOT NULL,
  attempt_id TEXT,
  CHECK((slot='basic_bonus' AND attempt_id IS NULL) OR (slot!='basic_bonus' AND attempt_id IS NOT NULL)),
@@ -82,4 +82,27 @@ BEGIN
  AND mission_day=NEW.mission_day AND slot=NEW.slot AND completed=1
  AND submission_json IS NOT NULL AND json_extract(private_json,'$.rulesVersion')=2)
  THEN RAISE(ABORT,'mission_not_completed') END;
+END;
+
+CREATE TABLE mission_challenge_rotations (
+ user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ level TEXT NOT NULL CHECK(level='1'),
+ slot TEXT NOT NULL CHECK(slot IN ('listening','reading','reorder')),
+ last_day TEXT NOT NULL,
+ last_variant TEXT NOT NULL,
+ PRIMARY KEY(user_id,level,slot)
+);
+CREATE TABLE mission_challenge_days (
+ user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ level TEXT NOT NULL CHECK(level='1'),
+ slot TEXT NOT NULL CHECK(slot IN ('listening','reading','reorder')),
+ mission_day TEXT NOT NULL,
+ private_json TEXT NOT NULL CHECK(json_valid(private_json)),
+ PRIMARY KEY(user_id,level,slot,mission_day)
+);
+CREATE TRIGGER mission_challenge_day_guard BEFORE INSERT ON mission_challenge_days
+BEGIN
+ SELECT CASE WHEN EXISTS(SELECT 1 FROM mission_challenge_rotations WHERE user_id=NEW.user_id
+ AND level=NEW.level AND slot=NEW.slot AND last_day>NEW.mission_day)
+ THEN RAISE(ABORT,'mission_day_conflict') END;
 END;
