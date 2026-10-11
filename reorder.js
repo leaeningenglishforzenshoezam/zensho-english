@@ -1,4 +1,4 @@
-const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
+const GOIMON_DAILY_RESULT_ACCOUNT = GOIMONStorage.getItem("goimon_cloud_v2:active") || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
 // Daily mission result origin: capture account when this quiz script starts.
 // reorder.js
@@ -70,7 +70,7 @@ const poolInfo = $("poolInfo");
   const evolutionNoticeBtn = $("evolutionNoticeBtn");
   const bonusButtonsWrap = $("bonusStatButtons");
 
-  const lv = String(window.ACTIVE_LEVEL || localStorage.getItem("zensho_level_v1") || "1");
+  const lv = String(window.ACTIVE_LEVEL || GOIMONStorage.getItem("zensho_level_v1") || "1");
 
   const GOIMON_UI_KEY = `zensho_reorder_goimon_ui_v1_lv${lv}`;
   const BONUS_KEY = `zensho_reorder_bonus_stat_v1_lv${lv}`;
@@ -105,7 +105,7 @@ const grammarTagListEmpty = $("grammarTagListEmpty");
     : {};
 
   function safeParse(key) {
-    const raw = localStorage.getItem(key);
+    const raw = GOIMONStorage.getItem(key);
     if (!raw) return null;
     try {
       return JSON.parse(raw);
@@ -115,7 +115,7 @@ const grammarTagListEmpty = $("grammarTagListEmpty");
   }
 
   function saveJson(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+    GOIMONStorage.setItem(key, JSON.stringify(value));
   }
 
   
@@ -167,22 +167,22 @@ const grammarTagListEmpty = $("grammarTagListEmpty");
   }
 
   function loadBonusStat() {
-    const v = localStorage.getItem(BONUS_KEY);
+    const v = GOIMONStorage.getItem(BONUS_KEY);
     if (v === "chie" || v === "kotoba" || v === "onkan" || v === "bunmyaku") return v;
     return "bunmyaku";
   }
 
   function saveBonusStat(stat) {
-    localStorage.setItem(BONUS_KEY, stat);
+    GOIMONStorage.setItem(BONUS_KEY, stat);
   }
 
   function loadCursor() {
-    const n = Number(localStorage.getItem(CURSOR_KEY) || "0");
+    const n = Number(GOIMONStorage.getItem(CURSOR_KEY) || "0");
     return Number.isFinite(n) ? n : 0;
   }
 
   function saveCursor(cursor) {
-    localStorage.setItem(CURSOR_KEY, String(cursor));
+    GOIMONStorage.setItem(CURSOR_KEY, String(cursor));
   }
 
   function loadGoimonUiState() {
@@ -1559,7 +1559,7 @@ function renderSummary() {
   let cursor = 0;
 
  if (orderMode === "random") {
-  if(isDaily){let history={};try{history=JSON.parse(localStorage.getItem("goimon_daily_exam_history_v1_lv"+lv+"_reorder")||"{}")||{};}catch(_){}
+  if(isDaily){let history={};try{history=JSON.parse(GOIMONStorage.getItem("goimon_daily_exam_history_v1_lv"+lv+"_reorder")||"{}")||{};}catch(_){}
     order=baseOrder.slice().sort((a,b)=>{const x=history[String(QUESTIONS[a]?.id)]||{},y=history[String(QUESTIONS[b]?.id)]||{};return Number(x.attempts||0)-Number(y.attempts||0)||Number(x.lastSeen||0)-Number(y.lastSeen||0);});
   }else order = shuffle(baseOrder);
   cursor = 0;
