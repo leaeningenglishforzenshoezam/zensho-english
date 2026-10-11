@@ -97,6 +97,14 @@ function getOrCreate(level=activeLevel(),day=dateKey()){
    try{localStorage.setItem(key,next);}catch(_){}
   }
  }
+ const listening=missions.find(m=>m.slot==="listening");
+ if(listening?.available&&level==="1"){
+  const historyKey="goimon_daily_listening_rotation_v1_lv"+level;
+  let last=5;try{last=Number(localStorage.getItem(historyKey))||5;}catch(_){}
+  const formats=[2,3,5],format=formats[(formats.indexOf(last)+1)%formats.length];
+  listening.format=format;
+  try{localStorage.setItem(historyKey,String(format));}catch(_){}
+ }
  const range=selectWordRange(level,day);
  const wordMission=missions.find(m=>m.slot==="words");
  if(wordMission){ if(range){Object.assign(wordMission,range);}else{wordMission.available=false;wordMission.reason="単語データが20語未満です";wordMission.status="unavailable";} }
@@ -296,7 +304,7 @@ function recordListeningSession(payload){
  const day=dateKey(),level=String(payload?.level||"");
  if(!payload||payload.day!==day||level!=="1")return {valid:false,completed:false,reason:"invalid_day_or_level"};
  const m=getOrCreate(level,day).missions.find(x=>x.slot==="listening");
- if(!m?.available||payload.category!=="listening"||![2,3,5].includes(payload.format))
+ if(!m?.available||payload.category!=="listening"||![2,3,5].includes(payload.format)||payload.format!==m.format)
   return {valid:false,completed:false,reason:"invalid_category_or_format"};
  if(!Array.isArray(payload.attempts)||payload.attempts.length!==5||
   payload.attempts.some(a=>typeof a?.id!=="string"||!a.id||typeof a.correct!=="boolean")||
