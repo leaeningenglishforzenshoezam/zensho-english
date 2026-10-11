@@ -82,7 +82,29 @@
   function studentFields(){const student=$('user-role').value==='student';$('student-fields').hidden=!student;for(const id of ['grade','exam-level']){$(id).required=student;$(id).disabled=!student;}}
   function fillProfile(){const p=details||{};window.GOIMONAvatarUI?.picker(p.avatar||'egg',userId?P.read(userId).data:{});$('username').value=p.username||'';$('user-role').value=p.role||'';$('grade').value=p.grade||'';$('exam-level').value=p.examLevel||'';studentFields();}
   function acceptProfile(r){if(r.userId!==userId || !Number.isSafeInteger(r.revision)||r.revision<0 || (r.revision===0)!==!r.profile)throw Error('プロフィールを確認できませんでした。');details=r.profile;profileRevision=r.revision;profileReady=true;editing=false;fillProfile();try{const s=savedSession();if(s&&s.userId===userId){sessionStorage.setItem(AUTH_KEY,JSON.stringify({...s,displayName:details?.username||'',avatar:details?.avatar||'egg'}));window.GOIMONAvatarUI?.paint($('avatar-summary'),details?.avatar||'egg');window.dispatchEvent(new Event('goimon-auth-changed'));}}catch{}}
-  async function loadProfile(){assertAccount();const r=await request('GET',undefined,token,'profile');assertAccount();acceptProfile(r);if(!details)message('ログインできました。続けてプロフィールを登録してください。');else {await sync();window.GOIMONAvatarUI?.picker(details?.avatar||'egg',P.read(userId).data);}}
+  async function importGuest(ask=true){
+    assertAccount();const before=current();
+    if(Object.keys(before.data).length||before.revision)throw Error('初回の空アカウントだけ引き継ぎできます。元の記録は残っています。');
+    const remote=await request('GET');checkRemote(remote);assertAccount();localUnchanged(before);
+    if(remote.userId!==userId||remote.revision!==0)throw Error('クラウドに記録があるため引き継ぎを止めました。元の記録は残っています。');
+    if(ask&&!confirm('この端末のゲスト記録はあなたの記録ですか？ このGoogleアカウントにコピーします。元の記録も残ります。'))return;
+    const data=P.cloudData(P.collect());S.validate(snap(data));
+    if(!Object.keys(data).length)return;
+    const result=await request('POST',{expectedRevision:0,snapshot:snap(data)});
+    assertAccount();apply(before,data,result.revision);fillProfile();
+  }
+  async function offerGuest(){
+    const before=current(),key='goimon_guest_offer:'+userId;
+    if(Object.keys(before.data).length||before.revision||!Object.keys(P.cloudData(P.collect())).length)return;
+    try{if(sessionStorage.getItem(key))return;}catch{}
+    const remote=await request('GET');checkRemote(remote);assertAccount();localUnchanged(before);
+    if(remote.userId!==userId)throw Error('account_mismatch');
+    if(remote.revision!==0)return;
+    const accepted=confirm('今までのゴイモンを引き継ぎますか？\n\nこのブラウザーにあるゴイモン・図鑑・学習記録を、ログイン中のGoogleアカウントにコピーします。元の記録は消えません。\n\n自分の記録であることを確認して「OK」を押してください。共用端末で他の人の記録なら「キャンセル」を選んでください。');
+    if(accepted)await importGuest(false);
+    try{sessionStorage.setItem(key,'shown');}catch{}
+  }
+  async function loadProfile(){assertAccount();const r=await request('GET',undefined,token,'profile');assertAccount();acceptProfile(r);await offerGuest();if(!details)message('ログインできました。続けてプロフィールを登録してください。');else {await sync();window.GOIMONAvatarUI?.picker(details?.avatar||'egg',P.read(userId).data);}}
   $('user-role').onchange=studentFields;
   $('edit-profile').onclick=()=>{editing=true;fillProfile();message('プロフィールを編集できます。変更後は「変更を保存する」を押してください。');render();};
   $('cancel-profile').onclick=()=>{editing=false;fillProfile();render();};
@@ -111,11 +133,7 @@
   $('export-conflict').onclick=()=>download(conflict,'goimon-conflict');
   $('backup').onclick=()=>{const id=userId||localStorage.getItem('goimon_cloud_v2:active')||null;download({format:'goimon-local-backup-v2',account:id,data:id?P.read(id).data:P.collect()},'goimon-backup');};
   $('recovery').onclick=()=>{const data={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith('goimon_cloud_v2:recovery:')||k.startsWith('goimon_cloud_v2:journal:'))data[k]=JSON.parse(localStorage.getItem(k));}download(data,'goimon-recovery');};
-  $('import-guest').onclick=()=>run(async()=>{
-    assertAccount();const p=current();if(Object.keys(p.data).length||p.revision)throw Error('初回だけ引き継ぎできます');
-    if(!confirm('この端末のゲスト記録を、このGoogleアカウントにコピーしますか？'))return;
-    const data=P.collect();S.validate(snap(P.cloudData(data)));P.write(userId,{...p,data});await sync();
-  });
+  $('import-guest').onclick=()=>run(()=>importGuest());
   $('logout').onclick=async()=>{
     if(busy)return;busy=true;const previous=token||savedSession()?.token;epoch++;forget();P.logout();
     window.google?.accounts.id.disableAutoSelect();render();

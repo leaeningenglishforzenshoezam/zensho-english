@@ -14,7 +14,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
    if(process.env.GOIMON_TEST_FONT_DIR){const dir=process.env.GOIMON_TEST_FONT_DIR;let css=fs.readFileSync(require('node:path').join(dir,'400.css'),'utf8');css=css.replace(/url\(([^)]+)\)/g,(_,u)=>'url(data:font/woff2;base64,'+fs.readFileSync(require('node:path').join(dir,u.replace(/['"]/g,''))).toString('base64')+')');await page.addStyleTag({content:css+'body{font-family:"Noto Sans JP",sans-serif}'});await page.evaluate(()=>document.fonts.ready);}
    await page.screenshot({path,fullPage:true});
  };
- const p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('dialog',d=>d.accept());
+ let acceptGuest=true;const p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('dialog',d=>d.message().startsWith('今までのゴイモン')&&!acceptGuest?d.dismiss():d.accept());
  await p.goto('http://localhost:8879/index.html');await p.evaluate(()=>localStorage.setItem('q7SetHistory_v1','{"guest":{"attempts":2}}'));
  const pages=fs.readdirSync(require('node:path').join(__dirname,'..')).filter(f=>f.endsWith('.html')&&!f.startsWith('google'));
  for(const account of [null,'smoke-user']){await p.evaluate(id=>id?GOIMONProfiles.activate(id):GOIMONProfiles.logout(),account);for(const name of pages){await p.goto('http://localhost:8879/'+name);await p.waitForTimeout(80);}}
@@ -43,7 +43,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
    return r.fulfill({json:{userId:id,...s}});
  });
  await p.goto('http://localhost:8879/cloud.html');await p.evaluate(()=>goimonGoogleLogin('A'));
- await p.click('#import-guest');await p.waitForFunction(()=>!document.querySelector('#sync').disabled);await p.click('#sync');await p.waitForFunction(()=>!document.querySelector('#sync').disabled);assert.equal(cloud.A.revision,1);assert(cloud.A.snapshot.data.q7SetHistory_v1);
+ acceptGuest=false;await p.waitForFunction(()=>!document.querySelector('#sync').disabled);await p.click('#sync');await p.waitForFunction(()=>!document.querySelector('#sync').disabled);assert.equal(cloud.A.revision,1);assert(cloud.A.snapshot.data.q7SetHistory_v1);
  await p.evaluate(()=>{const p=GOIMONProfiles.read('A');p.data.q7SetHistory_v1='{"local":{"attempts":4}}';GOIMONProfiles.write('A',p)});
  cloud.A={revision:2,snapshot:{schemaVersion:1,data:{q7SetHistory_v1:'{"remote":{"attempts":5}}'}}};
  await p.click('#sync');await p.waitForSelector('#conflict:visible');assert.equal(cloud.A.revision,2);await p.evaluate(()=>localStorage.setItem('goimon_cloud_v2:auto:A',JSON.stringify({conflict:true})));await p.click('#use-local');await p.waitForFunction(()=>!document.querySelector('#sync').disabled);assert.equal(cloud.A.revision,3);assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('goimon_cloud_v2:auto:A')).conflict),false);assert(cloud.A.snapshot.data.q7SetHistory_v1.includes('local'));
