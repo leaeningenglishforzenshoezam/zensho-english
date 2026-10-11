@@ -33,6 +33,23 @@
   const prepared=validateForCloud(next,level);
   return {ready:true,conflicts:[],...prepared,state:next};
  }
+ // Prepare an atomic revision-checked cloud update without performing network writes.
+ // The caller must use the returned expectedRevision with the existing Workers API.
+ function prepareCloudUpdate(level,baseRaw,localRaw,remoteResponse,day=todayJst()){
+  if(!remoteResponse||!Number.isSafeInteger(remoteResponse.revision)||remoteResponse.revision<0)throw Error('invalid_remote_revision');
+  const remoteData=remoteResponse.snapshot?.data;
+  if(remoteData!==undefined&&(!remoteData||typeof remoteData!=='object'||Array.isArray(remoteData)))throw Error('invalid_remote_snapshot');
+  const key=storageKey(level);
+  const blank=daily.encodeForCloud(daily.pack({},String(level),day));
+  const remoteRaw=remoteData?.[key]??blank;
+  const merged=prepareMerge(level,baseRaw??blank,localRaw??blank,remoteRaw,day);
+  if(!merged.ready)return {ready:false,conflicts:merged.conflicts};
+  // Carry forward every existing learning key, not only daily mission state.
+  const snapshot={schemaVersion:1,data:{...(remoteData||{}),[key]:merged.value}};
+  root.GOIMONCloudSchema.validate(snapshot);
+  if(remoteData?.[key]===merged.value)return {ready:true,unchanged:true,expectedRevision:remoteResponse.revision};
+  return {ready:true,unchanged:false,expectedRevision:remoteResponse.revision,snapshot};
+ }
  // Staging is NOT automatic. Do not call from the live UI before conflict/recovery testing.
  function stageToProfile(level,options={}){
   if(options.confirmed!==true)throw Error('explicit_confirmation_required');
@@ -45,5 +62,5 @@
   target.setItem(key,daily.encodeForCloud(next.state));
   return {staged:true,key,count:next.keys.length,bytes:next.bytes};
  }
- root.GoimonDailyCloudAdapter=Object.freeze({todayJst,snapshotFrom,inspect,prepareMerge,stageToProfile});
+ root.GoimonDailyCloudAdapter=Object.freeze({todayJst,snapshotFrom,inspect,prepareMerge,prepareCloudUpdate,stageToProfile});
 })(typeof window!=='undefined'?window:globalThis);
