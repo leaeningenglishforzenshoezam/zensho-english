@@ -18,7 +18,9 @@
   return {key,value:json};
  }
  function inspect(level,options={}){
-  const day=options.day||todayJst(),source=options.source||root.localStorage;
+  const day=options.day||todayJst();
+  // Account-scoped data is exposed by GOIMONStorage, NOT native localStorage.
+  const source=options.source||root.GOIMONStorage||root.localStorage;
   const state=snapshotFrom(source,String(level),day);
   const ready=validateForCloud(state,level);
   return {state,cloudKey:ready.key,bytes:new TextEncoder().encode(ready.value).length,keys:Object.keys(state.data)};
@@ -36,12 +38,11 @@
   if(options.confirmed!==true)throw Error('explicit_confirmation_required');
   const target=root.GOIMONStorage;
   if(!target||!root.GOIMONProfiles?.account||!root.GOIMONProfiles.isWriter())throw Error('account_storage_not_ready');
-  const next=inspect(level,options),key=next.cloudKey;
+  const next=inspect(level,{...options,source:target}),key=next.cloudKey;
+  if(next.keys.length===0)throw Error('no_daily_mission_data_to_stage');
   if(target.getItem(key)!==null)throw Error('existing_cloud_daily_state_requires_merge');
-  const rollback={key,previous:null,staged:false};
   // GOIMONStorage uses an account-scoped journal and recovery on write failure.
   target.setItem(key,daily.encodeForCloud(next.state));
-  rollback.staged=true;
   return {staged:true,key,count:next.keys.length,bytes:next.bytes};
  }
  root.GoimonDailyCloudAdapter=Object.freeze({todayJst,snapshotFrom,inspect,prepareMerge,stageToProfile});
