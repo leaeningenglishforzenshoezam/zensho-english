@@ -2061,7 +2061,13 @@ if (typeof window.zenshoLogAdd === "function") {
   });
 }
 
+  function saveDailyExamResult(){
+    if(URL_PARAMS.get("dailyMission")!=="exam"||!URL_PARAMS.get("missionDate")||state.results.length!==10)return;
+    const attempts=state.results.map(a=>({id:String(a.id),correct:a.correct}));
+    try{sessionStorage.setItem("goimon_daily_mission_latest_exam_v1",JSON.stringify({day:URL_PARAMS.get("missionDate"),level:String(UI_LEVEL),category:"paraphrase_quiz",attempts}));}catch(_){}
+  }
   function finishQuiz() {
+    saveDailyExamResult();
     renderSummary();
     showBox("summary");
   }
@@ -2123,8 +2129,9 @@ if (typeof window.zenshoLogAdd === "function") {
 
   saveCurrentSettings();
 
-const count = goimonCountOverride || countToNumber(el.questionCount.value, rangedData.length);
-const mode = goimonModeOverride || el.quizMode.value;
+const dailyExam=URL_PARAMS.get('dailyMission')==='exam';
+const count = dailyExam?10:(goimonCountOverride || countToNumber(el.questionCount.value, rangedData.length));
+const mode = dailyExam?'random':(goimonModeOverride || el.quizMode.value);
 goimonCountOverride = 0;
 goimonModeOverride = "";
 
