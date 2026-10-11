@@ -1,16 +1,19 @@
+import '../../cloud_avatar_catalog.js';
+const avatars=globalThis.GOIMONAvatars;
 const json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{'content-type':'application/json','cache-control':'no-store'}});
 export function validateProfile(p){
- if(!p || typeof p!=='object' || Array.isArray(p) || Object.keys(p).some(k=>!['username','role','grade','examLevel'].includes(k)))throw Error('invalid_profile');
+ if(!p || typeof p!=='object' || Array.isArray(p) || Object.keys(p).some(k=>!['username','role','grade','examLevel','avatar'].includes(k)))throw Error('invalid_profile');
  if(typeof p.username!=='string')throw Error('invalid_username');
  const username=p.username.trim().normalize('NFC');
  if([...username].length<1 || [...username].length>24 || /[\p{Cc}\p{Cf}<>]/u.test(username))throw Error('invalid_username');
  if(!['student','teacher'].includes(p.role))throw Error('invalid_role');
  if(p.role==='student' && (!['1','2','3','other'].includes(p.grade)||!['1','2','3','undecided'].includes(p.examLevel)))throw Error('invalid_student_fields');
- return {username,role:p.role,grade:p.role==='student'?p.grade:null,examLevel:p.role==='student'?p.examLevel:null};
+ if(p.avatar!==undefined && (typeof p.avatar!=='string'||!avatars.get(p.avatar)))throw Error('invalid_avatar');
+ return {...(p.avatar!==undefined?{avatar:p.avatar}:{}),username,role:p.role,grade:p.role==='student'?p.grade:null,examLevel:p.role==='student'?p.examLevel:null};
 }
 export async function readProfile(db,userId){
- const row=await db.prepare('SELECT revision,username,role,grade,exam_level FROM user_profiles WHERE user_id=?').bind(userId).first();
- return row?{revision:row.revision,profile:{username:row.username,role:row.role,grade:row.grade,examLevel:row.exam_level}}:{revision:0,profile:null};
+ const row=await db.prepare('SELECT revision,username,role,grade,exam_level,avatar FROM user_profiles WHERE user_id=?').bind(userId).first();
+ return row?{revision:row.revision,profile:{username:row.username,role:row.role,grade:row.grade,examLevel:row.exam_level,avatar:row.avatar}}:{revision:0,profile:null};
 }
 export async function handleProfile(request,db,userId){
  if(request.method==='GET')return json({userId,...await readProfile(db,userId)});
@@ -21,10 +24,17 @@ export async function handleProfile(request,db,userId){
  const bytes=new Uint8Array(size);let offset=0;for(const p of parts){bytes.set(p,offset);offset+=p.length;}
  let body,p;try{body=JSON.parse(new TextDecoder().decode(bytes));p=validateProfile(body.profile);}catch{return json({error:'invalid_profile'},400);}
  if(!Number.isSafeInteger(body.expectedRevision)||body.expectedRevision<0)return json({error:'invalid_revision'},400);
- const args=[p.username,p.role,p.grade,p.examLevel];
+ const previous=await readProfile(db,userId);
+ p.avatar=p.avatar??previous.profile?.avatar??'egg';
+ if(p.avatar!==previous.profile?.avatar && !['egg','boy','girl'].includes(p.avatar)){
+  const saved=await db.prepare('SELECT save_json FROM saves WHERE user_id=?').bind(userId).first();
+  let data={};try{data=JSON.parse(saved?.save_json||'{}').data||{};}catch{}
+  if(!avatars.unlocked(p.avatar,data))return json({error:'avatar_locked'},403);
+ }
+ const args=[p.username,p.role,p.grade,p.examLevel,p.avatar];
  const result=body.expectedRevision===0
-  ?await db.prepare('INSERT INTO user_profiles(user_id,revision,username,role,grade,exam_level) VALUES (?,1,?,?,?,?) ON CONFLICT(user_id) DO NOTHING').bind(userId,...args).run()
-  :await db.prepare("UPDATE user_profiles SET username=?,role=?,grade=?,exam_level=?,revision=revision+1,updated_at=datetime('now') WHERE user_id=? AND revision=?").bind(...args,userId,body.expectedRevision).run();
+  ?await db.prepare('INSERT INTO user_profiles(user_id,revision,username,role,grade,exam_level,avatar) VALUES (?,1,?,?,?,?,?) ON CONFLICT(user_id) DO NOTHING').bind(userId,...args).run()
+  :await db.prepare("UPDATE user_profiles SET username=?,role=?,grade=?,exam_level=?,avatar=?,revision=revision+1,updated_at=datetime('now') WHERE user_id=? AND revision=?").bind(...args,userId,body.expectedRevision).run();
  if(!result.meta.changes)return json({error:'profile_conflict'},409);
  return json({userId,revision:body.expectedRevision+1,profile:p});
 }

@@ -10,7 +10,7 @@ test('Real D1 privacy: receipt rotation, retention boundaries, scoped cascades, 
  const mf=await getPlatformProxy({configPath:new URL('../wrangler.jsonc',import.meta.url).pathname,persist:false});
  try {
  const DB=mf.env.DB,now=Math.floor(Date.now()/1000),origin='http://localhost:8765';
- for(const f of ['0001_initial.sql','0002_sessions.sql','0003_user_profiles.sql','0004_privacy_operations.sql'])for(const sql of (await readFile(new URL('../migrations/'+f,import.meta.url),'utf8')).split(';').map(x=>x.trim()).filter(Boolean))await DB.prepare(sql).run();
+ for(const f of ['0001_initial.sql','0002_sessions.sql','0003_user_profiles.sql','0004_privacy_operations.sql','0005_profile_avatar.sql'])for(const sql of (await readFile(new URL('../migrations/'+f,import.meta.url),'utf8')).split(';').map(x=>x.trim()).filter(Boolean))await DB.prepare(sql).run();
  const env={DB,ALLOWED_ORIGIN:origin,RATE_LIMITER:{limit:async()=>({success:true})},AUTH_RATE_LIMITER:{limit:async()=>({success:true})}};
  for(const id of ['a','b']){
   await DB.prepare('INSERT INTO users(id,google_sub) VALUES (?,?)').bind(id,'sub-'+id).run();

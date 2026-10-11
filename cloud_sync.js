@@ -80,9 +80,9 @@
     const result=await request('POST',{expectedRevision:c.revision,snapshot:snap(merged)});apply(c.before,merged,result.revision);
   }
   function studentFields(){const student=$('user-role').value==='student';$('student-fields').hidden=!student;for(const id of ['grade','exam-level']){$(id).required=student;$(id).disabled=!student;}}
-  function fillProfile(){const p=details||{};$('username').value=p.username||'';$('user-role').value=p.role||'';$('grade').value=p.grade||'';$('exam-level').value=p.examLevel||'';studentFields();}
-  function acceptProfile(r){if(r.userId!==userId || !Number.isSafeInteger(r.revision)||r.revision<0 || (r.revision===0)!==!r.profile)throw Error('プロフィールを確認できませんでした。');details=r.profile;profileRevision=r.revision;profileReady=true;editing=false;fillProfile();try{const s=savedSession();if(s&&s.userId===userId){sessionStorage.setItem(AUTH_KEY,JSON.stringify({...s,displayName:details?.username||''}));window.dispatchEvent(new Event('goimon-auth-changed'));}}catch{}}
-  async function loadProfile(){assertAccount();const r=await request('GET',undefined,token,'profile');assertAccount();acceptProfile(r);if(!details)message('ログインできました。続けてプロフィールを登録してください。');else await sync();}
+  function fillProfile(){const p=details||{};window.GOIMONAvatarUI?.picker(p.avatar||'egg',userId?P.read(userId).data:{});$('username').value=p.username||'';$('user-role').value=p.role||'';$('grade').value=p.grade||'';$('exam-level').value=p.examLevel||'';studentFields();}
+  function acceptProfile(r){if(r.userId!==userId || !Number.isSafeInteger(r.revision)||r.revision<0 || (r.revision===0)!==!r.profile)throw Error('プロフィールを確認できませんでした。');details=r.profile;profileRevision=r.revision;profileReady=true;editing=false;fillProfile();try{const s=savedSession();if(s&&s.userId===userId){sessionStorage.setItem(AUTH_KEY,JSON.stringify({...s,displayName:details?.username||'',avatar:details?.avatar||'egg'}));window.GOIMONAvatarUI?.paint($('avatar-summary'),details?.avatar||'egg');window.dispatchEvent(new Event('goimon-auth-changed'));}}catch{}}
+  async function loadProfile(){assertAccount();const r=await request('GET',undefined,token,'profile');assertAccount();acceptProfile(r);if(!details)message('ログインできました。続けてプロフィールを登録してください。');else {await sync();window.GOIMONAvatarUI?.picker(details?.avatar||'egg',P.read(userId).data);}}
   $('user-role').onchange=studentFields;
   $('edit-profile').onclick=()=>{editing=true;fillProfile();message('プロフィールを編集できます。変更後は「変更を保存する」を押してください。');render();};
   $('cancel-profile').onclick=()=>{editing=false;fillProfile();render();};
@@ -91,9 +91,11 @@
     assertAccount();const username=$('username').value.trim().normalize('NFC'),role=$('user-role').value;
     if([...username].length<1||[...username].length>24||/[\p{Cc}\p{Cf}<>]/u.test(username))throw Error('ユーザー名は1〜24文字で入力してください。制御文字や < > は使えません。');
     if(!['student','teacher'].includes(role))throw Error('生徒か教員を選んでください。');
-    const profile={username,role,grade:role==='student'?$('grade').value:null,examLevel:role==='student'?$('exam-level').value:null};
+    const avatar=window.GOIMONAvatarUI?.selected()||details?.avatar||'egg';
+    const profile={avatar,username,role,grade:role==='student'?$('grade').value:null,examLevel:role==='student'?$('exam-level').value:null};
     if(role==='student'&&(!['1','2','3','other'].includes(profile.grade)||!['1','2','3','undecided'].includes(profile.examLevel)))throw Error('学年と受験級を選んでください。');
-    try{const r=await request('POST',{expectedRevision:profileRevision,profile},token,'profile');assertAccount();acceptProfile(r);await sync();}
+    try{if(!['egg','boy','girl'].includes(avatar)&&avatar!==details?.avatar){await sync();if(conflict)throw Error('先に学習記録の競合を解消してからアイコンを保存してください。');}
+    const r=await request('POST',{expectedRevision:profileRevision,profile},token,'profile');assertAccount();acceptProfile(r);await sync();}
     catch(error){if(error.status===409){profileReady=false;message('別の端末でプロフィールが更新されています。入力内容は残しています。「プロフィールを再取得」で最新の内容を確認してから編集してください。');}else throw error;}
   });};
   $('issue-deletion').onclick=()=>run(async()=>{

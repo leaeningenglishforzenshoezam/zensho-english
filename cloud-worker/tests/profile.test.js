@@ -2,12 +2,12 @@ import test from 'node:test';import assert from 'node:assert/strict';import {rea
 import worker from '../src/index.js';import {createSession} from '../src/session.js';import {validateProfile} from '../src/profile.js';
 test('Profile validation requires student fields and bounds names',()=>{
  const p={username:'  みかん  ',role:'student',grade:'2',examLevel:'1'};assert.equal(validateProfile(p).username,'みかん');
- for(const change of [{username:''},{username:'a'.repeat(25)},{username:'<script>'},{username:'a\u0000b'},{role:'admin'},{grade:null},{examLevel:'9'},{userId:'someone'}])assert.throws(()=>validateProfile({...p,...change}));
+ for(const change of [{username:''},{username:'a'.repeat(25)},{username:'<script>'},{username:'a\u0000b'},{role:'admin'},{grade:null},{examLevel:'9'},{userId:'someone'},{avatar:'https://evil.test/x'},{avatar:'missing:final'}])assert.throws(()=>validateProfile({...p,...change}));
  assert.deepEqual(validateProfile({...p,role:'teacher'}),{username:'みかん',role:'teacher',grade:null,examLevel:null});
 });
 test('Real D1 profile API: isolation, CAS conflict and limits preserve learning saves',async()=>{
  const mf=await getPlatformProxy({configPath:new URL('../wrangler.jsonc',import.meta.url).pathname,persist:false});
- try{const DB=mf.env.DB;for(const f of ['0001_initial.sql','0002_sessions.sql','0003_user_profiles.sql'])for(const sql of (await readFile(new URL('../migrations/'+f,import.meta.url),'utf8')).split(';').map(x=>x.trim()).filter(Boolean))await DB.prepare(sql).run();
+ try{const DB=mf.env.DB;for(const f of ['0001_initial.sql','0002_sessions.sql','0003_user_profiles.sql','0005_profile_avatar.sql'])for(const sql of (await readFile(new URL('../migrations/'+f,import.meta.url),'utf8')).split(';').map(x=>x.trim()).filter(Boolean))await DB.prepare(sql).run();
  for(const id of ['a','b'])await DB.prepare('INSERT INTO users(id,google_sub) VALUES (?,?)').bind(id,'sub-'+id).run();
  await DB.prepare('INSERT INTO saves(user_id,save_json) VALUES (?,?)').bind('a','{"untouched":true}').run();
  const a=await createSession(DB,'a'),b=await createSession(DB,'b'),origin='http://localhost:8765';
@@ -25,5 +25,15 @@ test('Real D1 profile API: isolation, CAS conflict and limits preserve learning 
  const teacher=await fetch(a.token,'POST',{expectedRevision:1,profile:{username:'先生A',role:'teacher',grade:'3',examLevel:'1'}});assert.equal(teacher.status,200);assert.equal((await teacher.json()).profile.grade,null);
  assert.equal((await (await fetch(a.token)).json()).revision,2);
  assert.equal((await DB.prepare('SELECT save_json FROM saves WHERE user_id=?').bind('a').first()).save_json,'{"untouched":true}');
+ const avatarBody={expectedRevision:2,profile:{username:'先生A',role:'teacher',avatar:'nagomi:child'}};
+ assert.equal((await fetch(a.token,'POST',avatarBody)).status,403);
+ await DB.prepare('UPDATE saves SET save_json=? WHERE user_id=?').bind(JSON.stringify({schemaVersion:1,data:{zensho_goimon_dex_discovery_v2_lv2:'{"nagomi:child":true}'}}),'a').run();
+ assert.equal((await fetch(a.token,'POST',avatarBody)).status,200);
+ assert.equal((await (await fetch(a.token)).json()).profile.avatar,'nagomi:child');
+ assert.equal((await fetch(b.token,'POST',{...avatarBody,expectedRevision:0})).status,403);
+ assert.equal((await fetch(a.token,'POST',{expectedRevision:3,profile:{username:'変更',role:'teacher'}})).status,200);
+ assert.equal((await (await fetch(a.token)).json()).profile.avatar,'nagomi:child');
+ assert.equal((await fetch(a.token,'POST',avatarBody)).status,409);
+
  }finally{await mf.dispose()}
 });
