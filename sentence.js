@@ -1,3 +1,4 @@
+const GOIMON_DAILY_RESULT_START_ACCOUNT=localStorage.getItem("goimon_cloud_v2:active")||"guest";
 // Daily mission result origin: capture account when this quiz script starts.
 const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
@@ -2338,7 +2339,7 @@ function renderSummary(autoCleared) {
   function saveDailyExamResult(){
     const q=new URLSearchParams(location.search);if(q.get("dailyMission")!=="exam"||q.get("missionDate")==null||askedLog.length!==10)return;
     const attempts=askedLog.map(a=>({id:String(a.qId),correct:a.isCorrect}));
-    try{sessionStorage.setItem("goimon_daily_mission_latest_exam_v1",JSON.stringify(goimonDailyStamped({day:q.get("missionDate"),level:String(LV),category:"sentence",finishedAt:new Date().toISOString(),attempts})));}catch(_){}
+    try{sessionStorage.setItem("goimon_daily_mission_latest_exam_v1",JSON.stringify(goimonDailyStamped({day:q.get("missionDate"),level:String(LV),category:"sentence",finishedAt:new Date().toISOString(),missionAccount:GOIMON_DAILY_RESULT_START_ACCOUNT,attempts})));}catch(_){}
   }
   function finishSession(autoCleared) {
     saveDailyExamResult();
