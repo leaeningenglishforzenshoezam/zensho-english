@@ -1,6 +1,6 @@
-// Daily mission result origin: capture account when this quiz script starts.
 const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
+// Daily mission result origin: capture account when this quiz script starts.
 // quiz_jaen.js（日→英）ゴイモン版
 // - Block対応
 // - 順番 / ランダム / ニガテ順
@@ -14,7 +14,6 @@ function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_D
 // - 結果画面から「同じ問題セットに再挑戦」「同じ設定で次へ」が可能
 
 document.addEventListener("DOMContentLoaded", () => {
-  const dailyMissionStartAccount=localStorage.getItem("goimon_cloud_v2:active")||"guest";
   const words = window.WORDS || [];
   const blocks = window.BLOCKS || [];
   const PASS_LINE = 80;
