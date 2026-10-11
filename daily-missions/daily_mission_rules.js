@@ -1,7 +1,7 @@
 // GOIMON daily mission design v2. Standalone prototype; no rewards are issued.
-(function(){
+(function(root){
 "use strict";
-window.GOIMON_DAILY_MISSION_RULES = Object.freeze({
+const rules = Object.freeze({
  version:2, timezone:"Asia/Tokyo",
  allBasicBonusStars:2,
  missionSlots:[
@@ -23,4 +23,5 @@ window.GOIMON_DAILY_MISSION_RULES = Object.freeze({
   {slot:"reorder",title:"大問12チャレンジ",group:"challenge",rewardStars:3,goal:"5問中4問以上正解",requireSession:true,candidates:[
    {category:"reorder",count:5,required:4,levels:["1"]}]}
  ]});
-})();
+if(typeof module!=='undefined')module.exports=rules;else root.GOIMON_DAILY_MISSION_RULES=rules;
+})(typeof window!=='undefined'?window:globalThis);
