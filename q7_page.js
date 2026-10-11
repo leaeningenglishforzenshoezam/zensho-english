@@ -791,6 +791,10 @@ document.querySelectorAll(".paragraph-translation")
 
     save(HISTORY_KEY, history);
     persistSession();
+    const dp=new URLSearchParams(location.search);
+    if(dp.get("dailyMission")==="reading"&&dp.get("setId")===current.id){
+      try{sessionStorage.setItem("goimon_daily_mission_latest_reading_v1",JSON.stringify({level:"1",day:dp.get("missionDate"),category:"q7",setId:current.id,correct,total:5,finishedAt:new Date().toISOString()}));}catch(_){}
+    }
 
     renderQuestions();
     update();
@@ -906,4 +910,6 @@ document.querySelectorAll(".paragraph-translation")
   });
 
   renderSetList();
+  const daily=new URLSearchParams(location.search);
+  if(daily.get("dailyMission")==="reading"&&sets.some(set=>set.id===daily.get("setId")))begin(daily.get("setId"));
 })();
