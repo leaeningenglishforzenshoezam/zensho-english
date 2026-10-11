@@ -1,4 +1,4 @@
-const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
+const GOIMON_DAILY_RESULT_ACCOUNT = GOIMONStorage.getItem("goimon_cloud_v2:active") || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
 // Daily mission result origin: capture account when this quiz script starts.
 (function () {
@@ -148,7 +148,7 @@ focusNoteIdsFromQuery: (URL_PARAMS.get("noteIds") || URL_PARAMS.get("noteId") ||
 
   function readJSON(key, fallbackValue) {
     try {
-      const raw = localStorage.getItem(key);
+      const raw = GOIMONStorage.getItem(key);
       if (!raw) return fallbackValue;
       return JSON.parse(raw);
     } catch (err) {
@@ -157,7 +157,7 @@ focusNoteIdsFromQuery: (URL_PARAMS.get("noteIds") || URL_PARAMS.get("noteId") ||
   }
 
   function writeJSON(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+    GOIMONStorage.setItem(key, JSON.stringify(value));
   }
 
   function shuffle(array) {
@@ -615,7 +615,7 @@ function openGoogleSearch(query) {
 
   function getCursor(questionMode) {
   const storageKey = getCursorKey(questionMode);
-  const raw = localStorage.getItem(storageKey);
+  const raw = GOIMONStorage.getItem(storageKey);
   const rangeKey = getCursorRangeKey();
 
   if (!raw) return 0;
@@ -646,7 +646,7 @@ function setCursor(questionMode, value) {
   let obj = {};
 
   try {
-    const raw = localStorage.getItem(storageKey);
+    const raw = GOIMONStorage.getItem(storageKey);
     const parsed = raw ? JSON.parse(raw) : {};
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
       obj = parsed;
@@ -656,7 +656,7 @@ function setCursor(questionMode, value) {
   const n = Number(value);
   obj[rangeKey] = Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0;
 
-  localStorage.setItem(storageKey, JSON.stringify(obj));
+  GOIMONStorage.setItem(storageKey, JSON.stringify(obj));
 }
 
 function getSavedSettings() {
