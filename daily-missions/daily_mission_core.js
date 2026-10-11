@@ -5,11 +5,13 @@
 const rules=window.GOIMON_DAILY_MISSION_RULES;
 if(!rules)return;
 const PREFIX="goimon_daily_missions_v2";
+// Use the same account-scoped storage as the login system when available.
+const missionStorage=window.GOIMONStorage||localStorage;
 function dateKey(date=new Date()){
  const pad=n=>String(n).padStart(2,"0");
  return [date.getFullYear(),pad(date.getMonth()+1),pad(date.getDate())].join("-");
 }
-function activeLevel(){return localStorage.getItem("zensho_level_v1")==="2"?"2":"1";}
+function activeLevel(){return missionStorage.getItem("zensho_level_v1")==="2"?"2":"1";}
 function allowed(c,level){
  if(c.levels && !c.levels.includes(level))return false;
  return !!window.LearningCategories?.isAvailableForLevel(c.category,level) || (c.category==="q7"&&level==="1");
@@ -39,9 +41,9 @@ function daysBetween(start,day){
 }
 function firstMissionDay(level,kind,day){
  const key="goimon_daily_first_day_v1_lv"+level+"_"+kind;
- let start=null;try{start=localStorage.getItem(key);}catch(_){}
+ let start=null;try{start=missionStorage.getItem(key);}catch(_){}
  if(!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(start||"")||start>day){
-  start=day;try{localStorage.setItem(key,start);}catch(_){}
+  start=day;try{missionStorage.setItem(key,start);}catch(_){}
  }
  return start;
 }
@@ -59,28 +61,28 @@ function selectIdiomRange(level,day){return level==="1"?selectNumberRange(level,
 function selectIdiomModeRange(level,day,mode){
  if(level!=="1"||!["meaning","synonym"].includes(mode))return null;
  const key="goimon_daily_idiom_cursor_v1_lv"+level+"_"+mode;
- let record={};try{record=JSON.parse(localStorage.getItem(key)||"{}")||{};}catch(_){}
+ let record={};try{record=JSON.parse(missionStorage.getItem(key)||"{}")||{};}catch(_){}
  const sameDay=record.day===day&&Number.isInteger(record.rangeStart)&&Number.isInteger(record.rangeEnd);
  if(sameDay)return {rangeStart:record.rangeStart,rangeEnd:record.rangeEnd};
  const start=Math.max(1,Math.min(273,Number(record.nextStart)||1));
  const range={rangeStart:start,rangeEnd:start+14};
  const next={day,rangeStart:range.rangeStart,rangeEnd:range.rangeEnd,nextStart:start};
- try{localStorage.setItem(key,JSON.stringify(next));}catch(_){}
+ try{missionStorage.setItem(key,JSON.stringify(next));}catch(_){}
  return range;
 }
 function advanceIdiomModeRange(level,day,mode,range){
  const key="goimon_daily_idiom_cursor_v1_lv"+level+"_"+mode;
- let rec={};try{rec=JSON.parse(localStorage.getItem(key)||"{}")||{};}catch(_){}
+ let rec={};try{rec=JSON.parse(missionStorage.getItem(key)||"{}")||{};}catch(_){}
  if(rec.day!==day||rec.rangeStart!==range.rangeStart||rec.rangeEnd!==range.rangeEnd)return;
  if(rec.advanced)return;
  const nextStart=range.rangeEnd>=287?1:Math.min(range.rangeStart+15,273);
- try{localStorage.setItem(key,JSON.stringify({...rec,nextStart,advanced:true}));}catch(_){}
+ try{missionStorage.setItem(key,JSON.stringify({...rec,nextStart,advanced:true}));}catch(_){}
 }
 function storageKey(level,day){return PREFIX+"_lv"+level+"_"+day;}
 function getOrCreate(level=activeLevel(),day=dateKey()){
  const key=storageKey(level,day);
  try{
-  const old=JSON.parse(localStorage.getItem(key)||"null");
+  const old=JSON.parse(missionStorage.getItem(key)||"null");
   if(old?.version===rules.version && old?.level===level && old?.date===day && old.missions?.length===6)return old;
  }catch(_){}
  const missions=selectMissions(level);
@@ -90,20 +92,20 @@ function getOrCreate(level=activeLevel(),day=dateKey()){
   const categories=["q7","dialogue8","q10"].filter(category=>candidatesFor(rules.missionSlots.find(slot=>slot.slot==="reading"),level).some(c=>c.category===category));
   if(categories.length){
    const key="goimon_daily_reading_rotation_v1_lv"+level;
-   let last="";try{last=localStorage.getItem(key)||"";}catch(_){}
+   let last="";try{last=missionStorage.getItem(key)||"";}catch(_){}
    const next=categories[(categories.indexOf(last)+1)%categories.length];
    const selected=rules.missionSlots.find(slot=>slot.slot==="reading").candidates.find(c=>c.category===next);
    Object.assign(reading,{category:next,page:selected.page||window.LearningCategories?.getCategory(next)?.page||null,count:selected.count??null,required:selected.required??null,requiredPercent:selected.requiredPercent??null});
-   try{localStorage.setItem(key,next);}catch(_){}
+   try{missionStorage.setItem(key,next);}catch(_){}
   }
  }
  const listening=missions.find(m=>m.slot==="listening");
  if(listening?.available&&level==="1"){
   const historyKey="goimon_daily_listening_rotation_v1_lv"+level;
-  let last=5;try{last=Number(localStorage.getItem(historyKey))||5;}catch(_){}
+  let last=5;try{last=Number(missionStorage.getItem(historyKey))||5;}catch(_){}
   const formats=[2,3,5],format=formats[(formats.indexOf(last)+1)%formats.length];
   listening.format=format;
-  try{localStorage.setItem(historyKey,String(format));}catch(_){}
+  try{missionStorage.setItem(historyKey,String(format));}catch(_){}
  }
  const range=selectWordRange(level,day);
  const wordMission=missions.find(m=>m.slot==="words");
@@ -112,14 +114,14 @@ function getOrCreate(level=activeLevel(),day=dateKey()){
  const idiomRange=selectIdiomModeRange(level,day,"meaning");
  if(idiomMission){if(idiomRange){Object.assign(idiomMission,idiomRange);}else{idiomMission.available=false;idiomMission.status="unavailable";}}
  const fresh={version:rules.version,level,date:day,createdAt:new Date().toISOString(),missions};
- try{localStorage.setItem(key,JSON.stringify(fresh));}catch(_){}
+ try{missionStorage.setItem(key,JSON.stringify(fresh));}catch(_){}
  return fresh;
 }
 // Device-local, provisional completion state. Not a spendable reward ledger.
 function completionKey(level,day){return "goimon_daily_mission_completions_v1_lv"+level+"_"+day;}
 function readCompletion(level,day){
  try{
-  const data=JSON.parse(localStorage.getItem(completionKey(level,day))||"null");
+  const data=JSON.parse(missionStorage.getItem(completionKey(level,day))||"null");
   return data && typeof data==="object" && data.date===day && data.level===level ? data : {date:day,level,completed:{}};
  }catch(_){return {date:day,level,completed:{}};}
 }
@@ -142,7 +144,7 @@ function recordWordSession(payload){
    completed:!!previous?.completed || !!result.completed,
    completedAt:previous?.completedAt || (result.completed ? new Date().toISOString():null)
  };
- try{localStorage.setItem(completionKey(level,today),JSON.stringify(record));}
+ try{missionStorage.setItem(completionKey(level,today),JSON.stringify(record));}
  catch(_){return {valid:true,completed:record.completed.words.completed,persisted:false,reason:"storage_unavailable"};}
  return {...result,completed:record.completed.words.completed,persisted:true};
 }
@@ -169,7 +171,7 @@ function recordIdiomSession(payload){
   bestCorrect:Math.max(correct,Number(previous?.bestCorrect||0)),
   completed:!!previous?.completed||complete,
   completedAt:previous?.completedAt||(complete?new Date().toISOString():null)};
- try{localStorage.setItem(completionKey(level,today),JSON.stringify(record));}
+ try{missionStorage.setItem(completionKey(level,today),JSON.stringify(record));}
  catch(_){return {valid:true,completed:record.completed.idioms.completed,persisted:false,reason:"storage_unavailable"};}
  advanceIdiomModeRange(level,today,payload.questionMode,expected);
  return {valid:true,completed:record.completed.idioms.completed,correct,total:15,required:12,persisted:true};
@@ -177,7 +179,7 @@ function recordIdiomSession(payload){
 // Daily-only history, separate from normal quiz cursors. Only actual completed sessions are recorded.
 function examHistoryKey(level,category){return "goimon_daily_exam_history_v1_lv"+level+"_"+category;}
 function examHistory(level,category){
- try{const x=JSON.parse(localStorage.getItem(examHistoryKey(level,category))||"{}");return x&&typeof x==="object"?x:{};}catch(_){return {};}
+ try{const x=JSON.parse(missionStorage.getItem(examHistoryKey(level,category))||"{}");return x&&typeof x==="object"?x:{};}catch(_){return {};}
 }
 function rankExamQuestionIds(level,category,ids){
  const history=examHistory(level,category);
@@ -193,7 +195,7 @@ function updateExamHistory(level,category,attempts){
   const id=String(a.id),prev=history[id]||{};
   history[id]={attempts:Number(prev.attempts||0)+1,wrong:Number(prev.wrong||0)+(a.correct?0:1),lastSeen:now};
  });
- try{localStorage.setItem(examHistoryKey(level,category),JSON.stringify(history));return true;}catch(_){return false;}
+ try{missionStorage.setItem(examHistoryKey(level,category),JSON.stringify(history));return true;}catch(_){return false;}
 }
 function recordExamSession(payload){
  const today=dateKey(),level=String(payload?.level||"");
@@ -215,7 +217,7 @@ function recordExamSession(payload){
   bestCorrect:Math.max(correct,Number(old?.bestCorrect||0)),
   completed:!!old?.completed||correct>=8,
   completedAt:old?.completedAt||(correct>=8?new Date().toISOString():null)};
- try{localStorage.setItem(completionKey(level,today),JSON.stringify(record));}
+ try{missionStorage.setItem(completionKey(level,today),JSON.stringify(record));}
  catch(_){return {valid:true,completed:record.completed.exam.completed,persisted:false};}
  return {valid:true,completed:record.completed.exam.completed,correct,total:10,required:8,persisted:true};
 }
@@ -237,7 +239,7 @@ function recordReorderSession(payload){
   bestCorrect:Math.max(correct,Number(previous?.bestCorrect||0)),
   completed:!!previous?.completed||correct>=4,
   completedAt:previous?.completedAt||(correct>=4?new Date().toISOString():null)};
- try{localStorage.setItem(completionKey(level,today),JSON.stringify(state));}
+ try{missionStorage.setItem(completionKey(level,today),JSON.stringify(state));}
  catch(_){return {valid:true,completed:state.completed.reorder.completed,persisted:false};}
  return {valid:true,completed:state.completed.reorder.completed,correct,total:5,required:4,persisted:true};
 }
@@ -245,7 +247,7 @@ function recordReorderSession(payload){
 // This prototype only selects. It does not grant rewards or declare a result completed.
 function dailySetHistoryKey(level,kind){return "goimon_daily_set_history_v1_lv"+level+"_"+kind;}
 function dailySetHistory(level,kind){
- try{const x=JSON.parse(localStorage.getItem(dailySetHistoryKey(level,kind))||"{}");
+ try{const x=JSON.parse(missionStorage.getItem(dailySetHistoryKey(level,kind))||"{}");
   return x&&typeof x==="object"&&!Array.isArray(x)?x:{};}catch(_){return {};}
 }
 function chooseDailySet(level,kind,ids,day=dateKey()){
@@ -255,15 +257,15 @@ function chooseDailySet(level,kind,ids,day=dateKey()){
   attempts:Number(history[id]?.attempts||0),lastSeen:Number(history[id]?.lastSeen||0)}))
   .sort((a,b)=>a.attempts-b.attempts||a.lastSeen-b.lastSeen||a.id.localeCompare(b.id));
  const key="goimon_daily_set_selection_v1_lv"+level+"_"+kind+"_"+day;
- try{const saved=localStorage.getItem(key);if(saved&&unique.includes(saved))return saved;}catch(_){}
- const picked=used[0].id;try{localStorage.setItem(key,picked);}catch(_){}
+ try{const saved=missionStorage.getItem(key);if(saved&&unique.includes(saved))return saved;}catch(_){}
+ const picked=used[0].id;try{missionStorage.setItem(key,picked);}catch(_){}
  return picked;
 }
 function noteDailySetCompletion(level,kind,id){
  // Call only after an actual completed set has passed a session-integrity check.
  const history=dailySetHistory(level,kind),k=String(id);
  history[k]={attempts:Number(history[k]?.attempts||0)+1,lastSeen:Date.now()};
- try{localStorage.setItem(dailySetHistoryKey(level,kind),JSON.stringify(history));return true;}catch(_){return false;}
+ try{missionStorage.setItem(dailySetHistoryKey(level,kind),JSON.stringify(history));return true;}catch(_){return false;}
 }
 function recordReadingSet(payload){
  const day=dateKey(),level=String(payload?.level||"");
@@ -286,7 +288,7 @@ function recordReadingSet(payload){
   attempts:Number(old?.attempts||0)+1,bestCorrect:Math.max(payload.correct,Number(old?.bestCorrect||0)),
   completed:!!old?.completed||completed,
   completedAt:old?.completedAt||(completed?new Date().toISOString():null)};
- try{localStorage.setItem(completionKey(level,day),JSON.stringify(state));}catch(_){return {valid:true,completed:state.completed.reading.completed,persisted:false};}
+ try{missionStorage.setItem(completionKey(level,day),JSON.stringify(state));}catch(_){return {valid:true,completed:state.completed.reading.completed,persisted:false};}
  noteDailySetCompletion(level,"reading:"+mission.category,selected);
  return {valid:true,completed:state.completed.reading.completed,correct:payload.correct,total:5,required:4,persisted:true};
 }
@@ -297,7 +299,7 @@ function assignDailyReadingSet(level,category,ids,day=dateKey()){
  const chosen=chooseDailySet(level,"reading:"+category,ids,day);
  if(!chosen)return null;
  daily.readingSetId=chosen;
- try{localStorage.setItem(storageKey(level,day),JSON.stringify(daily));}catch(_){}
+ try{missionStorage.setItem(storageKey(level,day),JSON.stringify(daily));}catch(_){}
  return chosen;
 }
 function recordListeningSession(payload){
@@ -317,7 +319,7 @@ function recordListeningSession(payload){
  state.completed.listening={category:"listening",format:payload.format,lastSessionId:time,
   attempts:Number(old?.attempts||0)+1,bestCorrect:Math.max(correct,Number(old?.bestCorrect||0)),
   completed:!!old?.completed||correct>=4,completedAt:old?.completedAt||(correct>=4?new Date().toISOString():null)};
- try{localStorage.setItem(completionKey(level,day),JSON.stringify(state));}catch(_){return {valid:true,completed:state.completed.listening.completed,persisted:false};}
+ try{missionStorage.setItem(completionKey(level,day),JSON.stringify(state));}catch(_){return {valid:true,completed:state.completed.listening.completed,persisted:false};}
  updateExamHistory(level,"listening:"+payload.format,payload.attempts);
  return {valid:true,completed:state.completed.listening.completed,correct,total:5,required:4,persisted:true};
 }
