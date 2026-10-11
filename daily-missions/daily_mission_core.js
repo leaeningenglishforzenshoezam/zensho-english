@@ -142,9 +142,12 @@ function recordExamSession(payload){
    new Set(payload.attempts.map(a=>a.id)).size!==10)
   return {valid:false,completed:false,reason:"invalid_question_set"};
  const correct=payload.attempts.filter(a=>a.correct).length;
- updateExamHistory(level,mission.category,payload.attempts);
  const record=readCompletion(level,today),old=record.completed.exam;
- record.completed.exam={category:mission.category,attempts:Math.min(100000,Number(old?.attempts||0)+1),
+ const sessionId=String(payload.finishedAt||"");
+ if(!sessionId || !Number.isFinite(Date.parse(sessionId)))return {valid:false,completed:false,reason:"missing_session_id"};
+ if(old?.lastSessionId===sessionId)return {valid:true,completed:!!old.completed,correct,total:10,required:8,persisted:true,duplicate:true};
+ updateExamHistory(level,mission.category,payload.attempts);
+ record.completed.exam={category:mission.category,lastSessionId:sessionId,attempts:Math.min(100000,Number(old?.attempts||0)+1),
   bestCorrect:Math.max(correct,Number(old?.bestCorrect||0)),
   completed:!!old?.completed||correct>=8,
   completedAt:old?.completedAt||(correct>=8?new Date().toISOString():null)};
