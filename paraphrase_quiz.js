@@ -1,4 +1,4 @@
-const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
+const GOIMON_DAILY_RESULT_ACCOUNT = GOIMONStorage.getItem("goimon_cloud_v2:active") || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
 // Daily mission result origin: capture account when this quiz script starts.
 (function () {
@@ -200,7 +200,7 @@ poolInfo: document.getElementById("poolInfo"),
 
   function readJSON(key, fallbackValue) {
     try {
-      const raw = localStorage.getItem(key);
+      const raw = GOIMONStorage.getItem(key);
       if (!raw) return fallbackValue;
       return JSON.parse(raw);
     } catch (err) {
@@ -209,7 +209,7 @@ poolInfo: document.getElementById("poolInfo"),
   }
 
   function writeJSON(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+    GOIMONStorage.setItem(key, JSON.stringify(value));
   }
 
   function escapeHtml(value) {
@@ -724,7 +724,7 @@ function getCursorRangeKey() {
 
   function getCursor() {
   const key = getCursorRangeKey();
-  const raw = localStorage.getItem(STORAGE_KEYS.cursor);
+  const raw = GOIMONStorage.getItem(STORAGE_KEYS.cursor);
 
   if (!raw) return 0;
 
@@ -746,7 +746,7 @@ function getCursorRangeKey() {
 
 function setCursor(value) {
   const key = getCursorRangeKey();
-  const raw = localStorage.getItem(STORAGE_KEYS.cursor);
+  const raw = GOIMONStorage.getItem(STORAGE_KEYS.cursor);
 
   let obj = {};
 
@@ -758,7 +758,7 @@ function setCursor(value) {
   }
 
   obj[key] = Math.max(0, Math.floor(Number(value) || 0));
-  localStorage.setItem(STORAGE_KEYS.cursor, JSON.stringify(obj));
+  GOIMONStorage.setItem(STORAGE_KEYS.cursor, JSON.stringify(obj));
 }
 
   function getSavedSettings() {
@@ -1075,7 +1075,7 @@ function setCursor(value) {
   }
 
   function dailyExamRankIds(ids,category){
-    let history={};try{history=JSON.parse(localStorage.getItem("goimon_daily_exam_history_v1_lv"+String(UI_LEVEL)+"_"+category)||"{}")||{};}catch(_){}
+    let history={};try{history=JSON.parse(GOIMONStorage.getItem("goimon_daily_exam_history_v1_lv"+String(UI_LEVEL)+"_"+category)||"{}")||{};}catch(_){}
     return ids.slice().sort((a,b)=>{
       const x=history[String(a)]||{},y=history[String(b)]||{};
       return Number(x.attempts||0)-Number(y.attempts||0)||Number(x.lastSeen||0)-Number(y.lastSeen||0);
