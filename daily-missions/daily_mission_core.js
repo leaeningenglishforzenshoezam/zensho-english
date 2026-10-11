@@ -50,7 +50,7 @@ function selectNumberRange(level,kind,day,totalCount,size){
  if(!Number.isInteger(number)||number<size||blocks<1)return null;
  const first=firstMissionDay(level,kind,day);
  const blockIndex=daysBetween(first,day)%blocks;
- const start=blockIndex*size+1;
+ const start=Math.min(blockIndex*size+1,number-size+1);
  return {rangeStart:start,rangeEnd:Math.min(number,start+size-1)};
 }
 function selectWordRange(level,day){return selectNumberRange(level,"words",day,wordCount(level),20);}
@@ -112,12 +112,13 @@ function recordIdiomSession(payload){
    return {valid:false,completed:false,reason:"mission_mismatch"};
  if(!["meaning","synonym"].includes(payload.questionMode) || !Array.isArray(payload.attempts))
    return {valid:false,completed:false,reason:"invalid_mode_or_attempts"};
- if(payload.attempts.length!==15 || payload.attempts.some(a=>typeof a?.correct!=="boolean" || !Number.isInteger(a?.displayNo))
+ if(payload.start!==mission.rangeStart||payload.end!==mission.rangeEnd)return {valid:false,completed:false,reason:"range_mismatch"};
+ if(payload.attempts.length!==15 || payload.attempts.some(a=>typeof a?.correct!=="boolean" || !Number.isInteger(a?.displayNo)||a.displayNo<mission.rangeStart||a.displayNo>mission.rangeEnd)
     || new Set(payload.attempts.map(a=>a.displayNo)).size!==15)
    return {valid:false,completed:false,reason:"invalid_question_set"};
  const correct=payload.attempts.filter(a=>a.correct).length,complete=correct>=12;
  const record=readCompletion(level,today),previous=record.completed.idioms;
- record.completed.idioms={category:"idiom_quiz",questionMode:payload.questionMode,
+ record.completed.idioms={category:"idiom_quiz",rangeStart:mission.rangeStart,rangeEnd:mission.rangeEnd,questionMode:payload.questionMode,
   attempts:Math.min(100000,Number(previous?.attempts||0)+1),
   bestCorrect:Math.max(correct,Number(previous?.bestCorrect||0)),
   completed:!!previous?.completed||complete,
@@ -175,7 +176,7 @@ function getStatus(level=activeLevel(),day=dateKey()){
  const daily=getOrCreate(level,day),state=readCompletion(level,day);
  const missions=daily.missions.map(m=>{
   const record=m.slot==="words"?state.completed?.words:(m.slot==="idioms"?state.completed?.idioms:(m.slot==="exam"?state.completed?.exam:null));
-  const matches=record?.category===m.category&&(m.slot!=="words"||(record?.rangeStart===m.rangeStart&&record?.rangeEnd===m.rangeEnd));
+  const matches=record?.category===m.category&&((m.slot!=="words"&&m.slot!=="idioms")||(record?.rangeStart===m.rangeStart&&record?.rangeEnd===m.rangeEnd));
   return {...m,completed:!!(matches&&record.completed),bestCorrect:matches?record.bestCorrect:0,
     attemptCount:matches?record.attempts:0,progress:matches?record.bestCorrect:0};
  });
