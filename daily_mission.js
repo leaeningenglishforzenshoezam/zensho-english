@@ -32,6 +32,16 @@ function selectMissions(level=activeLevel()){
    status:"awaiting_session",description:selected.description||null};
  });
 }
+function wordCount(level){return (level==="2"?window.WORDS_2KYU:window.WORDS_1KYU)?.length || 0;}
+function selectWordRange(level,day){
+ const count=wordCount(level);
+ if(count<20)return null;
+ // Stable across reloads; rotates across nonoverlapping 20-word ranges by day.
+ const total=Math.floor(count/20);
+ const dayNumber=Math.floor(new Date(day+"T12:00:00").getTime()/86400000);
+ const blockIndex=((dayNumber%total)+total)%total;
+ return {rangeStart:blockIndex*20+1,rangeEnd:blockIndex*20+20};
+}
 function storageKey(level,day){return PREFIX+"_lv"+level+"_"+day;}
 function getOrCreate(level=activeLevel(),day=dateKey()){
  const key=storageKey(level,day);
@@ -39,7 +49,11 @@ function getOrCreate(level=activeLevel(),day=dateKey()){
   const old=JSON.parse(localStorage.getItem(key)||"null");
   if(old?.version===rules.version && old?.level===level && old?.date===day && old.missions?.length===6)return old;
  }catch(_){}
- const fresh={version:rules.version,level,date:day,createdAt:new Date().toISOString(),missions:selectMissions(level)};
+ const missions=selectMissions(level);
+ const range=selectWordRange(level,day);
+ const wordMission=missions.find(m=>m.slot==="words");
+ if(wordMission){ if(range){Object.assign(wordMission,range);}else{wordMission.available=false;wordMission.reason="単語データが20語未満です";wordMission.status="unavailable";} }
+ const fresh={version:rules.version,level,date:day,createdAt:new Date().toISOString(),missions};
  try{localStorage.setItem(key,JSON.stringify(fresh));}catch(_){}
  return fresh;
 }
@@ -51,5 +65,5 @@ function getStatus(level=activeLevel(),day=dateKey()){
  completedCount:0,basicCompletedCount:0,pendingStarEstimate:0,
  info:"演習単位の採点連携は未実装です。達成・報酬はまだ記録しません。"};
 }
-window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectMissions,getOrCreate,getStatus});
+window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus});
 })();
