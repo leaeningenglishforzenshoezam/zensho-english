@@ -1523,7 +1523,9 @@ resultEl.innerHTML = `
     const payload={...request,attempts:clean,finishedAt:new Date().toISOString()};
     try {sessionStorage.setItem("goimon_daily_mission_latest_result_v1",JSON.stringify(payload));}catch(_){}
   }
-\n  function finishSession() {\n    saveDailyMissionResult(askedLog);
+ 
+  function finishSession() { 
+    saveDailyMissionResult(askedLog);
     session.active = false;
 
     showSummaryView();
@@ -1748,7 +1750,9 @@ if (!selectedBlockIds.length) {
     }
   });
 
-  function applyQuery() {\n    const daily=dailyMissionRequest();\n    if(daily){limitEl.value='20';}
+  function applyQuery() { 
+    const daily=dailyMissionRequest(); 
+    if(daily){limitEl.value='20';}
 
   const p =
     new URLSearchParams(
