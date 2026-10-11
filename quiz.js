@@ -1,6 +1,6 @@
-// Daily mission result origin: capture account when this quiz script starts.
 const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
+// Daily mission result origin: capture account when this quiz script starts.
 // quiz.js（英→日）ゴイモン版 完全版
 // Block＋3モード＋順番続き＋級ごと保存＋横断ブロック記録＋URLパラメータ（範囲/弱点/自動開始）
 // ★正解=緑/不正解=赤、正解ピンポン/不正解ブッブー、1問1回だけ押せる（連打防止）
@@ -12,7 +12,6 @@ function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_D
 // ★解答後に全選択肢の「日本語＝英語」を表示
 
 document.addEventListener("DOMContentLoaded", () => {
-  const dailyMissionStartAccount=localStorage.getItem("goimon_cloud_v2:active")||"guest";
   const words = window.WORDS || [];
 const blocks = window.BLOCKS || [];
 const PASS_LINE = 80;
