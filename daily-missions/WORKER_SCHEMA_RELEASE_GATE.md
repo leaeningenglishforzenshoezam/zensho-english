@@ -26,3 +26,7 @@ After Worker source and deployment access are verified, implement a feature-only
 
 
 See `WORK_AUDIT_2026-10-11.md` for the updated local test evidence. Remote service gates remain outstanding.
+
+## Item registration boundary (2026-10-11)
+
+`goimon_item_state_v1_lv1` and `goimon_item_state_v1_lv2` are deliberately **device-only, not cloud-allowlisted**. The management/dex UI registers existing owned copies without granting or consuming items; test fixtures never enter production. Before any cloud integration, establish a server-authoritative inventory/receipt contract, validate ownership/copy allocation, define revision-aware reconciliation and guest adoption, and test recovery with isolated accounts. Do not treat client-side shape validation or catalog visibility as ownership proof. Do not enable autosave by adding these keys alone. See `ITEM_MANAGEMENT_2026-10-11.md`.

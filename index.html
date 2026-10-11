@@ -9,6 +9,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>全商英検トレーニング</title>
   <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="goimon-items/style.css">
 <script src="cloud_config.js"></script>
 <link rel="stylesheet" href="cloud_auto.css">
 <script src="cloud_autosave.js" defer></script>
@@ -1433,6 +1434,23 @@
 </section>
 
 
+      <section id="goimonLoadoutPanel" class="goimon-loadout" aria-labelledby="goimonLoadoutTitle">
+        <h3 id="goimonLoadoutTitle">装備・技の登録</h3>
+        <p class="item-note">登録はこのアカウント・この端末内で保存します。別端末への同期と、所持品を使う正式なクエストは準備中です。通常攻撃は技の登録がなくても使えます。</p>
+        <div class="loadout-fields">
+          <label>登録するゴイモン<select id="registeredGoimon"></select></label>
+          <label>装備（1つ）<select id="registeredGear"></select></label>
+          <label>技1<select id="registeredSkill1"></select></label>
+          <label>技2<select id="registeredSkill2"></select></label>
+          <label>技3<select id="registeredSkill3"></select></label>
+          <label>技4<select id="registeredSkill4"></select></label>
+        </div>
+        <details class="registered-info"><summary>選択した装備・技の説明</summary><div id="registeredDescriptions"></div></details>
+        <button type="button" class="btn" id="saveRegisteredLoadout">このゴイモンに登録</button>
+        <button type="button" class="btn gray" id="exportRegisteredLoadout">入力内容を書き出す</button>
+        <p id="loadoutStatus" role="status" aria-live="polite"></p>
+      </section>
+
       <!-- ==============================
            4. コレクション
       =============================== -->
@@ -1608,7 +1626,7 @@
       <div class="goimonDexHead">
 
         <div class="goimonDexTitle">
-          ゴイモン図鑑
+          図鑑
         </div>
 
         <button
@@ -1622,6 +1640,18 @@
 
 
       <div class="goimonDexBody">
+        <div id="goimonDexTabs" role="tablist" aria-label="図鑑の種類">
+          <button id="dexGoimonTab" role="tab" aria-controls="goimonDexTree" aria-selected="true" data-kind="goimon">ゴイモン</button>
+          <button id="dexGearTab" role="tab" aria-controls="itemDexPanel" aria-selected="false" tabindex="-1" data-kind="gear">装備</button>
+          <button id="dexSkillsTab" role="tab" aria-controls="itemDexPanel" aria-selected="false" tabindex="-1" data-kind="skills">技</button>
+        </div>
+        <section id="itemDexPanel" role="tabpanel" aria-labelledby="dexGearTab" hidden>
+          <label for="itemDexSearch">名前・単語・意味・レア度で検索</label>
+          <input id="itemDexSearch" type="search" placeholder="例：Prepare、準備、SR">
+          <p id="itemDexStatus" role="status" aria-live="polite"></p>
+          <div id="itemDexList"></div>
+        </section>
+
 
         <div class="goimonDexControls">
 
@@ -1635,7 +1665,7 @@
 
         <div
           class="goimonDexTree"
-          id="goimonDexTree"
+          id="goimonDexTree" role="tabpanel" aria-labelledby="dexGoimonTab"
         ></div>
 
 
@@ -1855,6 +1885,9 @@
 <script src="goimon_rules.js"></script>
 <script src="goimon_dex.js"></script>
 <script src="goimon.js"></script>
+<script src="battle-prototype/catalog.js"></script>
+<script src="goimon-items/store.js"></script>
+<script src="goimon-items/ui.js"></script>
 
 
   <script>
