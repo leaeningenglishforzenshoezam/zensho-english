@@ -33,6 +33,10 @@
       if(!allowed(k)||typeof v!=='string') throw Error('invalid_save_key_or_value');
       if(/reorder_bonus_stat/.test(k)){if(!['wisdom','word','sound','context','chie','kotoba','onkan','bunmyaku'].includes(v)) throw Error('invalid_bonus_stat');}
       else {let parsed; try{parsed=JSON.parse(v);}catch{throw Error('invalid_json_value');} safeTree(parsed);
+        if(k.startsWith('goimon_daily_cloud_state_v1_')){
+          if(!root.GoimonDailyCloudState)throw Error('invalid_daily_validator_missing');
+          root.GoimonDailyCloudState.validateCloud(v,k.slice(-1));
+        }
         if(k.includes('mr_uno_unlocked')){if(typeof parsed!=='boolean')throw Error('invalid_boolean');}
         else if(k.includes('hall_count')){if(!Number.isSafeInteger(parsed)||parsed<0)throw Error('invalid_count');}
         else if(k.includes('archive_v4')){if(!Array.isArray(parsed))throw Error('invalid_archive');}

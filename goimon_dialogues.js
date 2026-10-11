@@ -1123,7 +1123,7 @@ window.GoimonDialogues = (function () {
 
   function safeParse(key, fallback) {
     try {
-      const raw = localStorage.getItem(key);
+      const raw = GOIMONStorage.getItem(key);
       if (!raw) return fallback;
       const parsed = JSON.parse(raw);
       return parsed ?? fallback;
@@ -1134,7 +1134,7 @@ window.GoimonDialogues = (function () {
 
   function safeSave(key, value) {
     try {
-      localStorage.setItem(key, JSON.stringify(value));
+      GOIMONStorage.setItem(key, JSON.stringify(value));
     } catch {
       // 保存できなくても学習画面は壊さない
     }
@@ -1365,7 +1365,7 @@ window.GoimonDialogues = (function () {
     const level = String(
       opts.level ||
       api?.getLevel?.() ||
-      localStorage.getItem("zensho_level_v1") ||
+      GOIMONStorage.getItem("zensho_level_v1") ||
       "1"
     );
 
@@ -2362,7 +2362,7 @@ window.GoimonDialogues = (function () {
 
   function clearDialogueHistory() {
     try {
-      localStorage.removeItem(
+      GOIMONStorage.removeItem(
         HISTORY_KEY
       );
     } catch {

@@ -1,4 +1,4 @@
-const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
+const GOIMON_DAILY_RESULT_ACCOUNT = window.GOIMONProfiles?.account || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
 // Daily mission result origin: capture account when this quiz script starts.
 (function () {
@@ -1973,7 +1973,7 @@ if (el.originSearchBtn) {
     const m=dailyIdiomRequest();if(!m || state.results.length!==15)return;
     const attempts=state.results.map(q=>({displayNo:Number(q.displayNo),correct:q.correct}));
     if(attempts.some(q=>!Number.isInteger(q.displayNo)||typeof q.correct!=="boolean"))return;
-    try{sessionStorage.setItem("goimon_daily_mission_latest_idiom_v1",JSON.stringify(goimonDailyStamped({...m,category:"idiom_quiz",questionMode:state.questionMode,attempts,finishedAt:new Date().toISOString(),missionAccount:GOIMON_DAILY_RESULT_ORIGIN})));}catch(_){}
+    try{window.GoimonDailyResultStore.store("goimon_daily_mission_latest_idiom_v1",JSON.stringify(goimonDailyStamped({...m,category:"idiom_quiz",questionMode:state.questionMode,attempts,finishedAt:new Date().toISOString(),missionAccount:GOIMON_DAILY_RESULT_ACCOUNT})));}catch(_){}
   }
 
   function finishQuiz() {

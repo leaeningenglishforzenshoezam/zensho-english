@@ -1,4 +1,4 @@
-const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
+const GOIMON_DAILY_RESULT_ACCOUNT = window.GOIMONProfiles?.account || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
 // Daily mission result origin: capture account when this quiz script starts.
 // reorder.js
@@ -1516,7 +1516,7 @@ function renderSummary() {
   function saveDailyReorderResult(){
     const req=dailyReorderRequest();if(!req||wrongLogs.length!==5)return;
     const attempts=wrongLogs.map(a=>({id:String(a.id),correct:a.isCorrect}));
-    try{sessionStorage.setItem("goimon_daily_mission_latest_reorder_v1",JSON.stringify(goimonDailyStamped({...req,category:"reorder",finishedAt:new Date().toISOString(),attempts})));}catch(_){}
+    try{window.GoimonDailyResultStore.store("goimon_daily_mission_latest_reorder_v1",JSON.stringify(goimonDailyStamped({...req,category:"reorder",finishedAt:new Date().toISOString(),attempts})));}catch(_){}
   }
   function finishSession() {
     saveDailyReorderResult();

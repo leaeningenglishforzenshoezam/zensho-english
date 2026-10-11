@@ -1,4 +1,4 @@
-const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
+const GOIMON_DAILY_RESULT_ACCOUNT = window.GOIMONProfiles?.account || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
 // Daily mission result origin: capture account when this quiz script starts.
 // quiz.js（英→日）ゴイモン版 完全版
@@ -1525,8 +1525,8 @@ resultEl.innerHTML = `
     const request = dailyMissionRequest();
     if(!request || !Array.isArray(attempts)) return;
     const clean=attempts.map(a=>({no:a.no,isCorrect:a.isCorrect}));
-    const payload={...request,attempts:clean,finishedAt:new Date().toISOString(),missionAccount:dailyMissionStartAccount};
-    try {sessionStorage.setItem("goimon_daily_mission_latest_result_v1",JSON.stringify(goimonDailyStamped(payload)));}catch(_){}
+    const payload={...request,attempts:clean,finishedAt:new Date().toISOString(),missionAccount:GOIMON_DAILY_RESULT_ACCOUNT};
+    try {window.GoimonDailyResultStore.store("goimon_daily_mission_latest_result_v1",JSON.stringify(goimonDailyStamped(payload)));}catch(_){}
   }
  
   function finishSession() { 

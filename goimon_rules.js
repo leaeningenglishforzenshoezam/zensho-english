@@ -607,13 +607,13 @@ window.GoimonAchievements = (function () {
 
   const isObject = v => v && typeof v === "object" && !Array.isArray(v);
 
-  const levelNow = () => String(window.ACTIVE_LEVEL || localStorage.getItem("zensho_level_v1") || "1");
+  const levelNow = () => String(window.ACTIVE_LEVEL || GOIMONStorage.getItem("zensho_level_v1") || "1");
 
   const keyOf = level => `${BASE}_lv${level}`;
 
   function read(key) {
 
-    try { const v = JSON.parse(localStorage.getItem(key) || "{}"); return isObject(v) ? v : {}; }
+    try { const v = JSON.parse(GOIMONStorage.getItem(key) || "{}"); return isObject(v) ? v : {}; }
 
     catch (_) { return memory[key] || {}; }
 
@@ -707,7 +707,7 @@ window.GoimonAchievements = (function () {
 
     if (JSON.stringify(s) !== before) {
 
-      try { localStorage.setItem(key, JSON.stringify(s)); }
+      try { GOIMONStorage.setItem(key, JSON.stringify(s)); }
 
       catch (_) { return {state:s, saved:false}; }
 

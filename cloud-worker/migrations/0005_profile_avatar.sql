@@ -1,0 +1,1 @@
+ALTER TABLE user_profiles ADD COLUMN avatar TEXT NOT NULL DEFAULT 'egg';

@@ -4,8 +4,8 @@ Status: DRAFT — do not merge into main or deploy.
 
 ## Current state
 - Production main contains cloud_schema.js, cloud_storage.js, cloud_sync.js, cloud_autosave.js and cloud_auto.js.
-- feature/daily-missions contains daily_mission_test.html and the daily mission engine, but lacks current main cloud files.
-- Daily mission localStorage keys are not approved by the current cloud_schema.js allowlist. They are not currently cloud-synced.
+- feature/daily-missions contains the current main cloud files and Worker source after the Work audit integration.
+- Source mission keys are packed into two exact allowlisted keys. The tested runtime bridge is enabled only for isolated localhost/mocked HTTP, never for the current production configuration.
 
 ## State requiring migration
 - Daily assignments: goimon_daily_missions_v2_lv{level}_{YYYY-MM-DD}.
@@ -28,3 +28,6 @@ Status: DRAFT — do not merge into main or deploy.
 4. Carefully integrate latest main changes into the feature branch WITHOUT changing main.
 5. Test full mission UI and signed-in/guest/offline states; retain disabled server reward grants until secure D1 mechanism passes tests.
 6. Only after user approval and all tests, merge into main to expose to students.
+
+## Work checkpoint
+See `WORK_AUDIT_2026-10-11.md` for the verified implementation, test distinctions and remaining live-service release gates.

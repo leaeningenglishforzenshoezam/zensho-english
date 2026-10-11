@@ -1,6 +1,6 @@
 # Daily missions: Worker schema release gate (development branch only)
 
-The browser allowlist permits `goimon_daily_cloud_state_v1_lv1` and `goimon_daily_cloud_state_v1_lv2`, but the **deployed Cloudflare Worker schema has NOT been independently inspected**. Browser acceptance does not imply server acceptance. Do not enable automatic uploads, amend production D1, or merge into main at this stage.
+The browser allowlist permits `goimon_daily_cloud_state_v1_lv1` and `goimon_daily_cloud_state_v1_lv2`, but the **deployed Cloudflare Worker schema has NOT been independently inspected (the repository Worker source has now been inspected and tested against an isolated local D1)**. Browser acceptance does not imply server acceptance. Do not enable automatic uploads, amend production D1, or merge into main at this stage.
 
 ## Required server-side contract
 
@@ -18,8 +18,11 @@ The browser allowlist permits `goimon_daily_cloud_state_v1_lv1` and `goimon_dail
 - `daily_mission_cloud_adapter.js` packs those keys into the cloud-allowlisted compact key but does not auto-stage them.
 - `cloud_autosave.js` syncs only allowlisted keys already present in the account profile. Merely changing the allowlist cannot include unpacked mission keys.
 - `stageToProfile` is intentionally confirmation-gated; activating it in production prior to Worker compatibility tests risks triggering a rejected autosave.
-- `prepareCloudUpdate` and `GoimonDailyCloudSync.syncOnce` are opt-in development helpers; they are not plugged into production autosave.
+- `prepareCloudUpdate` and `GoimonDailyCloudSync.syncOnce` are opt-in development helpers; they are not plugged into production autosave. The newer autosave bridge has a hard local-only runtime gate and is tested with real Chromium/mocked HTTP.
 
 ## Next implementation checkpoint
 
 After Worker source and deployment access are verified, implement a feature-only, revision-aware pack-and-sync bridge that integrates with the cloud autosave transaction. Ensure a rejected Worker request leaves the original account/guest data intact and emits a recovery path. Do not auto-deploy.
+
+
+See `WORK_AUDIT_2026-10-11.md` for the updated local test evidence. Remote service gates remain outstanding.

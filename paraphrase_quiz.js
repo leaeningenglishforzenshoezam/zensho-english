@@ -1,4 +1,4 @@
-const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
+const GOIMON_DAILY_RESULT_ACCOUNT = window.GOIMONProfiles?.account || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
 // Daily mission result origin: capture account when this quiz script starts.
 (function () {
@@ -2075,7 +2075,7 @@ if (typeof window.zenshoLogAdd === "function") {
   function saveDailyExamResult(){
     if(URL_PARAMS.get("dailyMission")!=="exam"||!URL_PARAMS.get("missionDate")||state.results.length!==10)return;
     const attempts=state.results.map(a=>({id:String(a.id),correct:a.correct}));
-    try{sessionStorage.setItem("goimon_daily_mission_latest_exam_v1",JSON.stringify(goimonDailyStamped({day:URL_PARAMS.get("missionDate"),level:String(UI_LEVEL),category:"paraphrase_quiz",finishedAt:new Date().toISOString(),attempts})));}catch(_){}
+    try{window.GoimonDailyResultStore.store("goimon_daily_mission_latest_exam_v1",JSON.stringify(goimonDailyStamped({day:URL_PARAMS.get("missionDate"),level:String(UI_LEVEL),category:"paraphrase_quiz",finishedAt:new Date().toISOString(),attempts})));}catch(_){}
   }
   function finishQuiz() {
     saveDailyExamResult();

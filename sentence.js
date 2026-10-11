@@ -1,4 +1,4 @@
-const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
+const GOIMON_DAILY_RESULT_ACCOUNT = window.GOIMONProfiles?.account || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
 // Daily mission result origin: capture account when this quiz script starts.
 // sentence.js（丸ごと置き換え）
@@ -2338,7 +2338,7 @@ function renderSummary(autoCleared) {
   function saveDailyExamResult(){
     const q=new URLSearchParams(location.search);if(q.get("dailyMission")!=="exam"||q.get("missionDate")==null||askedLog.length!==10)return;
     const attempts=askedLog.map(a=>({id:String(a.qId),correct:a.isCorrect}));
-    try{sessionStorage.setItem("goimon_daily_mission_latest_exam_v1",JSON.stringify(goimonDailyStamped({day:q.get("missionDate"),level:String(LV),category:"sentence",finishedAt:new Date().toISOString(),attempts})));}catch(_){}
+    try{window.GoimonDailyResultStore.store("goimon_daily_mission_latest_exam_v1",JSON.stringify(goimonDailyStamped({day:q.get("missionDate"),level:String(lv),category:"sentence",finishedAt:new Date().toISOString(),attempts})));}catch(_){}
   }
   function finishSession(autoCleared) {
     saveDailyExamResult();
@@ -2351,7 +2351,7 @@ function renderSummary(autoCleared) {
   }
 
   function dailyExamRankIds(ids,category){
-    let history={};try{history=JSON.parse(GOIMONStorage.getItem("goimon_daily_exam_history_v1_lv"+String(LV)+"_"+category)||"{}")||{};}catch(_){}
+    let history={};try{history=JSON.parse(GOIMONStorage.getItem("goimon_daily_exam_history_v1_lv"+String(lv)+"_"+category)||"{}")||{};}catch(_){}
     return ids.slice().sort((a,b)=>{
       const x=history[String(a)]||{},y=history[String(b)]||{};
       return Number(x.attempts||0)-Number(y.attempts||0)||Number(x.lastSeen||0)-Number(y.lastSeen||0);

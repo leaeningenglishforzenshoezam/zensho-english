@@ -13,7 +13,7 @@
   const LEVEL_KEY = "zensho_level_v1";
 
   function getLevel() {
-    return localStorage.getItem(LEVEL_KEY) || "1";
+    return GOIMONStorage.getItem(LEVEL_KEY) || "1";
   }
 
   function globalKey(lv) {
@@ -27,7 +27,7 @@
   }
 
   function load(lv = getLevel()) {
-    const raw = localStorage.getItem(globalKey(lv));
+    const raw = GOIMONStorage.getItem(globalKey(lv));
 
     if (!raw) {
       return empty();
@@ -51,7 +51,7 @@
   }
 
   function save(obj, lv = getLevel()) {
-    localStorage.setItem(
+    GOIMONStorage.setItem(
       globalKey(lv),
       JSON.stringify(obj)
     );

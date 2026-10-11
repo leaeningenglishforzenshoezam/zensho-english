@@ -1,10 +1,20 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+<script src="cloud_schema.js"></script>
+<script src="cloud_storage.js"></script>
+<script src="daily-missions/daily_mission_cloud_state.js"></script>
+<script src="daily-missions/daily_mission_autosave_bridge.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>全商英検トレーニング</title>
   <link rel="stylesheet" href="style.css">
+<script src="cloud_config.js"></script>
+<link rel="stylesheet" href="cloud_auto.css">
+<script src="cloud_autosave.js" defer></script>
+<script src="cloud_auto.js" defer></script>
+<link rel="stylesheet" href="cloud_navigation.css">
+<script src="cloud_navigation.js" defer></script>
 </head>
 
 <body class="homePage">
@@ -1811,7 +1821,7 @@
 
   <script>
     window.ACTIVE_LEVEL =
-      localStorage.getItem("zensho_level_v1") || "1";
+      GOIMONStorage.getItem("zensho_level_v1") || "1";
 
     if (window.ACTIVE_LEVEL === "1") {
       window.WORDS =
@@ -1864,14 +1874,14 @@
 
     function getLevel() {
       return (
-        localStorage.getItem(LEVEL_KEY) ||
+        GOIMONStorage.getItem(LEVEL_KEY) ||
         "1"
       );
     }
 
 
     function setLevel(lv) {
-      localStorage.setItem(
+      GOIMONStorage.setItem(
         LEVEL_KEY,
         String(lv)
       );
@@ -1963,7 +1973,7 @@
 
     function safeParse(key) {
       const raw =
-        localStorage.getItem(key);
+        GOIMONStorage.getItem(key);
 
       if (!raw) {
         return null;
@@ -3148,7 +3158,7 @@
 
   function getCurrentLevel() {
     return (
-      localStorage.getItem("zensho_level_v1") ||
+      GOIMONStorage.getItem("zensho_level_v1") ||
       "1"
     );
   }
@@ -3160,7 +3170,7 @@
 
     try {
       return JSON.parse(
-        localStorage.getItem(key) || "{}"
+        GOIMONStorage.getItem(key) || "{}"
       );
     } catch {
       return {};
@@ -3303,7 +3313,7 @@ function renderRecommendedCounts(item) {
     };
 
 
-    localStorage.setItem(
+    GOIMONStorage.setItem(
       GOIMON_LEARNING_REQUEST_KEY,
       JSON.stringify(request)
     );
@@ -3696,5 +3706,6 @@ saveLearningRequest(
 })();
 </script>
 
+<div style="text-align:center;padding:24px 16px;font-size:14px"><a href="privacy.html">プライバシーポリシー</a> · <a href="mailto:goimon.admin@gmail.com">お問い合わせ</a></div>
 </body>
 </html>

@@ -25,7 +25,7 @@
 
   function load(key) {
     try {
-      const v = JSON.parse(localStorage.getItem(key) || "{}");
+      const v = JSON.parse(GOIMONStorage.getItem(key) || "{}");
       return object(v) ? v : {};
     } catch (_) {
       warning();
@@ -35,7 +35,7 @@
 
   function save(key, v) {
     try {
-      localStorage.setItem(key, JSON.stringify(v));
+      GOIMONStorage.setItem(key, JSON.stringify(v));
     } catch (_) {
       warning();
     }

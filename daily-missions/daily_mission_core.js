@@ -8,8 +8,8 @@ const PREFIX="goimon_daily_missions_v2";
 // Use the same account-scoped storage as the login system when available.
 const missionStorage=window.GOIMONStorage||localStorage;
 function dateKey(date=new Date()){
- const pad=n=>String(n).padStart(2,"0");
- return [date.getFullYear(),pad(date.getMonth()+1),pad(date.getDate())].join("-");
+ const shifted=new Date(date.getTime()+9*60*60*1000);
+ return shifted.toISOString().slice(0,10);
 }
 function activeLevel(){return missionStorage.getItem("zensho_level_v1")==="2"?"2":"1";}
 function allowed(c,level){
@@ -125,7 +125,17 @@ function readCompletion(level,day){
   return data && typeof data==="object" && data.date===day && data.level===level ? data : {date:day,level,completed:{}};
  }catch(_){return {date:day,level,completed:{}};}
 }
+const pinnedAccount=window.GOIMONProfiles?.account||"guest";
+function acceptAccount(payload){
+ const active=localStorage.getItem("goimon_cloud_v2:active")||"guest";
+ if(active!==pinnedAccount||payload?.missionAccount!==pinnedAccount)
+  return {valid:false,completed:false,persisted:false,reason:"account_mismatch"};
+ if(pinnedAccount!=="guest"&&!window.GOIMONProfiles?.isWriter?.())
+  return {valid:false,completed:false,persisted:false,reason:"account_storage_not_ready"};
+ return null;
+}
 function recordWordSession(payload){
+ const blocked=acceptAccount(payload);if(blocked)return blocked;
  const today=dateKey(), level=String(payload?.level||"");
  if(!payload || payload.day!==today || !["1","2"].includes(level))return {valid:false,completed:false,reason:"invalid_day_or_level"};
  const daily=getOrCreate(level,today), mission=daily.missions.find(m=>m.slot==="words");
@@ -136,9 +146,12 @@ function recordWordSession(payload){
  if(!result?.valid)return result||{valid:false,completed:false,reason:"bridge_missing"};
  const record=readCompletion(level,today);
  const previous=record.completed.words||null;
+ const sessionId=String(payload.finishedAt||"");
+ if(!Number.isFinite(Date.parse(sessionId)))return {valid:false,completed:false,reason:"invalid_session"};
+ if(previous?.lastSessionId===sessionId)return {valid:true,completed:!!previous.completed,duplicate:true,persisted:true};
  const score=Number(result.correct);
  record.completed.words={
-   category:mission.category,rangeStart:mission.rangeStart,rangeEnd:mission.rangeEnd,
+   category:mission.category,lastSessionId:sessionId,rangeStart:mission.rangeStart,rangeEnd:mission.rangeEnd,
    bestCorrect:Math.max(score,Number(previous?.bestCorrect||0)),
    attempts:Math.min(100000,Number(previous?.attempts||0)+1),
    completed:!!previous?.completed || !!result.completed,
@@ -149,6 +162,7 @@ function recordWordSession(payload){
  return {...result,completed:record.completed.words.completed,persisted:true};
 }
 function recordIdiomSession(payload){
+ const blocked=acceptAccount(payload);if(blocked)return blocked;
  const today=dateKey(),level=String(payload?.level||"");
  if(!payload || payload.day!==today || level!=="1")return {valid:false,completed:false,reason:"invalid_day_or_level"};
  const daily=getOrCreate(level,today),mission=daily.missions.find(m=>m.slot==="idioms");
@@ -198,6 +212,7 @@ function updateExamHistory(level,category,attempts){
  try{missionStorage.setItem(examHistoryKey(level,category),JSON.stringify(history));return true;}catch(_){return false;}
 }
 function recordExamSession(payload){
+ const blocked=acceptAccount(payload);if(blocked)return blocked;
  const today=dateKey(),level=String(payload?.level||"");
  if(!payload||payload.day!==today||!["1","2"].includes(level))return {valid:false,completed:false,reason:"invalid_day_or_level"};
  const mission=getOrCreate(level,today).missions.find(m=>m.slot==="exam");
@@ -222,6 +237,7 @@ function recordExamSession(payload){
  return {valid:true,completed:record.completed.exam.completed,correct,total:10,required:8,persisted:true};
 }
 function recordReorderSession(payload){
+ const blocked=acceptAccount(payload);if(blocked)return blocked;
  const today=dateKey(),level=String(payload?.level||"");
  if(!payload||payload.day!==today||level!=="1")return {valid:false,completed:false,reason:"invalid_day_or_level"};
  const mission=getOrCreate(level,today).missions.find(m=>m.slot==="reorder");
@@ -268,6 +284,7 @@ function noteDailySetCompletion(level,kind,id){
  try{missionStorage.setItem(dailySetHistoryKey(level,kind),JSON.stringify(history));return true;}catch(_){return false;}
 }
 function recordReadingSet(payload){
+ const blocked=acceptAccount(payload);if(blocked)return blocked;
  const day=dateKey(),level=String(payload?.level||"");
  if(!payload||payload.day!==day||level!=="1")return {valid:false,completed:false,reason:"invalid_day_or_level"};
  const daily=getOrCreate(level,day),mission=daily.missions.find(m=>m.slot==="reading");
@@ -303,6 +320,7 @@ function assignDailyReadingSet(level,category,ids,day=dateKey()){
  return chosen;
 }
 function recordListeningSession(payload){
+ const blocked=acceptAccount(payload);if(blocked)return blocked;
  const day=dateKey(),level=String(payload?.level||"");
  if(!payload||payload.day!==day||level!=="1")return {valid:false,completed:false,reason:"invalid_day_or_level"};
  const m=getOrCreate(level,day).missions.find(x=>x.slot==="listening");
@@ -327,7 +345,7 @@ function getStatus(level=activeLevel(),day=dateKey()){
  const daily=getOrCreate(level,day),state=readCompletion(level,day);
  const missions=daily.missions.map(m=>{
   const record=m.slot==="words"?state.completed?.words:(m.slot==="idioms"?state.completed?.idioms:(m.slot==="exam"?state.completed?.exam:(m.slot==="reorder"?state.completed?.reorder:(m.slot==="reading"?state.completed?.reading:(m.slot==="listening"?state.completed?.listening:null)))));
-  const matches=record?.category===m.category&&((m.slot!=="words")||(record?.rangeStart===m.rangeStart&&record?.rangeEnd===m.rangeEnd));
+  const matches=!!record&&m.available&&record.category===m.category&&((m.slot!=="words")||(record?.rangeStart===m.rangeStart&&record?.rangeEnd===m.rangeEnd));
   return {...m,completed:!!(matches&&record.completed),bestCorrect:matches?record.bestCorrect:0,
     attemptCount:matches?record.attempts:0,progress:matches?record.bestCorrect:0};
  });
@@ -337,7 +355,7 @@ function getStatus(level=activeLevel(),day=dateKey()){
    // Preview only. NO grants or cloud synchronization.
    pendingStarEstimate:missions.filter(m=>m.completed).reduce((sum,m)=>sum+m.rewardStars,0)
      +(basicCompletedCount===3?rules.allBasicBonusStars:0),
-   info:"端末上の仮達成記録です。星のかけらの正式付与・クラウド同期は未実装です。"};
+   info:"仮達成記録です。星のかけらは未付与です。クラウド同期は隔離した検証環境のみ有効です。"};
 }
 window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus,selectIdiomRange,selectIdiomModeRange,recordWordSession,recordIdiomSession,recordExamSession,recordReorderSession,rankExamQuestionIds,chooseDailySet,dailySetHistory,assignDailyReadingSet,recordReadingSet,recordListeningSession});
 })();

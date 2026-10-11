@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function safeParse(key) {
-    const raw = localStorage.getItem(key);
+    const raw = GOIMONStorage.getItem(key);
     if (!raw) return null;
     try {
       return JSON.parse(raw);
@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function saveJson(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+    GOIMONStorage.setItem(key, JSON.stringify(value));
   }
 
   function speakEnglish(text) {
@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function saveGlobal(obj) {
-    localStorage.setItem(GLOBAL_BLOCK_KEY, JSON.stringify(obj));
+    GOIMONStorage.setItem(GLOBAL_BLOCK_KEY, JSON.stringify(obj));
   }
 
   function addStudyDone(blockId) {
@@ -184,11 +184,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function saveCursor(rangeKeyStr, idx) {
     const obj = safeParse(CURSOR_KEY) || {};
     obj[rangeKeyStr] = idx;
-    localStorage.setItem(CURSOR_KEY, JSON.stringify(obj));
+    GOIMONStorage.setItem(CURSOR_KEY, JSON.stringify(obj));
   }
 
   function saveState() {
-    localStorage.setItem(STATE_KEY, JSON.stringify(state));
+    GOIMONStorage.setItem(STATE_KEY, JSON.stringify(state));
   }
 
   function renderBlockSelect() {
@@ -550,7 +550,7 @@ document.addEventListener("DOMContentLoaded", () => {
   resetBtn.addEventListener("click", () => {
     if (!confirm("暗記の保存データをリセットしますか？")) return;
 
-    localStorage.removeItem(STATE_KEY);
+    GOIMONStorage.removeItem(STATE_KEY);
 
     state = {
       idx: 0,
