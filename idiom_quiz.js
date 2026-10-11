@@ -1965,12 +1965,23 @@ if (el.originSearchBtn) {
     });
   }
 
+  function dailyIdiomRequest(){return URL_PARAMS.get("dailyMission")==="idioms" ? {day:URL_PARAMS.get("missionDate"),level:String(UI_LEVEL)}:null;}
+  function saveDailyIdiomResult(){
+    const m=dailyIdiomRequest();if(!m || state.results.length!==15)return;
+    const attempts=state.results.map(q=>({displayNo:Number(q.displayNo),correct:q.correct}));
+    if(attempts.some(q=>!Number.isInteger(q.displayNo)||typeof q.correct!=="boolean"))return;
+    try{sessionStorage.setItem("goimon_daily_mission_latest_idiom_v1",JSON.stringify({...m,category:"idiom_quiz",questionMode:state.questionMode,attempts}));}catch(_){}
+  }
+
   function finishQuiz() {
+    saveDailyIdiomResult();
     renderSummary();
     showBox("summary");
   }
 
   function startQuiz(useLastSession) {
+    const mission=dailyIdiomRequest();
+    if(mission){el.questionCount.value='15';el.questionMode.value=URL_PARAMS.get('idiomMode')==='synonym'?'synonym':'meaning';el.quizMode.value='random';}
     const questionMode = el.questionMode.value;
     const available = getAvailableDataForMode(questionMode);
 
@@ -1981,8 +1992,8 @@ if (el.originSearchBtn) {
 
     saveCurrentSettings();
 
-const count = goimonCountOverride || countToNumber(el.questionCount.value, available.length);
-const mode = goimonModeOverride || el.quizMode.value;
+const count = mission ? 15 : (goimonCountOverride || countToNumber(el.questionCount.value, available.length));
+const mode = mission ? 'random' : (goimonModeOverride || el.quizMode.value);
 goimonCountOverride = 0;
 goimonModeOverride = "";
 
