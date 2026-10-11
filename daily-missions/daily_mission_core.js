@@ -194,6 +194,30 @@ function recordReorderSession(payload){
  catch(_){return {valid:true,completed:state.completed.reorder.completed,persisted:false};}
  return {valid:true,completed:state.completed.reorder.completed,correct,total:5,required:4,persisted:true};
 }
+// SET selection works with IDs from the actual question data.
+// This prototype only selects. It does not grant rewards or declare a result completed.
+function dailySetHistoryKey(level,kind){return "goimon_daily_set_history_v1_lv"+level+"_"+kind;}
+function dailySetHistory(level,kind){
+ try{const x=JSON.parse(localStorage.getItem(dailySetHistoryKey(level,kind))||"{}");
+  return x&&typeof x==="object"&&!Array.isArray(x)?x:{};}catch(_){return {};}
+}
+function chooseDailySet(level,kind,ids,day=dateKey()){
+ const unique=[...new Set((ids||[]).map(x=>String(x)).filter(Boolean))];
+ if(!unique.length)return null;
+ const history=dailySetHistory(level,kind),used=unique.map(id=>({id,
+  attempts:Number(history[id]?.attempts||0),lastSeen:Number(history[id]?.lastSeen||0)}))
+  .sort((a,b)=>a.attempts-b.attempts||a.lastSeen-b.lastSeen||a.id.localeCompare(b.id));
+ const key="goimon_daily_set_selection_v1_lv"+level+"_"+kind+"_"+day;
+ try{const saved=localStorage.getItem(key);if(saved&&unique.includes(saved))return saved;}catch(_){}
+ const picked=used[0].id;try{localStorage.setItem(key,picked);}catch(_){}
+ return picked;
+}
+function noteDailySetCompletion(level,kind,id){
+ // Call only after an actual completed set has passed a session-integrity check.
+ const history=dailySetHistory(level,kind),k=String(id);
+ history[k]={attempts:Number(history[k]?.attempts||0)+1,lastSeen:Date.now()};
+ try{localStorage.setItem(dailySetHistoryKey(level,kind),JSON.stringify(history));return true;}catch(_){return false;}
+}
 function getStatus(level=activeLevel(),day=dateKey()){
  const daily=getOrCreate(level,day),state=readCompletion(level,day);
  const missions=daily.missions.map(m=>{
@@ -210,5 +234,5 @@ function getStatus(level=activeLevel(),day=dateKey()){
      +(basicCompletedCount===3?rules.allBasicBonusStars:0),
    info:"端末上の仮達成記録です。星のかけらの正式付与・クラウド同期は未実装です。"};
 }
-window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus,selectIdiomRange,recordWordSession,recordIdiomSession,recordExamSession,recordReorderSession,rankExamQuestionIds});
+window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus,selectIdiomRange,recordWordSession,recordIdiomSession,recordExamSession,recordReorderSession,rankExamQuestionIds,chooseDailySet,dailySetHistory});
 })();
