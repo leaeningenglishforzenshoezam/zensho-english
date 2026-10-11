@@ -5,7 +5,7 @@
   const AUTH_KEY='goimon_cloud_session_v1';
   const ACTIVE_KEY='goimon_cloud_v2:active';
   function savedSession(){try{const x=JSON.parse(sessionStorage.getItem(AUTH_KEY)||'null');return x?.apiBase===cfg.apiBase?x:null;}catch{return null;}}
-  function forget(){token=null;userId=null;conflict=null;details=null;profileRevision=0;profileReady=false;editing=false;try{sessionStorage.removeItem(AUTH_KEY);}catch{}window.dispatchEvent(new Event('goimon-auth-changed'));}
+  function forget(){$('deletion-receipt').hidden=true;$('deletion-code').value='';token=null;userId=null;conflict=null;details=null;profileRevision=0;profileReady=false;editing=false;try{sessionStorage.removeItem(AUTH_KEY);}catch{}window.dispatchEvent(new Event('goimon-auth-changed'));}
   function validateSession(x,withToken=true){
     if(!x || typeof x.userId!=='string' || !/^[a-zA-Z0-9-]{1,128}$/.test(x.userId) || !Number.isSafeInteger(x.expiresAt) || x.expiresAt*1000<=Date.now() || (withToken&&!/^gs1_[a-f0-9]{64}$/.test(x.token)))throw Error('ログイン情報が無効です。Googleで再ログインしてください。');
   }
@@ -18,6 +18,7 @@
   const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
   function render(){
     $('sync').disabled=busy||!userId;
+    $('deletion-panel').hidden=!userId;$('issue-deletion').disabled=busy||!userId;
     $('login-panel').hidden=!!userId;
     $('registration').hidden=!userId||!profileReady||(!editing&&!!details);
     $('profile-summary-panel').hidden=!userId||!details||editing;
@@ -95,6 +96,13 @@
     try{const r=await request('POST',{expectedRevision:profileRevision,profile},token,'profile');assertAccount();acceptProfile(r);await sync();}
     catch(error){if(error.status===409){profileReady=false;message('別の端末でプロフィールが更新されています。入力内容は残しています。「プロフィールを再取得」で最新の内容を確認してから編集してください。');}else throw error;}
   });};
+  $('issue-deletion').onclick=()=>run(async()=>{
+    assertAccount();$('deletion-receipt').hidden=true;$('deletion-code').value='';const account=userId;const r=await request('POST',undefined,token,'deletion-request');assertAccount();
+    if(!/^del_[a-f0-9]{32}$/.test(r.code)||!Number.isSafeInteger(r.expiresAt))throw Error('受付コードを確認できませんでした。');
+    $('deletion-code').value=`クラウドデータの削除を希望します。\nアカウントID：${account}\n受付コード：${r.code}`;
+    $('deletion-expiry').textContent=`有効期限：${new Date(r.expiresAt*1000).toLocaleString('ja-JP')}。再発行すると以前のコードは無効になります。`;
+    $('deletion-receipt').hidden=false;message('受付コードを発行しました。メールで削除依頼を送ってください。まだデータは削除されていません。');
+  });
   $('sync').onclick=()=>run(sync);
   $('use-local').onclick=()=>run(()=>resolve('local'));
   $('use-remote').onclick=()=>run(()=>resolve('remote'));

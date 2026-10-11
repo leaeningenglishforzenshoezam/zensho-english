@@ -2,3 +2,6 @@ node_modules/
 .wrangler/
 .dev.vars
 .env
+
+# Operator exports contain private learning data.
+goimon-before-*.sql

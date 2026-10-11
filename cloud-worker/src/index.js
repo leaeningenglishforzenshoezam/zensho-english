@@ -1,7 +1,8 @@
+import {issueDeletionRequest,cleanupPrivacy} from './privacy.js';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { handleProfile } from './profile.js';
 import { validateSnapshot } from './validation.js';
-import { bearer, createSession, authenticateSession, revokeSession } from './session.js';
+import { createSession, authenticateSession, revokeSession } from './session.js';
 
 const jwks = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
 const MAX_REQUEST_BYTES = 920_000;
@@ -85,6 +86,10 @@ export async function publicSave(db, userId) {
   return {revision:row.revision, snapshot:JSON.parse(row.save_json),updatedAt:row.updated_at};
 }
 export default {
+  async scheduled(controller,env) {
+    const counts=await cleanupPrivacy(env.DB);
+    console.log('privacy_cleanup',JSON.stringify({revisions:counts[0],sessions:counts[1],requests:counts[2]}));
+  },
   async fetch(request,env) {
     const origin=request.headers.get('Origin');
     const headers=cors(origin,env.ALLOWED_ORIGIN);
@@ -94,11 +99,15 @@ export default {
     try {
       const url=new URL(request.url);
       if (url.pathname==='/health' && request.method==='GET') result=response({ok:true});
-      else if ((['/api/v1/save','/api/v1/profile'].includes(url.pathname) && ['GET','POST'].includes(request.method)) || (url.pathname==='/api/v1/session' && ['GET','POST','DELETE'].includes(request.method))) {
+      else if ((url.pathname==='/api/v1/deletion-request' && request.method==='POST') || (['/api/v1/save','/api/v1/profile'].includes(url.pathname) && ['GET','POST'].includes(request.method)) || (url.pathname==='/api/v1/session' && ['GET','POST','DELETE'].includes(request.method))) {
         if(!env.RATE_LIMITER || !env.AUTH_RATE_LIMITER) return response({error:'rate_limiter_not_configured'},503,headers);
         const limited=await env.AUTH_RATE_LIMITER.limit({key:'ip:'+ (request.headers.get('CF-Connecting-IP')||'unknown')});
         if(!limited.success)return response({error:'rate_limited'},429,{...headers,'retry-after':'60'});
-        if(url.pathname==='/api/v1/session') {
+        if(url.pathname==='/api/v1/deletion-request') {
+          const {userId}=await authenticateSession(request,env.DB);
+          if(!(await env.RATE_LIMITER.limit({key:'user:'+userId})).success)return response({error:'rate_limited'},429,headers);
+          result=response(await issueDeletionRequest(env.DB,userId));
+        } else if(url.pathname==='/api/v1/session') {
           if(request.method==='POST') {
             const sub=await authenticate(request,env);
             if(!(await env.RATE_LIMITER.limit({key:'google:'+sub})).success)return response({error:'rate_limited'},429,headers);
@@ -109,10 +118,8 @@ export default {
             result=response({userId:session.userId,expiresAt:session.expiresAt});
           } else {await revokeSession(request,env.DB);result=response({ok:true});}
         } else {
-          // Keep existing staging clients working during the rollout.
-          let userId;
-          if(bearer(request).startsWith('gs1_'))userId=(await authenticateSession(request,env.DB)).userId;
-          else userId=await getUserId(env.DB,await authenticate(request,env));
+          // Only explicit login may create an account; stale sync cannot recreate a deleted user.
+          const {userId}=await authenticateSession(request,env.DB);
           if(!(await env.RATE_LIMITER.limit({key:'user:'+userId})).success)return response({error:'rate_limited'},429,headers);
           result=url.pathname==='/api/v1/profile' ? await handleProfile(request,env.DB,userId) : request.method==='GET' ? response({userId,...await publicSave(env.DB,userId)}) : await handleSave(request,env,userId);
         }

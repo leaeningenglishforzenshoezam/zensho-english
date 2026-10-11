@@ -31,6 +31,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
      const x=sessions.get(credential);return r.fulfill({status:x?200:401,json:x||{error:'unauthorized'}});
    }
    const id=sessions.get(credential)?.userId;if(!id)return r.fulfill({status:401,json:{error:'unauthorized'}});
+   if(new URL(r.request().url()).pathname.endsWith('/deletion-request'))return r.fulfill({json:{code:'del_'+'a'.repeat(32),expiresAt:Math.floor(Date.now()/1000)+30*86400}});
    if(new URL(r.request().url()).pathname.endsWith('/profile')){
      const current=profiles[id]||{revision:id==='C'?0:1,profile:id==='C'?null:{username:'テスト'+id,role:'teacher',grade:null,examLevel:null}};
      if(method==='GET')return r.fulfill({json:{userId:id,...current}});
@@ -92,7 +93,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
  await go(p);
 
  await p.evaluate(()=>document.querySelector('#logout').onclick());
- await p.locator('.tools summary').click();const guestDownload=p.waitForEvent('download');await p.locator('#backup').click();const guestFile=await guestDownload;
+ await p.locator('.tools:not(#deletion-panel) summary').click();const guestDownload=p.waitForEvent('download');await p.locator('#backup').click();const guestFile=await guestDownload;
  const guestBackup=JSON.parse(fs.readFileSync(await guestFile.path(),'utf8'));assert.equal(guestBackup.account,null);assert.equal(guestBackup.data.q7SetHistory_v1,'{"guest":{"attempts":2}}');
  console.log('PASS: backup after logout exports guest data, not the previous account');
  await p.reload();await p.waitForFunction(()=>!document.querySelector('#logout').disabled);assert.match(await p.locator('#account').textContent(),/ログインしていません/);
@@ -116,5 +117,12 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
  await p.setViewportSize({width:390,height:844});await p.locator('#edit-profile').click();await p.locator('#user-role').selectOption('student');await capture(p,'/tmp/goimon-profile-mobile.png');assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
  await p.locator('#cancel-profile').click();await login(p,'B');assert.equal(await p.locator('#display-name').textContent(),'テストB');assert.equal(profiles.C.profile.username,'みかん');
  console.log('PASS: profile onboarding, reload, failed save retention, conflict, teacher fields and account separation; mobile fits');
+ const cloudBeforeReceipt=JSON.stringify(cloud),localBeforeReceipt=await p.evaluate(()=>JSON.stringify(localStorage));
+ await p.locator('#deletion-panel summary').click();await p.locator('#issue-deletion').click();await p.locator('#deletion-receipt').waitFor({state:'visible'});assert.match(await p.locator('#deletion-code').inputValue(),/アカウントID：B/);assert.equal(JSON.stringify(cloud),cloudBeforeReceipt);assert.equal(await p.evaluate(()=>JSON.stringify(localStorage)),localBeforeReceipt);
+ assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ apiStatus=500;await p.locator('#issue-deletion').click();await p.waitForFunction(()=>!document.querySelector('#issue-deletion').disabled);apiStatus=0;assert.equal(JSON.stringify(cloud),cloudBeforeReceipt);assert.equal(await p.locator('#deletion-receipt').isVisible(),false);
+ await login(p,'A');assert.equal(await p.locator('#deletion-receipt').isVisible(),false);assert.equal(await p.locator('#deletion-code').inputValue(),'');
+ await p.evaluate(()=>document.querySelector('#logout').onclick());assert.equal(await p.locator('#deletion-panel').isVisible(),false);
+ console.log('PASS: deletion receipt leaves learning unchanged, shows account, handles failure and clears on account switch/logout');
  await capture(p,'/tmp/goimon-cloud-screen.png');assert.deepEqual(errors,[]);console.log(`PASS: ${pages.length} pages × guest/account; import, sync, conflict resolution, offline, account switch, guest preservation`);
  }finally{await browser?.close();server.kill()}})().catch(e=>{console.error(e);process.exit(1)});
