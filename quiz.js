@@ -1508,7 +1508,22 @@ resultEl.innerHTML = `
     });
   }
 
-  function finishSession() {
+
+  // デイリーミッション連携（開発ブランチ限定・報酬付与なし）
+  function dailyMissionRequest() {
+    const p = new URLSearchParams(location.search);
+    const start = Number(p.get("start")), end = Number(p.get("end"));
+    if (p.get("dailyMission") !== "words" || !Number.isInteger(start) || !Number.isInteger(end) || end-start!==19) return null;
+    return {start,end,level:String(LV),category:"quiz_enja",day:p.get("missionDate")};
+  }
+  function saveDailyMissionResult(attempts) {
+    const request = dailyMissionRequest();
+    if(!request || !Array.isArray(attempts)) return;
+    const clean=attempts.map(a=>({no:a.no,isCorrect:a.isCorrect}));
+    const payload={...request,attempts:clean,finishedAt:new Date().toISOString()};
+    try {sessionStorage.setItem("goimon_daily_mission_latest_result_v1",JSON.stringify(payload));}catch(_){}
+  }
+\n  function finishSession() {\n    saveDailyMissionResult(askedLog);
     session.active = false;
 
     showSummaryView();
@@ -1733,7 +1748,7 @@ if (!selectedBlockIds.length) {
     }
   });
 
-  function applyQuery() {
+  function applyQuery() {\n    const daily=dailyMissionRequest();\n    if(daily){limitEl.value='20';}
 
   const p =
     new URLSearchParams(
