@@ -25,3 +25,5 @@
 .loadout-help{padding-left:20px;font-size:.86rem;color:#425b71}.loadout-help li{line-height:1.7;margin:8px 0}#gearHelp{font-size:.86rem;background:#eef5fb;padding:12px;border-radius:9px}
 
 .loadout-help{list-style:none;padding:0}.item-card{margin:8px 0;border:1px solid #cbdbe8;border-radius:10px;padding:12px;background:#f8fbff;overflow-wrap:anywhere}.item-card summary{font-weight:600;line-height:1.7}.item-card p{margin:8px 0;line-height:1.7}.item-card .item-label{font-size:.78rem;font-weight:bold;color:#176faa;margin-top:14px}.item-story{color:#425b71}.item-card [lang="en"]{color:#53687b}.item-effect{font-size:.85rem}#gearHelp{padding:0;background:none}#drawResult .item-card{background:#fffaf0}
+
+.matchup-advice{background:#edf5e9;border-left:4px solid #54804c;padding:12px;border-radius:8px;font-size:.88rem;overflow-wrap:anywhere}#battleReference{margin:12px 0}#battleReference>summary{padding:10px 0;color:#176faa;font-size:.88rem}.remaining-uses{font-weight:bold;color:#176faa}#prepareLink{display:inline-block;padding:10px 4px}
