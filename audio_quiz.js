@@ -15,6 +15,7 @@ function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_D
 // - 改修：正解時にゴイモン表示ptをその場更新
 
 document.addEventListener("DOMContentLoaded", () => {
+  const dailyMissionStartAccount=localStorage.getItem("goimon_cloud_v2:active")||"guest";
   function addLearningLog(isCorrect) {
     try {
       if (typeof window.zenshoLogAdd === "function") {
@@ -1141,7 +1142,7 @@ function restoreSuspendedQuestion() {
     const request = dailyMissionRequest();
     if(!request || !Array.isArray(attempts)) return;
     const clean=attempts.map(a=>({no:a.no,isCorrect:a.isCorrect}));
-    const payload={...request,attempts:clean,finishedAt:new Date().toISOString()};
+    const payload={...request,attempts:clean,finishedAt:new Date().toISOString(),missionAccount:dailyMissionStartAccount};
     try {sessionStorage.setItem("goimon_daily_mission_latest_result_v1",JSON.stringify(goimonDailyStamped(payload)));}catch(_){}
   }
  
