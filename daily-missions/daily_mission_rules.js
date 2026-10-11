@@ -10,8 +10,7 @@ window.GOIMON_DAILY_MISSION_RULES = Object.freeze({
    {category:"quiz_jaen",count:20,required:20,rangeSize:20},
    {category:"audio_quiz",count:20,required:20,rangeSize:20}]},
   {slot:"idioms",title:"熟語マスター",group:"basic",rewardStars:2,goal:"15問中12問以上正解",requireSession:true,candidates:[
-   {category:"idiom_quiz",count:15,required:12},
-   {category:"paraphrase_quiz",count:15,required:12,description:"同義表現・言い換え（暫定）"}]},
+   {category:"idiom_quiz",count:15,required:12}]},
   {slot:"exam",title:"大問別演習",group:"basic",rewardStars:3,goal:"10問中8問以上正解",requireSession:true,candidates:[
    {category:"sentence",count:10,required:8},
    {category:"paraphrase_quiz",count:10,required:8}]},
