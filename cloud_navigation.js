@@ -18,7 +18,7 @@
  </nav><div class="gn-footer"><a href="privacy.html">プライバシーポリシー</a><a href="mailto:goimon.admin@gmail.com">お問い合わせ</a></div>`;
  paths.bell='M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4';
  dialog.querySelector('nav').insertAdjacentHTML('afterbegin',link('announcements.html','お知らせ','bell','id="gn-news"'));
- if(window.GoimonDailyAutosaveBridge?.enabled())dialog.querySelector('nav').insertAdjacentHTML('afterbegin',link('daily_mission_test.html','今日のミッション（検証）','star'));
+ dialog.querySelector('nav').insertAdjacentHTML('afterbegin',link('daily_mission_test.html','今日のミッション','star','id="gn-missions"'));
  document.body.append(dialog);
  if(window.GOIMONAvatarUI)window.GOIMONAvatarUI.refresh();else {
   const catalog=document.createElement('script');catalog.src='cloud_avatar_catalog.js';catalog.onload=()=>{const ui=document.createElement('script');ui.src='cloud_avatar.js';document.head.append(ui);};document.head.append(catalog);
