@@ -25,7 +25,7 @@
     return !!window.LearningCategories?.isAvailableForLevel(category, level);
   }
   function previousCount(category, level) {
-    const total = window.ZenshoLearningLog?.getCategorySummary?.(7, category, level);
+    const total = window.ZenshoLearningLog?.getCategorySummary?.(category, 7, level);
     if (total && typeof total === "object") return Number(total.attempt || 0);
     return 0;
   }
