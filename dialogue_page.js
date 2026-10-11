@@ -1,3 +1,4 @@
+const GOIMON_DAILY_RESULT_ORIGIN = localStorage.getItem("goimon_cloud_v2:active") || "guest";
 "use strict";
 
 /* =========================================================
@@ -1371,7 +1372,7 @@ ensureQuestionAnswerState(
   if(dailyParams.get("dailyMission")==="reading" && dailyParams.get("setId")===String(question.id)){
     try{sessionStorage.setItem("goimon_daily_mission_latest_reading_v1",JSON.stringify({
       day:dailyParams.get("missionDate"),level:"1",category:"dialogue8",setId:String(question.id),
-      correct:score,total:5,finishedAt:new Date().toISOString()
+      correct:score,total:5,finishedAt:new Date().toISOString(),missionAccount:GOIMON_DAILY_RESULT_ORIGIN
     }));}catch(_){}
   }
 
