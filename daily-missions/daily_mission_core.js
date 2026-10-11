@@ -33,15 +33,28 @@ function selectMissions(level=activeLevel()){
  });
 }
 function wordCount(level){return (level==="2"?window.WORDS_2KYU:window.WORDS_1KYU)?.length || 0;}
-function selectWordRange(level,day){
- const count=wordCount(level);
- if(count<20)return null;
- // Stable across reloads; rotates across nonoverlapping 20-word ranges by day.
- const total=Math.floor(count/20);
- const dayNumber=Math.floor(new Date(day+"T12:00:00").getTime()/86400000);
- const blockIndex=((dayNumber%total)+total)%total;
- return {rangeStart:blockIndex*20+1,rangeEnd:blockIndex*20+20};
+function daysBetween(start,day){
+ const a=Date.parse(start+"T12:00:00Z"),b=Date.parse(day+"T12:00:00Z");
+ return Number.isFinite(a)&&Number.isFinite(b)?Math.max(0,Math.floor((b-a)/86400000)):0;
 }
+function firstMissionDay(level,kind,day){
+ const key="goimon_daily_first_day_v1_lv"+level+"_"+kind;
+ let start=null;try{start=localStorage.getItem(key);}catch(_){}
+ if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(start||"")||start>day){
+  start=day;try{localStorage.setItem(key,start);}catch(_){}
+ }
+ return start;
+}
+function selectNumberRange(level,kind,day,totalCount,size){
+ const number=Math.floor(Number(totalCount)),blocks=Math.ceil(number/size);
+ if(!Number.isInteger(number)||number<size||blocks<1)return null;
+ const first=firstMissionDay(level,kind,day);
+ const blockIndex=daysBetween(first,day)%blocks;
+ const start=blockIndex*size+1;
+ return {rangeStart:start,rangeEnd:Math.min(number,start+size-1)};
+}
+function selectWordRange(level,day){return selectNumberRange(level,"words",day,wordCount(level),20);}
+function selectIdiomRange(level,day){return level==="1"?selectNumberRange(level,"idioms",day,287,15):null;}
 function storageKey(level,day){return PREFIX+"_lv"+level+"_"+day;}
 function getOrCreate(level=activeLevel(),day=dateKey()){
  const key=storageKey(level,day);
@@ -53,6 +66,9 @@ function getOrCreate(level=activeLevel(),day=dateKey()){
  const range=selectWordRange(level,day);
  const wordMission=missions.find(m=>m.slot==="words");
  if(wordMission){ if(range){Object.assign(wordMission,range);}else{wordMission.available=false;wordMission.reason="単語データが20語未満です";wordMission.status="unavailable";} }
+ const idiomMission=missions.find(m=>m.slot==="idioms");
+ const idiomRange=selectIdiomRange(level,day);
+ if(idiomMission){if(idiomRange){Object.assign(idiomMission,idiomRange);}else{idiomMission.available=false;idiomMission.status="unavailable";}}
  const fresh={version:rules.version,level,date:day,createdAt:new Date().toISOString(),missions};
  try{localStorage.setItem(key,JSON.stringify(fresh));}catch(_){}
  return fresh;
@@ -171,5 +187,5 @@ function getStatus(level=activeLevel(),day=dateKey()){
      +(basicCompletedCount===3?rules.allBasicBonusStars:0),
    info:"端末上の仮達成記録です。星のかけらの正式付与・クラウド同期は未実装です。"};
 }
-window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus,recordWordSession,recordIdiomSession,recordExamSession,rankExamQuestionIds});
+window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus,selectIdiomRange,recordWordSession,recordIdiomSession,recordExamSession,rankExamQuestionIds});
 })();
