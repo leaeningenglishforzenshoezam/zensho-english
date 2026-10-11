@@ -6167,8 +6167,14 @@ stopAudio();
 
        
 
+    const daily = new URLSearchParams(location.search);
+    const dailyEnabled=daily.get("dailyMission")==="listening";
     const built =
-      explicitQuestions
+      dailyEnabled ? getQuestionsByFormat().slice().sort((a,b)=>{
+        let history={};try{history=JSON.parse(localStorage.getItem("goimon_daily_exam_history_v1_lv1_listening:"+getSelectedFormat())||"{}")||{};}catch(_){}
+        const x=history[String(a.id)]||{},y=history[String(b.id)]||{};
+        return Number(x.attempts||0)-Number(y.attempts||0)||Number(x.lastSeen||0)-Number(y.lastSeen||0);
+      }).slice(0,5) : explicitQuestions
         ? [
             ...explicitQuestions
           ]
@@ -6242,6 +6248,11 @@ stopAudio();
   // ============================================================
 
   function finishSession() {
+  const daily=new URLSearchParams(location.search);
+  if(daily.get("dailyMission")==="listening"&&sessionResults.length===5){
+    const attempts=sessionResults.map(x=>({id:String(x.id),correct:x.isCorrect}));
+    try{sessionStorage.setItem("goimon_daily_mission_latest_listening_v1",JSON.stringify({day:daily.get("missionDate"),level:"1",category:"listening",format:getSelectedFormat(),attempts,finishedAt:new Date().toISOString()}));}catch(_){}
+  }
   stopAudio();
 
   if (
@@ -8803,12 +8814,14 @@ function applyGoimonLearningQuery() {
   );
 
   // 進捗ページから指定した大問の設定画面へ進む。
-  const requestedFormat = new URLSearchParams(location.search).get("format");
+  const searchParams=new URLSearchParams(location.search);
+  const requestedFormat = searchParams.get("format");
   if (["2", "3", "5"].includes(requestedFormat)) {
     formatSelect.value = requestedFormat;
     setSelectedMethod("quiz");
   }
   updatePoolInfo();
+  if(searchParams.get("dailyMission")==="listening"){setSelectedMethod("quiz");orderMode.value="random";questionCount.value="5";}
 
     if (
   !allQuestions.length
