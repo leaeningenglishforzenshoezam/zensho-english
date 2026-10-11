@@ -55,6 +55,27 @@ function selectNumberRange(level,kind,day,totalCount,size){
 }
 function selectWordRange(level,day){return selectNumberRange(level,"words",day,wordCount(level),20);}
 function selectIdiomRange(level,day){return level==="1"?selectNumberRange(level,"idioms",day,287,15):null;}
+// Each idiom question mode advances independently after a fully answered 15-question session.
+function selectIdiomModeRange(level,day,mode){
+ if(level!=="1"||!["meaning","synonym"].includes(mode))return null;
+ const key="goimon_daily_idiom_cursor_v1_lv"+level+"_"+mode;
+ let record={};try{record=JSON.parse(localStorage.getItem(key)||"{}")||{};}catch(_){}
+ const sameDay=record.day===day&&Number.isInteger(record.rangeStart)&&Number.isInteger(record.rangeEnd);
+ if(sameDay)return {rangeStart:record.rangeStart,rangeEnd:record.rangeEnd};
+ const start=Math.max(1,Math.min(273,Number(record.nextStart)||1));
+ const range={rangeStart:start,rangeEnd:start+14};
+ const next={day,rangeStart:range.rangeStart,rangeEnd:range.rangeEnd,nextStart:start};
+ try{localStorage.setItem(key,JSON.stringify(next));}catch(_){}
+ return range;
+}
+function advanceIdiomModeRange(level,day,mode,range){
+ const key="goimon_daily_idiom_cursor_v1_lv"+level+"_"+mode;
+ let rec={};try{rec=JSON.parse(localStorage.getItem(key)||"{}")||{};}catch(_){}
+ if(rec.day!==day||rec.rangeStart!==range.rangeStart||rec.rangeEnd!==range.rangeEnd)return;
+ if(rec.advanced)return;
+ const nextStart=range.rangeEnd>=287?1:Math.min(range.rangeStart+15,273);
+ try{localStorage.setItem(key,JSON.stringify({...rec,nextStart,advanced:true}));}catch(_){}
+}
 function storageKey(level,day){return PREFIX+"_lv"+level+"_"+day;}
 function getOrCreate(level=activeLevel(),day=dateKey()){
  const key=storageKey(level,day);
@@ -80,7 +101,7 @@ function getOrCreate(level=activeLevel(),day=dateKey()){
  const wordMission=missions.find(m=>m.slot==="words");
  if(wordMission){ if(range){Object.assign(wordMission,range);}else{wordMission.available=false;wordMission.reason="単語データが20語未満です";wordMission.status="unavailable";} }
  const idiomMission=missions.find(m=>m.slot==="idioms");
- const idiomRange=selectIdiomRange(level,day);
+ const idiomRange=selectIdiomModeRange(level,day,"meaning");
  if(idiomMission){if(idiomRange){Object.assign(idiomMission,idiomRange);}else{idiomMission.available=false;idiomMission.status="unavailable";}}
  const fresh={version:rules.version,level,date:day,createdAt:new Date().toISOString(),missions};
  try{localStorage.setItem(key,JSON.stringify(fresh));}catch(_){}
@@ -125,19 +146,21 @@ function recordIdiomSession(payload){
    return {valid:false,completed:false,reason:"mission_mismatch"};
  if(!["meaning","synonym"].includes(payload.questionMode) || !Array.isArray(payload.attempts))
    return {valid:false,completed:false,reason:"invalid_mode_or_attempts"};
- if(payload.start!==mission.rangeStart||payload.end!==mission.rangeEnd)return {valid:false,completed:false,reason:"range_mismatch"};
- if(payload.attempts.length!==15 || payload.attempts.some(a=>typeof a?.correct!=="boolean" || !Number.isInteger(a?.displayNo)||a.displayNo<mission.rangeStart||a.displayNo>mission.rangeEnd)
+ const expected=selectIdiomModeRange(level,today,payload.questionMode);
+ if(!expected||payload.start!==expected.rangeStart||payload.end!==expected.rangeEnd)return {valid:false,completed:false,reason:"range_mismatch"};
+ if(payload.attempts.length!==15 || payload.attempts.some(a=>typeof a?.correct!=="boolean" || !Number.isInteger(a?.displayNo)||a.displayNo<expected.rangeStart||a.displayNo>expected.rangeEnd)
     || new Set(payload.attempts.map(a=>a.displayNo)).size!==15)
    return {valid:false,completed:false,reason:"invalid_question_set"};
  const correct=payload.attempts.filter(a=>a.correct).length,complete=correct>=12;
  const record=readCompletion(level,today),previous=record.completed.idioms;
- record.completed.idioms={category:"idiom_quiz",rangeStart:mission.rangeStart,rangeEnd:mission.rangeEnd,questionMode:payload.questionMode,
+ record.completed.idioms={category:"idiom_quiz",rangeStart:expected.rangeStart,rangeEnd:expected.rangeEnd,questionMode:payload.questionMode,
   attempts:Math.min(100000,Number(previous?.attempts||0)+1),
   bestCorrect:Math.max(correct,Number(previous?.bestCorrect||0)),
   completed:!!previous?.completed||complete,
   completedAt:previous?.completedAt||(complete?new Date().toISOString():null)};
  try{localStorage.setItem(completionKey(level,today),JSON.stringify(record));}
  catch(_){return {valid:true,completed:record.completed.idioms.completed,persisted:false,reason:"storage_unavailable"};}
+ advanceIdiomModeRange(level,today,payload.questionMode,expected);
  return {valid:true,completed:record.completed.idioms.completed,correct,total:15,required:12,persisted:true};
 }
 // Daily-only history, separate from normal quiz cursors. Only actual completed sessions are recorded.
@@ -291,7 +314,7 @@ function getStatus(level=activeLevel(),day=dateKey()){
  const daily=getOrCreate(level,day),state=readCompletion(level,day);
  const missions=daily.missions.map(m=>{
   const record=m.slot==="words"?state.completed?.words:(m.slot==="idioms"?state.completed?.idioms:(m.slot==="exam"?state.completed?.exam:(m.slot==="reorder"?state.completed?.reorder:(m.slot==="reading"?state.completed?.reading:(m.slot==="listening"?state.completed?.listening:null)))));
-  const matches=record?.category===m.category&&((m.slot!=="words"&&m.slot!=="idioms")||(record?.rangeStart===m.rangeStart&&record?.rangeEnd===m.rangeEnd));
+  const matches=record?.category===m.category&&((m.slot!=="words")||(record?.rangeStart===m.rangeStart&&record?.rangeEnd===m.rangeEnd));
   return {...m,completed:!!(matches&&record.completed),bestCorrect:matches?record.bestCorrect:0,
     attemptCount:matches?record.attempts:0,progress:matches?record.bestCorrect:0};
  });
@@ -303,5 +326,5 @@ function getStatus(level=activeLevel(),day=dateKey()){
      +(basicCompletedCount===3?rules.allBasicBonusStars:0),
    info:"端末上の仮達成記録です。星のかけらの正式付与・クラウド同期は未実装です。"};
 }
-window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus,selectIdiomRange,recordWordSession,recordIdiomSession,recordExamSession,recordReorderSession,rankExamQuestionIds,chooseDailySet,dailySetHistory,assignDailyReadingSet,recordReadingSet,recordListeningSession});
+window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus,selectIdiomRange,selectIdiomModeRange,recordWordSession,recordIdiomSession,recordExamSession,recordReorderSession,rankExamQuestionIds,chooseDailySet,dailySetHistory,assignDailyReadingSet,recordReadingSet,recordListeningSession});
 })();
