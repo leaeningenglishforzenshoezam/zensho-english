@@ -198,6 +198,27 @@ function applyGoimonLearningQuery() {
 
 document.addEventListener("DOMContentLoaded", initializeDialoguePage);
 
+function applyDailyReadingQuery() {
+  const p = new URLSearchParams(location.search);
+  if (p.get("dailyMission") !== "reading") return false;
+  const setId = p.get("setId");
+  const selected = dialogueQuestions.find(q => String(q.id) === setId);
+  if (!selected) return false;
+  currentSettings = {order:"order",startId:Number(selected.id),endId:Number(selected.id)};
+  currentQuestionIndex = 0;
+  choiceOrders = {};
+  createQuestionSet();
+  if(questionSet.length !== 1 || String(questionSet[0].id)!==setId) return false;
+  sessionStarted = true;
+  settingsModalOverlay.hidden = true;
+  settingsModal.hidden = true;
+  document.body.classList.remove("setup-mode");
+  document.body.style.overflow = "";
+  saveState();
+  renderCurrentQuestion();
+  return true;
+}
+
 function initializeDialoguePage() {
   validateQuestionData();
 
@@ -223,7 +244,7 @@ function initializeDialoguePage() {
   "setup-mode"
 );
 
-if (!applyGoimonLearningQuery()) {
+if (!applyDailyReadingQuery() && !applyGoimonLearningQuery()) {
   openSettingsModal();
 }
 }
@@ -1346,6 +1367,14 @@ ensureQuestionAnswerState(
   details,
   checkedAt: new Date().toISOString()
 };
+  const dailyParams = new URLSearchParams(location.search);
+  if(dailyParams.get("dailyMission")==="reading" && dailyParams.get("setId")===String(question.id)){
+    try{sessionStorage.setItem("goimon_daily_mission_latest_reading_v1",JSON.stringify({
+      day:dailyParams.get("missionDate"),level:"1",category:"dialogue8",setId:String(question.id),
+      correct:score,total:5,finishedAt:new Date().toISOString()
+    }));}catch(_){}
+  }
+
 
 // ★ v1.1 共通学習ログ
 if (typeof window.zenshoLogAdd === "function") {
