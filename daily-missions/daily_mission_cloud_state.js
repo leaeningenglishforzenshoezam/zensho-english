@@ -43,13 +43,30 @@
   if(parsed?.version!==VERSION||parsed.level!==String(level)||!parsed.data||Array.isArray(parsed.data))throw Error('invalid_cloud_snapshot');
   return pack(parsed.data,level,today);
  }
+ function mergeCompletionRecord(key,baseValue,localValue,remoteValue){
+  const match=key.match(/^goimon_daily_mission_completions_v1_lv([12])_(\d{4}-\d{2}-\d{2})$/);
+  if(!match||baseValue===undefined||localValue===undefined||remoteValue===undefined)return null;
+  let b,l,r;
+  try{b=JSON.parse(baseValue);l=JSON.parse(localValue);r=JSON.parse(remoteValue);}catch(_){return null;}
+  const valid=x=>x&&typeof x==='object'&&!Array.isArray(x)&&x.date===match[2]&&String(x.level)===match[1]&&x.completed&&typeof x.completed==='object'&&!Array.isArray(x.completed)&&Object.keys(x).every(k=>['date','level','completed'].includes(k))&&Object.keys(x.completed).every(k=>['words','idioms','exam','listening','reading','reorder'].includes(k));
+  if(![b,l,r].every(valid))return null;
+  const combined={date:match[2],level:match[1],completed:{}};
+  for(const slot of new Set([...Object.keys(b.completed),...Object.keys(l.completed),...Object.keys(r.completed)])){
+   const before=b.completed[slot],left=l.completed[slot],right=r.completed[slot];
+   const same=(a,c)=>JSON.stringify(a)===JSON.stringify(c);
+   if(!same(left,before)&&!same(right,before)&&!same(left,right))return null;
+   const chosen=same(left,before)?right:left;
+   if(chosen!==undefined)combined.completed[slot]=chosen;
+  }
+  return JSON.stringify(combined);
+ }
  function merge(base,local,remote){
   for(const x of [base,local,remote])if(!x||x.version!==VERSION||!['1','2'].includes(x.level)||!x.data||typeof x.data!=='object')throw Error('invalid_state');
   if(base.level!==local.level||local.level!==remote.level)throw Error('level_mismatch');
   const data={},conflicts=[];
   for(const k of new Set([...Object.keys(base.data),...Object.keys(local.data),...Object.keys(remote.data)])){
    const b=base.data[k],l=local.data[k],r=remote.data[k];
-   if(l!==b&&r!==b&&l!==r){conflicts.push(k);continue;}
+   if(l!==b&&r!==b&&l!==r){const combined=mergeCompletionRecord(k,b,l,r);if(combined!==null){data[k]=combined;continue;}conflicts.push(k);continue;}
    const value=l===b?r:l;if(value!==undefined)data[k]=value;
   }
   return {data,conflicts}; // Never silently choose a side on conflict.
