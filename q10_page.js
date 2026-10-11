@@ -1,4 +1,4 @@
-const GOIMON_DAILY_RESULT_ORIGIN = GOIMONStorage.getItem("goimon_cloud_v2:active") || "guest";
+const GOIMON_DAILY_RESULT_ORIGIN = localStorage.getItem("goimon_cloud_v2:active") || "guest";
 "use strict";
 
 /* =========================================================
