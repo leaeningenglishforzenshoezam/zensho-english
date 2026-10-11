@@ -8,11 +8,10 @@
   if (!rules) return;
 
   function tokyoDateKey(date) {
-    const parts = new Intl.DateTimeFormat("en-CA", {
-      timeZone: rules.timezone, year:"numeric", month:"2-digit", day:"2-digit"
-    }).formatToParts(date || new Date());
-    const part = t => parts.find(p => p.type === t)?.value;
-    return [part("year"),part("month"),part("day")].join("-");
+    // Existing learning_log.js uses device-local calendar dates. Match it until synchronization is unified.
+    const d = date || new Date();
+    const pad = n => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
   }
 
   function activeLevel() {
@@ -51,7 +50,7 @@
     const storageKey = key(level, dateKey);
     try {
       const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
-      if (saved?.version === rules.version && Array.isArray(saved.missions)) return saved;
+      if (saved?.version === rules.version && saved.date === dateKey && saved.level === level && Array.isArray(saved.missions) && saved.missions.length === rules.missionSlots.length) return saved;
     } catch (_) {}
     const fresh = { version:rules.version, date:dateKey, level,
       missions:selectMissions(level), createdAt:new Date().toISOString() };
