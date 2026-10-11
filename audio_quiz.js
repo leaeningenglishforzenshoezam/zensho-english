@@ -1,3 +1,6 @@
+// Daily mission result origin: capture account when this quiz script starts.
+const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
+function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
 // audio_quiz.js
 // 音声→意味4択クイズ
 // - 英単語を音で聞いて、日本語の意味を4択で選ぶ
@@ -1139,7 +1142,7 @@ function restoreSuspendedQuestion() {
     if(!request || !Array.isArray(attempts)) return;
     const clean=attempts.map(a=>({no:a.no,isCorrect:a.isCorrect}));
     const payload={...request,attempts:clean,finishedAt:new Date().toISOString()};
-    try {sessionStorage.setItem("goimon_daily_mission_latest_result_v1",JSON.stringify(payload));}catch(_){}
+    try {sessionStorage.setItem("goimon_daily_mission_latest_result_v1",JSON.stringify(goimonDailyStamped(payload)));}catch(_){}
   }
  
   function finishSession(autoWeakEnd) { 
