@@ -44,7 +44,7 @@
 
   function load(key) {
     try {
-      const value = JSON.parse(localStorage.getItem(key) || "{}");
+      const value = JSON.parse(GOIMONStorage.getItem(key) || "{}");
       return validObject(value) ? value : {};
     } catch (_) {
       storageWarning();
@@ -54,7 +54,7 @@
 
   function save(key, value) {
     try {
-      localStorage.setItem(key, JSON.stringify(value));
+      GOIMONStorage.setItem(key, JSON.stringify(value));
     } catch (_) {
       storageWarning();
     }

@@ -1,0 +1,154 @@
+(() => {
+  'use strict';
+  const P=GOIMONProfiles,S=GOIMONCloudSchema,cfg=GOIMON_CLOUD_CONFIG,$=id=>document.getElementById(id);
+  let token=null,userId=null,busy=false,conflict=null,epoch=0,details=null,profileRevision=0,profileReady=false,editing=false;
+  const AUTH_KEY='goimon_cloud_session_v1';
+  const ACTIVE_KEY='goimon_cloud_v2:active';
+  function savedSession(){try{const x=JSON.parse(sessionStorage.getItem(AUTH_KEY)||'null');return x?.apiBase===cfg.apiBase?x:null;}catch{return null;}}
+  function forget(){$('deletion-receipt').hidden=true;$('deletion-code').value='';token=null;userId=null;conflict=null;details=null;profileRevision=0;profileReady=false;editing=false;try{sessionStorage.removeItem(AUTH_KEY);}catch{}window.dispatchEvent(new Event('goimon-auth-changed'));}
+  function validateSession(x,withToken=true){
+    if(!x || typeof x.userId!=='string' || !/^[a-zA-Z0-9-]{1,128}$/.test(x.userId) || !Number.isSafeInteger(x.expiresAt) || x.expiresAt*1000<=Date.now() || (withToken&&!/^gs1_[a-f0-9]{64}$/.test(x.token)))throw Error('ログイン情報が無効です。Googleで再ログインしてください。');
+  }
+  function remember(x){validateSession(x);token=x.token;userId=x.userId;try{sessionStorage.setItem(AUTH_KEY,JSON.stringify({...x,apiBase:cfg.apiBase}));window.dispatchEvent(new Event('goimon-auth-changed'));return true;}catch{return false;}}
+  function assertAccount(){if(!userId || localStorage.getItem(ACTIVE_KEY)!==userId){forget();throw Error('別のタブでアカウントが切り替わりました。Googleで再ログインしてください。');}}
+
+  const message=t=>{$('status').textContent=t;};
+  const current=()=>P.read(userId);
+  const snap=data=>({schemaVersion:1,data});
+  const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+  function render(){
+    $('sync').disabled=busy||!userId;
+    $('deletion-panel').hidden=!userId;$('issue-deletion').disabled=busy||!userId;
+    $('login-panel').hidden=!!userId;
+    $('registration').hidden=!userId||!profileReady||(!editing&&!!details);
+    $('profile-summary-panel').hidden=!userId||!details||editing;
+    $('sync-panel').hidden=!userId||!details||editing;
+    $('registration-title').textContent=details?'プロフィールを編集':'あなたのことを教えてください';
+    $('reload-profile').hidden=!userId||profileReady;
+    $('reload-profile').disabled=busy;
+    $('profile-fields').disabled=busy;
+    $('save-profile').disabled=busy;
+    $('edit-profile').disabled=busy;
+    $('cancel-profile').hidden=!details;
+    $('cancel-profile').disabled=busy;
+    $('save-profile').textContent=details?'変更を保存する':'プロフィールを登録する';
+    if(details){$('display-name').textContent=details.username; $('profile-summary').textContent=details.role==='teacher'?'教員':`生徒 · ${details.grade==='other'?'その他':'高校'+details.grade+'年'} · ${details.examLevel==='undecided'?'受験級は未定':details.examLevel+'級を目指す'}`;}
+    $('import-guest').disabled=busy||!userId||Object.keys(current().data).length>0||current().revision!==0;
+    $('logout').disabled=busy;
+    $('logout').hidden=!userId&&!localStorage.getItem(ACTIVE_KEY)&&!savedSession();
+    $('resume').hidden=!!userId||!savedSession();$('resume').disabled=busy;
+    $('account').textContent=userId?'Googleログイン済み（このタブで継続中）':'ログインしていません';
+    for(const id of ['use-local','use-remote'])$(id).disabled=busy;
+    $('conflict').hidden=!conflict;
+    $('profile').textContent=userId?'学習先：ログイン中のアカウント':localStorage.getItem('goimon_cloud_v2:active')?'学習先：前回選択したアカウント（端末保存）':'学習先：ゲスト';
+  }
+  function download(data,name){const u=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download=name+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
+  async function request(method,body,credential=token,endpoint='save'){
+    const startedEpoch=epoch;
+    const c=new AbortController(),timer=setTimeout(()=>c.abort(),15000);
+    try{const r=await fetch(cfg.apiBase.replace(/\/$/,'')+'/api/v1/'+endpoint,{method,headers:{Authorization:'Bearer '+credential,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,signal:c.signal,cache:'no-store'});
+      const j=await r.json();if(startedEpoch!==epoch)throw Error('アカウントが切り替わったため処理を中止しました。');if(!r.ok){if(r.status===401 && credential===token)forget();const e=Error(r.status===409?'別の端末が先に保存しました。もう一度同期してください。':r.status===401?'認証の期限が切れました。再ログインしてください。':`通信できませんでした (${r.status})`);e.status=r.status;throw e;}return j;
+    }finally{clearTimeout(timer);}
+  }
+  async function run(fn){if(busy)return;busy=true;render();try{if(!navigator.locks)throw Error('このブラウザは安全な同期に未対応です。新しいブラウザを使ってください。');await navigator.locks.request('goimon-cloud-sync',()=>userId?navigator.locks.request('goimon-profile-'+userId,{ifAvailable:true},lock=>{if(!lock)throw Error('同じアカウントの学習タブを閉じてから同期してください。');return fn();}):fn());}catch(e){message(e.name==='AbortError'?'通信が時間切れになりました。端末データは残っています。':e.message);}finally{busy=false;render();}}
+  function checkRemote(r){if(!Number.isSafeInteger(r.revision)||r.revision<0)throw Error('invalid_revision');if(r.snapshot)S.validate(r.snapshot);else if(r.revision!==0)throw Error('missing_snapshot');}
+  function localUnchanged(before){if(!equal(current(),before))throw Error('同期中に別のタブで学習しました。端末の変更は残っています。もう一度同期してください。');}
+  function apply(before,data,revision){
+    localUnchanged(before);
+    const device=Object.fromEntries(Object.entries(before.data).filter(([k])=>!S.allowed(k)));
+    const next={data:{...device,...data},base:data,revision};
+    if(!equal(before,next)){if(!equal(before.data,next.data))P.recovery(userId,before);P.write(userId,next);}
+    try{const key='goimon_cloud_v2:auto:'+userId,m=JSON.parse(localStorage.getItem(key)||'{}');localStorage.setItem(key,JSON.stringify({...m,checkedAt:Date.now(),retryAt:0,failures:0,conflict:false}));}catch{}
+    conflict=null;message(savedSession()?'同期しました。学習中は自動保存されます。このまま学習へ進めます。':'同期しました。ブラウザの設定によりログインを保持できないため、学習後の保存には再ログインが必要です。');
+  }
+  async function sync(){
+    assertAccount();
+    const before=current(),local=P.cloudData(before.data);S.validate(snap(local));
+    const remote=await request('GET');checkRemote(remote);localUnchanged(before);
+    if(remote.userId!==userId)throw Error('account_mismatch');
+    const r=remote.snapshot?.data||{}, merged=S.merge(before.base||{},local,r);
+    if(merged.conflicts.length){conflict={before,local,remote:r,revision:remote.revision,keys:merged.conflicts};$('conflict-keys').textContent=merged.conflicts.join('\n');message('競合が見つかったため、自動上書きを止めました。');return;}
+    if(equal(merged.data,r)){apply(before,merged.data,remote.revision);return;}
+    const result=await request('POST',{expectedRevision:remote.revision,snapshot:snap(merged.data)});
+    apply(before,merged.data,result.revision);
+  }
+  async function resolve(which){assertAccount();if(!conflict)return;const c=conflict;localUnchanged(c.before);
+    if(!confirm(which==='local'?'競合した記録にこの端末の内容を採用しますか？':'競合した記録にクラウドの内容を採用しますか？'))return;
+    const merged=S.merge(c.before.base||{},c.local,c.remote).data,chosen=which==='local'?c.local:c.remote;
+    for(const k of c.keys){if(chosen[k]===undefined)delete merged[k];else merged[k]=chosen[k];}
+    S.validate(snap(merged));P.recovery(userId,{...c.before,conflict:c});
+    const result=await request('POST',{expectedRevision:c.revision,snapshot:snap(merged)});apply(c.before,merged,result.revision);
+  }
+  function studentFields(){const student=$('user-role').value==='student';$('student-fields').hidden=!student;for(const id of ['grade','exam-level']){$(id).required=student;$(id).disabled=!student;}}
+  function fillProfile(){const p=details||{};window.GOIMONAvatarUI?.picker(p.avatar||'egg',userId?P.read(userId).data:{});$('username').value=p.username||'';$('user-role').value=p.role||'';$('grade').value=p.grade||'';$('exam-level').value=p.examLevel||'';studentFields();}
+  function acceptProfile(r){if(r.userId!==userId || !Number.isSafeInteger(r.revision)||r.revision<0 || (r.revision===0)!==!r.profile)throw Error('プロフィールを確認できませんでした。');details=r.profile;profileRevision=r.revision;profileReady=true;editing=false;fillProfile();try{const s=savedSession();if(s&&s.userId===userId){sessionStorage.setItem(AUTH_KEY,JSON.stringify({...s,displayName:details?.username||'',avatar:details?.avatar||'egg'}));window.GOIMONAvatarUI?.paint($('avatar-summary'),details?.avatar||'egg');window.dispatchEvent(new Event('goimon-auth-changed'));}}catch{}}
+  async function loadProfile(){assertAccount();const r=await request('GET',undefined,token,'profile');assertAccount();acceptProfile(r);if(!details)message('ログインできました。続けてプロフィールを登録してください。');else {await sync();window.GOIMONAvatarUI?.picker(details?.avatar||'egg',P.read(userId).data);}}
+  $('user-role').onchange=studentFields;
+  $('edit-profile').onclick=()=>{editing=true;fillProfile();message('プロフィールを編集できます。変更後は「変更を保存する」を押してください。');render();};
+  $('cancel-profile').onclick=()=>{editing=false;fillProfile();render();};
+  $('reload-profile').onclick=()=>run(loadProfile);
+  $('profile-form').onsubmit=event=>{event.preventDefault();return run(async()=>{
+    assertAccount();const username=$('username').value.trim().normalize('NFC'),role=$('user-role').value;
+    if([...username].length<1||[...username].length>24||/[\p{Cc}\p{Cf}<>]/u.test(username))throw Error('ユーザー名は1〜24文字で入力してください。制御文字や < > は使えません。');
+    if(!['student','teacher'].includes(role))throw Error('生徒か教員を選んでください。');
+    const avatar=window.GOIMONAvatarUI?.selected()||details?.avatar||'egg';
+    const profile={avatar,username,role,grade:role==='student'?$('grade').value:null,examLevel:role==='student'?$('exam-level').value:null};
+    if(role==='student'&&(!['1','2','3','other'].includes(profile.grade)||!['1','2','3','undecided'].includes(profile.examLevel)))throw Error('学年と受験級を選んでください。');
+    try{if(!['egg','boy','girl'].includes(avatar)&&avatar!==details?.avatar){await sync();if(conflict)throw Error('先に学習記録の競合を解消してからアイコンを保存してください。');}
+    const r=await request('POST',{expectedRevision:profileRevision,profile},token,'profile');assertAccount();acceptProfile(r);await sync();}
+    catch(error){if(error.status===409){profileReady=false;message('別の端末でプロフィールが更新されています。入力内容は残しています。「プロフィールを再取得」で最新の内容を確認してから編集してください。');}else throw error;}
+  });};
+  $('issue-deletion').onclick=()=>run(async()=>{
+    assertAccount();$('deletion-receipt').hidden=true;$('deletion-code').value='';const account=userId;const r=await request('POST',undefined,token,'deletion-request');assertAccount();
+    if(!/^del_[a-f0-9]{32}$/.test(r.code)||!Number.isSafeInteger(r.expiresAt))throw Error('受付コードを確認できませんでした。');
+    $('deletion-code').value=`クラウドデータの削除を希望します。\nアカウントID：${account}\n受付コード：${r.code}`;
+    $('deletion-expiry').textContent=`有効期限：${new Date(r.expiresAt*1000).toLocaleString('ja-JP')}。再発行すると以前のコードは無効になります。`;
+    $('deletion-receipt').hidden=false;message('受付コードを発行しました。メールで削除依頼を送ってください。まだデータは削除されていません。');
+  });
+  $('sync').onclick=()=>run(sync);
+  $('use-local').onclick=()=>run(()=>resolve('local'));
+  $('use-remote').onclick=()=>run(()=>resolve('remote'));
+  $('export-conflict').onclick=()=>download(conflict,'goimon-conflict');
+  $('backup').onclick=()=>{const id=userId||localStorage.getItem('goimon_cloud_v2:active')||null;download({format:'goimon-local-backup-v2',account:id,data:id?P.read(id).data:P.collect()},'goimon-backup');};
+  $('recovery').onclick=()=>{const data={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith('goimon_cloud_v2:recovery:')||k.startsWith('goimon_cloud_v2:journal:'))data[k]=JSON.parse(localStorage.getItem(k));}download(data,'goimon-recovery');};
+  $('import-guest').onclick=()=>run(async()=>{
+    assertAccount();const p=current();if(Object.keys(p.data).length||p.revision)throw Error('初回だけ引き継ぎできます');
+    if(!confirm('この端末のゲスト記録を、このGoogleアカウントにコピーしますか？'))return;
+    const data=P.collect();S.validate(snap(P.cloudData(data)));P.write(userId,{...p,data});await sync();
+  });
+  $('logout').onclick=async()=>{
+    if(busy)return;busy=true;const previous=token||savedSession()?.token;epoch++;forget();P.logout();
+    window.google?.accounts.id.disableAutoSelect();render();
+    message('ゲストに戻りました。アカウントの学習記録は端末に残っています。');
+    try{if(previous)await request('DELETE',undefined,previous,'session');}
+    catch{message('この端末からログアウトしました。通信できなかったためサーバー側の失効は未確認です。');}
+    finally{busy=false;render();}
+  };
+  window.goimonGoogleLogin=credential=>run(async()=>{
+    const previous=token;const e=++epoch;forget();
+    const session=await request('POST',undefined,credential,'session');validateSession(session);if(e!==epoch)return;
+    P.activate(session.userId);const persisted=remember(session);
+    if(previous)try{await request('DELETE',undefined,previous,'session');}catch{}
+    message(persisted?'ログインしました。同じタブでは画面を移動してもログインが続きます。':'ログインしました。この画面のみで利用できます。');
+    fillProfile();await loadProfile();
+  });
+  async function restoreSession(){
+    const saved=savedSession();if(!saved)return;
+    try{validateSession(saved);}catch(error){forget();throw error;}
+    if(localStorage.getItem(ACTIVE_KEY)!==saved.userId){forget();throw Error('学習先のアカウントが変わっています。Googleで再ログインしてください。');}
+    let remote;
+    try{remote=await request('GET',undefined,saved.token,'session');}
+    catch(error){if(error.status===401)forget();throw error;}
+    validateSession(remote,false);
+    if(remote.userId!==saved.userId || localStorage.getItem(ACTIVE_KEY)!==saved.userId){forget();throw Error('アカウントが一致しません。Googleで再ログインしてください。');}
+    remember({...remote,token:saved.token});message('ログインを継続しています。「同期する」で学習記録を保存できます。');await loadProfile();
+  }
+  $('resume').onclick=()=>run(restoreSession);
+  window.addEventListener('storage',event=>{if(event.key===ACTIVE_KEY && userId && event.newValue!==userId){epoch++;forget();render();message('別のタブで学習先が変わりました。Googleで再ログインしてください。');}});
+  render();
+  if(!cfg.googleClientId||!/^https:\/\//.test(cfg.apiBase)){message('検証用の設定待ちです。GoogleクライアントIDとWorker URLを設定してください。ゲスト学習は利用できます。');return;}
+  const sdk=document.createElement('script');sdk.src='https://accounts.google.com/gsi/client';sdk.async=true;
+  sdk.onload=()=>{google.accounts.id.initialize({client_id:cfg.googleClientId,callback:r=>window.goimonGoogleLogin(r.credential),auto_select:false});google.accounts.id.renderButton($('google-button'),{theme:'outline',size:'large',locale:'ja'});};
+  sdk.onerror=()=>{if(!userId&&!busy)message('Googleログインを読み込めません。通信を確認してください。端末の学習は続けられます。');};document.head.appendChild(sdk);
+  if(savedSession())run(restoreSession);else message('Googleでログインしてください。');
+})();

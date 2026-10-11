@@ -12,7 +12,7 @@
   const LOG_BASE_KEY = "zensho_learning_log_v1";
 
   function getLevel() {
-    return String(localStorage.getItem(LEVEL_KEY) || "1");
+    return String(GOIMONStorage.getItem(LEVEL_KEY) || "1");
   }
 
   function keyFor(base, level) {
@@ -49,7 +49,7 @@
   }
 
   function safeParse(key) {
-    const raw = localStorage.getItem(key);
+    const raw = GOIMONStorage.getItem(key);
     if (!raw) return null;
 
     try {
@@ -60,7 +60,7 @@
   }
 
   function safeSave(key, obj) {
-    localStorage.setItem(key, JSON.stringify(obj));
+    GOIMONStorage.setItem(key, JSON.stringify(obj));
   }
 
   function normalizeLogRoot(value) {
@@ -438,7 +438,7 @@
   // --------------------------------
 
   function clearAll(level) {
-    localStorage.removeItem(
+    GOIMONStorage.removeItem(
       logKey(level)
     );
   }

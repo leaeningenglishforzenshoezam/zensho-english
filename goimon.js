@@ -80,7 +80,7 @@ window.GoimonUI = (function () {
   let evolutionTimer2 = null;
 
   function getLevel() {
-    return String(window.ACTIVE_LEVEL || localStorage.getItem(LEVEL_KEY) || "1");
+    return String(window.ACTIVE_LEVEL || GOIMONStorage.getItem(LEVEL_KEY) || "1");
   }
 
   function keyOf(base) {
@@ -97,12 +97,12 @@ window.GoimonUI = (function () {
   }
 
   function loadJson(key, fallback) {
-    const obj = safeParse(localStorage.getItem(key));
+    const obj = safeParse(GOIMONStorage.getItem(key));
     return obj == null ? fallback : obj;
   }
 
   function saveJson(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+    GOIMONStorage.setItem(key, JSON.stringify(value));
   }
 
   function deepClone(obj) {
@@ -221,15 +221,15 @@ imageKey: STAGE_IMAGES.egg,
   }
 
   function tryMigrateOne(currentKey, legacyCandidates) {
-    const existing = localStorage.getItem(currentKey);
+    const existing = GOIMONStorage.getItem(currentKey);
     if (existing) return true;
 
     for (const legacyKey of legacyCandidates) {
       if (!legacyKey || legacyKey === currentKey) continue;
-      const raw = localStorage.getItem(legacyKey);
+      const raw = GOIMONStorage.getItem(legacyKey);
       const obj = safeParse(raw);
       if (obj != null) {
-        localStorage.setItem(currentKey, raw);
+        GOIMONStorage.setItem(currentKey, raw);
         return true;
       }
     }

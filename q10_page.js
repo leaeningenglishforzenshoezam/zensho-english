@@ -3102,7 +3102,7 @@ function toggleWeakExamples() {
 
 function saveWeakExpressions() {
   try {
-    localStorage.setItem(
+    GOIMONStorage.setItem(
       WEAK_STORAGE_KEY,
       JSON.stringify(
         weakExpressions
@@ -3119,7 +3119,7 @@ function saveWeakExpressions() {
 function loadWeakExpressions() {
   try {
     const savedText =
-      localStorage.getItem(
+      GOIMONStorage.getItem(
         WEAK_STORAGE_KEY
       );
 
@@ -3969,7 +3969,7 @@ function saveState() {
   };
 
   try {
-    localStorage.setItem(
+    GOIMONStorage.setItem(
       STORAGE_KEY,
       JSON.stringify(state)
     );
@@ -4112,7 +4112,7 @@ function recordQuestionAttempt(
 
 function saveQuestionHistory() {
   try {
-    localStorage.setItem(
+    GOIMONStorage.setItem(
       HISTORY_STORAGE_KEY,
       JSON.stringify(
         questionHistory
@@ -4130,7 +4130,7 @@ function saveQuestionHistory() {
 function loadQuestionHistory() {
   try {
     const savedText =
-      localStorage.getItem(
+      GOIMONStorage.getItem(
         HISTORY_STORAGE_KEY
       );
 
@@ -4327,7 +4327,7 @@ function renderQuestionHistory() {
 function loadSavedState() {
   try {
     const savedText =
-      localStorage.getItem(
+      GOIMONStorage.getItem(
         STORAGE_KEY
       );
 
