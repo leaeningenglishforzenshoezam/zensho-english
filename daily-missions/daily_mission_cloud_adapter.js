@@ -50,6 +50,21 @@
   if(remoteData?.[key]===merged.value)return {ready:true,unchanged:true,expectedRevision:remoteResponse.revision};
   return {ready:true,unchanged:false,expectedRevision:remoteResponse.revision,snapshot};
  }
+ // Dry-run restoration from an already authenticated cloud snapshot.
+ // Never writes storage; overlapping local keys must be reviewed explicitly.
+ function previewRestore(level,cloudRaw,options={}){
+  const day=options.day||todayJst(),target=options.source||root.GOIMONStorage||root.localStorage;
+  const remote=daily.decodeFromCloud(cloudRaw,String(level),day);
+  const local=snapshotFrom(target,String(level),day);
+  const additions=[],same=[],conflicts=[];
+  for(const [key,value] of Object.entries(remote.data)){
+   const current=local.data[key];
+   if(current===undefined)additions.push(key);
+   else if(current===value)same.push(key);
+   else conflicts.push(key);
+  }
+  return {ready:conflicts.length===0,additions,same,conflicts,remote,local};
+ }
  // Staging is NOT automatic. Do not call from the live UI before conflict/recovery testing.
  function stageToProfile(level,options={}){
   if(options.confirmed!==true)throw Error('explicit_confirmation_required');
@@ -62,5 +77,5 @@
   target.setItem(key,daily.encodeForCloud(next.state));
   return {staged:true,key,count:next.keys.length,bytes:next.bytes};
  }
- root.GoimonDailyCloudAdapter=Object.freeze({todayJst,snapshotFrom,inspect,prepareMerge,prepareCloudUpdate,stageToProfile});
+ root.GoimonDailyCloudAdapter=Object.freeze({todayJst,snapshotFrom,inspect,prepareMerge,prepareCloudUpdate,previewRestore,stageToProfile});
 })(typeof window!=='undefined'?window:globalThis);
