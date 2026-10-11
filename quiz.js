@@ -1087,7 +1087,8 @@ clearBlocksBtn?.addEventListener("click", () => {
       if (session.retryOrder.length === 0) return null;
       idx = session.retryOrder.shift();
     } else {
-      idx = pickCorrectIndex(s, e);
+      if(dailyMissionRequest() && Array.isArray(session.dailyMissionOrder)){if(!session.dailyMissionOrder.length)return null;idx=session.dailyMissionOrder.shift();}
+      else idx = pickCorrectIndex(s, e);
 
       if (weakMode && quizMode !== "order") {
         const weakIdxs = [];
@@ -1650,6 +1651,7 @@ if (!selectedBlockIds.length) {
     session.correct = 0;
     session.active = true;
     session.retryOrder = null;
+    session.dailyMissionOrder=dailyMissionRequest()?shuffle(Array.from({length:20},(_,i)=>session.start+i)):null;
 
     askedSet.clear();
     askedLog = [];
