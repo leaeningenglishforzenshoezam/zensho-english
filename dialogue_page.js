@@ -1,4 +1,4 @@
-const GOIMON_DAILY_RESULT_ORIGIN = localStorage.getItem("goimon_cloud_v2:active") || "guest";
+const GOIMON_DAILY_RESULT_ORIGIN = GOIMONStorage.getItem("goimon_cloud_v2:active") || "guest";
 "use strict";
 
 /* =========================================================
@@ -1217,7 +1217,7 @@ function recordQuestionAttempt(
 
 function saveQuestionHistory() {
   try {
-    localStorage.setItem(
+    GOIMONStorage.setItem(
       HISTORY_STORAGE_KEY,
       JSON.stringify(
         questionHistory
@@ -1235,7 +1235,7 @@ function saveQuestionHistory() {
 function loadQuestionHistory() {
   try {
     const savedText =
-      localStorage.getItem(
+      GOIMONStorage.getItem(
         HISTORY_STORAGE_KEY
       );
 
@@ -2173,7 +2173,7 @@ questionTimes
   };
 
   try {
-    localStorage.setItem(
+    GOIMONStorage.setItem(
       STORAGE_KEY,
       JSON.stringify(state)
     );
@@ -2189,7 +2189,7 @@ questionTimes
 function loadSavedState() {
   try {
     const savedText =
-      localStorage.getItem(STORAGE_KEY);
+      GOIMONStorage.getItem(STORAGE_KEY);
 
     if (!savedText) {
       setDefaultSettings();
@@ -2292,7 +2292,7 @@ function loadSavedState() {
 
 function clearSavedState() {
   try {
-    localStorage.removeItem(
+    GOIMONStorage.removeItem(
       STORAGE_KEY
     );
   } catch (error) {
