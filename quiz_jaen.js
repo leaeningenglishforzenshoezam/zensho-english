@@ -1,4 +1,4 @@
-const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
+const GOIMON_DAILY_RESULT_ACCOUNT = GOIMONStorage.getItem("goimon_cloud_v2:active") || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
 // Daily mission result origin: capture account when this quiz script starts.
 // quiz_jaen.js（日→英）ゴイモン版
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const LEVEL_KEY = "zensho_level_v1";
   function getLevel() {
-    return localStorage.getItem(LEVEL_KEY) || "1";
+    return GOIMONStorage.getItem(LEVEL_KEY) || "1";
   }
   const LV = getLevel();
 
@@ -112,7 +112,7 @@ const startBtn = document.getElementById("startTest");
 }
 
   function safeParse(key) {
-    const raw = localStorage.getItem(key);
+    const raw = GOIMONStorage.getItem(key);
     if (!raw) return null;
     try {
       return JSON.parse(raw);
@@ -122,7 +122,7 @@ const startBtn = document.getElementById("startTest");
   }
 
   function saveJson(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+    GOIMONStorage.setItem(key, JSON.stringify(value));
   }
 
   function escapeHtml(value) {
@@ -303,7 +303,7 @@ const startBtn = document.getElementById("startTest");
 
   let weakPoints = {};
   function loadWeakPoints() {
-    const raw = localStorage.getItem(WEAK_KEY);
+    const raw = GOIMONStorage.getItem(WEAK_KEY);
     if (!raw) return;
     try {
       const obj = JSON.parse(raw);
@@ -312,7 +312,7 @@ const startBtn = document.getElementById("startTest");
   }
 
   function saveWeakPoints() {
-    localStorage.setItem(WEAK_KEY, JSON.stringify(weakPoints));
+    GOIMONStorage.setItem(WEAK_KEY, JSON.stringify(weakPoints));
   }
 
   function getPoint(en) {
@@ -330,7 +330,7 @@ const startBtn = document.getElementById("startTest");
   }
 
   function loadOrderCursor(start, end) {
-    const raw = localStorage.getItem(ORDER_CURSOR_KEY);
+    const raw = GOIMONStorage.getItem(ORDER_CURSOR_KEY);
     if (!raw) return start;
     try {
       const o = JSON.parse(raw);
@@ -342,13 +342,13 @@ const startBtn = document.getElementById("startTest");
   }
 
   function saveOrderCursor(start, end, cursor) {
-    localStorage.setItem(ORDER_CURSOR_KEY, JSON.stringify({ start, end, cursor }));
+    GOIMONStorage.setItem(ORDER_CURSOR_KEY, JSON.stringify({ start, end, cursor }));
   }
 
   let autoSpeakQ = true;
   let quizMode = "order";
   function loadSettings() {
-    const raw = localStorage.getItem(SETTINGS_KEY);
+    const raw = GOIMONStorage.getItem(SETTINGS_KEY);
     if (!raw) return;
     try {
       const s = JSON.parse(raw);
@@ -360,18 +360,18 @@ const startBtn = document.getElementById("startTest");
   }
 
   function saveSettings() {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify({ autoSpeakQ, quizMode }));
+    GOIMONStorage.setItem(SETTINGS_KEY, JSON.stringify({ autoSpeakQ, quizMode }));
   }
 
   let statsMap = {};
   function loadBlockStats() {
-    const raw = localStorage.getItem(BLOCK_STATS_KEY);
+    const raw = GOIMONStorage.getItem(BLOCK_STATS_KEY);
     if (!raw) return;
     try { statsMap = JSON.parse(raw) || {}; } catch {}
   }
 
   function saveBlockStats() {
-    localStorage.setItem(BLOCK_STATS_KEY, JSON.stringify(statsMap));
+    GOIMONStorage.setItem(BLOCK_STATS_KEY, JSON.stringify(statsMap));
   }
 
   function addBlockResult(blockId, isCorrect) {
@@ -383,7 +383,7 @@ const startBtn = document.getElementById("startTest");
 
     const lv = window.ACTIVE_LEVEL || "1";
     const GLOBAL_BLOCK_KEY = `zensho_block_global_lv${lv}_v1`;
-    const g = JSON.parse(localStorage.getItem(GLOBAL_BLOCK_KEY) || '{"byBlock":{}}');
+    const g = JSON.parse(GOIMONStorage.getItem(GLOBAL_BLOCK_KEY) || '{"byBlock":{}}');
     const k2 = String(blockId);
     if (!g.byBlock[k2]) {
       g.byBlock[k2] = {
@@ -405,7 +405,7 @@ const startBtn = document.getElementById("startTest");
 
     g.byBlock[k2].quizAttemptedJaEn += 1;
     if (isCorrect) g.byBlock[k2].quizCorrectJaEn += 1;
-    localStorage.setItem(GLOBAL_BLOCK_KEY, JSON.stringify(g));
+    GOIMONStorage.setItem(GLOBAL_BLOCK_KEY, JSON.stringify(g));
   }
 
   function getBlockAccText(blockId) {
