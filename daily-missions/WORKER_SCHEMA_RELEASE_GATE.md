@@ -30,3 +30,7 @@ See `WORK_AUDIT_2026-10-11.md` for the updated local test evidence. Remote servi
 ## Item registration boundary (2026-10-11)
 
 `goimon_item_state_v1_lv1` and `goimon_item_state_v1_lv2` are deliberately **device-only, not cloud-allowlisted**. The management/dex UI registers existing owned copies without granting or consuming items; test fixtures never enter production. Before any cloud integration, establish a server-authoritative inventory/receipt contract, validate ownership/copy allocation, define revision-aware reconciliation and guest adoption, and test recovery with isolated accounts. Do not treat client-side shape validation or catalog visibility as ownership proof. Do not enable autosave by adding these keys alone. See `ITEM_MANAGEMENT_2026-10-11.md`.
+
+## Server reward drafts (2026-10-12)
+
+The feature branch has isolated server-issued/scored attempts for level-1 word EN→JA and idiom meaning/synonym modes. Reward receipts and economy CAS are exercised against persist:false local D1. Idiom grading atomically advances independent mode cursors only after all 15 answers; both modes share a single daily reward slot. The request adapter uses existing application sessions but is NOT wired into the normal Worker. Draft SQL stays outside migrations/. Other formats, the basic bonus, production verification, storage bounds and protected progress adoption remain release gates. No live rewards or client completion imports are enabled. See `MISSION_REWARDS_2026-10-12.md` and `IDIOM_REWARDS_2026-10-12.md`.

@@ -1,0 +1,3298 @@
+[
+  {
+    "id": "IM001",
+    "expression": "look forward to",
+    "ja": "～を楽しみに待つ",
+    "paraphraseTo": [
+      "be keen to",
+      "be eager to"
+    ],
+    "noteIds": [
+      "N001"
+    ]
+  },
+  {
+    "id": "IM002",
+    "expression": "be keen to",
+    "ja": "ぜひ～したい",
+    "paraphraseTo": [
+      "look forward to",
+      "be eager to"
+    ],
+    "noteIds": [
+      "N001"
+    ]
+  },
+  {
+    "id": "IM003",
+    "expression": "be eager to",
+    "ja": "ぜひ～したい",
+    "paraphraseTo": [
+      "look forward to",
+      "be keen to"
+    ],
+    "noteIds": [
+      "N001"
+    ]
+  },
+  {
+    "id": "IM004",
+    "expression": "be reluctant to",
+    "ja": "～するのに気が進まない",
+    "paraphraseTo": [
+      "be unwilling to",
+      "hesitate to"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM005",
+    "expression": "be in charge of",
+    "ja": "～を担当している",
+    "paraphraseTo": [
+      "be responsible for",
+      "take charge of"
+    ],
+    "noteIds": [
+      "N002",
+      "N107",
+      "N123"
+    ]
+  },
+  {
+    "id": "IM006",
+    "expression": "be responsible for",
+    "ja": "～に責任がある",
+    "paraphraseTo": [
+      "be in charge of",
+      "have responsibility for"
+    ],
+    "noteIds": [
+      "N002",
+      "N073",
+      "N107",
+      "N123"
+    ]
+  },
+  {
+    "id": "IM007",
+    "expression": "take charge of",
+    "ja": "～を引き受けて管理する",
+    "paraphraseTo": [
+      "be in charge of"
+    ],
+    "noteIds": [
+      "N002",
+      "N107",
+      "N123"
+    ]
+  },
+  {
+    "id": "IM008",
+    "expression": "have responsibility for",
+    "ja": "～に責任がある",
+    "paraphraseTo": [
+      "be responsible for"
+    ],
+    "noteIds": [
+      "N002",
+      "N073",
+      "N107",
+      "N123"
+    ]
+  },
+  {
+    "id": "IM009",
+    "expression": "turn down",
+    "ja": "～を断る",
+    "paraphraseTo": [
+      "refuse",
+      "reject"
+    ],
+    "noteIds": [
+      "N003"
+    ]
+  },
+  {
+    "id": "IM010",
+    "expression": "refuse",
+    "ja": "断る、拒否する",
+    "paraphraseTo": [
+      "turn down",
+      "reject"
+    ],
+    "noteIds": [
+      "N003",
+      "N065"
+    ]
+  },
+  {
+    "id": "IM011",
+    "expression": "reject",
+    "ja": "却下する、拒絶する",
+    "paraphraseTo": [
+      "turn down",
+      "refuse"
+    ],
+    "noteIds": [
+      "N003",
+      "N065"
+    ]
+  },
+  {
+    "id": "IM012",
+    "expression": "as soon as possible",
+    "ja": "できるだけ早く",
+    "paraphraseTo": [
+      "as quickly as possible",
+      "at once",
+      "right away"
+    ],
+    "noteIds": [
+      "N005",
+      "N014"
+    ]
+  },
+  {
+    "id": "IM013",
+    "expression": "at once",
+    "ja": "すぐに",
+    "paraphraseTo": [
+      "immediately",
+      "right away",
+      "as soon as possible"
+    ],
+    "noteIds": [
+      "N005",
+      "N014"
+    ]
+  },
+  {
+    "id": "IM014",
+    "expression": "right away",
+    "ja": "すぐに",
+    "paraphraseTo": [
+      "at once",
+      "immediately"
+    ],
+    "noteIds": [
+      "N005",
+      "N014"
+    ]
+  },
+  {
+    "id": "IM015",
+    "expression": "because of",
+    "ja": "～のために、～が原因で",
+    "paraphraseTo": [
+      "due to",
+      "owing to",
+      "on account of"
+    ],
+    "noteIds": [
+      "N022",
+      "N034",
+      "N037",
+      "N068",
+      "N118",
+      "N152"
+    ]
+  },
+  {
+    "id": "IM016",
+    "expression": "due to",
+    "ja": "～のために、～が原因で",
+    "paraphraseTo": [
+      "because of",
+      "owing to"
+    ],
+    "noteIds": [
+      "N022",
+      "N034",
+      "N037",
+      "N068",
+      "N118",
+      "N152"
+    ]
+  },
+  {
+    "id": "IM017",
+    "expression": "owing to",
+    "ja": "～のために",
+    "paraphraseTo": [
+      "because of",
+      "due to"
+    ],
+    "noteIds": [
+      "N022",
+      "N034",
+      "N037",
+      "N068",
+      "N118",
+      "N152"
+    ]
+  },
+  {
+    "id": "IM018",
+    "expression": "on account of",
+    "ja": "～のために",
+    "paraphraseTo": [
+      "because of",
+      "due to"
+    ],
+    "noteIds": [
+      "N022",
+      "N034",
+      "N037",
+      "N068",
+      "N118",
+      "N152"
+    ]
+  },
+  {
+    "id": "IM019",
+    "expression": "succeed in",
+    "ja": "～することに成功する",
+    "paraphraseTo": [
+      "manage to",
+      "be able to"
+    ],
+    "noteIds": [
+      "N011"
+    ]
+  },
+  {
+    "id": "IM020",
+    "expression": "manage to",
+    "ja": "なんとか～する",
+    "paraphraseTo": [
+      "succeed in",
+      "be able to"
+    ],
+    "noteIds": [
+      "N011"
+    ]
+  },
+  {
+    "id": "IM021",
+    "expression": "have no idea",
+    "ja": "全く分からない",
+    "paraphraseTo": [
+      "have no clue",
+      "don't know at all"
+    ],
+    "noteIds": [
+      "N013"
+    ]
+  },
+  {
+    "id": "IM022",
+    "expression": "have no clue",
+    "ja": "見当もつかない",
+    "paraphraseTo": [
+      "have no idea"
+    ],
+    "noteIds": [
+      "N013"
+    ]
+  },
+  {
+    "id": "IM023",
+    "expression": "on purpose",
+    "ja": "わざと",
+    "paraphraseTo": [
+      "intentionally",
+      "deliberately"
+    ],
+    "noteIds": [
+      "N047"
+    ]
+  },
+  {
+    "id": "IM024",
+    "expression": "by chance",
+    "ja": "偶然に",
+    "paraphraseTo": [
+      "accidentally",
+      "happen to"
+    ],
+    "noteIds": [
+      "N017",
+      "N076",
+      "N103"
+    ]
+  },
+  {
+    "id": "IM025",
+    "expression": "happen to",
+    "ja": "たまたま～する",
+    "paraphraseTo": [
+      "by chance",
+      "come across"
+    ],
+    "noteIds": [
+      "N017",
+      "N076",
+      "N103"
+    ]
+  },
+  {
+    "id": "IM026",
+    "expression": "come across",
+    "ja": "偶然出会う、偶然見つける",
+    "paraphraseTo": [
+      "happen to meet",
+      "meet by chance"
+    ],
+    "noteIds": [
+      "N017",
+      "N076",
+      "N103"
+    ]
+  },
+  {
+    "id": "IM027",
+    "expression": "be allowed to",
+    "ja": "～することを許されている",
+    "paraphraseTo": [
+      "be permitted to",
+      "can"
+    ],
+    "noteIds": [
+      "N019"
+    ]
+  },
+  {
+    "id": "IM028",
+    "expression": "be permitted to",
+    "ja": "～することを許されている",
+    "paraphraseTo": [
+      "be allowed to"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM029",
+    "expression": "be forbidden to",
+    "ja": "～することを禁じられている",
+    "paraphraseTo": [
+      "must not"
+    ],
+    "noteIds": [
+      "N019"
+    ]
+  },
+  {
+    "id": "IM030",
+    "expression": "prefer A to B",
+    "ja": "BよりAを好む",
+    "paraphraseTo": [
+      "like A better than B"
+    ],
+    "noteIds": [
+      "N021"
+    ]
+  },
+  {
+    "id": "IM031",
+    "expression": "like A better than B",
+    "ja": "BよりAの方が好きだ",
+    "paraphraseTo": [
+      "prefer A to B"
+    ],
+    "noteIds": [
+      "N021"
+    ]
+  },
+  {
+    "id": "IM032",
+    "expression": "lead to",
+    "ja": "～につながる、～を引き起こす",
+    "paraphraseTo": [
+      "cause",
+      "bring about",
+      "result in"
+    ],
+    "noteIds": [
+      "N006",
+      "N022"
+    ]
+  },
+  {
+    "id": "IM033",
+    "expression": "bring about",
+    "ja": "～を引き起こす",
+    "paraphraseTo": [
+      "lead to",
+      "cause",
+      "result in"
+    ],
+    "noteIds": [
+      "N006",
+      "N022"
+    ]
+  },
+  {
+    "id": "IM034",
+    "expression": "result in",
+    "ja": "結果として～になる、～をもたらす",
+    "paraphraseTo": [
+      "lead to",
+      "cause"
+    ],
+    "noteIds": [
+      "N006",
+      "N022"
+    ]
+  },
+  {
+    "id": "IM035",
+    "expression": "apologize to A for B",
+    "ja": "BのことでAに謝る",
+    "paraphraseTo": [
+      "say sorry to A for B"
+    ],
+    "noteIds": [
+      "N023"
+    ]
+  },
+  {
+    "id": "IM036",
+    "expression": "had better (not) do",
+    "ja": "～した方がよい、～しない方がよい",
+    "paraphraseTo": [
+      "should (not) do"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM037",
+    "expression": "take care of",
+    "ja": "～の世話をする",
+    "paraphraseTo": [
+      "look after",
+      "care for"
+    ],
+    "noteIds": [
+      "N025"
+    ]
+  },
+  {
+    "id": "IM038",
+    "expression": "look after",
+    "ja": "～の世話をする",
+    "paraphraseTo": [
+      "take care of",
+      "care for"
+    ],
+    "noteIds": [
+      "N025"
+    ]
+  },
+  {
+    "id": "IM039",
+    "expression": "care for",
+    "ja": "～の世話をする",
+    "paraphraseTo": [
+      "take care of",
+      "look after"
+    ],
+    "noteIds": [
+      "N025"
+    ]
+  },
+  {
+    "id": "IM040",
+    "expression": "reach an agreement",
+    "ja": "合意に達する",
+    "paraphraseTo": [
+      "come to an agreement",
+      "agree"
+    ],
+    "noteIds": [
+      "N026"
+    ]
+  },
+  {
+    "id": "IM041",
+    "expression": "come to an agreement",
+    "ja": "合意に達する",
+    "paraphraseTo": [
+      "reach an agreement",
+      "agree"
+    ],
+    "noteIds": [
+      "N026"
+    ]
+  },
+  {
+    "id": "IM042",
+    "expression": "encourage A to",
+    "ja": "Aに～するよう励ます",
+    "paraphraseTo": [
+      "advise A to",
+      "urge A to"
+    ],
+    "noteIds": [
+      "N028"
+    ]
+  },
+  {
+    "id": "IM043",
+    "expression": "urge A to",
+    "ja": "Aに強く～するよう促す",
+    "paraphraseTo": [
+      "encourage A to",
+      "advise A to"
+    ],
+    "noteIds": [
+      "N028"
+    ]
+  },
+  {
+    "id": "IM044",
+    "expression": "advise A to",
+    "ja": "Aに～するよう助言する",
+    "paraphraseTo": [
+      "encourage A to",
+      "urge A to"
+    ],
+    "noteIds": [
+      "N028"
+    ]
+  },
+  {
+    "id": "IM045",
+    "expression": "come to mind",
+    "ja": "心に浮かぶ",
+    "paraphraseTo": [
+      "occur to",
+      "remember"
+    ],
+    "noteIds": [
+      "N029"
+    ]
+  },
+  {
+    "id": "IM046",
+    "expression": "occur to",
+    "ja": "ふと思いつく",
+    "paraphraseTo": [
+      "come to mind"
+    ],
+    "noteIds": [
+      "N029"
+    ]
+  },
+  {
+    "id": "IM047",
+    "expression": "unless",
+    "ja": "もし～でなければ",
+    "paraphraseTo": [
+      "if ... not"
+    ],
+    "noteIds": [
+      "N031",
+      "N110"
+    ]
+  },
+  {
+    "id": "IM048",
+    "expression": "make an effort to",
+    "ja": "～しようと努力する",
+    "paraphraseTo": [
+      "make efforts to",
+      "try hard to",
+      "work hard to"
+    ],
+    "noteIds": [
+      "N035",
+      "N039",
+      "N077"
+    ]
+  },
+  {
+    "id": "IM049",
+    "expression": "hardly any A",
+    "ja": "ほとんどAがない",
+    "paraphraseTo": [
+      "almost no A",
+      "very few / little A"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM050",
+    "expression": "hardly A when B",
+    "ja": "AするとすぐにB",
+    "paraphraseTo": [
+      "no sooner A than B",
+      "as soon as A, B"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM051",
+    "expression": "work hard to",
+    "ja": "懸命に～する",
+    "paraphraseTo": [
+      "try hard to",
+      "make efforts to"
+    ],
+    "noteIds": [
+      "N035",
+      "N039",
+      "N077"
+    ]
+  },
+  {
+    "id": "IM052",
+    "expression": "prevent A from doing",
+    "ja": "Aが～するのを防ぐ",
+    "paraphraseTo": [
+      "stop A from doing",
+      "keep A from doing"
+    ],
+    "noteIds": [
+      "N035"
+    ]
+  },
+  {
+    "id": "IM053",
+    "expression": "stop A from doing",
+    "ja": "Aが～するのを止める",
+    "paraphraseTo": [
+      "prevent A from doing",
+      "keep A from doing"
+    ],
+    "noteIds": [
+      "N035"
+    ]
+  },
+  {
+    "id": "IM054",
+    "expression": "keep A from doing",
+    "ja": "Aが～するのを妨げる",
+    "paraphraseTo": [
+      "prevent A from doing",
+      "stop A from doing"
+    ],
+    "noteIds": [
+      "N035"
+    ]
+  },
+  {
+    "id": "IM055",
+    "expression": "a lack of",
+    "ja": "～の不足",
+    "paraphraseTo": [
+      "shortage of",
+      "not enough"
+    ],
+    "noteIds": [
+      "N037"
+    ]
+  },
+  {
+    "id": "IM056",
+    "expression": "shortage of",
+    "ja": "～の不足",
+    "paraphraseTo": [
+      "a lack of",
+      "not enough"
+    ],
+    "noteIds": [
+      "N037"
+    ]
+  },
+  {
+    "id": "IM057",
+    "expression": "be far from",
+    "ja": "決して～ではない、～にはほど遠い",
+    "paraphraseTo": [
+      "not at all",
+      "nowhere near"
+    ],
+    "noteIds": [
+      "N041"
+    ]
+  },
+  {
+    "id": "IM058",
+    "expression": "nowhere near",
+    "ja": "全然～ではない",
+    "paraphraseTo": [
+      "be far from",
+      "not at all"
+    ],
+    "noteIds": [
+      "N041"
+    ]
+  },
+  {
+    "id": "IM059",
+    "expression": "from time to time",
+    "ja": "時々",
+    "paraphraseTo": [
+      "sometimes",
+      "once in a while",
+      "occasionally"
+    ],
+    "noteIds": [
+      "N051"
+    ]
+  },
+  {
+    "id": "IM060",
+    "expression": "once in a while",
+    "ja": "時々",
+    "paraphraseTo": [
+      "from time to time",
+      "sometimes"
+    ],
+    "noteIds": [
+      "N051"
+    ]
+  },
+  {
+    "id": "IM061",
+    "expression": "be against",
+    "ja": "～に反対している",
+    "paraphraseTo": [
+      "disagree with",
+      "oppose"
+    ],
+    "noteIds": [
+      "N053",
+      "N083"
+    ]
+  },
+  {
+    "id": "IM062",
+    "expression": "disagree with",
+    "ja": "～に反対する、意見が合わない",
+    "paraphraseTo": [
+      "be against",
+      "oppose"
+    ],
+    "noteIds": [
+      "N053",
+      "N083"
+    ]
+  },
+  {
+    "id": "IM063",
+    "expression": "at first sight",
+    "ja": "一目見て",
+    "paraphraseTo": [
+      "as soon as one sees"
+    ],
+    "noteIds": [
+      "N057"
+    ]
+  },
+  {
+    "id": "IM064",
+    "expression": "to be honest",
+    "ja": "正直に言うと",
+    "paraphraseTo": [
+      "frankly speaking",
+      "to tell the truth"
+    ],
+    "noteIds": [
+      "N058"
+    ]
+  },
+  {
+    "id": "IM065",
+    "expression": "frankly speaking",
+    "ja": "率直に言うと",
+    "paraphraseTo": [
+      "to be honest",
+      "to tell the truth"
+    ],
+    "noteIds": [
+      "N058"
+    ]
+  },
+  {
+    "id": "IM066",
+    "expression": "to tell the truth",
+    "ja": "実を言うと",
+    "paraphraseTo": [
+      "to be honest",
+      "frankly speaking"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM067",
+    "expression": "look into",
+    "ja": "～を調べる",
+    "paraphraseTo": [
+      "investigate",
+      "examine"
+    ],
+    "noteIds": [
+      "N059"
+    ]
+  },
+  {
+    "id": "IM068",
+    "expression": "there is no denying that",
+    "ja": "～は否定できない",
+    "paraphraseTo": [
+      "it is impossible to deny that"
+    ],
+    "noteIds": [
+      "N128"
+    ]
+  },
+  {
+    "id": "IM069",
+    "expression": "there is no ~ing",
+    "ja": "～することはできない、～しても無理だ",
+    "paraphraseTo": [
+      "it is impossible to"
+    ],
+    "noteIds": [
+      "N060"
+    ]
+  },
+  {
+    "id": "IM070",
+    "expression": "get rid of",
+    "ja": "～を取り除く",
+    "paraphraseTo": [
+      "remove",
+      "eliminate"
+    ],
+    "noteIds": [
+      "N061"
+    ]
+  },
+  {
+    "id": "IM071",
+    "expression": "make progress in",
+    "ja": "～で進歩する",
+    "paraphraseTo": [
+      "improve",
+      "make improvement in"
+    ],
+    "noteIds": [
+      "N062"
+    ]
+  },
+  {
+    "id": "IM072",
+    "expression": "depend on",
+    "ja": "～に頼る",
+    "paraphraseTo": [
+      "rely on",
+      "count on"
+    ],
+    "noteIds": [
+      "N067",
+      "N134"
+    ]
+  },
+  {
+    "id": "IM073",
+    "expression": "rely on",
+    "ja": "～に頼る",
+    "paraphraseTo": [
+      "depend on",
+      "count on"
+    ],
+    "noteIds": [
+      "N067",
+      "N134"
+    ]
+  },
+  {
+    "id": "IM074",
+    "expression": "count on",
+    "ja": "～を当てにする、頼りにする",
+    "paraphraseTo": [
+      "depend on",
+      "rely on"
+    ],
+    "noteIds": [
+      "N067",
+      "N134"
+    ]
+  },
+  {
+    "id": "IM075",
+    "expression": "be independent of",
+    "ja": "～に頼らない、～から独立している",
+    "paraphraseTo": [
+      "not depend on",
+      "not rely on"
+    ],
+    "noteIds": [
+      "N067"
+    ]
+  },
+  {
+    "id": "IM076",
+    "expression": "call off",
+    "ja": "～を中止する",
+    "paraphraseTo": [
+      "cancel"
+    ],
+    "noteIds": [
+      "N068"
+    ]
+  },
+  {
+    "id": "IM077",
+    "expression": "make believe",
+    "ja": "ふりをする",
+    "paraphraseTo": [
+      "pretend",
+      "pretend that"
+    ],
+    "noteIds": [
+      "N072"
+    ]
+  },
+  {
+    "id": "IM078",
+    "expression": "to the best of one's ability",
+    "ja": "できる限り、精一杯",
+    "paraphraseTo": [
+      "as well as one can",
+      "as ... as one can"
+    ],
+    "noteIds": [
+      "N081"
+    ]
+  },
+  {
+    "id": "IM079",
+    "expression": "figure out",
+    "ja": "理解する、解決する",
+    "paraphraseTo": [
+      "understand",
+      "find out",
+      "work out"
+    ],
+    "noteIds": [
+      "N082",
+      "N108"
+    ]
+  },
+  {
+    "id": "IM080",
+    "expression": "find out",
+    "ja": "調べて分かる",
+    "paraphraseTo": [
+      "figure out",
+      "learn"
+    ],
+    "noteIds": [
+      "N082",
+      "N108"
+    ]
+  },
+  {
+    "id": "IM081",
+    "expression": "work out",
+    "ja": "解決する、理解する",
+    "paraphraseTo": [
+      "figure out"
+    ],
+    "noteIds": [
+      "N082",
+      "N108"
+    ]
+  },
+  {
+    "id": "IM082",
+    "expression": "look up to",
+    "ja": "～を尊敬する",
+    "paraphraseTo": [
+      "respect",
+      "admire"
+    ],
+    "noteIds": [
+      "N086"
+    ]
+  },
+  {
+    "id": "IM083",
+    "expression": "look down on",
+    "ja": "～を見下す",
+    "paraphraseTo": [
+      "despise"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM084",
+    "expression": "make up one's mind",
+    "ja": "決心する",
+    "paraphraseTo": [
+      "decide",
+      "make a decision"
+    ],
+    "noteIds": [
+      "N087"
+    ]
+  },
+  {
+    "id": "IM085",
+    "expression": "make a decision",
+    "ja": "決定する",
+    "paraphraseTo": [
+      "decide",
+      "make up one's mind"
+    ],
+    "noteIds": [
+      "N087"
+    ]
+  },
+  {
+    "id": "IM086",
+    "expression": "as planned",
+    "ja": "予定通りに",
+    "paraphraseTo": [
+      "on schedule",
+      "as scheduled"
+    ],
+    "noteIds": [
+      "N088",
+      "N132"
+    ]
+  },
+  {
+    "id": "IM087",
+    "expression": "on schedule",
+    "ja": "予定通りに",
+    "paraphraseTo": [
+      "as planned",
+      "as scheduled"
+    ],
+    "noteIds": [
+      "N088",
+      "N132"
+    ]
+  },
+  {
+    "id": "IM088",
+    "expression": "be willing to",
+    "ja": "進んで～するつもりがある",
+    "paraphraseTo": [
+      "be happy to",
+      "be ready to"
+    ],
+    "noteIds": [
+      "N089"
+    ]
+  },
+  {
+    "id": "IM089",
+    "expression": "it's on me",
+    "ja": "私のおごりです",
+    "paraphraseTo": [
+      "I'll pay",
+      "I'll treat you"
+    ],
+    "noteIds": [
+      "N090"
+    ]
+  },
+  {
+    "id": "IM090",
+    "expression": "I'll treat you",
+    "ja": "私がおごります",
+    "paraphraseTo": [
+      "it's on me",
+      "I'll pay"
+    ],
+    "noteIds": [
+      "N090"
+    ]
+  },
+  {
+    "id": "IM091",
+    "expression": "talk A into doing",
+    "ja": "Aを説得して～させる",
+    "paraphraseTo": [
+      "persuade A to"
+    ],
+    "noteIds": [
+      "N091"
+    ]
+  },
+  {
+    "id": "IM092",
+    "expression": "talk A out of doing",
+    "ja": "Aを説得して～しないようにさせる",
+    "paraphraseTo": [
+      "discourage A from doing"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM093",
+    "expression": "it goes without saying that",
+    "ja": "～は言うまでもない",
+    "paraphraseTo": [
+      "needless to say"
+    ],
+    "noteIds": [
+      "N092"
+    ]
+  },
+  {
+    "id": "IM094",
+    "expression": "needless to say",
+    "ja": "言うまでもなく",
+    "paraphraseTo": [
+      "it goes without saying that"
+    ],
+    "noteIds": [
+      "N092"
+    ]
+  },
+  {
+    "id": "IM095",
+    "expression": "take off",
+    "ja": "～を脱ぐ、取り除く",
+    "paraphraseTo": [
+      "remove"
+    ],
+    "noteIds": [
+      "N093"
+    ]
+  },
+  {
+    "id": "IM096",
+    "expression": "if it were not for",
+    "ja": "もし～がなければ",
+    "paraphraseTo": [
+      "without",
+      "but for"
+    ],
+    "noteIds": [
+      "N094"
+    ]
+  },
+  {
+    "id": "IM097",
+    "expression": "if it had not been for",
+    "ja": "もし～がなかったなら",
+    "paraphraseTo": [
+      "without",
+      "but for"
+    ],
+    "noteIds": [
+      "N105",
+      "N124"
+    ]
+  },
+  {
+    "id": "IM098",
+    "expression": "but for",
+    "ja": "もし～がなければ",
+    "paraphraseTo": [
+      "without",
+      "if it were not for",
+      "if it had not been for"
+    ],
+    "noteIds": [
+      "N124"
+    ]
+  },
+  {
+    "id": "IM099",
+    "expression": "be available",
+    "ja": "利用可能である、空いている",
+    "paraphraseTo": [
+      "be free",
+      "be open"
+    ],
+    "noteIds": [
+      "N095"
+    ]
+  },
+  {
+    "id": "IM100",
+    "expression": "be fully booked",
+    "ja": "満席・満室である",
+    "paraphraseTo": [
+      "have no rooms available",
+      "be occupied"
+    ],
+    "noteIds": [
+      "N095"
+    ]
+  },
+  {
+    "id": "IM101",
+    "expression": "take place",
+    "ja": "行われる、起こる",
+    "paraphraseTo": [
+      "be held",
+      "occur",
+      "happen"
+    ],
+    "noteIds": [
+      "N096",
+      "N130"
+    ]
+  },
+  {
+    "id": "IM102",
+    "expression": "no more than",
+    "ja": "たった～、～しかない",
+    "paraphraseTo": [
+      "only"
+    ],
+    "noteIds": [
+      "N097"
+    ]
+  },
+  {
+    "id": "IM103",
+    "expression": "never fail to",
+    "ja": "必ず～する",
+    "paraphraseTo": [
+      "always"
+    ],
+    "noteIds": [
+      "N098"
+    ]
+  },
+  {
+    "id": "IM104",
+    "expression": "deal with",
+    "ja": "～に対処する",
+    "paraphraseTo": [
+      "handle",
+      "cope with"
+    ],
+    "noteIds": [
+      "N099"
+    ]
+  },
+  {
+    "id": "IM105",
+    "expression": "cope with",
+    "ja": "～に対処する",
+    "paraphraseTo": [
+      "deal with",
+      "handle"
+    ],
+    "noteIds": [
+      "N099"
+    ]
+  },
+  {
+    "id": "IM106",
+    "expression": "call for",
+    "ja": "～を必要とする",
+    "paraphraseTo": [
+      "require",
+      "need"
+    ],
+    "noteIds": [
+      "N033",
+      "N055",
+      "N100"
+    ]
+  },
+  {
+    "id": "IM107",
+    "expression": "make use of",
+    "ja": "～を利用する、活用する",
+    "paraphraseTo": [
+      "take advantage of",
+      "use"
+    ],
+    "noteIds": [
+      "N102"
+    ]
+  },
+  {
+    "id": "IM108",
+    "expression": "take advantage of",
+    "ja": "～を利用する",
+    "paraphraseTo": [
+      "make use of",
+      "use"
+    ],
+    "noteIds": [
+      "N102"
+    ]
+  },
+  {
+    "id": "IM109",
+    "expression": "make sense",
+    "ja": "意味をなす、筋が通る",
+    "paraphraseTo": [
+      "be understandable",
+      "be clear"
+    ],
+    "noteIds": [
+      "N045",
+      "N104"
+    ]
+  },
+  {
+    "id": "IM110",
+    "expression": "make no sense",
+    "ja": "意味をなさない",
+    "paraphraseTo": [
+      "be unclear"
+    ],
+    "noteIds": [
+      "N104"
+    ]
+  },
+  {
+    "id": "IM111",
+    "expression": "remind A of B",
+    "ja": "AにBを思い出させる",
+    "paraphraseTo": [
+      "make A remember B"
+    ],
+    "noteIds": [
+      "N106"
+    ]
+  },
+  {
+    "id": "IM112",
+    "expression": "suffer from",
+    "ja": "～に苦しむ",
+    "paraphraseTo": [
+      "have trouble with",
+      "be troubled by"
+    ],
+    "noteIds": [
+      "N109"
+    ]
+  },
+  {
+    "id": "IM113",
+    "expression": "put up with",
+    "ja": "～を我慢する",
+    "paraphraseTo": [
+      "stand",
+      "bear",
+      "endure"
+    ],
+    "noteIds": [
+      "N112"
+    ]
+  },
+  {
+    "id": "IM114",
+    "expression": "look like",
+    "ja": "～に似ている",
+    "paraphraseTo": [
+      "resemble",
+      "be similar to"
+    ],
+    "noteIds": [
+      "N113"
+    ]
+  },
+  {
+    "id": "IM115",
+    "expression": "have a habit of",
+    "ja": "～する癖がある",
+    "paraphraseTo": [
+      "be in the habit of",
+      "often"
+    ],
+    "noteIds": [
+      "N114",
+      "N133"
+    ]
+  },
+  {
+    "id": "IM116",
+    "expression": "be in the habit of",
+    "ja": "～する習慣がある",
+    "paraphraseTo": [
+      "have a habit of"
+    ],
+    "noteIds": [
+      "N114",
+      "N133"
+    ]
+  },
+  {
+    "id": "IM117",
+    "expression": "fill in",
+    "ja": "～に記入する",
+    "paraphraseTo": [
+      "fill out",
+      "complete"
+    ],
+    "noteIds": [
+      "N115"
+    ]
+  },
+  {
+    "id": "IM118",
+    "expression": "mean to do",
+    "ja": "～するつもりである",
+    "paraphraseTo": [
+      "intend to do"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM119",
+    "expression": "be delayed by",
+    "ja": "～によって遅れる",
+    "paraphraseTo": [
+      "be late because of"
+    ],
+    "noteIds": [
+      "N118"
+    ]
+  },
+  {
+    "id": "IM120",
+    "expression": "get over",
+    "ja": "～を乗り越える、～から立ち直る",
+    "paraphraseTo": [
+      "recover from",
+      "overcome"
+    ],
+    "noteIds": [
+      "N121"
+    ]
+  },
+  {
+    "id": "IM121",
+    "expression": "learn by heart",
+    "ja": "暗記する",
+    "paraphraseTo": [
+      "memorize"
+    ],
+    "noteIds": [
+      "N122"
+    ]
+  },
+  {
+    "id": "IM122",
+    "expression": "be unable to do",
+    "ja": "～することができない",
+    "paraphraseTo": [
+      "cannot do",
+      "be incapable of doing"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM123",
+    "expression": "miss the bus",
+    "ja": "バスに乗り遅れる",
+    "paraphraseTo": [
+      "not make it to the bus"
+    ],
+    "noteIds": [
+      "N125"
+    ]
+  },
+  {
+    "id": "IM124",
+    "expression": "bring up",
+    "ja": "～を育てる",
+    "paraphraseTo": [
+      "raise"
+    ],
+    "noteIds": [
+      "N126"
+    ]
+  },
+  {
+    "id": "IM125",
+    "expression": "stand for",
+    "ja": "～を表す、～の略である",
+    "paraphraseTo": [
+      "represent"
+    ],
+    "noteIds": [
+      "N127"
+    ]
+  },
+  {
+    "id": "IM126",
+    "expression": "it is no use doing",
+    "ja": "～しても無駄だ",
+    "paraphraseTo": [
+      "it is useless to",
+      "it is hopeless to"
+    ],
+    "noteIds": [
+      "N136"
+    ]
+  },
+  {
+    "id": "IM127",
+    "expression": "be concerned about",
+    "ja": "～を心配している",
+    "paraphraseTo": [
+      "be anxious about",
+      "be worried about"
+    ],
+    "noteIds": [
+      "N050",
+      "N137"
+    ]
+  },
+  {
+    "id": "IM128",
+    "expression": "be anxious about",
+    "ja": "～を不安に思っている",
+    "paraphraseTo": [
+      "be worried about",
+      "be concerned about"
+    ],
+    "noteIds": [
+      "N050",
+      "N137"
+    ]
+  },
+  {
+    "id": "IM129",
+    "expression": "know better than to",
+    "ja": "～するほど愚かではない",
+    "paraphraseTo": [
+      "be wise enough not to"
+    ],
+    "noteIds": [
+      "N138"
+    ]
+  },
+  {
+    "id": "IM130",
+    "expression": "drop A a line",
+    "ja": "Aにひとこと連絡する",
+    "paraphraseTo": [
+      "write to A"
+    ],
+    "noteIds": [
+      "N139"
+    ]
+  },
+  {
+    "id": "IM131",
+    "expression": "put off",
+    "ja": "～を延期する",
+    "paraphraseTo": [
+      "postpone",
+      "delay"
+    ],
+    "noteIds": [
+      "N140"
+    ]
+  },
+  {
+    "id": "IM132",
+    "expression": "much less",
+    "ja": "まして～ない",
+    "paraphraseTo": [
+      "still less",
+      "let alone"
+    ],
+    "noteIds": [
+      "N141"
+    ]
+  },
+  {
+    "id": "IM133",
+    "expression": "still less",
+    "ja": "まして～ない",
+    "paraphraseTo": [
+      "much less",
+      "let alone"
+    ],
+    "noteIds": [
+      "N141"
+    ]
+  },
+  {
+    "id": "IM134",
+    "expression": "let alone",
+    "ja": "まして～ない、～は言うまでもなく",
+    "paraphraseTo": [
+      "much less",
+      "still less",
+      "not to mention"
+    ],
+    "noteIds": [
+      "N141"
+    ]
+  },
+  {
+    "id": "IM135",
+    "expression": "be known for",
+    "ja": "～で知られている",
+    "paraphraseTo": [
+      "be famous for"
+    ],
+    "noteIds": [
+      "N016"
+    ]
+  },
+  {
+    "id": "IM136",
+    "expression": "be famous for",
+    "ja": "～で有名である",
+    "paraphraseTo": [
+      "be known for"
+    ],
+    "noteIds": [
+      "N016"
+    ]
+  },
+  {
+    "id": "IM137",
+    "expression": "be likely to",
+    "ja": "～しそうだ",
+    "paraphraseTo": [
+      "will probably",
+      "be expected to"
+    ],
+    "noteIds": [
+      "N048"
+    ]
+  },
+  {
+    "id": "IM138",
+    "expression": "be unlikely to",
+    "ja": "～しそうにない",
+    "paraphraseTo": [
+      "will probably not"
+    ],
+    "noteIds": [
+      "N048",
+      "N131"
+    ]
+  },
+  {
+    "id": "IM139",
+    "expression": "the last person to",
+    "ja": "最も～しそうにない人",
+    "paraphraseTo": [
+      "be least likely to"
+    ],
+    "noteIds": [
+      "N048"
+    ]
+  },
+  {
+    "id": "IM140",
+    "expression": "get used to doing",
+    "ja": "～することに慣れる",
+    "paraphraseTo": [
+      "become accustomed to doing"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM141",
+    "expression": "be absent from",
+    "ja": "～を欠席する",
+    "paraphraseTo": [
+      "miss"
+    ],
+    "noteIds": [
+      "N007"
+    ]
+  },
+  {
+    "id": "IM142",
+    "expression": "on the rise",
+    "ja": "増加して、上昇して",
+    "paraphraseTo": [
+      "increasing",
+      "going up"
+    ],
+    "noteIds": [
+      "N009"
+    ]
+  },
+  {
+    "id": "IM143",
+    "expression": "bring in",
+    "ja": "～を導入する",
+    "paraphraseTo": [
+      "introduce"
+    ],
+    "noteIds": [
+      "N018"
+    ]
+  },
+  {
+    "id": "IM144",
+    "expression": "account for",
+    "ja": "～を説明する",
+    "paraphraseTo": [
+      "explain"
+    ],
+    "noteIds": [
+      "N052"
+    ]
+  },
+  {
+    "id": "IM145",
+    "expression": "contribute to",
+    "ja": "～の一因となる、～に貢献する",
+    "paraphraseTo": [
+      "help cause",
+      "lead to"
+    ],
+    "noteIds": [
+      "N054",
+      "N144"
+    ]
+  },
+  {
+    "id": "IM146",
+    "expression": "it was not long before",
+    "ja": "まもなく～した",
+    "paraphraseTo": [
+      "soon",
+      "before long"
+    ],
+    "noteIds": [
+      "N063"
+    ]
+  },
+  {
+    "id": "IM147",
+    "expression": "room for improvement",
+    "ja": "改善の余地",
+    "paraphraseTo": [
+      "possibility of improvement"
+    ],
+    "noteIds": [
+      "N069"
+    ]
+  },
+  {
+    "id": "IM148",
+    "expression": "be superior to",
+    "ja": "～より優れている",
+    "paraphraseTo": [
+      "be better than"
+    ],
+    "noteIds": [
+      "N084"
+    ]
+  },
+  {
+    "id": "IM149",
+    "expression": "make sense of",
+    "ja": "～を理解する",
+    "paraphraseTo": [
+      "understand",
+      "figure out"
+    ],
+    "noteIds": [
+      "N082",
+      "N108",
+      "N117"
+    ]
+  },
+  {
+    "id": "IM150",
+    "expression": "in favor of",
+    "ja": "～に賛成して",
+    "paraphraseTo": [
+      "be for",
+      "in support of"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM151",
+    "expression": "take part in",
+    "ja": "～に参加する",
+    "paraphraseTo": [
+      "participate in",
+      "join"
+    ],
+    "noteIds": [
+      "N142",
+      "N143"
+    ]
+  },
+  {
+    "id": "IM152",
+    "expression": "participate in",
+    "ja": "～に参加する",
+    "paraphraseTo": [
+      "take part in",
+      "join"
+    ],
+    "noteIds": [
+      "N142",
+      "N143"
+    ]
+  },
+  {
+    "id": "IM153",
+    "expression": "be involved in",
+    "ja": "～に関わっている",
+    "paraphraseTo": [
+      "take part in",
+      "be connected with"
+    ],
+    "noteIds": [
+      "N143"
+    ]
+  },
+  {
+    "id": "IM154",
+    "expression": "play an important role in",
+    "ja": "～で重要な役割を果たす",
+    "paraphraseTo": [
+      "be important in",
+      "contribute to"
+    ],
+    "noteIds": [
+      "N144"
+    ]
+  },
+  {
+    "id": "IM155",
+    "expression": "in spite of",
+    "ja": "～にもかかわらず",
+    "paraphraseTo": [
+      "despite",
+      "although"
+    ],
+    "noteIds": [
+      "N145"
+    ]
+  },
+  {
+    "id": "IM156",
+    "expression": "despite",
+    "ja": "～にもかかわらず",
+    "paraphraseTo": [
+      "in spite of",
+      "although"
+    ],
+    "noteIds": [
+      "N145"
+    ]
+  },
+  {
+    "id": "IM157",
+    "expression": "no matter how",
+    "ja": "どれだけ～しても",
+    "paraphraseTo": [
+      "however"
+    ],
+    "noteIds": [
+      "N146"
+    ]
+  },
+  {
+    "id": "IM158",
+    "expression": "no matter what",
+    "ja": "何があっても、何を～しても",
+    "paraphraseTo": [
+      "whatever"
+    ],
+    "noteIds": [
+      "N147"
+    ]
+  },
+  {
+    "id": "IM159",
+    "expression": "in fact",
+    "ja": "実際に、実を言うと",
+    "paraphraseTo": [
+      "actually",
+      "to tell the truth"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM160",
+    "expression": "in advance",
+    "ja": "前もって",
+    "paraphraseTo": [
+      "beforehand"
+    ],
+    "noteIds": [
+      "N148"
+    ]
+  },
+  {
+    "id": "IM161",
+    "expression": "in addition to",
+    "ja": "～に加えて",
+    "paraphraseTo": [
+      "besides",
+      "as well as"
+    ],
+    "noteIds": [
+      "N149"
+    ]
+  },
+  {
+    "id": "IM162",
+    "expression": "in contrast to",
+    "ja": "～とは対照的に",
+    "paraphraseTo": [
+      "unlike",
+      "compared with"
+    ],
+    "noteIds": [
+      "N150"
+    ]
+  },
+  {
+    "id": "IM163",
+    "expression": "according to",
+    "ja": "～によると",
+    "paraphraseTo": [
+      "based on"
+    ],
+    "noteIds": [
+      "N151"
+    ]
+  },
+  {
+    "id": "IM164",
+    "expression": "as a result of",
+    "ja": "～の結果として",
+    "paraphraseTo": [
+      "because of",
+      "due to"
+    ],
+    "noteIds": [
+      "N152"
+    ]
+  },
+  {
+    "id": "IM165",
+    "expression": "break out",
+    "ja": "発生する、勃発する",
+    "paraphraseTo": [
+      "start suddenly",
+      "occur"
+    ],
+    "noteIds": [
+      "N153"
+    ]
+  },
+  {
+    "id": "IM166",
+    "expression": "come into existence",
+    "ja": "生まれる、出現する",
+    "paraphraseTo": [
+      "begin to exist",
+      "appear"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM167",
+    "expression": "have A Vpp",
+    "ja": "Aを～してもらう",
+    "paraphraseTo": [
+      "get A Vpp"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM168",
+    "expression": "all over the world",
+    "ja": "世界中で",
+    "paraphraseTo": [
+      "around the world",
+      "throughout the world"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM169",
+    "expression": "at one's best",
+    "ja": "最高の状態で",
+    "paraphraseTo": [
+      "in the best condition"
+    ],
+    "noteIds": [
+      "N038"
+    ]
+  },
+  {
+    "id": "IM170",
+    "expression": "ask A for B",
+    "ja": "AにBを求める",
+    "paraphraseTo": [
+      "request B from A"
+    ],
+    "noteIds": [
+      "N043",
+      "N154"
+    ]
+  },
+  {
+    "id": "IM171",
+    "expression": "make a request for",
+    "ja": "～を要請する",
+    "paraphraseTo": [
+      "ask for",
+      "request"
+    ],
+    "noteIds": [
+      "N043",
+      "N154"
+    ]
+  },
+  {
+    "id": "IM172",
+    "expression": "now that",
+    "ja": "今や～なので、～だから",
+    "paraphraseTo": [
+      "since",
+      "because"
+    ],
+    "noteIds": [
+      "N044",
+      "N155"
+    ]
+  },
+  {
+    "id": "IM173",
+    "expression": "as long as",
+    "ja": "～する限り",
+    "paraphraseTo": [
+      "if",
+      "provided that"
+    ],
+    "noteIds": [
+      "N156"
+    ]
+  },
+  {
+    "id": "IM174",
+    "expression": "keep up with",
+    "ja": "～についていく",
+    "paraphraseTo": [
+      "follow",
+      "stay level with"
+    ],
+    "noteIds": [
+      "N157"
+    ]
+  },
+  {
+    "id": "IM175",
+    "expression": "look over",
+    "ja": "～をざっと確認する",
+    "paraphraseTo": [
+      "check",
+      "examine briefly"
+    ],
+    "noteIds": [
+      "N046",
+      "N158"
+    ]
+  },
+  {
+    "id": "IM176",
+    "expression": "go over",
+    "ja": "～を確認する、復習する",
+    "paraphraseTo": [
+      "review",
+      "check"
+    ],
+    "noteIds": [
+      "N159"
+    ]
+  },
+  {
+    "id": "IM177",
+    "expression": "be ill at ease",
+    "ja": "落ち着かない、不安である",
+    "paraphraseTo": [
+      "feel uncomfortable",
+      "feel nervous"
+    ],
+    "noteIds": [
+      "N160"
+    ]
+  },
+  {
+    "id": "IM178",
+    "expression": "feel at ease",
+    "ja": "安心する、くつろぐ",
+    "paraphraseTo": [
+      "feel comfortable",
+      "relax"
+    ],
+    "noteIds": [
+      "N161"
+    ]
+  },
+  {
+    "id": "IM179",
+    "expression": "take on",
+    "ja": "～を引き受ける、雇う",
+    "paraphraseTo": [
+      "accept",
+      "employ"
+    ],
+    "noteIds": [
+      "N070",
+      "N162"
+    ]
+  },
+  {
+    "id": "IM180",
+    "expression": "take over",
+    "ja": "～を引き継ぐ",
+    "paraphraseTo": [
+      "succeed to",
+      "assume control of"
+    ],
+    "noteIds": [
+      "N163"
+    ]
+  },
+  {
+    "id": "IM181",
+    "expression": "It was not until A that B",
+    "ja": "Aして初めてBした",
+    "paraphraseTo": [
+      "Not until A + inversion"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM182",
+    "expression": "put forward a proposal",
+    "ja": "提案を出す",
+    "paraphraseTo": [
+      "make a proposal",
+      "suggest"
+    ],
+    "noteIds": [
+      "N165"
+    ]
+  },
+  {
+    "id": "IM183",
+    "expression": "take the place of",
+    "ja": "～に取って代わる",
+    "paraphraseTo": [
+      "replace"
+    ],
+    "noteIds": [
+      "N166"
+    ]
+  },
+  {
+    "id": "IM184",
+    "expression": "be worth doing",
+    "ja": "～する価値がある",
+    "paraphraseTo": [
+      "be worthwhile to do"
+    ],
+    "noteIds": [
+      "N167"
+    ]
+  },
+  {
+    "id": "IM185",
+    "expression": "be crucial to",
+    "ja": "～にとって極めて重要である",
+    "paraphraseTo": [
+      "be very important to",
+      "be essential to"
+    ],
+    "noteIds": [
+      "N075",
+      "N168"
+    ]
+  },
+  {
+    "id": "IM186",
+    "expression": "be familiar with",
+    "ja": "～をよく知っている、～に慣れている",
+    "paraphraseTo": [
+      "know well",
+      "be used to"
+    ],
+    "noteIds": [
+      "N169"
+    ]
+  },
+  {
+    "id": "IM187",
+    "expression": "keep in touch with",
+    "ja": "～と連絡を取り合う",
+    "paraphraseTo": [
+      "stay in contact with"
+    ],
+    "noteIds": [
+      "N170"
+    ]
+  },
+  {
+    "id": "IM188",
+    "expression": "get in touch with",
+    "ja": "～と連絡を取る",
+    "paraphraseTo": [
+      "contact"
+    ],
+    "noteIds": [
+      "N171"
+    ]
+  },
+  {
+    "id": "IM189",
+    "expression": "be disappointed with",
+    "ja": "～にがっかりしている",
+    "paraphraseTo": [
+      "be not satisfied with"
+    ],
+    "noteIds": [
+      "N079",
+      "N172"
+    ]
+  },
+  {
+    "id": "IM190",
+    "expression": "be satisfied with",
+    "ja": "～に満足している",
+    "paraphraseTo": [
+      "be pleased with"
+    ],
+    "noteIds": [
+      "N172",
+      "N173"
+    ]
+  },
+  {
+    "id": "IM191",
+    "expression": "too ... to do",
+    "ja": "あまりに…なので～できない",
+    "paraphraseTo": [
+      "so ... that S cannot"
+    ],
+    "noteIds": [
+      "N015",
+      "N020",
+      "N174"
+    ]
+  },
+  {
+    "id": "IM192",
+    "expression": "so ... that S cannot",
+    "ja": "とても…なのでSは～できない",
+    "paraphraseTo": [
+      "too ... to do"
+    ],
+    "noteIds": [
+      "N015",
+      "N020",
+      "N174"
+    ]
+  },
+  {
+    "id": "IM193",
+    "expression": "have difficulty doing",
+    "ja": "～するのに苦労する",
+    "paraphraseTo": [
+      "have trouble doing",
+      "find it difficult to do"
+    ],
+    "noteIds": [
+      "N175",
+      "N176"
+    ]
+  },
+  {
+    "id": "IM194",
+    "expression": "have trouble doing",
+    "ja": "～するのに苦労する",
+    "paraphraseTo": [
+      "have difficulty doing"
+    ],
+    "noteIds": [
+      "N175",
+      "N176"
+    ]
+  },
+  {
+    "id": "IM195",
+    "expression": "be aware of",
+    "ja": "～に気づいている、～を認識している",
+    "paraphraseTo": [
+      "know",
+      "realize"
+    ],
+    "noteIds": [
+      "N177"
+    ]
+  },
+  {
+    "id": "IM196",
+    "expression": "be fluent in",
+    "ja": "～に堪能である",
+    "paraphraseTo": [
+      "speak ... fluently"
+    ],
+    "noteIds": [
+      "N119",
+      "N178"
+    ]
+  },
+  {
+    "id": "IM197",
+    "expression": "have a good command of",
+    "ja": "～を自在に使える、～に堪能である",
+    "paraphraseTo": [
+      "be fluent in",
+      "be good at"
+    ],
+    "noteIds": [
+      "N119",
+      "N178"
+    ]
+  },
+  {
+    "id": "IM198",
+    "expression": "draw near",
+    "ja": "近づく",
+    "paraphraseTo": [
+      "approach",
+      "come near"
+    ],
+    "noteIds": [
+      "N120",
+      "N179"
+    ]
+  },
+  {
+    "id": "IM199",
+    "expression": "take A into account",
+    "ja": "Aを考慮に入れる",
+    "paraphraseTo": [
+      "consider A"
+    ],
+    "noteIds": [
+      "N180"
+    ]
+  },
+  {
+    "id": "IM200",
+    "expression": "make fun of",
+    "ja": "～をからかう",
+    "paraphraseTo": [
+      "laugh at",
+      "tease"
+    ],
+    "noteIds": [
+      "N181"
+    ]
+  },
+  {
+    "id": "IM201",
+    "expression": "be related to",
+    "ja": "～に関係している",
+    "paraphraseTo": [
+      "be connected with",
+      "have something to do with"
+    ],
+    "noteIds": [
+      "N182"
+    ]
+  },
+  {
+    "id": "IM202",
+    "expression": "be connected with",
+    "ja": "～と関係がある",
+    "paraphraseTo": [
+      "be related to",
+      "have something to do with"
+    ],
+    "noteIds": [
+      "N182"
+    ]
+  },
+  {
+    "id": "IM203",
+    "expression": "have something to do with",
+    "ja": "～と関係がある",
+    "paraphraseTo": [
+      "be related to",
+      "be connected with"
+    ],
+    "noteIds": [
+      "N182"
+    ]
+  },
+  {
+    "id": "IM204",
+    "expression": "have nothing to do with",
+    "ja": "～とは関係がない",
+    "paraphraseTo": [
+      "be unrelated to"
+    ],
+    "noteIds": [
+      "N183"
+    ]
+  },
+  {
+    "id": "IM205",
+    "expression": "be different from",
+    "ja": "～と異なる",
+    "paraphraseTo": [
+      "differ from"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM206",
+    "expression": "be similar to",
+    "ja": "～に似ている",
+    "paraphraseTo": [
+      "resemble",
+      "be like"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM207",
+    "expression": "be suitable for",
+    "ja": "～に適している",
+    "paraphraseTo": [
+      "be appropriate for",
+      "be fit for"
+    ],
+    "noteIds": [
+      "N184"
+    ]
+  },
+  {
+    "id": "IM208",
+    "expression": "be appropriate for",
+    "ja": "～にふさわしい",
+    "paraphraseTo": [
+      "be suitable for"
+    ],
+    "noteIds": [
+      "N184"
+    ]
+  },
+  {
+    "id": "IM209",
+    "expression": "be full of",
+    "ja": "～でいっぱいである",
+    "paraphraseTo": [
+      "be filled with"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM210",
+    "expression": "be filled with",
+    "ja": "～で満たされている",
+    "paraphraseTo": [
+      "be full of"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM211",
+    "expression": "be short of",
+    "ja": "～が不足している",
+    "paraphraseTo": [
+      "lack",
+      "do not have enough"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM212",
+    "expression": "run short of",
+    "ja": "～が不足する",
+    "paraphraseTo": [
+      "begin to lack",
+      "almost run out of"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM213",
+    "expression": "run out of",
+    "ja": "～を使い果たす",
+    "paraphraseTo": [
+      "use up"
+    ],
+    "noteIds": [
+      "N185"
+    ]
+  },
+  {
+    "id": "IM214",
+    "expression": "be out of order",
+    "ja": "故障している",
+    "paraphraseTo": [
+      "be broken",
+      "not work"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM215",
+    "expression": "be in order",
+    "ja": "整っている、正常である",
+    "paraphraseTo": [
+      "be working",
+      "be correct"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM216",
+    "expression": "take measures to",
+    "ja": "～するための対策を取る",
+    "paraphraseTo": [
+      "take action to"
+    ],
+    "noteIds": [
+      "N186"
+    ]
+  },
+  {
+    "id": "IM217",
+    "expression": "take action to",
+    "ja": "～するために行動を起こす",
+    "paraphraseTo": [
+      "take measures to"
+    ],
+    "noteIds": [
+      "N186"
+    ]
+  },
+  {
+    "id": "IM218",
+    "expression": "make up for",
+    "ja": "～を埋め合わせる",
+    "paraphraseTo": [
+      "compensate for"
+    ],
+    "noteIds": [
+      "N187"
+    ]
+  },
+  {
+    "id": "IM219",
+    "expression": "compensate for",
+    "ja": "～を補償する、埋め合わせる",
+    "paraphraseTo": [
+      "make up for"
+    ],
+    "noteIds": [
+      "N187"
+    ]
+  },
+  {
+    "id": "IM220",
+    "expression": "be proud of",
+    "ja": "～を誇りに思う",
+    "paraphraseTo": [
+      "take pride in"
+    ],
+    "noteIds": [
+      "N188"
+    ]
+  },
+  {
+    "id": "IM221",
+    "expression": "take pride in",
+    "ja": "～を誇りに思う",
+    "paraphraseTo": [
+      "be proud of"
+    ],
+    "noteIds": [
+      "N188"
+    ]
+  },
+  {
+    "id": "IM222",
+    "expression": "be afraid of",
+    "ja": "～を恐れている",
+    "paraphraseTo": [
+      "fear",
+      "be scared of"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM223",
+    "expression": "be afraid to do",
+    "ja": "～するのを恐れる",
+    "paraphraseTo": [
+      "be scared to do"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM224",
+    "expression": "be ashamed of",
+    "ja": "～を恥じている",
+    "paraphraseTo": [
+      "feel ashamed of"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM225",
+    "expression": "be interested in",
+    "ja": "～に興味がある",
+    "paraphraseTo": [
+      "take an interest in"
+    ],
+    "noteIds": [
+      "N189"
+    ]
+  },
+  {
+    "id": "IM226",
+    "expression": "take an interest in",
+    "ja": "～に興味を持つ",
+    "paraphraseTo": [
+      "be interested in"
+    ],
+    "noteIds": [
+      "N189"
+    ]
+  },
+  {
+    "id": "IM227",
+    "expression": "pay attention to",
+    "ja": "～に注意を払う",
+    "paraphraseTo": [
+      "take notice of",
+      "focus on"
+    ],
+    "noteIds": [
+      "N190"
+    ]
+  },
+  {
+    "id": "IM228",
+    "expression": "take notice of",
+    "ja": "～に気づく、注意を払う",
+    "paraphraseTo": [
+      "pay attention to",
+      "notice"
+    ],
+    "noteIds": [
+      "N190"
+    ]
+  },
+  {
+    "id": "IM229",
+    "expression": "take care not to",
+    "ja": "～しないように気をつける",
+    "paraphraseTo": [
+      "be careful not to"
+    ],
+    "noteIds": [
+      "N191"
+    ]
+  },
+  {
+    "id": "IM230",
+    "expression": "be careful not to",
+    "ja": "～しないように注意する",
+    "paraphraseTo": [
+      "take care not to"
+    ],
+    "noteIds": [
+      "N191"
+    ]
+  },
+  {
+    "id": "IM231",
+    "expression": "make sure that",
+    "ja": "必ず～する、～を確かめる",
+    "paraphraseTo": [
+      "confirm that",
+      "be sure that"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM232",
+    "expression": "be sure to",
+    "ja": "必ず～する",
+    "paraphraseTo": [
+      "make sure to",
+      "never fail to"
+    ],
+    "noteIds": [
+      "N098"
+    ]
+  },
+  {
+    "id": "IM233",
+    "expression": "be supposed to",
+    "ja": "～することになっている",
+    "paraphraseTo": [
+      "be expected to"
+    ],
+    "noteIds": [
+      "N192"
+    ]
+  },
+  {
+    "id": "IM234",
+    "expression": "be expected to",
+    "ja": "～することが期待されている、～する見込みである",
+    "paraphraseTo": [
+      "be supposed to",
+      "be likely to"
+    ],
+    "noteIds": [
+      "N192"
+    ]
+  },
+  {
+    "id": "IM235",
+    "expression": "be forced to",
+    "ja": "～せざるを得ない",
+    "paraphraseTo": [
+      "have to",
+      "be made to"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM236",
+    "expression": "be obliged to",
+    "ja": "～する義務がある",
+    "paraphraseTo": [
+      "be required to",
+      "have to"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM237",
+    "expression": "be accustomed to",
+    "ja": "～に慣れている",
+    "paraphraseTo": [
+      "be used to",
+      "be familiar with"
+    ],
+    "noteIds": [
+      "N193"
+    ]
+  },
+  {
+    "id": "IM238",
+    "expression": "be ready to",
+    "ja": "～する準備ができている",
+    "paraphraseTo": [
+      "be prepared to"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM239",
+    "expression": "be prepared to",
+    "ja": "～する準備ができている、覚悟がある",
+    "paraphraseTo": [
+      "be ready to"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM240",
+    "expression": "it is likely that",
+    "ja": "～である可能性が高い",
+    "paraphraseTo": [
+      "probably",
+      "be likely to"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM241",
+    "expression": "be certain that",
+    "ja": "～を確信している、～は確かである",
+    "paraphraseTo": [
+      "be sure that"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM242",
+    "expression": "be sure that",
+    "ja": "～を確信している",
+    "paraphraseTo": [
+      "be certain that"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM243",
+    "expression": "for the purpose of",
+    "ja": "～する目的で",
+    "paraphraseTo": [
+      "in order to",
+      "so as to"
+    ],
+    "noteIds": [
+      "N194"
+    ]
+  },
+  {
+    "id": "IM244",
+    "expression": "in order to",
+    "ja": "～するために",
+    "paraphraseTo": [
+      "so as to",
+      "for the purpose of"
+    ],
+    "noteIds": [
+      "N194"
+    ]
+  },
+  {
+    "id": "IM245",
+    "expression": "so as to",
+    "ja": "～するために",
+    "paraphraseTo": [
+      "in order to"
+    ],
+    "noteIds": [
+      "N194"
+    ]
+  },
+  {
+    "id": "IM246",
+    "expression": "for fear of",
+    "ja": "～を恐れて、～しないように",
+    "paraphraseTo": [
+      "because of fear of"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM247",
+    "expression": "in case of",
+    "ja": "～の場合には",
+    "paraphraseTo": [
+      "if there is"
+    ],
+    "noteIds": [
+      "N195"
+    ]
+  },
+  {
+    "id": "IM248",
+    "expression": "in case",
+    "ja": "～の場合に備えて、～するといけないので",
+    "paraphraseTo": [
+      "if",
+      "because something may happen"
+    ],
+    "noteIds": [
+      "N196"
+    ]
+  },
+  {
+    "id": "IM249",
+    "expression": "as far as I know",
+    "ja": "私の知る限りでは",
+    "paraphraseTo": [
+      "to my knowledge"
+    ],
+    "noteIds": [
+      "N197"
+    ]
+  },
+  {
+    "id": "IM250",
+    "expression": "as far as I am concerned",
+    "ja": "私に関する限り、私の意見では",
+    "paraphraseTo": [
+      "in my opinion"
+    ],
+    "noteIds": [
+      "N198"
+    ]
+  },
+  {
+    "id": "IM251",
+    "expression": "in harmony with A",
+    "ja": "Aと調和して",
+    "paraphraseTo": [
+      "in agreement with A"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM252",
+    "expression": "what is called A",
+    "ja": "いわゆるA",
+    "paraphraseTo": [
+      "what we call A",
+      "so-called A"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM253",
+    "expression": "turn out to be A",
+    "ja": "Aであることが分かる、判明する",
+    "paraphraseTo": [
+      "prove to be A"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM254",
+    "expression": "second to none",
+    "ja": "誰にも劣らない、最高である",
+    "paraphraseTo": [
+      "the best",
+      "as good as anyone"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM255",
+    "expression": "not so much A as B",
+    "ja": "AというよりむしろB",
+    "paraphraseTo": [
+      "B rather than A",
+      "more B than A"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM256",
+    "expression": "take A for granted",
+    "ja": "Aを当然のことと思う",
+    "paraphraseTo": [
+      "assume A is natural"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM257",
+    "expression": "leave A up to B",
+    "ja": "AをBに任せる",
+    "paraphraseTo": [
+      "let B decide A",
+      "entrust A to B"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM258",
+    "expression": "keep in mind",
+    "ja": "～を心に留めておく",
+    "paraphraseTo": [
+      "remember",
+      "bear in mind"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM259",
+    "expression": "on good terms with A",
+    "ja": "Aと良い関係にある",
+    "paraphraseTo": [
+      "get along well with A"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM260",
+    "expression": "when it comes to A",
+    "ja": "Aのこととなると、Aについて言えば",
+    "paraphraseTo": [
+      "when speaking of A",
+      "as for A"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM261",
+    "expression": "make it a rule to do",
+    "ja": "～することにしている",
+    "paraphraseTo": [
+      "make a habit of doing"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM262",
+    "expression": "make it clear to A that ...",
+    "ja": "Aに…ということを明確にする",
+    "paraphraseTo": [
+      "clearly tell A that ..."
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM263",
+    "expression": "get A to do",
+    "ja": "Aに～してもらう、Aに～させる",
+    "paraphraseTo": [
+      "persuade A to do",
+      "cause A to do"
+    ],
+    "noteIds": [
+      "N091"
+    ]
+  },
+  {
+    "id": "IM264",
+    "expression": "keep A waiting",
+    "ja": "Aを待たせておく",
+    "paraphraseTo": [
+      "make A wait"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM265",
+    "expression": "get caught in A",
+    "ja": "Aに遭う、Aに巻き込まれる",
+    "paraphraseTo": [
+      "be caught in A"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM266",
+    "expression": "as if ...",
+    "ja": "まるで…であるかのように",
+    "paraphraseTo": [
+      "as though ..."
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM267",
+    "expression": "by far",
+    "ja": "はるかに、断然",
+    "paraphraseTo": [
+      "much",
+      "far and away"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM268",
+    "expression": "no sooner A than B",
+    "ja": "AするとすぐにB",
+    "paraphraseTo": [
+      "hardly A when B",
+      "as soon as A, B"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM269",
+    "expression": "keep A informed of B",
+    "ja": "AにBを知らせておく",
+    "paraphraseTo": [
+      "keep A updated on B"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM270",
+    "expression": "call A back",
+    "ja": "Aに折り返し電話する",
+    "paraphraseTo": [
+      "return A's call"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM271",
+    "expression": "feel free to do",
+    "ja": "遠慮なく～する",
+    "paraphraseTo": [
+      "do not hesitate to do"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM272",
+    "expression": "as it is",
+    "ja": "そのままで、現状のままで",
+    "paraphraseTo": [
+      "in its present state"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM273",
+    "expression": "complain of A",
+    "ja": "Aを訴える、Aについて不平を言う",
+    "paraphraseTo": [
+      "complain about A"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM274",
+    "expression": "look A up",
+    "ja": "Aを調べる",
+    "paraphraseTo": [
+      "search for information about A",
+      "check A"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM275",
+    "expression": "no longer",
+    "ja": "もはや～ない",
+    "paraphraseTo": [
+      "not ... any longer",
+      "not ... anymore"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM276",
+    "expression": "may well do",
+    "ja": "～するのももっともだ、たぶん～するだろう",
+    "paraphraseTo": [
+      "have good reason to do",
+      "probably do"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM277",
+    "expression": "inform A of B",
+    "ja": "AにBを知らせる",
+    "paraphraseTo": [
+      "tell A about B",
+      "notify A of B"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM278",
+    "expression": "do nothing but V",
+    "ja": "Vばかりする、Vするだけである",
+    "paraphraseTo": [
+      "only V"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM279",
+    "expression": "make oneself understood",
+    "ja": "自分の言いたいことを相手に分かってもらう",
+    "paraphraseTo": [
+      "make people understand oneself"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM280",
+    "expression": "object to doing",
+    "ja": "～することに反対する",
+    "paraphraseTo": [
+      "be opposed to doing",
+      "be against doing"
+    ],
+    "noteIds": [
+      "N053",
+      "N083"
+    ]
+  },
+  {
+    "id": "IM281",
+    "expression": "be up to A",
+    "ja": "A次第である、Aに任されている",
+    "paraphraseTo": [
+      "depend on A",
+      "be A's decision"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM282",
+    "expression": "set eyes on A",
+    "ja": "Aを見る、Aを目にする",
+    "paraphraseTo": [
+      "see A"
+    ],
+    "noteIds": [
+      "N057"
+    ]
+  },
+  {
+    "id": "IM283",
+    "expression": "major in A",
+    "ja": "Aを専攻する",
+    "paraphraseTo": [
+      "study A as one's major"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM284",
+    "expression": "do A for a living",
+    "ja": "職業としてAをする、Aで生計を立てる",
+    "paraphraseTo": [
+      "earn a living by doing A"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM285",
+    "expression": "do all one can to do",
+    "ja": "～するためにできる限りのことをする",
+    "paraphraseTo": [
+      "do one's best to do",
+      "make every effort to do"
+    ],
+    "noteIds": [
+      "N035",
+      "N077"
+    ]
+  },
+  {
+    "id": "IM286",
+    "expression": "be accused of A",
+    "ja": "Aで非難される、Aの罪で告発される",
+    "paraphraseTo": [
+      "be blamed for A"
+    ],
+    "noteIds": []
+  },
+  {
+    "id": "IM287",
+    "expression": "accuse A of B",
+    "ja": "BのことでAを非難する、Bの罪でAを告発する",
+    "paraphraseTo": [
+      "blame A for B"
+    ],
+    "noteIds": []
+  }
+]
