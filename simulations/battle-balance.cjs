@@ -22,7 +22,11 @@ function scenario(accuracy,skills,stage=1,points=0,attr=true,enemyPoints=points)
  const n=species.length**2*400;return {accuracy,skills,stage,points,enemyPoints,attr,battles:n,winRate:+(100*wins/n).toFixed(1),meanTurns:+(turns/n).toFixed(2),under3Percent:+(100*short/n).toFixed(1),target3to5Percent:+(100*target/n).toFixed(1),timeouts,perSpecies};}
 assert.equal(damage(species[5],species[5],1,1),20);assert.equal(damage(species[5],species[5],1,.7),14);assert.equal(damage(species[5],species[5],1,1.2),24);
 for(const s of species)for(const t of [1,1.3,1.6,2]){assert(stats(s,t,100).hp>=stats(s,t,0).hp);assert(stats(s,t,1000).hp>stats(s,t,100).hp);}
+if(require.main===module){
 const results=[scenario(1,false),scenario(.8,false),scenario(.6,false),scenario(1,true),scenario(.8,true),scenario(.6,true),scenario(.8,true,1.3,100),scenario(.8,true,1.6,400),scenario(.8,true,2,1000),scenario(.8,true,1,0,false),scenario(.8,true,1,0,true,1000),scenario(.8,true,1,1000,true,0)];
 const firstHit=species.map(s=>({name:s.name,hp:s.hp,worstIncorrectNormal:Math.max(...species.map(e=>damage(e,s,1,1.2))),worstIncorrectSkill:Math.max(...species.map(e=>damage(e,s,1.4,1.2)))}));
 const report={assumptions:['CPU uses normal attacks only; player uses either normal only or two same-attribute skills with two uses each (first four turns).','Both sides have equal stage and all four learning points. No equipment or status effects.','Attack and defense answers are independent Bernoulli trials. Same speed order selected randomly once per battle.','All 121 matchups equally weighted; hidden characters included as enemies. This is not the quest enemy distribution.'],results,firstHit};
 fs.writeFileSync(process.argv[2]||'/tmp/goimon-battle-balance.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report));
+
+}
+module.exports={species,stats,affinity,damage,rng};
