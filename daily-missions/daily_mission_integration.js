@@ -34,8 +34,9 @@ function getWordMissionLaunch(mission){
  if(!page)return {ready:false,reason:"unsupported_category"};
  const params=new URLSearchParams({start:String(mission.rangeStart),end:String(mission.rangeEnd)});
  if(mission.category!=="audio_quiz")params.set("mode","random");
+ params.set("dailyMission","words");
  return {ready:true,url:page+"?"+params.toString(),autoStart:false,
-   note:"出題範囲のみ自動設定します。20問の出題数は画面で確認してください。ミッションのクリアはまだ記録されません。"};
+   note:"出題範囲と20問を設定します。演習結果は一時記録されますが星のかけらはまだ付与されません。"};
 }
 window.GoimonMissionBridge=Object.freeze({createWordSessionResult,evaluateWordSession,getWordMissionLaunch});
 })();
