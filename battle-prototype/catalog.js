@@ -1,4 +1,4 @@
-// Trial catalog only. No ownership, gacha or reward writes.
+// Isolated trial catalog. Vocabulary is verified against GOIMON word lists.
 (function(root){"use strict";const data={
   "species": [
     {
@@ -357,192 +357,1160 @@
   "skills": [
     {
       "id": "N_echo",
-      "name": "エコーパルス",
+      "name": "Burst／バースト",
+      "vocab": {
+        "en": "burst",
+        "ja": "破裂する",
+        "level": 1
+      },
+      "attr": "echo",
       "rarity": "N",
       "type": "attack",
-      "attr": "echo",
+      "uses": 3,
       "power": 1.2,
-      "uses": 3
+      "description": "威力1.2の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_scream",
+      "name": "Scream／スクリーム",
+      "vocab": {
+        "en": "scream",
+        "ja": "叫ぶ",
+        "level": 1
+      },
+      "attr": "echo",
+      "rarity": "N",
+      "type": "attack",
+      "uses": 4,
+      "power": 1.1,
+      "description": "威力1.1の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_encourage",
+      "name": "Encourage／エンカレッジ",
+      "vocab": {
+        "en": "encourage",
+        "ja": "励ます",
+        "level": 1
+      },
+      "attr": "echo",
+      "rarity": "N",
+      "type": "heal",
+      "uses": 3,
+      "healFraction": 0.15,
+      "description": "最大HPの15％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_concentrate",
+      "name": "Concentrate／コンセントレイト",
+      "vocab": {
+        "en": "concentrate",
+        "ja": "集中する",
+        "level": 1
+      },
+      "attr": "echo",
+      "rarity": "N",
+      "type": "prepare",
+      "uses": 3,
+      "nextPower": 1.25,
+      "power": 0.6,
+      "description": "威力0.6の攻撃。正解で次の攻撃を1.25倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_relieve",
+      "name": "Relieve／リリーブ",
+      "vocab": {
+        "en": "relieve",
+        "ja": "和らげる",
+        "level": 1
+      },
+      "attr": "echo",
+      "rarity": "N",
+      "type": "weaken",
+      "uses": 3,
+      "weakFactor": 0.8,
+      "power": 0.7,
+      "description": "威力0.7の攻撃。正解で次の敵の攻撃を80％にする。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_remind",
+      "name": "Remind／リマインド",
+      "vocab": {
+        "en": "remind",
+        "ja": "思い出させる",
+        "level": 2
+      },
+      "attr": "echo",
+      "rarity": "N",
+      "type": "replenish",
+      "uses": 1,
+      "description": "正解で、使用回数が最も減っている別の技を1回回復。同数なら枠順。回数回復技には使えない。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_aid",
+      "name": "Aid／エイド",
+      "vocab": {
+        "en": "aid",
+        "ja": "援助",
+        "level": 1
+      },
+      "attr": "echo",
+      "rarity": "N",
+      "type": "heal",
+      "uses": 4,
+      "healFraction": 0.1,
+      "description": "最大HPの10％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_praise",
+      "name": "Praise／プレイズ",
+      "vocab": {
+        "en": "praise",
+        "ja": "ほめる",
+        "level": 1
+      },
+      "attr": "echo",
+      "rarity": "N",
+      "type": "prepare",
+      "uses": 4,
+      "nextPower": 1.2,
+      "power": 0.5,
+      "description": "威力0.5の攻撃。正解で次の攻撃を1.2倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_pronounce",
+      "name": "Pronounce／プロナウンス",
+      "vocab": {
+        "en": "pronounce",
+        "ja": "発音する",
+        "level": 1
+      },
+      "attr": "echo",
+      "rarity": "N",
+      "type": "attack",
+      "uses": 4,
+      "power": 1.05,
+      "description": "威力1.05の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_rhythm",
+      "name": "Rhythm／リズム",
+      "vocab": {
+        "en": "rhythm",
+        "ja": "リズム",
+        "level": 2
+      },
+      "attr": "echo",
+      "rarity": "N",
+      "type": "prepare",
+      "uses": 3,
+      "nextPower": 1.15,
+      "power": 0.8,
+      "description": "威力0.8の攻撃。正解で次の攻撃を1.15倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_comfort",
+      "name": "Comfort／コンフォート",
+      "vocab": {
+        "en": "comfort",
+        "ja": "快適さ、慰める",
+        "level": 2
+      },
+      "attr": "echo",
+      "rarity": "N",
+      "type": "heal",
+      "uses": 4,
+      "healFraction": 0.1,
+      "description": "最大HPの10％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_whisper",
+      "name": "Whisper／ウィスパー",
+      "vocab": {
+        "en": "whisper",
+        "ja": "ささやく",
+        "level": 2
+      },
+      "attr": "echo",
+      "rarity": "N",
+      "type": "attack",
+      "uses": 4,
+      "power": 1.05,
+      "description": "威力1.05の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_mirage",
-      "name": "ミラージュスラッシュ",
+      "name": "Cast／キャスト",
+      "vocab": {
+        "en": "cast",
+        "ja": "投げる",
+        "level": 1
+      },
+      "attr": "mirage",
       "rarity": "N",
       "type": "attack",
-      "attr": "mirage",
+      "uses": 3,
       "power": 1.2,
-      "uses": 3
+      "description": "威力1.2の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_chase",
+      "name": "Chase／チェイス",
+      "vocab": {
+        "en": "chase",
+        "ja": "追いかける",
+        "level": 1
+      },
+      "attr": "mirage",
+      "rarity": "N",
+      "type": "attack",
+      "uses": 4,
+      "power": 1.1,
+      "description": "威力1.1の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_flash",
+      "name": "Flash／フラッシュ",
+      "vocab": {
+        "en": "flash",
+        "ja": "閃光",
+        "level": 1
+      },
+      "attr": "mirage",
+      "rarity": "N",
+      "type": "attack",
+      "uses": 2,
+      "power": 1.25,
+      "description": "威力1.25の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_prepare",
+      "name": "Prepare／プリペア",
+      "vocab": {
+        "en": "prepare",
+        "ja": "準備する",
+        "level": 2
+      },
+      "attr": "mirage",
+      "rarity": "N",
+      "type": "prepare",
+      "uses": 3,
+      "nextPower": 1.25,
+      "power": 0.6,
+      "description": "威力0.6の攻撃。正解で次の攻撃を1.25倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_confuse",
+      "name": "Confuse／コンフューズ",
+      "vocab": {
+        "en": "confuse",
+        "ja": "混乱させる",
+        "level": 1
+      },
+      "attr": "mirage",
+      "rarity": "N",
+      "type": "weaken",
+      "uses": 3,
+      "weakFactor": 0.8,
+      "power": 0.7,
+      "description": "威力0.7の攻撃。正解で次の敵の攻撃を80％にする。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_harmony",
+      "name": "Harmony／ハーモニー",
+      "vocab": {
+        "en": "harmony",
+        "ja": "調和",
+        "level": 1
+      },
+      "attr": "mirage",
+      "rarity": "N",
+      "type": "ward",
+      "uses": 3,
+      "shieldHits": 1,
+      "shieldFactor": 0.8,
+      "wrongShieldFactor": 0.9,
+      "power": 0.7,
+      "description": "威力0.7の攻撃＋次の敵攻撃1回を正解で80％、不正解で90％に軽減。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_angle",
+      "name": "Angle／アングル",
+      "vocab": {
+        "en": "angle",
+        "ja": "角度",
+        "level": 1
+      },
+      "attr": "mirage",
+      "rarity": "N",
+      "type": "attack",
+      "uses": 3,
+      "power": 1.15,
+      "description": "威力1.15の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_glance",
+      "name": "Glance／グランス",
+      "vocab": {
+        "en": "glance",
+        "ja": "ちらりと見る",
+        "level": 1
+      },
+      "attr": "mirage",
+      "rarity": "N",
+      "type": "prepare",
+      "uses": 4,
+      "nextPower": 1.2,
+      "power": 0.5,
+      "description": "威力0.5の攻撃。正解で次の攻撃を1.2倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_shade",
+      "name": "Shade／シェイド",
+      "vocab": {
+        "en": "shade",
+        "ja": "日陰",
+        "level": 1
+      },
+      "attr": "mirage",
+      "rarity": "N",
+      "type": "ward",
+      "uses": 4,
+      "shieldHits": 1,
+      "shieldFactor": 0.85,
+      "wrongShieldFactor": 0.95,
+      "power": 0.6,
+      "description": "威力0.6の攻撃＋次の敵攻撃1回を正解で85％、不正解で95％に軽減。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_mysterious",
+      "name": "Mysterious／ミステリアス",
+      "vocab": {
+        "en": "mysterious",
+        "ja": "不思議な",
+        "level": 1
+      },
+      "attr": "mirage",
+      "rarity": "N",
+      "type": "attack",
+      "uses": 3,
+      "power": 1.15,
+      "description": "威力1.15の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_image",
+      "name": "Image／イメージ",
+      "vocab": {
+        "en": "image",
+        "ja": "イメージ",
+        "level": 2
+      },
+      "attr": "mirage",
+      "rarity": "N",
+      "type": "prepare",
+      "uses": 3,
+      "nextPower": 1.15,
+      "power": 0.8,
+      "description": "威力0.8の攻撃。正解で次の攻撃を1.15倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_observe",
+      "name": "Observe／オブザーブ",
+      "vocab": {
+        "en": "observe",
+        "ja": "観察する",
+        "level": 1
+      },
+      "attr": "mirage",
+      "rarity": "N",
+      "type": "prepare",
+      "uses": 2,
+      "nextPower": 1.35,
+      "power": 0.4,
+      "description": "威力0.4の攻撃。正解で次の攻撃を1.35倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "N_metal",
-      "name": "メタルストライク",
+      "name": "Crash／クラッシュ",
+      "vocab": {
+        "en": "crash",
+        "ja": "衝突する",
+        "level": 1
+      },
+      "attr": "metal",
       "rarity": "N",
       "type": "attack",
-      "attr": "metal",
+      "uses": 3,
       "power": 1.2,
-      "uses": 3
+      "description": "威力1.2の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_press",
+      "name": "Press／プレス",
+      "vocab": {
+        "en": "press",
+        "ja": "押す、報道",
+        "level": 2
+      },
+      "attr": "metal",
+      "rarity": "N",
+      "type": "attack",
+      "uses": 4,
+      "power": 1.1,
+      "description": "威力1.1の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_slice",
+      "name": "Slice／スライス",
+      "vocab": {
+        "en": "slice",
+        "ja": "薄切り",
+        "level": 2
+      },
+      "attr": "metal",
+      "rarity": "N",
+      "type": "attack",
+      "uses": 2,
+      "power": 1.25,
+      "description": "威力1.25の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_defend",
+      "name": "Defend／ディフェンド",
+      "vocab": {
+        "en": "defend",
+        "ja": "守る",
+        "level": 1
+      },
+      "attr": "metal",
+      "rarity": "N",
+      "type": "ward",
+      "uses": 3,
+      "shieldHits": 1,
+      "shieldFactor": 0.8,
+      "wrongShieldFactor": 0.9,
+      "power": 0.7,
+      "description": "威力0.7の攻撃＋次の敵攻撃1回を正解で80％、不正解で90％に軽減。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_reduce",
+      "name": "Reduce／リデュース",
+      "vocab": {
+        "en": "reduce",
+        "ja": "減らす",
+        "level": 1
+      },
+      "attr": "metal",
+      "rarity": "N",
+      "type": "weaken",
+      "uses": 3,
+      "weakFactor": 0.8,
+      "power": 0.7,
+      "description": "威力0.7の攻撃。正解で次の敵の攻撃を80％にする。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_repair",
+      "name": "Repair／リペア",
+      "vocab": {
+        "en": "repair",
+        "ja": "修理する",
+        "level": 2
+      },
+      "attr": "metal",
+      "rarity": "N",
+      "type": "heal",
+      "uses": 3,
+      "healFraction": 0.15,
+      "description": "最大HPの15％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_bind",
+      "name": "Bind／バインド",
+      "vocab": {
+        "en": "bind",
+        "ja": "縛る",
+        "level": 1
+      },
+      "attr": "metal",
+      "rarity": "N",
+      "type": "weaken",
+      "uses": 3,
+      "weakFactor": 0.85,
+      "power": 0.8,
+      "description": "威力0.8の攻撃。正解で次の敵の攻撃を85％にする。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_decrease",
+      "name": "Decrease／ディクリース",
+      "vocab": {
+        "en": "decrease",
+        "ja": "減少する",
+        "level": 1
+      },
+      "attr": "metal",
+      "rarity": "N",
+      "type": "weaken",
+      "uses": 4,
+      "weakFactor": 0.85,
+      "power": 0.5,
+      "description": "威力0.5の攻撃。正解で次の敵の攻撃を85％にする。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_prevent",
+      "name": "Prevent／プリベント",
+      "vocab": {
+        "en": "prevent",
+        "ja": "防ぐ",
+        "level": 2
+      },
+      "attr": "metal",
+      "rarity": "N",
+      "type": "ward",
+      "uses": 4,
+      "shieldHits": 1,
+      "shieldFactor": 0.85,
+      "wrongShieldFactor": 0.95,
+      "power": 0.6,
+      "description": "威力0.6の攻撃＋次の敵攻撃1回を正解で85％、不正解で95％に軽減。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_brake",
+      "name": "Brake／ブレイク",
+      "vocab": {
+        "en": "brake",
+        "ja": "ブレーキ",
+        "level": 1
+      },
+      "attr": "metal",
+      "rarity": "N",
+      "type": "weaken",
+      "uses": 3,
+      "weakFactor": 0.85,
+      "power": 0.6,
+      "description": "威力0.6の攻撃。正解で次の敵の攻撃を85％にする。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_lock",
+      "name": "Lock／ロック",
+      "vocab": {
+        "en": "lock",
+        "ja": "錠、鍵をかける",
+        "level": 2
+      },
+      "attr": "metal",
+      "rarity": "N",
+      "type": "ward",
+      "uses": 2,
+      "shieldHits": 1,
+      "shieldFactor": 0.85,
+      "wrongShieldFactor": 0.95,
+      "power": 0.85,
+      "description": "威力0.85の攻撃＋次の敵攻撃1回を正解で85％、不正解で95％に軽減。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "N_stretch",
+      "name": "Stretch／ストレッチ",
+      "vocab": {
+        "en": "stretch",
+        "ja": "伸ばす",
+        "level": 1
+      },
+      "attr": "metal",
+      "rarity": "N",
+      "type": "prepare",
+      "uses": 3,
+      "nextPower": 1.15,
+      "power": 0.8,
+      "description": "威力0.8の攻撃。正解で次の攻撃を1.15倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "R_echo",
-      "name": "エコーバースト",
-      "rarity": "R",
-      "type": "attack",
+      "name": "Shock／ショック",
+      "vocab": {
+        "en": "shock",
+        "ja": "衝撃",
+        "level": 2
+      },
       "attr": "echo",
-      "power": 1.4,
-      "uses": 2
-    },
-    {
-      "id": "R_mirage",
-      "name": "ファントムエッジ",
       "rarity": "R",
       "type": "attack",
-      "attr": "mirage",
+      "uses": 2,
       "power": 1.4,
-      "uses": 2
-    },
-    {
-      "id": "R_metal",
-      "name": "メタルブレイク",
-      "rarity": "R",
-      "type": "attack",
-      "attr": "metal",
-      "power": 1.4,
-      "uses": 2
-    },
-    {
-      "id": "SR_echo",
-      "name": "ソニックノヴァ",
-      "rarity": "SR",
-      "type": "attack",
-      "attr": "echo",
-      "power": 1.6,
-      "uses": 1
-    },
-    {
-      "id": "SR_mirage",
-      "name": "ドリームエクリプス",
-      "rarity": "SR",
-      "type": "attack",
-      "attr": "mirage",
-      "power": 1.6,
-      "uses": 1
-    },
-    {
-      "id": "SR_metal",
-      "name": "タイタンインパクト",
-      "rarity": "SR",
-      "type": "attack",
-      "attr": "metal",
-      "power": 1.6,
-      "uses": 1
+      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "heal",
-      "name": "リカバリーエコー",
+      "name": "Cure／キュア",
+      "vocab": {
+        "en": "cure",
+        "ja": "治す",
+        "level": 1
+      },
+      "attr": "echo",
       "rarity": "R",
       "type": "heal",
+      "uses": 2,
+      "healFraction": 0.25,
+      "description": "最大HPの25％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "R_praise",
+      "name": "Command／コマンド",
+      "vocab": {
+        "en": "command",
+        "ja": "命令する",
+        "level": 1
+      },
       "attr": "echo",
-      "uses": 2
+      "rarity": "R",
+      "type": "prepare",
+      "uses": 2,
+      "nextPower": 1.4,
+      "power": 0.8,
+      "description": "威力0.8の攻撃。正解で次の攻撃を1.4倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "R_mirage",
+      "name": "Surround／サラウンド",
+      "vocab": {
+        "en": "surround",
+        "ja": "囲む",
+        "level": 1
+      },
+      "attr": "mirage",
+      "rarity": "R",
+      "type": "attack",
+      "uses": 2,
+      "power": 1.4,
+      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "R_disturb",
+      "name": "Disturb／ディスターブ",
+      "vocab": {
+        "en": "disturb",
+        "ja": "妨げる",
+        "level": 1
+      },
+      "attr": "mirage",
+      "rarity": "R",
+      "type": "weaken",
+      "uses": 2,
+      "weakFactor": 0.65,
+      "power": 0.85,
+      "description": "威力0.85の攻撃。正解で次の敵の攻撃を65％にする。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "R_pretend",
+      "name": "Pretend／プリテンド",
+      "vocab": {
+        "en": "pretend",
+        "ja": "ふりをする",
+        "level": 1
+      },
+      "attr": "mirage",
+      "rarity": "R",
+      "type": "prepare",
+      "uses": 2,
+      "nextPower": 1.4,
+      "power": 0.8,
+      "description": "威力0.8の攻撃。正解で次の攻撃を1.4倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "R_metal",
+      "name": "Seize／シーズ",
+      "vocab": {
+        "en": "seize",
+        "ja": "つかむ、押収する",
+        "level": 1
+      },
+      "attr": "metal",
+      "rarity": "R",
+      "type": "attack",
+      "uses": 2,
+      "power": 1.4,
+      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。"
     },
     {
       "id": "ward",
-      "name": "メタルシェル",
+      "name": "Protect／プロテクト",
+      "vocab": {
+        "en": "protect",
+        "ja": "守る",
+        "level": 2
+      },
+      "attr": "metal",
       "rarity": "R",
       "type": "ward",
-      "attr": "metal",
+      "uses": 2,
+      "shieldHits": 2,
+      "shieldFactor": 0.7,
+      "wrongShieldFactor": 0.85,
       "power": 0.8,
-      "uses": 2
+      "description": "威力0.8の攻撃＋次の敵攻撃2回を正解で70％、不正解で85％に軽減。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "R_extend",
+      "name": "Extend／エクステンド",
+      "vocab": {
+        "en": "extend",
+        "ja": "延ばす",
+        "level": 1
+      },
+      "attr": "metal",
+      "rarity": "R",
+      "type": "replenish",
+      "uses": 2,
+      "description": "正解で、使用回数が最も減っている別の技を1回回復。同数なら枠順。回数回復技には使えない。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "SR_echo",
+      "name": "Thunder／サンダー",
+      "vocab": {
+        "en": "thunder",
+        "ja": "雷",
+        "level": 2
+      },
+      "attr": "echo",
+      "rarity": "SR",
+      "type": "attack",
+      "uses": 1,
+      "power": 1.6,
+      "description": "威力1.6の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "SR_broadcast",
+      "name": "Broadcast／ブロードキャスト",
+      "vocab": {
+        "en": "broadcast",
+        "ja": "放送する",
+        "level": 1
+      },
+      "attr": "echo",
+      "rarity": "SR",
+      "type": "attack",
+      "uses": 2,
+      "power": 1.5,
+      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "SR_mirage",
+      "name": "Disappear／ディサピア",
+      "vocab": {
+        "en": "disappear",
+        "ja": "消える",
+        "level": 2
+      },
+      "attr": "mirage",
+      "rarity": "SR",
+      "type": "attack",
+      "uses": 1,
+      "power": 1.6,
+      "description": "威力1.6の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "SR_fancy",
+      "name": "Fancy／ファンシー",
+      "vocab": {
+        "en": "fancy",
+        "ja": "空想",
+        "level": 1
+      },
+      "attr": "mirage",
+      "rarity": "SR",
+      "type": "attack",
+      "uses": 1,
+      "power": 1.7,
+      "description": "威力1.7の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "SR_metal",
+      "name": "Defeat／ディフィート",
+      "vocab": {
+        "en": "defeat",
+        "ja": "打ち負かす",
+        "level": 1
+      },
+      "attr": "metal",
+      "rarity": "SR",
+      "type": "attack",
+      "uses": 1,
+      "power": 1.6,
+      "description": "威力1.6の攻撃。 使用回数は正誤にかかわらず消費。"
+    },
+    {
+      "id": "SR_absolute",
+      "name": "Absolute／アブソリュート",
+      "vocab": {
+        "en": "absolute",
+        "ja": "絶対的な",
+        "level": 1
+      },
+      "attr": "metal",
+      "rarity": "SR",
+      "type": "ward",
+      "uses": 1,
+      "shieldHits": 2,
+      "shieldFactor": 0.65,
+      "wrongShieldFactor": 0.8,
+      "power": 1.1,
+      "description": "威力1.1の攻撃＋次の敵攻撃2回を正解で65％、不正解で80％に軽減。 使用回数は正誤にかかわらず消費。"
     }
   ],
   "gear": [
     {
       "id": "none",
       "name": "装備なし",
-      "bonus": 0
+      "bonus": 0,
+      "description": "能力補正なし"
     },
     {
       "id": "N_hp",
-      "name": "N・ライフチャーム",
+      "name": "Bud／バド",
+      "vocab": {
+        "en": "bud",
+        "ja": "つぼみ",
+        "level": 1
+      },
       "rarity": "N",
       "stat": "hp",
-      "bonus": 0.08
+      "bonus": 0.08,
+      "description": "たいりょく＋8％"
+    },
+    {
+      "id": "N_growth",
+      "name": "Growth／グロース",
+      "vocab": {
+        "en": "growth",
+        "ja": "成長",
+        "level": 2
+      },
+      "rarity": "N",
+      "bonuses": {
+        "hp": 0.05,
+        "defense": 0.03
+      },
+      "description": "たいりょく＋5％・ぼうぎょ＋3％"
+    },
+    {
+      "id": "N_bloom",
+      "name": "Bloom／ブルーム",
+      "vocab": {
+        "en": "bloom",
+        "ja": "咲く",
+        "level": 2
+      },
+      "rarity": "N",
+      "bonuses": {
+        "hp": 0.05,
+        "speed": 0.03
+      },
+      "description": "たいりょく＋5％・すばやさ＋3％"
     },
     {
       "id": "N_attack",
-      "name": "N・パワーリング",
+      "name": "Force／フォース",
+      "vocab": {
+        "en": "force",
+        "ja": "力、強制する",
+        "level": 2
+      },
       "rarity": "N",
       "stat": "attack",
-      "bonus": 0.08
+      "bonus": 0.08,
+      "description": "こうげき＋8％"
+    },
+    {
+      "id": "N_powerful",
+      "name": "Powerful／パワフル",
+      "vocab": {
+        "en": "powerful",
+        "ja": "強力な",
+        "level": 2
+      },
+      "rarity": "N",
+      "bonuses": {
+        "attack": 0.05,
+        "hp": 0.03
+      },
+      "description": "こうげき＋5％・たいりょく＋3％"
+    },
+    {
+      "id": "N_keen",
+      "name": "Keen／キーン",
+      "vocab": {
+        "en": "keen",
+        "ja": "鋭い、熱心な",
+        "level": 1
+      },
+      "rarity": "N",
+      "bonuses": {
+        "attack": 0.05,
+        "speed": 0.03
+      },
+      "description": "こうげき＋5％・すばやさ＋3％"
     },
     {
       "id": "N_defense",
-      "name": "N・ガードプレート",
+      "name": "Shell／シェル",
+      "vocab": {
+        "en": "shell",
+        "ja": "殻",
+        "level": 2
+      },
       "rarity": "N",
       "stat": "defense",
-      "bonus": 0.08
+      "bonus": 0.08,
+      "description": "ぼうぎょ＋8％"
+    },
+    {
+      "id": "N_leather",
+      "name": "Leather／レザー",
+      "vocab": {
+        "en": "leather",
+        "ja": "革",
+        "level": 1
+      },
+      "rarity": "N",
+      "bonuses": {
+        "defense": 0.05,
+        "speed": 0.03
+      },
+      "description": "ぼうぎょ＋5％・すばやさ＋3％"
+    },
+    {
+      "id": "N_copper",
+      "name": "Copper／カッパー",
+      "vocab": {
+        "en": "copper",
+        "ja": "銅",
+        "level": 1
+      },
+      "rarity": "N",
+      "bonuses": {
+        "defense": 0.05,
+        "hp": 0.03
+      },
+      "description": "ぼうぎょ＋5％・たいりょく＋3％"
     },
     {
       "id": "N_speed",
-      "name": "N・スピードブーツ",
+      "name": "Feather／フェザー",
+      "vocab": {
+        "en": "feather",
+        "ja": "羽",
+        "level": 2
+      },
       "rarity": "N",
       "stat": "speed",
-      "bonus": 0.08
+      "bonus": 0.08,
+      "description": "すばやさ＋8％"
+    },
+    {
+      "id": "N_rapid",
+      "name": "Rapid／ラピッド",
+      "vocab": {
+        "en": "rapid",
+        "ja": "急速な",
+        "level": 1
+      },
+      "rarity": "N",
+      "bonuses": {
+        "speed": 0.05,
+        "attack": 0.03
+      },
+      "description": "すばやさ＋5％・こうげき＋3％"
+    },
+    {
+      "id": "N_motion",
+      "name": "Motion／モーション",
+      "vocab": {
+        "en": "motion",
+        "ja": "動き",
+        "level": 1
+      },
+      "rarity": "N",
+      "bonuses": {
+        "speed": 0.05,
+        "defense": 0.03
+      },
+      "description": "すばやさ＋5％・ぼうぎょ＋3％"
+    },
+    {
+      "id": "N_confidence",
+      "name": "Confidence／コンフィデンス",
+      "vocab": {
+        "en": "confidence",
+        "ja": "自信",
+        "level": 1
+      },
+      "rarity": "N",
+      "effect": "streak",
+      "description": "攻撃を伴う行動に2回連続正解すると、次の攻撃が1.15倍。強化を使うと連続数をリセット。不正解でもリセット。"
+    },
+    {
+      "id": "N_patience",
+      "name": "Patience／ペイシェンス",
+      "vocab": {
+        "en": "patience",
+        "ja": "忍耐",
+        "level": 2
+      },
+      "rarity": "N",
+      "effect": "patient",
+      "description": "相手より素早さが低いと、敵の攻撃から受けるダメージを10％軽減。"
+    },
+    {
+      "id": "N_courage",
+      "name": "Courage／カリッジ",
+      "vocab": {
+        "en": "courage",
+        "ja": "勇気",
+        "level": 2
+      },
+      "rarity": "N",
+      "effect": "courage",
+      "description": "HPが最大HPの半分以下のとき、攻撃のダメージを12％強化。"
+    },
+    {
+      "id": "N_spare",
+      "name": "Spare／スペア",
+      "vocab": {
+        "en": "spare",
+        "ja": "予備の",
+        "level": 2
+      },
+      "rarity": "N",
+      "effect": "spare",
+      "description": "攻撃・回復・防護などの技を最初に使い切ったとき、1回だけ使用回数を1回復。回数回復技には発動しない。"
+    },
+    {
+      "id": "N_harmony",
+      "name": "Harmony／ハーモニー",
+      "vocab": {
+        "en": "harmony",
+        "ja": "調和",
+        "level": 1
+      },
+      "rarity": "N",
+      "effect": "harmony",
+      "description": "防御問題に正解して生き残ると、最大HPの3％を回復。"
+    },
+    {
+      "id": "N_steady",
+      "name": "Steady／ステディ",
+      "vocab": {
+        "en": "steady",
+        "ja": "安定した",
+        "level": 1
+      },
+      "rarity": "N",
+      "effect": "steady",
+      "description": "戦闘中、最初の防御不正解だけ、被ダメージ増加を120％から100％に抑える。"
     },
     {
       "id": "R_hp",
-      "name": "R・ライフチャーム",
+      "name": "Vitamin／ビタミン",
+      "vocab": {
+        "en": "vitamin",
+        "ja": "ビタミン",
+        "level": 2
+      },
       "rarity": "R",
       "stat": "hp",
-      "bonus": 0.12
+      "bonus": 0.12,
+      "description": "たいりょく＋12％"
     },
     {
       "id": "R_attack",
-      "name": "R・パワーリング",
+      "name": "Strength／ストレングス",
+      "vocab": {
+        "en": "strength",
+        "ja": "強さ",
+        "level": 2
+      },
       "rarity": "R",
       "stat": "attack",
-      "bonus": 0.12
+      "bonus": 0.12,
+      "description": "こうげき＋12％"
     },
     {
       "id": "R_defense",
-      "name": "R・ガードプレート",
+      "name": "Steel／スティール",
+      "vocab": {
+        "en": "steel",
+        "ja": "鋼鉄",
+        "level": 2
+      },
       "rarity": "R",
       "stat": "defense",
-      "bonus": 0.12
+      "bonus": 0.12,
+      "description": "ぼうぎょ＋12％"
     },
     {
       "id": "R_speed",
-      "name": "R・スピードブーツ",
+      "name": "Flight／フライト",
+      "vocab": {
+        "en": "flight",
+        "ja": "飛行",
+        "level": 2
+      },
       "rarity": "R",
       "stat": "speed",
-      "bonus": 0.12
+      "bonus": 0.12,
+      "description": "すばやさ＋12％"
     },
     {
       "id": "SR_hp",
-      "name": "SR・ライフチャーム",
+      "name": "Survive／サバイブ",
+      "vocab": {
+        "en": "survive",
+        "ja": "生き残る",
+        "level": 1
+      },
       "rarity": "SR",
       "stat": "hp",
-      "bonus": 0.16
+      "bonus": 0.16,
+      "description": "たいりょく＋16％"
     },
     {
       "id": "SR_attack",
-      "name": "SR・パワーリング",
+      "name": "Superior／スーペリア",
+      "vocab": {
+        "en": "superior",
+        "ja": "優れた",
+        "level": 1
+      },
       "rarity": "SR",
       "stat": "attack",
-      "bonus": 0.16
+      "bonus": 0.16,
+      "description": "こうげき＋16％"
     },
     {
       "id": "SR_defense",
-      "name": "SR・ガードプレート",
+      "name": "Reliable／リライアブル",
+      "vocab": {
+        "en": "reliable",
+        "ja": "信頼できる",
+        "level": 1
+      },
       "rarity": "SR",
       "stat": "defense",
-      "bonus": 0.16
+      "bonus": 0.16,
+      "description": "ぼうぎょ＋16％"
     },
     {
       "id": "SR_speed",
-      "name": "SR・スピードブーツ",
+      "name": "Advance／アドバンス",
+      "vocab": {
+        "en": "advance",
+        "ja": "前進する／前進",
+        "level": 1
+      },
       "rarity": "SR",
       "stat": "speed",
-      "bonus": 0.16
+      "bonus": 0.16,
+      "description": "すばやさ＋16％"
     }
   ],
   "questions": [
