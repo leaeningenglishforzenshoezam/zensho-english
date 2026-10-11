@@ -40,7 +40,8 @@ function importLatestResults(){
     document.getElementById(target).textContent="このアカウントの保存領域が利用可能になるまで取り込みを保留しています。";
     continue;
   }
-  if(raw.missionAccount && raw.missionAccount!==active){document.getElementById(target).textContent="採点時の保存先が現在と異なるため、取り込みを停止しました。";continue;}
+  if(typeof raw.missionAccount!=="string"||!raw.missionAccount){document.getElementById(target).textContent="旧形式の採点結果です。保存先を確認できないため自動取り込みを保留しました。";continue;}
+  if(raw.missionAccount!==active){document.getElementById(target).textContent="採点時の保存先が現在と異なるため、取り込みを停止しました。";continue;}
   const result=window.GoimonDailyMissions?.[method]?.(raw);
   const output=document.getElementById(target);
   if(output)output.textContent=JSON.stringify(result,null,2);
