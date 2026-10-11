@@ -1,4 +1,4 @@
-// daily_mission_bridge.js
+// daily_mission_integration.js
 // Existing quiz session summaries -> mission validation. Read-only: never awards stars.
 (function(){
 "use strict";
@@ -23,5 +23,19 @@ function evaluateWordSession(mission,mode,attempts){
  if(typeof window.GoimonMissionSession?.evaluate!=="function")return {valid:false,completed:false,reason:"validator_missing"};
  return window.GoimonMissionSession.evaluate(mission,converted.result);
 }
-window.GoimonMissionBridge=Object.freeze({createWordSessionResult,evaluateWordSession});
+// Prepare only the settings already supported by existing quiz URLs.
+// The quiz pages do not yet support mission-locked question counts or automatic result callbacks.
+function getWordMissionLaunch(mission){
+ if(!mission || mission.slot!=="words" || !mission.available ||
+    !Number.isInteger(mission.rangeStart) || !Number.isInteger(mission.rangeEnd) ||
+    mission.rangeEnd-mission.rangeStart!==19)return {ready:false,reason:"invalid_mission"};
+ const pageByCategory={quiz_enja:"quiz.html",quiz_jaen:"quiz_jaen.html",audio_quiz:"audio_quiz.html"};
+ const page=pageByCategory[mission.category];
+ if(!page)return {ready:false,reason:"unsupported_category"};
+ const params=new URLSearchParams({start:String(mission.rangeStart),end:String(mission.rangeEnd)});
+ if(mission.category!=="audio_quiz")params.set("mode","random");
+ return {ready:true,url:page+"?"+params.toString(),autoStart:false,
+   note:"出題範囲のみ自動設定します。20問の出題数は画面で確認してください。ミッションのクリアはまだ記録されません。"};
+}
+window.GoimonMissionBridge=Object.freeze({createWordSessionResult,evaluateWordSession,getWordMissionLaunch});
 })();
