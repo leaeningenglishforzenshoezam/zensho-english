@@ -45,9 +45,9 @@
  }
  function mergeCompletionRecord(key,baseValue,localValue,remoteValue){
   const match=key.match(/^goimon_daily_mission_completions_v1_lv([12])_(\d{4}-\d{2}-\d{2})$/);
-  if(!match||baseValue===undefined||localValue===undefined||remoteValue===undefined)return null;
+  if(!match||localValue===undefined||remoteValue===undefined)return null;
   let b,l,r;
-  try{b=JSON.parse(baseValue);l=JSON.parse(localValue);r=JSON.parse(remoteValue);}catch(_){return null;}
+  try{b=baseValue===undefined?{date:match[2],level:match[1],completed:{}}:JSON.parse(baseValue);l=JSON.parse(localValue);r=JSON.parse(remoteValue);}catch(_){return null;}
   const valid=x=>x&&typeof x==='object'&&!Array.isArray(x)&&x.date===match[2]&&String(x.level)===match[1]&&x.completed&&typeof x.completed==='object'&&!Array.isArray(x.completed)&&Object.keys(x).every(k=>['date','level','completed'].includes(k))&&Object.keys(x.completed).every(k=>['words','idioms','exam','listening','reading','reorder'].includes(k));
   if(![b,l,r].every(valid))return null;
   const combined={date:match[2],level:match[1],completed:{}};
