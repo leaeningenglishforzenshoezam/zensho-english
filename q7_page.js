@@ -1,3 +1,6 @@
+// Daily mission result origin: capture account when this quiz script starts.
+const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
+function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
 (function () {
   "use strict";
 
@@ -793,7 +796,7 @@ document.querySelectorAll(".paragraph-translation")
     persistSession();
     const dp=new URLSearchParams(location.search);
     if(dp.get("dailyMission")==="reading"&&dp.get("setId")===current.id){
-      try{sessionStorage.setItem("goimon_daily_mission_latest_reading_v1",JSON.stringify({level:"1",day:dp.get("missionDate"),category:"q7",setId:current.id,correct,total:5,finishedAt:new Date().toISOString()}));}catch(_){}
+      try{sessionStorage.setItem("goimon_daily_mission_latest_reading_v1",JSON.stringify(goimonDailyStamped({level:"1",day:dp.get("missionDate"),category:"q7",setId:current.id,correct,total:5,finishedAt:new Date().toISOString()})));}catch(_){}
     }
 
     renderQuestions();
