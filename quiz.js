@@ -12,6 +12,7 @@ function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_D
 // ★解答後に全選択肢の「日本語＝英語」を表示
 
 document.addEventListener("DOMContentLoaded", () => {
+  const dailyMissionStartAccount=localStorage.getItem("goimon_cloud_v2:active")||"guest";
   const words = window.WORDS || [];
 const blocks = window.BLOCKS || [];
 const PASS_LINE = 80;
@@ -1525,7 +1526,7 @@ resultEl.innerHTML = `
     const request = dailyMissionRequest();
     if(!request || !Array.isArray(attempts)) return;
     const clean=attempts.map(a=>({no:a.no,isCorrect:a.isCorrect}));
-    const payload={...request,attempts:clean,finishedAt:new Date().toISOString()};
+    const payload={...request,attempts:clean,finishedAt:new Date().toISOString(),missionAccount:dailyMissionStartAccount};
     try {sessionStorage.setItem("goimon_daily_mission_latest_result_v1",JSON.stringify(goimonDailyStamped(payload)));}catch(_){}
   }
  
