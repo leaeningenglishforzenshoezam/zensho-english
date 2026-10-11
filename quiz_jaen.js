@@ -14,6 +14,7 @@ function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_D
 // - 結果画面から「同じ問題セットに再挑戦」「同じ設定で次へ」が可能
 
 document.addEventListener("DOMContentLoaded", () => {
+  const dailyMissionStartAccount=localStorage.getItem("goimon_cloud_v2:active")||"guest";
   const words = window.WORDS || [];
   const blocks = window.BLOCKS || [];
   const PASS_LINE = 80;
@@ -919,7 +920,7 @@ function renderWrongSummaryList() {
     const request = dailyMissionRequest();
     if(!request || !Array.isArray(attempts)) return;
     const clean=attempts.map(a=>({no:a.no,isCorrect:a.isCorrect}));
-    const payload={...request,attempts:clean,finishedAt:new Date().toISOString()};
+    const payload={...request,attempts:clean,finishedAt:new Date().toISOString(),missionAccount:dailyMissionStartAccount};
     try {sessionStorage.setItem("goimon_daily_mission_latest_result_v1",JSON.stringify(goimonDailyStamped(payload)));}catch(_){}
   }
  
