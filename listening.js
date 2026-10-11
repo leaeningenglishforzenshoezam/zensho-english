@@ -1,3 +1,4 @@
+const GOIMON_DAILY_RESULT_ORIGIN = localStorage.getItem("goimon_cloud_v2:active") || "guest";
 // listening.js
 // 第1段階：大問3形式・4択リスニング対応版
 // - 設定保存
@@ -6252,7 +6253,7 @@ stopAudio();
   const daily=new URLSearchParams(location.search);
   if(daily.get("dailyMission")==="listening"&&sessionResults.length===5){
     const attempts=sessionResults.map(x=>({id:String(x.id),correct:x.isCorrect}));
-    try{sessionStorage.setItem("goimon_daily_mission_latest_listening_v1",JSON.stringify({day:daily.get("missionDate"),level:"1",category:"listening",format:getSelectedFormat(),attempts,finishedAt:new Date().toISOString()}));}catch(_){}
+    try{sessionStorage.setItem("goimon_daily_mission_latest_listening_v1",JSON.stringify({day:daily.get("missionDate"),level:"1",category:"listening",format:getSelectedFormat(),attempts,finishedAt:new Date().toISOString(),missionAccount:GOIMON_DAILY_RESULT_ORIGIN}));}catch(_){}
   }
   stopAudio();
 
