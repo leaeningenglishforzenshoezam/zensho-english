@@ -7,7 +7,8 @@
     "deploy": "wrangler deploy",
     "db:local": "wrangler d1 migrations apply goimon-cloud --local",
     "db:remote": "wrangler d1 migrations apply goimon-cloud --remote",
-    "test": "node --test"
+    "test": "node --test",
+    "deploy:public": "wrangler deploy --config wrangler.public.jsonc"
   },
   "dependencies": {
     "jose": "^6.0.0"
