@@ -40,7 +40,7 @@ function daysBetween(start,day){
 function firstMissionDay(level,kind,day){
  const key="goimon_daily_first_day_v1_lv"+level+"_"+kind;
  let start=null;try{start=localStorage.getItem(key);}catch(_){}
- if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(start||"")||start>day){
+ if(!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(start||"")||start>day){
   start=day;try{localStorage.setItem(key,start);}catch(_){}
  }
  return start;
