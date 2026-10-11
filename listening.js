@@ -1,4 +1,4 @@
-const GOIMON_DAILY_RESULT_ORIGIN = localStorage.getItem("goimon_cloud_v2:active") || "guest";
+const GOIMON_DAILY_RESULT_ORIGIN = GOIMONStorage.getItem("goimon_cloud_v2:active") || "guest";
 // listening.js
 // 第1段階：大問3形式・4択リスニング対応版
 // - 設定保存
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const LEVEL_KEY = "zensho_level_v1";
   const lv = String(
     window.ACTIVE_LEVEL ||
-    localStorage.getItem(LEVEL_KEY) ||
+    GOIMONStorage.getItem(LEVEL_KEY) ||
     "1"
   );
 
@@ -1178,7 +1178,7 @@ function updatePoolInfo() {
 function loadAttemptCounts() {
   try {
     const raw =
-      localStorage.getItem(
+      GOIMONStorage.getItem(
         ATTEMPT_KEY
       );
 
@@ -1209,7 +1209,7 @@ function saveAttemptCounts(
   counts
 ) {
   try {
-    localStorage.setItem(
+    GOIMONStorage.setItem(
       ATTEMPT_KEY,
       JSON.stringify(
         counts || {}
@@ -1273,7 +1273,7 @@ function incrementAttemptCount(
 function loadMethodAttemptCounts() {
   try {
     const raw =
-      localStorage.getItem(
+      GOIMONStorage.getItem(
         METHOD_ATTEMPT_KEY
       );
 
@@ -1304,7 +1304,7 @@ function saveMethodAttemptCounts(
   counts
 ) {
   try {
-    localStorage.setItem(
+    GOIMONStorage.setItem(
       METHOD_ATTEMPT_KEY,
       JSON.stringify(
         counts || {}
@@ -1801,7 +1801,7 @@ function setQuestionSelectMode(
   function loadSettings() {
     const saved =
       safeParse(
-        localStorage.getItem(
+        GOIMONStorage.getItem(
           SETTINGS_KEY
         ),
         {}
@@ -1877,7 +1877,7 @@ function setQuestionSelectMode(
   }
 
   function saveSettings() {
-    localStorage.setItem(
+    GOIMONStorage.setItem(
       SETTINGS_KEY,
       JSON.stringify(
         collectSettings()
@@ -1980,7 +1980,7 @@ function setQuestionSelectMode(
   function loadWeakMap() {
     const obj =
       safeParse(
-        localStorage.getItem(
+        GOIMONStorage.getItem(
           WEAK_KEY
         ),
         {}
@@ -2024,7 +2024,7 @@ function setQuestionSelectMode(
   }
 
   function saveWeakMap(map) {
-    localStorage.setItem(
+    GOIMONStorage.setItem(
       WEAK_KEY,
       JSON.stringify(map || {})
     );
@@ -2183,7 +2183,7 @@ function setQuestionSelectMode(
   function loadCursor() {
   const obj =
     safeParse(
-      localStorage.getItem(
+      GOIMONStorage.getItem(
         CURSOR_KEY
       ),
       {}
@@ -2211,7 +2211,7 @@ function setQuestionSelectMode(
 function saveCursor(cursor) {
   const obj =
     safeParse(
-      localStorage.getItem(
+      GOIMONStorage.getItem(
         CURSOR_KEY
       ),
       {}
@@ -2229,7 +2229,7 @@ function saveCursor(cursor) {
       Number(cursor || 0)
     );
 
-  localStorage.setItem(
+  GOIMONStorage.setItem(
     CURSOR_KEY,
     JSON.stringify(obj)
   );
@@ -6172,7 +6172,7 @@ stopAudio();
     const dailyEnabled=daily.get("dailyMission")==="listening";
     const built =
       dailyEnabled && explicitQuestions ? explicitQuestions.slice() : dailyEnabled ? getQuestionsByFormat().slice().sort((a,b)=>{
-        let history={};try{history=JSON.parse(localStorage.getItem("goimon_daily_exam_history_v1_lv1_listening:"+getSelectedFormat())||"{}")||{};}catch(_){}
+        let history={};try{history=JSON.parse(GOIMONStorage.getItem("goimon_daily_exam_history_v1_lv1_listening:"+getSelectedFormat())||"{}")||{};}catch(_){}
         const x=history[String(a.id)]||{},y=history[String(b.id)]||{};
         return Number(x.attempts||0)-Number(y.attempts||0)||Number(x.lastSeen||0)-Number(y.lastSeen||0);
       }).slice(0,5) : explicitQuestions
