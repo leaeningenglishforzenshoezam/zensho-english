@@ -368,7 +368,12 @@
       "type": "attack",
       "uses": 3,
       "power": 1.5,
-      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "風船を割る勢いで叫ぶ。風船は持っていないので、空気が気まずくなる。",
+        "en": "Burst into a shout loud enough to pop a balloon. There is no balloon. The air feels awkward."
+      },
+      "descriptionEn": "Attack with power 1.5. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_scream",
@@ -383,7 +388,12 @@
       "type": "attack",
       "uses": 4,
       "power": 1.4,
-      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "森じゅうに悲鳴が響く。本人は「発声練習です」と言い張っている。",
+        "en": "Scream across the forest. Insist that it is just voice practice."
+      },
+      "descriptionEn": "Attack with power 1.4. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_encourage",
@@ -398,7 +408,12 @@
       "type": "heal",
       "uses": 3,
       "healFraction": 0.25,
-      "description": "最大HPの25％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
+      "description": "最大HPの25％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "「君ならできる！」と応援する。自分に言っていることは秘密。",
+        "en": "Encourage yourself with a mighty cheer. Pretend it was meant for someone else."
+      },
+      "descriptionEn": "Restore 25% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_concentrate",
@@ -414,7 +429,12 @@
       "uses": 3,
       "nextPower": 1.75,
       "power": 1.05,
-      "description": "威力1.05の攻撃。正解で次の攻撃を1.75倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.05の攻撃。正解で次の攻撃を1.75倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "一点に集中する。鼻先のちょうちょも集中してこちらを見ている。",
+        "en": "Concentrate on one point. A butterfly on your nose is concentrating on you."
+      },
+      "descriptionEn": "Attack with power 1.05. A correct answer makes your next attack 1.75 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_relieve",
@@ -430,7 +450,12 @@
       "uses": 3,
       "weakFactor": 0.65,
       "power": 1.1,
-      "description": "威力1.1の攻撃。正解で次の敵の攻撃を65％にする。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.1の攻撃。正解で次の敵の攻撃を65％にする。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "相手の肩の力を抜かせる。戦闘中の出張リラックスサービス。",
+        "en": "Relieve the tension with a relaxing voice. A tiny spa, right in the middle of battle."
+      },
+      "descriptionEn": "Attack with power 1.1. A correct answer reduces the enemy's next attack damage to 65%. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_remind",
@@ -446,7 +471,12 @@
       "uses": 1,
       "description": "威力1の攻撃＋正解で、使用回数が最も減っている別の技を最大1回復。同数なら枠順。上限を超えず、回数回復技には使えない。 使用回数は正誤にかかわらず消費。",
       "power": 1,
-      "restoreUses": 1
+      "restoreUses": 1,
+      "flavor": {
+        "ja": "忘れていた技を思い出させる。思い出したのは昨日の夕飯ではない。",
+        "en": "Remind a skill that it still has a job to do. Yesterday's dinner can wait."
+      },
+      "descriptionEn": "Attack with power 1. A correct answer restores up to 1 use(s) to another skill with the most uses missing. Ties follow slot order. Never exceed its limit or restore a use-restoring skill. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_aid",
@@ -461,7 +491,12 @@
       "type": "heal",
       "uses": 4,
       "healFraction": 0.2,
-      "description": "最大HPの20％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
+      "description": "最大HPの20％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "救急箱を開く。ばんそうこう全部に自分の似顔絵が描いてある。",
+        "en": "Offer aid from a first-aid box. Every bandage has your face on it."
+      },
+      "descriptionEn": "Restore 20% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_praise",
@@ -477,7 +512,12 @@
       "uses": 4,
       "nextPower": 1.65,
       "power": 0.95,
-      "description": "威力0.95の攻撃。正解で次の攻撃を1.65倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "description": "威力0.95の攻撃。正解で次の攻撃を1.65倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "自分をほめて勢いをつける。拍手担当も自分。",
+        "en": "Praise yourself before the next hit. You are also in charge of the applause."
+      },
+      "descriptionEn": "Attack with power 0.95. A correct answer makes your next attack 1.65 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_pronounce",
@@ -492,7 +532,12 @@
       "type": "attack",
       "uses": 4,
       "power": 1.4,
-      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "一語一語をはっきり発音する。相手の耳まで姿勢がよくなる。",
+        "en": "Pronounce every word clearly. Even the enemy's ears sit up straight."
+      },
+      "descriptionEn": "Attack with power 1.4. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_rhythm",
@@ -508,7 +553,12 @@
       "uses": 3,
       "nextPower": 1.6,
       "power": 1.15,
-      "description": "威力1.15の攻撃。正解で次の攻撃を1.6倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.15の攻撃。正解で次の攻撃を1.6倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "リズムを刻んで次の一撃へ。足だけ先に盛り上がっている。",
+        "en": "Find your rhythm for the next hit. Your feet start the party early."
+      },
+      "descriptionEn": "Attack with power 1.15. A correct answer makes your next attack 1.6 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_comfort",
@@ -523,7 +573,12 @@
       "type": "heal",
       "uses": 4,
       "healFraction": 0.2,
-      "description": "最大HPの20％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
+      "description": "最大HPの20％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "ふわふわの毛布で自分を慰める。森に持ってきたのは正解だった。",
+        "en": "Comfort yourself with a fluffy blanket. Bringing it to the forest was a good idea."
+      },
+      "descriptionEn": "Restore 20% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_whisper",
@@ -538,7 +593,12 @@
       "type": "attack",
       "uses": 4,
       "power": 1.4,
-      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "小声でとんでもないことをささやく。「靴下、左右ちがうよ」。",
+        "en": "Whisper something shocking: Your socks do not match."
+      },
+      "descriptionEn": "Attack with power 1.4. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_mirage",
@@ -553,7 +613,12 @@
       "type": "attack",
       "uses": 3,
       "power": 1.5,
-      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "小さな影を投げかける。本人より影のほうがポーズに自信がある。",
+        "en": "Cast a little shadow. It is much more confident about its pose than you are."
+      },
+      "descriptionEn": "Attack with power 1.5. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_chase",
@@ -568,7 +633,12 @@
       "type": "attack",
       "uses": 4,
       "power": 1.4,
-      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "相手を追いかける。気持ちは勇者、足音は買い物帰り。",
+        "en": "Chase the enemy like a hero. Your footsteps sound like a trip home from the shops."
+      },
+      "descriptionEn": "Attack with power 1.4. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_flash",
@@ -583,7 +653,12 @@
       "type": "attack",
       "uses": 2,
       "power": 1.65,
-      "description": "威力1.65の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.65の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "まぶしく光る。記念写真を撮る予定はなかった。",
+        "en": "Flash like a camera. Nobody asked for a group photo."
+      },
+      "descriptionEn": "Attack with power 1.65. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_prepare",
@@ -599,7 +674,12 @@
       "uses": 3,
       "nextPower": 1.75,
       "power": 1.05,
-      "description": "威力1.05の攻撃。正解で次の攻撃を1.75倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.05の攻撃。正解で次の攻撃を1.75倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "次の一撃に備える。おやつの準備まで済んでいる。",
+        "en": "Prepare for the next hit. The snacks are ready too."
+      },
+      "descriptionEn": "Attack with power 1.05. A correct answer makes your next attack 1.75 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_confuse",
@@ -615,7 +695,12 @@
       "uses": 3,
       "weakFactor": 0.65,
       "power": 1.1,
-      "description": "威力1.1の攻撃。正解で次の敵の攻撃を65％にする。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.1の攻撃。正解で次の敵の攻撃を65％にする。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "右を指して左を見る。本人もちょっと混乱している。",
+        "en": "Confuse the enemy by pointing right and looking left. Confuse yourself a little too."
+      },
+      "descriptionEn": "Attack with power 1.1. A correct answer reduces the enemy's next attack damage to 65%. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_harmony",
@@ -633,7 +718,12 @@
       "shieldFactor": 0.65,
       "wrongShieldFactor": 0.85,
       "power": 1.1,
-      "description": "威力1.1の攻撃＋次の敵攻撃1回を正解で65％、不正解で85％に軽減。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.1の攻撃＋次の敵攻撃1回を正解で65％、不正解で85％に軽減。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "影たちと息を合わせる。ひとつだけ音程が迷子。",
+        "en": "Bring your shadows into harmony. One of them is still searching for the right note."
+      },
+      "descriptionEn": "Attack with power 1.1. Reduce damage from the next 1 enemy attack(s) to 65% with a correct answer, or 85% with a wrong answer. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_angle",
@@ -648,7 +738,12 @@
       "type": "attack",
       "uses": 3,
       "power": 1.5,
-      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "絶妙な角度から攻める。三角定規に見守られている気がする。",
+        "en": "Attack from the perfect angle. Somewhere, a triangle ruler feels proud."
+      },
+      "descriptionEn": "Attack with power 1.5. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_glance",
@@ -664,7 +759,12 @@
       "uses": 4,
       "nextPower": 1.65,
       "power": 0.95,
-      "description": "威力0.95の攻撃。正解で次の攻撃を1.65倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "description": "威力0.95の攻撃。正解で次の攻撃を1.65倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "ちらっと相手を見て作戦を立てる。見ていないふりが下手。",
+        "en": "Glance at the enemy and plan the next hit. Fail to look casual about it."
+      },
+      "descriptionEn": "Attack with power 0.95. A correct answer makes your next attack 1.65 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_shade",
@@ -682,7 +782,12 @@
       "shieldFactor": 0.75,
       "wrongShieldFactor": 0.9,
       "power": 0.95,
-      "description": "威力0.95の攻撃＋次の敵攻撃1回を正解で75％、不正解で90％に軽減。 使用回数は正誤にかかわらず消費。"
+      "description": "威力0.95の攻撃＋次の敵攻撃1回を正解で75％、不正解で90％に軽減。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "日陰に身を寄せて攻める。木には家賃を払っていない。",
+        "en": "Attack from the shade. You have not paid the tree any rent."
+      },
+      "descriptionEn": "Attack with power 0.95. Reduce damage from the next 1 enemy attack(s) to 75% with a correct answer, or 90% with a wrong answer. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_mysterious",
@@ -697,7 +802,12 @@
       "type": "attack",
       "uses": 3,
       "power": 1.5,
-      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "謎めいた一撃を放つ。説明を求められても首をかしげる。",
+        "en": "Deliver a mysterious hit. Tilt your head when anyone asks how it works."
+      },
+      "descriptionEn": "Attack with power 1.5. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_image",
@@ -713,7 +823,12 @@
       "uses": 3,
       "nextPower": 1.6,
       "power": 1.15,
-      "description": "威力1.15の攻撃。正解で次の攻撃を1.6倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.15の攻撃。正解で次の攻撃を1.6倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "強そうな自分を思い描く。想像の中ではマントが異様に長い。",
+        "en": "Build an image of your mighty next hit. In your mind, your cape is far too long."
+      },
+      "descriptionEn": "Attack with power 1.15. A correct answer makes your next attack 1.6 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_observe",
@@ -729,7 +844,12 @@
       "uses": 2,
       "nextPower": 2,
       "power": 0.9,
-      "description": "威力0.9の攻撃。正解で次の攻撃を2倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "description": "威力0.9の攻撃。正解で次の攻撃を2倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "じっくり相手を観察する。まつ毛の本数は作戦に関係ない。",
+        "en": "Observe the enemy carefully. Counting eyelashes is not part of the plan."
+      },
+      "descriptionEn": "Attack with power 0.9. A correct answer makes your next attack 2 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_metal",
@@ -744,7 +864,12 @@
       "type": "attack",
       "uses": 3,
       "power": 1.5,
-      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.5の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "豪快にぶつかる。音だけ聞くと台所で鍋が落ちたみたい。",
+        "en": "Crash into the enemy. It sounds like someone dropped a pot in the kitchen."
+      },
+      "descriptionEn": "Attack with power 1.5. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_press",
@@ -759,7 +884,12 @@
       "type": "attack",
       "uses": 4,
       "power": 1.4,
-      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "ぐいっと押す。「押す」と書いたボタンを見ると押したくなる。",
+        "en": "Press forward with a solid hit. A button marked PRESS would be very tempting."
+      },
+      "descriptionEn": "Attack with power 1.4. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_slice",
@@ -774,7 +904,12 @@
       "type": "attack",
       "uses": 2,
       "power": 1.65,
-      "description": "威力1.65の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.65の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "すぱっと切り込む。心の中では大きなケーキを切っている。",
+        "en": "Slice through with a sharp hit. In your mind, it is a very large cake."
+      },
+      "descriptionEn": "Attack with power 1.65. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_defend",
@@ -792,7 +927,12 @@
       "shieldFactor": 0.65,
       "wrongShieldFactor": 0.85,
       "power": 1.1,
-      "description": "威力1.1の攻撃＋次の敵攻撃1回を正解で65％、不正解で85％に軽減。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.1の攻撃＋次の敵攻撃1回を正解で65％、不正解で85％に軽減。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "攻めながら身を守る。ふた付きの鍋を見てひらめいたらしい。",
+        "en": "Defend yourself while attacking. A pot with a lid gave you the idea."
+      },
+      "descriptionEn": "Attack with power 1.1. Reduce damage from the next 1 enemy attack(s) to 65% with a correct answer, or 85% with a wrong answer. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_reduce",
@@ -808,7 +948,12 @@
       "uses": 3,
       "weakFactor": 0.65,
       "power": 1.1,
-      "description": "威力1.1の攻撃。正解で次の敵の攻撃を65％にする。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.1の攻撃。正解で次の敵の攻撃を65％にする。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "相手の勢いを減らす。元気の音量つまみを少し回す感じ。",
+        "en": "Reduce the enemy's force. Imagine turning down the volume of its energy."
+      },
+      "descriptionEn": "Attack with power 1.1. A correct answer reduces the enemy's next attack damage to 65%. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_repair",
@@ -823,7 +968,12 @@
       "type": "heal",
       "uses": 3,
       "healFraction": 0.25,
-      "description": "最大HPの25％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
+      "description": "最大HPの25％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "傷を手当てする。工具箱からなぜかかわいいシールが出てくる。",
+        "en": "Repair the damage. Somehow, the toolbox is full of cute stickers."
+      },
+      "descriptionEn": "Restore 25% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_bind",
@@ -839,7 +989,12 @@
       "uses": 3,
       "weakFactor": 0.7,
       "power": 1.2,
-      "description": "威力1.2の攻撃。正解で次の敵の攻撃を70％にする。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.2の攻撃。正解で次の敵の攻撃を70％にする。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "相手の勢いを結ぶ。リボン結びにしたくて少しうずうずする。",
+        "en": "Bind the enemy's force. Try to resist adding a pretty bow."
+      },
+      "descriptionEn": "Attack with power 1.2. A correct answer reduces the enemy's next attack damage to 70%. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_decrease",
@@ -855,7 +1010,12 @@
       "uses": 4,
       "weakFactor": 0.7,
       "power": 0.95,
-      "description": "威力0.95の攻撃。正解で次の敵の攻撃を70％にする。 使用回数は正誤にかかわらず消費。"
+      "description": "威力0.95の攻撃。正解で次の敵の攻撃を70％にする。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "相手の勢いを小さくする。サイズ変更のお願いは丁寧に。",
+        "en": "Decrease the enemy's force. Ask politely for a smaller size."
+      },
+      "descriptionEn": "Attack with power 0.95. A correct answer reduces the enemy's next attack damage to 70%. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_prevent",
@@ -873,7 +1033,12 @@
       "shieldFactor": 0.75,
       "wrongShieldFactor": 0.9,
       "power": 0.95,
-      "description": "威力0.95の攻撃＋次の敵攻撃1回を正解で75％、不正解で90％に軽減。 使用回数は正誤にかかわらず消費。"
+      "description": "威力0.95の攻撃＋次の敵攻撃1回を正解で75％、不正解で90％に軽減。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "攻めつつ被害に備える。注意書きは「ぶつかる前によく読んで」。",
+        "en": "Prevent some damage while attacking. The warning says: Read before bumping into things."
+      },
+      "descriptionEn": "Attack with power 0.95. Reduce damage from the next 1 enemy attack(s) to 75% with a correct answer, or 90% with a wrong answer. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_brake",
@@ -889,7 +1054,12 @@
       "uses": 3,
       "weakFactor": 0.7,
       "power": 1.1,
-      "description": "威力1.1の攻撃。正解で次の敵の攻撃を70％にする。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.1の攻撃。正解で次の敵の攻撃を70％にする。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "相手の勢いにブレーキをかける。急停車するのは自転車だけではない。",
+        "en": "Brake the enemy's momentum. Bicycles are not the only things that need to slow down."
+      },
+      "descriptionEn": "Attack with power 1.1. A correct answer reduces the enemy's next attack damage to 70%. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_lock",
@@ -907,7 +1077,12 @@
       "shieldFactor": 0.7,
       "wrongShieldFactor": 0.9,
       "power": 1.25,
-      "description": "威力1.25の攻撃＋次の敵攻撃1回を正解で70％、不正解で90％に軽減。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.25の攻撃＋次の敵攻撃1回を正解で70％、不正解で90％に軽減。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "攻めながら守りを固める。鍵をかけたあと、三回確かめる。",
+        "en": "Lock your guard into place while attacking. Check the lock three times, just in case."
+      },
+      "descriptionEn": "Attack with power 1.25. Reduce damage from the next 1 enemy attack(s) to 70% with a correct answer, or 90% with a wrong answer. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "N_stretch",
@@ -923,7 +1098,12 @@
       "uses": 3,
       "nextPower": 1.6,
       "power": 1.15,
-      "description": "威力1.15の攻撃。正解で次の攻撃を1.6倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.15の攻撃。正解で次の攻撃を1.6倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "伸びをして次の一撃に備える。気分は大きい、身長はそのまま。",
+        "en": "Stretch before the next hit. Feel taller. Remain exactly the same height."
+      },
+      "descriptionEn": "Attack with power 1.15. A correct answer makes your next attack 1.6 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "R_echo",
@@ -938,7 +1118,12 @@
       "type": "attack",
       "uses": 2,
       "power": 1.9,
-      "description": "威力1.9の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.9の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "びっくりする音で攻める。自分も少しびっくりしたことは内緒。",
+        "en": "Shock the enemy with a sudden sound. Keep quiet about startling yourself too."
+      },
+      "descriptionEn": "Attack with power 1.9. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "heal",
@@ -953,7 +1138,12 @@
       "type": "heal",
       "uses": 2,
       "healFraction": 0.35,
-      "description": "最大HPの35％回復。不正解は半分。 使用回数は正誤にかかわらず消費。"
+      "description": "最大HPの35％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "手当てをする。苦い薬のあとにごほうびの顔だけしておく。",
+        "en": "Offer a cure with careful care. Make a reward face after the bitter medicine."
+      },
+      "descriptionEn": "Restore 35% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "R_praise",
@@ -969,7 +1159,12 @@
       "uses": 2,
       "nextPower": 2,
       "power": 1.3,
-      "description": "威力1.3の攻撃。正解で次の攻撃を2倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.3の攻撃。正解で次の攻撃を2倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "次の一撃へ号令をかける。部下は自分ひとり、返事は大きい。",
+        "en": "Command the next attack. You are the only soldier, but your reply is very loud."
+      },
+      "descriptionEn": "Attack with power 1.3. A correct answer makes your next attack 2 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "R_mirage",
@@ -984,7 +1179,12 @@
       "type": "attack",
       "uses": 2,
       "power": 1.9,
-      "description": "威力1.9の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.9の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "影で相手を取り囲む。ひとつだけ集合写真のつもりで並んでいる。",
+        "en": "Surround the enemy with shadows. One of them thinks this is a group photo."
+      },
+      "descriptionEn": "Attack with power 1.9. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "R_disturb",
@@ -1000,7 +1200,12 @@
       "uses": 2,
       "weakFactor": 0.5,
       "power": 1.35,
-      "description": "威力1.35の攻撃。正解で次の敵の攻撃を50％にする。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.35の攻撃。正解で次の敵の攻撃を50％にする。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "相手の集中を乱す。大事な場面でお腹が鳴った、という設定。",
+        "en": "Disturb the enemy's focus. Pretend your stomach picked this moment to rumble."
+      },
+      "descriptionEn": "Attack with power 1.35. A correct answer reduces the enemy's next attack damage to 50%. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "R_pretend",
@@ -1016,7 +1221,12 @@
       "uses": 2,
       "nextPower": 2,
       "power": 1.3,
-      "description": "威力1.3の攻撃。正解で次の攻撃を2倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.3の攻撃。正解で次の攻撃を2倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "強そうなふりで次の一撃に備える。演技に自分まで乗せられる。",
+        "en": "Pretend to be mighty before the next hit. Your own acting starts to convince you."
+      },
+      "descriptionEn": "Attack with power 1.3. A correct answer makes your next attack 2 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "R_metal",
@@ -1031,7 +1241,12 @@
       "type": "attack",
       "uses": 2,
       "power": 1.9,
-      "description": "威力1.9の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.9の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "好機をがっちりつかむ。ついでにおやつもつかみたい。",
+        "en": "Seize the moment with a firm hit. Wish you could seize a snack as well."
+      },
+      "descriptionEn": "Attack with power 1.9. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "ward",
@@ -1049,7 +1264,12 @@
       "shieldFactor": 0.6,
       "wrongShieldFactor": 0.8,
       "power": 1.3,
-      "description": "威力1.3の攻撃＋次の敵攻撃2回を正解で60％、不正解で80％に軽減。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.3の攻撃＋次の敵攻撃2回を正解で60％、不正解で80％に軽減。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "攻めつつ守りを張る。自分専用の「取扱注意」を掲げる。",
+        "en": "Protect yourself while attacking. Put up a sign that says: Handle with care."
+      },
+      "descriptionEn": "Attack with power 1.3. Reduce damage from the next 2 enemy attack(s) to 60% with a correct answer, or 80% with a wrong answer. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "R_extend",
@@ -1065,7 +1285,12 @@
       "uses": 2,
       "description": "威力1.2の攻撃＋正解で、使用回数が最も減っている別の技を最大2回復。同数なら枠順。上限を超えず、回数回復技には使えない。 使用回数は正誤にかかわらず消費。",
       "power": 1.2,
-      "restoreUses": 2
+      "restoreUses": 2,
+      "flavor": {
+        "ja": "別の技にもうひと頑張りしてもらう。延長申請書は葉っぱに書いた。",
+        "en": "Extend another skill's time on duty. Write the request on a leaf."
+      },
+      "descriptionEn": "Attack with power 1.2. A correct answer restores up to 2 use(s) to another skill with the most uses missing. Ties follow slot order. Never exceed its limit or restore a use-restoring skill. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "SR_echo",
@@ -1080,7 +1305,12 @@
       "type": "attack",
       "uses": 1,
       "power": 2.8,
-      "description": "威力2.8の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力2.8の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "雷のような音を放つ。森の天気予報はこれを聞いて書き直された。",
+        "en": "Roar like thunder. The forest weather report has to be rewritten."
+      },
+      "descriptionEn": "Attack with power 2.8. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "SR_broadcast",
@@ -1095,7 +1325,12 @@
       "type": "attack",
       "uses": 2,
       "power": 2.3,
-      "description": "威力2.3の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力2.3の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "大迫力の声を放送する。番組名は「ただいま戦闘中」。",
+        "en": "Broadcast a mighty voice. Today's program is called Battle in Progress."
+      },
+      "descriptionEn": "Attack with power 2.3. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "SR_mirage",
@@ -1110,7 +1345,12 @@
       "type": "attack",
       "uses": 1,
       "power": 2.8,
-      "description": "威力2.8の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力2.8の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "ふっと姿を消すような勢いで攻める。消えたはずのしっぽが目立つ。",
+        "en": "Attack as if you could disappear. Your tail ruins the dramatic effect."
+      },
+      "descriptionEn": "Attack with power 2.8. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "SR_fancy",
@@ -1125,7 +1365,12 @@
       "type": "attack",
       "uses": 1,
       "power": 3,
-      "description": "威力3の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力3の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "とびきりの空想を一撃に乗せる。頭の中では巨大プリンが勇者。",
+        "en": "Turn a grand fancy into a mighty hit. In your mind, a giant pudding is the hero."
+      },
+      "descriptionEn": "Attack with power 3. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "SR_metal",
@@ -1140,7 +1385,12 @@
       "type": "attack",
       "uses": 1,
       "power": 2.8,
-      "description": "威力2.8の攻撃。 使用回数は正誤にかかわらず消費。"
+      "description": "威力2.8の攻撃。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "打ち倒すつもりの大きな一撃。勝利ポーズは事前に練習済み。",
+        "en": "Strike hard, hoping to defeat the enemy. You practiced the victory pose first."
+      },
+      "descriptionEn": "Attack with power 2.8. One use is consumed whether your answer is correct or wrong."
     },
     {
       "id": "SR_absolute",
@@ -1158,7 +1408,12 @@
       "shieldFactor": 0.5,
       "wrongShieldFactor": 0.75,
       "power": 1.6,
-      "description": "威力1.6の攻撃＋次の敵攻撃2回を正解で50％、不正解で75％に軽減。 使用回数は正誤にかかわらず消費。"
+      "description": "威力1.6の攻撃＋次の敵攻撃2回を正解で50％、不正解で75％に軽減。 使用回数は正誤にかかわらず消費。",
+      "flavor": {
+        "ja": "絶対の守りを目指して攻める。「目指す」が大事、と盾に小さく書いてある。",
+        "en": "Attack while aiming for absolute protection. The shield says, in small letters: Aiming is the key word."
+      },
+      "descriptionEn": "Attack with power 1.6. Reduce damage from the next 2 enemy attack(s) to 50% with a correct answer, or 75% with a wrong answer. One use is consumed whether your answer is correct or wrong."
     }
   ],
   "gear": [
@@ -1166,7 +1421,8 @@
       "id": "none",
       "name": "装備なし",
       "bonus": 0,
-      "description": "能力補正なし"
+      "description": "能力補正なし",
+      "descriptionEn": "No stat bonuses."
     },
     {
       "id": "N_hp",
@@ -1179,7 +1435,12 @@
       "rarity": "N",
       "stat": "hp",
       "bonus": 0.08,
-      "description": "たいりょく＋8％"
+      "description": "たいりょく＋8％",
+      "flavor": {
+        "ja": "小さなつぼみのお守り。まだ咲かないのは、本人が寝坊しているかららしい。",
+        "en": "A tiny bud charm. It has not bloomed yet. Apparently, it overslept."
+      },
+      "descriptionEn": "Maximum HP +8%"
     },
     {
       "id": "N_growth",
@@ -1194,7 +1455,12 @@
         "hp": 0.05,
         "defense": 0.03
       },
-      "description": "たいりょく＋5％・ぼうぎょ＋3％"
+      "description": "たいりょく＋5％・ぼうぎょ＋3％",
+      "flavor": {
+        "ja": "成長を願う小さな鉢。毎朝ほめると、土まで照れる。",
+        "en": "A little pot for growth. Praise it every morning. Even the soil blushes."
+      },
+      "descriptionEn": "Maximum HP +5%; Defense +3%"
     },
     {
       "id": "N_bloom",
@@ -1209,7 +1475,12 @@
         "hp": 0.05,
         "speed": 0.03
       },
-      "description": "たいりょく＋5％・すばやさ＋3％"
+      "description": "たいりょく＋5％・すばやさ＋3％",
+      "flavor": {
+        "ja": "花咲くブローチ。開花祝いを毎日要求してくる。",
+        "en": "A bloom brooch. It asks for a blooming party every single day."
+      },
+      "descriptionEn": "Maximum HP +5%; Speed +3%"
     },
     {
       "id": "N_attack",
@@ -1222,7 +1493,12 @@
       "rarity": "N",
       "stat": "attack",
       "bonus": 0.08,
-      "description": "こうげき＋8％"
+      "description": "こうげき＋8％",
+      "flavor": {
+        "ja": "力を込めた腕輪。瓶のふたを開ける仕事の依頼が絶えない。",
+        "en": "A bracelet of force. Requests to open tight jar lids never stop."
+      },
+      "descriptionEn": "Attack +8%"
     },
     {
       "id": "N_powerful",
@@ -1237,7 +1513,12 @@
         "attack": 0.05,
         "hp": 0.03
       },
-      "description": "こうげき＋5％・たいりょく＋3％"
+      "description": "こうげき＋5％・たいりょく＋3％",
+      "flavor": {
+        "ja": "力強そうなベルト。穴がひとつ増えるたびに自慢してくる。",
+        "en": "A powerful-looking belt. It brags every time it gets another hole."
+      },
+      "descriptionEn": "Attack +5%; Maximum HP +3%"
     },
     {
       "id": "N_keen",
@@ -1252,7 +1533,12 @@
         "attack": 0.05,
         "speed": 0.03
       },
-      "description": "こうげき＋5％・すばやさ＋3％"
+      "description": "こうげき＋5％・すばやさ＋3％",
+      "flavor": {
+        "ja": "鋭い目つきのバッジ。寝ている持ち主にも熱い視線を送る。",
+        "en": "A keen-eyed badge. It keeps staring fiercely even while its owner sleeps."
+      },
+      "descriptionEn": "Attack +5%; Speed +3%"
     },
     {
       "id": "N_defense",
@@ -1265,7 +1551,12 @@
       "rarity": "N",
       "stat": "defense",
       "bonus": 0.08,
-      "description": "ぼうぎょ＋8％"
+      "description": "ぼうぎょ＋8％",
+      "flavor": {
+        "ja": "貝殻の盾。海を知らないのに波の音のものまねが得意。",
+        "en": "A shell shield. It has never seen the sea, but its wave impression is excellent."
+      },
+      "descriptionEn": "Defense +8%"
     },
     {
       "id": "N_leather",
@@ -1280,7 +1571,12 @@
         "defense": 0.05,
         "speed": 0.03
       },
-      "description": "ぼうぎょ＋5％・すばやさ＋3％"
+      "description": "ぼうぎょ＋5％・すばやさ＋3％",
+      "flavor": {
+        "ja": "革のジャケット。鏡の前だけ、持ち主の歩き方が変わる。",
+        "en": "A leather jacket. Its owner walks differently whenever a mirror is nearby."
+      },
+      "descriptionEn": "Defense +5%; Speed +3%"
     },
     {
       "id": "N_copper",
@@ -1295,7 +1591,12 @@
         "defense": 0.05,
         "hp": 0.03
       },
-      "description": "ぼうぎょ＋5％・たいりょく＋3％"
+      "description": "ぼうぎょ＋5％・たいりょく＋3％",
+      "flavor": {
+        "ja": "銅の留め具。ぴかぴかの日は自分から日なたへ行きたがる。",
+        "en": "A copper clasp. On shiny days, it insists on sitting in the sun."
+      },
+      "descriptionEn": "Defense +5%; Maximum HP +3%"
     },
     {
       "id": "N_speed",
@@ -1308,7 +1609,12 @@
       "rarity": "N",
       "stat": "speed",
       "bonus": 0.08,
-      "description": "すばやさ＋8％"
+      "description": "すばやさ＋8％",
+      "flavor": {
+        "ja": "羽のお守り。落とすと追いかけるのがいちばん大変。",
+        "en": "A feather charm. Dropping it starts a surprisingly long chase."
+      },
+      "descriptionEn": "Speed +8%"
     },
     {
       "id": "N_rapid",
@@ -1323,7 +1629,12 @@
         "speed": 0.05,
         "attack": 0.03
       },
-      "description": "すばやさ＋5％・こうげき＋3％"
+      "description": "すばやさ＋5％・こうげき＋3％",
+      "flavor": {
+        "ja": "すばしっこそうな靴。玄関で待つのがどうにも苦手。",
+        "en": "Rapid little shoes. They are very bad at waiting by the door."
+      },
+      "descriptionEn": "Speed +5%; Attack +3%"
     },
     {
       "id": "N_motion",
@@ -1338,7 +1649,12 @@
         "speed": 0.05,
         "defense": 0.03
       },
-      "description": "すばやさ＋5％・ぼうぎょ＋3％"
+      "description": "すばやさ＋5％・ぼうぎょ＋3％",
+      "flavor": {
+        "ja": "動きたがりの足輪。椅子に座ると退屈そうな音がする。",
+        "en": "An anklet of motion. It makes bored little noises when you sit down."
+      },
+      "descriptionEn": "Speed +5%; Defense +3%"
     },
     {
       "id": "N_confidence",
@@ -1350,7 +1666,12 @@
       },
       "rarity": "N",
       "effect": "streak",
-      "description": "攻撃を伴う行動に2回連続正解すると、次の攻撃が1.15倍。強化を使うと連続数をリセット。不正解でもリセット。"
+      "description": "攻撃を伴う行動に2回連続正解すると、次の攻撃が1.15倍。強化を使うと連続数をリセット。不正解でもリセット。",
+      "flavor": {
+        "ja": "自信満々のメダル。裏には小さく「練習したからね」と書いてある。",
+        "en": "A medal of confidence. On the back, tiny letters say: I practiced for this."
+      },
+      "descriptionEn": "After two consecutive correct answers on actions that attack, your next attack deals 1.15 times as much damage. Using the boost resets the streak. A wrong answer also resets it."
     },
     {
       "id": "N_patience",
@@ -1362,7 +1683,12 @@
       },
       "rarity": "N",
       "effect": "patient",
-      "description": "相手より素早さが低いと、敵の攻撃から受けるダメージを10％軽減。"
+      "description": "相手より素早さが低いと、敵の攻撃から受けるダメージを10％軽減。",
+      "flavor": {
+        "ja": "待つのが得意な時計。お湯が沸くのを応援するのが趣味。",
+        "en": "A clock of patience. Its hobby is cheering for water as it comes to a boil."
+      },
+      "descriptionEn": "When you are slower than the enemy, take 10% less damage from enemy attacks."
     },
     {
       "id": "N_courage",
@@ -1374,7 +1700,12 @@
       },
       "rarity": "N",
       "effect": "courage",
-      "description": "HPが最大HPの半分以下のとき、攻撃のダメージを12％強化。"
+      "description": "HPが最大HPの半分以下のとき、攻撃のダメージを12％強化。",
+      "flavor": {
+        "ja": "勇気のスカーフ。結び目だけはちょっと震えている。",
+        "en": "A scarf of courage. Only the knot is trembling a little."
+      },
+      "descriptionEn": "When HP is at or below half of maximum HP, deal 12% more attack damage."
     },
     {
       "id": "N_spare",
@@ -1386,7 +1717,12 @@
       },
       "rarity": "N",
       "effect": "spare",
-      "description": "攻撃・回復・防護などの技を最初に使い切ったとき、1回だけ使用回数を1回復。回数回復技には発動しない。"
+      "description": "攻撃・回復・防護などの技を最初に使い切ったとき、1回だけ使用回数を1回復。回数回復技には発動しない。",
+      "flavor": {
+        "ja": "予備のポケット。予備のポケット用の予備までは入っていない。",
+        "en": "A spare pocket. It does not contain a spare for the spare pocket."
+      },
+      "descriptionEn": "The first time a skill runs out of uses, restore one use, once per battle. Does not activate for use-restoring skills."
     },
     {
       "id": "N_harmony",
@@ -1398,7 +1734,12 @@
       },
       "rarity": "N",
       "effect": "harmony",
-      "description": "防御問題に正解して生き残ると、最大HPの3％を回復。"
+      "description": "防御問題に正解して生き残ると、最大HPの3％を回復。",
+      "flavor": {
+        "ja": "調和の鈴。お腹の音まで合唱に入れようとする。",
+        "en": "A bell of harmony. It tries to invite your stomach rumble into the choir."
+      },
+      "descriptionEn": "After a correct defense answer, restore 3% of maximum HP if you survived the attack."
     },
     {
       "id": "N_steady",
@@ -1410,7 +1751,12 @@
       },
       "rarity": "N",
       "effect": "steady",
-      "description": "戦闘中、最初の防御不正解だけ、被ダメージ増加を120％から100％に抑える。"
+      "description": "戦闘中、最初の防御不正解だけ、被ダメージ増加を120％から100％に抑える。",
+      "flavor": {
+        "ja": "安定感のある靴底。バナナの皮とは長年のライバル。",
+        "en": "Steady soles. Banana peels are their lifelong rivals."
+      },
+      "descriptionEn": "Once per battle, your first wrong defense answer takes 100% damage instead of 120%."
     },
     {
       "id": "R_hp",
@@ -1423,7 +1769,12 @@
       "rarity": "R",
       "stat": "hp",
       "bonus": 0.12,
-      "description": "たいりょく＋12％"
+      "description": "たいりょく＋12％",
+      "flavor": {
+        "ja": "ビタミン色のペンダント。食べ物ではないと毎回説明されている。",
+        "en": "A vitamin-colored pendant. Someone has to explain, every time, that it is not food."
+      },
+      "descriptionEn": "Maximum HP +12%"
     },
     {
       "id": "R_attack",
@@ -1436,7 +1787,12 @@
       "rarity": "R",
       "stat": "attack",
       "bonus": 0.12,
-      "description": "こうげき＋12％"
+      "description": "こうげき＋12％",
+      "flavor": {
+        "ja": "強さを誇るこて。握手だけはやさしくするよう、持ち主に言われている。",
+        "en": "A gauntlet of strength. Its owner keeps reminding it to shake hands gently."
+      },
+      "descriptionEn": "Attack +12%"
     },
     {
       "id": "R_defense",
@@ -1449,7 +1805,12 @@
       "rarity": "R",
       "stat": "defense",
       "bonus": 0.12,
-      "description": "ぼうぎょ＋12％"
+      "description": "ぼうぎょ＋12％",
+      "flavor": {
+        "ja": "鋼の胸当て。雨の日は自分のことよりさびを心配する。",
+        "en": "A steel chest plate. On rainy days, it worries mostly about rust."
+      },
+      "descriptionEn": "Defense +12%"
     },
     {
       "id": "R_speed",
@@ -1462,7 +1823,12 @@
       "rarity": "R",
       "stat": "speed",
       "bonus": 0.12,
-      "description": "すばやさ＋12％"
+      "description": "すばやさ＋12％",
+      "flavor": {
+        "ja": "飛行機模様の靴。離陸の予定はないが、気分は搭乗済み。",
+        "en": "Shoes with a flight pattern. No takeoff is planned, but your mood is already on board."
+      },
+      "descriptionEn": "Speed +12%"
     },
     {
       "id": "SR_hp",
@@ -1475,7 +1841,12 @@
       "rarity": "SR",
       "stat": "hp",
       "bonus": 0.16,
-      "description": "たいりょく＋16％"
+      "description": "たいりょく＋16％",
+      "flavor": {
+        "ja": "生き残る意志の首飾り。非常食の場所だけは絶対に忘れない。",
+        "en": "A necklace with the will to survive. It never forgets where the emergency snacks are."
+      },
+      "descriptionEn": "Maximum HP +16%"
     },
     {
       "id": "SR_attack",
@@ -1488,7 +1859,12 @@
       "rarity": "SR",
       "stat": "attack",
       "bonus": 0.16,
-      "description": "こうげき＋16％"
+      "description": "こうげき＋16％",
+      "flavor": {
+        "ja": "優れた力の王冠。自慢話が長いので、戦闘前にかぶせるのは危険。",
+        "en": "A crown of superior strength. Its stories are so long that putting it on before battle is risky."
+      },
+      "descriptionEn": "Attack +16%"
     },
     {
       "id": "SR_defense",
@@ -1501,7 +1877,12 @@
       "rarity": "SR",
       "stat": "defense",
       "bonus": 0.16,
-      "description": "ぼうぎょ＋16％"
+      "description": "ぼうぎょ＋16％",
+      "flavor": {
+        "ja": "頼れる盾。雨の日には傘の相談まで持ち込まれる。",
+        "en": "A reliable shield. On rainy days, people even ask it for umbrella advice."
+      },
+      "descriptionEn": "Defense +16%"
     },
     {
       "id": "SR_speed",
@@ -1514,7 +1895,12 @@
       "rarity": "SR",
       "stat": "speed",
       "bonus": 0.16,
-      "description": "すばやさ＋16％"
+      "description": "すばやさ＋16％",
+      "flavor": {
+        "ja": "前進するマント。後ろ向きに着ると不満そうになびく。",
+        "en": "A cape that loves to advance. Wear it backward and it flaps in protest."
+      },
+      "descriptionEn": "Speed +16%"
     }
   ],
   "questions": [
@@ -1652,4 +2038,5 @@
       "skillPower": 1.2
     }
   }
-};if(typeof module!=="undefined")module.exports=data;else root.GoimonBattleCatalog=data;})(typeof window!=="undefined"?window:globalThis);
+};if(typeof module!=="undefined")module.exports=data;else root.GoimonBattleCatalog=data;
+})(typeof window!=="undefined"?window:globalThis);
