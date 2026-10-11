@@ -130,5 +130,18 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
  await login(p,'A');assert.equal(await p.locator('#deletion-receipt').isVisible(),false);assert.equal(await p.locator('#deletion-code').inputValue(),'');
  await p.evaluate(()=>document.querySelector('#logout').onclick());assert.equal(await p.locator('#deletion-panel').isVisible(),false);
  console.log('PASS: deletion receipt leaves learning unchanged, shows account, handles failure and clears on account switch/logout');
+ await login(p,'A');const beforeRescue=JSON.parse(JSON.stringify(cloud.A));
+ await p.locator('#rescue-scan').click();await p.locator('#rescue-review').waitFor({state:'visible'});
+ assert.equal(JSON.stringify(cloud.A),JSON.stringify(beforeRescue));
+ await p.locator('input[name="rescue-choice"][value="guest"]').check();
+ const dl=p.waitForEvent('download');await p.locator('#rescue-download').click();await (await dl).saveAs('/tmp/goimon-rescue-test.json');
+ await p.locator('#rescue-confirm').check();await p.locator('#rescue-apply').click();await p.waitForFunction(()=>!document.querySelector('#rescue-apply').disabled);
+ assert.equal(cloud.A.snapshot.data.q7SetHistory_v1,'{"guest":{"attempts":2}}');
+ assert.equal(await p.evaluate(()=>localStorage.getItem('q7SetHistory_v1')),'{"guest":{"attempts":2}}');
+ await p.locator('#rescue-panel details summary').click();await p.locator('#rescue-history').selectOption({index:2});await p.locator('#rescue-restore').click();await p.locator('#rescue-review').waitFor({state:'visible'});
+ await p.locator('input[name="rescue-choice"][value="restored"]').check();const dl2=p.waitForEvent('download');await p.locator('#rescue-download').click();await (await dl2).saveAs('/tmp/goimon-rescue-undo-test.json');await p.locator('#rescue-confirm').check();await p.locator('#rescue-apply').click();await p.waitForFunction(()=>!document.querySelector('#rescue-apply').disabled);
+ assert.deepEqual(cloud.A.snapshot,beforeRescue.snapshot);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ console.log('PASS: rescue backup download, guest adoption, undo with new backup and mobile layout');
+ await p.evaluate(()=>document.querySelector('#logout').onclick());
  await capture(p,'/tmp/goimon-cloud-screen.png');assert.deepEqual(errors,[]);console.log(`PASS: ${pages.length} pages × guest/account; import, sync, conflict resolution, offline, account switch, guest preservation`);
  }finally{await browser?.close();server.kill()}})().catch(e=>{console.error(e);process.exit(1)});

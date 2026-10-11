@@ -2,6 +2,7 @@
   'use strict';
   const P=GOIMONProfiles,S=GOIMONCloudSchema,cfg=GOIMON_CLOUD_CONFIG,$=id=>document.getElementById(id);
   let token=null,userId=null,busy=false,conflict=null,epoch=0,details=null,profileRevision=0,profileReady=false,editing=false;
+  let rescue=null;
   const AUTH_KEY='goimon_cloud_session_v1';
   const ACTIVE_KEY='goimon_cloud_v2:active';
   function savedSession(){try{const x=JSON.parse(sessionStorage.getItem(AUTH_KEY)||'null');return x?.apiBase===cfg.apiBase?x:null;}catch{return null;}}
@@ -17,6 +18,7 @@
   const snap=data=>({schemaVersion:1,data});
   const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
   function render(){
+    rescue?.render(busy);
     $('sync').disabled=busy||!userId;
     $('deletion-panel').hidden=!userId;$('issue-deletion').disabled=busy||!userId;
     $('login-panel').hidden=!!userId;
@@ -163,6 +165,7 @@
   }
   $('resume').onclick=()=>run(restoreSession);
   window.addEventListener('storage',event=>{if(event.key===ACTIVE_KEY && userId && event.newValue!==userId){epoch++;forget();render();message('別のタブで学習先が変わりました。Googleで再ログインしてください。');}});
+  rescue=window.GOIMONRescue?.attach({account:()=>userId,assertAccount,request,apply,run,download,message,refresh:fillProfile});
   render();
   if(!cfg.googleClientId||!/^https:\/\//.test(cfg.apiBase)){message('検証用の設定待ちです。GoogleクライアントIDとWorker URLを設定してください。ゲスト学習は利用できます。');return;}
   const sdk=document.createElement('script');sdk.src='https://accounts.google.com/gsi/client';sdk.async=true;

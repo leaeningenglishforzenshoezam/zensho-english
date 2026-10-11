@@ -27,6 +27,9 @@
 <section id="sync-panel" class="card" hidden><span class="eyebrow">CLOUD SAVE</span><h2>学習記録は自動で保存</h2><p>ログイン後は学習するだけ。変更をまとめてクラウドへ自動保存します。別の端末では、ログイン時に保存済みの記録を取り込みます。</p><button id="sync" class="wide" disabled>今すぐ保存・確認</button><p class="hint">画面上部で保存状態を確認できます。通信待ちの記録は端末に残り、再接続後に保存します。閉じる直前の変更は、次にGOIMONを開いたときに送信される場合があります。</p><a class="action" href="index.html">学習に進む →</a>
 <div id="conflict" class="conflict" hidden><h3>両方の端末で記録が変わっています</h3><p>自動上書きを止めました。使う記録を選んでください。選ばなかった端末データも復旧用に残ります。</p><details><summary>競合した項目を見る</summary><pre id="conflict-keys"></pre></details><button id="use-local">この端末の記録を使う</button><button id="use-remote">クラウドの記録を使う</button><button id="export-conflict">両方のデータを書き出す</button></div>
 <button id="import-guest" disabled>この端末のゲスト記録を引き継ぐ</button><p class="hint">初回の空アカウントで利用できます。元のゲスト記録も残ります。</p></section>
+<section id="rescue-panel" class="card" hidden><h2>以前のゴイモン・学習記録を救済する</h2><p>引き継ぎを忘れて学習を始めた場合も、このブラウザーに残った記録を確認できます。別のサイト・端末の記録はここからは見えません。</p><button id="rescue-scan">以前のゴイモン・学習記録を探す</button>
+<div id="rescue-review" hidden><p><strong>どれも自分の記録か確認してください。</strong>選んだ記録全体を採用します。経験値や学習回数を足し合わせる処理は行いません。プロフィールは変わりません。</p><div id="rescue-choices"></div><button id="rescue-download">変更前のバックアップをダウンロード</button><label><input id="rescue-confirm" type="checkbox">バックアップファイルを保存できたことと、自分の記録であることを確認しました</label><p class="hint">ファイルには学習記録とアカウント識別子が含まれます。公開せず、自分で保管してください。</p><button id="rescue-apply">選んだ記録を使う</button><button id="rescue-cancel">今は決めない</button></div>
+<details><summary>変更前のバックアップから戻す</summary><p>このブラウザーで、このアカウント用に保存したバックアップです。復元前の現在の記録も新しくバックアップします。</p><select id="rescue-history" aria-label="復元する記録"></select><button id="rescue-restore">選んだバックアップを比較する</button></details></section>
 <details class="tools" id="deletion-panel" hidden><summary>クラウドデータの削除を依頼する</summary>
 <p>プロフィール・クラウドの学習記録・復旧用の過去データ・全端末のログイン情報が削除対象です。端末内の学習記録とダウンロードしたバックアップは残ります。</p>
 <p>受付コードを発行し、下の窓口に削除の希望とコードをお送りください。<strong>このボタンだけで削除やメール送信は行いません。</strong>運営者が確認して対応します。</p>
@@ -36,4 +39,4 @@
 </details>
 <details class="tools"><summary>バックアップ・復旧</summary><p>通信できないときも、端末にある記録を書き出せます。</p><button id="backup">バックアップを書き出す</button><button id="recovery">復旧用データを書き出す</button></details>
 <footer>保存対象：学習進捗・苦手問題・育成・進化履歴・図鑑など。<br>Googleのパスワードは取得しません。同じタブでは最大24時間ログインが続きます。共用端末では利用後にログアウトしてください。<br><a href="privacy.html">プライバシーポリシー</a> · <a href="mailto:goimon.admin@gmail.com">お問い合わせ</a></footer>
-</main><script src="cloud_sync.js"></script></body></html>
+</main><script src="cloud_rescue.js"></script><script src="cloud_sync.js"></script></body></html>
