@@ -30,6 +30,16 @@ function importLatestResults(){
  for(const [key,method,target] of collectors){
   let raw;try{raw=JSON.parse(sessionStorage.getItem(key)||"null");}catch(_){}
   if(!raw||raw.level!==level.value||raw.day!==window.GoimonDailyMissions.dateKey())continue;
+  const active=localStorage.getItem("goimon_cloud_v2:active")||"guest";
+  const launched=sessionStorage.getItem("goimon_daily_mission_launch_account_v1");
+  if(launched!==null&&launched!==active){
+    document.getElementById(target).textContent="アカウントが切り替わったため自動取り込みを停止しました。元の学習結果は保持されています。";
+    continue;
+  }
+  if(active!=="guest"&&!window.GOIMONProfiles?.isWriter?.()){
+    document.getElementById(target).textContent="このアカウントの保存領域が利用可能になるまで取り込みを保留しています。";
+    continue;
+  }
   const result=window.GoimonDailyMissions?.[method]?.(raw);
   const output=document.getElementById(target);
   if(output)output.textContent=JSON.stringify(result,null,2);
@@ -43,6 +53,7 @@ function importLatestResults(){
 }
 level.addEventListener("change",()=>{render();importLatestResults();});
 document.getElementById("refresh").addEventListener("click",()=>{render();importLatestResults();});
+document.getElementById("cards").addEventListener("click",event=>{const a=event.target.closest("a");if(a&&a.closest("#cards"))sessionStorage.setItem("goimon_daily_mission_launch_account_v1",localStorage.getItem("goimon_cloud_v2:active")||"guest");});
 render();importLatestResults();
 window.addEventListener("pageshow",()=>{render();importLatestResults();});
 })();
