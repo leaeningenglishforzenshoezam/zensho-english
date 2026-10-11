@@ -2335,7 +2335,7 @@ function renderSummary(autoCleared) {
   function saveDailyExamResult(){
     const q=new URLSearchParams(location.search);if(q.get("dailyMission")!=="exam"||q.get("missionDate")==null||askedLog.length!==10)return;
     const attempts=askedLog.map(a=>({id:String(a.qId),correct:a.isCorrect}));
-    try{sessionStorage.setItem("goimon_daily_mission_latest_exam_v1",JSON.stringify({day:q.get("missionDate"),level:String(LV),category:"sentence",attempts}));}catch(_){}
+    try{sessionStorage.setItem("goimon_daily_mission_latest_exam_v1",JSON.stringify({day:q.get("missionDate"),level:String(LV),category:"sentence",finishedAt:new Date().toISOString(),attempts}));}catch(_){}
   }
   function finishSession(autoCleared) {
     saveDailyExamResult();
