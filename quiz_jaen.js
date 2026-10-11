@@ -1004,6 +1004,7 @@ function renderWrongSummaryList() {
     session.correct = 0;
     session.limit = askedLog.length;
     session.retryOrder = askedLog.map(item => item.no - 1);
+    if(dailyMissionRequest())session.dailyMissionOrder=null;
 
     askedSet.clear();
     askedLog = [];
@@ -1018,6 +1019,7 @@ function renderWrongSummaryList() {
     session.correct = 0;
     session.active = true;
     session.retryOrder = null;
+    if(dailyMissionRequest())session.dailyMissionOrder=shuffle(Array.from({length:20},(_,i)=>session.start+i));
 
     askedSet.clear();
     askedLog = [];
