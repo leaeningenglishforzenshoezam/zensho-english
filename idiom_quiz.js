@@ -1965,7 +1965,7 @@ if (el.originSearchBtn) {
     });
   }
 
-  function dailyIdiomRequest(){return URL_PARAMS.get("dailyMission")==="idioms" ? {day:URL_PARAMS.get("missionDate"),level:String(UI_LEVEL)}:null;}
+  function dailyIdiomRequest(){return URL_PARAMS.get("dailyMission")==="idioms" ? {day:URL_PARAMS.get("missionDate"),level:String(UI_LEVEL),start:Number(URL_PARAMS.get("start")),end:Number(URL_PARAMS.get("end"))}:null;}
   function saveDailyIdiomResult(){
     const m=dailyIdiomRequest();if(!m || state.results.length!==15)return;
     const attempts=state.results.map(q=>({displayNo:Number(q.displayNo),correct:q.correct}));
@@ -1981,10 +1981,11 @@ if (el.originSearchBtn) {
 
   function startQuiz(useLastSession) {
     const mission=dailyIdiomRequest();
-    if(mission){el.questionCount.value='15';el.questionMode.value=URL_PARAMS.get('idiomMode')==='synonym'?'synonym':'meaning';el.quizMode.value='random';}
+    if(mission){el.rangeStart.value=String(mission.start);el.rangeEnd.value=String(mission.end);el.questionCount.value='15';el.questionMode.value=URL_PARAMS.get('idiomMode')==='synonym'?'synonym':'meaning';el.quizMode.value='random';}
     const questionMode = el.questionMode.value;
     const available = getAvailableDataForMode(questionMode);
 
+    if(mission && (available.length!==15 || mission.end-mission.start!==14)){alert("指定範囲には15問の出題可能データがありません。");return;}
     if (available.length < 4) {
       alert("4択問題を作るには、そのモードで最低4件のデータが必要です。");
       return;
