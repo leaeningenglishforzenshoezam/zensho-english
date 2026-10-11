@@ -2347,6 +2347,13 @@ function renderSummary(autoCleared) {
     retryWeakBtn.disabled = (weakCounts().total === 0);
   }
 
+  function dailyExamRankIds(ids,category){
+    let history={};try{history=JSON.parse(localStorage.getItem("goimon_daily_exam_history_v1_lv"+String(LV)+"_"+category)||"{}")||{};}catch(_){}
+    return ids.slice().sort((a,b)=>{
+      const x=history[String(a)]||{},y=history[String(b)]||{};
+      return Number(x.attempts||0)-Number(y.attempts||0)||Number(x.lastSeen||0)-Number(y.lastSeen||0);
+    });
+  }
   function startNormalSession() {
   rebuildFixedData();
 
@@ -2365,7 +2372,7 @@ function renderSummary(autoCleared) {
   }
 
   const dailyExam=new URLSearchParams(location.search).get('dailyMission')==='exam';
-  if(dailyExam){countInput.value='10';orderModeEl.value='continue';}
+  if(dailyExam){countInput.value='10';orderModeEl.value='random';}
   let limit = Number(countInput.value);
   if (!Number.isFinite(limit) || limit < 1) limit = 20;
   if (eligible.length > 0) limit = Math.min(limit, eligible.length);
@@ -2382,7 +2389,7 @@ function renderSummary(autoCleared) {
   session.orderMode = String(orderModeEl.value || "continue");
 
   if (session.orderMode === "random") {
-  session.order = shuffle(eligible);
+  session.order = dailyExam ? dailyExamRankIds(eligible.map(i=>fixed[i]?.id),"sentence").map(id=>eligible.find(i=>fixed[i]?.id===id)) : shuffle(eligible);
   session.cursor = 0;
 } else if (session.orderMode === "weak_order") {
   session.order = sortWeakQuestionIndexes(eligible);
