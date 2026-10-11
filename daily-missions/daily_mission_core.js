@@ -57,13 +57,52 @@ function getOrCreate(level=activeLevel(),day=dateKey()){
  try{localStorage.setItem(key,JSON.stringify(fresh));}catch(_){}
  return fresh;
 }
-function getStatus(level=activeLevel(),day=dateKey()){
- const daily=getOrCreate(level,day);
- // No category counters can prove a perfect/80% single-session achievement.
- // Explicitly keep every available mission pending until verified session integration exists.
- return {...daily,missions:daily.missions.map(m=>({...m,progress:0,completed:false})),
- completedCount:0,basicCompletedCount:0,pendingStarEstimate:0,
- info:"演習単位の採点連携は未実装です。達成・報酬はまだ記録しません。"};
+// Device-local, provisional completion state. Not a spendable reward ledger.
+function completionKey(level,day){return "goimon_daily_mission_completions_v1_lv"+level+"_"+day;}
+function readCompletion(level,day){
+ try{
+  const data=JSON.parse(localStorage.getItem(completionKey(level,day))||"null");
+  return data && typeof data==="object" && data.date===day && data.level===level ? data : {date:day,level,completed:{}};
+ }catch(_){return {date:day,level,completed:{}};}
 }
-window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus});
+function recordWordSession(payload){
+ const today=dateKey(), level=String(payload?.level||"");
+ if(!payload || payload.day!==today || !["1","2"].includes(level))return {valid:false,completed:false,reason:"invalid_day_or_level"};
+ const daily=getOrCreate(level,today), mission=daily.missions.find(m=>m.slot==="words");
+ if(!mission || payload.category!==mission.category || payload.start!==mission.rangeStart || payload.end!==mission.rangeEnd)
+   return {valid:false,completed:false,reason:"mission_mismatch"};
+ const mode={quiz_enja:"enja",quiz_jaen:"jaen",audio_quiz:"audio"}[payload.category];
+ const result=window.GoimonMissionBridge?.evaluateWordSession(mission,mode,payload.attempts);
+ if(!result?.valid)return result||{valid:false,completed:false,reason:"bridge_missing"};
+ const record=readCompletion(level,today);
+ const previous=record.completed.words||null;
+ const score=Number(result.correct);
+ record.completed.words={
+   category:mission.category,rangeStart:mission.rangeStart,rangeEnd:mission.rangeEnd,
+   bestCorrect:Math.max(score,Number(previous?.bestCorrect||0)),
+   attempts:Math.min(100000,Number(previous?.attempts||0)+1),
+   completed:!!previous?.completed || !!result.completed,
+   completedAt:previous?.completedAt || (result.completed ? new Date().toISOString():null)
+ };
+ try{localStorage.setItem(completionKey(level,today),JSON.stringify(record));}
+ catch(_){return {valid:true,completed:record.completed.words.completed,persisted:false,reason:"storage_unavailable"};}
+ return {...result,completed:record.completed.words.completed,persisted:true};
+}
+function getStatus(level=activeLevel(),day=dateKey()){
+ const daily=getOrCreate(level,day),state=readCompletion(level,day);
+ const missions=daily.missions.map(m=>{
+  const record=m.slot==="words"?state.completed?.words:null;
+  const matches=record?.category===m.category&&record?.rangeStart===m.rangeStart&&record?.rangeEnd===m.rangeEnd;
+  return {...m,completed:!!(matches&&record.completed),bestCorrect:matches?record.bestCorrect:0,
+    attemptCount:matches?record.attempts:0,progress:matches?record.bestCorrect:0};
+ });
+ const completedCount=missions.filter(m=>m.completed).length;
+ const basicCompletedCount=missions.filter(m=>m.group==="basic"&&m.completed).length;
+ return {...daily,missions,completedCount,basicCompletedCount,
+   // Preview only. NO grants or cloud synchronization.
+   pendingStarEstimate:missions.filter(m=>m.completed).reduce((sum,m)=>sum+m.rewardStars,0)
+     +(basicCompletedCount===3?rules.allBasicBonusStars:0),
+   info:"端末上の仮達成記録です。星のかけらの正式付与・クラウド同期は未実装です。"};
+}
+window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus,recordWordSession});
 })();
