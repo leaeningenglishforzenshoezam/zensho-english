@@ -1126,7 +1126,22 @@ function restoreSuspendedQuestion() {
   scrollPlayToTop();
 }
 
-  function finishSession(autoWeakEnd) {
+
+  // デイリーミッション連携（開発ブランチ限定・報酬付与なし）
+  function dailyMissionRequest() {
+    const p = new URLSearchParams(location.search);
+    const start = Number(p.get("start")), end = Number(p.get("end"));
+    if (p.get("dailyMission") !== "words" || !Number.isInteger(start) || !Number.isInteger(end) || end-start!==19) return null;
+    return {start,end,level:String(LV),category:"audio_quiz",day:p.get("missionDate")};
+  }
+  function saveDailyMissionResult(attempts) {
+    const request = dailyMissionRequest();
+    if(!request || !Array.isArray(attempts)) return;
+    const clean=attempts.map(a=>({no:a.no,isCorrect:a.isCorrect}));
+    const payload={...request,attempts:clean,finishedAt:new Date().toISOString()};
+    try {sessionStorage.setItem("goimon_daily_mission_latest_result_v1",JSON.stringify(payload));}catch(_){}
+  }
+\n  function finishSession(autoWeakEnd) {\n    saveDailyMissionResult(askedLog);
     showSummary();
     const tail = (session.mode === "weak" && autoWeakEnd) ? "（この回の苦手出題が終わりました）" : "";
     summaryLine.textContent = `結果：${session.correct} / ${session.answered}（${modeLabel(session.mode)}｜範囲 ${session.startNo}〜${session.endNo}｜${LV}級）${tail}`;
@@ -1654,7 +1669,7 @@ function init() {
 
     renderBlockSelect();
 applySelectedBlockToRange();
-applyProgressRangeQuery();
+applyProgressRangeQuery();\n    if(dailyMissionRequest()){limitCount.value='20';modeSelect.value='random';updateSetupInfo();}
 
     const settings = loadSettings();
     autoPlay.checked = !!settings.autoPlay;
