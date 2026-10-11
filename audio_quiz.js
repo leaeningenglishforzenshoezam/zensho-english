@@ -1141,7 +1141,9 @@ function restoreSuspendedQuestion() {
     const payload={...request,attempts:clean,finishedAt:new Date().toISOString()};
     try {sessionStorage.setItem("goimon_daily_mission_latest_result_v1",JSON.stringify(payload));}catch(_){}
   }
-\n  function finishSession(autoWeakEnd) {\n    saveDailyMissionResult(askedLog);
+ 
+  function finishSession(autoWeakEnd) { 
+    saveDailyMissionResult(askedLog);
     showSummary();
     const tail = (session.mode === "weak" && autoWeakEnd) ? "（この回の苦手出題が終わりました）" : "";
     summaryLine.textContent = `結果：${session.correct} / ${session.answered}（${modeLabel(session.mode)}｜範囲 ${session.startNo}〜${session.endNo}｜${LV}級）${tail}`;
@@ -1669,7 +1671,8 @@ function init() {
 
     renderBlockSelect();
 applySelectedBlockToRange();
-applyProgressRangeQuery();\n    if(dailyMissionRequest()){limitCount.value='20';modeSelect.value='random';updateSetupInfo();}
+applyProgressRangeQuery(); 
+    if(dailyMissionRequest()){limitCount.value='20';modeSelect.value='random';updateSetupInfo();}
 
     const settings = loadSettings();
     autoPlay.checked = !!settings.autoPlay;
