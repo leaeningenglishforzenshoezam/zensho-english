@@ -2131,7 +2131,7 @@ if (typeof window.zenshoLogAdd === "function") {
 
 const dailyExam=URL_PARAMS.get('dailyMission')==='exam';
 const count = dailyExam?10:(goimonCountOverride || countToNumber(el.questionCount.value, rangedData.length));
-const mode = dailyExam?'random':(goimonModeOverride || el.quizMode.value);
+const mode = dailyExam?'order_continue':(goimonModeOverride || el.quizMode.value);
 goimonCountOverride = 0;
 goimonModeOverride = "";
 
