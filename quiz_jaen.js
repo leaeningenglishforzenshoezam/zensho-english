@@ -561,6 +561,7 @@ function getSelectedWordIndexes() {
 }
 
 function getActiveIndexes(s, e) {
+  if(dailyMissionRequest())return Array.from({length:e-s+1},(_,i)=>s+i);
   return getSelectedWordIndexes().filter(i => i >= s && i <= e);
 }
 
@@ -919,7 +920,7 @@ function renderWrongSummaryList() {
   }
  
   function finishSession() { 
-    saveDailyMissionResult(askedLog);
+    if(askedLog.length===20) saveDailyMissionResult(askedLog);
   session.active = false;
 
   showSummaryView();
@@ -1296,6 +1297,8 @@ nextBtnTop.addEventListener("click", () => {
 });
 
   startBtn.addEventListener("click", () => {
+    const mission=dailyMissionRequest();
+    if(mission){rangeStartEl.value=String(mission.start);rangeEndEl.value=String(mission.end);limitEl.value='20';}
     const selectedBlockIds = getSelectedBlockIds();
 
 if (!selectedBlockIds.length) {
