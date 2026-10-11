@@ -4,7 +4,7 @@
   "use strict";
   const RULES = {
     version: 1,
-    timezone: "Asia/Tokyo",
+    timezone: "device-local", // learning_log.js と同じ日付基準
     missionSlots: [
       {
         slot: "review",
