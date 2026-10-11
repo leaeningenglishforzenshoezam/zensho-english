@@ -2332,7 +2332,13 @@ function renderSummary(autoCleared) {
   renderWrongSummary();
 }
 
+  function saveDailyExamResult(){
+    const q=new URLSearchParams(location.search);if(q.get("dailyMission")!=="exam"||q.get("missionDate")==null||askedLog.length!==10)return;
+    const attempts=askedLog.map(a=>({id:String(a.qId),correct:a.isCorrect}));
+    try{sessionStorage.setItem("goimon_daily_mission_latest_exam_v1",JSON.stringify({day:q.get("missionDate"),level:String(LV),category:"sentence",attempts}));}catch(_){}
+  }
   function finishSession(autoCleared) {
+    saveDailyExamResult();
     showSummary();
     renderSummary(autoCleared);
 
@@ -2358,6 +2364,8 @@ function renderSummary(autoCleared) {
     return;
   }
 
+  const dailyExam=new URLSearchParams(location.search).get('dailyMission')==='exam';
+  if(dailyExam){countInput.value='10';orderModeEl.value='random';}
   let limit = Number(countInput.value);
   if (!Number.isFinite(limit) || limit < 1) limit = 20;
   if (eligible.length > 0) limit = Math.min(limit, eligible.length);
