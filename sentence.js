@@ -1,4 +1,4 @@
-const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
+const GOIMON_DAILY_RESULT_ACCOUNT = GOIMONStorage.getItem("goimon_cloud_v2:active") || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
 // Daily mission result origin: capture account when this quiz script starts.
 // sentence.js（丸ごと置き換え）
@@ -309,7 +309,7 @@ const weakPinEmptyEl = document.getElementById("weakPinEmpty");
     [evolutionNoticeBtn, "evolutionNoticeBtn"]
   ].forEach(([el, id]) => must(el, id));
 
-  const lv = String(window.ACTIVE_LEVEL || localStorage.getItem("zensho_level_v1") || "1");
+  const lv = String(window.ACTIVE_LEVEL || GOIMONStorage.getItem("zensho_level_v1") || "1");
 
 function getSentenceSetMode() {
   const v = String(sentenceSetModeEl?.value || "a");
@@ -386,7 +386,7 @@ const WEAK_KEY = `zensho_sentence_fixed_weak_v2_lv${lv}`;
   const SETTINGS_KEY = `zensho_sentence_fixed_settings_v1_lv${lv}`;
 
   function safeParse(key) {
-    const raw = localStorage.getItem(key);
+    const raw = GOIMONStorage.getItem(key);
     if (!raw) return null;
     try {
       return JSON.parse(raw);
@@ -401,7 +401,7 @@ const WEAK_KEY = `zensho_sentence_fixed_weak_v2_lv${lv}`;
   }
 
   function saveSettings(obj) {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify({ autoRead: !!obj.autoRead }));
+    GOIMONStorage.setItem(SETTINGS_KEY, JSON.stringify({ autoRead: !!obj.autoRead }));
   }
 
   function addSentenceGoimonProgress() {
@@ -451,7 +451,7 @@ const WEAK_KEY = `zensho_sentence_fixed_weak_v2_lv${lv}`;
   }
 
   function loadGlobal() {
-    const raw = localStorage.getItem(GLOBAL_BLOCK_KEY);
+    const raw = GOIMONStorage.getItem(GLOBAL_BLOCK_KEY);
     if (!raw) return { byBlock: {} };
     try {
       const obj = JSON.parse(raw);
@@ -463,7 +463,7 @@ const WEAK_KEY = `zensho_sentence_fixed_weak_v2_lv${lv}`;
   }
 
   function saveGlobal(g) {
-    localStorage.setItem(GLOBAL_BLOCK_KEY, JSON.stringify(g));
+    GOIMONStorage.setItem(GLOBAL_BLOCK_KEY, JSON.stringify(g));
   }
 
   function addGlobalSentence(blockId, isCorrect) {
@@ -869,7 +869,7 @@ function renderSentenceExamplesHtml(en) {
   }
 
   function saveWeakMap(map) {
-    localStorage.setItem(WEAK_KEY, JSON.stringify(map));
+    GOIMONStorage.setItem(WEAK_KEY, JSON.stringify(map));
   }
 
   function addAutoWeak(id) {
@@ -987,7 +987,7 @@ function renderCurrentManualWeakButton() {
   function saveCursor(blockValue, cursor) {
     const obj = safeParse(ORDER_CURSOR_KEY) || {};
     obj[String(blockValue)] = cursor;
-    localStorage.setItem(ORDER_CURSOR_KEY, JSON.stringify(obj));
+    GOIMONStorage.setItem(ORDER_CURSOR_KEY, JSON.stringify(obj));
   }
 
   function renderBlockSelect() {
@@ -1249,12 +1249,12 @@ function updatePoolInfo() {
     if (!w) return;
     if (!Number.isFinite(add) || add <= 0) add = 1;
 
-    const LV = localStorage.getItem("zensho_level_v1") || "1";
+    const LV = GOIMONStorage.getItem("zensho_level_v1") || "1";
     const WEAK_KEY_ENJA = `zensho_quiz_weak_points_enja_v2_lv${LV}`;
 
     let obj = {};
     try {
-      obj = JSON.parse(localStorage.getItem(WEAK_KEY_ENJA) || "{}");
+      obj = JSON.parse(GOIMONStorage.getItem(WEAK_KEY_ENJA) || "{}");
       if (!obj || typeof obj !== "object") obj = {};
     } catch {
       obj = {};
@@ -1262,7 +1262,7 @@ function updatePoolInfo() {
 
     const cur = (typeof obj[w] === "number") ? obj[w] : 0;
     obj[w] = cur + add;
-    localStorage.setItem(WEAK_KEY_ENJA, JSON.stringify(obj));
+    GOIMONStorage.setItem(WEAK_KEY_ENJA, JSON.stringify(obj));
   }
 
   let session = {
@@ -2351,7 +2351,7 @@ function renderSummary(autoCleared) {
   }
 
   function dailyExamRankIds(ids,category){
-    let history={};try{history=JSON.parse(localStorage.getItem("goimon_daily_exam_history_v1_lv"+String(LV)+"_"+category)||"{}")||{};}catch(_){}
+    let history={};try{history=JSON.parse(GOIMONStorage.getItem("goimon_daily_exam_history_v1_lv"+String(LV)+"_"+category)||"{}")||{};}catch(_){}
     return ids.slice().sort((a,b)=>{
       const x=history[String(a)]||{},y=history[String(b)]||{};
       return Number(x.attempts||0)-Number(y.attempts||0)||Number(x.lastSeen||0)-Number(y.lastSeen||0);
@@ -2517,7 +2517,7 @@ session.askedOrder = [];
   let goimonUi = loadGoimonUiState();
 
   function saveGoimonUiState() {
-    localStorage.setItem(GOIMON_UI_KEY, JSON.stringify(goimonUi));
+    GOIMONStorage.setItem(GOIMON_UI_KEY, JSON.stringify(goimonUi));
   }
 
   function renderGoimonVisibility() {
@@ -2776,7 +2776,7 @@ resetCursorBtn.addEventListener("click", () => {
 
   clearWeakBtn.addEventListener("click", () => {
     if (!confirm("ニガテをすべて消しますか？（自動・手動どちらも全消去）")) return;
-    localStorage.removeItem(WEAK_KEY);
+    GOIMONStorage.removeItem(WEAK_KEY);
     updateWeakInfo();
     renderWeakManagement();
   });
