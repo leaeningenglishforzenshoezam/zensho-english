@@ -153,7 +153,10 @@ function recordIdiomSession(payload){
    return {valid:false,completed:false,reason:"invalid_question_set"};
  const correct=payload.attempts.filter(a=>a.correct).length,complete=correct>=12;
  const record=readCompletion(level,today),previous=record.completed.idioms;
- record.completed.idioms={category:"idiom_quiz",rangeStart:expected.rangeStart,rangeEnd:expected.rangeEnd,questionMode:payload.questionMode,
+ const sessionId=String(payload.finishedAt||"");
+ if(!sessionId||!Number.isFinite(Date.parse(sessionId)))return {valid:false,completed:false,reason:"invalid_session"};
+ if(previous?.lastSessionId===sessionId)return {valid:true,completed:!!previous.completed,duplicate:true,persisted:true};
+ record.completed.idioms={category:"idiom_quiz",lastSessionId:sessionId,rangeStart:expected.rangeStart,rangeEnd:expected.rangeEnd,questionMode:payload.questionMode,
   attempts:Math.min(100000,Number(previous?.attempts||0)+1),
   bestCorrect:Math.max(correct,Number(previous?.bestCorrect||0)),
   completed:!!previous?.completed||complete,
