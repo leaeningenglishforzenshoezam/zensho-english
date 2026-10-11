@@ -266,10 +266,31 @@ function assignDailyReadingSet(level,category,ids,day=dateKey()){
  try{localStorage.setItem(storageKey(level,day),JSON.stringify(daily));}catch(_){}
  return chosen;
 }
+function recordListeningSession(payload){
+ const day=dateKey(),level=String(payload?.level||"");
+ if(!payload||payload.day!==day||level!=="1")return {valid:false,completed:false,reason:"invalid_day_or_level"};
+ const m=getOrCreate(level,day).missions.find(x=>x.slot==="listening");
+ if(!m?.available||payload.category!=="listening"||![2,3,5].includes(payload.format))
+  return {valid:false,completed:false,reason:"invalid_category_or_format"};
+ if(!Array.isArray(payload.attempts)||payload.attempts.length!==5||
+  payload.attempts.some(a=>typeof a?.id!=="string"||!a.id||typeof a.correct!=="boolean")||
+  new Set(payload.attempts.map(a=>a.id)).size!==5)return {valid:false,completed:false,reason:"invalid_questions"};
+ const time=String(payload.finishedAt||"");
+ if(!time||!Number.isFinite(Date.parse(time)))return {valid:false,completed:false,reason:"invalid_session"};
+ const state=readCompletion(level,day),old=state.completed.listening;
+ if(old?.lastSessionId===time)return {valid:true,completed:!!old.completed,duplicate:true,persisted:true};
+ const correct=payload.attempts.filter(a=>a.correct).length;
+ state.completed.listening={category:"listening",format:payload.format,lastSessionId:time,
+  attempts:Number(old?.attempts||0)+1,bestCorrect:Math.max(correct,Number(old?.bestCorrect||0)),
+  completed:!!old?.completed||correct>=4,completedAt:old?.completedAt||(correct>=4?new Date().toISOString():null)};
+ try{localStorage.setItem(completionKey(level,day),JSON.stringify(state));}catch(_){return {valid:true,completed:state.completed.listening.completed,persisted:false};}
+ updateExamHistory(level,"listening:"+payload.format,payload.attempts);
+ return {valid:true,completed:state.completed.listening.completed,correct,total:5,required:4,persisted:true};
+}
 function getStatus(level=activeLevel(),day=dateKey()){
  const daily=getOrCreate(level,day),state=readCompletion(level,day);
  const missions=daily.missions.map(m=>{
-  const record=m.slot==="words"?state.completed?.words:(m.slot==="idioms"?state.completed?.idioms:(m.slot==="exam"?state.completed?.exam:(m.slot==="reorder"?state.completed?.reorder:(m.slot==="reading"?state.completed?.reading:null))));
+  const record=m.slot==="words"?state.completed?.words:(m.slot==="idioms"?state.completed?.idioms:(m.slot==="exam"?state.completed?.exam:(m.slot==="reorder"?state.completed?.reorder:(m.slot==="reading"?state.completed?.reading:(m.slot==="listening"?state.completed?.listening:null)))));
   const matches=record?.category===m.category&&((m.slot!=="words"&&m.slot!=="idioms")||(record?.rangeStart===m.rangeStart&&record?.rangeEnd===m.rangeEnd));
   return {...m,completed:!!(matches&&record.completed),bestCorrect:matches?record.bestCorrect:0,
     attemptCount:matches?record.attempts:0,progress:matches?record.bestCorrect:0};
@@ -282,5 +303,5 @@ function getStatus(level=activeLevel(),day=dateKey()){
      +(basicCompletedCount===3?rules.allBasicBonusStars:0),
    info:"端末上の仮達成記録です。星のかけらの正式付与・クラウド同期は未実装です。"};
 }
-window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus,selectIdiomRange,recordWordSession,recordIdiomSession,recordExamSession,recordReorderSession,rankExamQuestionIds,chooseDailySet,dailySetHistory,assignDailyReadingSet,recordReadingSet});
+window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus,selectIdiomRange,recordWordSession,recordIdiomSession,recordExamSession,recordReorderSession,rankExamQuestionIds,chooseDailySet,dailySetHistory,assignDailyReadingSet,recordReadingSet,recordListeningSession});
 })();
