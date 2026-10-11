@@ -1,7 +1,6 @@
-const GOIMON_DAILY_RESULT_ORIGIN = localStorage.getItem("goimon_cloud_v2:active") || "guest";
-// Daily mission result origin: capture account when this quiz script starts.
 const GOIMON_DAILY_RESULT_ACCOUNT = localStorage.getItem("goimon_cloud_v2:active") || "guest";
 function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
+// Daily mission result origin: capture account when this quiz script starts.
 (function () {
   "use strict";
 
