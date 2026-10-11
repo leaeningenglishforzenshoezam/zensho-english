@@ -110,6 +110,27 @@ function recordIdiomSession(payload){
  catch(_){return {valid:true,completed:record.completed.idioms.completed,persisted:false,reason:"storage_unavailable"};}
  return {valid:true,completed:record.completed.idioms.completed,correct,total:15,required:12,persisted:true};
 }
+// Daily-only history, separate from normal quiz cursors. Only actual completed sessions are recorded.
+function examHistoryKey(level,category){return "goimon_daily_exam_history_v1_lv"+level+"_"+category;}
+function examHistory(level,category){
+ try{const x=JSON.parse(localStorage.getItem(examHistoryKey(level,category))||"{}");return x&&typeof x==="object"?x:{};}catch(_){return {};}
+}
+function rankExamQuestionIds(level,category,ids){
+ const history=examHistory(level,category);
+ return ids.slice().sort((a,b)=>{
+  const x=history[String(a)]||{},y=history[String(b)]||{};
+  return Number(x.attempts||0)-Number(y.attempts||0)
+   || Number(x.lastSeen||0)-Number(y.lastSeen||0);
+ });
+}
+function updateExamHistory(level,category,attempts){
+ const history=examHistory(level,category),now=Date.now();
+ attempts.forEach(a=>{
+  const id=String(a.id),prev=history[id]||{};
+  history[id]={attempts:Number(prev.attempts||0)+1,wrong:Number(prev.wrong||0)+(a.correct?0:1),lastSeen:now};
+ });
+ try{localStorage.setItem(examHistoryKey(level,category),JSON.stringify(history));return true;}catch(_){return false;}
+}
 function recordExamSession(payload){
  const today=dateKey(),level=String(payload?.level||"");
  if(!payload||payload.day!==today||!["1","2"].includes(level))return {valid:false,completed:false,reason:"invalid_day_or_level"};
@@ -121,6 +142,7 @@ function recordExamSession(payload){
    new Set(payload.attempts.map(a=>a.id)).size!==10)
   return {valid:false,completed:false,reason:"invalid_question_set"};
  const correct=payload.attempts.filter(a=>a.correct).length;
+ updateExamHistory(level,mission.category,payload.attempts);
  const record=readCompletion(level,today),old=record.completed.exam;
  record.completed.exam={category:mission.category,attempts:Math.min(100000,Number(old?.attempts||0)+1),
   bestCorrect:Math.max(correct,Number(old?.bestCorrect||0)),
@@ -146,5 +168,5 @@ function getStatus(level=activeLevel(),day=dateKey()){
      +(basicCompletedCount===3?rules.allBasicBonusStars:0),
    info:"端末上の仮達成記録です。星のかけらの正式付与・クラウド同期は未実装です。"};
 }
-window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus,recordWordSession,recordIdiomSession,recordExamSession});
+window.GoimonDailyMissions=Object.freeze({dateKey,tokyoDateKey:dateKey,selectWordRange,selectMissions,getOrCreate,getStatus,recordWordSession,recordIdiomSession,recordExamSession,rankExamQuestionIds});
 })();
