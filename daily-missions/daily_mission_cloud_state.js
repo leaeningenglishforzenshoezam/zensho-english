@@ -5,7 +5,7 @@
  const patterns=[
   /^goimon_daily_missions_v2_lv([12])_(\d{4}-\d{2}-\d{2})$/,
   /^goimon_daily_mission_completions_v1_lv([12])_(\d{4}-\d{2}-\d{2})$/,
-  /^goimon_daily_first_day_v1_lv([12])$/,
+  /^goimon_daily_first_day_v1_lv([12])_(words|idioms)$/,
   /^goimon_daily_idiom_cursor_v1_lv([12])_(meaning|synonym)$/,
   /^goimon_daily_(reading|listening)_rotation_v1_lv([12])$/,
   /^goimon_daily_exam_history_v1_lv([12])_(sentence|paraphrase_quiz)$/,
@@ -31,6 +31,18 @@
   if(new TextEncoder().encode(JSON.stringify(result)).length>MAX_BYTES)throw Error('daily_save_too_large');
   return result;
  }
+ function encodeForCloud(snapshot){
+  if(!snapshot||snapshot.version!==VERSION||!['1','2'].includes(snapshot.level)||!snapshot.data||typeof snapshot.data!=='object'||Array.isArray(snapshot.data))throw Error('invalid_snapshot');
+  const encoded=JSON.stringify(snapshot);
+  if(new TextEncoder().encode(encoded).length>MAX_BYTES)throw Error('daily_save_too_large');
+  return encoded;
+ }
+ function decodeFromCloud(raw,level,today){
+  if(typeof raw!=='string')throw Error('invalid_cloud_data');
+  let parsed;try{parsed=JSON.parse(raw);}catch(_){throw Error('invalid_cloud_json');}
+  if(parsed?.version!==VERSION||parsed.level!==String(level)||!parsed.data||Array.isArray(parsed.data))throw Error('invalid_cloud_snapshot');
+  return pack(parsed.data,level,today);
+ }
  function merge(base,local,remote){
   for(const x of [base,local,remote])if(!x||x.version!==VERSION||!['1','2'].includes(x.level)||!x.data||typeof x.data!=='object')throw Error('invalid_state');
   if(base.level!==local.level||local.level!==remote.level)throw Error('level_mismatch');
@@ -42,5 +54,5 @@
   }
   return {data,conflicts}; // Never silently choose a side on conflict.
  }
- root.GoimonDailyCloudState=Object.freeze({pack,merge,isAllowed});
+ root.GoimonDailyCloudState=Object.freeze({pack,merge,isAllowed,encodeForCloud,decodeFromCloud});
 })(typeof window!=='undefined'?window:globalThis);
