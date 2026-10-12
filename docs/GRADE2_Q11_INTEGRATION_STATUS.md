@@ -95,3 +95,10 @@
 - 初回のテスト失敗はテスト準備がAの保存済みプロフィールを上書きしていたため。初期化は未存在時のみとし、修正後成功。
 - GitHub Actions: https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38225694109
 - Google Identity Servicesの実認証、Workers/D1のクラウド保存、別端末引継ぎ、競合救済データのインポートまでは未検証。
+
+## 2026-10-12 クラウド同期オフライン検証
+- `tests/g2q11-cloud-schema.test.cjs` で2級の苦手・学習ログ（未付与報酬ID含む）・育成データの保存形式を検証。
+- 学習ログの級別分離、同時更新時の三者マージ、同一キー競合の検出、許可外のキー排除を確認。
+- Workerの検証コードが共通の `cloud_schema.js` を参照していることを確認。
+- GitHub Actions成功: https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38227277680
+- 本番Workers/D1への通信は実施していないため、実際のGoogleログイン、端末間同期、サーバーへの保存可否は未検証。
