@@ -58,6 +58,7 @@ jobs:
           node tests/g2q11-browser.cjs
           node tests/g2q11-mobile.cjs
           node tests/g2q11-cloud-storage-browser.cjs
+          node tests/g2q11-final-integration.cjs
 
   worker-local:
     runs-on: ubuntu-latest
