@@ -2029,6 +2029,7 @@ function isMrUnoUnlocked() {
     selectSpecialRoute,
     addQ7ReadingResult,
     addQ7VocabCorrect,
+    addLearningPointsOnce,
 
     addPoints,
 addPointsByRuleKey,
