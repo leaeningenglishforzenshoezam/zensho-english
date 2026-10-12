@@ -62,3 +62,11 @@
 - 報酬保存が例外で失敗しても、元の個体オブジェクトに取得済みIDが残らないことをテストで確認。
 - CI成功: https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38220653688
 - 学習ログと育成記録の2つのキーを跨ぐ完全な原子的保存ではないため、片方のみ保存された場合の復旧は引き続き未完成。
+
+## 2026-10-12 Q11未付与報酬の復旧
+- `learning_log.js` は2級大問11の正答と未付与報酬IDを**同一ログ書込**で確定させる（`rewardClaimId`）。
+- `g2q11_reward_recovery.js` は報酬ID単位で冪等付与し、付与完了後にログから未付与IDを削除する。ページ再訪時に未付与を再処理する。
+- 報酬保存成功→ログ側の未付与削除失敗でも、次回処理は取得済みIDで重複加点を避ける。
+- 台帳満杯は古い報酬を黙って捨てず、保存を拒否する。
+- テスト https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38221310092 は成功。最新変更もCI再確認を要する。
+- Mac/Googleログイン・複数タブ/別端末の実テストは未完了。本番クラウド同期は未保証。
