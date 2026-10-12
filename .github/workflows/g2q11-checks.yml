@@ -10,6 +10,7 @@ on:
       - 'goimon.js'
       - 'index.html'
       - 'tests/g2q11.test.cjs'
+      - 'tests/g2q11-storage.test.cjs'
       - '.github/workflows/g2q11-checks.yml'
 permissions:
   contents: read
@@ -30,4 +31,4 @@ jobs:
           node --check goimon.js
           node --check cloud_schema.js
       - name: Grade 2 Q11 contract tests
-        run: node --test tests/g2q11.test.cjs
+        run: node --test tests/g2q11.test.cjs tests/g2q11-storage.test.cjs
