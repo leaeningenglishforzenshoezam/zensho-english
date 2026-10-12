@@ -52,7 +52,8 @@ function claimHarness({fail=false}={}){
   let applyCount=0;
   const ctx={
     ensureCurrent:()=>g,
-    applyDeltaToGoimon:(go,delta)=>{applyCount++;if(fail)throw Error('save failed');go.points+=delta.kotoba+delta.bunmyaku},
+    structuredClone,
+    applyDeltaToGoimon:(go,delta)=>{applyCount++;if(fail)throw Error('save failed');go.points+=delta.kotoba+delta.bunmyaku;Object.assign(g,go)},
     renderHome:()=>{},renderAllMiniHooks:()=>{}
   };
   vm.runInNewContext(source.slice(start,end)+'\n globalThis.reward=addLearningPointsOnce;',ctx);
@@ -69,6 +70,6 @@ test('same reward ID is never applied twice; new attempt can earn reward',()=>{
 test('failed reward save is not falsely described as success',()=>{
   const h=claimHarness({fail:true});
   assert.throws(()=>h.reward('g2q11:run1:001:0',{kotoba:.5,bunmyaku:.5},'q11_grammar'),/save failed/);
-  // Existing helper sets in-memory claim before persist; next write must be investigated separately.
-  assert.equal(h.g.learningRewardClaims['g2q11:run1:001:0'],true);
+  assert.equal(h.g.learningRewardClaims['g2q11:run1:001:0'],undefined);
+  assert.equal(h.g.points,0);
 });
