@@ -44,15 +44,10 @@ const listen=()=>new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
     return data.G2_Q11_001?.manual;
   }),false);
   await page.locator('#catalogBack').click();
-  await page.evaluate(() => {
-    window.GoimonUI.addLearningPointsOnce=(id,delta)=>{
-      const seen=JSON.parse(localStorage.getItem('__test_claims')||'[]');
-      if(seen.includes(id))return false;
-      seen.push(id);
-      localStorage.setItem('__test_claims',JSON.stringify(seen));
-      localStorage.setItem('__test_points',String(Number(localStorage.getItem('__test_points')||'0')+delta.kotoba+delta.bunmyaku));
-      return true;
-    };
+  const before=await page.evaluate(()=>{
+    const key='zensho_goimon_current_v4_lv2';
+    const g=window.GoimonUI.loadCurrent();
+    return {key,stats:{...g.stats},total:g.totalPoints};
   });
   await page.locator('#start').click();
   assert.ok(await page.locator('#play').isVisible(),'quiz must be visible');
@@ -62,8 +57,11 @@ const listen=()=>new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   const answer=await page.evaluate(()=>window.GOIMON_G2_Q11_SET1[0].answer);
   await page.locator('#choices button').filter({hasText:answer}).first().click();
   await page.locator('#check').click();
-  assert.equal(await page.evaluate(()=>Number(localStorage.getItem('__test_points')||'0')),1,'mocked GOIMON points should total 1');
-  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('__test_claims')||'[]').length),1,'only one claim');
+  const after=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),before.key);
+  assert.equal(Math.round((after.stats.kotoba-before.stats.kotoba)*10)/10,0.5,'actual kotoba gain');
+  assert.equal(Math.round((after.stats.bunmyaku-before.stats.bunmyaku)*10)/10,0.5,'actual bunmyaku gain');
+  assert.equal(Math.round((after.totalPoints-before.total)*10)/10,1,'actual total point gain');
+  assert.equal(Object.keys(after.learningRewardClaims||{}).filter(k=>k.startsWith('g2q11:')).length,1,'one reward claim saved');
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('zensho_learning_log_v1_lv2')||'{}')._q11PendingRewards?.length||0),0,'pending claim settled');
   assert.ok(await page.locator('#feedback').isVisible(),'feedback must display');
   await page.locator('#back').click({force:true}).catch(()=>{});
