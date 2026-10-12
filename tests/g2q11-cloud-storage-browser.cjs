@@ -15,7 +15,7 @@ const server=http.createServer((req,res)=>{
   const context=await browser.newContext();
   const seed=async(account)=>{const page=await context.newPage();await page.goto(url);await page.evaluate((id)=>{
     localStorage.setItem('goimon_cloud_v2:active',id);
-    localStorage.setItem('goimon_cloud_v2:profile:'+id,JSON.stringify({data:{zensho_level_v1:'2'},base:{},revision:0}));
+    if(!localStorage.getItem('goimon_cloud_v2:profile:'+id))localStorage.setItem('goimon_cloud_v2:profile:'+id,JSON.stringify({data:{zensho_level_v1:'2'},base:{},revision:0}));
   },account);await page.close()};
   await seed('q11-test-A');
   const a=await context.newPage();await a.goto(url);
