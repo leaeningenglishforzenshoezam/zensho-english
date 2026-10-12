@@ -300,8 +300,8 @@ window.GOIMON_G2_Q11_SET1 = [
       "she"
     ],
     "ja": "アンナは、同級生の一人が自分の親しい友人だと私に話しました。",
-    "explanation": "a friend of hers は二重所有格で「彼女の友人の一人」。of her ではなく hers。",
-    "comparison": "a picture of her（彼女が写っている写真）と a picture of hers（彼女が所有する写真）を区別。",
+    "explanation": "a friend of hers は「彼女の友人の一人」。of の後に所有代名詞 hers を置く二重所有格。",
+    "comparison": "a friend of hers（彼女の友人の一人）／a friend of her brother（彼女の兄弟の友人）。",
     "set": "SET 1",
     "difficulty": "基礎"
   },
@@ -597,7 +597,8 @@ window.GOIMON_G2_Q11_SET1 = [
   {
     "id": "G2_Q11_036",
     "level": "2",
-    "section": 11,    "tag": "受動態",
+    "section": 11,
+    "tag": "受動態",
     "stem": "These photographs were (　　) during our school trip last year.",
     "answer": "taken",
     "distractors": [
@@ -785,15 +786,15 @@ window.GOIMON_G2_Q11_SET1 = [
     "level": "2",
     "section": 11,
     "tag": "その他",
-    "stem": "Without your advice, I (　　) what to do now.",
-    "answer": "would not know",
+    "stem": "Thanks to your advice, I know exactly what to do now. Without your help, I (　　) completely lost.",
+    "answer": "would be",
     "distractors": [
-      "will not know",
-      "did not know"
+      "was",
+      "will be"
     ],
-    "ja": "あなたの助言がなければ、私は今どうすればよいかわからないでしょう。",
-    "explanation": "without＋名詞 は「もし〜がなければ」を含意できる。現在の事実と異なる想定なら would＋原形。",
-    "comparison": "Without your help, I would not know ... = If I didn't have your help, I would not know ...",
+    "ja": "あなたの助言のおかげで、今何をすべきか分かっています。助けがなければ、私は途方に暮れているでしょう。",
+    "explanation": "現在の事実に反して助けがない状況を仮定するので would be。without your help は if I didn't have your help と言い換えられる。",
+    "comparison": "Without your help, I would be lost.（現在）／Without your help, I would have been lost.（過去）。",
     "set": "SET 1",
     "difficulty": "基礎"
   },
@@ -1196,7 +1197,8 @@ window.GOIMON_G2_Q11_SET1 = [
     "stem": "The photographs (　　) on the wall were taken in Nara.",
     "answer": "displayed",
     "distractors": [
-      "displaying",      "display"
+      "displaying",
+      "display"
     ],
     "ja": "壁に展示されている写真は奈良で撮られたものです。",
     "explanation": "photographs は展示される側なので過去分詞 displayed。",
@@ -1396,15 +1398,15 @@ window.GOIMON_G2_Q11_SET1 = [
     "level": "2",
     "section": 11,
     "tag": "助動詞・慣用構文",
-    "stem": "The museum is free today, so you (　　) pay an entrance fee.",
+    "stem": "Admission to the museum is free today. You (　　) pay an entrance fee to enter.",
     "answer": "need not",
     "distractors": [
       "must not",
       "cannot"
     ],
-    "ja": "美術館は今日は無料なので、入場料を払う必要はありません。",
-    "explanation": "need not は不要、must not は禁止、cannot は不可能を表す。無料という理由から不要が適切。",
-    "comparison": "do not have to pay も「払う必要がない」。",
+    "ja": "今日は博物館の入場料が無料です。入場料を払う必要はありません。",
+    "explanation": "need not は「必要がない」。must not は禁止、cannot は不可能であり、無料であること自体は支払いを禁止しない。",
+    "comparison": "need not pay = do not have to pay（必要がない）／must not pay（払ってはいけない）。",
     "set": "SET 2",
     "difficulty": "標準"
   },
@@ -1430,15 +1432,15 @@ window.GOIMON_G2_Q11_SET1 = [
     "level": "2",
     "section": 11,
     "tag": "助動詞・慣用構文",
-    "stem": "He cannot be (　　) the truth; his story changes every time.",
-    "answer": "telling",
+    "stem": "Ken cannot be (　　) right now. I can hear him singing in his room.",
+    "answer": "sleeping",
     "distractors": [
-      "tell",
-      "told"
+      "sleep",
+      "slept"
     ],
-    "ja": "彼が本当のことを言っているはずがありません。話が毎回変わります。",
-    "explanation": "cannot be doing は現在進行中の行為への強い否定的推量。",
-    "comparison": "cannot have told は過去の出来事への推量。",
+    "ja": "ケンが今眠っているはずはありません。部屋で歌っているのが聞こえます。",
+    "explanation": "cannot be doing は「今〜しているはずがない」。be の後は現在分詞 sleeping。",
+    "comparison": "cannot be sleeping（今眠っているはずがない）／cannot have slept（過去に眠ったはずがない）。",
     "set": "SET 2",
     "difficulty": "標準"
   },
@@ -1685,15 +1687,15 @@ window.GOIMON_G2_Q11_SET1 = [
     "level": "2",
     "section": 11,
     "tag": "その他",
-    "stem": "Without your advice, I (　　) have made that mistake yesterday.",
+    "stem": "My teacher warned me about that mistake before I submitted my essay. Without her advice, I (　　) have made the same mistake yesterday.",
     "answer": "would",
     "distractors": [
       "will",
       "can"
     ],
-    "ja": "あなたの助言がなければ、私は昨日その間違いを犯していただろう。",
-    "explanation": "would have＋過去分詞 は過去の事実に反する仮定。",
-    "comparison": "would＋原形 は現在・未来の仮定。",
+    "ja": "先生の助言がなければ、昨日同じ間違いをしていたでしょう。",
+    "explanation": "過去の事実に反する仮定なので would have＋過去分詞を使う。",
+    "comparison": "would have made（過去の反実仮想）／would make（現在・未来の反実仮想）。",
     "set": "SET 2",
     "difficulty": "標準"
   },
@@ -1702,15 +1704,15 @@ window.GOIMON_G2_Q11_SET1 = [
     "level": "2",
     "section": 11,
     "tag": "不定詞・動名詞",
-    "stem": "The coach tried (　　) the broken whistle, but it still made no sound.",
+    "stem": "The coach tried (　　) the broken whistle himself, but he could not fix it.",
     "answer": "to repair",
     "distractors": [
-      "repairing",
+      "repair",
       "repaired"
     ],
-    "ja": "コーチは壊れた笛を修理しようとしたが、まだ音が出なかった。",
-    "explanation": "try to doは「努力して〜しようとする」。成功したかどうかは別で、but以下がうまくいかなかったことを示す。",
-    "comparison": "try doingは「試しに〜してみる」。この文では修理できるよう努力する意図を表すためto repair。",
+    "ja": "コーチは壊れた笛を自分で修理しようとしましたが、直せませんでした。",
+    "explanation": "try to do は「〜しようと努力する」。原形 repair や repaired は続けられない。",
+    "comparison": "try to repair（努力する）／try repairing（試してみる）。両方成立し得るため repairing は誤答に置かない。",
     "set": "SET 3",
     "difficulty": "標準",
     "subtag": ""
@@ -1795,7 +1797,8 @@ window.GOIMON_G2_Q11_SET1 = [
     "stem": "The students continued (　　) the same exercise after the bell rang.",
     "answer": "doing",
     "distractors": [
-      "did",      "done"
+      "did",
+      "done"
     ],
     "ja": "ベルが鳴ったあとも生徒たちは同じ練習を続けた。",
     "explanation": "continue doingで「〜し続ける」。ここでは継続する行為を示す動名詞。",
@@ -2241,15 +2244,15 @@ window.GOIMON_G2_Q11_SET1 = [
     "level": "2",
     "section": 11,
     "tag": "分詞・補語",
-    "stem": "The manager left the lights (　　) all night by mistake.",
-    "answer": "burning",
+    "stem": "The manager left the machines (　　) all night by mistake.",
+    "answer": "running",
     "distractors": [
-      "burned",
-      "to burn"
+      "run",
+      "ran"
     ],
-    "ja": "マネージャーは誤って一晩中明かりをつけっぱなしにした。",
-    "explanation": "leave＋物＋doing は動作や状態が続いていることを表す。lightsが点灯し続ける。",
-    "comparison": "leave the door closedは過去分詞で「閉じた状態にしておく」。",
+    "ja": "管理者は誤って機械を一晩中稼働させたままにしてしまいました。",
+    "explanation": "leave＋目的語＋現在分詞は「〜が…している状態のままにする」。",
+    "comparison": "leave the machines running／leave the door closed。",
     "set": "SET 3",
     "difficulty": "標準",
     "subtag": ""
@@ -2394,7 +2397,8 @@ window.GOIMON_G2_Q11_SET1 = [
     "ja": "叔父は夜遅くまで働くことに慣れている。",
     "explanation": "be accustomed to doingは「〜することに慣れている」。toは前置詞なので動名詞。",
     "comparison": "used to workは「以前は働いていた」だがbe used to workingは「慣れている」。",
-    "set": "SET 3",    "difficulty": "標準",
+    "set": "SET 3",
+    "difficulty": "標準",
     "subtag": ""
   },
   {
@@ -2528,15 +2532,15 @@ window.GOIMON_G2_Q11_SET1 = [
     "level": "2",
     "section": 11,
     "tag": "代名詞・所有格",
-    "stem": "Neither of the two answers (　　) correct.",
+    "stem": "Neither answer (　　) correct, so please check the question again.",
     "answer": "is",
     "distractors": [
       "are",
       "be"
     ],
-    "ja": "その2つの答えはどちらも正しくない。",
-    "explanation": "neither of＋複数名詞は学校文法では単数扱いを基本とするのでis。",
-    "comparison": "either ofにも単数一致が基本。ただし会話では複数一致が見られるため学校文法上の判断。",
+    "ja": "どちらの解答も正しくないので、もう一度確認してください。",
+    "explanation": "Neither＋単数名詞は単数主語として扱い is を使う。",
+    "comparison": "Neither answer is correct. と Neither of the answers is/are correct. の一致の違いに注意。",
     "set": "SET 3",
     "difficulty": "標準",
     "subtag": ""
@@ -2546,15 +2550,15 @@ window.GOIMON_G2_Q11_SET1 = [
     "level": "2",
     "section": 11,
     "tag": "代名詞・所有格",
-    "stem": "These two pictures are similar to (　　).",
+    "stem": "The two teammates always encourage (　　) when one of them feels nervous.",
     "answer": "each other",
     "distractors": [
       "another",
-      "the other"
+      "the others"
     ],
-    "ja": "この2枚の写真は互いに似ている。",
-    "explanation": "each otherは「互いに」。複数の対象間の相互関係を表す。",
-    "comparison": "one anotherも同様に相互関係を表せる。the otherは単数の残り一方。",
+    "ja": "2人のチームメートは、どちらかが緊張したとき互いに励まし合います。",
+    "explanation": "each other は「互いに」。2人が相手を励ます相互関係を表す。",
+    "comparison": "each other（互いに）／themselves（自分自身を）。",
     "set": "SET 3",
     "difficulty": "標準",
     "subtag": ""
@@ -2940,15 +2944,15 @@ window.GOIMON_G2_Q11_SET1 = [
     "level": "2",
     "section": 11,
     "tag": "代名詞・所有格",
-    "stem": "Neither of the two keys (　　) this lock.",
+    "stem": "Neither key (　　) this lock, so we need to call the manager.",
     "answer": "opens",
     "distractors": [
       "open",
       "opening"
     ],
-    "ja": "2本の鍵のどちらもこの錠前を開けません。",
-    "explanation": "neither of ...を主語にすると学校文法では通常単数一致。",
-    "comparison": "either of ...も原則単数一致。",
+    "ja": "どちらの鍵もこの錠を開けられないので、管理者を呼ぶ必要があります。",
+    "explanation": "Neither＋単数名詞は単数扱い。opens を使う。",
+    "comparison": "Neither key opens ...／Both keys open ...。",
     "set": "SET 4",
     "difficulty": "標準・応用"
   },
@@ -2993,7 +2997,8 @@ window.GOIMON_G2_Q11_SET1 = [
     "tag": "分詞・補語",
     "stem": "(　　) by the invitation, she decided to join the meeting.",
     "answer": "Encouraged",
-    "distractors": [      "Encouraging",
+    "distractors": [
+      "Encouraging",
       "Encourage"
     ],
     "ja": "招待に背中を押され、彼女は会議に参加することにしました。",
@@ -3126,15 +3131,15 @@ window.GOIMON_G2_Q11_SET1 = [
     "level": "2",
     "section": 11,
     "tag": "時制・完了形",
-    "stem": "I (　　) this book three times so far.",
+    "stem": "I (　　) this book three times so far, and I still enjoy it.",
     "answer": "have read",
     "distractors": [
-      "read yesterday",
-      "had read yesterday"
+      "had read",
+      "was reading"
     ],
-    "ja": "私はこれまでにこの本を3回読んでいます。",
-    "explanation": "so farは現在までの経験・結果を示し現在完了が自然。",
-    "comparison": "yesterdayのような特定の過去時点とは現在完了を組み合わせない。",
+    "ja": "私はこれまでにこの本を3回読みましたが、今でも楽しんでいます。",
+    "explanation": "so far は現在までの経験を示すので現在完了 have read が適切。",
+    "comparison": "have read ... so far（今までに）／had read ... before ...（過去の時点までに）。",
     "set": "SET 4",
     "difficulty": "標準・応用"
   },
@@ -3262,15 +3267,15 @@ window.GOIMON_G2_Q11_SET1 = [
     "level": "2",
     "section": 11,
     "tag": "仮定法",
-    "stem": "He speaks as if he (　　) the answer, but he actually has no idea.",
+    "stem": "If he (　　) the answer, he would explain it to us. In fact, he has no idea.",
     "answer": "knew",
     "distractors": [
-      "knowing",
-      "known"
+      "knows",
+      "had known"
     ],
-    "ja": "彼は答えを知っているかのように話しますが、実際にはまったく分かっていません。",
-    "explanation": "事実に反する様子をas if＋過去形で表す。",
-    "comparison": "knowingやknownでは定形動詞として機能しない。",
+    "ja": "もし彼が答えを知っていれば説明してくれるでしょう。しかし実際には知りません。",
+    "explanation": "現在の反実仮想：If＋過去形、would＋原形。",
+    "comparison": "If he knew, he would explain.／If he had known, he would have explained.",
     "set": "SET 4",
     "difficulty": "標準・応用"
   },
@@ -3279,15 +3284,15 @@ window.GOIMON_G2_Q11_SET1 = [
     "level": "2",
     "section": 11,
     "tag": "助動詞・慣用構文",
-    "stem": "You (　　) have checked the address before leaving; that is why we went to the wrong building.",
+    "stem": "I gave you the correct address yesterday, but you ignored it and we went to the wrong building. You (　　) have checked it more carefully.",
     "answer": "should",
     "distractors": [
-      "can",
-      "must"
+      "must",
+      "might"
     ],
-    "ja": "出発前に住所を確認すべきでした。だから私たちは違う建物に行ってしまったのです。",
-    "explanation": "should have＋過去分詞は過去にすべきだったことへの反省や批判を表す。",
-    "comparison": "must haveは過去についての強い推量で、この後半の文脈と合わない。肯定文のcan haveは通常用いない。",
+    "ja": "正しい住所を教えたのに確認せず違う建物に行きました。もっと注意深く確認すべきでした。",
+    "explanation": "should have＋過去分詞は「すべきだったのにしなかった」。",
+    "comparison": "should have checked（すべきだった）／must have checked（確認したに違いない）／might have checked（したかもしれない）。",
     "set": "SET 4",
     "difficulty": "標準・応用"
   },
@@ -3296,15 +3301,15 @@ window.GOIMON_G2_Q11_SET1 = [
     "level": "2",
     "section": 11,
     "tag": "助動詞・慣用構文",
-    "stem": "She (　　) have left her bag on the train, but I am not sure.",
+    "stem": "No one knows where Anna put her bag. One possibility is that she (　　) have left it on the train.",
     "answer": "may",
     "distractors": [
       "must",
       "cannot"
     ],
-    "ja": "彼女は電車にかばんを置き忘れたのかもしれませんが、確信はありません。",
-    "explanation": "may have＋過去分詞は過去の出来事について確信の低い可能性を表す。",
-    "comparison": "must haveは強い確信、cannot haveは過去の不可能を表す。but I am not sureが手がかり。",
+    "ja": "アンナがかばんをどこに置いたか分かりません。電車に置き忘れたのかもしれません。",
+    "explanation": "may have＋過去分詞は過去の可能性。one possibility が手がかり。",
+    "comparison": "may have left（かもしれない）／must have left（違いない）／cannot have left（はずがない）。",
     "set": "SET 4",
     "difficulty": "標準・応用"
   },
@@ -3381,15 +3386,15 @@ window.GOIMON_G2_Q11_SET1 = [
     "level": "2",
     "section": 11,
     "tag": "接続詞・前置詞",
-    "stem": "We will cancel the picnic (　　) the weather improves.",
+    "stem": "According to the school rule, the picnic will go ahead only if the weather gets better. We will cancel it (　　) the weather improves.",
     "answer": "unless",
     "distractors": [
-      "because",
-      "although"
+      "despite",
+      "during"
     ],
-    "ja": "天気が良くならない限り、ピクニックを中止します。",
-    "explanation": "unlessはif ... notを表す。",
-    "comparison": "becauseは原因、althoughは逆接を表す。",
+    "ja": "天候が改善した場合だけ遠足を実施します。改善しない限り中止します。",
+    "explanation": "unless＋節は「〜しない限り」。despite と during は前置詞なので節を直接導けない。",
+    "comparison": "unless the weather improves = if the weather does not improve。",
     "set": "SET 4",
     "difficulty": "標準・応用"
   },
