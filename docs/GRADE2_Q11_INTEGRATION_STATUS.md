@@ -44,3 +44,9 @@
 - よって「画面の全機能が動作した」とは判定しない。
 - GitHub上のクライアントスクリプト静的検証と、ユーザーのMacでの実操作確認が必要。
 - Worker本番とD1本番は未変更。新しい苦手記録キーのクラウド同期は未実証。
+
+## 2026-10-12 自動テスト整備
+- `tests/g2q11.test.cjs` に200問/選択肢/解説/SET/級別カテゴリ/クラウドキー/ルーティング/重複防止APIの契約テストを追加。
+- `.github/workflows/g2q11-checks.yml` に開発ブランチ限定のGitHub Actionsを追加。
+- 初回ワークフロー実行成功: https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38219850500
+- この合格は静的な契約テストを指し、実ブラウザでの保存・クラウド同期・加点成功を保証しない。
