@@ -159,7 +159,10 @@
       const id = String(opts.rewardClaimId);
       if (!/^g2q11:[a-zA-Z0-9-]+:G2_Q11_\d{3}:\d{1,3}$/.test(id)) throw Error("invalid_reward_claim");
       const pending = Array.isArray(log._q11PendingRewards) ? log._q11PendingRewards : [];
-      if (!pending.includes(id)) log._q11PendingRewards = [...pending, id].slice(-1000);
+      if (!pending.includes(id)) {
+        if (pending.length >= 1000) throw Error('too_many_pending_q11_rewards');
+        log._q11PendingRewards = [...pending, id];
+      }
     }
     saveLog(log, level);
     return true;
