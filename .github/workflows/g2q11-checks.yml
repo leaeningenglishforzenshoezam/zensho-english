@@ -58,3 +58,21 @@ jobs:
           node tests/g2q11-browser.cjs
           node tests/g2q11-mobile.cjs
           node tests/g2q11-cloud-storage-browser.cjs
+
+  worker-local:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Worker dependencies
+        working-directory: cloud-worker
+        run: npm ci
+      - name: Local-only Q11 D1 migrations
+        working-directory: cloud-worker
+        run: npx wrangler d1 migrations apply goimon-grade2-q11-local-test --local --config wrangler.q11-local.jsonc
+      - name: Worker API regression tests
+        working-directory: cloud-worker
+        run: npm test
