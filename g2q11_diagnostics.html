@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GOIMON 2級・大問11 安全診断</title>
+<script src="cloud_schema.js"></script><script src="cloud_storage.js"></script>
+<script src="learning_categories.js"></script><script src="learning_log.js"></script>
+<script src="g2q11_questions.js"></script>
+<style>body{font-family:system-ui,sans-serif;background:#f6f8fc;color:#17233a;margin:0;padding:24px}main{max-width:740px;margin:auto}section{background:white;padding:22px;border-radius:16px;margin:14px 0;box-shadow:0 2px 12px #1122 1}h1{font-size:24px}li{padding:9px 0;border-bottom:1px solid #eee;list-style:none}ul{padding:0}.pass{color:#167346}.fail{color:#b42318}.warn{color:#805300}a{color:#2867bd}code{background:#f0f3f8;padding:2px 5px;border-radius:4px}</style></head>
+<body><main><h1>GOIMON 2級・大問11 診断ページ</h1><p>データを変更しない読取専用テストです。テストはこのページを開いたブラウザの状態で実施します。</p><section><h2>チェック結果</h2><ul id="results"></ul><p id="summary"></p></section><section><h2>次の確認</h2><p>すべて合格したら、ホーム画面で2級を選択してから <a href="g2q11.html">大問11の演習画面</a> を開き、テスト専用アカウントで正答・誤答・苦手登録を確認してください。</p><p>この診断では実際の書込・GOIMON加点・Workers同期は確認できません。実ユーザーの記録を用いた試験はしないでください。</p><p><a href="index.html">ホームへ戻る</a></p></section></main>
+<script>
+(() => {
+ const rows=[], add=(name,ok,detail,warning=false)=>rows.push({name,ok,detail,warning});
+ const store=window.GOIMONStorage;
+ const lv=store?.getItem("zensho_level_v1")||"1";
+ add("保存ラッパー GOIMONStorage",!!store,"保存ラッパーの存在");
+ add("現在の受験級",lv==="2","現在 "+lv+"級。2級での演習前に2級へ切り替えてください",lv!=="2");
+ const q=window.GOIMON_G2_Q11_SET1;
+ add("問題数200",Array.isArray(q)&&q.length===200,"問題数 "+(q?.length??"不明"));
+ add("問題IDの一意性",Array.isArray(q)&&new Set(q.map(x=>x.id)).size===200,"重複がないこと");
+ add("3択と解説",Array.isArray(q)&&q.every(x=>x.answer&&x.distractors?.length===2&&new Set([x.answer,...x.distractors]).size===3&&x.ja&&x.explanation&&x.comparison),"全問の選択肢・日本語訳・解説");
+ add("学習カテゴリ",!!window.LearningCategories?.isAvailableForLevel?.("q11_grammar","2"),"2級で利用可能");
+ add("1級との分離",!window.LearningCategories?.isAvailableForLevel?.("q11_grammar","1"),"1級では新カテゴリを表示しない");
+ add("正誤保存API",typeof window.ZenshoLearningLog?.addResult==="function","ZenshoLearningLog.addResult");
+ add("苦手保存キー",!!window.GOIMONCloudSchema?.allowed?.("zensho_q11_grammar_weak_v1_lv2"),"ローカルのスキーマのみ検査。Worker配信側は別途確認");
+ const ui=document.querySelector("#results");
+ rows.forEach(x=>{const li=document.createElement("li");const span=document.createElement("strong");span.className=x.ok?"pass":x.warning?"warn":"fail";span.textContent=(x.ok?"合格：":x.warning?"要確認：":"不合格：")+x.name;li.append(span,document.createTextNode(" — "+x.detail));ui.append(li)});
+ document.querySelector("#summary").textContent=rows.filter(x=>x.ok).length+" / "+rows.length+" 項目合格（読み取りのみ）";
+})();
+</script></body></html>
