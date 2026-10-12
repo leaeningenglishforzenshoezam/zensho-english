@@ -29,3 +29,10 @@ Google実認証を使わず、localhostの模擬認証・Worker API・ローカ�
 - 専用の外部ステージングWorker/D1で2端末の同期検証
 - 実Google認証の許可Originとログイン・ログアウトの試験
 - 学習ログとGOIMON報酬が同時更新されるケースの競合救済
+
+## GitHub Actionsローカル検証結果（2026-10-12）
+- Q11の保存キーと本番設定の分離チェック：合格
+- 一時的なGitHubランナーで隔離D1のローカルマイグレーション：成功
+- Workers API既存テスト：合格
+- 問題データ・ブラウザ操作テストも含め全ジョブ成功：https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38227769836
+- Cloudflareの実アカウント上に別D1/Workerを作成したわけではない。ネットワーク同期・2端末間の引継ぎは未検証。
