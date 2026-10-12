@@ -40,6 +40,17 @@ const server=http.createServer((req,res)=>{
   const firstNumber=await page.evaluate(()=>document.querySelector('#stem').textContent);
   const second=await page.evaluate(()=>window.GOIMON_G2_Q11_SET1[1].stem);
   assert.equal(firstNumber,second,'continue should start at question 002');
+  await page.locator('#back').click();
+  await page.locator('#numberPicks').fill('5, 12, 19-20');
+  await page.locator('#order').selectOption('sequential');
+  await page.locator('#count').selectOption('5');
+  await page.locator('#start').click();
+  assert.equal(await page.locator('#stem').innerText(),await page.evaluate(()=>window.GOIMON_G2_Q11_SET1[4].stem),'individual selection starts with Q005');
+  await page.locator('#back').click();
+  await page.locator('#numberPicks').fill('201');
+  await page.locator('#start').click();
+  assert.equal(await page.locator('#setup').isVisible(),true,'invalid question number must not start a session');
+  await page.locator('#numberPicks').fill('');
   await page.reload();
   assert.equal(await page.evaluate(()=>window.GOIMONStorage.getItem('goimon_g2q11_last_answered_v1')),'1');
   assert.deepEqual(errors,[]);
