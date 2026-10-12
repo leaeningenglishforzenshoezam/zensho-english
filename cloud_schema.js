@@ -11,7 +11,6 @@
     /^zensho_(accent_(weak|manual_weak)_v1|audio_quiz_weak_v1|sentence_fixed_weak_v2)_lv[12]$/,
     /^zensho_idiom_quiz_(weak_meaning|weak_synonym|weak_expression_from_meaning|manual_weak)_v1_lv[12]$/,
     /^zensho_paraphrase_quiz_(weak|manual_weak)_v1_lv[12]$/,
-    /^zensho_q11_grammar_weak_v1_lv2$/,
     /^zensho_reorder_(bonus_stat|auto_weak|manual_weak)_v1_lv[12]$/,
     /^q7(SetHistory|VocabHistory)_v1$/,
     /^q10(ReadingCompletionState|WeakExpressions|QuestionHistory)_v1$/,
