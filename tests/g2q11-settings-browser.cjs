@@ -13,7 +13,7 @@ const server=http.createServer((req,res)=>{
   const context=await browser.newContext({viewport:{width:390,height:844}});
   await context.addInitScript(()=>localStorage.setItem('zensho_level_v1','2'));
   const page=await context.newPage();
-  const errors=[];page.on('pageerror',error=>errors.push(String(error)));
+  const errors=[];page.on('pageerror',error=>errors.push(String(error)));page.on('dialog',dialog=>dialog.accept());
   await page.goto('http://127.0.0.1:'+server.address().port+'/g2q11.html');
   await page.locator('#openQuestions').click();
   const exercise=page.locator('#catalogBody .catalog-exercise').first();
