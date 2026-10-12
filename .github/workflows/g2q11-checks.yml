@@ -14,6 +14,7 @@ on:
       - 'tests/g2q11-recovery.test.cjs'
       - 'tests/g2q11-browser.cjs'
       - 'tests/g2q11-mobile.cjs'
+      - 'tests/g2q11-cloud-storage-browser.cjs'
       - '.github/workflows/g2q11-checks.yml'
 permissions:
   contents: read
@@ -53,3 +54,4 @@ jobs:
         run: |
           node tests/g2q11-browser.cjs
           node tests/g2q11-mobile.cjs
+          node tests/g2q11-cloud-storage-browser.cjs
