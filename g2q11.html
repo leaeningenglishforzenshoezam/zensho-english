@@ -1,8 +1,9 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>全商英検2級 大問11｜GOIMON プレビュー</title><link rel="stylesheet" href="g2q11.css"></head>
+<script src="cloud_schema.js"></script><script src="cloud_storage.js"></script>
+<title>全商英検2級 大問11｜GOIMON 開発版</title><link rel="stylesheet" href="g2q11.css"></head>
 <body><div class="wrap">
-<header class="top"><div><span class="eyebrow">GOIMON · GRAMMAR TRAINING</span><h1>全商英検2級 <span>大問11</span></h1><p>文法・語法の3択演習 <span class="preview">プレビュー版・記録は保存されません</span></p></div></header>
+<header class="top"><div><span class="eyebrow">GOIMON · GRAMMAR TRAINING</span><h1>全商英検2級 <span>大問11</span></h1><p>文法・語法の3択演習 <span class="preview">開発版・本番未公開</span></p></div></header>
 <main>
 <section class="card setup" id="setup"><div class="section-head"><div><span class="eyebrow">QUESTION SETUP</span><h2>問題を選ぶ</h2></div><span class="pill">SET 1〜4 · 全200問</span></div>
 <p class="muted">1級の演習ページと同じように、出題範囲・順番・問題数を設定できます。</p>
@@ -19,5 +20,12 @@
 <div class="actions"><button id="check" class="primary" disabled>答え合わせ</button><button id="next" class="primary hidden">次の問題へ →</button></div>
 </div></section>
 <section id="summary" class="card hidden"><span class="eyebrow">RESULT</span><h2>演習結果</h2><div class="big-score" id="finalScore"></div><p id="finalMessage"></p><div class="row"><button id="retry" class="primary">もう一度解く</button><button id="toSetup">設定へ戻る</button></div><h3>間違えた問題</h3><p class="muted">間違えた問題は自動で苦手に登録されます。</p><div id="wrongList"></div></section>
-</main><footer>この画面は独立した動作確認用です。苦手の登録と誤答回数のみ、このブラウザに保存します。クラウド同期・本番の学習履歴・GOIMON育成ポイントは変更しません。</footer></div>
+</main><footer>開発ブランチ専用の検証版です。学習記録・GOIMON加点・苦手保存はテスト用アカウントで確認してください。本番公開はしていません。</footer></div>
+<script>window.ACTIVE_LEVEL = GOIMONStorage.getItem("zensho_level_v1") || "1";</script>
+<script src="learning_categories.js"></script>
+<script src="learning_log.js"></script>
+<script src="goimon_dialogues.js"></script>
+<script src="goimon_dex.js"></script>
+<script src="goimon_rules.js"></script>
+<script src="goimon.js"></script>
 <script src="g2q11_questions.js"></script><script src="g2q11.js"></script></body></html>
