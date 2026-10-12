@@ -154,6 +154,13 @@
       slot.wrong += 1;
     }
 
+    // Q11の正解記録と未付与報酬IDを同じログ保存操作に含める。
+    if (level === "2" && category === "q11_grammar" && isCorrect === true && opts.rewardClaimId) {
+      const id = String(opts.rewardClaimId);
+      if (!/^g2q11:[a-zA-Z0-9-]+:G2_Q11_\\d{3}:\\d{1,3}$/.test(id)) throw Error("invalid_reward_claim");
+      const pending = Array.isArray(log._q11PendingRewards) ? log._q11PendingRewards : [];
+      if (!pending.includes(id)) log._q11PendingRewards = [...pending, id].slice(-1000);
+    }
     saveLog(log, level);
     return true;
   }
