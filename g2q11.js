@@ -14,24 +14,7 @@ const tags=[...new Set(data.map(q=>q.tag))];
 for(const tag of tags){let e=document.createElement('option');e.value=tag;e.textContent=tag;$('category').append(e)}
 const numberOf=q=>Number(q.id.slice(-3));
 function range(){const a=Number($('numberStart').value),b=Number($('numberEnd').value);return Number.isInteger(a)&&Number.isInteger(b)&&a>=1&&b<=200&&a<=b?[a,b]:null}
-function selectedNumbers(){
- const raw=$('numberPicks').value.trim();if(!raw)return null;
- const selected=new Set();
- for(const token of raw.split(/[,、，\s]+/).filter(Boolean)){
-  const match=/^(\d{1,3})(?:[-〜～](\d{1,3}))?$/.exec(token);
-  if(!match)return false;
-  const a=Number(match[1]),b=Number(match[2]||match[1]);
-  if(a<1||b>200||a>b)return false;
-  for(let i=a;i<=b;i++)selected.add(i);
- }
- return selected.size?selected:false;
-}
-function validNumbers(){return selectedNumbers()!==false&&(selectedNumbers()!==null||range()!==null)}
-const pool=()=>data.filter(q=>{
- const picks=selectedNumbers(),r=range();
- const included=picks instanceof Set?picks.has(numberOf(q)):r&&numberOf(q)>=r[0]&&numberOf(q)<=r[1];
- return included&&($('category').value==='all'||q.tag===$('category').value)
-});
+const pool=()=>data.filter(q=>{const r=range();return r&&numberOf(q)>=r[0]&&numberOf(q)<=r[1]&&($('category').value==='all'||q.tag===$('category').value)});
 function lastAnswered(){const n=Number(store.getItem(CURSOR_KEY));return Number.isInteger(n)&&n>=1&&n<=200?n:0}
 function markAnswered(q){try{store.setItem(CURSOR_KEY,String(numberOf(q)))}catch(e){console.warn('[Q11] continuation could not be saved',e)}}
 function orderedPool(){const list=orderQuestions(pool(),$('order').value);if($('order').value!=='continue')return list;const pivot=lastAnswered();const sorted=list.slice().sort((a,b)=>numberOf(a)-numberOf(b));return [...sorted.filter(q=>numberOf(q)>pivot),...sorted.filter(q=>numberOf(q)<=pivot)]}
@@ -42,14 +25,14 @@ function save(){store.setItem(KEY,JSON.stringify(weak));}
 function setManual(id,val){const x=info(id);weak[id]={...x,manual:val};try{save()}catch(error){weak[id]=x;console.error(error);alert('苦手記録を保存できません。別タブの競合を確認してください。');return} updatePool();if(!$('catalog').classList.contains('hidden'))renderCatalog();if(!$('play').classList.contains('hidden'))bookmark()}
 function recordWrong(id){const x=info(id);weak[id]={...x,wrong:x.wrong+1,auto:true};try{save()}catch(error){weak[id]=x;console.error(error);alert('誤答の苦手登録を保存できませんでした。');return false}updatePool();return true}
 function clearWeak(id){const x=info(id);weak[id]={manual:false,wrong:0,auto:false};try{save()}catch(error){weak[id]=x;console.error(error);alert('苦手登録を解除できませんでした。');return}updatePool();renderCatalog()}
-function updatePool(){$('poolInfo').textContent=validNumbers()?`対象 ${pool().length}問／苦手 ${weakItems().length}問。前回の続き：${lastAnswered()||'未回答'}番の次から。`:'番号は1～200で指定してください（例：1,5,12-18）。';$('weakCount').textContent=`(${weakItems().length})`}
+function updatePool(){$('poolInfo').textContent=range()?`対象 ${pool().length}問／苦手 ${weakItems().length}問。前回の続き：${lastAnswered()||'未回答'}番の次から。`:'開始番号・終了番号を1～200の範囲で指定してください。';$('weakCount').textContent=`(${weakItems().length})`}
 $('category').addEventListener('change',updatePool);
-for(const id of ['numberStart','numberEnd','numberPicks'])$(id).addEventListener('input',updatePool);
+for(const id of ['numberStart','numberEnd'])$(id).addEventListener('input',updatePool);
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function show(page){for(const id of ['setup','catalog','play','summary'])$(id).classList.toggle('hidden',id!==page);window.scrollTo?.(0,0)}
 function run(questions,all=false){if(activeLevel!=='2'){alert('2級を選択してから演習してください。');return}if(!questions.length){alert('該当する問題がありません。');return}state.runId=createRunId();state.session=questions.map(q=>({...q,options:shuffle([q.answer,...q.distractors])}));state.index=0;state.correct=0;state.mistakes=[];show('play');render()}
 function orderQuestions(questions,mode){if(mode==='random')return shuffle(questions);if(mode==='weak')return questions.slice().sort((a,b)=>{const x=info(a.id),y=info(b.id);const ax=isWeak(a.id)?1:0,by=isWeak(b.id)?1:0;return by-ax||y.wrong-x.wrong||a.id.localeCompare(b.id)});return questions.slice()}
-$('start').addEventListener('click',()=>{if(!validNumbers()){alert('出題番号を確認してください。');return}run(orderedPool().slice(0,Number($('count').value)))});
+$('start').addEventListener('click',()=>{if(!range()){alert('出題番号を確認してください。');return}run(orderedPool().slice(0,Number($('count').value)))});
 $('startWeak').addEventListener('click',()=>run(orderQuestions(weakItems(),'weak').slice(0,Number($('count').value))));
 $('clearWeak').addEventListener('click',()=>openCatalog('weak'));
 $('openQuestions').addEventListener('click',()=>openCatalog('questions'));
