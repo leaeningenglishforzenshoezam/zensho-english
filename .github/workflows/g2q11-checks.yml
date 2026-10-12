@@ -1,0 +1,33 @@
+name: Grade 2 Q11 checks
+on:
+  push:
+    branches: [feature/grade-2]
+  pull_request:
+    paths:
+      - 'g2q11*'
+      - 'learning_categories.js'
+      - 'cloud_schema.js'
+      - 'goimon.js'
+      - 'index.html'
+      - 'tests/g2q11.test.cjs'
+      - '.github/workflows/g2q11-checks.yml'
+permissions:
+  contents: read
+jobs:
+  q11:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax checks
+        run: |
+          node --check g2q11.js
+          node --check g2q11_questions.js
+          node --check goimon.js
+          node --check cloud_schema.js
+      - name: Grade 2 Q11 contract tests
+        run: node --test tests/g2q11.test.cjs
