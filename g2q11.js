@@ -7,7 +7,8 @@ const activeLevel=String(store.getItem('zensho_level_v1')||'1');
 if(activeLevel!=='2') { document.body.insertAdjacentHTML('afterbegin','<div style="padding:14px;background:#fff0da;text-align:center">このページは2級用です。ホームで2級を選んでください。</div>'); }
 function load(){try{const obj=JSON.parse(store.getItem(KEY)||'{}');return obj&&typeof obj==='object'&&!Array.isArray(obj)?obj:{}}catch{return {}}}
 let weak=load();
-const state={session:[],index:0,selection:null,checked:false,correct:0,mistakes:[],context:null};
+const state={session:[],index:0,selection:null,checked:false,correct:0,mistakes:[],context:null,runId:''};
+function createRunId(){return (window.crypto&&typeof window.crypto.randomUUID==='function')?window.crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(36).slice(2)}
 const tags=[...new Set(data.map(q=>q.tag))];
 for(const tag of tags){let e=document.createElement('option');e.value=tag;e.textContent=tag;$('category').append(e)}
 const pool=()=>data.filter(q=>$('category').value==='all'||q.tag===$('category').value);
@@ -22,7 +23,7 @@ function updatePool(){$('poolInfo').textContent=`対象 ${pool().length}問／�
 $('category').addEventListener('change',updatePool);
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function show(page){for(const id of ['setup','catalog','play','summary'])$(id).classList.toggle('hidden',id!==page);window.scrollTo?.(0,0)}
-function run(questions,all=false){if(activeLevel!=='2'){alert('2級を選択してから演習してください。');return}if(!questions.length){alert('該当する問題がありません。');return}state.session=questions.map(q=>({...q,options:shuffle([q.answer,...q.distractors])}));state.index=0;state.correct=0;state.mistakes=[];show('play');render()}
+function run(questions,all=false){if(activeLevel!=='2'){alert('2級を選択してから演習してください。');return}if(!questions.length){alert('該当する問題がありません。');return}state.runId=createRunId();state.session=questions.map(q=>({...q,options:shuffle([q.answer,...q.distractors])}));state.index=0;state.correct=0;state.mistakes=[];show('play');render()}
 function orderQuestions(questions,mode){if(mode==='random')return shuffle(questions);if(mode==='weak')return questions.slice().sort((a,b)=>{const x=info(a.id),y=info(b.id);const ax=isWeak(a.id)?1:0,by=isWeak(b.id)?1:0;return by-ax||y.wrong-x.wrong||a.id.localeCompare(b.id)});return questions.slice()}
 $('start').addEventListener('click',()=>run(orderQuestions(pool(),$('order').value).slice(0,Number($('count').value))));
 $('startWeak').addEventListener('click',()=>run(orderQuestions(weakItems(),'weak').slice(0,Number($('count').value))));
@@ -55,8 +56,9 @@ function check(){if(state.checked||state.selection===null||activeLevel!=='2')ret
    try { saved=window.ZenshoLearningLog.addResult('q11_grammar',correct,{level:'2'})===true; }
    catch(error) { console.error(error); alert('学習記録の保存に失敗しました。別タブの競合や空き容量を確認してください。'); }
  }
- if(correct && saved && window.GoimonUI?.addPoints) {
-   try { window.GoimonUI.addPoints({kotoba:0.5,bunmyaku:0.5},'q11_grammar'); }
+ if(correct && saved && window.GoimonUI?.addLearningPointsOnce) {
+   const claimId='g2q11:'+state.runId+':'+q.id+':'+state.index;
+   try { window.GoimonUI.addLearningPointsOnce(claimId,{kotoba:0.5,bunmyaku:0.5},'q11_grammar'); }
    catch(error) { console.error(error); alert('解答記録は保存しましたがGOIMON加点に失敗しました。'); }
  }
  bookmark();for(const b of $('choices').children){b.disabled=true;const value=b.lastChild.textContent;b.classList.remove('selected');if(value===q.answer)b.classList.add('correct');else if(value===state.selection)b.classList.add('wrong')}
