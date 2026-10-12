@@ -42,3 +42,9 @@ Google実認証を使わず、localhostの模擬認証・Worker API・ローカ�
 - revisionを使う古い更新の拒否（HTTP 409）、更新前世代の `save_revisions` への退避、テスト用ユーザーA/Bの分離を検証。
 - GitHub Actions 全3ジョブ成功: https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38228084990
 - `handleSave` はWorkersの実API実装を用いたが、HTTPサーバー経由の外部通信、Googleログイン、Cloudflare上のリモートD1接続は未検証。
+
+## 2026-10-12 ローカルHTTP経由のQ11統合テスト
+- `cloud-worker/tests/q11-http.test.js` を追加し、Nodeの127.0.0.1 HTTPサーバーを経由して実際のWorkerルーティングとローカルD1を検証。
+- テスト用セッショントークンを2クライアントに発行し、苦手・学習履歴・育成データの保存と取得、409競合、リビジョン履歴、アカウント隔離、未認証/不許可Origin拒否を確認。
+- Google認証トークン交換や外部のCloudflare接続は行わない。テスト用セッションのみ。
+- 全3ジョブ成功: https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38228356375
