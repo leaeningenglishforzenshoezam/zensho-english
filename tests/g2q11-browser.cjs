@@ -28,6 +28,22 @@ const listen=()=>new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   await page.locator('#openGrammar').click();
   assert.match(await page.locator('#catalogHeading').innerText(),/文法一覧/);
   await page.locator('#catalogBack').click();
+  // Manual weak flags must survive reload and remain isolated to grade 2.
+  await page.locator('#openQuestions').click();
+  await page.locator('#catalogBody .bookmark').first().click();
+  assert.equal(await page.evaluate(() => {
+    const data=JSON.parse(localStorage.getItem('zensho_q11_grammar_weak_v1_lv2')||'{}');
+    return data.G2_Q11_001?.manual;
+  }),true);
+  await page.reload();
+  assert.match(await page.locator('#poolInfo').innerText(),/苦手 1問/);
+  await page.locator('#clearWeak').click();
+  await page.locator('#catalogBody button').filter({hasText:'解除'}).first().click();
+  assert.equal(await page.evaluate(() => {
+    const data=JSON.parse(localStorage.getItem('zensho_q11_grammar_weak_v1_lv2')||'{}');
+    return data.G2_Q11_001?.manual;
+  }),false);
+  await page.locator('#catalogBack').click();
   await page.locator('#start').click();
   assert.ok(await page.locator('#play').isVisible(),'quiz must be visible');
   assert.equal(await page.locator('#choices button').count(),3);
