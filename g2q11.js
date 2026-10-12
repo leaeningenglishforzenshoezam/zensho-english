@@ -1,8 +1,11 @@
 (() => {
 'use strict';
 const data=window.GOIMON_G2_Q11_SET1||[],$=id=>document.getElementById(id);
-const KEY='goimon_preview_g2q11_weak_v1';
-function load(){try{const obj=JSON.parse(localStorage.getItem(KEY)||'{}');return obj&&typeof obj==='object'&&!Array.isArray(obj)?obj:{}}catch{return {}}}
+const KEY='zensho_q11_grammar_weak_v1_lv2';
+const store=window.GOIMONStorage||window.localStorage;
+const activeLevel=String(store.getItem('zensho_level_v1')||'1');
+if(activeLevel!=='2') { document.body.insertAdjacentHTML('afterbegin','<div style="padding:14px;background:#fff0da;text-align:center">このページは2級用です。ホームで2級を選んでください。</div>'); }
+function load(){try{const obj=JSON.parse(store.getItem(KEY)||'{}');return obj&&typeof obj==='object'&&!Array.isArray(obj)?obj:{}}catch{return {}}}
 let weak=load();
 const state={session:[],index:0,selection:null,checked:false,correct:0,mistakes:[],context:null};
 const tags=[...new Set(data.map(q=>q.tag))];
@@ -11,7 +14,7 @@ const pool=()=>data.filter(q=>$('category').value==='all'||q.tag===$('category')
 const info=id=>{const x=weak[id]||{};return {manual:!!x.manual,wrong:Math.max(0,Number(x.wrong)||0),auto:!!x.auto}};
 const isWeak=id=>{const x=info(id);return x.manual||x.auto};
 const weakItems=()=>data.filter(q=>isWeak(q.id));
-function save(){try{localStorage.setItem(KEY,JSON.stringify(weak))}catch{alert('このブラウザでは苦手記録を保存できません。')}}
+function save(){try{store.setItem(KEY,JSON.stringify(weak))}catch{alert('このブラウザでは苦手記録を保存できません。')}}
 function setManual(id,val){const x=info(id);weak[id]={...x,manual:val};save();updatePool();if(!$('catalog').classList.contains('hidden'))renderCatalog();if(!$('play').classList.contains('hidden'))bookmark()}
 function recordWrong(id){const x=info(id);weak[id]={...x,wrong:x.wrong+1,auto:true};save();updatePool()}
 function clearWeak(id){weak[id]={manual:false,wrong:0,auto:false};save();updatePool();renderCatalog()}
@@ -46,12 +49,22 @@ $('bookmark').addEventListener('click',()=>{const q=state.session[state.index];s
 function render(){const q=state.session[state.index];state.selection=null;state.checked=false;$('bar').style.width=`${100*state.index/state.session.length}%`;$('number').textContent=`QUESTION ${state.index+1} / ${state.session.length}`;$('score').textContent=`正解 ${state.correct}問`;$('tag').textContent=q.tag;$('stem').textContent=q.stem;bookmark();$('choices').replaceChildren();
  q.options.forEach((option,i)=>{const b=node('button','choice');b.type='button';b.append(node('b','',['①','②','③'][i]),node('span','',option));b.addEventListener('click',()=>{if(state.checked)return;state.selection=option;for(const n of $('choices').children)n.classList.remove('selected');b.classList.add('selected');$('check').disabled=false});$('choices').append(b)});
  $('feedback').classList.add('hidden');$('check').classList.remove('hidden');$('next').classList.add('hidden');$('check').disabled=true;$('next').textContent=state.index===state.session.length-1?'結果を見る →':'次の問題へ →'}
-function check(){if(state.checked||state.selection===null)return;state.checked=true;const q=state.session[state.index],correct=state.selection===q.answer;if(correct)state.correct++;else{state.mistakes.push({id:q.id,stem:q.stem,answer:q.answer,choice:state.selection});recordWrong(q.id)}bookmark();for(const b of $('choices').children){b.disabled=true;const value=b.lastChild.textContent;b.classList.remove('selected');if(value===q.answer)b.classList.add('correct');else if(value===state.selection)b.classList.add('wrong')}
+function check(){if(state.checked||state.selection===null)return;state.checked=true;const q=state.session[state.index],correct=state.selection===q.answer;if(correct)state.correct++;else{state.mistakes.push({id:q.id,stem:q.stem,answer:q.answer,choice:state.selection});recordWrong(q.id)}
+ let saved=false;
+ if(activeLevel==='2' && window.ZenshoLearningLog?.addResult) {
+   try { saved=window.ZenshoLearningLog.addResult('q11_grammar',correct,{level:'2'})===true; }
+   catch(error) { console.error(error); alert('学習記録の保存に失敗しました。別タブの競合や空き容量を確認してください。'); }
+ }
+ if(correct && saved && window.Goimon?.addPoints) {
+   try { window.Goimon.addPoints({kotoba:0.5,bunmyaku:0.5},'q11_grammar'); }
+   catch(error) { console.error(error); alert('解答記録は保存しましたがGOIMON加点に失敗しました。'); }
+ }
+ bookmark();for(const b of $('choices').children){b.disabled=true;const value=b.lastChild.textContent;b.classList.remove('selected');if(value===q.answer)b.classList.add('correct');else if(value===state.selection)b.classList.add('wrong')}
  $('result').textContent=correct?'✓ 正解！':'✕ 不正解';$('result').className='result '+(correct?'ok':'ng');$('translation').textContent=q.ja;$('explanation').textContent=q.explanation;$('comparison').textContent=q.comparison;$('feedback').classList.remove('hidden');$('check').classList.add('hidden');$('next').classList.remove('hidden');$('score').textContent=`正解 ${state.correct}問`}
 $('check').addEventListener('click',check);
 $('next').addEventListener('click',()=>{if(!state.checked)return;if(state.index+1>=state.session.length)finish();else{state.index++;render()}});
 $('back').addEventListener('click',()=>{if(confirm('今回の回答状況を破棄して問題設定に戻りますか？'))show('setup')});
-function finish(){show('summary');const n=state.session.length;$('finalScore').textContent=`${state.correct} / ${n} 問正解`;$('finalMessage').textContent=`正答率 ${Math.round(state.correct/n*100)}％。誤答は自動的に苦手登録されました（ブラウザ内のみ）。`;$('wrongList').replaceChildren();if(!state.mistakes.length){$('wrongList').textContent='全問正解です！';return}for(const m of state.mistakes){const d=node('div','wrong-item');d.append(node('strong','',`${m.id}｜${m.stem}`),node('div','',`あなたの回答：${m.choice} ／ 正答：${m.answer}`));$('wrongList').append(d)}}
+function finish(){show('summary');const n=state.session.length;$('finalScore').textContent=`${state.correct} / ${n} 問正解`;$('finalMessage').textContent=`正答率 ${Math.round(state.correct/n*100)}％。誤答は自動的に苦手登録されました。`;$('wrongList').replaceChildren();if(!state.mistakes.length){$('wrongList').textContent='全問正解です！';return}for(const m of state.mistakes){const d=node('div','wrong-item');d.append(node('strong','',`${m.id}｜${m.stem}`),node('div','',`あなたの回答：${m.choice} ／ 正答：${m.answer}`));$('wrongList').append(d)}}
 $('retry').addEventListener('click',()=>run(orderQuestions(pool(),$('order').value).slice(0,Number($('count').value))));$('toSetup').addEventListener('click',()=>show('setup'));
 updatePool();
 })();
