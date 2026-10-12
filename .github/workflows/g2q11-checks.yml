@@ -12,6 +12,7 @@ on:
       - 'tests/g2q11.test.cjs'
       - 'tests/g2q11-storage.test.cjs'
       - 'tests/g2q11-recovery.test.cjs'
+      - 'tests/g2q11-browser.cjs'
       - '.github/workflows/g2q11-checks.yml'
 permissions:
   contents: read
@@ -34,3 +35,18 @@ jobs:
           node --check cloud_schema.js
       - name: Grade 2 Q11 contract tests
         run: node --test tests/g2q11.test.cjs tests/g2q11-storage.test.cjs tests/g2q11-recovery.test.cjs
+
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser harness
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Browser smoke test
+        run: node tests/g2q11-browser.cjs
