@@ -50,3 +50,9 @@
 - `.github/workflows/g2q11-checks.yml` に開発ブランチ限定のGitHub Actionsを追加。
 - 初回ワークフロー実行成功: https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38219850500
 - この合格は静的な契約テストを指し、実ブラウザでの保存・クラウド同期・加点成功を保証しない。
+
+## 2026-10-12 保存処理の自動テスト
+- `tests/g2q11-storage.test.cjs` を追加し、正誤ログ保存、級別分離、保存失敗の例外、重複報酬抑止、別演習報酬を実行検査した。
+- CI 成功 https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38220265610
+- 既存 addLearningPointsOnce は報酬IDをメモリ上でマークしてから保存するため、保存に失敗した場合にそのオブジェクト内のマークが残る。再試行設計とログ／報酬間の原子性は未解決。
+- テストは保存環境の模擬実行であり、Macブラウザ／本番クラウド同期は未実証。
