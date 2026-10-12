@@ -83,3 +83,8 @@
 - GitHub Actions成功: https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38224834427
 - テスト用ブラウザは実在のGoogleアカウントに未接続。実ユーザーや本番D1の個体データは扱わない。
 - スマホレイアウト、複数端末同期、競合時の挙動は未検証。
+
+## 2026-10-12 モバイル自動検証
+- `tests/g2q11-mobile.cjs` を追加し、375/390/768pxのビューポートで横はみ出し・文法一覧・手動苦手登録・3択回答・解説表示を検証。
+- GitHub Actions 成功 https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38225208899
+- Chromiumのモバイルエミュレーションであり、実機Safari/AndroidやGoogleログイン・別端末クラウド同期の検証ではない。
