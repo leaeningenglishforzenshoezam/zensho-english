@@ -1929,6 +1929,8 @@
 
     function renderLevel() {
       const lv = getLevel();
+      const q11Button = document.getElementById("goParaphrase");
+      if (q11Button) q11Button.textContent = lv === "2" ? "大問11演習（文法）" : "大問11演習（言い換え）";
 
       info.textContent =
         `現在の設定：全商英検 ${lv}級`;
