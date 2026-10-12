@@ -56,3 +56,9 @@
 - CI 成功 https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38220265610
 - 既存 addLearningPointsOnce は報酬IDをメモリ上でマークしてから保存するため、保存に失敗した場合にそのオブジェクト内のマークが残る。再試行設計とログ／報酬間の原子性は未解決。
 - テストは保存環境の模擬実行であり、Macブラウザ／本番クラウド同期は未実証。
+
+## 2026-10-12 報酬保存失敗時の整合性改善
+- `GoimonUI.addLearningPointsOnce` は保存前に元オブジェクトを変更せず、複製した個体に取得済み報酬IDとポイントを反映して保存する方式へ変更。
+- 報酬保存が例外で失敗しても、元の個体オブジェクトに取得済みIDが残らないことをテストで確認。
+- CI成功: https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38220653688
+- 学習ログと育成記録の2つのキーを跨ぐ完全な原子的保存ではないため、片方のみ保存された場合の復旧は引き続き未完成。
