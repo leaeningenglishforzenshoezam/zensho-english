@@ -36,3 +36,9 @@ Google実認証を使わず、localhostの模擬認証・Worker API・ローカ�
 - Workers API既存テスト：合格
 - 問題データ・ブラウザ操作テストも含め全ジョブ成功：https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38227769836
 - Cloudflareの実アカウント上に別D1/Workerを作成したわけではない。ネットワーク同期・2端末間の引継ぎは未検証。
+
+## 2026-10-12 Q11ローカルD1保存・復元の統合テスト
+- `cloud-worker/tests/q11-save.test.js` を追加。隔離された一時D1で2級の苦手記録・学習ログ・GOIMON育成データを1つのスナップショットとして保存・復元。
+- revisionを使う古い更新の拒否（HTTP 409）、更新前世代の `save_revisions` への退避、テスト用ユーザーA/Bの分離を検証。
+- GitHub Actions 全3ジョブ成功: https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38228084990
+- `handleSave` はWorkersの実API実装を用いたが、HTTPサーバー経由の外部通信、Googleログイン、Cloudflare上のリモートD1接続は未検証。
