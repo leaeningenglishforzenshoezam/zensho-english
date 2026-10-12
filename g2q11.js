@@ -2,6 +2,7 @@
 'use strict';
 const data=window.GOIMON_G2_Q11_SET1||[],$=id=>document.getElementById(id);
 const KEY='zensho_q11_grammar_weak_v1_lv2';
+const CURSOR_KEY='goimon_g2q11_last_answered_v1';
 const store=window.GOIMONStorage||window.localStorage;
 const activeLevel=String(store.getItem('zensho_level_v1')||'1');
 if(activeLevel!=='2') { document.body.insertAdjacentHTML('afterbegin','<div style="padding:14px;background:#fff0da;text-align:center">このページは2級用です。ホームで2級を選んでください。</div>'); }
@@ -11,7 +12,12 @@ const state={session:[],index:0,selection:null,checked:false,correct:0,mistakes:
 function createRunId(){return (window.crypto&&typeof window.crypto.randomUUID==='function')?window.crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(36).slice(2)}
 const tags=[...new Set(data.map(q=>q.tag))];
 for(const tag of tags){let e=document.createElement('option');e.value=tag;e.textContent=tag;$('category').append(e)}
-const pool=()=>data.filter(q=>$('category').value==='all'||q.tag===$('category').value);
+const numberOf=q=>Number(q.id.slice(-3));
+function range(){const a=Number($('numberStart').value),b=Number($('numberEnd').value);return Number.isInteger(a)&&Number.isInteger(b)&&a>=1&&b<=200&&a<=b?[a,b]:null}
+const pool=()=>data.filter(q=>{const r=range();return r&&numberOf(q)>=r[0]&&numberOf(q)<=r[1]&&($('category').value==='all'||q.tag===$('category').value)});
+function lastAnswered(){const n=Number(store.getItem(CURSOR_KEY));return Number.isInteger(n)&&n>=1&&n<=200?n:0}
+function markAnswered(q){try{store.setItem(CURSOR_KEY,String(numberOf(q)))}catch(e){console.warn('[Q11] continuation could not be saved',e)}}
+function orderedPool(){const list=orderQuestions(pool(),$('order').value);if($('order').value!=='continue')return list;const pivot=lastAnswered();const sorted=list.slice().sort((a,b)=>numberOf(a)-numberOf(b));return [...sorted.filter(q=>numberOf(q)>pivot),...sorted.filter(q=>numberOf(q)<=pivot)]}
 const info=id=>{const x=weak[id]||{};return {manual:!!x.manual,wrong:Math.max(0,Number(x.wrong)||0),auto:!!x.auto}};
 const isWeak=id=>{const x=info(id);return x.manual||x.auto};
 const weakItems=()=>data.filter(q=>isWeak(q.id));
@@ -19,13 +25,14 @@ function save(){store.setItem(KEY,JSON.stringify(weak));}
 function setManual(id,val){const x=info(id);weak[id]={...x,manual:val};try{save()}catch(error){weak[id]=x;console.error(error);alert('苦手記録を保存できません。別タブの競合を確認してください。');return} updatePool();if(!$('catalog').classList.contains('hidden'))renderCatalog();if(!$('play').classList.contains('hidden'))bookmark()}
 function recordWrong(id){const x=info(id);weak[id]={...x,wrong:x.wrong+1,auto:true};try{save()}catch(error){weak[id]=x;console.error(error);alert('誤答の苦手登録を保存できませんでした。');return false}updatePool();return true}
 function clearWeak(id){const x=info(id);weak[id]={manual:false,wrong:0,auto:false};try{save()}catch(error){weak[id]=x;console.error(error);alert('苦手登録を解除できませんでした。');return}updatePool();renderCatalog()}
-function updatePool(){$('poolInfo').textContent=`対象 ${pool().length}問／苦手 ${weakItems().length}問。選択肢は毎回シャッフルされます。`;$('weakCount').textContent=`(${weakItems().length})`}
+function updatePool(){$('poolInfo').textContent=range()?`対象 ${pool().length}問／苦手 ${weakItems().length}問。前回の続き：${lastAnswered()||'未回答'}番の次から。`:'番号は1～200の範囲で、開始番号を終了番号以下にしてください。';$('weakCount').textContent=`(${weakItems().length})`}
 $('category').addEventListener('change',updatePool);
+for(const id of ['numberStart','numberEnd'])$(id).addEventListener('input',updatePool);
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function show(page){for(const id of ['setup','catalog','play','summary'])$(id).classList.toggle('hidden',id!==page);window.scrollTo?.(0,0)}
 function run(questions,all=false){if(activeLevel!=='2'){alert('2級を選択してから演習してください。');return}if(!questions.length){alert('該当する問題がありません。');return}state.runId=createRunId();state.session=questions.map(q=>({...q,options:shuffle([q.answer,...q.distractors])}));state.index=0;state.correct=0;state.mistakes=[];show('play');render()}
 function orderQuestions(questions,mode){if(mode==='random')return shuffle(questions);if(mode==='weak')return questions.slice().sort((a,b)=>{const x=info(a.id),y=info(b.id);const ax=isWeak(a.id)?1:0,by=isWeak(b.id)?1:0;return by-ax||y.wrong-x.wrong||a.id.localeCompare(b.id)});return questions.slice()}
-$('start').addEventListener('click',()=>run(orderQuestions(pool(),$('order').value).slice(0,Number($('count').value))));
+$('start').addEventListener('click',()=>{if(!range()){alert('出題番号を確認してください。');return}run(orderedPool().slice(0,Number($('count').value)))});
 $('startWeak').addEventListener('click',()=>run(orderQuestions(weakItems(),'weak').slice(0,Number($('count').value))));
 $('clearWeak').addEventListener('click',()=>openCatalog('weak'));
 $('openQuestions').addEventListener('click',()=>openCatalog('questions'));
@@ -67,7 +74,7 @@ $('check').addEventListener('click',check);
 $('next').addEventListener('click',()=>{if(!state.checked)return;if(state.index+1>=state.session.length)finish();else{state.index++;render()}});
 $('back').addEventListener('click',()=>{if(confirm('今回の回答状況を破棄して問題設定に戻りますか？'))show('setup')});
 function finish(){show('summary');const n=state.session.length;$('finalScore').textContent=`${state.correct} / ${n} 問正解`;$('finalMessage').textContent=`正答率 ${Math.round(state.correct/n*100)}％。誤答は自動的に苦手登録されました。`;$('wrongList').replaceChildren();if(!state.mistakes.length){$('wrongList').textContent='全問正解です！';return}for(const m of state.mistakes){const d=node('div','wrong-item');d.append(node('strong','',`${m.id}｜${m.stem}`),node('div','',`あなたの回答：${m.choice} ／ 正答：${m.answer}`));$('wrongList').append(d)}}
-$('retry').addEventListener('click',()=>run(orderQuestions(pool(),$('order').value).slice(0,Number($('count').value))));$('toSetup').addEventListener('click',()=>show('setup'));
+$('retry').addEventListener('click',()=>run(orderedPool().slice(0,Number($('count').value))));$('toSetup').addEventListener('click',()=>show('setup'));
 updatePool();
 if(activeLevel==='2') { try { window.G2Q11RewardRecovery?.retry(); } catch(e) { console.error('[Q11 rewards] startup recovery failed',e); } }
 })();
