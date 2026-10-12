@@ -1,0 +1,20 @@
+{
+  // TEMPLATE ONLY. Create a new Cloudflare D1 database before replacing the
+  // placeholder. Never reuse any ID from wrangler.jsonc / wrangler.public.jsonc.
+  "name": "goimon-grade2-q11-isolated-staging",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  "vars": {
+    "GOOGLE_CLIENT_ID": "REPLACE_WITH_GOOGLE_TEST_CLIENT_ID",
+    "ALLOWED_ORIGIN": "https://REPLACE_WITH_SEPARATE_STAGING_ORIGIN.example"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "goimon-grade2-q11-isolated-staging",
+      "database_id": "REPLACE_WITH_NEW_ISOLATED_D1_UUID",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "preview_urls": false
+}
