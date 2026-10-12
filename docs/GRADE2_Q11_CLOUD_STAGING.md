@@ -48,3 +48,11 @@ Google実認証を使わず、localhostの模擬認証・Worker API・ローカ�
 - テスト用セッショントークンを2クライアントに発行し、苦手・学習履歴・育成データの保存と取得、409競合、リビジョン履歴、アカウント隔離、未認証/不許可Origin拒否を確認。
 - Google認証トークン交換や外部のCloudflare接続は行わない。テスト用セッションのみ。
 - 全3ジョブ成功: https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38228356375
+
+## 2026-10-12 外部ステージング前の安全監査
+- 既存の `wrangler.jsonc` と `wrangler.public.jsonc` は同じ既存D1を参照。ワーカー名だけでは環境は分離されない。
+- `wrangler.q11-staging.example.jsonc` を追加。新規D1 UUID、テスト用Google Client ID、独立Originが未設定のため**そのままデプロイ不可**。
+- `tests/g2q11-staging-audit.test.cjs` に、DB分離、ローカルCIから本番デプロイが行われないこと、変更前バックアップと409競合検出経路を点検するテストを追加。
+- CI全ジョブ合格: https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38229277786
+- 監査はコード上の安全対策を検査したもの。失敗時のJSONインポートを含む復旧操作の実証や、実Googleログイン検証は別途必要。
+- 外部ステージングへのデプロイ実行には、既存D1とは別のDB IDと新規Worker/Originを人が確認し、デプロイ対象を明示してから行う。
