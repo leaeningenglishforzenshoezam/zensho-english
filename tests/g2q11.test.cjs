@@ -67,11 +67,13 @@ test('HTML loads prerequisites before quiz and grade routing stays separate', ()
 test('reward call uses existing guarded, idempotent API', () => {
   const js = read('g2q11.js');
   const goimon = read('goimon.js');
-  assert.ok(js.includes('window.GoimonUI.addLearningPointsOnce(claimId'));
-  assert.ok(js.includes('if(correct && saved && window.GoimonUI?.addLearningPointsOnce)'));
+  assert.ok(js.includes('window.G2Q11RewardRecovery?.deliver(claimId)'));
+  assert.ok(js.includes('if(correct && saved && claimId)'));
   assert.ok(js.includes("if(activeLevel!=='2')"));
   assert.ok(goimon.includes('function addLearningPointsOnce('));
   assert.ok(goimon.includes('    addLearningPointsOnce,'));
+  assert.ok(read('g2q11.html').includes('g2q11_reward_recovery.js'));
+  assert.ok(read('learning_log.js').includes('rewardClaimId'));
 });
 test('read-only diagnostic page does not save or award', () => {
   const html = read('g2q11_diagnostics.html');
