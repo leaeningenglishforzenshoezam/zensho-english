@@ -13,6 +13,7 @@ on:
       - 'tests/g2q11-storage.test.cjs'
       - 'tests/g2q11-recovery.test.cjs'
       - 'tests/g2q11-browser.cjs'
+      - 'tests/g2q11-mobile.cjs'
       - '.github/workflows/g2q11-checks.yml'
 permissions:
   contents: read
@@ -49,4 +50,6 @@ jobs:
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
       - name: Browser smoke test
-        run: node tests/g2q11-browser.cjs
+        run: |
+          node tests/g2q11-browser.cjs
+          node tests/g2q11-mobile.cjs
