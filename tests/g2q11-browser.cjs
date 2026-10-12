@@ -44,13 +44,27 @@ const listen=()=>new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
     return data.G2_Q11_001?.manual;
   }),false);
   await page.locator('#catalogBack').click();
+  await page.evaluate(() => {
+    window.GoimonUI.addLearningPointsOnce=(id,delta)=>{
+      const seen=JSON.parse(localStorage.getItem('__test_claims')||'[]');
+      if(seen.includes(id))return false;
+      seen.push(id);
+      localStorage.setItem('__test_claims',JSON.stringify(seen));
+      localStorage.setItem('__test_points',String(Number(localStorage.getItem('__test_points')||'0')+delta.kotoba+delta.bunmyaku));
+      return true;
+    };
+  });
   await page.locator('#start').click();
   assert.ok(await page.locator('#play').isVisible(),'quiz must be visible');
   assert.equal(await page.locator('#choices button').count(),3);
   const first=await page.locator('#choices button').first().innerText();
   assert.ok(first.length>1);
-  await page.locator('#choices button').first().click();
+  const answer=await page.evaluate(()=>window.GOIMON_G2_Q11_SET1[0].answer);
+  await page.locator('#choices button').filter({hasText:answer}).first().click();
   await page.locator('#check').click();
+  assert.equal(await page.evaluate(()=>Number(localStorage.getItem('__test_points')||'0')),1,'mocked GOIMON points should total 1');
+  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('__test_claims')||'[]').length),1,'only one claim');
+  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('zensho_learning_log_v1_lv2')||'{}')._q11PendingRewards?.length||0),0,'pending claim settled');
   assert.ok(await page.locator('#feedback').isVisible(),'feedback must display');
   await page.locator('#back').click({force:true}).catch(()=>{});
   // Explicitly inspect storage and grade separation rather than relying on UI badge.
