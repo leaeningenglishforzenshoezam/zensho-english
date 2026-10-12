@@ -76,3 +76,10 @@
 - 正答時に模擬GOIMON APIを使い、`kotoba +0.5 / bunmyaku +0.5` 相当の合計1ポイント、単一claim ID、未付与台帳の解消をブラウザ経由で確認。
 - ブラウザと静的テスト双方のCI成功 https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38222356395
 - GOIMON加点は本番APIではなくテスト用の模擬処理。実GOIMON個体の成長・進化、Googleログイン・複数タブ競合・スマートフォンUIは引き続き未検証。
+
+## 2026-10-12 実GOIMON APIのブラウザ試験
+- `tests/g2q11-browser.cjs` の模擬ポイント処理を除去し、テスト用ブラウザの実 `GoimonUI.loadCurrent / addLearningPointsOnce` を使用。
+- 正解前後の個体データ `zensho_goimon_current_v4_lv2` を比較し、ことば＋0.5、ぶんみゃく＋0.5、合計＋1、報酬ID1件の保存を確認。
+- GitHub Actions成功: https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38224834427
+- テスト用ブラウザは実在のGoogleアカウントに未接続。実ユーザーや本番D1の個体データは扱わない。
+- スマホレイアウト、複数端末同期、競合時の挙動は未検証。
