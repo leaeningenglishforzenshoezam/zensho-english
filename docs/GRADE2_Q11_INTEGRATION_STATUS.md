@@ -88,3 +88,10 @@
 - `tests/g2q11-mobile.cjs` を追加し、375/390/768pxのビューポートで横はみ出し・文法一覧・手動苦手登録・3択回答・解説表示を検証。
 - GitHub Actions 成功 https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38225208899
 - Chromiumのモバイルエミュレーションであり、実機Safari/AndroidやGoogleログイン・別端末クラウド同期の検証ではない。
+
+## 2026-10-12 アカウント別保存と複数タブのブラウザテスト
+- `tests/g2q11-cloud-storage-browser.cjs` を追加。ChromiumのローカルテストアカウントA/Bで保存先分離とAへの再ログイン時の復元を検証。
+- ロックを持たない別タブから書き込んでも、元の個体データを上書きしないことを確認。
+- 初回のテスト失敗はテスト準備がAの保存済みプロフィールを上書きしていたため。初期化は未存在時のみとし、修正後成功。
+- GitHub Actions: https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38225694109
+- Google Identity Servicesの実認証、Workers/D1のクラウド保存、別端末引継ぎ、競合救済データのインポートまでは未検証。
