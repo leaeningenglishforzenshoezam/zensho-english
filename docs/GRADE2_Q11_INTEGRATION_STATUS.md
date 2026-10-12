@@ -70,3 +70,9 @@
 - 台帳満杯は古い報酬を黙って捨てず、保存を拒否する。
 - テスト https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38221310092 は成功。最新変更もCI再確認を要する。
 - Mac/Googleログイン・複数タブ/別端末の実テストは未完了。本番クラウド同期は未保証。
+
+## 2026-10-12 Chromium UI検証拡張
+- `tests/g2q11-browser.cjs` で問題一覧・文法一覧・解答に加え、手動苦手登録、再読込後の復元、苦手解除を検証。
+- 正答時に模擬GOIMON APIを使い、`kotoba +0.5 / bunmyaku +0.5` 相当の合計1ポイント、単一claim ID、未付与台帳の解消をブラウザ経由で確認。
+- ブラウザと静的テスト双方のCI成功 https://github.com/leaeningenglishforzenshoezam/zensho-english/actions/runs/38222356395
+- GOIMON加点は本番APIではなくテスト用の模擬処理。実GOIMON個体の成長・進化、Googleログイン・複数タブ競合・スマートフォンUIは引き続き未検証。
