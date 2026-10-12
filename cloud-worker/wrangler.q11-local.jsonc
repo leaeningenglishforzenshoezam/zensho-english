@@ -1,0 +1,20 @@
+{
+  // Q11 isolated local-only test database. The ID is a synthetic placeholder,
+  // never a real Cloudflare D1 identifier.
+  "name": "goimon-grade2-q11-local-test",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  "vars": {
+    "GOOGLE_CLIENT_ID": "local-test-placeholder.apps.googleusercontent.com",
+    "ALLOWED_ORIGIN": "http://localhost:8765"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "goimon-grade2-q11-local-test",
+      "database_id": "00000000-0000-4000-8000-000000000011",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "preview_urls": false
+}
