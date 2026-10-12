@@ -1,0 +1,19 @@
+name: Grade 2 Q11 interaction checks
+on:
+  push:
+    branches: [feature/g2q11-settings-catalog]
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - run: node --check g2q11.js
+      - run: node tests/g2q11-settings-browser.cjs

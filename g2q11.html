@@ -10,9 +10,9 @@
 <p class="muted">1級の演習ページと同じように、出題範囲・順番・問題数を設定できます。</p>
 <div class="shortcut-grid"><button id="openQuestions" class="shortcut">☷ 問題一覧 <span>200問を確認・選択</span></button><button id="openGrammar" class="shortcut">▦ 文法一覧 <span>文法別にすべて解く</span></button></div>
 <div class="field-grid"><label>出題範囲 <select id="category"><option value="all">全範囲（200問）</option></select></label>
-<label>出題順 <select id="order"><option value="sequential">番号順</option><option value="random">ランダム</option><option value="weak">苦手優先（誤答回数順）</option></select></label>
+<label>出題順 <select id="order"><option value="sequential">番号順</option><option value="continue">前回の続きから</option><option value="random">ランダム</option><option value="weak">苦手優先（誤答回数順）</option></select></label>
 <label>問題数 <select id="count"><option value="5">5問（本番形式）</option><option value="10">10問</option><option value="20">20問</option><option value="50">50問</option><option value="100">100問</option><option value="150">150問</option><option value="200">全200問</option></select></label>
-</div><p id="poolInfo" class="muted"></p><div class="setup-actions"><button id="startWeak" class="minor">苦手問題だけ解く <span id="weakCount"></span></button><button id="clearWeak" class="minor">苦手の管理</button></div><button class="primary wide" id="start">演習を始める →</button></section>
+</div><div class="number-range"><label>開始番号 <input id="numberStart" type="number" min="1" max="200" value="1" inputmode="numeric"></label><label>終了番号 <input id="numberEnd" type="number" min="1" max="200" value="200" inputmode="numeric"></label></div><p class="muted">開始番号・終了番号で出題範囲を指定できます（例：51～100）。</p><p id="poolInfo" class="muted"></p><div class="setup-actions"><button id="startWeak" class="minor">苦手問題だけ解く <span id="weakCount"></span></button><button id="clearWeak" class="minor">苦手の管理</button></div><button class="primary wide" id="start">演習を始める →</button></section>
 <section id="catalog" class="card hidden"><div class="row"><button id="catalogBack">← 問題設定へ</button><span class="pill" id="catalogHeading"></span></div><p class="muted" id="catalogHelp"></p><div id="catalogBody"></div></section>
 <section id="play" class="hidden"><div class="row navrow"><button id="back" class="minor">← 設定へ</button><span class="pill">2級・大問11</span><span id="score">正解 0問</span></div>
 <div class="progress-track"><div class="progress-fill" id="bar"></div></div>
