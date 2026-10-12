@@ -202,6 +202,21 @@
       useWeakness: true
     },
 
+    q11_grammar: {
+      key: "q11_grammar",
+      label: "大問11 文法・語法（2級）",
+      shortLabel: "大問11",
+      group: "exam",
+      page: "g2q11.html",
+      levels: ["2"],
+      abilities: { kotoba: 0.5, bunmyaku: 0.5 },
+      hasCorrectWrong: true,
+      useLearningLog: true,
+      useProgress: true,
+      useRecommendation: true,
+      useWeakness: true
+    },
+
     paraphrase_quiz: {
       key: "paraphrase_quiz",
       label: "大問11 言い換え",

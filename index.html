@@ -2953,8 +2953,7 @@
       .addEventListener(
         "click",
         () => {
-          location.href =
-            "paraphrase_quiz.html";
+          location.href = getLevel() === "2" ? "g2q11.html" : "paraphrase_quiz.html";
         }
       );
 

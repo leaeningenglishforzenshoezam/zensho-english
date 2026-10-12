@@ -796,11 +796,13 @@ if (eventKey === "listening") {
 
   function addLearningPointsOnce(claimId, delta, eventKey) {
     if (!claimId) return false;
-    let g = ensureCurrent();
+    const original = ensureCurrent();
+    // 保存前のオブジェクトを変更しない。保存例外時に取得済みIDが残ることを防ぐ。
+    const g = structuredClone(original);
     if (!g.learningRewardClaims || typeof g.learningRewardClaims !== "object") g.learningRewardClaims = {};
     if (g.learningRewardClaims[claimId]) return false;
     g.learningRewardClaims[claimId] = true;
-    // 取得済みIDとポイントを、同じ個体データへの一回の保存で確定する。
+    // 取得済みIDとポイントを同じ個体レコードへ保存する。
     applyDeltaToGoimon(g, delta, eventKey);
     renderHome(); renderAllMiniHooks();
     return true;
@@ -2029,6 +2031,7 @@ function isMrUnoUnlocked() {
     selectSpecialRoute,
     addQ7ReadingResult,
     addQ7VocabCorrect,
+    addLearningPointsOnce,
 
     addPoints,
 addPointsByRuleKey,
