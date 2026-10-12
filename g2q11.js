@@ -51,15 +51,15 @@ function render(){const q=state.session[state.index];state.selection=null;state.
  q.options.forEach((option,i)=>{const b=node('button','choice');b.type='button';b.append(node('b','',['①','②','③'][i]),node('span','',option));b.addEventListener('click',()=>{if(state.checked)return;state.selection=option;for(const n of $('choices').children)n.classList.remove('selected');b.classList.add('selected');$('check').disabled=false});$('choices').append(b)});
  $('feedback').classList.add('hidden');$('check').classList.remove('hidden');$('next').classList.add('hidden');$('check').disabled=true;$('next').textContent=state.index===state.session.length-1?'結果を見る →':'次の問題へ →'}
 function check(){if(state.checked||state.selection===null||activeLevel!=='2')return;state.checked=true;const q=state.session[state.index],correct=state.selection===q.answer;if(correct)state.correct++;else{state.mistakes.push({id:q.id,stem:q.stem,answer:q.answer,choice:state.selection});const weaknessSaved=recordWrong(q.id);if(!weaknessSaved){state.checked=false;state.mistakes.pop();alert('苦手の保存が失敗したため、学習記録と育成ポイントの付与を中止しました。');return}}
+ const claimId=correct?'g2q11:'+state.runId+':'+q.id+':'+state.index:null;
  let saved=false;
  if(activeLevel==='2' && window.ZenshoLearningLog?.addResult) {
-   try { saved=window.ZenshoLearningLog.addResult('q11_grammar',correct,{level:'2'})===true; }
+   try { saved=window.ZenshoLearningLog.addResult('q11_grammar',correct,{level:'2',rewardClaimId:claimId})===true; }
    catch(error) { console.error(error); alert('学習記録の保存に失敗しました。別タブの競合や空き容量を確認してください。'); }
  }
- if(correct && saved && window.GoimonUI?.addLearningPointsOnce) {
-   const claimId='g2q11:'+state.runId+':'+q.id+':'+state.index;
-   try { window.GoimonUI.addLearningPointsOnce(claimId,{kotoba:0.5,bunmyaku:0.5},'q11_grammar'); }
-   catch(error) { console.error(error); alert('解答記録は保存しましたがGOIMON加点に失敗しました。'); }
+ if(correct && saved && claimId) {
+   try { window.G2Q11RewardRecovery?.deliver(claimId); }
+   catch(error) { console.error(error); alert('正解記録は保存しました。GOIMONへの報酬は次回起動時に再付与します。'); }
  }
  bookmark();for(const b of $('choices').children){b.disabled=true;const value=b.lastChild.textContent;b.classList.remove('selected');if(value===q.answer)b.classList.add('correct');else if(value===state.selection)b.classList.add('wrong')}
  $('result').textContent=correct?'✓ 正解！':'✕ 不正解';$('result').className='result '+(correct?'ok':'ng');$('translation').textContent=q.ja;$('explanation').textContent=q.explanation;$('comparison').textContent=q.comparison;$('feedback').classList.remove('hidden');$('check').classList.add('hidden');$('next').classList.remove('hidden');$('score').textContent=`正解 ${state.correct}問`}
@@ -69,4 +69,5 @@ $('back').addEventListener('click',()=>{if(confirm('今回の回答状況を破�
 function finish(){show('summary');const n=state.session.length;$('finalScore').textContent=`${state.correct} / ${n} 問正解`;$('finalMessage').textContent=`正答率 ${Math.round(state.correct/n*100)}％。誤答は自動的に苦手登録されました。`;$('wrongList').replaceChildren();if(!state.mistakes.length){$('wrongList').textContent='全問正解です！';return}for(const m of state.mistakes){const d=node('div','wrong-item');d.append(node('strong','',`${m.id}｜${m.stem}`),node('div','',`あなたの回答：${m.choice} ／ 正答：${m.answer}`));$('wrongList').append(d)}}
 $('retry').addEventListener('click',()=>run(orderQuestions(pool(),$('order').value).slice(0,Number($('count').value))));$('toSetup').addEventListener('click',()=>show('setup'));
 updatePool();
+if(activeLevel==='2') { try { window.G2Q11RewardRecovery?.retry(); } catch(e) { console.error('[Q11 rewards] startup recovery failed',e); } }
 })();
