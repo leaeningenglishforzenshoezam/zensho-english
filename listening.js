@@ -6170,7 +6170,8 @@ stopAudio();
 
     const daily = new URLSearchParams(location.search);
     const dailyEnabled=daily.get("dailyMission")==="listening";
-    const built =
+    const review=daily.get('reviewIds'),reviewIds=new Set((review||'').split(','));
+    const built = review ? getQuestionsByFormat().filter(q=>reviewIds.has(String(q.id))||String(q.id)===daily.get('setId')) :
       dailyEnabled && explicitQuestions ? explicitQuestions.slice() : dailyEnabled ? getQuestionsByFormat().slice().sort((a,b)=>{
         let history={};try{history=JSON.parse(GOIMONStorage.getItem("goimon_daily_exam_history_v1_lv1_listening:"+getSelectedFormat())||"{}")||{};}catch(_){}
         const x=history[String(a.id)]||{},y=history[String(b.id)]||{};

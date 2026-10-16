@@ -1657,6 +1657,9 @@ if (!selectedBlockIds.length) {
     session.active = true;
     session.retryOrder = null;
     session.dailyMissionOrder=dailyMissionRequest()?shuffle(Array.from({length:20},(_,i)=>session.start+i)):null;
+    const review=new URLSearchParams(location.search).get('reviewIds');
+    if(review){session.retryOrder=[...new Set(review.split(',').map(Number))].filter(n=>Number.isInteger(n)&&words[n-1]).map(n=>n-1);session.limit=session.retryOrder.length;session.start=0;session.end=words.length-1;}
+
 
     askedSet.clear();
     askedLog = [];

@@ -1548,7 +1548,10 @@ function renderSummary() {
   }
 
   const orderMode = String(orderModeEl.value || "continue");
-  const baseOrder = getRangeFilteredIndexes(startNo, endNo);
+  const review=new URLSearchParams(location.search).get('reviewIds');
+  const ids=new Set((review||'').split(','));
+  const baseOrder = review?QUESTIONS.map((q,i)=>ids.has(String(q.id))?i:-1).filter(i=>i>=0):getRangeFilteredIndexes(startNo, endNo);
+  if(review)requestedLimit=baseOrder.length;
 
   if (!baseOrder.length) {
     alert("指定した問題番号の範囲に問題がありません。");
@@ -1579,6 +1582,7 @@ function renderSummary() {
   cursor = savedCursor >= order.length ? 0 : savedCursor;
 }
 
+  if(review){order=baseOrder;cursor=0;}
   const limit = Math.min(requestedLimit, order.length);
 
   session.limit = limit;

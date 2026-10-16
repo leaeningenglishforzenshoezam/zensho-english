@@ -444,6 +444,9 @@ function getTargetNoteIdsFromIdiomRange() {
 }
 
 function getRangedData() {
+  const review = URL_PARAMS.get('reviewIds');
+  if(review){const ids=new Set(review.split(','));return DATA.map((q,i)=>({...q,_index:i})).filter(q=>ids.has(String(q.id)));}
+
 
   const rangeType =
     getRangeType();
@@ -1083,6 +1086,7 @@ function setCursor(value) {
   }
   function getSessionItems(count, mode) {
   const base = getRangedData();
+  if(URL_PARAMS.has("reviewIds"))return base;
 
   if (URL_PARAMS.get("dailyMission")==="exam") {const ordered=dailyExamRankIds(base.map(q=>q.id),"paraphrase_quiz");const byId=new Map(base.map(q=>[String(q.id),q]));return ordered.slice(0,count).map(id=>byId.get(String(id))).filter(Boolean);}
   if (mode === "random") {

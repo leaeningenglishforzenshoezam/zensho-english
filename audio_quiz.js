@@ -344,6 +344,7 @@ function renderBlockStats() {
   const lo = Math.min(s, e);
   const hi = Math.max(s, e);
 
+  const review=new URLSearchParams(location.search).get("reviewIds"),reviewNos=new Set((review||"").split(",").map(Number));
   const allowedNos = new Set(getSelectedWordNos());
   const pool = [];
   const seenEn = new Set();
@@ -351,8 +352,7 @@ function renderBlockStats() {
   for (let i = 0; i < WORDS.length; i++) {
     const no = i + 1;
 
-    if (no < lo || no > hi) continue;
-    if (!allowedNos.has(no)) continue;
+    if(review){if(!reviewNos.has(no))continue;}else{if (no < lo || no > hi) continue;if (!allowedNos.has(no)) continue;}
 
     const en = String(WORDS[i]?.en || "").trim();
     const ja = String(WORDS[i]?.ja || "").trim();
@@ -1213,7 +1213,7 @@ function restoreSuspendedQuestion() {
     const pool = buildPool(startNo, endNo);
 
     if (dailyMissionRequest() && pool.length!==20){showError("ミッション指定の20語を用意できません。ブロックと単語データを確認してください。");return;}
-    if (pool.length < 4) {
+    if (pool.length < 4 && !new URLSearchParams(location.search).has("reviewIds")) {
       showError("この範囲では4択を作るのに十分な単語数がありません。範囲を広げてください。");
       return;
     }
@@ -1264,6 +1264,7 @@ function restoreSuspendedQuestion() {
       }
     }
 
+    if(new URLSearchParams(location.search).has("reviewIds")){session.order=pool.map((_,i)=>i);session.cursor=0;limit=pool.length;}
     limit = Math.min(limit, session.order.length);
     session.limit = limit;
 

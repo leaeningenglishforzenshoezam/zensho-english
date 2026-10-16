@@ -969,6 +969,8 @@ function getCursorRangeKey() {
 
 function getAvailableDataForMode(questionMode, options) {
   let base = DATA.slice();
+  const review=URL_PARAMS.get('reviewIds');if(review&&!options?.skipReview){const ids=new Set(review.split(','));return base.filter(q=>ids.has(String(q.displayNo)));}
+
 
   if (questionMode === "synonym") {
     base = base.filter(hasUsableSynonym);
@@ -984,6 +986,7 @@ function getAvailableDataForMode(questionMode, options) {
 }
 
   function getSessionItems(questionMode, mode, count) {
+ if(URL_PARAMS.has("reviewIds"))return getAvailableDataForMode(questionMode).map((q,i)=>({...q,_index:i}));
     const base = getAvailableDataForMode(questionMode).map(function (item, index) {
       return {
         ...item,
@@ -1046,7 +1049,7 @@ function getAvailableDataForMode(questionMode, options) {
       question._currentCorrectText = correct;
 
       const wrongPool = Array.from(new Set(
-        getAvailableDataForMode(questionMode)
+        getAvailableDataForMode(questionMode,{applyRange:false,skipReview:true})
           .filter(function (item) { return item.id !== question.id; })
           .flatMap(function (item) { return getSynonymList(item); })
           .map(function (text) { return String(text || "").trim(); })
@@ -1983,13 +1986,14 @@ if (el.originSearchBtn) {
   }
 
   function startQuiz(useLastSession) {
+ if(URL_PARAMS.has("reviewIds"))el.questionMode.value=URL_PARAMS.get("idiomMode")==="synonym"?"synonym":"meaning";
     const mission=dailyIdiomRequest();
     if(mission){el.rangeStart.value=String(mission.start);el.rangeEnd.value=String(mission.end);el.questionCount.value='15';el.questionMode.value=URL_PARAMS.get('idiomMode')==='synonym'?'synonym':'meaning';el.quizMode.value='random';}
     const questionMode = el.questionMode.value;
     const available = getAvailableDataForMode(questionMode);
 
     if(mission && (available.length!==15 || mission.end-mission.start!==14)){alert("指定範囲には15問の出題可能データがありません。");return;}
-    if (available.length < 4) {
+    if (available.length < 4 && !URL_PARAMS.has("reviewIds")) {
       alert("4択問題を作るには、そのモードで最低4件のデータが必要です。");
       return;
     }

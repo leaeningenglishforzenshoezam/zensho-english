@@ -280,7 +280,7 @@ function applyGoimonLearningQuery() {
 
 function applyDailyReadingQuery() {
   const p = new URLSearchParams(location.search);
-  if (p.get("dailyMission") !== "reading") return false;
+  if (p.get("dailyMission") !== "reading" && !p.has("reviewIds")) return false;
   const setId = p.get("setId");
   const selected = q10Questions.find(q => String(q.id) === setId);
   if (!selected) return false;

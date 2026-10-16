@@ -312,6 +312,7 @@ const weakPinEmptyEl = document.getElementById("weakPinEmpty");
   const lv = String(window.ACTIVE_LEVEL || GOIMONStorage.getItem("zensho_level_v1") || "1");
 
 function getSentenceSetMode() {
+  if(new URLSearchParams(location.search).has("reviewIds"))return "mix";
   const v = String(sentenceSetModeEl?.value || "a");
   if (v === "b" || v === "mix") return v;
   return "a";
@@ -1119,7 +1120,9 @@ function updatePoolInfo() {
   rebuildFixedData();
 
   const ids = getSelectedBlockIds();
-  const eligible = buildEligibleQuestionsBySelectedBlocks();
+  const review=new URLSearchParams(location.search).get('reviewIds');
+  const reviewIds=new Set((review||'').split(','));
+  const eligible = review?fixed.map((q,i)=>reviewIds.has(String(q.id))?i:-1).filter(i=>i>=0):buildEligibleQuestionsBySelectedBlocks();
 
   if (!ids.length) {
     poolInfo.textContent = "Blockを1つ以上選んでください。";
@@ -2367,7 +2370,9 @@ function renderSummary(autoCleared) {
     return;
   }
 
-  const eligible = buildEligibleQuestionsBySelectedBlocks();
+  const review=new URLSearchParams(location.search).get('reviewIds');
+  const reviewIds=new Set((review||'').split(','));
+  const eligible = review?fixed.map((q,i)=>reviewIds.has(String(q.id))?i:-1).filter(i=>i>=0):buildEligibleQuestionsBySelectedBlocks();
 
   if (!eligible.length) {
     alert("この条件では出題できる問題がありません。Blockや単語No.の範囲を確認してください。");
@@ -2407,6 +2412,7 @@ function renderSummary(autoCleared) {
   }
 }
 
+  if(review){session.order=[...eligible];session.cursor=0;session.limit=eligible.length;}
   session.autoRead = !!autoReadEl.checked;
   session.askedOrder = [];
 

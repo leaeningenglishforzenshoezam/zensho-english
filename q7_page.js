@@ -914,5 +914,5 @@ document.querySelectorAll(".paragraph-translation")
 
   renderSetList();
   const daily=new URLSearchParams(location.search);
-  if(daily.get("dailyMission")==="reading"&&sets.some(set=>set.id===daily.get("setId")))begin(daily.get("setId"));
+  if((daily.get("dailyMission")==="reading"||daily.has("reviewIds"))&&sets.some(set=>set.id===daily.get("setId")))begin(daily.get("setId"));
 })();
