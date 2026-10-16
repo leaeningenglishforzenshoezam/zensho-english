@@ -1,4 +1,4 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';import {getPlatformProxy} from 'wrangler';
+import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';import {createLocalPlatform} from '../dev/local-platform.js';
 import {emptyEconomy,planDraw,planExchange,validateState} from '../src/economy.js';import {executeDraw,readEconomy} from '../src/economy_repository.js';
 const funded=shards=>({...emptyEconomy(),shards});
 test('Ten costs 100, guarantees R+, singles have no cumulative pity, input is immutable',()=>{
@@ -14,7 +14,7 @@ test('Exchange protects registered copies, inventory bounds and malformed states
  assert.throws(()=>planExchange(s,'gear','N_hp',undefined));assert.throws(()=>validateState({...s,shards:-1}));assert.throws(()=>validateState({...s,owned:{gear:JSON.parse('{"__proto__":1}'),skills:{}}}));
 });
 test('Local D1 transaction: identical replay, competing devices, rollback, separate accounts, learning preserved',async()=>{
- const mf=await getPlatformProxy({configPath:new URL('../wrangler.jsonc',import.meta.url).pathname,persist:false});try{const db=mf.env.DB;
+ const mf=await createLocalPlatform();try{const db=mf.env.DB;
  for(const sql of (await readFile(new URL('../migrations/0001_initial.sql',import.meta.url),'utf8')).split(';').filter(x=>x.trim()))await db.prepare(sql).run();
  const draft=await readFile(new URL('../schema-drafts/economy-v1.sql',import.meta.url),'utf8');for(const sql of draft.match(/CREATE TABLE[\s\S]*?;|CREATE TRIGGER[\s\S]*?\nEND;/g))await db.prepare(sql).run();
  for(const id of ['a','b']){await db.prepare('INSERT INTO users(id,google_sub) VALUES (?,?)').bind(id,'sub-'+id).run();await db.prepare('INSERT INTO economy_accounts(user_id,state_json) VALUES (?,?)').bind(id,JSON.stringify(funded(200))).run();}

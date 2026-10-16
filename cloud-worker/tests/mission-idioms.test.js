@@ -1,4 +1,4 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';import vm from 'node:vm';import {getPlatformProxy} from 'wrangler';
+import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';import vm from 'node:vm';import {createLocalPlatform} from '../dev/local-platform.js';
 import {issueIdiomAttempt,submitIdiomAttempt,claimIdiomReward,submitWordAttempt,claimWordReward} from '../src/mission_rewards.js';import {readEconomy} from '../src/economy_repository.js';import {handleMissionDraft} from '../src/mission_api.js';import {createSession} from '../src/session.js';
 const now=Date.parse('2026-10-12T00:00:00Z'),DAY=86400000;
 test('Server idiom bank equals active quiz data',async()=>{
@@ -6,7 +6,7 @@ test('Server idiom bank equals active quiz data',async()=>{
  const bank=JSON.parse(await readFile(new URL('../src/data/mission-idioms.json',import.meta.url),'utf8'));assert.deepEqual(bank,JSON.parse(JSON.stringify(c.window.IDIOM_DATA_1KYU.map(({id,expression,ja,paraphraseTo,noteIds})=>({id,expression,ja,paraphraseTo,noteIds})))));assert.equal(bank.length,287);
 });
 test('Local D1: independent mode cursors, full-session-only advancement, scoring, common daily reward and rollback',async()=>{
- const mf=await getPlatformProxy({configPath:new URL('../wrangler.jsonc',import.meta.url).pathname,persist:false});try{const db=mf.env.DB;
+ const mf=await createLocalPlatform();try{const db=mf.env.DB;
  for(const f of ['0001_initial.sql','0002_sessions.sql'])for(const sql of (await readFile(new URL('../migrations/'+f,import.meta.url),'utf8')).split(';').filter(x=>x.trim()))await db.prepare(sql).run();
  for(const f of ['economy-v1.sql','mission-rewards-v1.sql'])for(const sql of (await readFile(new URL('../schema-drafts/'+f,import.meta.url),'utf8')).match(/CREATE TABLE[\s\S]*?;|CREATE TRIGGER[\s\S]*?\nEND;/g))await db.prepare(sql).run();
  for(const id of ['a','b','api','bank'])await db.prepare('INSERT INTO users(id,google_sub) VALUES (?,?)').bind(id,'sub-'+id).run();

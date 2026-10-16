@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
-import {getPlatformProxy} from 'wrangler';import {generateKeyPair,SignJWT} from 'jose';
+import {createLocalPlatform} from '../dev/local-platform.js';import {generateKeyPair,SignJWT} from 'jose';
 import worker,{authenticate,handleSave,publicSave} from '../src/index.js';
 const origin='https://leaeningenglishforzenshoezam.github.io';
 test('Signed token verification: audience, expiry, issuer, required claims and signature',async()=>{
@@ -11,7 +11,7 @@ test('Signed token verification: audience, expiry, issuer, required claims and s
  const {publicKey:other}=await generateKeyPair('RS256');await assert.rejects(()=>token().then(t=>authenticate(req(t),env,other)));
 });
 test('Real local D1: concurrent create/update CAS, recovery history, user isolation and limits',async()=>{
- const mf=await getPlatformProxy({configPath:new URL('../wrangler.jsonc',import.meta.url).pathname,persist:false});
+ const mf=await createLocalPlatform();
  try{const DB=mf.env.DB;const sql=await readFile(new URL('../migrations/0001_initial.sql',import.meta.url),'utf8');for(const s of sql.split(';').map(x=>x.trim()).filter(Boolean))await DB.prepare(s).run();
  await DB.prepare('INSERT INTO users(id,google_sub) VALUES (?,?)').bind('a','sub-a').run();await DB.prepare('INSERT INTO users(id,google_sub) VALUES (?,?)').bind('b','sub-b').run();
  const req=(rev,v)=>new Request('https://test/api/v1/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({expectedRevision:rev,snapshot:{schemaVersion:1,data:{q7SetHistory_v1:JSON.stringify({v})}}})});
@@ -30,7 +30,7 @@ test('CORS, missing token and rate limit fail closed',async()=>{
  env.AUTH_RATE_LIMITER.limit=async()=>({success:false});assert.equal((await worker.fetch(req(),env)).status,429);
 });
 test('Isolated local D1 daily state: round-trip, CAS race, recovery and existing GOIMON preservation',async()=>{
- const mf=await getPlatformProxy({configPath:new URL('../wrangler.jsonc',import.meta.url).pathname,persist:false});
+ const mf=await createLocalPlatform();
  try{const DB=mf.env.DB;for(const s of (await readFile(new URL('../migrations/0001_initial.sql',import.meta.url),'utf8')).split(';').map(x=>x.trim()).filter(Boolean))await DB.prepare(s).run();
  await DB.prepare('INSERT INTO users(id,google_sub) VALUES (?,?)').bind('daily-test','isolated-daily-test').run();
  const day='2026-10-11',key='goimon_daily_mission_completions_v1_lv1_'+day;

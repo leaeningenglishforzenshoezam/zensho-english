@@ -28,7 +28,7 @@ function resolve(b,command,correct){
    let extra=p.nextPower;p.nextPower=1;
    if(p.gearEffect==='courage'&&p.hp<=p.maxHp/2)extra*=1.12;
    if(p.gearEffect==='streak'){if(p.streak>=2){extra*=1.15;p.streak=0;}else p.streak=correct?p.streak+1:0;}
-   const attr=skill?.attr||p.attr,amount=damage(p,e,skill?.power||1,correct?1:.5,attr,speedBonus(p,e)*(correct&&attackIds.includes(p.id)?1.1:1)*extra);
+   const attr=skill?.attr||p.attr,amount=correct?damage(p,e,skill?.power||1,1,attr,speedBonus(p,e)*(attackIds.includes(p.id)?1.1:1)*extra):1;
    e.hp=Math.max(0,e.hp-amount);entry.text=(skill?.name||'通常攻撃')+'：'+amount+'ダメージ';
    if(correct&&skill?.type==='replenish'){const target=restoreTarget(p,skill);if(target){const restored=Math.min(skill.restoreUses,target.maxUses-target.left);target.left+=restored;entry.text+='・'+target.name+'の使用回数を'+restored+'回復';}else entry.text+='・回復できる技がありません';}
    if(skill?.type==='ward'){p.shield={hits:skill.shieldHits,factor:correct?skill.shieldFactor:skill.wrongShieldFactor};entry.text+='・盾を展開';}
@@ -40,7 +40,7 @@ function resolve(b,command,correct){
   let protection=1;if(p.shield.hits>0){protection*=p.shield.factor;p.shield.hits--;}
   if(e.weaken.hits>0){protection*=e.weaken.factor;e.weaken.hits--;}
   if(p.gearEffect==='patient'&&p.speed<e.speed)protection*=.9;
-  let answer=correct?.7:1.2;if(!correct&&p.gearEffect==='steady'&&!p.steadyUsed){answer=1;p.steadyUsed=true;entry.text='Steadyで不正解時の増加を抑制・';}
+  let answer=correct?.7:1.5;if(!correct&&p.gearEffect==='steady'&&!p.steadyUsed){answer=1;p.steadyUsed=true;entry.text='Steadyで不正解時の増加を抑制・';}
   const amount=damage(e,p,b.turn<=e.skillTurns?e.skillPower:1,answer,e.attr,1,protection);p.hp=Math.max(0,p.hp-amount);entry.text+='相手の攻撃：'+amount+'ダメージ';
   if(p.hp>0&&correct){if(guardIds.includes(p.id)){const reflected=counter(p,e);e.hp=Math.max(0,e.hp-reflected);entry.text+='・反撃'+reflected;}if(p.gearEffect==='harmony')entry.text+='・HarmonyでHPを'+heal(p,p.maxHp*.03)+'回復';}
  }

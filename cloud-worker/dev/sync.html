@@ -1,0 +1,6 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GOIMON 同期確認</title>
+<style>body{font:16px/1.7 system-ui;max-width:850px;margin:auto;padding:20px;background:#f2f6fa;color:#183145}textarea{box-sizing:border-box;width:100%;min-height:280px;font:14px/1.5 monospace}button,select{font:inherit;padding:10px;margin:5px}pre{white-space:pre-wrap;overflow-wrap:anywhere}section{padding:16px;background:white;border:1px solid #ccd7df;border-radius:12px}</style>
+<a href="/">ミッション確認へ戻る</a><h1>学習記録の同期確認</h1><p>ローカル専用。同じテストアカウントの端末A・Bを模擬します。本番の保存記録は使いません。</p>
+<label>模擬端末 <select id="device"><option>A</option><option>B</option></select></label><button id="load">サーバー記録を取得</button>
+<section><p id="meta"></p><label for="editor">端末に保持する学習スナップショット（JSON）</label><textarea id="editor" spellcheck="false"></textarea><button id="edit">編集を端末に保持</button><button id="save">サーバーへ保存／同じ要求を再送</button><button id="backup">復旧用の記録を書き出す</button></section><pre id="status" role="status" aria-live="polite"></pre>
+<script src="/sync-schema.js"></script><script type="module" src="/sync-page.js"></script></html>

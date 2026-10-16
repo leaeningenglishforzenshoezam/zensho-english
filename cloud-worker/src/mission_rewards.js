@@ -18,23 +18,29 @@ export function jstDay(now){time(now);return new Date(now+9*3600000).toISOString
 function pickIndex(length,rng){const r=rng();if(!Number.isFinite(r)||r<0||r>=1)throw Error('invalid_random');return Math.floor(r*length);}
 function shuffle(xs,rng){for(let i=xs.length-1;i>0;i--){const j=pickIndex(i+1,rng);[xs[i],xs[j]]=[xs[j],xs[i]];}return xs;}
 function range(first,day){const days=Math.floor((Date.parse(day)-Date.parse(first))/DAY),blocks=Math.ceil(bank.length/20);if(days<0)throw Error('invalid_first_day');const start=Math.min((days%blocks)*20,bank.length-20);return {rangeStart:start+1,rangeEnd:start+20};}
-function publicAttempt(row){const p=JSON.parse(row.private_json);return {attemptId:row.attempt_id,level:row.level,date:row.mission_day,slot:row.slot,category:row.category,...Object.fromEntries(['mode','variant','format','setId','title','passage','summary','dialogue','audioFile'].filter(k=>p[k]!==undefined).map(k=>[k,p[k]])),expiresAt:row.expires_at,rangeStart:p.rangeStart,rangeEnd:p.rangeEnd,questions:p.questions.map(q=>q.chunks?{id:q.id,stemBefore:q.stemBefore,stemAfter:q.stemAfter,chunks:q.chunks}:{id:q.id,prompt:q.prompt,choices:q.choices,...(q.audioFile?{audioFile:q.audioFile}:{})})};}
+function publicAttempt(row){const p=JSON.parse(row.private_json);return {attemptId:row.attempt_id,level:row.level,date:row.mission_day,slot:row.slot,category:row.category,...Object.fromEntries(['mode','variant','format','setId','title','passage','summary','dialogue','audioFile'].filter(k=>p[k]!==undefined).map(k=>[k,p[k]])),expiresAt:row.expires_at,rangeStart:p.rangeStart,rangeEnd:p.rangeEnd,questions:p.questions.map(q=>q.chunks?{id:q.id,stemBefore:q.stemBefore,stemAfter:q.stemAfter,chunks:q.chunks}:{id:q.id,prompt:q.prompt,choices:q.choices,...(q.audioFile?{audioFile:q.audioFile}:{}),...(q.speech?{speech:q.speech}:{})})};}
 
 async function find(db,userId,id){return db.prepare('SELECT * FROM mission_attempts WHERE user_id=? AND attempt_id=?').bind(userId,id).first();}
-export async function issueWordAttempt(db,userId,level='1',now=Date.now(),rng=secureRandom){
- identity(userId);if(level!=='1')throw Error('mission_not_supported');const day=jstDay(now);
+export async function issueWordAttempt(db,userId,level='1',now=Date.now(),rng=secureRandom,mode='enja'){
+ identity(userId);if(level!=='1'||!['enja','jaen','audio'].includes(mode))throw Error('mission_not_supported');const day=jstDay(now);
  // First day is assigned by the server. Local learning dates are never imported automatically.
  await db.prepare('INSERT INTO mission_word_starts(user_id,level,first_day) VALUES (?,?,?) ON CONFLICT(user_id,level) DO NOTHING').bind(userId,level,day).run();
  const first=await db.prepare('SELECT first_day FROM mission_word_starts WHERE user_id=? AND level=?').bind(userId,level).first();
  const r=range(first.first_day,day),questions=[];
  for(let n=r.rangeStart;n<=r.rangeEnd;n++){
-  const word=bank[n-1],pool=shuffle([...new Set(bank.map(w=>w.ja))].filter(x=>x!==word.ja),rng);
-  const choices=shuffle([word.ja,...pool.slice(0,3)],rng);
-  questions.push({id:n,prompt:word.en,choices,answer:choices.indexOf(word.ja)});
+  const word=bank[n-1],field=mode==='jaen'?'en':'ja',correct=word[field];
+  // Exclude translations of duplicate prompts as well as duplicate choice labels.
+  const promptField=mode==='jaen'?'ja':'en';
+  const normalize=x=>x.trim().replace(/\s+/g,' ').toLowerCase();
+  const valid=new Set(bank.filter(w=>normalize(w[promptField])===normalize(word[promptField])).map(w=>normalize(w[field])));
+  const pool=shuffle([...new Map(bank.filter(w=>!valid.has(normalize(w[field]))).map(w=>[normalize(w[field]),w[field]])).values()],rng);
+  if(pool.length<3)throw Error('question_bank_incomplete');
+  const choices=shuffle([correct,...pool.slice(0,3)],rng);
+  questions.push({id:n,prompt:mode==='audio'?'音声を聞いて意味を選んでください。':word[promptField],choices,answer:choices.indexOf(correct),...(mode==='audio'?{speech:{text:word.en,lang:'en-US'}}:{})});
  }
  const id=crypto.randomUUID(),endOfDay=Date.parse(day+'T00:00:00+09:00')+DAY;
  const expiry=Math.min(now+2*3600000,endOfDay);
- await db.prepare('INSERT INTO mission_attempts(user_id,attempt_id,level,mission_day,slot,category,private_json,expires_at) VALUES (?,?,?,?,?,?,?,?)').bind(userId,id,level,day,'words','quiz_enja',JSON.stringify({...r,questions,rulesVersion:rules.version}),expiry).run();
+ await db.prepare('INSERT INTO mission_attempts(user_id,attempt_id,level,mission_day,slot,category,private_json,expires_at) VALUES (?,?,?,?,?,?,?,?)').bind(userId,id,level,day,'words',({enja:'quiz_enja',jaen:'quiz_jaen',audio:'audio_quiz'})[mode],JSON.stringify({mode,...r,questions,rulesVersion:rules.version}),expiry).run();
  return publicAttempt(await find(db,userId,id));
 }
 async function submitMissionAttempt(db,userId,attemptId,answers,now,slot){

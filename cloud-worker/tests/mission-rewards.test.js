@@ -1,4 +1,4 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';import vm from 'node:vm';import {getPlatformProxy} from 'wrangler';
+import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';import vm from 'node:vm';import {createLocalPlatform} from '../dev/local-platform.js';
 import {issueWordAttempt,submitWordAttempt,claimWordReward,jstDay} from '../src/mission_rewards.js';import {readEconomy} from '../src/economy_repository.js';import worker from '../src/index.js';
 import {handleMissionDraft} from '../src/mission_api.js';import {createSession} from '../src/session.js';
 const start=Date.parse('2026-10-11T14:00:00Z');
@@ -8,7 +8,7 @@ test('Server bank matches app words and JST midnight',async()=>{
  assert.equal(jstDay(Date.parse('2026-10-11T14:59:59.999Z')),'2026-10-11');assert.equal(jstDay(Date.parse('2026-10-11T15:00:00Z')),'2026-10-12');
 });
 test('Local D1: private answers, immutable scores, daily reward race, isolation, JST, preserved saves',async()=>{
- const mf=await getPlatformProxy({configPath:new URL('../wrangler.jsonc',import.meta.url).pathname,persist:false});try{const db=mf.env.DB;
+ const mf=await createLocalPlatform();try{const db=mf.env.DB;
  for(const sql of (await readFile(new URL('../migrations/0001_initial.sql',import.meta.url),'utf8')).split(';').filter(x=>x.trim()))await db.prepare(sql).run();
  for(const f of ['economy-v1.sql','mission-rewards-v1.sql']){const draft=await readFile(new URL('../schema-drafts/'+f,import.meta.url),'utf8');for(const sql of draft.match(/CREATE TABLE[\s\S]*?;|CREATE TRIGGER[\s\S]*?\nEND;/g))await db.prepare(sql).run();}
  for(const id of ['a','b'])await db.prepare('INSERT INTO users(id,google_sub) VALUES (?,?)').bind(id,'sub-'+id).run();
@@ -28,6 +28,25 @@ test('Local D1: private answers, immutable scores, daily reward race, isolation,
  const claims=await Promise.all(['claim_00000000002','claim_00000000003'].map(op=>claimWordReward(db,'a',success.attemptId,op,0,start+500)));assert.equal(claims.filter(c=>c.replayed).length,1);assert.equal((await readEconomy(db,'a')).state.shards,3);assert.equal((await readEconomy(db,'a')).revision,1);
  assert.equal((await claimWordReward(db,'a',success.attemptId,'claim_00000000002',0,start+1000)).replayed,true);
  const repeat=await issue();assert.equal(repeat.rangeStart,1);await submitWordAttempt(db,'a',repeat.attemptId,await answers(repeat.attemptId),start+600);assert.equal((await claimWordReward(db,'a',repeat.attemptId,'claim_00000000004',1,start+700)).replayed,true);assert.equal((await readEconomy(db,'a')).state.shards,3);
+ // All three word formats share the same daily range and reward slot.
+ const bank=JSON.parse(await readFile(new URL('../src/data/mission-words.json',import.meta.url),'utf8'));
+ for(const mode of ['jaen','audio']){
+  const attempt=await issueWordAttempt(db,'a','1',start,()=>.5,mode),key=await answers(attempt.attemptId);
+  assert.equal(attempt.category,mode==='jaen'?'quiz_jaen':'audio_quiz');assert.equal(attempt.mode,mode);
+  assert.equal(attempt.rangeStart,1);assert.equal(attempt.rangeEnd,20);
+  attempt.questions.forEach((q,i)=>{const word=bank[q.id-1];assert.equal(q.choices[key[i]],mode==='jaen'?word.en:word.ja);assert.equal(new Set(q.choices).size,4);assert.equal(Object.hasOwn(q,'answer'),false);
+   if(mode==='jaen'){assert.equal(q.prompt,word.ja);assert.equal(q.speech,undefined);}else{assert.equal(q.prompt,'音声を聞いて意味を選んでください。');assert.deepEqual(q.speech,{text:word.en,lang:'en-US'});}
+  });
+  await assert.rejects(submitWordAttempt(db,'b',attempt.attemptId,key,start+1),/attempt_not_found/);
+  await assert.rejects(submitWordAttempt(db,'a',attempt.attemptId,Array(20).fill(4),start+1),/invalid_answers/);
+  const missed=await issueWordAttempt(db,'a','1',start,()=>.5,mode);
+  assert.equal((await submitWordAttempt(db,'a',missed.attemptId,key.map((x,i)=>i===0?(x+1)%4:x),start+1)).completed,false);
+  assert.equal((await submitWordAttempt(db,'a',attempt.attemptId,key,start+1)).completed,true);
+  await assert.rejects(submitWordAttempt(db,'a',attempt.attemptId,key.map(x=>(x+1)%4),start+2),/attempt_already_submitted/);
+  assert.equal((await claimWordReward(db,'a',attempt.attemptId,'mode_claim_'+mode+'_00001',1,start+2)).replayed,true);
+ }
+ assert.equal((await readEconomy(db,'a')).state.shards,3);
+ await assert.rejects(issueWordAttempt(db,'a','1',start,()=>.5,'unknown'),/mission_not_supported/);
  const other=await issue('b');await submitWordAttempt(db,'b',other.attemptId,await answers(other.attemptId,'b'),start+10);await claimWordReward(db,'b',other.attemptId,'claim_00000000002',0,start+20);assert.equal((await readEconomy(db,'b')).state.shards,3);
  await assert.rejects(issueWordAttempt(db,'a','2',start),/mission_not_supported/);
  const midnight=Date.parse('2026-10-11T15:00:00Z'),late=await issue('a',midnight-1);await assert.rejects(submitWordAttempt(db,'a',late.attemptId,await answers(late.attemptId),midnight),/attempt_expired/);
@@ -60,6 +79,11 @@ test('Local D1: private answers, immutable scores, daily reward race, isolation,
  const apiAnswers=await answers(issued.attemptId);assert.equal((await call('/api/v1/missions/words/submit',sa.token,{attemptId:issued.attemptId,answers:apiAnswers})).status,200);
  const stateBefore=await readEconomy(db,'a'),op='api_claim_00000001';const response=await call('/api/v1/missions/words/claim',sa.token,{attemptId:issued.attemptId,operationId:op,expectedRevision:stateBefore.revision});assert.equal(response.status,200);
  assert.equal((await (await call('/api/v1/missions/words/claim',sa.token,{attemptId:issued.attemptId,operationId:op,expectedRevision:stateBefore.revision})).json()).replayed,true);
+ for(const mode of ['jaen','audio']){
+  const res=await call('/api/v1/missions/words/start',sa.token,{level:'1',mode});assert.equal(res.status,200);const a=await res.json();assert.equal(a.mode,mode);
+  assert.equal((await call('/api/v1/missions/words/submit',sa.token,{attemptId:a.attemptId,answers:await answers(a.attemptId)})).status,200);
+ }
+ for(const mode of ['unknown',null,{},''])assert.equal((await call('/api/v1/missions/words/start',sa.token,{level:'1',mode})).status,400);
  const stateAfter=await readEconomy(db,'a');assert.ok([0,3].includes(stateAfter.state.shards-stateBefore.state.shards));
  const noLimit=await handleMissionDraft(request('/api/v1/economy',sa.token),{...apiEnv,RATE_LIMITER:null});assert.equal(noLimit.status,503);
  assert.equal((await handleMissionDraft(request('/api/v1/economy',sa.token),{...apiEnv,RATE_LIMITER:{limit:async()=>({success:false})}})).status,429);
