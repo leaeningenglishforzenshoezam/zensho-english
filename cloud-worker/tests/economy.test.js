@@ -4,8 +4,8 @@ const funded=shards=>({...emptyEconomy(),shards});
 test('Ten costs 100, guarantees R+, singles have no cumulative pity, input is immutable',()=>{
  const s=funded(200),p=planDraw(s,'skills',10,()=>0);assert.equal(s.shards,200);assert.equal(p.next.shards,100);assert.deepEqual(p.result.items.map(x=>x.rarity),[...Array(9).fill('N'),'R']);
  let single=funded(100);for(let i=0;i<10;i++){const x=planDraw(single,'gear',1,()=>0);assert.equal(x.result.items[0].rarity,'N');single=x.next;}assert.equal(single.shards,0);
- for(const [r,want]of [[0,'N'],[.7499,'N'],[.75,'R'],[.9499,'R'],[.95,'SR']])assert.equal(planDraw(funded(10),'gear',1,()=>r).result.items[0].rarity,want);
- for(const [r,want]of [[.7999,'R'],[.8,'SR']])assert.equal(planDraw(funded(100),'skills',10,()=>r).result.items[9].rarity,want);
+ for(const [r,want]of [[0,'N'],[.9399,'N'],[.94,'R'],[.9899,'R'],[.99,'SR'],[.9999,'SR']])assert.equal(planDraw(funded(10),'gear',1,()=>r).result.items[0].rarity,want);
+ for(const [r,want]of [[5/6-0.0001,'R'],[5/6,'SR']])assert.equal(planDraw(funded(100),'skills',10,()=>r).result.items[9].rarity,want);
  for(const [kind,count]of [['gear',0],['gear',2],['bad',10],['__proto__',1]])assert.throws(()=>planDraw(s,kind,count));
  assert.throws(()=>planDraw(funded(9),'gear',1),/insufficient_shards/);for(const r of [-1,1,NaN])assert.throws(()=>planDraw(s,'skills',1,()=>r));
 });

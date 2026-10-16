@@ -11,7 +11,7 @@ const rules = Object.freeze({
    {category:"audio_quiz",count:20,required:20,rangeSize:20}]},
   {slot:"idioms",title:"熟語マスター",group:"basic",rewardStars:2,goal:"15問中12問以上正解",requireSession:true,candidates:[
    {category:"idiom_quiz",count:15,required:12}]},
-  {slot:"exam",title:"大問別演習",group:"basic",rewardStars:3,goal:"10問中8問以上正解",requireSession:true,candidates:[
+  {slot:"exam",title:"短文空所埋めチャレンジ",group:"basic",rewardStars:3,goal:"10問中8問以上正解",requireSession:true,candidates:[
    {category:"sentence",count:10,required:8},
    {category:"paraphrase_quiz",count:10,required:8}]},
   {slot:"listening",title:"リスニングチャレンジ",group:"challenge",rewardStars:3,goal:"5問中4問以上正解",requireSession:true,candidates:[
@@ -20,7 +20,7 @@ const rules = Object.freeze({
    {category:"q7",page:"q7.html",count:5,required:4,levels:["1"]},
    {category:"dialogue8",levels:["1"],count:5,required:4},
    {category:"q10",levels:["1"],count:5,required:4}]},
-  {slot:"reorder",title:"大問12チャレンジ",group:"challenge",rewardStars:3,goal:"5問中4問以上正解",requireSession:true,candidates:[
+  {slot:"reorder",title:"語句整序チャレンジ",group:"challenge",rewardStars:3,goal:"5問中4問以上正解",requireSession:true,candidates:[
    {category:"reorder",count:5,required:4,levels:["1"]}]}
  ]});
 if(typeof module!=='undefined')module.exports=rules;else root.GOIMON_DAILY_MISSION_RULES=rules;

@@ -1,6 +1,6 @@
 // Server-only draft. No HTTP route or production grants are enabled.
 import catalog from '../../battle-prototype/catalog.js';
-export const RULES=Object.freeze({version:1,cost:10,normalWeights:[75,20,5],guaranteedWeights:[0,20,5],exchangeCopies:5,exchangeShards:10});
+export const RULES=Object.freeze({version:2,cost:10,normalWeights:[94,5,1],guaranteedWeights:[0,5,1],exchangeCopies:5,exchangeShards:10});
 const groups={gear:catalog.gear.filter(x=>x.id!=='none'),skills:catalog.skills};
 const MAX=9999;
 export function emptyEconomy(){return {version:1,shards:0,owned:{gear:{},skills:{}}};}

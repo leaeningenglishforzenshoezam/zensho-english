@@ -4,7 +4,7 @@ function create(){return {practice:0,trained:false,claimed:false,shards:0,item:n
 function practice(s,action){const expected=['normal','defense','skill'][s.practice];if(!expected||action!==expected||s.trained)throw Error('練習は通常攻撃・防御・技の順に進めてください。');s.practice++;if(s.practice===3)s.trained=true;}
 function restart(s){if(!s.trained)s.practice=0;}
 function claim(s){if(!s.trained||s.claimed)throw Error('このプレゼントは受け取り済み、またはまだ受け取れません。');s.claimed=true;s.shards=10;}
-function draw(s,gear,rng=Math.random){if(!s.claimed||s.item||s.shards<10)throw Error('体験ガチャはプレゼントの10個で1回だけ引けます。');const r=rng();if(!Number.isFinite(r)||r<0||r>=1)throw Error('抽選値が不正です。');const rarity=r<.75?'N':r<.95?'R':'SR',pool=gear.filter(g=>g.id!=='none'&&g.rarity===rarity);if(!pool.length)throw Error('装備候補がありません。');const v=rng();if(!Number.isFinite(v)||v<0||v>=1)throw Error('抽選値が不正です。');const item=pool[Math.floor(v*pool.length)];s.shards-=10;s.item={...item};return s.item;}
+function draw(s,gear,rng=Math.random){if(!s.claimed||s.item||s.shards<10)throw Error('体験ガチャはプレゼントの10個で1回だけ引けます。');const r=rng();if(!Number.isFinite(r)||r<0||r>=1)throw Error('抽選値が不正です。');const rarity=r<.94?'N':r<.99?'R':'SR',pool=gear.filter(g=>g.id!=='none'&&g.rarity===rarity);if(!pool.length)throw Error('装備候補がありません。');const v=rng();if(!Number.isFinite(v)||v<0||v>=1)throw Error('抽選値が不正です。');const item=pool[Math.floor(v*pool.length)];s.shards-=10;s.item={...item};return s.item;}
 function equip(s){if(!s.item||s.equipped)throw Error('装備を引いてからセットしてください。');s.equipped=true;s.complete=true;}
 function clear(s,n,won){if(!s.complete||!Number.isInteger(n)||n<1||n>stages.length||n>s.cleared+1)throw Error('まだ挑戦できないステージです。');if(won&&n===s.cleared+1)s.cleared=n;}
 return {stages,create,practice,restart,claim,draw,equip,clear};
