@@ -34,6 +34,11 @@ function resolve(b,command,correct){
    if(skill?.type==='ward'){p.shield={hits:skill.shieldHits,factor:correct?skill.shieldFactor:skill.wrongShieldFactor};entry.text+='・盾を展開';}
    if(correct&&skill?.type==='prepare'){p.nextPower=skill.nextPower;entry.text+='・次の攻撃を'+p.nextPower+'倍に準備';}
    if(correct&&skill?.type==='weaken'){e.weaken={hits:1,factor:skill.weakFactor};entry.text+='・次の敵攻撃を弱めた';}
+   if(correct&&skill?.type==='attack'&&skill.onCorrect){
+    const bonus=skill.onCorrect;
+    if(Number.isFinite(bonus.nextPower)&&bonus.nextPower>1){p.nextPower=bonus.nextPower;entry.text+='・次の攻撃を'+bonus.nextPower+'倍に連携';}
+    if(Number.isFinite(bonus.weakFactor)&&bonus.weakFactor>0&&bonus.weakFactor<1){e.weaken={hits:1,factor:bonus.weakFactor};entry.text+='・次の敵攻撃を'+Math.round(bonus.weakFactor*100)+'％に妨害';}
+   }
   }
   if(p.gearEffect==='spare'&&!p.spareUsed&&skill&&skill.type!=='replenish'&&skill.left===0){skill.left=1;p.spareUsed=true;entry.text+='・Spareで使用回数＋1';}
  }else{
