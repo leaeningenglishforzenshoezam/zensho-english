@@ -34,6 +34,12 @@ function begin(command){
   correctAnswer=item.paraphraseTo[0];
   const distractors=[...new Set(pool.filter(q=>q.id!==item.id).flatMap(q=>q.paraphraseTo).filter(x=>x!==correctAnswer))];
   answers=shuffle([correctAnswer,...shuffle(distractors).slice(0,3)]);kind='イディオム｜同じ意味の英語表現を選ぼう';
+ }else if(format==='q11'){
+  const pool=(window.PARAPHRASE_DATA_1KYU||[]).filter(q=>q&&q.a&&q.b&&q.answer&&Array.isArray(q.choices)&&q.choices.length===4&&q.choices.includes(q.answer));
+  if(!pool.length){$('status').textContent='大問11の問題データを読み込めませんでした。';return;}
+  const item=pool[Math.floor(Math.random()*pool.length)];
+  chosen={en:item.a+'\n'+item.b,ja:item.ja||'',id:item.id,kind:'大問11',note:item.pointNote||''};
+  correctAnswer=item.answer;answers=shuffle([...item.choices]);kind='大問11｜同じ意味になる語句を選ぼう';
  }else if(format==='q9'){
   const pool=(window.SENTENCE_FIXED_1KYU||[]).filter(q=>q&&q.en&&q.answer&&Array.isArray(q.choices)&&q.choices.length===4&&q.choices.includes(q.answer));
   if(!pool.length){$('status').textContent='大問9の問題データを読み込めませんでした。';return;}
