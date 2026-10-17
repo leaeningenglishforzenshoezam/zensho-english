@@ -20,31 +20,62 @@ function begin(command){
  if(question&&!answered)return;
  const side=E.current(battle),format=window.GoimonSkillQuestionRouting.skillFormat(battle.player.skills,command,side,training);
  let chosen,answers,correctAnswer,kind;
- if(format==='q9'){
+ if(format==='q12'){
+  const pool=(window.REORDER_1KYU||[]).filter(q=>q&&Array.isArray(q.chunks)&&q.chunks.length>=2&&Array.isArray(q.answer)&&q.answer.length===q.chunks.length&&q.answer.every(id=>q.chunks.some(c=>c.id===id)));
+  if(!pool.length){$('status').textContent='大問12の問題が見つかりません。';return;}
+  const item=pool[Math.floor(Math.random()*pool.length)];
+  chosen={en:(item.stemBefore||'')+' [　　 ] '+(item.stemAfter||''),ja:item.ja||'',id:item.id,kind:'大問12',mode:'reorder',chunks:item.chunks,correctOrder:item.answer,note:item.note||''};
+  correctAnswer=item.answer.join('|');answers=[];kind='大問12｜語句を順番にタップ';
+ }else if(format==='idiom'){
+  const pool=(window.IDIOM_DATA_1KYU||[]).filter(q=>q&&q.expression&&q.ja&&Array.isArray(q.paraphraseTo)&&q.paraphraseTo.length);
+  if(!pool.length){$('status').textContent='イディオム問題が見つかりません。';return;}
+  const item=pool[Math.floor(Math.random()*pool.length)];
+  chosen={en:item.expression,ja:item.ja||'',id:item.id,kind:'イディオム',note:item.note||''};
+  correctAnswer=item.paraphraseTo[0];
+  const distractors=[...new Set(pool.filter(q=>q.id!==item.id).flatMap(q=>q.paraphraseTo).filter(x=>x!==correctAnswer))];
+  answers=shuffle([correctAnswer,...shuffle(distractors).slice(0,3)]);kind='イディオム｜同じ意味の英語表現を選ぼう';
+ }else if(format==='q9'){
   const pool=(window.SENTENCE_FIXED_1KYU||[]).filter(q=>q&&q.en&&q.answer&&Array.isArray(q.choices)&&q.choices.length===4&&q.choices.includes(q.answer));
   if(!pool.length){$('status').textContent='大問9の問題データを読み込めませんでした。';return;}
   const item=pool[Math.floor(Math.random()*pool.length)];
-  chosen={en:item.en,ja:item.ja||'',answer:item.answer,kind:'大問9',id:item.id};
+  chosen={en:item.en,ja:item.ja||'',answer:item.answer,kind:'大問9',id:item.id,note:item.note||''};
   correctAnswer=item.answer;answers=shuffle([...item.choices]);kind='大問9｜空所に入る語句を選ぼう';
  }else if(format==='word_meaning'){
   const pool=C.questions.filter(q=>q.kind===(battle.questions%2===0?'単語':'熟語'));
   const item=pool[Math.floor(Math.random()*pool.length)];
-  chosen={...item,answer:item.ja};
-  correctAnswer=item.ja;
+  chosen={...item,answer:item.ja};correctAnswer=item.ja;
   const wrong=shuffle([...new Set(pool.filter(q=>q.ja!==item.ja).map(q=>q.ja))]).slice(0,3);
   answers=shuffle([correctAnswer,...wrong]);kind=(item.kind||'単語')+'｜意味を選ぼう';
  }else{
-  $('status').textContent='このSKILLの'+C.questionFormats[format].label+'問題は未接続です。別の技を選んでください。';
-  return;
+  $('status').textContent='このSKILLの'+C.questionFormats[format].label+'問題は未接続です。別の技を選んでください。';return;
  }
  pending=command;answered=false;question={...chosen,correctAnswer};
  $('commands').replaceChildren();$('questionBox').hidden=false;
  $('questionKind').textContent=(side==='enemy'?'防御':'行動')+'問題｜'+kind;
  $('questionText').textContent=chosen.en;$('feedback').textContent='';$('continue').hidden=true;
  $('choices').replaceChildren();
- for(const answer of answers){const button=document.createElement('button');button.textContent=answer;button.onclick=()=>grade(answer,button);$('choices').append(button);}
+ if(chosen.mode==='reorder'){
+  const picked=[],area=$('choices');
+  const selected=document.createElement('div');selected.className='reorder-selected';selected.setAttribute('aria-live','polite');
+  const hint=document.createElement('p');hint.className='question-instruction';hint.textContent='下の語句を順番にタップ。選んだ語句はもう一度タップで取り消せます。';
+  const bank=document.createElement('div');bank.className='reorder-bank';
+  const actions=document.createElement('div');actions.className='reorder-actions';
+  const reset=document.createElement('button');reset.textContent='選び直す';reset.type='button';
+  const submit=document.createElement('button');submit.textContent='解答する';submit.type='button';submit.disabled=true;
+  const redraw=()=>{
+   selected.replaceChildren();bank.replaceChildren();
+   const ids=new Set(picked);
+   if(!picked.length)selected.textContent='ここに選んだ語句が並びます';
+   for(const id of picked){const c=chosen.chunks.find(c=>c.id===id),b=document.createElement('button');b.type='button';b.textContent=c.text+' ×';b.onclick=()=>{picked.splice(picked.indexOf(id),1);redraw();};selected.append(b);}
+   for(const c of shuffle(chosen.chunks.filter(c=>!ids.has(c.id)))){const b=document.createElement('button');b.type='button';b.textContent=c.text;b.onclick=()=>{picked.push(c.id);redraw();};bank.append(b);}
+   submit.disabled=picked.length!==chosen.chunks.length;
+  };
+  reset.onclick=()=>{picked.length=0;redraw();};
+  submit.onclick=()=>{const attempt=picked.join('|');grade(attempt,submit);};
+  actions.append(reset,submit);area.append(hint,selected,bank,actions);redraw();
+ }else for(const answer of answers){const button=document.createElement('button');button.textContent=answer;button.onclick=()=>grade(answer,button);$('choices').append(button);}
 }
-function grade(answer,button){if(answered)return;answered=true;const correct=answer===question.correctAnswer;for(const b of $('choices').children){b.disabled=true;if(b.textContent===question.correctAnswer)b.classList.add('correct');}if(!correct){button.classList.add('wrong');misses.push({...question,ja:question.correctAnswer});}const side=E.current(battle),entry=E.resolve(battle,pending,correct);if(training)T.practice(tutorial,side==='enemy'?'defense':pending==='normal'?'normal':'skill');$('forestScene').classList.remove('hit-player','hit-enemy');void $('forestScene').offsetWidth;$('forestScene').classList.add(side==='enemy'?'hit-player':'hit-enemy');for(const [prefix,a]of [['player',battle.player],['enemy',battle.enemy]]){$(prefix+'HP').value=a.hp;$(prefix+'HPText').textContent='HP '+a.hp+' / '+a.maxHp;}skillReference();$('forestCaption').textContent=entry.text;$('feedback').textContent=(correct?'正解！':'正答：'+question.correctAnswer)+' '+entry.text;const li=document.createElement('li');li.textContent='ターン'+entry.turn+'｜'+(entry.correct?'正解':'不正解')+'｜'+entry.text;$('log').append(li);$('continue').hidden=false;$('continue').focus();}
+function grade(answer,button){if(answered)return;answered=true;const correct=answer===question.correctAnswer;for(const b of $('choices').querySelectorAll('button')){b.disabled=true;if(question.mode!=='reorder'&&b.textContent===question.correctAnswer)b.classList.add('correct');}if(!correct){button.classList.add('wrong');misses.push({...question,ja:question.mode==='reorder'?question.chunks.filter(c=>question.correctOrder.includes(c.id)).sort((a,b)=>question.correctOrder.indexOf(a.id)-question.correctOrder.indexOf(b.id)).map(c=>c.text).join(' '):question.correctAnswer});}const side=E.current(battle),entry=E.resolve(battle,pending,correct);if(training)T.practice(tutorial,side==='enemy'?'defense':pending==='normal'?'normal':'skill');$('forestScene').classList.remove('hit-player','hit-enemy');void $('forestScene').offsetWidth;$('forestScene').classList.add(side==='enemy'?'hit-player':'hit-enemy');for(const [prefix,a]of [['player',battle.player],['enemy',battle.enemy]]){$(prefix+'HP').value=a.hp;$(prefix+'HPText').textContent='HP '+a.hp+' / '+a.maxHp;}skillReference();$('forestCaption').textContent=entry.text;$('feedback').textContent=(correct?'正解！':'正答：'+(question.mode==='reorder'?question.correctOrder.map(id=>question.chunks.find(c=>c.id===id).text).join(' '):question.correctAnswer))+' '+entry.text;const li=document.createElement('li');li.textContent='ターン'+entry.turn+'｜'+(entry.correct?'正解':'不正解')+'｜'+entry.text;$('log').append(li);$('continue').hidden=false;$('continue').focus();}
 $('continue').onclick=()=>{question=null;render();};
 function reset(){if(!training&&activeStage&&battle?.ended&&battle.winner==='player'){battle=null;question=null;activeStage=null;selectedStage=null;$('questStart').hidden=true;$('prepareLink').hidden=true;matchupAdvice();walk('次の道へ進もう',()=>{$('journey').hidden=false;$('setup').hidden=false;scene('idle','ことばの遺跡');renderLesson();renderMap();$('questMap').querySelectorAll('button')[Math.min(tutorial.cleared,4)].focus();});return;}if(training&&tutorial.trained){training=false;battle=null;question=null;$('arena').hidden=true;walk('宝箱を見つけた',()=>{$('journey').hidden=false;$('setup').hidden=false;scene('treasure','ステージ0｜森の宝箱');renderLesson();});return;}cancelWalk();training=false;arrival=false;T.restart(tutorial);battle=null;question=null;pending=null;answered=false;$('setupError').textContent='';$('journey').hidden=false;$('setup').hidden=false;$('arena').hidden=true;scene('idle','はじまりの森');renderLesson();$('lessonNext').focus();}
 for(const id of ['restart','again'])$(id).onclick=reset;$('start').onclick=()=>start();
