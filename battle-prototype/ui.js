@@ -38,7 +38,7 @@ function renderPracticeRoutes(){
     if(!c.total)continue;
     const link=document.createElement('a'),u=new URL(candidate.path,document.baseURI);
     if(candidate.kind==='単語'){u.searchParams.set('start',String(range[0]));u.searchParams.set('end',String(range[1]));u.searchParams.set('mode','order');}
-    link.href=u.href;
+    u.searchParams.set('returnTo','quest_test.html');link.href=u.href;
     link.textContent=c.wrong?'優先復習：'+candidate.label+'（'+c.wrong+'/'+c.total+'問不正解）':candidate.label+'（今回の誤答なし）';
     link.style.display='block';link.style.margin='0.5rem 0';panel.append(link);
   }
@@ -46,7 +46,7 @@ function renderPracticeRoutes(){
   for(const [label,path] of [['日本語→英語','quiz_jaen.html'],['音声→意味','audio_quiz.html']]){
     const link=document.createElement('a'),u=new URL(path,document.baseURI);
     u.searchParams.set('start',String(range[0]));u.searchParams.set('end',String(range[1]));u.searchParams.set('mode','order');
-    link.href=u.href;link.textContent=label+'（未判定）';link.style.display='inline-block';link.style.margin='0.25rem 0.75rem 0.25rem 0';panel.append(link);
+    u.searchParams.set('returnTo','quest_test.html');link.href=u.href;link.textContent=label+'（未判定）';link.style.display='inline-block';link.style.margin='0.25rem 0.75rem 0.25rem 0';panel.append(link);
   }
   const fine=document.createElement('p');fine.textContent='単語はこのステージの指定範囲の実データ、熟語は1級熟語データから出題。苦手傾向は今回の戦闘のみの参考値です。';panel.append(fine);
 }
