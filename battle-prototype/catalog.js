@@ -548,14 +548,17 @@
       "type": "attack",
       "uses": 3,
       "power": 1.2,
-      "description": "威力1.2の攻撃。 使用回数は正誤にかかわらず消費。",
+      "description": "威力1.2の攻撃。 正解で次の攻撃を1.12倍に強化。 使用回数は正誤にかかわらず消費。",
       "flavor": {
         "ja": "大きな声ではっきり発音し、音で相手を攻める。戦いながら口の形のお手本まで見せてくれる。",
         "en": "Pronounce words clearly and attack with your voice. Even in battle, you show everyone how to move their lips."
       },
-      "descriptionEn": "Attack with power 1.2. One use is consumed whether your answer is correct or wrong.",
+      "descriptionEn": "Attack with power 1.2. A correct answer boosts the next attack to 1.12 times its usual damage. One use is consumed whether your answer is correct or wrong.",
       "tactic": "chain",
-      "questionFormat": "q1"
+      "questionFormat": "q1",
+      "onCorrect": {
+        "nextPower": 1.12
+      }
     },
     {
       "id": "N_rhythm",
@@ -615,14 +618,17 @@
       "type": "attack",
       "uses": 3,
       "power": 1.2,
-      "description": "威力1.2の攻撃。 使用回数は正誤にかかわらず消費。",
+      "description": "威力1.2の攻撃。 正解で敵の次の攻撃ダメージを90％に弱める。 使用回数は正誤にかかわらず消費。",
       "flavor": {
         "ja": "相手のすぐ近くで低い声をささやき、音で攻める。「後ろに先生がいるよ」と言うのが得意。",
         "en": "Whisper close to the enemy and attack with the sound. Your favorite line is: The teacher is behind you."
       },
-      "descriptionEn": "Attack with power 1.2. One use is consumed whether your answer is correct or wrong.",
+      "descriptionEn": "Attack with power 1.2. A correct answer reduces the next enemy attack to 90% damage. One use is consumed whether your answer is correct or wrong.",
       "tactic": "disrupt",
-      "questionFormat": "word_meaning"
+      "questionFormat": "word_meaning",
+      "onCorrect": {
+        "weakFactor": 0.9
+      }
     },
     {
       "id": "N_mirage",
@@ -659,14 +665,17 @@
       "type": "attack",
       "uses": 3,
       "power": 1.2,
-      "description": "威力1.2の攻撃。 使用回数は正誤にかかわらず消費。",
+      "description": "威力1.2の攻撃。 正解で次の攻撃を1.15倍に強化。 使用回数は正誤にかかわらず消費。",
       "flavor": {
         "ja": "相手を追いかけ、勢いをつけてぶつかる。本人は勇者のつもりだが、走り方は遅刻した生徒。",
         "en": "Chase the enemy and rush into it. You feel like a hero, but run like a student late for school."
       },
-      "descriptionEn": "Attack with power 1.2. One use is consumed whether your answer is correct or wrong.",
+      "descriptionEn": "Attack with power 1.2. A correct answer boosts the next attack to 1.15 times its usual damage. One use is consumed whether your answer is correct or wrong.",
       "tactic": "chain",
-      "questionFormat": "q3"
+      "questionFormat": "q3",
+      "onCorrect": {
+        "nextPower": 1.15
+      }
     },
     {
       "id": "N_flash",
@@ -844,14 +853,17 @@
       "type": "attack",
       "uses": 3,
       "power": 1.3,
-      "description": "威力1.3の攻撃。 使用回数は正誤にかかわらず消費。",
+      "description": "威力1.3の攻撃。 正解で敵の次の攻撃ダメージを85％に弱める。 使用回数は正誤にかかわらず消費。",
       "flavor": {
         "ja": "不思議な動きで相手を攻める。技の仕組みを聞かれても、本人は「なんかできた」としか答えない。",
         "en": "Attack with a mysterious move. When asked how it works, you can only say: It just happened."
       },
-      "descriptionEn": "Attack with power 1.3. One use is consumed whether your answer is correct or wrong.",
+      "descriptionEn": "Attack with power 1.3. A correct answer reduces the next enemy attack to 85% damage. One use is consumed whether your answer is correct or wrong.",
       "tactic": "disrupt",
-      "questionFormat": "q3"
+      "questionFormat": "q3",
+      "onCorrect": {
+        "weakFactor": 0.85
+      }
     },
     {
       "id": "N_image",
@@ -934,14 +946,17 @@
       "type": "attack",
       "uses": 3,
       "power": 1.2,
-      "description": "威力1.2の攻撃。 使用回数は正誤にかかわらず消費。",
+      "description": "威力1.2の攻撃。 正解で次の攻撃を1.10倍に強化。 使用回数は正誤にかかわらず消費。",
       "flavor": {
         "ja": "ぐいっと押し込むように攻める。エレベーターのボタンを押すときだけは、力を抜く練習中。",
         "en": "Press forward with a firm attack. You are still learning to press elevator buttons gently."
       },
-      "descriptionEn": "Attack with power 1.2. One use is consumed whether your answer is correct or wrong.",
+      "descriptionEn": "Attack with power 1.2. A correct answer boosts the next attack to 1.10 times its usual damage. One use is consumed whether your answer is correct or wrong.",
       "tactic": "chain",
-      "questionFormat": "word_meaning"
+      "questionFormat": "word_meaning",
+      "onCorrect": {
+        "nextPower": 1.1
+      }
     },
     {
       "id": "N_slice",
@@ -1257,14 +1272,17 @@
       "type": "attack",
       "uses": 3,
       "power": 1.55,
-      "description": "威力1.55の攻撃。 使用回数は正誤にかかわらず消費。",
+      "description": "威力1.55の攻撃。 正解で敵の次の攻撃ダメージを80％に弱める。 使用回数は正誤にかかわらず消費。",
       "flavor": {
         "ja": "たくさんの影で相手を囲んで攻める。一体だけ集合写真のつもりで、こっちに笑顔を向けている。",
         "en": "Surround the enemy with attacking shadows. One thinks this is a group photo and smiles at you."
       },
-      "descriptionEn": "Attack with power 1.55. One use is consumed whether your answer is correct or wrong.",
+      "descriptionEn": "Attack with power 1.55. A correct answer reduces the next enemy attack to 80% damage. One use is consumed whether your answer is correct or wrong.",
       "tactic": "disrupt",
-      "questionFormat": "q9"
+      "questionFormat": "q9",
+      "onCorrect": {
+        "weakFactor": 0.8
+      }
     },
     {
       "id": "R_disturb",
