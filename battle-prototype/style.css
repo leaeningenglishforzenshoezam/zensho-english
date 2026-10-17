@@ -47,3 +47,5 @@
 #feedback{font-size:1rem;line-height:1.65;font-weight:600}
 #continue{min-height:50px;width:100%;margin-top:10px}
 @media(max-width:520px){#questionBox{padding:12px}#choices{grid-template-columns:1fr;gap:9px}#questionText{font-size:1.15rem}.reorder-bank button{flex-basis:43%}}
+
+#questionText{white-space:pre-line}
