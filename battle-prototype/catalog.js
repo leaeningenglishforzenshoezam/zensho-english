@@ -1242,7 +1242,7 @@
       },
       "descriptionEn": "Attack with power 1.1. A correct answer makes your next attack 1.65 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
       "tactic": "chain",
-      "questionFormat": "q11"
+      "questionFormat": "q9"
     },
     {
       "id": "R_mirage",
@@ -1332,7 +1332,7 @@
       },
       "descriptionEn": "Attack with power 1.55. One use is consumed whether your answer is correct or wrong.",
       "tactic": "burst",
-      "questionFormat": "q11"
+      "questionFormat": "idiom"
     },
     {
       "id": "ward",
@@ -1380,7 +1380,7 @@
       },
       "descriptionEn": "Attack with power 1.15. A correct answer restores up to 2 use(s) to another skill with the most uses missing. Ties follow slot order. Never exceed its limit or restore a use-restoring skill. One use is consumed whether your answer is correct or wrong.",
       "tactic": "long",
-      "questionFormat": "q12"
+      "questionFormat": "q11"
     },
     {
       "id": "SR_echo",
@@ -1424,7 +1424,7 @@
       },
       "descriptionEn": "Attack with power 1.85. One use is consumed whether your answer is correct or wrong.",
       "tactic": "long",
-      "questionFormat": "q12"
+      "questionFormat": "q9"
     },
     {
       "id": "SR_mirage",
@@ -1446,7 +1446,7 @@
       },
       "descriptionEn": "Attack with power 2. One use is consumed whether your answer is correct or wrong.",
       "tactic": "burst",
-      "questionFormat": "q12"
+      "questionFormat": "q11"
     },
     {
       "id": "SR_fancy",
@@ -1515,7 +1515,7 @@
       },
       "descriptionEn": "Attack with power 1.25. Reduce damage from the next 2 enemy attack(s) to 50% with a correct answer, or 75% with a wrong answer. One use is consumed whether your answer is correct or wrong.",
       "tactic": "guard",
-      "questionFormat": "q12"
+      "questionFormat": "q11"
     }
   ],
   "gear": [
