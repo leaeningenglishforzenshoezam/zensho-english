@@ -374,7 +374,8 @@
         "en": "Fill your cheeks with air, then burst out with a loud blast. Your cheeks look the most surprised."
       },
       "descriptionEn": "Attack with power 1.3. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "burst"
+      "tactic": "burst",
+      "questionFormat": "word_meaning"
     },
     {
       "id": "N_scream",
@@ -395,7 +396,8 @@
         "en": "Scream as if you had seen a ghost and attack with the sound. You gargle every morning to keep your voice ready."
       },
       "descriptionEn": "Attack with power 1.2. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "burst"
+      "tactic": "burst",
+      "questionFormat": "q1"
     },
     {
       "id": "N_encourage",
@@ -416,7 +418,8 @@
         "en": "Encourage yourself with a loud cheer and recover your energy. Your one-member cheer squad sounds like three."
       },
       "descriptionEn": "Restore 25% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "heal"
+      "tactic": "heal",
+      "questionFormat": "word_meaning"
     },
     {
       "id": "N_concentrate",
@@ -438,7 +441,8 @@
         "en": "Concentrate on the enemy and plan your next hit. You do not notice the butterfly sitting on your nose."
       },
       "descriptionEn": "Attack with power 1. A correct answer makes your next attack 1.4 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "chain"
+      "tactic": "chain",
+      "questionFormat": "idiom"
     },
     {
       "id": "N_relieve",
@@ -460,7 +464,8 @@
         "en": "Attack, then relieve the enemy's tension with a calm voice. It is famous for making a battle sound like bedtime."
       },
       "descriptionEn": "Attack with power 1. A correct answer reduces the enemy's next attack damage to 65%. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "disrupt"
+      "tactic": "disrupt",
+      "questionFormat": "idiom"
     },
     {
       "id": "N_remind",
@@ -482,7 +487,8 @@
         "en": "Attack lightly and remind yourself how to use another skill. Your notes are on the back of a snack wrapper."
       },
       "descriptionEn": "Attack with power 1. A correct answer restores up to 1 use(s) to another skill with the most uses missing. Ties follow slot order. Never exceed its limit or restore a use-restoring skill. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "long"
+      "tactic": "long",
+      "questionFormat": "word_meaning"
     },
     {
       "id": "N_aid",
@@ -503,7 +509,8 @@
         "en": "Give yourself first aid from a little box. Every bandage has your face on it, so each one adds another face."
       },
       "descriptionEn": "Restore 20% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "heal"
+      "tactic": "heal",
+      "questionFormat": "word_meaning"
     },
     {
       "id": "N_praise",
@@ -525,7 +532,8 @@
         "en": "Attack lightly, then praise yourself to prepare the next hit. Doing your own applause keeps you busy."
       },
       "descriptionEn": "Attack with power 0.95. A correct answer makes your next attack 1.35 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "chain"
+      "tactic": "chain",
+      "questionFormat": "idiom"
     },
     {
       "id": "N_pronounce",
@@ -546,7 +554,8 @@
         "en": "Pronounce words clearly and attack with your voice. Even in battle, you show everyone how to move their lips."
       },
       "descriptionEn": "Attack with power 1.2. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "chain"
+      "tactic": "chain",
+      "questionFormat": "q1"
     },
     {
       "id": "N_rhythm",
@@ -568,7 +577,8 @@
         "en": "Attack to a rhythm and build momentum for the next hit. Your feet start dancing before the rest of you."
       },
       "descriptionEn": "Attack with power 1. A correct answer makes your next attack 1.35 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "long"
+      "tactic": "long",
+      "questionFormat": "q1"
     },
     {
       "id": "N_comfort",
@@ -589,7 +599,8 @@
         "en": "Comfort yourself with a fluffy blanket and recover your energy. Now everyone understands why you packed a blanket."
       },
       "descriptionEn": "Restore 20% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "long"
+      "tactic": "long",
+      "questionFormat": "word_meaning"
     },
     {
       "id": "N_whisper",
@@ -610,7 +621,8 @@
         "en": "Whisper close to the enemy and attack with the sound. Your favorite line is: The teacher is behind you."
       },
       "descriptionEn": "Attack with power 1.2. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "disrupt"
+      "tactic": "disrupt",
+      "questionFormat": "word_meaning"
     },
     {
       "id": "N_mirage",
@@ -631,7 +643,8 @@
         "en": "Cast a small shadow at the enemy to attack. The shadow brings a different heroic pose to every battle."
       },
       "descriptionEn": "Attack with power 1.3. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "burst"
+      "tactic": "burst",
+      "questionFormat": "q3"
     },
     {
       "id": "N_chase",
@@ -652,7 +665,8 @@
         "en": "Chase the enemy and rush into it. You feel like a hero, but run like a student late for school."
       },
       "descriptionEn": "Attack with power 1.2. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "chain"
+      "tactic": "chain",
+      "questionFormat": "q3"
     },
     {
       "id": "N_flash",
@@ -673,7 +687,8 @@
         "en": "Flash a bright light at the enemy. You smile as if someone were taking your picture."
       },
       "descriptionEn": "Attack with power 1.4. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "burst"
+      "tactic": "burst",
+      "questionFormat": "q1"
     },
     {
       "id": "N_prepare",
@@ -695,7 +710,8 @@
         "en": "Prepare your next hit while attacking. Your battle plan is ready, and so are your snacks."
       },
       "descriptionEn": "Attack with power 1. A correct answer makes your next attack 1.4 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "chain"
+      "tactic": "chain",
+      "questionFormat": "idiom"
     },
     {
       "id": "N_confuse",
@@ -717,7 +733,8 @@
         "en": "Confuse the enemy by pointing right and moving left as you attack. Sometimes you forget which way to go too."
       },
       "descriptionEn": "Attack with power 1. A correct answer reduces the enemy's next attack damage to 65%. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "disrupt"
+      "tactic": "disrupt",
+      "questionFormat": "idiom"
     },
     {
       "id": "N_harmony",
@@ -741,7 +758,8 @@
         "en": "Attack in harmony with your shadows and build your guard. One shadow thinks this is choir practice."
       },
       "descriptionEn": "Attack with power 1. Reduce damage from the next 1 enemy attack(s) to 65% with a correct answer, or 85% with a wrong answer. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "long"
+      "tactic": "long",
+      "questionFormat": "q3"
     },
     {
       "id": "N_angle",
@@ -762,7 +780,8 @@
         "en": "Choose an angle and attack from it. You care so much about angles that you brought a triangle ruler."
       },
       "descriptionEn": "Attack with power 1.3. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "burst"
+      "tactic": "burst",
+      "questionFormat": "q1"
     },
     {
       "id": "N_glance",
@@ -784,7 +803,8 @@
         "en": "Glance at the enemy as you attack and plan the next hit. You glance so often that everyone notices."
       },
       "descriptionEn": "Attack with power 0.95. A correct answer makes your next attack 1.35 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "chain"
+      "tactic": "chain",
+      "questionFormat": "q3"
     },
     {
       "id": "N_shade",
@@ -808,7 +828,8 @@
         "en": "Attack from the shade and use shadows to guard yourself. Always thank the tree for lending you a spot."
       },
       "descriptionEn": "Attack with power 0.95. Reduce damage from the next 1 enemy attack(s) to 75% with a correct answer, or 90% with a wrong answer. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "guard"
+      "tactic": "guard",
+      "questionFormat": "q1"
     },
     {
       "id": "N_mysterious",
@@ -829,7 +850,8 @@
         "en": "Attack with a mysterious move. When asked how it works, you can only say: It just happened."
       },
       "descriptionEn": "Attack with power 1.3. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "disrupt"
+      "tactic": "disrupt",
+      "questionFormat": "q3"
     },
     {
       "id": "N_image",
@@ -851,7 +873,8 @@
         "en": "Attack while building an image of your next hit. In your mind, your cape flies even without wind."
       },
       "descriptionEn": "Attack with power 1. A correct answer makes your next attack 1.35 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "chain"
+      "tactic": "chain",
+      "questionFormat": "q3"
     },
     {
       "id": "N_observe",
@@ -873,7 +896,8 @@
         "en": "Observe the enemy while attacking lightly and aim your next hit. Your notes even include an eyelash count."
       },
       "descriptionEn": "Attack with power 0.9. A correct answer makes your next attack 1.55 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "long"
+      "tactic": "long",
+      "questionFormat": "q3"
     },
     {
       "id": "N_metal",
@@ -894,7 +918,8 @@
         "en": "Crash into the enemy with a loud metallic sound. People nearby think someone dropped a cooking pot."
       },
       "descriptionEn": "Attack with power 1.3. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "burst"
+      "tactic": "burst",
+      "questionFormat": "idiom"
     },
     {
       "id": "N_press",
@@ -915,7 +940,8 @@
         "en": "Press forward with a firm attack. You are still learning to press elevator buttons gently."
       },
       "descriptionEn": "Attack with power 1.2. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "chain"
+      "tactic": "chain",
+      "questionFormat": "word_meaning"
     },
     {
       "id": "N_slice",
@@ -936,7 +962,8 @@
         "en": "Slice forward with a sharp hit. You practiced by imagining a very large cake to cut."
       },
       "descriptionEn": "Attack with power 1.4. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "burst"
+      "tactic": "burst",
+      "questionFormat": "q1"
     },
     {
       "id": "N_defend",
@@ -960,7 +987,8 @@
         "en": "Defend yourself with a shield as you attack. A pot lid gave you the idea, so you look a little like a cook."
       },
       "descriptionEn": "Attack with power 1. Reduce damage from the next 1 enemy attack(s) to 65% with a correct answer, or 85% with a wrong answer. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "guard"
+      "tactic": "guard",
+      "questionFormat": "q3"
     },
     {
       "id": "N_reduce",
@@ -982,7 +1010,8 @@
         "en": "Attack and reduce the enemy's force. Turn an imaginary knob as if lowering the volume of its energy."
       },
       "descriptionEn": "Attack with power 1. A correct answer reduces the enemy's next attack damage to 65%. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "disrupt"
+      "tactic": "disrupt",
+      "questionFormat": "q3"
     },
     {
       "id": "N_repair",
@@ -1003,7 +1032,8 @@
         "en": "Open your toolbox to repair the damage. It holds bandages instead of tools."
       },
       "descriptionEn": "Restore 25% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "long"
+      "tactic": "long",
+      "questionFormat": "word_meaning"
     },
     {
       "id": "N_bind",
@@ -1025,7 +1055,8 @@
         "en": "Bind the enemy's force with shadowy cords as you attack. You insist on tying them into pretty bows."
       },
       "descriptionEn": "Attack with power 1. A correct answer reduces the enemy's next attack damage to 70%. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "disrupt"
+      "tactic": "disrupt",
+      "questionFormat": "idiom"
     },
     {
       "id": "N_decrease",
@@ -1047,7 +1078,8 @@
         "en": "Attack lightly to decrease the enemy's force. Finish with a bow and a polite request to calm down."
       },
       "descriptionEn": "Attack with power 0.95. A correct answer reduces the enemy's next attack damage to 70%. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "long"
+      "tactic": "long",
+      "questionFormat": "idiom"
     },
     {
       "id": "N_prevent",
@@ -1071,7 +1103,8 @@
         "en": "Prevent some damage by raising your shield as you attack. Its warning says: Read before bumping into things."
       },
       "descriptionEn": "Attack with power 0.95. Reduce damage from the next 1 enemy attack(s) to 75% with a correct answer, or 90% with a wrong answer. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "guard"
+      "tactic": "guard",
+      "questionFormat": "idiom"
     },
     {
       "id": "N_brake",
@@ -1093,7 +1126,8 @@
         "en": "Attack to brake the enemy's momentum. Your bicycle lesson taught you to stay calm when stopping."
       },
       "descriptionEn": "Attack with power 1. A correct answer reduces the enemy's next attack damage to 70%. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "disrupt"
+      "tactic": "disrupt",
+      "questionFormat": "q3"
     },
     {
       "id": "N_lock",
@@ -1117,7 +1151,8 @@
         "en": "Lock the shield's straps into place as you attack. Check them three times because you worry a little."
       },
       "descriptionEn": "Attack with power 1. Reduce damage from the next 1 enemy attack(s) to 70% with a correct answer, or 90% with a wrong answer. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "guard"
+      "tactic": "guard",
+      "questionFormat": "q1"
     },
     {
       "id": "N_stretch",
@@ -1139,7 +1174,8 @@
         "en": "Stretch as you attack and prepare your next hit. Feel taller every time. Stay exactly the same height."
       },
       "descriptionEn": "Attack with power 1. A correct answer makes your next attack 1.35 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "long"
+      "tactic": "long",
+      "questionFormat": "idiom"
     },
     {
       "id": "R_echo",
@@ -1160,7 +1196,8 @@
         "en": "Shock the enemy with a sudden loud sound. You want to cover your own ears before using it."
       },
       "descriptionEn": "Attack with power 1.55. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "burst"
+      "tactic": "burst",
+      "questionFormat": "q9"
     },
     {
       "id": "heal",
@@ -1181,7 +1218,8 @@
         "en": "Recover with careful treatment and a cure. After the bitter medicine, make a brave face even if nobody is watching."
       },
       "descriptionEn": "Restore 35% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "heal"
+      "tactic": "heal",
+      "questionFormat": "q11"
     },
     {
       "id": "R_praise",
@@ -1203,7 +1241,8 @@
         "en": "Command yourself as you attack and prepare the next hit. You are both captain and soldier, so the reply is very loud."
       },
       "descriptionEn": "Attack with power 1.1. A correct answer makes your next attack 1.65 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "chain"
+      "tactic": "chain",
+      "questionFormat": "q11"
     },
     {
       "id": "R_mirage",
@@ -1224,7 +1263,8 @@
         "en": "Surround the enemy with attacking shadows. One thinks this is a group photo and smiles at you."
       },
       "descriptionEn": "Attack with power 1.55. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "disrupt"
+      "tactic": "disrupt",
+      "questionFormat": "q9"
     },
     {
       "id": "R_disturb",
@@ -1246,7 +1286,8 @@
         "en": "Disturb the enemy's focus with a strange sound as you attack. It is hard to tell the skill from a stomach rumble."
       },
       "descriptionEn": "Attack with power 1.15. A correct answer reduces the enemy's next attack damage to 50%. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "disrupt"
+      "tactic": "disrupt",
+      "questionFormat": "q9"
     },
     {
       "id": "R_pretend",
@@ -1268,7 +1309,8 @@
         "en": "Pretend to be mighty as you attack and build confidence for the next hit. Your acting convinces even you."
       },
       "descriptionEn": "Attack with power 1.1. A correct answer makes your next attack 1.65 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "chain"
+      "tactic": "chain",
+      "questionFormat": "q11"
     },
     {
       "id": "R_metal",
@@ -1289,7 +1331,8 @@
         "en": "Seize an opening and strike hard. You use the same focus to grab the last snack."
       },
       "descriptionEn": "Attack with power 1.55. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "burst"
+      "tactic": "burst",
+      "questionFormat": "q11"
     },
     {
       "id": "ward",
@@ -1313,7 +1356,8 @@
         "en": "Protect yourself with a shield while attacking strongly. The shield says Handle with care. You do not look very careful."
       },
       "descriptionEn": "Attack with power 1.15. Reduce damage from the next 2 enemy attack(s) to 60% with a correct answer, or 80% with a wrong answer. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "guard"
+      "tactic": "guard",
+      "questionFormat": "q11"
     },
     {
       "id": "R_extend",
@@ -1335,7 +1379,8 @@
         "en": "Attack and review another skill to extend its use. Your leaf-shaped note says: More time, please."
       },
       "descriptionEn": "Attack with power 1.15. A correct answer restores up to 2 use(s) to another skill with the most uses missing. Ties follow slot order. Never exceed its limit or restore a use-restoring skill. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "long"
+      "tactic": "long",
+      "questionFormat": "q12"
     },
     {
       "id": "SR_echo",
@@ -1356,7 +1401,8 @@
         "en": "Attack with a sound like thunder. The local birds question the weather report every time they hear it."
       },
       "descriptionEn": "Attack with power 2. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "burst"
+      "tactic": "burst",
+      "questionFormat": "q12"
     },
     {
       "id": "SR_broadcast",
@@ -1377,7 +1423,8 @@
         "en": "Broadcast a mighty voice through the forest to attack. You host a program called Battle in Progress."
       },
       "descriptionEn": "Attack with power 1.85. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "long"
+      "tactic": "long",
+      "questionFormat": "q12"
     },
     {
       "id": "SR_mirage",
@@ -1398,7 +1445,8 @@
         "en": "Move as if you could disappear, then strike hard. Forget to hide your tail."
       },
       "descriptionEn": "Attack with power 2. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "burst"
+      "tactic": "burst",
+      "questionFormat": "q12"
     },
     {
       "id": "SR_fancy",
@@ -1419,7 +1467,8 @@
         "en": "Turn a grand fancy into a mighty hit. For some reason, the hero you imagine is a giant pudding."
       },
       "descriptionEn": "Attack with power 2.15. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "burst"
+      "tactic": "burst",
+      "questionFormat": "q12"
     },
     {
       "id": "SR_metal",
@@ -1440,7 +1489,8 @@
         "en": "Strike with all your strength to defeat the enemy. You practiced the victory pose, but victory still comes later."
       },
       "descriptionEn": "Attack with power 2. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "burst"
+      "tactic": "burst",
+      "questionFormat": "q12"
     },
     {
       "id": "SR_absolute",
@@ -1464,7 +1514,8 @@
         "en": "Attack strongly and aim for absolute protection with your shield. Small letters say: Not a promise of invincibility."
       },
       "descriptionEn": "Attack with power 1.25. Reduce damage from the next 2 enemy attack(s) to 50% with a correct answer, or 75% with a wrong answer. One use is consumed whether your answer is correct or wrong.",
-      "tactic": "guard"
+      "tactic": "guard",
+      "questionFormat": "q12"
     }
   ],
   "gear": [
@@ -2126,6 +2177,45 @@
       "description": "回復・補助・技回数管理で粘り強く戦う",
       "descriptionEn": "Outlast foes through sustain and resource management."
     }
-  }
+  },
+  "questionFormats": {
+    "word_meaning": {
+      "label": "単語の意味",
+      "rank": 0
+    },
+    "q1": {
+      "label": "大問1",
+      "rank": 1
+    },
+    "q3": {
+      "label": "大問3",
+      "rank": 2
+    },
+    "idiom": {
+      "label": "イディオム",
+      "rank": 3
+    },
+    "q9": {
+      "label": "大問9",
+      "rank": 4
+    },
+    "q11": {
+      "label": "大問11",
+      "rank": 5
+    },
+    "q12": {
+      "label": "大問12",
+      "rank": 6
+    }
+  },
+  "questionDifficultyOrder": [
+    "word_meaning",
+    "q1",
+    "q3",
+    "idiom",
+    "q9",
+    "q11",
+    "q12"
+  ]
 };if(typeof module!=="undefined")module.exports=data;else root.GoimonBattleCatalog=data;
 })(typeof window!=="undefined"?window:globalThis);
