@@ -44,3 +44,34 @@ test('all skills remain and R/SR never use word-meaning questions',()=>{
  assert.equal(C.gear.length,27);
  assert.ok(C.skills.filter(s=>s.rarity!=='N').every(s=>s.questionFormat!=='word_meaning'));
 });
+
+test('each skill has one of six tactics and an allowed question format',()=>{
+ const tactics=new Set(['burst','heal','guard','disrupt','chain','long']);
+ const formats=new Set(['word_meaning','q1','q3','idiom','q9','q11','q12']);
+ assert.equal(new Set(C.skills.map(x=>x.id)).size,51);
+ for(const x of C.skills){
+  assert.ok(tactics.has(x.tactic),x.id+' tactic');
+  assert.ok(formats.has(x.questionFormat),x.id+' questionFormat');
+  assert.ok(Number.isInteger(x.uses)&&x.uses>0,x.id+' uses');
+ }
+});
+test('all six new effects are limited to one next action and correct answers',()=>{
+ const effects=C.skills.filter(x=>x.onCorrect);
+ assert.equal(effects.length,6);
+ for(const skill of effects){
+  assert.equal(skill.type,'attack');
+  assert.ok(skill.rarity==='N'||skill.rarity==='R');
+  assert.ok(!skill.onCorrect.nextPower||skill.onCorrect.nextPower<=1.15);
+  assert.ok(!skill.onCorrect.weakFactor||skill.onCorrect.weakFactor>=0.8);
+ }
+});
+test('attack categories keep modest basic multipliers without added status systems',()=>{
+ for(const skill of C.skills){
+  if(skill.type==='attack'){
+   assert.ok(skill.power<=2.15,skill.id+' excessive damage');
+  }
+  assert.equal(Object.hasOwn(skill,'poison'),false,skill.id);
+  assert.equal(Object.hasOwn(skill,'regeneration'),false,skill.id);
+  assert.equal(Object.hasOwn(skill,'counter'),false,skill.id);
+ }
+});
