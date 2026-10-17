@@ -12,6 +12,31 @@ function start(stageNumber=null){try{activeStage=stageNumber;training=stageNumbe
  battle=E.create(player,enemy);scene('battle',training?'ステージ0｜森の案内役':'ことばの遺跡｜'+(stageNumber?'ステージ'+stageNumber:'自由戦闘'));syncSprite(species,stage);misses=[];battleAnswers=[];lastQuestionIds={単語:'',熟語:''};question=null;pending=null;answered=false;$('journey').hidden=true;$('setup').hidden=true;$('arena').hidden=false;$('result').hidden=true;$('log').replaceChildren();$('playerImage').src=species.entries[stage].image;$('playerImage').alt=species.entries[stage].name;$('playerName').textContent=species.entries[stage].name;$('enemyName').textContent=enemy.name;render();}catch(e){$('setupError').textContent=e.message;}}
 function statsText(a){return C.attributes[a.attr]+'｜攻撃'+a.attack+'・防御'+a.defense+'・速さ'+a.speed;}
 // Learning return route: recommend practice without changing battle or save state.
+const RETURN_KEY='goimon_quest_demo_return_v1';
+function rememberReturnStage(){
+  if(!Number.isInteger(activeStage)||activeStage<1||activeStage>T.stages.length)return;
+  try{sessionStorage.setItem(RETURN_KEY,JSON.stringify({
+    stage:activeStage,cleared:tutorial.cleared,complete:tutorial.complete,
+    trained:tutorial.trained,claimed:tutorial.claimed,equipped:tutorial.equipped,
+    itemId:tutorial.item?.id||null,shards:tutorial.shards,
+    selectedGear:$('gear').value,created:Date.now()
+  }));}catch(_){}
+}
+function restoreReturnStage(){
+  const params=new URLSearchParams(location.search);
+  const requested=Number(params.get('returnStage'));
+  if(!Number.isInteger(requested)||requested<1||requested>T.stages.length)return;
+  let saved;try{saved=JSON.parse(sessionStorage.getItem(RETURN_KEY)||'null');sessionStorage.removeItem(RETURN_KEY);}catch(_){return;}
+  if(!saved||saved.stage!==requested||!saved.complete||!saved.trained||!saved.claimed||!saved.equipped||!Number.isInteger(saved.cleared)||saved.cleared<0||saved.cleared>T.stages.length||requested>saved.cleared+1||Date.now()-saved.created>24*3600*1000||Date.now()<saved.created)return;
+  const gear=C.gear.find(g=>g.id===saved.itemId);
+  if(!gear)return;
+  Object.assign(tutorial,{trained:true,claimed:true,equipped:true,complete:true,item:{...gear},shards:Math.max(0,Math.floor(saved.shards)||0),cleared:saved.cleared});
+  if(C.gear.some(g=>g.id===saved.selectedGear))$('gear').value=saved.selectedGear;
+  selectedStage=requested;renderLesson();renderMap();matchupAdvice();
+  $('questStart').hidden=false;$('prepareLink').hidden=false;
+  $('story').textContent='学習から戻りました。ステージ'+requested+'「'+T.stages[requested-1].name+'」に再挑戦できます。';
+  $('journey').hidden=false;$('setup').hidden=false;$('arena').hidden=true;
+}
 function renderPracticeRoutes(){
   let panel=$('questPracticeRoutes');
   if(!panel){panel=document.createElement('div');panel.id='questPracticeRoutes';panel.style.marginTop='1rem';$('result').append(panel);}
@@ -38,7 +63,7 @@ function renderPracticeRoutes(){
     if(!c.total)continue;
     const link=document.createElement('a'),u=new URL(candidate.path,document.baseURI);
     if(candidate.kind==='単語'){u.searchParams.set('start',String(range[0]));u.searchParams.set('end',String(range[1]));u.searchParams.set('mode','order');}
-    u.searchParams.set('returnTo','quest_test.html');link.href=u.href;
+    u.searchParams.set('returnTo','quest_test.html');u.searchParams.set('returnStage',String(activeStage));link.addEventListener('click',rememberReturnStage);link.href=u.href;
     link.textContent=c.wrong?'優先復習：'+candidate.label+'（'+c.wrong+'/'+c.total+'問不正解）':candidate.label+'（今回の誤答なし）';
     link.style.display='block';link.style.margin='0.5rem 0';panel.append(link);
   }
@@ -46,7 +71,7 @@ function renderPracticeRoutes(){
   for(const [label,path] of [['日本語→英語','quiz_jaen.html'],['音声→意味','audio_quiz.html']]){
     const link=document.createElement('a'),u=new URL(path,document.baseURI);
     u.searchParams.set('start',String(range[0]));u.searchParams.set('end',String(range[1]));u.searchParams.set('mode','order');
-    u.searchParams.set('returnTo','quest_test.html');link.href=u.href;link.textContent=label+'（未判定）';link.style.display='inline-block';link.style.margin='0.25rem 0.75rem 0.25rem 0';panel.append(link);
+    u.searchParams.set('returnTo','quest_test.html');u.searchParams.set('returnStage',String(activeStage));link.addEventListener('click',rememberReturnStage);link.href=u.href;link.textContent=label+'（未判定）';link.style.display='inline-block';link.style.margin='0.25rem 0.75rem 0.25rem 0';panel.append(link);
   }
   const fine=document.createElement('p');fine.textContent='単語はこのステージの指定範囲の実データ、熟語は1級熟語データから出題。苦手傾向は今回の戦闘のみの参考値です。';panel.append(fine);
 }
@@ -71,6 +96,6 @@ function finishPractice(){$('commands').replaceChildren();$('questionBox').hidde
 function renderMap(){const map=$('questMap');map.replaceChildren();T.stages.forEach((s,i)=>{const n=i+1,b=document.createElement('button');b.textContent='ステージ'+n+'｜'+s.name+(tutorial.cleared>=n?' ✓':'');b.disabled=!tutorial.complete||n>tutorial.cleared+1;b.onclick=()=>{selectedStage=n;$('story').textContent=s.before+' 敵の属性：'+C.attributes[s.attr]+'。初回クリア報酬案：星のかけら'+(n===5?5:2)+'個（試作では付与されません）。';$('questStart').hidden=false;$('prepareLink').hidden=false;matchupAdvice();};map.append(b);});}
 function renderLesson(){$('lessonCount').textContent='ステージ0｜'+(tutorial.trained?'森の宝箱':'はじまりの森');$('lessonTitle').textContent=tutorial.trained?'プレゼント → ガチャ → 装備':'歩きながら、戦い方を覚えよう';$('lessonText').textContent=tutorial.trained?'星のかけら10個でガチャを1回。装備と技は別のガチャです。今回は装備ガチャを体験します。N94％・R5％・SR1％。正式版の10連はR以上1個確定の予定です。':'森の案内役が、実際の行動に合わせて属性・素早さ・攻撃・防御・技を教えてくれます。練習では3つの行動を体験します。';$('lessonChoices').replaceChildren();$('lessonFeedback').textContent='';$('lessonNext').hidden=tutorial.trained;$('lessonNext').textContent='森へ出発する';$('gift').hidden=!tutorial.trained;$('again').textContent='森の道に戻る';renderWallet();}
 function renderWallet(){$('demoWallet').textContent='体験用の星のかけら：'+tutorial.shards+'個';$('claimGift').disabled=tutorial.claimed;$('claimGift').textContent=tutorial.claimed?'プレゼント受け取り済み':'体験用の星のかけら10個を受け取る';$('drawGear').hidden=!tutorial.claimed;$('drawGear').disabled=!!tutorial.item;$('equipGift').hidden=!tutorial.item;$('equipGift').disabled=tutorial.equipped;if(tutorial.item){const g=tutorial.item,s=C.species.find(s=>s.id===$('species').value),bonuses=g.bonuses||(g.stat?{[g.stat]:g.bonus}:{}),stats=Object.entries(bonuses).map(([k,v])=>({hp:'HP',attack:'攻撃',defense:'防御',speed:'素早さ'}[k])+s[k]+' → '+Math.round(s[k]*(1+v))).join('・');const note=document.createElement('p');note.textContent=(stats?'幼体・学習加算なし：'+stats+'。':'')+'装備は1つセットできます。'+(tutorial.equipped?'セット完了！ ステージ1へ進もう。':'');$('drawResult').replaceChildren(itemCard(g,true),note);}}
-$('lessonNext').onclick=()=>walk('案内役に会いに行こう',()=>start(0));$('claimGift').onclick=()=>{T.claim(tutorial);renderWallet();};$('drawGear').onclick=()=>{T.draw(tutorial,C.gear);renderWallet();};$('equipGift').onclick=()=>{T.equip(tutorial);$('gear').value=tutorial.item.id;help();renderWallet();renderMap();walk('ステージ1への道が開いた',()=>{$('journey').hidden=false;$('setup').hidden=false;scene('idle','ことばの遺跡への道');$('story').textContent='装備をセットしました。ステージ1を選んで進もう。';});};$('questStart').onclick=()=>{if(tutorial.complete&&selectedStage&&selectedStage<=tutorial.cleared+1)walk(T.stages[selectedStage-1].name+'へ進む',()=>start(selectedStage));};renderLesson();renderMap();syncSprite();$('species').onchange=()=>{syncSprite();matchupAdvice();};$('enemyAttr').onchange=matchupAdvice;$('stage').onchange=()=>syncSprite();
+$('lessonNext').onclick=()=>walk('案内役に会いに行こう',()=>start(0));$('claimGift').onclick=()=>{T.claim(tutorial);renderWallet();};$('drawGear').onclick=()=>{T.draw(tutorial,C.gear);renderWallet();};$('equipGift').onclick=()=>{T.equip(tutorial);$('gear').value=tutorial.item.id;help();renderWallet();renderMap();walk('ステージ1への道が開いた',()=>{$('journey').hidden=false;$('setup').hidden=false;scene('idle','ことばの遺跡への道');$('story').textContent='装備をセットしました。ステージ1を選んで進もう。';});};$('questStart').onclick=()=>{if(tutorial.complete&&selectedStage&&selectedStage<=tutorial.cleared+1)walk(T.stages[selectedStage-1].name+'へ進む',()=>start(selectedStage));};renderLesson();renderMap();syncSprite();restoreReturnStage();$('species').onchange=()=>{syncSprite();matchupAdvice();};$('enemyAttr').onchange=matchupAdvice;$('stage').onchange=()=>syncSprite();
 window.GoimonBattleDemo=Object.freeze({snapshot:()=>({battle,question,answered,tutorial,activeStage,training,arrival,walking})});
 })();
