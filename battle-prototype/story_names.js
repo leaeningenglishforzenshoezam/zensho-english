@@ -1,10 +1,11 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.GoimonStoryNames=api;})(typeof window==='object'?window:globalThis,()=>{'use strict';
 const AUTH_KEY='goimon_cloud_session_v1';
-function playerName(storage,apiBase){
+function playerName(storage,apiBase,activeUserId){
  try{
   const raw=storage?.getItem(AUTH_KEY);if(!raw)return 'あなた';
   const session=JSON.parse(raw);
-  if(!session||typeof session!=='object'||!session.userId||!session.token||typeof session.displayName!=='string')return 'あなた';
+  if(!session||typeof session!=='object'||typeof session.userId!=='string'||!Number.isSafeInteger(session.expiresAt)||session.expiresAt*1000<=Date.now()||!/^gs1_[a-f0-9]{64}$/.test(session.token)||typeof session.displayName!=='string')return 'あなた';
+  if(activeUserId!==undefined&&activeUserId!==session.userId)return 'あなた';
   if(apiBase&&session.apiBase!==apiBase)return 'あなた';
   const name=session.displayName.trim();return name||'あなた';
  }catch(_){return 'あなた';}
