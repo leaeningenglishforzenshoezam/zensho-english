@@ -3,7 +3,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const root=path.join(__dirname,'..');let now=100000;
 const memory=new Map();const storage={getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,String(v))};
 const elements=new Map();const element=()=>({attributes:{},append(...nodes){this.children.push(...nodes);},setAttribute(k,v){this.attributes[k]=v;},getAttribute(k){return this.attributes[k];},replaceChildren(){this.children=[];},querySelector(){return null},querySelectorAll(){return []},classList:{add(){}},children:[]});
-const ctx={console,structuredClone,URL,Blob,Date:class extends Date{static now(){return now;}},setInterval:()=>1,clearInterval(){},setTimeout:()=>1,clearTimeout(){},localStorage:storage,sessionStorage:storage,GOIMONStorage:storage,GOIMONProfiles:{account:'guest'},GOIMON_CLOUD_CONFIG:{apiBase:''},GoimonDex:{getEntry:()=>({image:''})},document:{getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);},createElement:element,addEventListener(){}},addEventListener(){}};ctx.window=ctx;vm.createContext(ctx);
+const ctx={console,structuredClone,URL,URLSearchParams,location:{search:""},Blob,Date:class extends Date{static now(){return now;}},setInterval:()=>1,clearInterval(){},setTimeout:()=>1,clearTimeout(){},localStorage:storage,sessionStorage:storage,GOIMONStorage:storage,GOIMONProfiles:{account:'guest'},GOIMON_CLOUD_CONFIG:{apiBase:''},GoimonDex:{getEntry:()=>({image:''})},document:{getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);},createElement:element,addEventListener(){}},addEventListener(){}};ctx.window=ctx;vm.createContext(ctx);
 for(const file of ['battle-prototype/catalog.js','battle-prototype/core.js','battle-prototype/tutorial.js','battle-prototype/story_names.js','battle-prototype/question-routing.js','battle-prototype/question_bank.js','words_1kyu.js','idiom_data_1kyu.js','sentence_fixed_1kyu.js','paraphrase_data_1kyu.js','reorder_1kyu.js','battle-prototype/chapter1_data.js','battle-prototype/chapter_questions.js','battle-prototype/chapter_store.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx,{filename:file});
 let controller=fs.readFileSync(path.join(root,'battle-prototype/chapter1.js'),'utf8').replace('function render(){','function render(){return;');
 controller=controller.replace('window.GoimonChapter1=Object.freeze','window.test={showExplanation,fresh,advance,startBattle,ask,answer,finishBattle,save,get:()=>state,set:s=>{state=s;},reload:()=>{store=GoimonChapterStore.create(localStorage,key,D);state=store.load();}};window.GoimonChapter1=Object.freeze');vm.runInContext(controller,ctx);
@@ -39,3 +39,11 @@ const panel=element();a.showExplanation(panel,null);assert.equal(panel.children.
 a.showExplanation(panel,{format:'q12',completed:'I study English.',translation:'私は英語を学びます。',notes:['文法上のポイント']});
 const [toggle,body]=panel.children;assert.equal(body.hidden,true);assert.equal(toggle.textContent,'解説を見る');toggle.onclick();assert.equal(body.hidden,false);assert.equal(toggle.getAttribute('aria-expanded'),'true');toggle.onclick();assert.equal(body.hidden,true);assert.equal(toggle.textContent,'解説を見る');
 console.log('PASS explanation hidden initially; accessible toggle opens/closes; no empty word explanation');
+
+// Quest hub must read the same account save without changing progress or inventory.
+const beforeHub=JSON.stringify([...memory]);
+vm.runInContext(fs.readFileSync(path.join(root,'quest_home.js'),'utf8'),ctx);
+assert.equal(JSON.stringify([...memory]),beforeHub);
+assert.equal(elements.get('qh-continue').textContent,'クリア記録を見る');
+assert.equal(elements.get('qh-stages').children.length,5);
+console.log('PASS quest home reads completion without writing player data');

@@ -1,0 +1,7 @@
+#bgm-settings{box-sizing:border-box;width:min(440px,calc(100% - 28px));max-height:85dvh;overflow:auto;border:1px solid #587565;border-radius:24px;padding:24px;background:#173b2d;color:#f4f7ec;box-shadow:0 24px 80px #0006;font:16px/1.6 system-ui}
+#bgm-settings::backdrop{background:#071e18bb;backdrop-filter:blur(5px)}
+#bgm-settings .bgm-head{display:flex;align-items:center;justify-content:space-between;gap:16px}#bgm-settings h2{margin:0;color:inherit;font-size:24px}
+#bgm-settings button{width:auto;min-width:48px;min-height:44px;border:1px solid #64806b;border-radius:24px;background:#294e3b;color:#fff;font:inherit;cursor:pointer}
+#bgm-settings .bgm-switch{width:100%;font-weight:700;letter-spacing:.1em}#bgm-settings .bgm-switch[aria-pressed=true]{background:#dcd39a;color:#193b2e}
+#bgm-settings .audio-settings{display:grid;gap:16px}#bgm-settings label{display:grid;gap:7px;font-size:14px}#bgm-settings input{box-sizing:border-box;min-width:0;width:100%;color:inherit;accent-color:#dcd39a}#bgm-settings input::file-selector-button{background:#315c46;color:#fff;border:0;border-radius:8px;padding:10px;margin-right:8px;cursor:pointer}
+#bgm-settings p{font-size:12px;color:#c1d2c2;margin:6px 0}#bgm-settings :focus-visible{outline:3px solid #efcf73;outline-offset:3px}

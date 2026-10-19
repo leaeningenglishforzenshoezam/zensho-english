@@ -15,3 +15,10 @@ Sitesの公開済み修正元: 2390b3d6771c15f7645d87ce362d0cb7cf3a5d02。
 検証: checks/quest-revision.cjs、checks/chapter-flow.cjs、所持品保存テスト。
 ミッション6種類から学習画面への遷移先を確認済み。
 ブラウザ・スマホの通し操作、Googleログイン、クラウド同期、正式報酬付与は未検証・未接続。
+
+## Home and quest hub refinement
+- Learning home removes the inline audio panel and partner shortcut. Existing management card and controls are retained on the management route.
+- Shared navigation links to quest_home.html and opens a compact BGM dialog; saved IndexedDB tracks and preference keys are preserved.
+- Quest hub reads the existing account-scoped chapter save, links to resume, optional reconfiguration, map, inventory and missions. Configuration only writes after departure.
+- Gacha and fragment award/spend remain explicitly unavailable; no synthetic currency is created.
+- Responsive grid/button sizing corrected. Browser/mobile visual QA unavailable in this environment; logic checks passed.

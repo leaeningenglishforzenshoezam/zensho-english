@@ -11,15 +11,17 @@
  dialog.innerHTML=`<div class="gn-head"><div><span class="gn-kicker">GOIMON</span><h2 id="goimon-menu-title">メニュー</h2></div><button type="button" class="gn-close" aria-label="メニューを閉じる" autofocus>${icon('close')}</button></div>
  <a class="gn-profile" href="cloud.html"><span class="gn-avatar">${icon('user')}</span><span><strong>ログイン・プロフィール</strong><small id="gn-account">アカウント・保存の確認</small></span><span class="gn-arrow" aria-hidden="true">›</span></a>
  <nav aria-label="GOIMONメインメニュー">
- ${link('index.html','ホーム','home')}${link('quest_chapter1.html','第1章の冒険・続きから','star')}${link('recommended.html','今日のおすすめ','star')}
+ ${link('index.html','ホーム','home')}${link('quest_home.html','クエスト','star')}${link('recommended.html','今日のおすすめ','star')}
  <div class="gn-section">ゴイモンと学習の記録</div>
  ${link('index.html?panel=goimon&manage=1','育成・ニックネーム・進化・保存箱','egg','data-panel="goimon"')}${link('index.html?panel=dex&manage=1','ゴイモン図鑑','grid','data-panel="dex"')}${link('progress.html','学習履歴・進捗','history')}
  <details class="gn-lessons"><summary>${icon('book')}<span>学習メニュー</span><span class="gn-arrow" aria-hidden="true">⌄</span></summary><div>${[['語彙を鍛える',lessons.slice(0,6)],['リスニング',lessons.slice(6,7)],['大問別演習',lessons.slice(7)]].map(([title,links])=>`<h3>${title}</h3>${links.map(([href,label])=>`<a href="${href}">${label}</a>`).join('')}`).join('')}</div></details>
- </nav><div class="gn-footer"><a href="privacy.html">プライバシーポリシー</a><a href="mailto:goimon.admin@gmail.com">お問い合わせ</a></div>`;
+ <button type="button" class="gn-link" id="gn-bgm" style="width:100%;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer">♪ <span>BGM</span></button></nav><div class="gn-footer"><a href="privacy.html">プライバシーポリシー</a><a href="mailto:goimon.admin@gmail.com">お問い合わせ</a></div>`;
  paths.bell='M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4';
  dialog.querySelector('nav').insertAdjacentHTML('afterbegin',link('announcements.html','お知らせ','bell','id="gn-news"'));
  dialog.querySelector('nav').insertAdjacentHTML('afterbegin',link(window.GOIMON_CLOUD_CONFIG?.missionsEnabled===true?'mission_play.html':'missions.html','今日のミッション','star','id="gn-missions"'));
  document.body.append(dialog);
+ let audioReady;
+ dialog.querySelector('#gn-bgm').onclick=()=>{close();setTimeout(async()=>{try{if(!window.GoimonQuestAudio){audioReady ||= new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='battle-prototype/quest_audio.js';s.onload=resolve;s.onerror=()=>{audioReady=null;reject(Error('BGM設定を読み込めませんでした'));};document.head.append(s);});await audioReady;}window.GoimonQuestAudio.openSettings();}catch(e){alert(e.message);}},0);};
  if(window.GOIMONAvatarUI)window.GOIMONAvatarUI.refresh();else {
   const catalog=document.createElement('script');catalog.src='cloud_avatar_catalog.js';catalog.onload=()=>{const ui=document.createElement('script');ui.src='cloud_avatar.js';document.head.append(ui);};document.head.append(catalog);
  }
@@ -33,7 +35,7 @@
  dialog.addEventListener('keydown',e=>{if(e.key!=='Tab')return;const items=[...dialog.querySelectorAll('button,a[href],summary')].filter(el=>!el.disabled&&el.getClientRects().length);const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}});
  dialog.addEventListener('close',()=>{document.body.style.overflow=previousOverflow;button.setAttribute('aria-expanded','false');button.focus({preventScroll:true});});
  dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)close();}});
- for(const a of dialog.querySelectorAll('a[data-panel]'))a.addEventListener('click',e=>{if(home){e.preventDefault();close();setTimeout(()=>panel(a.dataset.panel),0);}});
+ for(const a of dialog.querySelectorAll('a[data-panel]'))a.addEventListener('click',e=>{if(home&&new URLSearchParams(location.search).get('manage')==='1'){e.preventDefault();close();setTimeout(()=>panel(a.dataset.panel),0);}});
  for(const a of dialog.querySelectorAll('a[href]')){const url=new URL(a.href);if(url.pathname===location.pathname&&!url.search)a.setAttribute('aria-current','page');}
  function initialPanel(){const url=new URL(location.href),name=url.searchParams.get('panel');if(home&&['goimon','dex'].includes(name)){setTimeout(()=>{panel(name);url.searchParams.delete('panel');history.replaceState(null,'',url.pathname+url.search+url.hash);},0);}}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initialPanel,{once:true});else initialPanel();
