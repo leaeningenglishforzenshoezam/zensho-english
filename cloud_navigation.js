@@ -11,7 +11,7 @@
  dialog.innerHTML=`<div class="gn-head"><div><span class="gn-kicker">GOIMON</span><h2 id="goimon-menu-title">メニュー</h2></div><button type="button" class="gn-close" aria-label="メニューを閉じる" autofocus>${icon('close')}</button></div>
  <a class="gn-profile" href="cloud.html"><span class="gn-avatar">${icon('user')}</span><span><strong>ログイン・プロフィール</strong><small id="gn-account">アカウント・保存の確認</small></span><span class="gn-arrow" aria-hidden="true">›</span></a>
  <nav aria-label="GOIMONメインメニュー">
- ${link('index.html','ホーム','home')}${link('recommended.html','今日のおすすめ','star')}
+ ${link('index.html','ホーム','home')}${link('quest_chapter1.html','第1章の冒険・続きから','star')}${link('recommended.html','今日のおすすめ','star')}
  <div class="gn-section">ゴイモンと学習の記録</div>
  ${link('index.html?panel=goimon&manage=1','育成・ニックネーム・進化・保存箱','egg','data-panel="goimon"')}${link('index.html?panel=dex&manage=1','ゴイモン図鑑','grid','data-panel="dex"')}${link('progress.html','学習履歴・進捗','history')}
  <details class="gn-lessons"><summary>${icon('book')}<span>学習メニュー</span><span class="gn-arrow" aria-hidden="true">⌄</span></summary><div>${[['語彙を鍛える',lessons.slice(0,6)],['リスニング',lessons.slice(6,7)],['大問別演習',lessons.slice(7)]].map(([title,links])=>`<h3>${title}</h3>${links.map(([href,label])=>`<a href="${href}">${label}</a>`).join('')}`).join('')}</div></details>
