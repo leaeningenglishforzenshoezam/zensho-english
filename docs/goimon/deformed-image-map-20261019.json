@@ -1,0 +1,286 @@
+{
+  "sourceArchive": "ゴイモンimages改正版.zip",
+  "policy": "Original PNG bytes; retain species/stage IDs and existing image paths.",
+  "images": [
+    {
+      "species": "hirameki",
+      "stage": "child",
+      "source": "フェネ/クリスタルを纏うフェネック精霊.png",
+      "path": "images/goimon/hirameki_child.png",
+      "sha256": "05f4308dae1afcf9fee68ebd18ecd4d174b53e133daa45071e07329b090d2b62",
+      "size": 1657934,
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "species": "hirameki",
+      "stage": "growth",
+      "source": "フェネ/影を纏う蒼耀の狐霊.png",
+      "path": "images/goimon/hirameki_growth.png",
+      "sha256": "19997c79bf5434d4746dafcfc1dbe26a1f35eda324c164e187b8a205edc48214",
+      "size": 1811626,
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "species": "hirameki",
+      "stage": "mid",
+      "source": "フェネ/影獣を纏う蒼晶狐.png",
+      "path": "images/goimon/hirameki_mid.png",
+      "sha256": "1137fcdcb5bc0e3f71eeaf68a728fce006e5ba855129056ee5930f7f1e61e79c",
+      "size": 2260962,
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "species": "hirameki",
+      "stage": "final",
+      "source": "フェネ/蒼炎を纏う白狐と影の守護獣.png",
+      "path": "images/goimon/hirameki_final.png",
+      "sha256": "9da23f9c1dc78fd3c3ee2241a098695c6657136d6c3f79b1ffb0dc9289a8d1cf",
+      "size": 2344831,
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "species": "yomitoki",
+      "stage": "child",
+      "source": "レムパス/Chibi Compass-Tailed Critter.png",
+      "path": "images/goimon/yomitoki_child.png",
+      "sha256": "517b423ae4f15276c83e8697ecda566ccf735897c1c905beb19f58d0f1521f37",
+      "size": 1157151,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "yomitoki",
+      "stage": "growth",
+      "source": "レムパス/Chibi Compass-Tail Explorer.png",
+      "path": "images/goimon/yomitoki_growth.png",
+      "sha256": "d505bc7f8cad91b6d031a0a21f56bc0fc7226fd64045390a621ba0d0ae96330c",
+      "size": 1476111,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "yomitoki",
+      "stage": "mid",
+      "source": "レムパス/Rune Compass Lemur Mage in Action.png",
+      "path": "images/goimon/yomitoki_mid.png",
+      "sha256": "22730899b69105c89fa91fab9541295c79d42d29a26fabb6e240eebf3734b7a8",
+      "size": 2177487,
+      "width": 1312,
+      "height": 1199
+    },
+    {
+      "species": "yomitoki",
+      "stage": "final",
+      "source": "レムパス/Regal Stone Compass Guardian.png",
+      "path": "images/goimon/yomitoki_final.png",
+      "sha256": "179c7d461aa14c3490d5c560a737b677dc3a6f6873552d3ced6d78b5b1056f29",
+      "size": 2577100,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "nagomi",
+      "stage": "child",
+      "source": "ラミア/ラミア ふわもこラムの立ち姿.png",
+      "path": "images/goimon/nagomi_child.png",
+      "sha256": "0c61966f787e13e92af5bdcfbdc54b250e70239d9179b8dd69ba93d7903f8b50",
+      "size": 1315530,
+      "width": 1346,
+      "height": 1168
+    },
+    {
+      "species": "nagomi",
+      "stage": "growth",
+      "source": "ラミア/聖なる光輪のふわふわ羊マスコット.png",
+      "path": "images/goimon/nagomi_growth.png",
+      "sha256": "5e9aa93654a5dd99fe1d2115f1835bf4fe3cfa62656bba6ee9b3da1cf0e9b1ca",
+      "size": 1397734,
+      "width": 1199,
+      "height": 1312
+    },
+    {
+      "species": "nagomi",
+      "stage": "mid",
+      "source": "ラミア/金色機械装甲の英雄ラム.png",
+      "path": "images/goimon/nagomi_mid.png",
+      "sha256": "21752a0e2ba03e539f4226f0bd1518de85fd24f90ceedc63c01d8916e876c964",
+      "size": 1810957,
+      "width": 1186,
+      "height": 1326
+    },
+    {
+      "species": "nagomi",
+      "stage": "final",
+      "source": "ラミア/Cel-Shaded Divine Mecha Ram.png",
+      "path": "images/goimon/nagomi_final.png",
+      "sha256": "46166fe705f4ba1583ab9b9a24a026ca25b05b25b4ff78b94ae92571b0a7d1e9",
+      "size": 1988233,
+      "width": 1086,
+      "height": 1448
+    },
+    {
+      "species": "hibiki",
+      "stage": "child",
+      "source": "ケロル/Electric Frog Mascot Leaping Forward.png",
+      "path": "images/goimon/hibiki_child.png",
+      "sha256": "dae0366766f50621471fef1d1d91c7cdf8d5fc645ae4690ab4df08acc22f90c9",
+      "size": 1051489,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "hibiki",
+      "stage": "growth",
+      "source": "ケロル/Thunderous Frog Beast Pose.png",
+      "path": "images/goimon/hibiki_growth.png",
+      "sha256": "fb8e74bc1a6498d0eccc9763efa824e006969a46f6fabe4d0d3111d3a9ce895f",
+      "size": 1412561,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "hibiki",
+      "stage": "mid",
+      "source": "ケロル/雷鼓の蛙獣、電撃跳躍.png",
+      "path": "images/goimon/hibiki_mid.png",
+      "sha256": "2a5cb77f29748fde993e8b4f39a5221a7cf9b285cfd074eb3b5e99527b7d4747",
+      "size": 1586102,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "hibiki",
+      "stage": "final",
+      "source": "ケロル/Thunderous Taiko Frog Beast.png",
+      "path": "images/goimon/hibiki_final.png",
+      "sha256": "04bcedfa95f509c4acdd807332b34baadab2ffe8a3036586a688604cc1b3484d",
+      "size": 2158748,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "shirabe",
+      "stage": "child",
+      "source": "プラチル/ChatGPT 画像 2026年10月19日 20_51_59.png",
+      "path": "images/goimon/shirabe_child.png",
+      "sha256": "ec9074d90b9cd6c0594175c6c3f87c69253e085a406cb06454404b84ca5c20fe",
+      "size": 1196205,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "shirabe",
+      "stage": "growth",
+      "source": "プラチル/Steampunk Platypus Explorer Mascot.png",
+      "path": "images/goimon/shirabe_growth.png",
+      "sha256": "fb371eed17203845d9eaf6c9ed546757b39717e70576284134d4940296782cfc",
+      "size": 1461507,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "shirabe",
+      "stage": "mid",
+      "source": "プラチル/Armored Platypus Submarine Charge.png",
+      "path": "images/goimon/shirabe_mid.png",
+      "sha256": "06191e0fd265cbaa9c226e9a5081fe096320ac4548866e25bebcf80c230d188e",
+      "size": 1884824,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "shirabe",
+      "stage": "final",
+      "source": "プラチル/Nautiligious, Dreadnought of the Deep.png",
+      "path": "images/goimon/shirabe_final.png",
+      "sha256": "7f138b771a8f2552efb519308fba2b776dd31b623fcdb88a7c028a82fc96a951",
+      "size": 2247283,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "tsumugi",
+      "stage": "child",
+      "source": "ミコラ/Kawaii Jellyfish Spirit and Magic Orb.png",
+      "path": "images/goimon/tsumugi_child.png",
+      "sha256": "de87f3d33ac54b8c28bb3821d02d106b4ee20e5fc3a2ee19868a709d2d10a193",
+      "size": 981234,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "tsumugi",
+      "stage": "growth",
+      "source": "ミコラ/Mischievous Magical Jellyfish Mascot.png",
+      "path": "images/goimon/tsumugi_growth.png",
+      "sha256": "f5b002e759388cf8f699c7fbaa795c0e046c3f4e5a0702f425ce3c2a2c09e0f5",
+      "size": 1329517,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "tsumugi",
+      "stage": "mid",
+      "source": "ミコラ/ChatGPT 画像 2026年10月19日 20_58_08.png",
+      "path": "images/goimon/tsumugi_mid.png",
+      "sha256": "1de70ef2b854174d44e2cbdcd749bda930a2d47834d6e3b59edebe1bfadf2fa6",
+      "size": 1668924,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "tsumugi",
+      "stage": "final",
+      "source": "ミコラ/Celestial Jellyfish Shikigami Summon.png",
+      "path": "images/goimon/tsumugi_final.png",
+      "sha256": "25993b2c2f5faa0734405c44abb0f48c87bc8ae1cb22c0e19699e60d6718c62a",
+      "size": 2434064,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "kotonoha",
+      "stage": "child",
+      "source": "カメロン/Chibi Chameleon Reaching for Ruby.png",
+      "path": "images/goimon/kotonoha_child.png",
+      "sha256": "4f9fd39fa07cc36590f6e254c0cb30002746c0ee298acec07cc5704ff6fadd02",
+      "size": 1077493,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "kotonoha",
+      "stage": "growth",
+      "source": "カメロン/Phantom Chameleon’s Gem Heist.png",
+      "path": "images/goimon/kotonoha_growth.png",
+      "sha256": "5974da3ffcec3b511c576c1ea0774ba11ddb5e3ae6234fd055bc82e308a7a9a7",
+      "size": 929834,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "kotonoha",
+      "stage": "mid",
+      "source": "カメロン/Phantom Chameleon Dragon in Motion.png",
+      "path": "images/goimon/kotonoha_mid.png",
+      "sha256": "a2e5802cfd5b19a9bd75d481ba4ccddeeb52d7b5dd592b79c92dda32abd7ac02",
+      "size": 1609211,
+      "width": 1254,
+      "height": 1254
+    },
+    {
+      "species": "kotonoha",
+      "stage": "final",
+      "source": "カメロン/Phantom Chameleon Thief’s Gem Heist.png",
+      "path": "images/goimon/kotonoha_final.png",
+      "sha256": "e1ab00413d478e11647c651cd2a3c0f1fd3e071e46fec9037dbfa5f76200cac5",
+      "size": 2079539,
+      "width": 1254,
+      "height": 1254
+    }
+  ]
+}
