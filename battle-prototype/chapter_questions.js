@@ -14,5 +14,30 @@ function select(format,stage,data,bank,rng=Math.random,previous=''){
  return {id:q.id,format,prompt:format==='q11'?'文a：'+q.a+'\n\n文b：'+q.b:q.en,answer:q.answer,choices:shuffle(q.choices,rng),translation:q.ja||'',review:format==='q11'?'paraphrase_quiz.html':'sentence.html',reviewId:q.id};
 }
 function correct(q,value){return q.format==='q12'?Array.isArray(value)&&value.length===q.answer.length&&value.every((x,i)=>x===q.answer[i]):value===q.answer;}
-const api={supported,select,correct};if(typeof module!=='undefined')module.exports=api;else root.GoimonChapterQuestions=api;
+function explain(q,data){
+ const source={word_meaning:data.words,idiom:data.idioms,q9:data.q9,q11:data.q11,q12:data.q12}[q.format]||[];
+ const original=(q.id!=null?source.find(x=>x.id===q.id):null)||(q.format==='word_meaning'?source.find(x=>x.en===(q.en||q.prompt)):null)||q;
+ const notes=[];let completed='',translation=original.ja||q.translation||'';
+ const fill=(value,answer)=>String(value||'').replace(/（\s*）|\(\s*\)|_{2,}/g,answer);
+ if(q.format==='q9')completed=fill(q.prompt,q.answer);
+ if(q.format==='q11'){
+  completed='文a：'+(original.a||'')+'\n文b：'+fill(original.b||q.prompt,q.answer);
+  if(original.pointA&&original.pointB)notes.push('言い換え：'+original.pointA+' → '+original.pointB);
+  if(original.pointNote)notes.push(original.pointNote);
+ }
+ if(q.format==='q12'){
+  const ordered=q.answer.map(id=>q.chunks.find(c=>c.id===id)?.text||'').join(' ');
+  completed=original.completed||fill(q.prompt,ordered);
+  if(Array.isArray(original.grammarFocus))notes.push(...original.grammarFocus);
+ }
+ for(const note of [original.note,original.explanation])if(typeof note==='string'&&note.trim()&&!notes.includes(note))notes.push(note);
+ // No filler explanation that simply repeats the answer. Preserve authored teaching notes.
+ if(q.format==='word_meaning'||q.format==='idiom'){
+  if(!notes.length)return null;
+  completed=q.en||q.prompt;
+ }
+ if(!completed&&!translation&&!notes.length)return null;
+ return {format:q.format,completed,translation,notes};
+}
+const api={supported,select,correct,explain};if(typeof module!=='undefined')module.exports=api;else root.GoimonChapterQuestions=api;
 })(typeof window!=='undefined'?window:globalThis);

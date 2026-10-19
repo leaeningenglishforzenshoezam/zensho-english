@@ -411,13 +411,13 @@
       "rarity": "N",
       "type": "heal",
       "uses": 3,
-      "healFraction": 0.25,
-      "description": "最大HPの25％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
+      "healFraction": 0.5,
+      "description": "最大HPの50％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
       "flavor": {
         "ja": "「まだいける！」と自分を励まし、元気を取り戻す。応援団は自分ひとりだが、声の大きさは三人分。",
         "en": "Encourage yourself with a loud cheer and recover your energy. Your one-member cheer squad sounds like three."
       },
-      "descriptionEn": "Restore 25% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
+      "descriptionEn": "Restore 50% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
       "tactic": "heal",
       "questionFormat": "word_meaning"
     },
@@ -502,13 +502,13 @@
       "rarity": "N",
       "type": "heal",
       "uses": 4,
-      "healFraction": 0.2,
-      "description": "最大HPの20％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
+      "healFraction": 0.5,
+      "description": "最大HPの50％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
       "flavor": {
         "ja": "救急箱で自分の傷を手当てする。ばんそうこうには自分の顔が描いてあり、貼るほど顔が増える。",
         "en": "Give yourself first aid from a little box. Every bandage has your face on it, so each one adds another face."
       },
-      "descriptionEn": "Restore 20% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
+      "descriptionEn": "Restore 50% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
       "tactic": "heal",
       "questionFormat": "word_meaning"
     },
@@ -595,13 +595,13 @@
       "rarity": "N",
       "type": "heal",
       "uses": 4,
-      "healFraction": 0.2,
-      "description": "最大HPの20％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
+      "healFraction": 0.5,
+      "description": "最大HPの50％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
       "flavor": {
         "ja": "ふわふわの毛布で自分を包み、元気を取り戻す。森に毛布を持ってきた理由が、ようやく伝わる。",
         "en": "Comfort yourself with a fluffy blanket and recover your energy. Now everyone understands why you packed a blanket."
       },
-      "descriptionEn": "Restore 20% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
+      "descriptionEn": "Restore 50% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
       "tactic": "long",
       "questionFormat": "word_meaning"
     },
@@ -1040,13 +1040,13 @@
       "rarity": "N",
       "type": "heal",
       "uses": 3,
-      "healFraction": 0.25,
-      "description": "最大HPの25％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
+      "healFraction": 0.5,
+      "description": "最大HPの50％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
       "flavor": {
         "ja": "工具箱を開き、自分の傷を手当てする。使うのは工具ではなく、中に詰めたばんそうこう。",
         "en": "Open your toolbox to repair the damage. It holds bandages instead of tools."
       },
-      "descriptionEn": "Restore 25% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
+      "descriptionEn": "Restore 50% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
       "tactic": "long",
       "questionFormat": "word_meaning"
     },
@@ -1226,13 +1226,13 @@
       "rarity": "R",
       "type": "heal",
       "uses": 3,
-      "healFraction": 0.35,
-      "description": "最大HPの35％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
+      "healFraction": 0.5,
+      "description": "最大HPの50％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
       "flavor": {
         "ja": "丁寧な手当てで元気を取り戻す。苦い薬を飲んだあと、誰も見ていなくても「平気です」の顔をする。",
         "en": "Recover with careful treatment and a cure. After the bitter medicine, make a brave face even if nobody is watching."
       },
-      "descriptionEn": "Restore 35% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
+      "descriptionEn": "Restore 50% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
       "tactic": "heal",
       "questionFormat": "q11"
     },
