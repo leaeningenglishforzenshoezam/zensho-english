@@ -1,0 +1,24 @@
+/* Explicit surface/text pairs prevent the dark theme bleeding into pale cards. */
+body #goimon-account-bar,body #goimon-account-bar[data-state="guest"]{background:#173b2d;color:#eff5ed}body #goimon-account-bar>span{color:inherit}#goimon-navigation h2{color:inherit}
+.mission-menu .mission-wrap>section.card{display:flex;align-items:center;flex-wrap:wrap;gap:12px}.mission-menu .mission-wrap>section.card h2{margin:0;font-size:18px}.mission-menu .mission-wrap>section.card .btn{width:auto;margin:0!important;padding:10px 14px}.mission-menu .mission-wrap>section.card p{margin:0}.mission-menu .mission-wrap>section.card p:empty{display:none}
+#goimonSheet,.goimonDexCard,.management-main .goimonHomeCard{background:#f6f7ef;color:#203c30}
+#goimonSheet *, .management-main * {box-sizing:border-box;min-width:0}
+#goimonSheet .goimonDetailInner{padding:0 24px 28px;line-height:1.75}
+#goimonSheet .goimonDetailHead{position:sticky;top:0;background:#f6f7ef;z-index:3;padding:16px 0;margin:0 0 18px}
+#goimonSheet .goimonDetailHero{background:#e9efe3;border:1px solid #c4d1c1;box-shadow:none;gap:24px}
+#goimonSheet .goimonDetailHeroName{color:#183d2b;font-size:28px;line-height:1.4;overflow-wrap:anywhere}
+#goimonSheet .goimonDetailHeroDesc{color:#3a5145;font-size:16px;line-height:1.85}
+#goimonSheet .goimonDetailSection{background:#fffef9;border:1px solid #ccd7c9;margin-top:20px;padding:22px;box-shadow:none}
+#goimonSheet .goimonDetailSectionTitle,#goimonSheet .sheetTitle{color:#203c30}
+#goimonSheet .goimonDetailMetaGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#goimonSheet .goimonDetailMetaItem,#goimonSheet .goimonDetailBadge{background:#fffef9;color:#203c30;border:1px solid #c5d1c0}
+#goimonSheet .goimonDetailMetaItem span,#goimonSheet .goimonDetailBadge span,#goimonSheet .miniNote{color:#526557}
+#goimonSheet select,#goimonSheet input{max-width:100%;font-size:16px;background:white;color:#203c30}
+#goimonSheet button,.management-main button{min-height:44px;white-space:normal;overflow-wrap:anywhere}
+.management-main{background:#f6f7ef;color:#203c30;border-radius:22px;margin:24px auto;padding:26px;max-width:850px}
+.management-main>p{color:#526557;line-height:1.8}.management-main a,.management-main .management-kicker{color:#245c46}
+.management-main .management-actions{gap:10px;margin:24px 0}.management-main .management-actions button{padding:16px;background:#e5eddf;color:#21442e;border-color:#b4c6ae}
+.management-main .goimonHomeCard{margin-top:24px;border-color:#ccd7c9}.management-main .goimonHomeActions .btn{color:white}
+body.mission-menu{background:#102620;color:#eff4e9}.mission-menu *{box-sizing:border-box}.mission-menu .mission-wrap{width:100%;max-width:960px;padding:24px 18px;margin:auto}.mission-menu .mission-wrap>a{color:#f2d78c}.mission-menu h1{color:#f7f6e9;font-size:clamp(26px,5vw,36px)}.mission-menu .mission-wrap>p{color:#d0dfcf;line-height:1.8}.mission-menu #missionLevel{background:#fffef8;color:#203c30;font:inherit;padding:10px;border-radius:10px}.mission-menu .mission-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:16px}
+.mission-menu .mission-grid .card{background:#fffef8;color:#203c30;border:1px solid #c7d5c2;border-radius:18px;padding:22px;display:flex;flex-direction:column;min-width:0;box-shadow:none}.mission-menu .card h2{color:#193e2c;font-size:20px;line-height:1.5;margin:8px 0 12px}.mission-menu .card p{color:#465d4c;font-size:15px;line-height:1.7;margin:5px 0}.mission-menu .card p:first-child{color:#285e3d;font-weight:700;font-size:13px}.mission-menu .card p:last-of-type{border-top:1px solid #d9e2d3;padding-top:12px;margin-top:auto;font-size:13px}.mission-menu .card .btn{display:block;text-align:center;min-height:48px;background:#245c46;color:white;padding:12px;margin-top:18px;text-decoration:none}.mission-menu #missionMessage:empty{display:none}
+@media(max-width:600px){#goimonSheet .goimonDetailInner{padding:0 14px 22px}#goimonSheet .goimonDetailHero{grid-template-columns:minmax(0,1fr);padding:16px;gap:12px}#goimonSheet .goimonDetailHeroImage .goimonImageBox{height:160px;max-width:200px;margin:auto}#goimonSheet .goimonDetailSection{padding:16px}#goimonSheet .goimonDetailQuickActions{grid-template-columns:minmax(0,1fr)}.management-main{margin:12px;width:calc(100% - 24px);padding:20px}.management-main .management-actions{grid-template-columns:minmax(0,1fr)}.mission-menu .mission-wrap{padding:20px 14px}}

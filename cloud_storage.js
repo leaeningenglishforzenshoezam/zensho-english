@@ -6,7 +6,7 @@
   const account=native.getItem(ACTIVE)||null;
   const cache=new Map();
   let lockState=account?'pending':'guest',pending=null,pendingBase=null,release=null;
-  const tabId=root.crypto.randomUUID();
+  const tabId=root.crypto.randomUUID?root.crypto.randomUUID():Array.from(root.crypto.getRandomValues(new Uint8Array(16)),x=>x.toString(16).padStart(2,'0')).join('');
   function read(id){const raw=native.getItem(profileKey(id));return raw?JSON.parse(raw):{data:{},base:{},revision:0};}
   function write(id,p){native.setItem(profileKey(id),JSON.stringify(p));root.dispatchEvent(new Event('goimon-profile-written'));}
   function collect(){const data={};for(let i=0;i<native.length;i++){const k=native.key(i);if(/^(zensho_|q7|q10|dialogue|goimon_)/.test(k)&&!k.startsWith(PREFIX))data[k]=native.getItem(k);}return data;}

@@ -395,7 +395,7 @@ function showWeakList() {
     if (!current) return "";
     const selectedText = getSelectedTextList().join(" ");
     const blankText = selectedText || "（　）";
-    return `${current.stemBefore} ${blankText} ${current.stemAfter}`.replace(/\s+/g, " ").trim();
+    return `${current.stemBefore} （　） ${current.stemAfter}`.replace(/\s+/g, " ").trim();
   }
 
   function getMaskedQuestionText(q) {

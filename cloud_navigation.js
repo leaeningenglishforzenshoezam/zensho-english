@@ -1,7 +1,7 @@
 // Shared navigation. Uses the existing pages and GOIMON dialogs.
 (() => {
  'use strict';
- const bar=document.getElementById('goimon-account-bar');if(!bar)return;
+ let bar=document.getElementById('goimon-account-bar');if(!bar){bar=document.createElement('div');bar.id='goimon-account-bar';const label=document.createElement('span');label.textContent='GOIMON';bar.append(label);document.body.prepend(bar);}
  const paths={menu:'M4 6h16M4 12h16M4 18h16',close:'m6 6 12 12M6 18 18 6',user:'M20 21v-2a7 7 0 0 0-14 0v2M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0',home:'m3 10 9-7 9 7M5 9v12h14V9M9 21v-7h6v7',book:'M12 5v16M3 4c4-1 6 0 9 2 3-2 5-3 9-2v15c-4-1-6 0-9 2-3-2-5-3-9-2Z',egg:'M12 3c-4 0-8 8-8 12a8 8 0 0 0 16 0c0-4-4-12-8-12ZM8 14h.01M16 14h.01m-6 3q2 2 4 0',grid:'M3 3h7v7H3ZM14 3h7v7h-7ZM3 14h7v7H3ZM14 14h7v7h-7Z',history:'M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v6l4 2',star:'m12 3 3 6 6 1-4.5 4.5 1 6.5-5.5-3-5.5 3 1-6.5L3 10l6-1Z'};
  const icon=name=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[name]}"/></svg>`;
  const button=document.createElement('button');button.id='goimon-menu-toggle';button.type='button';button.setAttribute('aria-label','メニューを開く');button.setAttribute('aria-expanded','false');button.setAttribute('aria-controls','goimon-navigation');button.innerHTML=icon('menu');bar.prepend(button);

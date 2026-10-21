@@ -15,7 +15,7 @@ function render(){
  $('qh-pet-image').src=GoimonDex.getEntry(pet?.type,pet?.stage)?.image||'images/goimon/goimon_egg.png';
  const cleared=state?.cleared||[],next=[1,2,3,4,5].find(n=>!cleared.includes(n));
  $('qh-stages').replaceChildren();
- for(let n=1;n<=5;n++){const li=document.createElement('li'),isNext=n===next;li.textContent=`STAGE ${n} · ${cleared.includes(n)?'クリア':isNext?(state?'次のステージ':'これから'):'未到達'}`;if(isNext){li.className='current';li.setAttribute('aria-current','step');} $('qh-stages').append(li);}
+ for(let n=1;n<=5;n++){const li=document.createElement('li'),isNext=n===next;li.textContent=`STAGE ${n} · ${cleared.includes(n)?'クリア':isNext?(state?'次のステージ':'これから'):'未到達'}`;if(isNext){li.className='current';const marker=document.createElement('img');marker.src=window.GoimonAdventureProfile?.image()||'images/avatars/traveler.svg';marker.alt='現在地';marker.style.cssText='display:block;width:38px;height:38px;margin:auto';li.prepend(marker);li.setAttribute('aria-current','step');} $('qh-stages').append(li);}
 }
 render();window.addEventListener('pageshow',render);window.addEventListener('storage',render);
 })();

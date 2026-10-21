@@ -26,7 +26,7 @@ function launch(m,s){
 function text(tag,value,parent){const el=document.createElement(tag);el.textContent=value;parent.append(el);return el;}
 function render(){try{
  importResults();const s=engine.getStatus(level.value);$('missionStatus').textContent=s.date+' · '+s.completedCount+' / '+s.missions.length+' 達成';$('missionCards').replaceChildren();$('missionMessage').textContent='';
- for(const m of s.missions){const card=document.createElement('section');card.className='card';text('p',m.completed?'✓ 達成済み':m.available?'挑戦できます':'準備中',card);text('h2',m.title||m.slot,card);text('p',m.goal,card);if(m.rangeStart)text('p','No. '+m.rangeStart+'〜'+m.rangeEnd,card);text('p','クリア報酬：星のかけら '+m.rewardStars+'個（付与準備中）',card);
+ for(const m of s.missions){const card=document.createElement('section');card.className='card';text('p',m.completed?'✓ 達成済み':m.available?'挑戦できます':'準備中',card);text('h2',m.title||m.slot,card);text('p',m.goal,card);if(m.rangeStart)text('p','No. '+m.rangeStart+'〜'+m.rangeEnd,card);text('p','クリア報酬：星のかけら '+m.rewardStars+'個',card);
   const href=m.available?launch(m,s):null;if(href){const a=text('a',m.completed?'もう一度練習する':'挑戦する',card);a.href=href;a.className='btn';a.onclick=()=>{GOIMONStorage.setItem('zensho_level_v1',level.value);sessionStorage.setItem('goimon_daily_mission_launch_account_v1',localStorage.getItem('goimon_cloud_v2:active')||'guest');};} $('missionCards').append(card);
  }
 }catch(e){$('missionMessage').textContent=e.message;}}

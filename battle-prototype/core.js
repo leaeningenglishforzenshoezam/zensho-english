@@ -12,7 +12,7 @@ function actor(species,stage,points,gear,skills){
 }
 function damage(a,b,power,answer,attribute,bonus=1,shield=1,variance=1){const base=((a.attack+a.reference)/2)*Math.sqrt(2*a.attack/(a.attack+b.defense));return round(base*power*answer*affinity(attribute,b.attr)*bonus*shield*variance);}
 function speedBonus(a,b){return speedIds.includes(a.id)&&a.speed>b.speed?(a.id==='yomitoki'?1.65:1.35):1;}
-function counter(a,b){return round(a.defense*({nagomi:.65,shirabe:.55,q7_special:.35}[a.id]||0)*affinity(a.attr,b.attr));}
+function counter(a,b){return round(a.defense*({nagomi:.20,shirabe:.18,q7_special:.12}[a.id]||0)*affinity(a.attr,b.attr));}
 function create(player,enemy,rng=Math.random){enemy.weaken={hits:0,factor:1};return {player,enemy,turn:1,ended:false,winner:null,questions:0,log:[],order:player.speed===enemy.speed?(rng()<.5?['player','enemy']:['enemy','player']):player.speed>enemy.speed?['player','enemy']:['enemy','player'],index:0};}
 function current(b){return b.ended?'ended':b.order[b.index];}
 function commands(b){return [{id:'normal',name:'通常攻撃'},...b.player.skills.map((s,i)=>({id:'skill:'+i,name:s.name,left:s.left,disabled:s.left===0}))];}
