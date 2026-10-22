@@ -2106,6 +2106,7 @@
     "metal": "メタル"
   },
   "stages": {
+    "egg": 0.5,
     "child": 1,
     "growth": 1.3,
     "mid": 1.6,
