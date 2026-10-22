@@ -10,8 +10,8 @@
  const lessons=[['list.html','単語一覧'],['study.html','単語を覚える'],['quiz.html','単語クイズ｜英語 → 日本語'],['quiz_jaen.html','単語クイズ｜日本語 → 英語'],['audio_quiz.html','単語クイズ｜音声 → 意味'],['idiom_quiz.html','イディオム'],['listening.html','リスニング'],['accent.html','大問1｜アクセント'],['q7.html','大問7｜要約空所補充'],['dialogue.html','大問8｜会話文空欄補充'],['sentence.html','大問9｜短文空欄補充'],['q10.html','大問10｜長文空欄補充'],['paraphrase_quiz.html','大問11｜言い換え'],['reorder.html','大問12｜語句整序']];
  dialog.innerHTML=`<div class="gn-head"><div><span class="gn-kicker">GOIMON</span><h2 id="goimon-menu-title">メニュー</h2></div><button type="button" class="gn-close" aria-label="メニューを閉じる" autofocus>${icon('close')}</button></div>
  <a class="gn-profile" href="cloud.html"><span class="gn-avatar">${icon('user')}</span><span><strong>ログイン・プロフィール</strong><small id="gn-account">アカウント・保存の確認</small></span><span class="gn-arrow" aria-hidden="true">›</span></a>
- <nav aria-label="GOIMONメインメニュー">
- ${link('index.html','ホーム','home')}${link('quest_home.html','クエスト','star')}${link('recommended.html','今日のおすすめ','star')}
+ <a class="gn-wallet" href="gacha.html"><img src="images/gacha/star.png" alt=""><span>ほしのかけら<small id="gn-wallet-level"></small></span><strong id="gn-wallet-balance">—</strong><span aria-hidden="true">›</span></a><nav aria-label="GOIMONメインメニュー">
+ ${link('index.html','ホーム','home')}${link('quest_home.html','クエスト','star')}${link('quest_loadout.html','技・装備をセット','grid')}${link('gacha.html','ガチャ','star')}${link('recommended.html','今日のおすすめ','star')}
  <div class="gn-section">ゴイモンと学習の記録</div>
  ${link('index.html?panel=goimon&manage=1','育成・ニックネーム・進化・保存箱','egg','data-panel="goimon"')}${link('index.html?panel=dex&manage=1','ゴイモン図鑑','grid','data-panel="dex"')}${link('progress.html','学習履歴・進捗','history')}
  <details class="gn-lessons"><summary>${icon('book')}<span>学習メニュー</span><span class="gn-arrow" aria-hidden="true">⌄</span></summary><div>${[['語彙を鍛える',lessons.slice(0,6)],['リスニング',lessons.slice(6,7)],['大問別演習',lessons.slice(7)]].map(([title,links])=>`<h3>${title}</h3>${links.map(([href,label])=>`<a href="${href}">${label}</a>`).join('')}`).join('')}</div></details>
@@ -30,7 +30,9 @@
  const home=location.pathname.endsWith('/index.html')||location.pathname.endsWith('/');
  function panel(name){const id={goimon:'openGoimonSheetBtn',dex:'openGoimonDexBtn'}[name];document.getElementById(id)?.click();}
  function close(){dialog.close();}
- button.onclick=()=>{if(dialog.open)return;previousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';document.getElementById('gn-account').textContent=bar.querySelector('a')?.textContent.replace(/^[●○]\s*/,'')||'アカウント・保存の確認';button.setAttribute('aria-expanded','true');dialog.showModal();};
+ function wallet(){try{const level=String(window.ACTIVE_LEVEL||window.GOIMONStorage?.getItem('zensho_level_v1')||'1');const raw=window.GOIMONStorage?.getItem('goimon_item_state_v1_lv'+level);const n=raw?JSON.parse(raw).shop?.stars||0:0;document.getElementById('gn-wallet-balance').textContent=Number.isSafeInteger(n)&&n>=0?n:'—';document.getElementById('gn-wallet-level').textContent=level+'級 · ガチャへ';}catch{document.getElementById('gn-wallet-balance').textContent='—';}}
+ for(const event of ['goimon-wallet-changed','storage','goimon-storage-ready','goimon-auth-changed'])window.addEventListener(event,wallet);
+ button.onclick=()=>{if(dialog.open)return;wallet();previousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';document.getElementById('gn-account').textContent=bar.querySelector('a')?.textContent.replace(/^[●○]\s*/,'')||'アカウント・保存の確認';button.setAttribute('aria-expanded','true');dialog.showModal();};
  dialog.querySelector('.gn-close').onclick=close;
  dialog.addEventListener('keydown',e=>{if(e.key!=='Tab')return;const items=[...dialog.querySelectorAll('button,a[href],summary')].filter(el=>!el.disabled&&el.getClientRects().length);const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}});
  dialog.addEventListener('close',()=>{document.body.style.overflow=previousOverflow;button.setAttribute('aria-expanded','false');button.focus({preventScroll:true});});
