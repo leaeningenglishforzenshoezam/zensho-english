@@ -2,7 +2,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
 const root=path.join(__dirname,'..');let now=100000;
 const memory=new Map();const storage={getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,String(v))};
-const elements=new Map();const element=()=>({attributes:{},append(...nodes){this.children.push(...nodes);},setAttribute(k,v){this.attributes[k]=v;},getAttribute(k){return this.attributes[k];},replaceChildren(){this.children=[];},querySelector(){return null},querySelectorAll(){return []},classList:{add(){}},children:[]});
+const elements=new Map();const element=()=>({attributes:{},style:{},append(...nodes){this.children.push(...nodes);},setAttribute(k,v){this.attributes[k]=v;},getAttribute(k){return this.attributes[k];},replaceChildren(){this.children=[];},querySelector(){return null},querySelectorAll(){return []},classList:{add(){}},children:[]});
 const ctx={console,structuredClone,URL,URLSearchParams,location:{search:""},Blob,Date:class extends Date{static now(){return now;}},setInterval:()=>1,clearInterval(){},setTimeout:()=>1,clearTimeout(){},localStorage:storage,sessionStorage:storage,GOIMONStorage:storage,GOIMONProfiles:{account:'guest'},GOIMON_CLOUD_CONFIG:{apiBase:''},GoimonDex:{getEntry:()=>({image:''})},document:{getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);},createElement:element,addEventListener(){}},addEventListener(){}};ctx.window=ctx;vm.createContext(ctx);
 for(const file of ['battle-prototype/catalog.js','battle-prototype/core.js','battle-prototype/tutorial.js','battle-prototype/story_names.js','battle-prototype/question-routing.js','battle-prototype/question_bank.js','words_1kyu.js','idiom_data_1kyu.js','sentence_fixed_1kyu.js','paraphrase_data_1kyu.js','reorder_1kyu.js','battle-prototype/chapter1_data.js','battle-prototype/chapter_questions.js','battle-prototype/chapter_store.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx,{filename:file});
 let controller=fs.readFileSync(path.join(root,'battle-prototype/chapter1.js'),'utf8').replace('function render(){','function render(){return;');
@@ -42,7 +42,7 @@ console.log('PASS explanation hidden initially; accessible toggle opens/closes; 
 
 // Quest hub must read the same account save without changing progress or inventory.
 const beforeHub=JSON.stringify([...memory]);
-vm.runInContext(fs.readFileSync(path.join(root,'quest_home.js'),'utf8'),ctx);
+for(const file of ['battle-prototype/chapter_staging.js','quest_library.js','quest_home.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx);
 assert.equal(JSON.stringify([...memory]),beforeHub);
 assert.equal(elements.get('qh-continue').textContent,'クリア記録を見る');
 assert.equal(elements.get('qh-stages').children.length,5);
@@ -57,3 +57,19 @@ assert.deepEqual([child.hp,child.attack,child.defense,child.speed],[100,14,26,15
 assert.deepEqual(JSON.parse(JSON.stringify(eggEnemy)),JSON.parse(JSON.stringify(childEnemy)));
 assert.equal(eggPet.stats.kotoba,0);
 console.log('PASS egg half-strength; child and enemies unchanged; learning points preserved');
+
+const library=ctx.GoimonQuestLibrary,chapter=library.get('chapter1');
+assert.equal(library.characters(chapter,null).filter(c=>c.unlocked).length,0);
+assert.equal(library.scenes(chapter,null).filter(s=>s.lines.length).length,0);
+const partial={...a.fresh(pet,[],'none'),scene:0,line:1,read:[chapter.data.scenes[0].lines[0].id]};
+assert.equal(library.scenes(chapter,partial)[0].lines.length,1);
+assert.equal(library.scenes(chapter,partial)[1].lines.length,0);
+assert.equal(library.characters(chapter,partial).filter(c=>c.unlocked).length,0);
+const met={...partial,scene:3,line:1};
+assert.equal(library.characters(chapter,met).filter(c=>c.unlocked).length,1);
+assert(library.characters(chapter,met).find(c=>c.id==='morii').unlocked);
+const defeated={...partial,mode:'defeat',battleId:2};
+assert(library.characters(chapter,defeated).find(c=>c.id==='guardian2').unlocked);
+assert.equal(library.load(chapter,storage,'different-account'),null);
+assert.equal(JSON.stringify([...memory]),beforeHub);
+console.log('PASS quest records: unread content hidden, encounters including defeat, account isolation, no save writes');
