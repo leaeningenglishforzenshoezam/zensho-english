@@ -13,7 +13,7 @@
  <a class="gn-wallet" href="gacha.html"><img src="images/gacha/star.png" alt=""><span>ほしのかけら<small id="gn-wallet-level"></small></span><strong id="gn-wallet-balance">—</strong><span aria-hidden="true">›</span></a><nav aria-label="GOIMONメインメニュー">
  ${link('index.html','ホーム','home')} <details class="gn-lessons"><summary>${icon('book')}<span>学習メニュー</span><span class="gn-arrow" aria-hidden="true">⌄</span></summary><div>${[['語彙を鍛える',lessons.slice(0,6)],['リスニング',lessons.slice(6,7)],['大問別演習',lessons.slice(7)]].map(([title,links])=>`<h3>${title}</h3>${links.map(([href,label])=>`<a href="${href}">${label}</a>`).join('')}`).join('')}</div></details>${link('quest_home.html','クエスト','star')}${link('quest_loadout.html','技・装備をセット','grid')}${link('gacha.html','ガチャ','star')}${link('recommended.html','今日のおすすめ','star')}
  <div class="gn-section">ゴイモンと学習の記録</div>
- ${link('index.html?panel=goimon&manage=1','育成・ニックネーム・進化・保存箱','egg','data-panel="goimon"')}${link('index.html?panel=dex&manage=1','ゴイモン図鑑','grid','data-panel="dex"')}${link('progress.html','学習履歴・進捗','history')}
+ ${link('index.html?panel=goimon&manage=1','育成・ニックネーム・進化・保存箱','egg','data-panel="goimon"')}${link('index.html?panel=dex&manage=1','ゴイモン図鑑','grid','data-panel="dex"')}${link('learning-records.html','学習の記録','history')}${link('progress.html','学習履歴・進捗','history')}
 
  <button type="button" class="gn-link" id="gn-bgm" style="width:100%;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer">♪ <span>BGM</span></button></nav><div class="gn-footer"><a href="privacy.html">プライバシーポリシー</a><a href="mailto:goimon.admin@gmail.com">お問い合わせ</a></div>`;
  paths.bell='M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4';

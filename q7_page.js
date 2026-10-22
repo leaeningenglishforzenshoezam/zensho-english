@@ -620,6 +620,7 @@ document.querySelectorAll(".paragraph-translation")
 
     if (state.graded) {
       const correct = score();
+    window.ZenshoLearningLog?.addCounts("q7",{attempt:5,correct,wrong:5-correct},{level:"1"});
 
       $("resultPanel").classList.toggle("failed", correct < 4);
 
@@ -782,6 +783,7 @@ document.querySelectorAll(".paragraph-translation")
     state.choicesOpen = false;
 
     const correct = score();
+    window.ZenshoLearningLog?.addCounts("q7",{attempt:5,correct,wrong:5-correct},{level:"1"});
     const previous = getHistory(current.id);
 
     history[current.id] = {
