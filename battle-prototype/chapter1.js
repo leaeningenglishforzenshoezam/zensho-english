@@ -18,30 +18,36 @@ function partner(){return pets().find(p=>p.id===state?.partnerId)||state?.pet;}
 function names(){return {playerName:N.playerName(sessionStorage,GOIMON_CLOUD_CONFIG.apiBase,account==='guest'?null:account),partnerName:N.partnerName(partner(),GoimonDex)};}
 const interpolate=s=>N.interpolate(s,names());
 function picture(p=partner()){return GoimonDex.getEntry(p?.type,p?.stage)?.image||'images/goimon/goimon_egg.png';}
-let lastArtSpeaker='';
+let lastArtSpeaker='',storyArt=null,musicMode='setup';
+function setMusicMode(next){musicMode=next;window.GoimonQuestAudio?.setMode(next);}
 function sceneArt(kind,enemy){
  const fighting=typeof enemy==='number'||enemy==='mist',sc=state?.scene??0,ln=state?.line??0;
  const f=GoimonChapterStaging.frame(sc,ln,state?.mode==='complete');
  if(fighting){f.background='forest_battle';f.memory=false;f.people=['partner'];f.enemy=enemy||null;f.mist=false;if(enemy===0)f.people.push('morii');}
- const el=card(app,'scene illustrated '+(f.memory?'memory-art':'')),asset='images/quest/chapter1/';
- const bg=document.createElement('img');bg.className='scene-background';bg.alt='';bg.src=asset+f.background+'.png';el.append(bg);
- if(f.memory)return el;
+ const reuse=!fighting&&state?.mode==='story';
+ const el=reuse&&storyArt?.parentNode===app?storyArt:card(app,'scene illustrated'),asset='images/quest/chapter1/';
+ if(reuse)storyArt=el;
+ el.className='scene illustrated '+(f.memory?'memory-art':'');
+ let bg=el.querySelector('.scene-background');if(!bg){bg=document.createElement('img');bg.className='scene-background';bg.alt='';el.append(bg);}const bgSrc=asset+f.background+'.png';if(bg.getAttribute('src')!==bgSrc)bg.src=bgSrc;
+ const present=new Set();
+ if(f.memory){el.querySelectorAll('.character').forEach(img=>img.remove());return el;}
  const line=D.scenes[sc]?.lines[ln],speaker=fighting?'':line?.speaker||'';
  const active=speaker==='{{partnerName}}'?'partner':speaker==='モリィ'?'morii':speaker==='？？？'?'unknown':['小番人','装甲甲虫','霧の山猫','門の番人','守護者'].includes(speaker)?'enemy':'';
  const moved=active&&active!==lastArtSpeaker;lastArtSpeaker=active;
  function add(key,src,alt,slot,extra=''){
-  const img=document.createElement('img');img.src=src;img.alt=alt;img.dataset.character=key;img.className='character '+slot+' '+extra+(active?(active===key?' speaking':' listening'):'')+(moved&&active===key?' speak-motion':'');el.append(img);
+  present.add(key);let img=el.querySelector('[data-character="'+key+'"]');if(!img){img=document.createElement('img');img.dataset.character=key;el.append(img);}if(img.getAttribute('src')!==src)img.src=src;img.alt=alt;img.className='character '+slot+' '+extra+(active?(active===key?' speaking':' listening'):'')+(moved&&active===key?' speak-motion':'');
  }
- const allies=f.people.includes('morii');add('partner',picture(),names().partnerName,allies?'ally-one':'ally-solo');
- if(allies){let expression='normal';if(sc===17)expression='serious';else if(active==='morii'&&/びっくり|へえ/.test(line?.text))expression='surprised';else if(sc===18)expression='smile';add('morii',asset+'morii_'+expression+'.png','モリィ','ally-two');}
+ const allies=f.people.includes('morii'),grouped=allies&&!!(f.enemy||f.mist||f.people.includes('unknown'));add('partner',picture(),names().partnerName,grouped?'ally-one':'ally-solo');
+ if(allies){let expression='normal';if(sc===17)expression='serious';else if(active==='morii'&&/びっくり|へえ/.test(line?.text))expression='surprised';else if(sc===18)expression='smile';add('morii',asset+'morii_'+expression+'.png','モリィ',grouped?'ally-two':'morii-right');}
  if(f.enemy)add('enemy',asset+(f.enemy==='mist'?'black_mist':'enemy_0'+f.enemy)+'.png',f.enemy==='mist'?'黒い霧':enemyNames[f.enemy-1],'enemy-slot');
  if(f.people.includes('unknown'))add('unknown',asset+'unknown_presence.png','？？？','presence-slot');
  if(f.mist)add('mist',asset+(sc===19?'black_mist_going_anywhere':'black_mist')+'.png','黒い霧','mist-slot',f.departing?'mist-depart':'');
+ el.querySelectorAll('.character').forEach(img=>{if(!present.has(img.dataset.character))img.remove();});
  if(sc===1&&ln>=6&&ln<=9)el.classList.add('rockfall-motion');
  return el;
 }
 function fresh(p,skills,gear){return {version:1,scriptVersion:D.scriptVersion,revision:0,partnerId:p.id,pet:p,scene:0,line:0,mode:'story',read:[],cleared:[],tutorial:T.create(),skills,gear,run:null,combat:null,question:null,feedback:null,checkpoint:null,misses:[],completed:false};}
-function setup(restart=false){window.GoimonQuestAudio?.setMode('setup');clearInterval(interval);app.replaceChildren();text('p','GOIMON QUEST · 第1章',app,'eyebrow');text('h1','聞こえた言葉');text('p','ある日、相棒の声が届いた。ことばの森で始まる、ふたりの冒険。');
+function setup(restart=false){setMusicMode('setup');clearInterval(interval);app.replaceChildren();text('p','GOIMON QUEST · 第1章',app,'eyebrow');text('h1','聞こえた言葉');text('p','ある日、相棒の声が届いた。ことばの森で始まる、ふたりの冒険。');
 const c=card();text('h2','一緒に出発する相棒',c);let list=pets();if(!list.length){text('p','ホームで1級の相棒を迎えてから、森へ出発しよう。',c);const link=document.createElement('a');link.href='index.html?panel=goimon&manage=1';link.className='button';link.textContent='ホームで相棒に会う';c.append(link);return;}
 const inventory=GoimonItemStore.parse(GOIMONStorage.getItem('goimon_item_state_v1_lv1'),'1');
 const petLabel=text('label','相棒（1級の現役・保存箱）',c),select=document.createElement('select');select.id='partner';list.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=N.partnerName(p,GoimonDex);select.append(o);});petLabel.append(select);
@@ -55,10 +61,10 @@ c.append(button(restart?'この編成で森の入口から再挑戦':'物語を�
  const p=list.find(p=>p.id===select.value);if(restart){state.partnerId=p.id;state.pet=p;state.skills=ids;state.gear=gear.value;state.scene=6;state.line=0;state.mode='story';state.run=null;state.combat=null;state.question=null;state.feedback=null;state.misses=[];}else state=fresh(p,ids,gear.value);save();render();},true));
 if(state)c.append(button('続きに戻る',render));}
 function advance(){const s=D.scenes[state.scene],line=s.lines[state.line];if(line&&!state.read.includes(line.id))state.read.push(line.id);state.line++;if(state.line>=s.lines.length){if(state.scene===D.scenes.length-1){state.mode='complete';state.completed=true;}else{state.scene++;state.line=0;}}save();render();}
-function render(){window.GoimonQuestAudio?.setMode(state?.mode==='battle'?(state.battleId==='mist'?'blackfog':state.battleId===5?'boss':'battle'):state?'story':'setup');clearInterval(interval);clearTimeout(skipTimer);app.replaceChildren();tell('');if(blocked)return;
+function render(){setMusicMode(state?.mode==='battle'?(state.battleId==='mist'?'blackfog':state.battleId===5?'boss':'battle'):state?.mode==='story'?'story':'setup');clearInterval(interval);clearTimeout(skipTimer);if(state?.mode==='story'&&storyArt?.parentNode===app){Array.from(app.children).forEach(node=>{if(node!==storyArt)node.remove();});}else{app.replaceChildren();storyArt=null;}tell('');if(blocked)return;
 if(!state){setup();return;}if(state.mode==='complete'){complete();return;}if(state.mode==='battle'){battleView();return;}if(state.mode==='defeat'){defeat();return;}if(state.mode==='gift'){gift();return;}
 if(state.recoveryNotice){const recovery=card();text('p',state.recoveryNotice,recovery,'recovery-notice');window.GoimonQuestReview?.show(state.misses||[],recovery);recovery.append(button('確認した',()=>{state.recoveryNotice=null;save();render();}));}
-const s=D.scenes[state.scene],line=s.lines[state.line];if(!line)throw Error('場面の続きが見つかりません');text('p','第1章 · '+s.title,app,'eyebrow');sceneArt(s.background);
+const s=D.scenes[state.scene],line=s.lines[state.line];if(!line)throw Error('場面の続きが見つかりません');const heading=text('p','第1章 · '+s.title,app,'eyebrow'),art=sceneArt(s.background);app.insertBefore(heading,art);
 if(line.event){const box=card();text('h2',line.event==='tutorial'?'モリィと戦い方を練習':line.event==='gift'?'ガチャの練習と装備':line.battleId==='mist'?'黒い霧から守護者を救おう':'STAGE '+line.battleId+' · '+enemyNames[line.battleId-1],box);
  if(line.event==='gift')box.append(button('装備の練習へ',()=>{state.mode='gift';save();render();},true));
  else{if(line.battleId==='mist')text('p','STAGE5からのHP・技を引き継ぎます。敗北したら戦闘直前の状態から再挑戦できます。編成を変える場合は、既読を残して森の入口からやり直せます。',box);box.append(button('準備できた・戦闘へ',()=>startBattle(line.event==='tutorial'?0:line.battleId),true));}return;}
@@ -120,7 +126,7 @@ function gift(){text('h1','モリィと装備の練習');text('p','学習でほ�
 if(!state.tutorial.claimed)c.append(button('練習用10個を受け取る',()=>{T.claim(state.tutorial);save();render();},true));
 else if(!state.tutorial.item)c.append(button('装備ガチャをひく · ✦10',()=>{T.draw(state.tutorial,C.gear);save();render();},true));
 else{text('h2',state.tutorial.item.name,c);text('p',state.tutorial.item.description,c);c.append(button('練習装備をセットして進む',()=>{if(!state.tutorial.equipped)T.equip(state.tutorial);state.mode='story';save();advance();},true));}}
-function defeat(){window.GoimonQuestReview?.show(state.misses||[],app);text('h1','もう一度、声をつなごう');const help=card();text('h2','HPがなくなったら、回復技も試そう',help);text('p','回復SKILLは問題に正解すると最大HPの50％以上を回復します。HPが0になる前に使うのがポイント。ほしのかけらを集め、技ガチャで新しいSKILLを手に入れよう。回復技を手に入れたら、相棒の管理画面でセットできます。',help);text('p',state.battleId==='mist'?'守護者の救出は、まだ終わっていません。黒い霧との戦闘直前から再挑戦できます。':'少し準備して、もう一度森へ。読んだ物語とクリア済みの記録は残ります。');const c=card();
+function defeat(){text('h1','もう一度、声をつなごう');window.GoimonQuestReview?.studyLinks(state.misses||[],state.battleId,app);window.GoimonQuestReview?.show(state.misses||[],app);const help=card();text('h2','HPがなくなったら、回復技も試そう',help);text('p','回復SKILLは問題に正解すると最大HPの50％以上を回復します。HPが0になる前に使うのがポイント。ほしのかけらを集め、技ガチャで新しいSKILLを手に入れよう。回復技を手に入れたら、相棒の管理画面でセットできます。',help);text('p',state.battleId==='mist'?'守護者の救出は、まだ終わっていません。黒い霧との戦闘直前から再挑戦できます。':'少し準備して、もう一度森へ。読んだ物語とクリア済みの記録は残ります。');const c=card();
 if(state.battleId==='mist')c.append(button('霧の戦闘直前から再挑戦',()=>startBattle('mist',true),true));c.append(button('編成を見直して森の入口から',()=>setup(true)));}
 function showHistory(){const body=$('logBody');body.replaceChildren();for(const s of D.scenes){const lines=s.lines.filter(l=>!l.event&&state?.read.includes(l.id));if(!lines.length)continue;text('h3',s.title,body);for(const l of lines)text('p',(l.speaker?interpolate(l.speaker)+'\n':'')+interpolate(window.GoimonAdventureProfile?.line(l.text,l.speaker)||l.text),body);}if(!body.children.length)text('p','読み終えた文章がここに残ります。',body);if($('menu').open)$('menu').close();$('log').showModal();}
 function complete(){window.GoimonQuestReview?.show(state.allMisses||state.misses||[],app);text('p','CHAPTER 1 · COMPLETE',app,'eyebrow');text('h1','聞こえた言葉');sceneArt('forest');text('p','相棒とつないだ声は、森の外へ。第1章クリア！');text('p','物語の続きは準備中です。');const c=card();c.append(button('物語を読み返す',showHistory,true),button('別の編成で森に再挑戦',()=>setup(true)));const a=document.createElement('a');a.className='button';a.href='quest_home.html';a.textContent='クエストホームへ';c.append(a);}
@@ -129,6 +135,6 @@ $('restartRun').onclick=guarded(()=>{if(!state)return;if(!state.tutorial.complet
 $('export').onclick=()=>{const content=state?JSON.stringify(state,null,2):store?.raw()||'';const url=URL.createObjectURL(new Blob([content],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='GOIMON-chapter1-progress.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
 window.addEventListener('storage',e=>{if(e.key==='goimon_cloud_v2:active'||e.key===key)fail(Error('別のタブでアカウントまたは進行が更新されました。再読み込みしてください。'));});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target===document.body&&!$('menu').open&&!$('log').open){const b=$('next');if(b){e.preventDefault();b.click();}}});
-window.GoimonChapter1=Object.freeze({snapshot:()=>structuredClone(state)});
+window.GoimonChapter1=Object.freeze({snapshot:()=>structuredClone(state),musicMode:()=>musicMode});
 try{store=GoimonChapterStore.create(localStorage,key,D);state=store.load();render();if(new URLSearchParams(location.search).get('configure')==='1'&&state){if(state.tutorial.complete){setup(true);}else{tell('チュートリアルを終えると編成を変更できます。');}}}catch(e){fail(e);}
 })();

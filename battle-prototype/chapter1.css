@@ -22,3 +22,6 @@
 
 .answer-explanation[hidden]{display:none}
 .explanation-toggle{font-weight:700}
+
+.scene.illustrated .morii-right{right:7%;left:auto;width:34%;height:76%}
+.defeat-study .study-links{display:flex;flex-wrap:wrap;gap:10px}.defeat-study a.button{background:#f2ce75;color:#163326;font-weight:750}.defeat-study p{margin:8px 0 16px}
