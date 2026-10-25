@@ -9,10 +9,10 @@
     "ja"
   ],
   "nextDestination": "トシャカ中央記録院",
-  "notes": "日本語原稿の実装向け初稿。既存戦闘や保存機構への接続は未実装。画像ファイル名は仮指定。",
+  "notes": "23シーンの確定原稿。chapter2.jsで既存戦闘へ接続。画像参照はchapter2_assets.js、独立保存はchapter2_progress.jsで管理。確認版の戦闘バランスはchapter2_battle.js。",
   "backgroundAssets": {
     "hills": "ch2_hills.png",
-    "road": "ch2_road.png",
+    "road": "ch2_hills.png",
     "town": "ch2_town.png",
     "dry_canal": "ch2_dry_canal.png",
     "water_office": "ch2_water_office.png",
