@@ -1,0 +1,29 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第2章「ふたつの声」シーン確認｜GOIMON QUEST</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#101e2b;color:#f3f6fa}*{box-sizing:border-box}body{max-width:950px;margin:auto;padding:16px}
+a{color:#9acff3}header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+main{background:#182a39;border:1px solid #3d5265;border-radius:16px;padding:14px}
+h1{font-size:1.25rem}.scene{position:relative;aspect-ratio:16/9;overflow:hidden;background:#2e4656;border-radius:13px;isolation:isolate}
+#bg{width:100%;height:100%;position:absolute;inset:0;object-fit:cover;z-index:-1}
+#character{position:absolute;height:77%;width:37%;bottom:0;right:1%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 3px 8px #12222cb8)}
+#caption{position:absolute;top:12px;left:12px;font-size:.8rem;background:#102538d9;border-radius:7px;padding:7px}
+.panel{padding:12px;border-radius:10px;background:#101f2c;margin-top:12px;min-height:125px}.speaker{font-weight:800;color:#88cfe3;margin:0 0 8px}.line{line-height:1.85;margin:0;white-space:pre-wrap}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}button,select{font:inherit;border:1px solid #658196;border-radius:8px;background:#234f69;color:#fff;padding:10px;min-height:44px}button{cursor:pointer}button:disabled{opacity:.5;cursor:default}.info{font-size:.83rem;color:#bed0db}
+#encounter{margin:14px 0;padding:10px;border-left:4px solid #e6a755;background:#393629;display:none}
+#encounter.active{display:block}
+@media(max-width:560px){.scene{aspect-ratio:4/3}#character{width:52%;height:66%}body{padding:8px}}
+</style>
+<script src="battle-prototype/chapter2_data.js" defer></script>
+<script src="battle-prototype/chapter2_assets.js" defer></script>
+<script src="battle-prototype/chapter2_scene_preview.js" defer></script>
+</head><body>
+<header><h1>QUEST 第2章「ふたつの声」｜シーン確認</h1><a href="index.html">GOIMONへ</a></header>
+<p class="info">開発用シーン確認ページです。23シーンを読むことができます。実際の戦闘・進行保存・報酬は未接続です。画像未登録時は背景色で表示します。</p>
+<main>
+<label>シーンを選択 <select id="sceneSelect"></select></label>
+<div class="scene" role="region" aria-label="物語の背景と登場人物"><img id="bg" alt=""><img id="character" alt=""><div id="caption"></div></div>
+<div class="panel"><p id="speaker" class="speaker"></p><p id="line" class="line"></p></div>
+<div id="encounter" role="note"></div>
+<div class="actions"><button id="prev">前へ</button><button id="next">次へ</button></div>
+<p class="info" id="progress"></p>
+</main></body></html>
