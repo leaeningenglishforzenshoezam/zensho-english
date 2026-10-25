@@ -32,13 +32,14 @@
 - `images/chapter2/details/ch2_founders_relief.png` — 古い共同建設の壁画、シーン17
 - `images/chapter2/details/ch2_work_log.png` — 人間の名前／ゴイモン番号の作業台帳、シーン17
 
-## 3. characters （サーヤ6枚・トヨヨ5枚）
+## 3. characters （サーヤ7枚・トヨヨ5枚）
 - `images/chapter2/characters/ch2_saya_full.png` — 全身（既存）
 - `images/chapter2/characters/ch2_saya_normal.png` — 上半身通常（既存）
 - `images/chapter2/characters/ch2_saya_happy.png` — 喜び
 - `images/chapter2/characters/ch2_saya_worried.png` — 心配
 - `images/chapter2/characters/ch2_saya_surprised.png` — 驚き
 - `images/chapter2/characters/ch2_saya_determined.png` — 決意
+- `images/chapter2/characters/ch2_saya_looking_away.png` — 追加の横向きポーズ（元ファイル名 `ch2_saya_lookioverthere.png`）
 - `images/chapter2/characters/ch2_toyoyo_happy.png` — 既存の元気な立ち絵（通常と混同しない）
 - `images/chapter2/characters/ch2_toyoyo_normal.png` — 通常
 - `images/chapter2/characters/ch2_toyoyo_worried.png` — 心配
@@ -64,10 +65,10 @@
 - `images/chapter2/events/ch2_boss_captured_saya_toyoyo.png` — 眠るように意識を失い黒霧に拘束された2人。シーン19（最終戦はボスの右奥）、シーン20（救出の遷移）。
 
 ## 総数と別管理
-- 第2章専用基本画像: **34枚** = backgrounds 11 + details 2 + characters 11 + enemies 9 + events 1。
+- 第2章専用基本画像: **35枚** = backgrounds 11 + details 2 + characters 12 + enemies 9 + events 1。
 - 別管理: 既存の相棒 `images/goimon/`。試作に使った白いフェネ型ゴイモン画像は正式追加しない。
 - 戦闘ボスは右手前、捕虜2人は敵の背後右奥、選択した相棒は左手前。描画レイヤーを分離し、固定1枚絵に合成しない。
 - 背景 `control_room` は最終戦とシーン17〜20共用。戦闘UIは背景・捕虜・ボス・相棒・UIの順に表示する。
 - 第2章シナリオの旧「霧の獣本体に囚われる／霧そのものが獣」という説明と、最新の「実体のある四足魔獣＋別位置の捕虜」の差はシーン19・20の実装前に整合させる。
 - 第2章は原稿23シーン、戦闘ID1〜9のマーカーが存在するが、ランタイム／戦闘接続は未完成。
-- ZIP受領後は一覧との照合・透過確認・形式確認を行い、不足を明記してから登録する。
+- 2026-10-25受領ZIPを照合済み。35枚すべてPNGで読込可能。背景11枚と近景2枚はRGB、人物12枚・敵9枚・イベント1枚はRGBA。画像バイナリのGitHub反映は別工程で、現時点では未登録。
