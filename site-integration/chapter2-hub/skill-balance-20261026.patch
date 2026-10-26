@@ -1,0 +1,1006 @@
+diff --git a/checks/skill-balance.test.cjs b/checks/skill-balance.test.cjs
+new file mode 100644
+index 0000000..fda89d3
+--- /dev/null
++++ b/checks/skill-balance.test.cjs
+@@ -0,0 +1,9 @@
++const test=require('node:test'),assert=require('node:assert/strict');
++const C=require('../dist/battle-prototype/catalog.js'),E=require('../dist/battle-prototype/core.js');
++function battle(id){const skill=C.skills.find(s=>s.id===id);const p=E.actor(C.species.find(s=>s.id==='hirameki'),1,{chie:0,kotoba:0,bunmyaku:0,onkan:0},null,[skill]);p.speed=999;const e={id:'test',attr:'mirage',hp:99999,maxHp:99999,attack:20,reference:20,defense:20,speed:1,skillTurns:0};return E.create(p,e,()=>.5);}
++const answer=(b,cmd,correct)=>E.resolve(b,cmd,correct,{elapsedMs:Infinity,rng:()=>.5});
++test('Harmony has meaningful damage and halves one enemy hit',()=>{const b=battle('N_harmony'),normal=battle('N_harmony');const hp=b.enemy.hp;answer(b,'skill:0',true);answer(normal,'normal',true);assert.ok(hp-b.enemy.hp>=(hp-normal.enemy.hp)*1.5);const before=b.player.hp,other=normal.player.hp;answer(b,'normal',true);answer(normal,'normal',true);assert.ok(Math.abs((before-b.player.hp)*2-(other-normal.player.hp))<=1);assert.equal(b.player.shield.hits,0);assert.equal(b.player.skills[0].left,2);});
++test('Cure heals more than N healing without exceeding maximum',()=>{const b=battle('heal');b.player.hp=1;answer(b,'skill:0',true);assert.equal(b.player.hp,67);assert.equal(b.player.skills[0].left,2);});
++test('preparation survives wrong answer and is consumed on next correct attack',()=>{const b=battle('N_observe');answer(b,'skill:0',true);assert.equal(b.player.nextPower,1.8);b.index=0;answer(b,'normal',false);assert.equal(b.player.nextPower,1.8);b.index=0;answer(b,'normal',true);assert.equal(b.player.nextPower,1);});
++test('saved definitions refresh without refunding uses or changing HP',()=>{const b=battle('N_harmony');Object.assign(b.player.skills[0],{power:1,shieldFactor:.65,left:0});b.player.hp=12;E.refreshSkills(b.player,C);assert.equal(b.player.skills[0].power,1.5);assert.equal(b.player.skills[0].left,0);assert.equal(b.player.skills[0].maxUses,3);assert.equal(b.player.hp,12);});
++test('all 51 skills retain identifiers and consistent descriptions',()=>{assert.equal(C.skills.length,51);assert.equal(new Set(C.skills.map(s=>s.id)).size,51);for(const s of C.skills){assert.ok(s.description.includes('使用可能回数：'+s.uses));if(s.power)assert.ok(s.description.includes('攻撃倍率'+Number((s.power*1.1).toFixed(3))+'倍'));}});
+diff --git a/dist/announcements.json b/dist/announcements.json
+index ba7739f..07e129f 100644
+--- a/dist/announcements.json
++++ b/dist/announcements.json
+@@ -1,10 +1,17 @@
+ [
++  {
++    "id": "goimon-redesign-preview-20261026",
++    "title": "【予告】相棒たちが新しい姿に！ゴイモンのデザイン・図鑑をリニューアル",
++    "publishedAt": "2026-10-26T01:30:43.721Z",
++    "updatedAt": "2026-10-26T01:30:43.721Z",
++    "body": "ゴイモンの見た目を、小さな画面でも表情や個性が伝わるデザインへリニューアルします。基本7系統・28体の一部の名前やモチーフ、図鑑説明も新しくなります。\n\nことのは系はカメレオン×怪盗、ひびき系はカエル×雷神、つむぎ系はクラゲ×陰陽師へ。それぞれの進化を、もっと楽しめる姿に整えています。\n\n育ててきたゴイモンは、同じ系統・進化段階の新しい姿へ引き継ぐ予定です。学習記録・育成で積み上げた能力・自分で付けたニックネームは引き継ぐ方針で準備しています。見た目の変更だけを理由に、進化条件を変更することはありません。\n\n現在は確認版で調整中です。公開日と詳しい変更内容は、準備が整い次第お知らせします。"
++  },
+   {
+     "id": "vercel-close-github-pages-20261026",
+-    "title": "【重要】Vercel版は10月31日で終了します。今後はGitHub Pages版をご利用ください",
++    "title": "【重要】Vercel版は11月30日で終了します。今後はGitHub Pages版をご利用ください",
+     "publishedAt": "2026-10-25T16:12:55Z",
+-    "updatedAt": "2026-10-25T16:12:55Z",
+-    "body": "GOIMONの公開先をGitHub Pages版に一本化します。Vercel版は2026年10月31日をもって公開を終了し、11月1日以降は旧URLをご利用いただけなくなります。\n\n■ 今後はこちらから\nhttps://leaeningenglishforzenshoezam.github.io/zensho-english/\nブックマークやホーム画面のショートカットを、新しいURLに変更してください。\n\n■ 学習記録・ゴイモンについて【必ずご確認ください】\nVercel版とGitHub Pages版は別のサイトです。Vercel版の端末内だけに保存された記録は、URLを開き直すだけでは自動で移りません。\nGitHub Pages版でクラウド保存済みの方は、同じGoogleアカウントでログインし、ゴイモンと学習記録を確認してください。\nVercel版だけに記録がある方や、移行先で記録が見つからない方は、10月31日までに下記へご連絡ください。確認が済むまでは、元の端末・ブラウザーのサイトデータを削除しないでください。\nお問い合わせ：goimon.admin@gmail.com\n\nログインしなくてもGitHub Pages版で学習できます。ただし、端末内だけの記録は、別URL・別端末には自動で引き継がれません。"
++    "updatedAt": "2026-10-26T01:18:26.926Z",
++    "body": "【10月26日更新】記録の移行・確認期間を確保するため、終了日を10月31日から11月30日に延長しました。\n\nGOIMONの公開先をGitHub Pages版に一本化します。Vercel版は2026年11月30日をもって公開を終了し、12月1日以降は旧URLをご利用いただけなくなります。\n\n■ 今後はこちらから\nhttps://leaeningenglishforzenshoezam.github.io/zensho-english/\nブックマークやホーム画面のショートカットを、新しいURLに変更してください。\n\n■ 学習記録・ゴイモンについて【必ずご確認ください】\nVercel版とGitHub Pages版は別のサイトです。Vercel版の端末内だけに保存された記録は、URLを開き直すだけでは自動で移りません。\nGitHub Pages版でクラウド保存済みの方は、同じGoogleアカウントでログインし、ゴイモンと学習記録を確認してください。\nVercel版だけに記録がある方や、移行先で記録が見つからない方は、11月30日までに下記へご連絡ください。確認が済むまでは、元の端末・ブラウザーのサイトデータを削除しないでください。\nお問い合わせ：goimon.admin@gmail.com\n\nログインしなくてもGitHub Pages版で学習できます。ただし、端末内だけの記録は、別URL・別端末には自動で引き継がれません。"
+   },
+   {
+     "id": "goimon-quest-gacha-preview-20261016",
+@@ -17,8 +24,8 @@
+     "id": "google-login-cloud-save-20261011",
+     "title": "Googleログインに対応！ゴイモンと学習記録をスマホ・PCで引き継げます",
+     "publishedAt": "2026-10-11T08:00:00Z",
+-    "updatedAt": "2026-10-25T16:12:55Z",
+-    "body": "Googleアカウントでログインして、ゴイモンや学習記録をクラウドに保存できるようになりました！ 同じGoogleアカウントを使えば、スマホとPCで学習の続きを引き継げます。\n\n■ 今まで育てたゴイモンを引き継ぐには\n① これまで学習していた端末・同じブラウザーでGOIMONを開きます。\n② メニューからログイン・プロフィール画面を開き、Googleでログインします。\n③ 「今までのゴイモンを引き継ぎますか？」と表示されたら、自分の記録であることを確認して「OK」を選びます。\n④ 初めての方はプロフィールを登録し、同期できたことを確認してから学習へ進んでください。\n\n引き継ぎの案内は、このブラウザーに以前の記録があり、ログイン先のアカウントにまだ学習記録がない場合に表示されます。元のゲスト記録は残ります。共用端末では、他の人の記録を引き継がないようにしてください。\n\n■ ログイン後は自動保存\n学習中の変更をまとめて保存します。別の端末では同じGoogleアカウントでログインしてください。端末を切り替える前に、画面上部の「クラウド保存済み」を確認しましょう。通信できない間も学習できますが、別端末への引き継ぎには通信と保存完了が必要です。\n\n■ 引き継ぎを忘れて学習を始めた場合\nログイン画面の「以前のゴイモン・学習記録を救済する」から確認できます。変更前にバックアップを保存し、以前の記録とログイン後の記録を比較して、使う記録を選べます。記録を足し合わせる機能ではありません。ブラウザーの履歴・サイトデータは削除せずに確認してください。\n\n■ ご利用のURLについて\n今回のログイン・保存はGitHub Pages版が対象です。\nhttps://leaeningenglishforzenshoezam.github.io/zensho-english/\n別のURL（Vercel版）で学習していた記録は、このURLには自動では移りません。Vercel版は2026年10月31日で終了します。最新の「Vercel版終了のお知らせ」を確認し、記録が移行先に見つからない場合は終了前にお問い合わせください。\n\nログインしなくても、これまでどおり学習できます。"
++    "updatedAt": "2026-10-26T01:18:26.926Z",
++    "body": "Googleアカウントでログインして、ゴイモンや学習記録をクラウドに保存できるようになりました！ 同じGoogleアカウントを使えば、スマホとPCで学習の続きを引き継げます。\n\n■ 今まで育てたゴイモンを引き継ぐには\n① これまで学習していた端末・同じブラウザーでGOIMONを開きます。\n② メニューからログイン・プロフィール画面を開き、Googleでログインします。\n③ 「今までのゴイモンを引き継ぎますか？」と表示されたら、自分の記録であることを確認して「OK」を選びます。\n④ 初めての方はプロフィールを登録し、同期できたことを確認してから学習へ進んでください。\n\n引き継ぎの案内は、このブラウザーに以前の記録があり、ログイン先のアカウントにまだ学習記録がない場合に表示されます。元のゲスト記録は残ります。共用端末では、他の人の記録を引き継がないようにしてください。\n\n■ ログイン後は自動保存\n学習中の変更をまとめて保存します。別の端末では同じGoogleアカウントでログインしてください。端末を切り替える前に、画面上部の「クラウド保存済み」を確認しましょう。通信できない間も学習できますが、別端末への引き継ぎには通信と保存完了が必要です。\n\n■ 引き継ぎを忘れて学習を始めた場合\nログイン画面の「以前のゴイモン・学習記録を救済する」から確認できます。変更前にバックアップを保存し、以前の記録とログイン後の記録を比較して、使う記録を選べます。記録を足し合わせる機能ではありません。ブラウザーの履歴・サイトデータは削除せずに確認してください。\n\n■ ご利用のURLについて\n今回のログイン・保存はGitHub Pages版が対象です。\nhttps://leaeningenglishforzenshoezam.github.io/zensho-english/\n別のURL（Vercel版）で学習していた記録は、このURLには自動では移りません。Vercel版は2026年11月30日で終了します。最新の「Vercel版終了のお知らせ」を確認し、記録が移行先に見つからない場合は終了前にお問い合わせください。\n\nログインしなくても、これまでどおり学習できます。"
+   },
+   {
+     "id": "welcome",
+diff --git a/dist/battle-prototype/catalog.js b/dist/battle-prototype/catalog.js
+index f93daa6..22202ed 100644
+--- a/dist/battle-prototype/catalog.js
++++ b/dist/battle-prototype/catalog.js
+@@ -368,12 +368,12 @@
+       "type": "attack",
+       "uses": 3,
+       "power": 1.3,
+-      "description": "威力1.3の攻撃。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で攻撃倍率1.43倍。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "胸いっぱいに空気をため、一気に音を破裂させる。毎回、本人のほっぺがいちばん驚いている。",
+         "en": "Fill your cheeks with air, then burst out with a loud blast. Your cheeks look the most surprised."
+       },
+-      "descriptionEn": "Attack with power 1.3. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.43 on a correct answer. Uses: 3.",
+       "tactic": "burst",
+       "questionFormat": "word_meaning"
+     },
+@@ -389,13 +389,13 @@
+       "rarity": "N",
+       "type": "attack",
+       "uses": 3,
+-      "power": 1.2,
+-      "description": "威力1.2の攻撃。 使用回数は正誤にかかわらず消費。",
++      "power": 1.6,
++      "description": "正解で攻撃倍率1.76倍。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "おばけを見たつもりで大声を出し、相手を攻める。声がよく出るように、本人は毎朝うがいしている。",
+         "en": "Scream as if you had seen a ghost and attack with the sound. You gargle every morning to keep your voice ready."
+       },
+-      "descriptionEn": "Attack with power 1.2. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.76 on a correct answer. Uses: 3.",
+       "tactic": "burst",
+       "questionFormat": "q1"
+     },
+@@ -412,12 +412,12 @@
+       "type": "heal",
+       "uses": 3,
+       "healFraction": 0.5,
+-      "description": "最大HPの50％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で最大HPの55％回復。不正解では回復量が半分。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "「まだいける！」と自分を励まし、元気を取り戻す。応援団は自分ひとりだが、声の大きさは三人分。",
+         "en": "Encourage yourself with a loud cheer and recover your energy. Your one-member cheer squad sounds like three."
+       },
+-      "descriptionEn": "Restore 50% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Restore 55% of maximum HP on a correct answer; half on a wrong answer. Uses: 3.",
+       "tactic": "heal",
+       "questionFormat": "word_meaning"
+     },
+@@ -433,14 +433,14 @@
+       "rarity": "N",
+       "type": "prepare",
+       "uses": 3,
+-      "nextPower": 1.4,
+-      "power": 1,
+-      "description": "威力1の攻撃。正解で次の攻撃を1.4倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
++      "nextPower": 1.6,
++      "power": 1.4,
++      "description": "正解で攻撃倍率1.54倍。次に正解した攻撃をさらに1.6倍。不正解・回復では強化を消費しない。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "相手の動きに集中し、次の一撃を狙う。集中しすぎて、鼻にとまったちょうちょに気づかない。",
+         "en": "Concentrate on the enemy and plan your next hit. You do not notice the butterfly sitting on your nose."
+       },
+-      "descriptionEn": "Attack with power 1. A correct answer makes your next attack 1.4 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.54 on a correct answer. Boost the next correct attack by 1.6; wrong answers and healing do not consume the boost. Uses: 3.",
+       "tactic": "chain",
+       "questionFormat": "idiom"
+     },
+@@ -456,14 +456,14 @@
+       "rarity": "N",
+       "type": "weaken",
+       "uses": 3,
+-      "weakFactor": 0.65,
+-      "power": 1,
+-      "description": "威力1の攻撃。正解で次の敵の攻撃を65％にする。 使用回数は正誤にかかわらず消費。",
++      "weakFactor": 0.5,
++      "power": 1.45,
++      "description": "正解で攻撃倍率1.595倍。正解で次の敵攻撃を50％軽減。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "攻撃のあと、落ち着いた声で相手の緊張をやわらげる。「戦闘中に眠くなる声」と評判。",
+         "en": "Attack, then relieve the enemy's tension with a calm voice. It is famous for making a battle sound like bedtime."
+       },
+-      "descriptionEn": "Attack with power 1. A correct answer reduces the enemy's next attack damage to 65%. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.595 on a correct answer. Correct: reduce the next enemy attack by 50%. Uses: 3.",
+       "tactic": "disrupt",
+       "questionFormat": "idiom"
+     },
+@@ -479,14 +479,14 @@
+       "rarity": "N",
+       "type": "replenish",
+       "uses": 1,
+-      "description": "威力1の攻撃＋正解で、使用回数が最も減っている別の技を最大1回復。同数なら枠順。上限を超えず、回数回復技には使えない。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で攻撃倍率1.1倍。正解で他の技1つの使用回数を1回復（上限まで）。 使用可能回数：1回。",
+       "power": 1,
+       "restoreUses": 1,
+       "flavor": {
+         "ja": "軽く攻めながら、使った技のコツを思い出す。コツを書いたメモは、おやつの包み紙の裏にある。",
+         "en": "Attack lightly and remind yourself how to use another skill. Your notes are on the back of a snack wrapper."
+       },
+-      "descriptionEn": "Attack with power 1. A correct answer restores up to 1 use(s) to another skill with the most uses missing. Ties follow slot order. Never exceed its limit or restore a use-restoring skill. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.1 on a correct answer. Correct: restore 1 use(s) of another skill, up to its limit. Uses: 1.",
+       "tactic": "long",
+       "questionFormat": "word_meaning"
+     },
+@@ -503,12 +503,12 @@
+       "type": "heal",
+       "uses": 4,
+       "healFraction": 0.5,
+-      "description": "最大HPの50％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で最大HPの55％回復。不正解では回復量が半分。 使用可能回数：4回。",
+       "flavor": {
+         "ja": "救急箱で自分の傷を手当てする。ばんそうこうには自分の顔が描いてあり、貼るほど顔が増える。",
+         "en": "Give yourself first aid from a little box. Every bandage has your face on it, so each one adds another face."
+       },
+-      "descriptionEn": "Restore 50% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Restore 55% of maximum HP on a correct answer; half on a wrong answer. Uses: 4.",
+       "tactic": "heal",
+       "questionFormat": "word_meaning"
+     },
+@@ -524,14 +524,14 @@
+       "rarity": "N",
+       "type": "prepare",
+       "uses": 4,
+-      "nextPower": 1.35,
+-      "power": 0.95,
+-      "description": "威力0.95の攻撃。正解で次の攻撃を1.35倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
++      "nextPower": 1.5,
++      "power": 1.3,
++      "description": "正解で攻撃倍率1.43倍。次に正解した攻撃をさらに1.5倍。不正解・回復では強化を消費しない。 使用可能回数：4回。",
+       "flavor": {
+         "ja": "軽く攻めてから自分をほめ、次の一撃へ気合を入れる。拍手まで自分でやるので少し忙しい。",
+         "en": "Attack lightly, then praise yourself to prepare the next hit. Doing your own applause keeps you busy."
+       },
+-      "descriptionEn": "Attack with power 0.95. A correct answer makes your next attack 1.35 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.43 on a correct answer. Boost the next correct attack by 1.5; wrong answers and healing do not consume the boost. Uses: 4.",
+       "tactic": "chain",
+       "questionFormat": "idiom"
+     },
+@@ -548,12 +548,12 @@
+       "type": "attack",
+       "uses": 3,
+       "power": 1.2,
+-      "description": "威力1.2の攻撃。 正解で次の攻撃を1.12倍に強化。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で攻撃倍率1.32倍。次に正解した攻撃をさらに1.12倍。不正解・回復では強化を消費しない。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "大きな声ではっきり発音し、音で相手を攻める。戦いながら口の形のお手本まで見せてくれる。",
+         "en": "Pronounce words clearly and attack with your voice. Even in battle, you show everyone how to move their lips."
+       },
+-      "descriptionEn": "Attack with power 1.2. A correct answer boosts the next attack to 1.12 times its usual damage. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.32 on a correct answer. Boost the next correct attack by 1.12; wrong answers and healing do not consume the boost. Uses: 3.",
+       "tactic": "chain",
+       "questionFormat": "q1",
+       "onCorrect": {
+@@ -572,14 +572,14 @@
+       "rarity": "N",
+       "type": "prepare",
+       "uses": 3,
+-      "nextPower": 1.35,
+-      "power": 1,
+-      "description": "威力1の攻撃。正解で次の攻撃を1.35倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
++      "nextPower": 1.5,
++      "power": 1.35,
++      "description": "正解で攻撃倍率1.485倍。次に正解した攻撃をさらに1.5倍。不正解・回復では強化を消費しない。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "リズムに合わせて攻め、次の一撃へ勢いをつける。足だけ先に踊り始めている。",
+         "en": "Attack to a rhythm and build momentum for the next hit. Your feet start dancing before the rest of you."
+       },
+-      "descriptionEn": "Attack with power 1. A correct answer makes your next attack 1.35 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.485 on a correct answer. Boost the next correct attack by 1.5; wrong answers and healing do not consume the boost. Uses: 3.",
+       "tactic": "long",
+       "questionFormat": "q1"
+     },
+@@ -596,12 +596,12 @@
+       "type": "heal",
+       "uses": 4,
+       "healFraction": 0.5,
+-      "description": "最大HPの50％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で最大HPの55％回復。不正解では回復量が半分。 使用可能回数：4回。",
+       "flavor": {
+         "ja": "ふわふわの毛布で自分を包み、元気を取り戻す。森に毛布を持ってきた理由が、ようやく伝わる。",
+         "en": "Comfort yourself with a fluffy blanket and recover your energy. Now everyone understands why you packed a blanket."
+       },
+-      "descriptionEn": "Restore 50% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Restore 55% of maximum HP on a correct answer; half on a wrong answer. Uses: 4.",
+       "tactic": "long",
+       "questionFormat": "word_meaning"
+     },
+@@ -618,12 +618,12 @@
+       "type": "attack",
+       "uses": 3,
+       "power": 1.2,
+-      "description": "威力1.2の攻撃。 正解で敵の次の攻撃ダメージを90％に弱める。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で攻撃倍率1.32倍。正解で次の敵攻撃を10％軽減。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "相手のすぐ近くで低い声をささやき、音で攻める。「後ろに先生がいるよ」と言うのが得意。",
+         "en": "Whisper close to the enemy and attack with the sound. Your favorite line is: The teacher is behind you."
+       },
+-      "descriptionEn": "Attack with power 1.2. A correct answer reduces the next enemy attack to 90% damage. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.32 on a correct answer. Correct: reduce the next enemy attack by 10%. Uses: 3.",
+       "tactic": "disrupt",
+       "questionFormat": "word_meaning",
+       "onCorrect": {
+@@ -642,13 +642,13 @@
+       "rarity": "N",
+       "type": "attack",
+       "uses": 3,
+-      "power": 1.3,
+-      "description": "威力1.3の攻撃。 使用回数は正誤にかかわらず消費。",
++      "power": 1.65,
++      "description": "正解で攻撃倍率1.815倍。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "小さな影を相手へ投げかけて攻める。影は出番のたびに、かっこいいポーズを変えてくる。",
+         "en": "Cast a small shadow at the enemy to attack. The shadow brings a different heroic pose to every battle."
+       },
+-      "descriptionEn": "Attack with power 1.3. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.815 on a correct answer. Uses: 3.",
+       "tactic": "burst",
+       "questionFormat": "q3"
+     },
+@@ -665,12 +665,12 @@
+       "type": "attack",
+       "uses": 3,
+       "power": 1.2,
+-      "description": "威力1.2の攻撃。 正解で次の攻撃を1.15倍に強化。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で攻撃倍率1.32倍。次に正解した攻撃をさらに1.15倍。不正解・回復では強化を消費しない。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "相手を追いかけ、勢いをつけてぶつかる。本人は勇者のつもりだが、走り方は遅刻した生徒。",
+         "en": "Chase the enemy and rush into it. You feel like a hero, but run like a student late for school."
+       },
+-      "descriptionEn": "Attack with power 1.2. A correct answer boosts the next attack to 1.15 times its usual damage. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.32 on a correct answer. Boost the next correct attack by 1.15; wrong answers and healing do not consume the boost. Uses: 3.",
+       "tactic": "chain",
+       "questionFormat": "q3",
+       "onCorrect": {
+@@ -690,12 +690,12 @@
+       "type": "attack",
+       "uses": 2,
+       "power": 1.4,
+-      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で攻撃倍率1.54倍。 使用可能回数：2回。",
+       "flavor": {
+         "ja": "まぶしい光を放って相手を攻める。本人だけは、記念写真のつもりで笑顔を作っている。",
+         "en": "Flash a bright light at the enemy. You smile as if someone were taking your picture."
+       },
+-      "descriptionEn": "Attack with power 1.4. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.54 on a correct answer. Uses: 2.",
+       "tactic": "burst",
+       "questionFormat": "q1"
+     },
+@@ -711,14 +711,14 @@
+       "rarity": "N",
+       "type": "prepare",
+       "uses": 3,
+-      "nextPower": 1.4,
+-      "power": 1,
+-      "description": "威力1の攻撃。正解で次の攻撃を1.4倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
++      "nextPower": 1.6,
++      "power": 1.4,
++      "description": "正解で攻撃倍率1.54倍。次に正解した攻撃をさらに1.6倍。不正解・回復では強化を消費しない。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "攻めながら次の一撃の準備をする。戦いの準備は完璧で、おやつもすぐ取り出せる。",
+         "en": "Prepare your next hit while attacking. Your battle plan is ready, and so are your snacks."
+       },
+-      "descriptionEn": "Attack with power 1. A correct answer makes your next attack 1.4 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.54 on a correct answer. Boost the next correct attack by 1.6; wrong answers and healing do not consume the boost. Uses: 3.",
+       "tactic": "chain",
+       "questionFormat": "idiom"
+     },
+@@ -734,14 +734,14 @@
+       "rarity": "N",
+       "type": "weaken",
+       "uses": 3,
+-      "weakFactor": 0.65,
+-      "power": 1,
+-      "description": "威力1の攻撃。正解で次の敵の攻撃を65％にする。 使用回数は正誤にかかわらず消費。",
++      "weakFactor": 0.5,
++      "power": 1.45,
++      "description": "正解で攻撃倍率1.595倍。正解で次の敵攻撃を50％軽減。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "攻めながら右を指して左へ動き、相手を混乱させる。たまに自分まで進む方向を間違える。",
+         "en": "Confuse the enemy by pointing right and moving left as you attack. Sometimes you forget which way to go too."
+       },
+-      "descriptionEn": "Attack with power 1. A correct answer reduces the enemy's next attack damage to 65%. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.595 on a correct answer. Correct: reduce the next enemy attack by 50%. Uses: 3.",
+       "tactic": "disrupt",
+       "questionFormat": "idiom"
+     },
+@@ -758,15 +758,15 @@
+       "type": "ward",
+       "uses": 3,
+       "shieldHits": 1,
+-      "shieldFactor": 0.65,
++      "shieldFactor": 0.5,
+       "wrongShieldFactor": 0.85,
+-      "power": 1,
+-      "description": "威力1の攻撃＋次の敵攻撃1回を正解で65％、不正解で85％に軽減。 使用回数は正誤にかかわらず消費。",
++      "power": 1.5,
++      "description": "正解で攻撃倍率1.65倍。次の敵攻撃1回を正解で50％、不正解で15％軽減。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "影たちと息を合わせて攻め、守りも整える。一体だけ、合唱の練習だと思って歌っている。",
+         "en": "Attack in harmony with your shadows and build your guard. One shadow thinks this is choir practice."
+       },
+-      "descriptionEn": "Attack with power 1. Reduce damage from the next 1 enemy attack(s) to 65% with a correct answer, or 85% with a wrong answer. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.65 on a correct answer. Reduce the next 1 enemy hit(s) by 50% (wrong answer: 15%). Uses: 3.",
+       "tactic": "long",
+       "questionFormat": "q3"
+     },
+@@ -783,12 +783,12 @@
+       "type": "attack",
+       "uses": 3,
+       "power": 1.3,
+-      "description": "威力1.3の攻撃。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で攻撃倍率1.43倍。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "相手をよく見て、狙った角度から攻める。本人は角度にこだわりすぎて、三角定規を持参している。",
+         "en": "Choose an angle and attack from it. You care so much about angles that you brought a triangle ruler."
+       },
+-      "descriptionEn": "Attack with power 1.3. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.43 on a correct answer. Uses: 3.",
+       "tactic": "burst",
+       "questionFormat": "q1"
+     },
+@@ -804,14 +804,14 @@
+       "rarity": "N",
+       "type": "prepare",
+       "uses": 4,
+-      "nextPower": 1.35,
+-      "power": 0.95,
+-      "description": "威力0.95の攻撃。正解で次の攻撃を1.35倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
++      "nextPower": 1.5,
++      "power": 1.3,
++      "description": "正解で攻撃倍率1.43倍。次に正解した攻撃をさらに1.5倍。不正解・回復では強化を消費しない。 使用可能回数：4回。",
+       "flavor": {
+         "ja": "ちらっと相手を見ながら軽く攻め、次の一撃を考える。何度も見るので「ちらっと」のつもりが丸わかり。",
+         "en": "Glance at the enemy as you attack and plan the next hit. You glance so often that everyone notices."
+       },
+-      "descriptionEn": "Attack with power 0.95. A correct answer makes your next attack 1.35 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.43 on a correct answer. Boost the next correct attack by 1.5; wrong answers and healing do not consume the boost. Uses: 4.",
+       "tactic": "chain",
+       "questionFormat": "q3"
+     },
+@@ -828,15 +828,15 @@
+       "type": "ward",
+       "uses": 4,
+       "shieldHits": 1,
+-      "shieldFactor": 0.75,
++      "shieldFactor": 0.6,
+       "wrongShieldFactor": 0.9,
+-      "power": 0.95,
+-      "description": "威力0.95の攻撃＋次の敵攻撃1回を正解で75％、不正解で90％に軽減。 使用回数は正誤にかかわらず消費。",
++      "power": 1.4,
++      "description": "正解で攻撃倍率1.54倍。次の敵攻撃1回を正解で40％、不正解で10％軽減。 使用可能回数：4回。",
+       "flavor": {
+         "ja": "木陰から攻め、影を使って身を守る。木には「ちょっと借ります」と毎回あいさつする。",
+         "en": "Attack from the shade and use shadows to guard yourself. Always thank the tree for lending you a spot."
+       },
+-      "descriptionEn": "Attack with power 0.95. Reduce damage from the next 1 enemy attack(s) to 75% with a correct answer, or 90% with a wrong answer. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.54 on a correct answer. Reduce the next 1 enemy hit(s) by 40% (wrong answer: 10%). Uses: 4.",
+       "tactic": "guard",
+       "questionFormat": "q1"
+     },
+@@ -853,12 +853,12 @@
+       "type": "attack",
+       "uses": 3,
+       "power": 1.3,
+-      "description": "威力1.3の攻撃。 正解で敵の次の攻撃ダメージを85％に弱める。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で攻撃倍率1.43倍。正解で次の敵攻撃を15％軽減。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "不思議な動きで相手を攻める。技の仕組みを聞かれても、本人は「なんかできた」としか答えない。",
+         "en": "Attack with a mysterious move. When asked how it works, you can only say: It just happened."
+       },
+-      "descriptionEn": "Attack with power 1.3. A correct answer reduces the next enemy attack to 85% damage. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.43 on a correct answer. Correct: reduce the next enemy attack by 15%. Uses: 3.",
+       "tactic": "disrupt",
+       "questionFormat": "q3",
+       "onCorrect": {
+@@ -877,14 +877,14 @@
+       "rarity": "N",
+       "type": "prepare",
+       "uses": 3,
+-      "nextPower": 1.35,
+-      "power": 1,
+-      "description": "威力1の攻撃。正解で次の攻撃を1.35倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
++      "nextPower": 1.5,
++      "power": 1.35,
++      "description": "正解で攻撃倍率1.485倍。次に正解した攻撃をさらに1.5倍。不正解・回復では強化を消費しない。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "理想の一撃を思い描きながら攻め、次に備える。頭の中の自分は、風がなくてもマントがなびく。",
+         "en": "Attack while building an image of your next hit. In your mind, your cape flies even without wind."
+       },
+-      "descriptionEn": "Attack with power 1. A correct answer makes your next attack 1.35 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.485 on a correct answer. Boost the next correct attack by 1.5; wrong answers and healing do not consume the boost. Uses: 3.",
+       "tactic": "chain",
+       "questionFormat": "q3"
+     },
+@@ -900,14 +900,14 @@
+       "rarity": "N",
+       "type": "prepare",
+       "uses": 2,
+-      "nextPower": 1.55,
+-      "power": 0.9,
+-      "description": "威力0.9の攻撃。正解で次の攻撃を1.55倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
++      "nextPower": 1.8,
++      "power": 1.45,
++      "description": "正解で攻撃倍率1.595倍。次に正解した攻撃をさらに1.8倍。不正解・回復では強化を消費しない。 使用可能回数：2回。",
+       "flavor": {
+         "ja": "軽く攻めつつ相手の動きを観察し、次の一撃の狙いを定める。観察メモにはまつ毛の本数まで書いてある。",
+         "en": "Observe the enemy while attacking lightly and aim your next hit. Your notes even include an eyelash count."
+       },
+-      "descriptionEn": "Attack with power 0.9. A correct answer makes your next attack 1.55 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.595 on a correct answer. Boost the next correct attack by 1.8; wrong answers and healing do not consume the boost. Uses: 2.",
+       "tactic": "long",
+       "questionFormat": "q3"
+     },
+@@ -924,12 +924,12 @@
+       "type": "attack",
+       "uses": 3,
+       "power": 1.3,
+-      "description": "威力1.3の攻撃。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で攻撃倍率1.43倍。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "勢いよく体当たりし、金属のような音を響かせる。近くの人には、台所で鍋を落としたと思われる。",
+         "en": "Crash into the enemy with a loud metallic sound. People nearby think someone dropped a cooking pot."
+       },
+-      "descriptionEn": "Attack with power 1.3. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.43 on a correct answer. Uses: 3.",
+       "tactic": "burst",
+       "questionFormat": "idiom"
+     },
+@@ -946,12 +946,12 @@
+       "type": "attack",
+       "uses": 3,
+       "power": 1.2,
+-      "description": "威力1.2の攻撃。 正解で次の攻撃を1.10倍に強化。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で攻撃倍率1.32倍。次に正解した攻撃をさらに1.1倍。不正解・回復では強化を消費しない。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "ぐいっと押し込むように攻める。エレベーターのボタンを押すときだけは、力を抜く練習中。",
+         "en": "Press forward with a firm attack. You are still learning to press elevator buttons gently."
+       },
+-      "descriptionEn": "Attack with power 1.2. A correct answer boosts the next attack to 1.10 times its usual damage. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.32 on a correct answer. Boost the next correct attack by 1.1; wrong answers and healing do not consume the boost. Uses: 3.",
+       "tactic": "chain",
+       "questionFormat": "word_meaning",
+       "onCorrect": {
+@@ -971,12 +971,12 @@
+       "type": "attack",
+       "uses": 2,
+       "power": 1.4,
+-      "description": "威力1.4の攻撃。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で攻撃倍率1.54倍。 使用可能回数：2回。",
+       "flavor": {
+         "ja": "すぱっと切り込むような一撃を放つ。大きなケーキを切り分ける場面を想像して練習した。",
+         "en": "Slice forward with a sharp hit. You practiced by imagining a very large cake to cut."
+       },
+-      "descriptionEn": "Attack with power 1.4. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.54 on a correct answer. Uses: 2.",
+       "tactic": "burst",
+       "questionFormat": "q1"
+     },
+@@ -993,15 +993,15 @@
+       "type": "ward",
+       "uses": 3,
+       "shieldHits": 1,
+-      "shieldFactor": 0.65,
++      "shieldFactor": 0.5,
+       "wrongShieldFactor": 0.85,
+-      "power": 1,
+-      "description": "威力1の攻撃＋次の敵攻撃1回を正解で65％、不正解で85％に軽減。 使用回数は正誤にかかわらず消費。",
++      "power": 1.5,
++      "description": "正解で攻撃倍率1.65倍。次の敵攻撃1回を正解で50％、不正解で15％軽減。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "盾を前に出して攻め、身を守る。鍋のふたを見て思いついたので、構えが少し料理人っぽい。",
+         "en": "Defend yourself with a shield as you attack. A pot lid gave you the idea, so you look a little like a cook."
+       },
+-      "descriptionEn": "Attack with power 1. Reduce damage from the next 1 enemy attack(s) to 65% with a correct answer, or 85% with a wrong answer. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.65 on a correct answer. Reduce the next 1 enemy hit(s) by 50% (wrong answer: 15%). Uses: 3.",
+       "tactic": "guard",
+       "questionFormat": "q3"
+     },
+@@ -1017,14 +1017,14 @@
+       "rarity": "N",
+       "type": "weaken",
+       "uses": 3,
+-      "weakFactor": 0.65,
+-      "power": 1,
+-      "description": "威力1の攻撃。正解で次の敵の攻撃を65％にする。 使用回数は正誤にかかわらず消費。",
++      "weakFactor": 0.5,
++      "power": 1.45,
++      "description": "正解で攻撃倍率1.595倍。正解で次の敵攻撃を50％軽減。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "攻撃を当てて相手の勢いを減らす。「元気の音量を下げる」つもりで、空中のつまみを回す。",
+         "en": "Attack and reduce the enemy's force. Turn an imaginary knob as if lowering the volume of its energy."
+       },
+-      "descriptionEn": "Attack with power 1. A correct answer reduces the enemy's next attack damage to 65%. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.595 on a correct answer. Correct: reduce the next enemy attack by 50%. Uses: 3.",
+       "tactic": "disrupt",
+       "questionFormat": "q3"
+     },
+@@ -1041,12 +1041,12 @@
+       "type": "heal",
+       "uses": 3,
+       "healFraction": 0.5,
+-      "description": "最大HPの50％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で最大HPの55％回復。不正解では回復量が半分。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "工具箱を開き、自分の傷を手当てする。使うのは工具ではなく、中に詰めたばんそうこう。",
+         "en": "Open your toolbox to repair the damage. It holds bandages instead of tools."
+       },
+-      "descriptionEn": "Restore 50% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Restore 55% of maximum HP on a correct answer; half on a wrong answer. Uses: 3.",
+       "tactic": "long",
+       "questionFormat": "word_meaning"
+     },
+@@ -1062,14 +1062,14 @@
+       "rarity": "N",
+       "type": "weaken",
+       "uses": 3,
+-      "weakFactor": 0.7,
+-      "power": 1,
+-      "description": "威力1の攻撃。正解で次の敵の攻撃を70％にする。 使用回数は正誤にかかわらず消費。",
++      "weakFactor": 0.5,
++      "power": 1.5,
++      "description": "正解で攻撃倍率1.65倍。正解で次の敵攻撃を50％軽減。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "攻撃とともに影のひもを飛ばし、相手の勢いを抑える。結び目をかわいいリボンにするのがこだわり。",
+         "en": "Bind the enemy's force with shadowy cords as you attack. You insist on tying them into pretty bows."
+       },
+-      "descriptionEn": "Attack with power 1. A correct answer reduces the enemy's next attack damage to 70%. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.65 on a correct answer. Correct: reduce the next enemy attack by 50%. Uses: 3.",
+       "tactic": "disrupt",
+       "questionFormat": "idiom"
+     },
+@@ -1085,14 +1085,14 @@
+       "rarity": "N",
+       "type": "weaken",
+       "uses": 4,
+-      "weakFactor": 0.7,
+-      "power": 0.95,
+-      "description": "威力0.95の攻撃。正解で次の敵の攻撃を70％にする。 使用回数は正誤にかかわらず消費。",
++      "weakFactor": 0.55,
++      "power": 1.4,
++      "description": "正解で攻撃倍率1.54倍。正解で次の敵攻撃を45％軽減。 使用可能回数：4回。",
+       "flavor": {
+         "ja": "軽い一撃で相手の勢いを小さくする。攻撃後に「もう少しおとなしくお願いします」とお辞儀する。",
+         "en": "Attack lightly to decrease the enemy's force. Finish with a bow and a polite request to calm down."
+       },
+-      "descriptionEn": "Attack with power 0.95. A correct answer reduces the enemy's next attack damage to 70%. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.54 on a correct answer. Correct: reduce the next enemy attack by 45%. Uses: 4.",
+       "tactic": "long",
+       "questionFormat": "idiom"
+     },
+@@ -1109,15 +1109,15 @@
+       "type": "ward",
+       "uses": 4,
+       "shieldHits": 1,
+-      "shieldFactor": 0.75,
++      "shieldFactor": 0.6,
+       "wrongShieldFactor": 0.9,
+-      "power": 0.95,
+-      "description": "威力0.95の攻撃＋次の敵攻撃1回を正解で75％、不正解で90％に軽減。 使用回数は正誤にかかわらず消費。",
++      "power": 1.4,
++      "description": "正解で攻撃倍率1.54倍。次の敵攻撃1回を正解で40％、不正解で10％軽減。 使用可能回数：4回。",
+       "flavor": {
+         "ja": "攻める前に盾を構え、次の攻撃に備える。盾の注意書きは「ぶつかる前によく読んで」。",
+         "en": "Prevent some damage by raising your shield as you attack. Its warning says: Read before bumping into things."
+       },
+-      "descriptionEn": "Attack with power 0.95. Reduce damage from the next 1 enemy attack(s) to 75% with a correct answer, or 90% with a wrong answer. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.54 on a correct answer. Reduce the next 1 enemy hit(s) by 40% (wrong answer: 10%). Uses: 4.",
+       "tactic": "guard",
+       "questionFormat": "idiom"
+     },
+@@ -1133,14 +1133,14 @@
+       "rarity": "N",
+       "type": "weaken",
+       "uses": 3,
+-      "weakFactor": 0.7,
+-      "power": 1,
+-      "description": "威力1の攻撃。正解で次の敵の攻撃を70％にする。 使用回数は正誤にかかわらず消費。",
++      "weakFactor": 0.55,
++      "power": 1.65,
++      "description": "正解で攻撃倍率1.815倍。正解で次の敵攻撃を45％軽減。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "攻撃で相手の勢いにブレーキをかける。自転車の教習で覚えた「止まるときは落ち着いて」が合言葉。",
+         "en": "Attack to brake the enemy's momentum. Your bicycle lesson taught you to stay calm when stopping."
+       },
+-      "descriptionEn": "Attack with power 1. A correct answer reduces the enemy's next attack damage to 70%. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.815 on a correct answer. Correct: reduce the next enemy attack by 45%. Uses: 3.",
+       "tactic": "disrupt",
+       "questionFormat": "q3"
+     },
+@@ -1157,15 +1157,15 @@
+       "type": "ward",
+       "uses": 2,
+       "shieldHits": 1,
+-      "shieldFactor": 0.7,
++      "shieldFactor": 0.45,
+       "wrongShieldFactor": 0.9,
+-      "power": 1,
+-      "description": "威力1の攻撃＋次の敵攻撃1回を正解で70％、不正解で90％に軽減。 使用回数は正誤にかかわらず消費。",
++      "power": 1.65,
++      "description": "正解で攻撃倍率1.815倍。次の敵攻撃1回を正解で55％、不正解で10％軽減。 使用可能回数：2回。",
+       "flavor": {
+         "ja": "攻めながら盾の留め具をしっかり閉め、守りを固める。心配性なので、閉めたあと三回確かめる。",
+         "en": "Lock the shield's straps into place as you attack. Check them three times because you worry a little."
+       },
+-      "descriptionEn": "Attack with power 1. Reduce damage from the next 1 enemy attack(s) to 70% with a correct answer, or 90% with a wrong answer. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.815 on a correct answer. Reduce the next 1 enemy hit(s) by 55% (wrong answer: 10%). Uses: 2.",
+       "tactic": "guard",
+       "questionFormat": "q1"
+     },
+@@ -1181,14 +1181,14 @@
+       "rarity": "N",
+       "type": "prepare",
+       "uses": 3,
+-      "nextPower": 1.35,
+-      "power": 1,
+-      "description": "威力1の攻撃。正解で次の攻撃を1.35倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
++      "nextPower": 1.5,
++      "power": 1.35,
++      "description": "正解で攻撃倍率1.485倍。次に正解した攻撃をさらに1.5倍。不正解・回復では強化を消費しない。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "伸びをしながら攻め、次の一撃に備える。毎回「背が伸びたかも」と思うが、身長はそのまま。",
+         "en": "Stretch as you attack and prepare your next hit. Feel taller every time. Stay exactly the same height."
+       },
+-      "descriptionEn": "Attack with power 1. A correct answer makes your next attack 1.35 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.485 on a correct answer. Boost the next correct attack by 1.5; wrong answers and healing do not consume the boost. Uses: 3.",
+       "tactic": "long",
+       "questionFormat": "idiom"
+     },
+@@ -1204,13 +1204,13 @@
+       "rarity": "R",
+       "type": "attack",
+       "uses": 3,
+-      "power": 1.55,
+-      "description": "威力1.55の攻撃。 使用回数は正誤にかかわらず消費。",
++      "power": 1.9,
++      "description": "正解で攻撃倍率2.09倍。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "突然の大きな音で相手を攻める。本人も驚くので、使う前に耳をふさぎたくなる。",
+         "en": "Shock the enemy with a sudden loud sound. You want to cover your own ears before using it."
+       },
+-      "descriptionEn": "Attack with power 1.55. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 2.09 on a correct answer. Uses: 3.",
+       "tactic": "burst",
+       "questionFormat": "q9"
+     },
+@@ -1226,13 +1226,13 @@
+       "rarity": "R",
+       "type": "heal",
+       "uses": 3,
+-      "healFraction": 0.5,
+-      "description": "最大HPの50％回復。不正解は半分。 使用回数は正誤にかかわらず消費。",
++      "healFraction": 0.75,
++      "description": "正解で最大HPの82.5％回復。不正解では回復量が半分。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "丁寧な手当てで元気を取り戻す。苦い薬を飲んだあと、誰も見ていなくても「平気です」の顔をする。",
+         "en": "Recover with careful treatment and a cure. After the bitter medicine, make a brave face even if nobody is watching."
+       },
+-      "descriptionEn": "Restore 50% of maximum HP; a wrong answer restores half as much. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Restore 82.5% of maximum HP on a correct answer; half on a wrong answer. Uses: 3.",
+       "tactic": "heal",
+       "questionFormat": "q11"
+     },
+@@ -1248,14 +1248,14 @@
+       "rarity": "R",
+       "type": "prepare",
+       "uses": 3,
+-      "nextPower": 1.65,
+-      "power": 1.1,
+-      "description": "威力1.1の攻撃。正解で次の攻撃を1.65倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
++      "nextPower": 1.8,
++      "power": 1.55,
++      "description": "正解で攻撃倍率1.705倍。次に正解した攻撃をさらに1.8倍。不正解・回復では強化を消費しない。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "攻めながら自分へ号令をかけ、次の一撃へ気合を入れる。隊長も隊員も自分なので、返事だけやたら大きい。",
+         "en": "Command yourself as you attack and prepare the next hit. You are both captain and soldier, so the reply is very loud."
+       },
+-      "descriptionEn": "Attack with power 1.1. A correct answer makes your next attack 1.65 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.705 on a correct answer. Boost the next correct attack by 1.8; wrong answers and healing do not consume the boost. Uses: 3.",
+       "tactic": "chain",
+       "questionFormat": "q9"
+     },
+@@ -1271,13 +1271,13 @@
+       "rarity": "R",
+       "type": "attack",
+       "uses": 3,
+-      "power": 1.55,
+-      "description": "威力1.55の攻撃。 正解で敵の次の攻撃ダメージを80％に弱める。 使用回数は正誤にかかわらず消費。",
++      "power": 1.8,
++      "description": "正解で攻撃倍率1.98倍。正解で次の敵攻撃を20％軽減。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "たくさんの影で相手を囲んで攻める。一体だけ集合写真のつもりで、こっちに笑顔を向けている。",
+         "en": "Surround the enemy with attacking shadows. One thinks this is a group photo and smiles at you."
+       },
+-      "descriptionEn": "Attack with power 1.55. A correct answer reduces the next enemy attack to 80% damage. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.98 on a correct answer. Correct: reduce the next enemy attack by 20%. Uses: 3.",
+       "tactic": "disrupt",
+       "questionFormat": "q9",
+       "onCorrect": {
+@@ -1296,14 +1296,14 @@
+       "rarity": "R",
+       "type": "weaken",
+       "uses": 3,
+-      "weakFactor": 0.5,
+-      "power": 1.15,
+-      "description": "威力1.15の攻撃。正解で次の敵の攻撃を50％にする。 使用回数は正誤にかかわらず消費。",
++      "weakFactor": 0.4,
++      "power": 1.65,
++      "description": "正解で攻撃倍率1.815倍。正解で次の敵攻撃を60％軽減。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "攻めながら変な音を出し、相手の集中を乱す。お腹の音か技の音か、聞き分けるのは難しい。",
+         "en": "Disturb the enemy's focus with a strange sound as you attack. It is hard to tell the skill from a stomach rumble."
+       },
+-      "descriptionEn": "Attack with power 1.15. A correct answer reduces the enemy's next attack damage to 50%. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.815 on a correct answer. Correct: reduce the next enemy attack by 60%. Uses: 3.",
+       "tactic": "disrupt",
+       "questionFormat": "q9"
+     },
+@@ -1319,14 +1319,14 @@
+       "rarity": "R",
+       "type": "prepare",
+       "uses": 3,
+-      "nextPower": 1.65,
+-      "power": 1.1,
+-      "description": "威力1.1の攻撃。正解で次の攻撃を1.65倍（重複せず置き換え）。 使用回数は正誤にかかわらず消費。",
++      "nextPower": 1.8,
++      "power": 1.55,
++      "description": "正解で攻撃倍率1.705倍。次に正解した攻撃をさらに1.8倍。不正解・回復では強化を消費しない。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "大物のふりをして攻め、次の一撃へ自信をつける。演技がうまくて、自分までその気になっている。",
+         "en": "Pretend to be mighty as you attack and build confidence for the next hit. Your acting convinces even you."
+       },
+-      "descriptionEn": "Attack with power 1.1. A correct answer makes your next attack 1.65 times as strong. This replaces any existing next-attack boost; it does not stack. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.705 on a correct answer. Boost the next correct attack by 1.8; wrong answers and healing do not consume the boost. Uses: 3.",
+       "tactic": "chain",
+       "questionFormat": "q11"
+     },
+@@ -1342,13 +1342,13 @@
+       "rarity": "R",
+       "type": "attack",
+       "uses": 3,
+-      "power": 1.55,
+-      "description": "威力1.55の攻撃。 使用回数は正誤にかかわらず消費。",
++      "power": 1.9,
++      "description": "正解で攻撃倍率2.09倍。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "相手の隙をつかみ、強い一撃を放つ。おやつの最後の一個をつかむときも、同じ集中力を使う。",
+         "en": "Seize an opening and strike hard. You use the same focus to grab the last snack."
+       },
+-      "descriptionEn": "Attack with power 1.55. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 2.09 on a correct answer. Uses: 3.",
+       "tactic": "burst",
+       "questionFormat": "idiom"
+     },
+@@ -1365,15 +1365,15 @@
+       "type": "ward",
+       "uses": 3,
+       "shieldHits": 2,
+-      "shieldFactor": 0.6,
++      "shieldFactor": 0.5,
+       "wrongShieldFactor": 0.8,
+-      "power": 1.15,
+-      "description": "威力1.15の攻撃＋次の敵攻撃2回を正解で60％、不正解で80％に軽減。 使用回数は正誤にかかわらず消費。",
++      "power": 1.55,
++      "description": "正解で攻撃倍率1.705倍。次の敵攻撃2回を正解で50％、不正解で20％軽減。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "盾で身を守りながら、力強く攻める。盾には「取扱注意」とあるが、持ち主はなかなか豪快。",
+         "en": "Protect yourself with a shield while attacking strongly. The shield says Handle with care. You do not look very careful."
+       },
+-      "descriptionEn": "Attack with power 1.15. Reduce damage from the next 2 enemy attack(s) to 60% with a correct answer, or 80% with a wrong answer. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.705 on a correct answer. Reduce the next 2 enemy hit(s) by 50% (wrong answer: 20%). Uses: 3.",
+       "tactic": "guard",
+       "questionFormat": "q11"
+     },
+@@ -1389,14 +1389,14 @@
+       "rarity": "R",
+       "type": "replenish",
+       "uses": 2,
+-      "description": "威力1.15の攻撃＋正解で、使用回数が最も減っている別の技を最大2回復。同数なら枠順。上限を超えず、回数回復技には使えない。 使用回数は正誤にかかわらず消費。",
+-      "power": 1.15,
++      "description": "正解で攻撃倍率1.65倍。正解で他の技1つの使用回数を2回復（上限まで）。 使用可能回数：2回。",
++      "power": 1.5,
+       "restoreUses": 2,
+       "flavor": {
+         "ja": "攻めながら別の技のコツを確かめ、もう少し使えるようにする。葉っぱのメモには「延長お願いします」と書いてある。",
+         "en": "Attack and review another skill to extend its use. Your leaf-shaped note says: More time, please."
+       },
+-      "descriptionEn": "Attack with power 1.15. A correct answer restores up to 2 use(s) to another skill with the most uses missing. Ties follow slot order. Never exceed its limit or restore a use-restoring skill. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.65 on a correct answer. Correct: restore 2 use(s) of another skill, up to its limit. Uses: 2.",
+       "tactic": "long",
+       "questionFormat": "q11"
+     },
+@@ -1413,12 +1413,12 @@
+       "type": "attack",
+       "uses": 2,
+       "power": 2,
+-      "description": "威力2の攻撃。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で攻撃倍率2.2倍。 使用可能回数：2回。",
+       "flavor": {
+         "ja": "雷のような大音響で相手を攻める。近所の鳥たちは、技を聞くたびに天気予報を疑う。",
+         "en": "Attack with a sound like thunder. The local birds question the weather report every time they hear it."
+       },
+-      "descriptionEn": "Attack with power 2. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 2.2 on a correct answer. Uses: 2.",
+       "tactic": "burst",
+       "questionFormat": "q12"
+     },
+@@ -1435,12 +1435,12 @@
+       "type": "attack",
+       "uses": 3,
+       "power": 1.85,
+-      "description": "威力1.85の攻撃。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で攻撃倍率2.035倍。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "大迫力の声を森じゅうへ放送し、相手を攻める。番組名は「ただいま戦闘中」、司会は自分。",
+         "en": "Broadcast a mighty voice through the forest to attack. You host a program called Battle in Progress."
+       },
+-      "descriptionEn": "Attack with power 1.85. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 2.035 on a correct answer. Uses: 3.",
+       "tactic": "long",
+       "questionFormat": "q9"
+     },
+@@ -1457,12 +1457,12 @@
+       "type": "attack",
+       "uses": 2,
+       "power": 2,
+-      "description": "威力2の攻撃。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で攻撃倍率2.2倍。 使用可能回数：2回。",
+       "flavor": {
+         "ja": "姿が消えたように見える速い動きで、大きな一撃を放つ。しっぽだけは隠し忘れている。",
+         "en": "Move as if you could disappear, then strike hard. Forget to hide your tail."
+       },
+-      "descriptionEn": "Attack with power 2. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 2.2 on a correct answer. Uses: 2.",
+       "tactic": "burst",
+       "questionFormat": "q11"
+     },
+@@ -1479,12 +1479,12 @@
+       "type": "attack",
+       "uses": 2,
+       "power": 2.15,
+-      "description": "威力2.15の攻撃。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で攻撃倍率2.365倍。 使用可能回数：2回。",
+       "flavor": {
+         "ja": "頭の中の空想を、大きな一撃の勢いに変える。想像する勇者は、なぜか巨大なプリン。",
+         "en": "Turn a grand fancy into a mighty hit. For some reason, the hero you imagine is a giant pudding."
+       },
+-      "descriptionEn": "Attack with power 2.15. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 2.365 on a correct answer. Uses: 2.",
+       "tactic": "burst",
+       "questionFormat": "q12"
+     },
+@@ -1501,12 +1501,12 @@
+       "type": "attack",
+       "uses": 2,
+       "power": 2,
+-      "description": "威力2の攻撃。 使用回数は正誤にかかわらず消費。",
++      "description": "正解で攻撃倍率2.2倍。 使用可能回数：2回。",
+       "flavor": {
+         "ja": "相手を打ち倒すつもりで、渾身の一撃を放つ。勝利ポーズは練習済みだが、勝てるかはこれから。",
+         "en": "Strike with all your strength to defeat the enemy. You practiced the victory pose, but victory still comes later."
+       },
+-      "descriptionEn": "Attack with power 2. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 2.2 on a correct answer. Uses: 2.",
+       "tactic": "burst",
+       "questionFormat": "q12"
+     },
+@@ -1523,15 +1523,15 @@
+       "type": "ward",
+       "uses": 3,
+       "shieldHits": 2,
+-      "shieldFactor": 0.5,
++      "shieldFactor": 0.4,
+       "wrongShieldFactor": 0.75,
+-      "power": 1.25,
+-      "description": "威力1.25の攻撃＋次の敵攻撃2回を正解で50％、不正解で75％に軽減。 使用回数は正誤にかかわらず消費。",
++      "power": 1.75,
++      "description": "正解で攻撃倍率1.925倍。次の敵攻撃2回を正解で60％、不正解で25％軽減。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "強く攻めつつ、絶対の守りを目指して盾を構える。盾には小さく「無敵とは言ってません」と書いてある。",
+         "en": "Attack strongly and aim for absolute protection with your shield. Small letters say: Not a promise of invincibility."
+       },
+-      "descriptionEn": "Attack with power 1.25. Reduce damage from the next 2 enemy attack(s) to 50% with a correct answer, or 75% with a wrong answer. One use is consumed whether your answer is correct or wrong.",
++      "descriptionEn": "Attack multiplier 1.925 on a correct answer. Reduce the next 2 enemy hit(s) by 60% (wrong answer: 25%). Uses: 3.",
+       "tactic": "guard",
+       "questionFormat": "q11"
+     }
+diff --git a/dist/battle-prototype/chapter1.js b/dist/battle-prototype/chapter1.js
+index 758a084..b7cd180 100644
+--- a/dist/battle-prototype/chapter1.js
++++ b/dist/battle-prototype/chapter1.js
+@@ -61,7 +61,7 @@ c.append(button(restart?'この編成で森の入口から再挑戦':'物語を
+  const p=list.find(p=>p.id===select.value);if(restart){state.partnerId=p.id;state.pet=p;state.skills=ids;state.gear=gear.value;state.scene=6;state.line=0;state.mode='story';state.run=null;state.combat=null;state.question=null;state.feedback=null;state.misses=[];}else state=fresh(p,ids,gear.value);save();render();},true));
+ if(state)c.append(button('続きに戻る',render));}
+ function advance(){const s=D.scenes[state.scene],line=s.lines[state.line];if(line&&!state.read.includes(line.id))state.read.push(line.id);state.line++;if(state.line>=s.lines.length){if(state.scene===D.scenes.length-1){state.mode='complete';state.completed=true;}else{state.scene++;state.line=0;}}save();render();}
+-function render(){setMusicMode(state?.mode==='battle'?(state.battleId==='mist'?'blackfog':state.battleId===5?'boss':'battle'):state?.mode==='story'?'story':'setup');clearInterval(interval);clearTimeout(skipTimer);if(state?.mode==='story'&&storyArt?.parentNode===app){Array.from(app.children).forEach(node=>{if(node!==storyArt)node.remove();});}else{app.replaceChildren();storyArt=null;}tell('');if(blocked)return;
++function render(){for(const p of [state?.run,state?.checkpoint,state?.combat?.player])E.refreshSkills(p,C);setMusicMode(state?.mode==='battle'?(state.battleId==='mist'?'blackfog':state.battleId===5?'boss':'battle'):state?.mode==='story'?'story':'setup');clearInterval(interval);clearTimeout(skipTimer);if(state?.mode==='story'&&storyArt?.parentNode===app){Array.from(app.children).forEach(node=>{if(node!==storyArt)node.remove();});}else{app.replaceChildren();storyArt=null;}tell('');if(blocked)return;
+ if(!state){setup();return;}if(state.mode==='complete'){complete();return;}if(state.mode==='battle'){battleView();return;}if(state.mode==='defeat'){defeat();return;}if(state.mode==='gift'){gift();return;}
+ if(state.recoveryNotice){const recovery=card();text('p',state.recoveryNotice,recovery,'recovery-notice');window.GoimonQuestReview?.show(state.misses||[],recovery);recovery.append(button('確認した',()=>{state.recoveryNotice=null;save();render();}));}
+ const s=D.scenes[state.scene],line=s.lines[state.line];if(!line)throw Error('場面の続きが見つかりません');const heading=text('p','第1章 · '+s.title,app,'eyebrow'),art=sceneArt(s.background);app.insertBefore(heading,art);
+@@ -91,7 +91,7 @@ if(state.question){questionView(panel);return;}
+ if(E.current(b)==='enemy'){panel.append(button('防御の問題へ',()=>ask('normal'),true));return;}
+ const actions=card(panel,'grid');let commands=E.commands(b);if(id===0)commands=commands.filter(x=>state.tutorial.practice===0?x.id==='normal':x.id==='skill:0');
+ for(const cmd of commands){const skill=cmd.id==='normal'?null:b.player.skills[Number(cmd.id.slice(-1))];const btn=button(cmd.name+(skill?' · 残り'+skill.left+'/'+skill.maxUses+'回':''),()=>ask(cmd.id));btn.disabled=cmd.disabled||!!(skill&&!Q.supported.includes(skill.questionFormat));btn.className='skill';if(skill)text('small',C.questionFormats[skill.questionFormat]?.label||skill.questionFormat,btn);actions.append(btn);}
+-const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent='SKILLの効果（攻撃・回復10％強化）';details.append(summary);b.player.skills.forEach(s=>text('p',s.name+'：'+(s.type==='heal'?'正解で最大HPの55％以上を回復。':s.description),details,'small'));panel.append(details);}
++const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent='SKILLの効果（強化後の倍率）';details.append(summary);b.player.skills.forEach(s=>text('p',s.name+'：'+s.description,details,'small'));panel.append(details);}
+ function showExplanation(panel,explanation){
+  if(!explanation||explanation.notes?.some(note=>note.includes('英語と意味を組にして覚えましょう')))return;
+  const ex=explanation;
+diff --git a/dist/battle-prototype/chapter2.js b/dist/battle-prototype/chapter2.js
+index 19fc1de..3c5caeb 100644
+--- a/dist/battle-prototype/chapter2.js
++++ b/dist/battle-prototype/chapter2.js
+@@ -42,7 +42,7 @@ function staging(battle=false){const s=D.scenes[state.scene],line=s.lines[Math.m
+  if(capture||rescue)add('captives',A.path('events','captives'),'黒霧に囚われたサーヤとトヨヨ');if(enemy)add('enemy',A.path('enemies',enemy),D.battles.find(x=>x.id===enemy).name);
+  art.querySelectorAll('[data-id]').forEach(img=>{if(!present.has(img.dataset.id))img.remove();});return art;
+ }
+-function render(){clearInterval(timer);if(blocked)return;const retain=state?.mode==='story'&&art?.isConnected;if(retain){[...app.children].forEach(c=>{if(c!==art)c.remove();});}else{app.replaceChildren();art=null;}
++function render(){for(const p of [state?.run,state?.checkpoint,state?.combat?.player])E.refreshSkills(p,C);clearInterval(timer);if(blocked)return;const retain=state?.mode==='story'&&art?.isConnected;if(retain){[...app.children].forEach(c=>{if(c!==art)c.remove();});}else{app.replaceChildren();art=null;}
+  if(!state){setup();return;}if(state.mode==='battle'){battleView();return;}if(state.mode==='defeat'){defeat();return;}if(state.mode==='complete'){music('setup');el('p','CHAPTER 02 · COMPLETE',app,'eyebrow');el('h1','ふたつの声');el('p','次の目的地は、トシャカ中央記録院。');btn('物語の記録を見る',history,app,true);reviews(app);return;}
+  music('story');const s=D.scenes[state.scene],line=s.lines[state.line],heading=el('p','第2章 · '+s.title,app,'eyebrow');staging();app.insertBefore(heading,art);
+  const panel=el('section','',app,'panel');if(!line&&s.battleId){el('h2',D.battles.find(x=>x.id===s.battleId).name,panel);el('p','問題に正解して攻撃・防御。時間切れは不正解になります。',panel,'muted');btn('戦闘へ',()=>startBattle(false),panel,true);return;}
+@@ -58,7 +58,7 @@ function battleView(){const b=state.combat,id=state.battleId;music(id===9?'boss'
+  if(b.ended){P.finish(state,D);save();render();return;}
+  el('p',E.current(b)==='player'?'攻撃を選ぼう':'敵の攻撃 · 正解でダメージ軽減',panel,'muted');if(state.question){questionView(panel);return;}if(E.current(b)==='enemy'){btn('防御の問題へ',()=>ask('normal'),panel,true);return;}
+  const actions=el('div','',panel,'actions');for(const cmd of E.commands(b)){const skill=cmd.id==='normal'?null:b.player.skills[Number(cmd.id.split(':')[1])];const button=btn(cmd.name+(skill?' · '+skill.left+'/'+skill.maxUses+'回':''),()=>ask(cmd.id),actions);button.disabled=cmd.disabled||!!(skill&&!Q.supported.includes(skill.questionFormat));}
+- const details=el('details','',panel);el('summary','技の効果と問題形式（攻撃・回復10％強化）',details);for(const s of b.player.skills)el('p',s.name+'：'+s.description+'（'+(C.questionFormats[s.questionFormat]?.label||s.questionFormat)+'）',details);
++ const details=el('details','',panel);el('summary','技の効果と問題形式（強化後の倍率）',details);for(const s of b.player.skills)el('p',s.name+'：'+s.description+'（'+(C.questionFormats[s.questionFormat]?.label||s.questionFormat)+'）',details);
+ }
+ function ask(command){const b=state.combat,base=GoimonSkillQuestionRouting.skillFormat(b.player.skills,command,E.current(b),false),format=base==='word_meaning'&&state.battleId>=7?'idiom':base,stage={words:({1:[301,350],2:[351,400],3:[301,400],4:[401,450],5:[451,500],6:[301,500]})[state.battleId]||[301,500],idioms:state.battleId===7?[1,100]:state.battleId===8?[101,200]:[1,287]};const q=Q.select(format,stage,source,GoimonQuestQuestionBank,Math.random,state.lastQuestion||'');state.lastQuestion=q.id;if(!window.GoimonDeveloper?.active)window.GoimonStudyTime?.begin(({q1:'accent',q3:'listening',word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'})[format],'1');const seconds=['q1','q3'].includes(format)?null:format==='word_meaning'?10:format==='q12'?45:30;state.question={...q,command,selected:[],startedAt:Date.now(),deadline:seconds?Date.now()+seconds*1000:null};save();render();}
+ function questionView(panel){const q=state.question,t=el('span','',panel,'timer');el('p',({q1:'最も強く読む音節を選ぼう',q3:'音声に合う応答を選ぼう',word_meaning:'英語の意味を選ぼう',idiom:'同じ意味の表現を選ぼう',q9:'空所に合う語句を選ぼう',q11:'文aと文bが同じ意味になる語句を選ぼう',q12:'語句を正しい順番に並べよう'})[q.format],panel,'muted');el('h2',q.prompt,panel,'prompt');
+diff --git a/dist/battle-prototype/core.js b/dist/battle-prototype/core.js
+index 2e62f54..a1592d7 100644
+--- a/dist/battle-prototype/core.js
++++ b/dist/battle-prototype/core.js
+@@ -25,7 +25,7 @@ function resolve(b,command,correct,options={}){
+  if(side==='player'){
+   if(skill?.type==='heal'){entry.text=skill.name+'：HPを'+heal(p,p.maxHp*Math.min(1,Math.max(.5,skill.healFraction||.5)*1.1)*(p.id==='tsumugi'?1.3:1)*(correct?1:.5))+'回復';}
+   else{
+-   let extra=p.nextPower;p.nextPower=1;
++   let extra=p.nextPower;if(correct)p.nextPower=1;
+    if(p.gearEffect==='courage'&&p.hp<=p.maxHp/2)extra*=1.12;
+    if(p.gearEffect==='streak'){if(p.streak>=2){extra*=1.15;p.streak=0;}else p.streak=correct?p.streak+1:0;}
+    const attr=skill?.attr||p.attr,amount=correct?damage(attackActor,e,skill?(skill.power||1)*1.1:1,1,attr,speedBonus(p,e)*(attackIds.includes(p.id)?1.1:1)*extra,1,variance):1;
+@@ -53,5 +53,7 @@ function resolve(b,command,correct,options={}){
+  b.log.push(entry);if(p.hp===0||e.hp===0){b.ended=true;b.winner=e.hp===0?'player':'enemy';return entry;}
+  b.index++;if(b.index===2){b.index=0;b.turn++;}return entry;
+ }
+-const api={gain,affinity,actor,damage,speedBonus,counter,create,current,commands,resolve};if(typeof module!=='undefined')module.exports=api;else root.GoimonBattlePrototype=api;
++// Refresh definitions only: retain HP, spent uses, equipment and progression.
++function refreshSkills(p,catalog){if(!p?.skills||!catalog?.skills)return;for(const s of p.skills){const latest=catalog.skills.find(x=>x.id===s.id);if(latest){const left=s.left,maxUses=s.maxUses;Object.assign(s,latest,{left,maxUses});}}}
++const api={refreshSkills,gain,affinity,actor,damage,speedBonus,counter,create,current,commands,resolve};if(typeof module!=='undefined')module.exports=api;else root.GoimonBattlePrototype=api;
+ })(typeof window!=='undefined'?window:globalThis);
