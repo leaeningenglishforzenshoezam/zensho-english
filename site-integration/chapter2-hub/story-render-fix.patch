@@ -1,0 +1,142 @@
+diff --git a/checks/CHAPTER2_ADDITIONAL_ASSETS.md b/checks/CHAPTER2_ADDITIONAL_ASSETS.md
+new file mode 100644
+index 0000000..e1ceacc
+--- /dev/null
++++ b/checks/CHAPTER2_ADDITIONAL_ASSETS.md
+@@ -0,0 +1,18 @@
++# Chapter 2 additional art audit (2026-10-26)
++
++Current fixed assets: 11 backgrounds, 2 details, 12 character portraits, 9 enemies, 1 captive event = 35. Player partner and Morii reuse existing assets. Additional names below are proposals, not registered runtime references.
++
++| Priority | Asset | Existing scene | Proposed path | Suggested size |
++|---|---|---|---|---|
++| High | Farmer neutral full-body | 4 (dry canal), 21 (restored water) | images/chapter2/characters/ch2_farmer_normal.png | 1024×1536 transparent PNG |
++| High | Waterway manager neutral full-body | 6,12,13,21,22 | images/chapter2/characters/ch2_manager_normal.png | 1024×1536 transparent PNG |
++| Recommended | Saya and Toyoyo fleeing | Scene 2 lines 0–3; before player joins at line 5 | images/chapter2/events/ch2_escape.png | 1536×1024 landscape |
++| Optional | Watermill rear stairs | Scene 7 first narration; currently underground background | images/chapter2/backgrounds/ch2_watermill_steps.png | 1536×1024 landscape |
++| Optional | Manager and workers closing inlet | Scene 21 lines 1–3 | images/chapter2/events/ch2_inlet_repair.png | 1536×1024 landscape |
++| Optional | Farmer/manager smiles | Scene 21 after water returns | characters/ch2_farmer_happy.png, ch2_manager_happy.png | Same canvas/pose as neutral |
++
++No new events required. Escape image must use approved Saya/Toyoyo designs and worried expressions, show approaching black fog behind them, and omit player/selected partner. A complete event illustration is enough; separate running sprites are optional, not also required. Existing captives/enemy layers cover final-boss capture and rescue; do not regenerate. Ancient records already have two dedicated detail images. Scene 13 partner-dependent play should not be baked into a fixed event image.
++
++Renderer fix: retain story stage only when parentNode is app, not merely isConnected (battle stage belongs to nested .battle). Morii persists throughout scenes with a Morii line and is hidden in other scenes; this is presentation, not a new story departure. Narration in both chapters uses label 情景, upright serif and border, not Japanese italics.
++
++Validation: old insertBefore bug reproduced in strict DOM harness; all 9 victory transitions and all 23 scene casts tested. Normal saves/learning data untouched by the DOM change. Existing error should be recoverable by reloading; do not clear site data.
+diff --git a/checks/chapter2-render.test.cjs b/checks/chapter2-render.test.cjs
+new file mode 100644
+index 0000000..77fca70
+--- /dev/null
++++ b/checks/chapter2-render.test.cjs
+@@ -0,0 +1,23 @@
++const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict'),path=require('path');
++const root=path.join(__dirname,'../dist');
++class Node{
++ constructor(tag='div'){this.tagName=tag;this.children=[];this.parentNode=null;this.dataset={};this.attributes={};this.style={};this.className='';this.textContent='';this.classList={add:(v)=>{this.className+=' '+v;}};}
++ get isConnected(){return this.connected||!!this.parentNode?.isConnected;}
++ append(...nodes){for(const n of nodes){n.remove();n.parentNode=this;this.children.push(n);}}
++ remove(){if(this.parentNode){const p=this.parentNode;p.children.splice(p.children.indexOf(this),1);this.parentNode=null;}}
++ replaceChildren(...nodes){for(const n of [...this.children])n.remove();this.append(...nodes);}
++ insertBefore(n,ref){if(ref.parentNode!==this)throw Error('insertBefore: reference is not a child');n.remove();n.parentNode=this;this.children.splice(this.children.indexOf(ref),0,n);}
++ setAttribute(k,v){this.attributes[k]=v;}getAttribute(k){return k==='src'?this.src:this.attributes[k];}
++ querySelectorAll(q){const match=n=>q==='[data-id]'?!!n.dataset.id:q.startsWith('[data-id=')?n.dataset.id===q.slice(10,-2):q==='button'?n.tagName==='button':q.startsWith('.')?n.className.split(' ').includes(q.slice(1)):false;return this.children.flatMap(n=>[...(match(n)?[n]:[]),...n.querySelectorAll(q)]);}
++ querySelector(q){return this.querySelectorAll(q)[0]||null;}
++}
++function harness(old=false){const nodes=new Map();const get=id=>{if(!nodes.has(id)){const n=new Node();n.connected=true;nodes.set(id,n);}return nodes.get(id);};const mem=new Map(),storage={getItem:k=>mem.get(k)||null,setItem:(k,v)=>mem.set(k,v)};
++const ctx={console,URL,URLSearchParams,Date,JSON,Math,Set,localStorage:storage,sessionStorage:storage,GOIMONStorage:storage,GOIMONProfiles:{account:'guest'},GOIMON_CLOUD_CONFIG:{apiBase:''},GoimonChapter2Access:{current:()=>true},GoimonDex:{getEntry:()=>({name:'フェネ',image:'images/goimon/hirameki_child.png'})},document:{getElementById:get,createElement:t=>new Node(t)},setInterval:()=>1,clearInterval(){},addEventListener(){},getSelection:()=>({toString:()=>''})};ctx.window=ctx;vm.createContext(ctx);
++for(const f of ['catalog','core','story_names','question-routing','chapter_questions','chapter2_data','chapter2_assets','chapter2_portraits','chapter2_progress','chapter2_battle'])vm.runInContext(fs.readFileSync(path.join(root,'battle-prototype/'+f+'.js'),'utf8'),ctx);
++let code=fs.readFileSync(path.join(root,'battle-prototype/chapter2.js'),'utf8');if(old)code=code.replace("state?.mode==='story'&&art?.parentNode===app","state?.mode==='story'&&art?.isConnected");code=code.replace('window.GoimonChapter2=Object.freeze','window.test={render,startBattle,get:()=>state,set:s=>{state=s;},finish:()=>{P.finish(state,D);render();}};window.GoimonChapter2=Object.freeze');vm.runInContext(code,ctx);return {ctx,get};}
++const pet={id:'test',type:'hirameki',stage:'child',stats:{chie:0,kotoba:0,bunmyaku:0,onkan:0}};
++function transition(h,scene){const {ctx,get}=h,s=ctx.GoimonChapter2Progress.fresh(ctx.GoimonChapter2Data,pet);s.scene=scene;s.line=ctx.GoimonChapter2Data.scenes[scene].lines.length;ctx.test.set(s);ctx.test.startBattle(false);assert.equal(get('app').querySelector('.stage').parentNode.className,'battle');s.combat.ended=true;s.combat.winner='player';ctx.test.finish();assert.equal(get('app').querySelector('.stage').parentNode,get('app'));}
++assert.throws(()=>transition(harness(true),1),/insertBefore/);console.log('PASS original nested-stage bug reproduced');
++const h=harness();for(let i=0;i<h.ctx.GoimonChapter2Data.scenes.length;i++)if(h.ctx.GoimonChapter2Data.scenes[i].battleId)transition(h,i);console.log('PASS all 9 battle-to-story DOM transitions');
++for(let i=0;i<h.ctx.GoimonChapter2Data.scenes.length;i++){const s=h.ctx.GoimonChapter2Progress.fresh(h.ctx.GoimonChapter2Data,pet);s.scene=i;h.ctx.test.set(s);h.ctx.test.render();const art=h.get('app').querySelector('.stage');assert.equal(!!art.querySelectorAll('[data-id]').find(n=>n.dataset.id==='morii'),h.ctx.GoimonChapter2Data.scenes[i].lines.some(l=>l.speaker==='モリィ'));h.ctx.test.render();assert.equal(h.get('app').querySelector('.stage'),art);assert.equal(!!h.get('app').querySelector('.narration-text'),!h.ctx.GoimonChapter2Data.scenes[i].lines[0].speaker);}
++console.log('PASS 23 scene casts, persistent portraits and narration labels');
+diff --git a/dist/battle-prototype/chapter1.js b/dist/battle-prototype/chapter1.js
+index b7cd180..faa0a87 100644
+--- a/dist/battle-prototype/chapter1.js
++++ b/dist/battle-prototype/chapter1.js
+@@ -68,7 +68,7 @@ const s=D.scenes[state.scene],line=s.lines[state.line];if(!line)throw Error('場
+ if(line.event){const box=card();text('h2',line.event==='tutorial'?'モリィと戦い方を練習':line.event==='gift'?'ガチャの練習と装備':line.battleId==='mist'?'黒い霧から守護者を救おう':'STAGE '+line.battleId+' · '+enemyNames[line.battleId-1],box);
+  if(line.event==='gift')box.append(button('装備の練習へ',()=>{state.mode='gift';save();render();},true));
+  else{if(line.battleId==='mist')text('p','STAGE5からのHP・技を引き継ぎます。敗北したら戦闘直前の状態から再挑戦できます。編成を変える場合は、既読を残して森の入口からやり直せます。',box);box.append(button('準備できた・戦闘へ',()=>startBattle(line.event==='tutorial'?0:line.battleId),true));}return;}
+-const panel=card(app,'text-panel');text('p',interpolate(line.speaker)||'ことばの森',panel,'speaker');text('p',interpolate(window.GoimonAdventureProfile?.line(line.text,line.speaker)||line.text),panel,'story-text');
++const panel=card(app,'text-panel');text('p',interpolate(line.speaker)||'情景',panel,line.speaker?'speaker':'speaker narration-label');text('p',interpolate(window.GoimonAdventureProfile?.line(line.text,line.speaker)||line.text),panel,line.speaker?'story-text':'story-text narration-text');
+ text('p',(state.scene+1)+' / 20 場面 · '+(state.line+1)+' / '+s.lines.length+' 行',app,'progress');
+ const actions=card(app,'actions');const next=button(state.scene===19&&state.line===s.lines.length-1?'第1章を終える':'次へ',advance,true);next.id='next';actions.append(next,button('履歴',showHistory),button('既読をスキップ',()=>{function step(){if(blocked||state.mode!=='story')return;const l=D.scenes[state.scene].lines[state.line];if(!l||l.event||!state.read.includes(l.id))return;advance();skipTimer=setTimeout(guarded(step),80);}step();}));
+ let down;panel.onpointerdown=e=>{down={x:e.clientX,y:e.clientY};};panel.onpointerup=guarded(e=>{if(down&&Math.abs(e.clientX-down.x)<8&&Math.abs(e.clientY-down.y)<8&&!getSelection().toString())advance();down=null;});}
+@@ -129,7 +129,7 @@ else if(!state.tutorial.item)c.append(button('装備ガチャをひく · ✦10'
+ else{text('h2',state.tutorial.item.name,c);text('p',state.tutorial.item.description,c);c.append(button('練習装備をセットして進む',()=>{if(!state.tutorial.equipped)T.equip(state.tutorial);state.mode='story';save();advance();},true));}}
+ function defeat(){text('h1','もう一度、声をつなごう');window.GoimonQuestReview?.studyLinks(state.misses||[],state.battleId,app);window.GoimonQuestReview?.show(state.misses||[],app);const help=card();text('h2','HPがなくなったら、回復技も試そう',help);text('p','回復SKILLは問題に正解すると最大HPの55％以上を回復します。HPが0になる前に使うのがポイント。ほしのかけらを集め、技ガチャで新しいSKILLを手に入れよう。回復技を手に入れたら、相棒の管理画面でセットできます。',help);text('p',state.battleId==='mist'?'守護者の救出は、まだ終わっていません。黒い霧との戦闘直前から再挑戦できます。':'少し準備して、もう一度森へ。読んだ物語とクリア済みの記録は残ります。');const c=card();
+ if(state.battleId==='mist')c.append(button('霧の戦闘直前から再挑戦',()=>startBattle('mist',true),true));c.append(button('編成を見直して森の入口から',()=>setup(true)));}
+-function showHistory(){const body=$('logBody');body.replaceChildren();for(const s of D.scenes){const lines=s.lines.filter(l=>!l.event&&state?.read.includes(l.id));if(!lines.length)continue;text('h3',s.title,body);for(const l of lines)text('p',(l.speaker?interpolate(l.speaker)+'\n':'')+interpolate(window.GoimonAdventureProfile?.line(l.text,l.speaker)||l.text),body);}if(!body.children.length)text('p','読み終えた文章がここに残ります。',body);if($('menu').open)$('menu').close();$('log').showModal();}
++function showHistory(){const body=$('logBody');body.replaceChildren();for(const s of D.scenes){const lines=s.lines.filter(l=>!l.event&&state?.read.includes(l.id));if(!lines.length)continue;text('h3',s.title,body);for(const l of lines)text('p',(l.speaker?interpolate(l.speaker)+'\n':'')+interpolate(window.GoimonAdventureProfile?.line(l.text,l.speaker)||l.text),body,l.speaker?'':'narration-text');}if(!body.children.length)text('p','読み終えた文章がここに残ります。',body);if($('menu').open)$('menu').close();$('log').showModal();}
+ function complete(){window.GoimonQuestReview?.show(state.allMisses||state.misses||[],app);text('p','CHAPTER 1 · COMPLETE',app,'eyebrow');text('h1','聞こえた言葉');sceneArt('forest');text('p','相棒とつないだ声は、森の外へ。第1章クリア！');text('p','第2章「ふたつの声」が解放されました。クエストメニューで章を切り替えて、冒険を続けよう。');const c=card();c.append(button('物語を読み返す',showHistory,true),button('別の編成で森に再挑戦',()=>setup(true)));const a=document.createElement('a');a.className='button';a.href='quest_home.html?chapter=chapter2';a.textContent='クエストホームへ';c.append(a);}
+ $('home').onclick=()=>{clearTimeout(skipTimer);$('menu').showModal();};$('resume').onclick=()=>$('menu').close();$('closeLog').onclick=()=>$('log').close();$('history').onclick=guarded(showHistory);
+ $('restartRun').onclick=guarded(()=>{if(!state)return;if(!state.tutorial.complete){tell('教習と練習装備を終えてから編成を変更できます。');return;}if(confirm('既読とクリア記録を残して、森の入口から挑戦し直しますか？')){$('menu').close();setup(true);}});
+diff --git a/dist/battle-prototype/chapter2.js b/dist/battle-prototype/chapter2.js
+index 3c5caeb..61ca459 100644
+--- a/dist/battle-prototype/chapter2.js
++++ b/dist/battle-prototype/chapter2.js
+@@ -36,17 +36,17 @@ function staging(battle=false){const s=D.scenes[state.scene],line=s.lines[Math.m
+  if(enemy)art.classList.add('encounter');if(capture||rescue)art.classList.add('boss');if(rescue)art.classList.add('rescue');
+  const present=new Set(),talk=active(line?.speaker);
+  function add(id,src,alt,cls=id){if(!src)return;present.add(id);let img=art.querySelector('[data-id="'+id+'"]');if(!img){img=document.createElement('img');img.dataset.id=id;img.onerror=()=>{img.hidden=true;};art.append(img);}if(img.getAttribute('src')!==src){img.hidden=false;img.src=src;}img.alt=alt;img.className='character '+cls+(!battle&&talk&&talk!==id?' listening':'');}
+- add('partner',image(),names().partnerName);if(!battle)add('morii','images/quest/chapter1/morii_normal.png','モリィ');
++ add('partner',image(),names().partnerName);if(!battle&&s.lines.some(l=>l.speaker==='モリィ'))add('morii','images/quest/chapter1/morii_normal.png','モリィ');
+  const together=n>=2&&!(n>=7&&n<=9)&&!(n===10&&ln<3)&&!(n===23&&ln>=8);
+  if(together&&!capture&&!rescue&&!battle){let expressions=GoimonChapter2Portraits.initial(s.id);for(const l of s.lines.slice(0,ln+1)){const p=GoimonChapter2Portraits.portrait(l);if(p)expressions[p.startsWith('saya')?'saya':'toyoyo']=p;}add('saya',A.path('characters',expressions.saya),n<=2?'少女':'サーヤ');add('toyoyo',A.path('characters',expressions.toyoyo),'トヨヨ');}
+  if(capture||rescue)add('captives',A.path('events','captives'),'黒霧に囚われたサーヤとトヨヨ');if(enemy)add('enemy',A.path('enemies',enemy),D.battles.find(x=>x.id===enemy).name);
+  art.querySelectorAll('[data-id]').forEach(img=>{if(!present.has(img.dataset.id))img.remove();});return art;
+ }
+-function render(){for(const p of [state?.run,state?.checkpoint,state?.combat?.player])E.refreshSkills(p,C);clearInterval(timer);if(blocked)return;const retain=state?.mode==='story'&&art?.isConnected;if(retain){[...app.children].forEach(c=>{if(c!==art)c.remove();});}else{app.replaceChildren();art=null;}
++function render(){for(const p of [state?.run,state?.checkpoint,state?.combat?.player])E.refreshSkills(p,C);clearInterval(timer);if(blocked)return;const retain=state?.mode==='story'&&art?.parentNode===app;if(retain){[...app.children].forEach(c=>{if(c!==art)c.remove();});}else{app.replaceChildren();art=null;}
+  if(!state){setup();return;}if(state.mode==='battle'){battleView();return;}if(state.mode==='defeat'){defeat();return;}if(state.mode==='complete'){music('setup');el('p','CHAPTER 02 · COMPLETE',app,'eyebrow');el('h1','ふたつの声');el('p','次の目的地は、トシャカ中央記録院。');btn('物語の記録を見る',history,app,true);reviews(app);return;}
+  music('story');const s=D.scenes[state.scene],line=s.lines[state.line],heading=el('p','第2章 · '+s.title,app,'eyebrow');staging();app.insertBefore(heading,art);
+  const panel=el('section','',app,'panel');if(!line&&s.battleId){el('h2',D.battles.find(x=>x.id===s.battleId).name,panel);el('p','問題に正解して攻撃・防御。時間切れは不正解になります。',panel,'muted');btn('戦闘へ',()=>startBattle(false),panel,true);return;}
+- el('p',interpolate(line.speaker)||s.title,panel,'speaker');const dialogue=el('p',interpolate(line.text),panel,'story-text');dialogue.onclick=guard(()=>{if(!getSelection().toString())advance();});el('p',(state.scene+1)+' / 23 場面 · '+(state.line+1)+' / '+s.lines.length+' 行',panel,'muted');
++ el('p',interpolate(line.speaker)||'情景',panel,line.speaker?'speaker':'speaker narration-label');const dialogue=el('p',interpolate(line.text),panel,line.speaker?'story-text':'story-text narration-text');dialogue.onclick=guard(()=>{if(!getSelection().toString())advance();});el('p',(state.scene+1)+' / 23 場面 · '+(state.line+1)+' / '+s.lines.length+' 行',panel,'muted');
+  const actions=el('div','',panel,'actions');btn('次へ',advance,actions,true);btn('既読を進める',()=>{let count=0;while(state.mode==='story'&&count++<500){const l=D.scenes[state.scene].lines[state.line];if(!l||!state.read.includes(l.id))break;P.advance(state,D);}save();render();},actions);
+ }
+ function advance(){P.advance(state,D);save();render();}
+@@ -68,7 +68,7 @@ function answer(value){const q=state.question;if(!q)return;window.GoimonQuestQue
+  if(!correct&&!state.misses.some(m=>m.review===q.review&&m.reviewId===q.reviewId))state.misses.push({prompt:q.prompt,answer,review:q.review,reviewId:q.reviewId});state.feedback={correct,expired,answer,action:entry.text,translation:q.translation||'',explanation:Q.explain?.(q,source)||null};state.question=null;save();try{if(!window.GoimonDeveloper?.active)window.ZenshoLearningLog?.addResult(({q1:'accent',q3:'listening',word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'})[q.format],correct,{level:'1'});if(!window.GoimonDeveloper?.active)window.GoimonStudyTime?.end();}catch{ $('notice').textContent='学習記録の保存を確認できませんでした。第2章の進行は保存済みです。';}render();}
+ function reviews(parent){if(!state.misses.length)return;const details=el('details','',parent);el('summary','間違えた問題を復習（'+state.misses.length+'問）',details);for(const m of state.misses){el('p',m.prompt+' → '+m.answer,details);const u=new URL(m.review,location.href);u.searchParams.set('reviewIds',m.reviewId);if(m.review==='accent.html'){u.searchParams.set('start',m.reviewId);u.searchParams.set('end',m.reviewId);}if(m.review==='listening.html')u.searchParams.set('format','3');u.searchParams.set('returnTo','quest_chapter2.html');if(m.review==='idiom_quiz.html')u.searchParams.set('idiomMode','synonym');const a=link('対応する学習へ',u.pathname+u.search,details);a.onclick=guard(()=>GOIMONStorage.setItem('zensho_level_v1','1'));}}
+ function defeat(){music('setup');el('h1','もう一度、声をつなごう');el('p','戦闘前のHP・技の回数に戻して再挑戦できます。物語の進行は失われません。');btn('戦闘直前から再挑戦',()=>startBattle(true),app,true);reviews(app);}
+-function history(){const body=$('history-body');body.replaceChildren();if(!state){el('p','読み終えた物語がここに残ります。',body);}else for(const scene of D.scenes){const lines=scene.lines.filter(l=>state.read.includes(l.id));if(!lines.length)continue;el('h2',scene.title,body);for(const l of lines)el('p',(l.speaker?interpolate(l.speaker)+'\n':'')+interpolate(l.text),body);}if(!$('history-dialog').open)$('history-dialog').showModal();}
++function history(){const body=$('history-body');body.replaceChildren();if(!state){el('p','読み終えた物語がここに残ります。',body);}else for(const scene of D.scenes){const lines=scene.lines.filter(l=>state.read.includes(l.id));if(!lines.length)continue;el('h2',scene.title,body);for(const l of lines)el('p',(l.speaker?interpolate(l.speaker)+'\n':'')+interpolate(l.text),body,l.speaker?'':'narration-text');}if(!$('history-dialog').open)$('history-dialog').showModal();}
+  $('history').onclick=guard(history);$('close-history').onclick=()=>$('history-dialog').close();window.addEventListener('storage',e=>{if(e.key==='goimon_chapter1_v1:'+account+':lv1'){location.reload();return;}if(e.key===key||e.key==='goimon_cloud_v2:active')fail(Error('別の画面で進行またはアカウントが更新されました。再読み込みしてください。'));});
+  window.GoimonChapter2=Object.freeze({snapshot:()=>state?clone(state):null});try{store=P.create(window.GoimonDeveloper?.storage||localStorage,key,D);if((window.GoimonDeveloper?.active||GoimonChapter2Access.current())){state=store.load();render();}else locked();}catch(e){fail(e);}
+ })();
+diff --git a/dist/battle-prototype/story-narration.css b/dist/battle-prototype/story-narration.css
+new file mode 100644
+index 0000000..f2dedbb
+--- /dev/null
++++ b/dist/battle-prototype/story-narration.css
+@@ -0,0 +1,3 @@
++/* Japanese narration stays upright and readable; not differentiated by color alone. */
++.narration-label{font-size:.78rem;letter-spacing:.18em;color:#c4d4ce;font-weight:600}
++.narration-text{font-family:'Yu Mincho','Hiragino Mincho ProN','Noto Serif JP',serif;font-style:normal;font-weight:400;line-height:1.9;border-inline-start:3px solid #98afa3;padding-inline-start:14px;color:#e6ede8}
+diff --git a/dist/quest_chapter1.html b/dist/quest_chapter1.html
+index b054e6d..2e6c777 100644
+--- a/dist/quest_chapter1.html
++++ b/dist/quest_chapter1.html
+@@ -5,7 +5,7 @@
+ <script src="battle-prototype/catalog.js" defer></script><script src="goimon-items/store.js" defer></script><script src="battle-prototype/core.js" defer></script><script src="battle-prototype/tutorial.js" defer></script><script src="battle-prototype/story_names.js" defer></script><script src="battle-prototype/question-routing.js" defer></script><script src="battle-prototype/question_bank.js" defer></script>
+ <script src="accent_1kyu.js" defer></script><script src="listening_type3_1kyu.js" defer></script><script src="battle-prototype/quest_question_audio.js" defer></script><script src="words_1kyu.js" defer></script><script src="idiom_data_1kyu.js" defer></script><script src="sentence_fixed_1kyu.js" defer></script><script src="paraphrase_data_1kyu.js" defer></script><script src="reorder_1kyu.js" defer></script>
+ <script src="battle-prototype/chapter1_data.js" defer></script><script src="battle-prototype/chapter_questions.js" defer></script><script src="battle-prototype/chapter_store.js" defer></script><script src="battle-prototype/chapter_staging.js" defer></script><script src="adventure-profile.js" defer></script><script src="battle-prototype/quest-review.js" defer></script><script src="battle-prototype/chapter1.js" defer></script>
+-<script src="battle-prototype/quest_audio.js" defer></script><link rel="stylesheet" href="battle-prototype/battle-responsive.css"><script src="learning_categories.js"></script><script src="learning_log.js"></script><script src="study-time.js" defer></script><link rel="stylesheet" href="battle-prototype/partner-facing.css"></head><body><aside class="player-preview-note" style="padding:8px 16px;text-align:center;font-size:.8rem;background:#e7f0eb;color:#244d3f">確認用サイト：記録はこのブラウザに保存されます。ログイン同期・報酬の正式付与は準備中です。</aside><header><a href="index.html">GOIMON</a><span>QUEST · 第1章</span><button id="home">中断・メニュー</button></header>
++<script src="battle-prototype/quest_audio.js" defer></script><link rel="stylesheet" href="battle-prototype/battle-responsive.css"><script src="learning_categories.js"></script><script src="learning_log.js"></script><script src="study-time.js" defer></script><link rel="stylesheet" href="battle-prototype/partner-facing.css"><link rel="stylesheet" href="battle-prototype/story-narration.css"></head><body><aside class="player-preview-note" style="padding:8px 16px;text-align:center;font-size:.8rem;background:#e7f0eb;color:#244d3f">確認用サイト：記録はこのブラウザに保存されます。ログイン同期・報酬の正式付与は準備中です。</aside><header><a href="index.html">GOIMON</a><span>QUEST · 第1章</span><button id="home">中断・メニュー</button></header>
+ <main id="app" tabindex="-1"></main><aside id="notice" role="status" aria-live="polite"></aside>
+ <footer>進行はこのブラウザに保存します。第1章は1級の学習内容に対応しています。</footer>
+ <dialog id="log"><div class="dialog-head"><h2>物語の記録</h2><button id="closeLog">閉じる</button></div><div id="logBody"></div></dialog>
+diff --git a/dist/quest_chapter2.html b/dist/quest_chapter2.html
+index d7ee027..84b2dfc 100644
+--- a/dist/quest_chapter2.html
++++ b/dist/quest_chapter2.html
+@@ -2,5 +2,5 @@
+ <script src="cloud_schema.js"></script><script src="cloud_storage.js"></script><script src="cloud_config.js"></script>
+ <script src="battle-prototype/developer_mode.js" defer></script><script src="goimon_rules.js" defer></script><script src="goimon_dex.js" defer></script><script src="battle-prototype/story_names.js" defer></script><script src="battle-prototype/catalog.js" defer></script><script src="battle-prototype/core.js" defer></script><script src="goimon-items/store.js" defer></script>
+ <script src="accent_1kyu.js" defer></script><script src="listening_type3_1kyu.js" defer></script><script src="battle-prototype/quest_question_audio.js" defer></script><script src="words_1kyu.js" defer></script><script src="idiom_data_1kyu.js" defer></script><script src="sentence_fixed_1kyu.js" defer></script><script src="paraphrase_data_1kyu.js" defer></script><script src="reorder_1kyu.js" defer></script><script src="battle-prototype/question_bank.js" defer></script><script src="battle-prototype/question-routing.js" defer></script><script src="battle-prototype/chapter_questions.js" defer></script>
+-<script src="battle-prototype/chapter2_data.js" defer></script><script src="battle-prototype/chapter2_assets.js" defer></script><script src="battle-prototype/chapter2_portraits.js" defer></script><script src="battle-prototype/chapter2_progress.js" defer></script><script src="battle-prototype/chapter2_battle.js" defer></script><script src="battle-prototype/chapter1_data.js" defer></script><script src="battle-prototype/chapter_store.js" defer></script><script src="battle-prototype/chapter2_access.js" defer></script><script src="battle-prototype/chapter2.js" defer></script><script src="battle-prototype/chapter2_entry.js" defer></script><script src="learning_categories.js" defer></script><script src="learning_log.js" defer></script><script src="study-time.js" defer></script><link rel="stylesheet" href="battle-prototype/partner-facing.css"></head>
++<script src="battle-prototype/chapter2_data.js" defer></script><script src="battle-prototype/chapter2_assets.js" defer></script><script src="battle-prototype/chapter2_portraits.js" defer></script><script src="battle-prototype/chapter2_progress.js" defer></script><script src="battle-prototype/chapter2_battle.js" defer></script><script src="battle-prototype/chapter1_data.js" defer></script><script src="battle-prototype/chapter_store.js" defer></script><script src="battle-prototype/chapter2_access.js" defer></script><script src="battle-prototype/chapter2.js" defer></script><script src="battle-prototype/chapter2_entry.js" defer></script><script src="learning_categories.js" defer></script><script src="learning_log.js" defer></script><script src="study-time.js" defer></script><link rel="stylesheet" href="battle-prototype/partner-facing.css"><link rel="stylesheet" href="battle-prototype/story-narration.css"></head>
+ <body><header><a id="quest-home-link" href="index.html">‹ ホーム</a><span>GOIMON QUEST · 02</span><button id="history">物語の記録</button></header><main><p id="notice" role="alert"></p><div id="app"></div></main><footer>第2章の確認版 · 進行はこのブラウザに保存されます</footer><dialog id="history-dialog"><button id="close-history">閉じる</button><div id="history-body"></div></dialog></body></html>
