@@ -65,7 +65,7 @@ assert.match(listen,/function checkType5Answers\(\) \{\s*if \(\s*answered \|\|/)
 assert.match(listen,/function answerQuiz\(\s*selectedId\s*\) \{\s*if \(\s*!currentQuestion \|\|\s*answered/);
 const qsource=source('q7_page.js');assert.match(qsource,/function grade\(\) \{\s*if \(!current \|\| state.graded\) return;/);
 // The deep link overrides the previous listening format after saved settings.
-const route=listen.match(/const requestedFormat = new URLSearchParams[\s\S]*?\n  updatePoolInfo\(\);/)[0];
+const route=listen.match(/const searchParams=new URLSearchParams[\s\S]*?\n  updatePoolInfo\(\);/)[0];
 for(const format of ['2','3','5']){let updated=0;const env={URLSearchParams,location:{search:'?format='+format},formatSelect:{value:'3'},setSelectedMethod:m=>assert.equal(m,'quiz'),updatePoolInfo:()=>updated++};vm.createContext(env);vm.runInContext(route,env);assert.equal(env.formatSelect.value,format);assert.equal(updated,1);}
 // Every script used by the rewritten page is available and loads in declared order.
 const fresh={crypto:require("node:crypto").webcrypto,addEventListener(){},window:null,console,Date,URLSearchParams,localStorage:storage,document:{addEventListener:()=>{}}};fresh.window=fresh;vm.createContext(fresh);

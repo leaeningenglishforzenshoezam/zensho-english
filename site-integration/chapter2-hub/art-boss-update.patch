@@ -1,0 +1,229 @@
+diff --git a/checks/CHAPTER2_ART_UPDATE.md b/checks/CHAPTER2_ART_UPDATE.md
+new file mode 100644
+index 0000000..216419a
+--- /dev/null
++++ b/checks/CHAPTER2_ART_UPDATE.md
+@@ -0,0 +1,21 @@
++# Chapter 2 art integration — 2026-10-26
++
++Original uploaded PNGs are copied without modifying artwork or alpha.
++
++| Asset | Source | Usage |
++| --- | --- | --- |
++| images/chapter2/characters/ch2_farmer_worried.png | 心配顔の麦わら帽子農夫.png | Scenes 4, 21 |
++| images/chapter2/characters/ch2_manager_serious.png | 真剣な表情のフィールド技師キャラクター.png | Scenes 6, 12, 13, 21, 22 |
++| images/chapter2/events/ch2_saya_toyoyo_escape.png | 駆け抜ける少女とふわもこ獣.png | Scene 2, lines 1–4; no duplicate portraits |
++
++Scene 21 uses dry_canal through line 4 and restored_canal from farmer line 5.
++Morii uses existing normal/smile/serious/surprised portraits; scene presence unchanged.
++Large enemies use increased arena width/height without enlarging the question layout.
++
++Child-stage boss HP / defense / attack (all scale with evolution as before):
++- Chapter 1 guardian: 200 / 22 / 18 (was 140 / 16 / 14)
++- Chapter 1 black mist: 140 / 20 / 13 (was 90 / 16 / 10)
++- Chapter 2 gate guardian: 210 / 32 / 8 (was 165 / 28 / 6)
++- Chapter 2 resonance beast: 320 / 36 / 10 (was 220 / 28 / 6)
++
++Existing ongoing combat snapshots are not migrated. New stats apply at battle start/retry.
+diff --git a/checks/chapter2-render.test.cjs b/checks/chapter2-render.test.cjs
+index f8d25b0..50bb217 100644
+--- a/checks/chapter2-render.test.cjs
++++ b/checks/chapter2-render.test.cjs
+@@ -21,3 +21,14 @@ assert.throws(()=>transition(harness(true),1),/insertBefore/);console.log('PASS
+ const h=harness();for(let i=0;i<h.ctx.GoimonChapter2Data.scenes.length;i++)if(h.ctx.GoimonChapter2Data.scenes[i].battleId)transition(h,i);console.log('PASS all 9 battle-to-story DOM transitions');
+ for(let i=0;i<h.ctx.GoimonChapter2Data.scenes.length;i++){const s=h.ctx.GoimonChapter2Progress.fresh(h.ctx.GoimonChapter2Data,pet);s.scene=i;h.ctx.test.set(s);h.ctx.test.render();const art=h.get('app').querySelector('.stage');assert.equal(!!art.querySelectorAll('[data-id]').find(n=>n.dataset.id==='morii'),h.ctx.GoimonChapter2Data.scenes[i].lines.some(l=>l.speaker==='モリィ'));h.ctx.test.render();assert.equal(h.get('app').querySelector('.stage'),art);assert.equal(!!h.get('app').querySelector('.narration-text'),!h.ctx.GoimonChapter2Data.scenes[i].lines[0].speaker);}
+ console.log('PASS 23 scene casts, persistent portraits and narration labels');
++
++function at(scene,line=0){const s=h.ctx.GoimonChapter2Progress.fresh(h.ctx.GoimonChapter2Data,pet);s.scene=scene-1;s.line=line;h.ctx.test.set(s);h.ctx.test.render();return h.get('app').querySelector('.stage');}
++assert.match(at(21,3).style.backgroundImage,/dry_canal/);
++assert.match(at(21,4).style.backgroundImage,/restored_canal/);
++for(let i=0;i<4;i++){const a=at(2,i);assert.ok(a.querySelector('[data-id="escape"]'));assert.equal(a.querySelector('[data-id="saya"]'),null);}
++assert.equal(at(2,4).querySelector('[data-id="escape"]'),null);
++for(const [name,scenes] of [['farmer',[4,21]],['manager',[6,12,13,21,22]]])for(const scene of scenes)assert.ok(at(scene).querySelector('[data-id="'+name+'"]'));
++assert.match(at(19,5).querySelector('[data-id="morii"]').src,/surprised/);
++assert.match(at(19,7).querySelector('[data-id="morii"]').src,/serious/);
++assert.match(at(19,7).className,/enemy-boss/);
++console.log('PASS restored-water timing, escape, NPC portraits, Morii and boss scale');
+diff --git a/checks/victory-balance.test.cjs b/checks/victory-balance.test.cjs
+index 93a8eb5..648fe49 100644
+--- a/checks/victory-balance.test.cjs
++++ b/checks/victory-balance.test.cjs
+@@ -1,4 +1,4 @@
+ const test=require('node:test'),assert=require('node:assert/strict'),fs=require('fs'),C=require('../dist/battle-prototype/catalog.js'),B=require('../dist/battle-prototype/chapter2_battle.js'),V=require('../dist/battle-prototype/victory.js');
+-test('Chapter 2 durability grows while offense remains unchanged',()=>{for(let i=1;i<=9;i++){const e=B.enemy(C,i,1);assert.ok(e.hp>=120);assert.ok(e.defense>=20);assert.equal(e.attack,[5,7,9].includes(i)?6:8);assert.equal(e.reference,9);const grown=B.enemy(C,i,2);assert.equal(grown.hp,e.hp*2);}});
++test('Chapter 2 durability grows with stronger gate and final bosses',()=>{for(let i=1;i<=9;i++){const e=B.enemy(C,i,1);assert.ok(e.hp>=120);assert.ok(e.defense>=20);assert.equal(e.attack,i===9?10:i===7?6:8);assert.equal(e.reference,9);const grown=B.enemy(C,i,2);assert.equal(grown.hp,e.hp*2);}});
+ test('victory covers all 15 fights and continue cannot run twice',()=>{for(const [chapter,ids]of [[1,[1,2,3,4,5,'mist']],[2,[1,2,3,4,5,6,7,8,9]]])for(const id of ids)assert.ok(V.stories[chapter][id]);let called=0;global.document={createElement:()=>({})};const nodes=[],classes=[];V.show({chapter:2,id:1,stage:{classList:{add:x=>classes.push(x)}},panel:{append:x=>nodes.push(x)},onContinue:()=>called++});assert.ok(classes.includes('victory-fade'));nodes[2].onclick();nodes[2].onclick();assert.equal(called,1);delete global.document;});
+ test('narration has no label and victory loads before chapter runtime',()=>{for(const n of [1,2]){const js=fs.readFileSync(__dirname+'/../dist/battle-prototype/chapter'+n+'.js','utf8');assert.ok(!js.includes("||'情景'"));const html=fs.readFileSync(__dirname+'/../dist/quest_chapter'+n+'.html','utf8');assert.ok(html.indexOf('victory.js')<html.indexOf('chapter'+n+'.js'));}});
+diff --git a/dist/battle-prototype/chapter1.css b/dist/battle-prototype/chapter1.css
+index 62cd20c..1bef653 100644
+--- a/dist/battle-prototype/chapter1.css
++++ b/dist/battle-prototype/chapter1.css
+@@ -25,3 +25,11 @@
+ 
+ .scene.illustrated .morii-right{right:7%;left:auto;width:34%;height:76%}
+ .defeat-study .study-links{display:flex;flex-wrap:wrap;gap:10px}.defeat-study a.button{background:#f2ce75;color:#163326;font-weight:750}.defeat-study p{margin:8px 0 16px}
++
++/* Creature scale distinguishes guards and bosses from the player's partner. */
++.scene.illustrated.enemy-large .enemy-slot{right:0;width:49%;height:89%}
++.scene.illustrated.enemy-giant .enemy-slot{right:0;width:55%;height:97%}
++.scene.illustrated.enemy-boss .enemy-slot{right:0;width:59%;height:97%}
++.scene.illustrated.enemy-giant .ally-solo,.scene.illustrated.enemy-boss .ally-solo{left:2%;width:32%;height:62%}
++.scene.illustrated.enemy-giant .ally-one,.scene.illustrated.enemy-boss .ally-one{left:0;width:24%;height:59%}
++.scene.illustrated.enemy-giant .ally-two,.scene.illustrated.enemy-boss .ally-two{left:21%;width:20%;height:54%!important}
+diff --git a/dist/battle-prototype/chapter1.js b/dist/battle-prototype/chapter1.js
+index 2afab0e..7513030 100644
+--- a/dist/battle-prototype/chapter1.js
++++ b/dist/battle-prototype/chapter1.js
+@@ -28,6 +28,7 @@ function sceneArt(kind,enemy){
+  const el=reuse&&storyArt?.parentNode===app?storyArt:card(app,'scene illustrated'),asset='images/quest/chapter1/';
+  if(reuse)storyArt=el;
+  el.className='scene illustrated '+(f.memory?'memory-art':'');
++ if(f.enemy)el.classList.add(f.enemy===5||f.enemy==='mist'?'enemy-boss':f.enemy===4?'enemy-giant':'enemy-large');
+  let bg=el.querySelector('.scene-background');if(!bg){bg=document.createElement('img');bg.className='scene-background';bg.alt='';el.append(bg);}const bgSrc=asset+f.background+'.png';if(bg.getAttribute('src')!==bgSrc)bg.src=bgSrc;
+  const present=new Set();
+  if(f.memory){el.querySelectorAll('.character').forEach(img=>img.remove());return el;}
+@@ -73,7 +74,7 @@ text('p',(state.scene+1)+' / 20 場面 · '+(state.line+1)+' / '+s.lines.length+
+ const actions=card(app,'actions');const next=button(state.scene===19&&state.line===s.lines.length-1?'第1章を終える':'次へ',advance,true);next.id='next';actions.append(next,button('履歴',showHistory),button('既読をスキップ',()=>{function step(){if(blocked||state.mode!=='story')return;const l=D.scenes[state.scene].lines[state.line];if(!l||l.event||!state.read.includes(l.id))return;advance();skipTimer=setTimeout(guarded(step),80);}step();}));
+ let down;panel.onpointerdown=e=>{down={x:e.clientX,y:e.clientY};};panel.onpointerup=guarded(e=>{if(down&&Math.abs(e.clientX-down.x)<8&&Math.abs(e.clientY-down.y)<8&&!getSelection().toString())advance();down=null;});}
+ function makeActor(){const p=partner()||state.pet,species=C.species.find(x=>x.id===p.type)||C.species[0],stats=Object.fromEntries(['chie','kotoba','onkan','bunmyaku'].map(k=>[k,Math.max(0,Number(p.stats?.[k])||0)]));state.pet=structuredClone(p);return E.actor(species,C.stages[p.stage]||1,stats,C.gear.find(x=>x.id===state.gear),state.skills.map(id=>C.skills.find(x=>x.id===id)));}
+-function enemy(id,player){const kind=id==='mist'?'boss':enemyKinds[id-1],base=id===0?{hp:999,attack:2,defense:10,speed:1,skillTurns:0,skillPower:1}:C.enemies[kind],scale=Math.max(1,C.stages[state.pet.stage]||1);const e={...base,id:'chapter-enemy',attr:id==='mist'?'mirage':id===3?'mirage':'metal',reference:20*scale,shield:{hits:0,factor:1}};for(const stat of ['hp','attack','defense','speed'])e[stat]=Math.round(e[stat]*scale);if(id==='mist'){e.hp=Math.round(90*scale);e.attack=Math.round(10*scale);}e.maxHp=e.hp;if(id===0)e.speed=0;return e;}
++function enemy(id,player){const kind=id==='mist'?'boss':enemyKinds[id-1],base=id===0?{hp:999,attack:2,defense:10,speed:1,skillTurns:0,skillPower:1}:C.enemies[kind],scale=Math.max(1,C.stages[state.pet.stage]||1);const e={...base,id:'chapter-enemy',attr:id==='mist'?'mirage':id===3?'mirage':'metal',reference:20*scale,shield:{hits:0,factor:1}};for(const stat of ['hp','attack','defense','speed'])e[stat]=Math.round(e[stat]*scale);if(id===5){e.hp=Math.round(200*scale);e.defense=Math.round(22*scale);e.attack=Math.round(18*scale);}if(id==='mist'){e.hp=Math.round(140*scale);e.defense=Math.round(20*scale);e.attack=Math.round(13*scale);}e.maxHp=e.hp;if(id===0)e.speed=0;return e;}
+ function startBattle(id,retry=false){let p;if(retry){p=structuredClone(state.checkpoint);}
+ else if(id===0){p=makeActor();p.hp=p.maxHp;p.skills=[{...C.skills.find(x=>x.id==='N_echo'),left:3,maxUses:3}];}
+ else{p=state.run?structuredClone(state.run):makeActor();if(p.hp<=0)throw Error('森の入口から再挑戦してください');state.checkpoint=structuredClone(p);}
+diff --git a/dist/battle-prototype/chapter2.css b/dist/battle-prototype/chapter2.css
+index e49e086..b4f7512 100644
+--- a/dist/battle-prototype/chapter2.css
++++ b/dist/battle-prototype/chapter2.css
+@@ -3,3 +3,19 @@
+ @media(max-width:540px){header{padding:8px;font-size:.7rem}header button{font-size:.8rem;padding:8px}main{padding:0 10px}.stage{height:29vh;min-height:190px}.panel{padding:14px}.story-text{line-height:1.75}.battle .stage{height:20vh;min-height:110px}.battle h2{margin:7px 0;font-size:1.1rem}.battle .muted{margin:6px 0}footer{padding:12px}}
+ @media(orientation:landscape) and (max-height:550px){header{padding:5px 12px}header button{min-height:32px;padding:5px 10px}.battle{display:grid;grid-template-columns:42% 1fr;gap:0 12px;align-items:start}.battle .hud{grid-column:1}.battle .stage{grid-column:1;height:56vh;min-height:120px}.battle .panel{grid-column:2;grid-row:1/4;max-height:80vh;overflow:auto;margin:0}.battle .choices{gap:6px}.battle .choices button{min-height:38px;padding:6px}footer{display:none}}
+ @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.stage.rescue .captives,.stage.rescue .enemy{opacity:0}}
++
++/* Larger silhouettes stay inside the arena, not over the question panel. */
++.stage.enemy-large .enemy{right:0;width:48%;height:90%}
++.stage.enemy-giant .enemy{right:0;width:55%;height:97%}
++.stage.enemy-boss .enemy{right:0;width:61%;height:96%}
++.stage.enemy-giant .partner,.stage.enemy-boss .partner{width:25%;height:52%}
++.stage.boss .captives{right:4%;bottom:50%;width:25%;height:48%}
++.character.escape{left:10%;width:80%;height:98%;z-index:4}
++.stage.town-cast .partner{left:0;width:21%;height:48%}
++.stage.town-cast .saya{left:18%;right:auto;width:23%;height:85%}
++.stage.town-cast .toyoyo{left:37%;right:auto;width:18%;height:45%}
++.stage.town-cast .morii{left:45%;width:15%;height:43%}
++.stage.town-cast .farmer,.stage.town-cast .manager{right:1%;width:36%;height:96%;z-index:3}
++.stage.town-cast.two-npcs .farmer{right:24%;width:24%;height:91%}
++.stage.town-cast.two-npcs .manager{right:0;width:27%;height:96%}
++@media(max-width:540px){.stage.enemy-boss .enemy{width:64%}.stage.enemy-giant .enemy{width:58%}}
+diff --git a/dist/battle-prototype/chapter2.js b/dist/battle-prototype/chapter2.js
+index ec9eb21..bb204b6 100644
+--- a/dist/battle-prototype/chapter2.js
++++ b/dist/battle-prototype/chapter2.js
+@@ -26,19 +26,23 @@ function setup(){music('setup');app.replaceChildren();art=null;el('p','CHAPTER 0
+  link('技・装備を確認','index.html?panel=goimon&manage=1',box);
+  btn('この相棒と出発',()=>{const pet=list.find(p=>p.id===select.value),load=inv.loadouts[pet.id]||{};const ids=(load.skillIds||[]).filter(id=>inv.owned.skills[id]>0&&Q.supported.includes(C.skills.find(s=>s.id===id)?.questionFormat));state=P.fresh(D,pet,[...new Set(ids)],inv.owned.gear[load.gearId]>0?load.gearId:'none');save();render();},box,true);
+ }
+-function active(speaker){return speaker==='{{partnerName}}'?'partner':speaker==='モリィ'?'morii':['サーヤ','少女'].includes(speaker)?'saya':speaker==='トヨヨ'?'toyoyo':'';}
++function active(speaker){return speaker==='{{partnerName}}'?'partner':speaker==='モリィ'?'morii':['サーヤ','少女'].includes(speaker)?'saya':speaker==='トヨヨ'?'toyoyo':speaker==='農家'?'farmer':speaker==='管理人'?'manager':'';}
+ function staging(battle=false){const s=D.scenes[state.scene],line=s.lines[Math.min(state.line,s.lines.length-1)],n=state.scene+1,ln=state.line;
+  if(!art){art=el('div','',app,'stage');art.setAttribute('role','img');}art.className='stage';art.setAttribute('aria-label',s.title);
+  const detail=n===17&&ln>=3&&ln<=12?(ln<6?'founders_relief':'work_log'):null;
+- art.style.backgroundImage='url("'+(detail?A.path('details',detail):A.path('backgrounds',s.background))+'")';if(detail)art.classList.add('detail');
++ art.style.backgroundImage='url("'+(detail?A.path('details',detail):A.path('backgrounds',A.background(s,ln)))+'")';if(detail)art.classList.add('detail');
+  const capture=n===19&&(battle||ln>=5),rescue=n===20&&ln===0;
+  const enemy=battle?s.battleId:capture||rescue?9:s.battleId&&((n===2&&ln>=7)||(n===5)||(n===8&&ln>=1)||(n===9&&ln>=4)||(n===11)||(n===15&&ln>=2)||(n===16)||(n===18&&ln>=4))?s.battleId:null;
+- if(enemy)art.classList.add('encounter');if(capture||rescue)art.classList.add('boss');if(rescue)art.classList.add('rescue');
++ if(enemy){art.classList.add('encounter');art.classList.add(enemy===9?'enemy-boss':[5,7].includes(enemy)?'enemy-giant':'enemy-large');}if(capture||rescue)art.classList.add('boss');if(rescue)art.classList.add('rescue');
+  const present=new Set(),talk=active(line?.speaker);
+- function add(id,src,alt,cls=id){if(!src)return;present.add(id);let img=art.querySelector('[data-id="'+id+'"]');if(!img){img=document.createElement('img');img.dataset.id=id;img.onerror=()=>{img.hidden=true;};art.append(img);}if(img.getAttribute('src')!==src){img.hidden=false;img.src=src;}img.alt=alt;img.className='character '+cls+(!battle&&talk&&talk!==id?' listening':'');}
+- add('partner',image(),names().partnerName);if(!battle&&s.lines.some(l=>l.speaker==='モリィ'))add('morii','images/quest/chapter1/morii_normal.png','モリィ');
++ function add(id,src,alt,cls=id){if(!src)return;present.add(id);let img=art.querySelector('[data-id="'+id+'"]');if(!img){img=document.createElement('img');img.dataset.id=id;img.onerror=()=>{img.hidden=true;};art.append(img);}if(img.getAttribute('src')!==src){img.hidden=false;img.src=src;}img.alt=alt;img.className='character '+cls+(!battle&&talk&&talk!==id&&!(id==='escape'&&['saya','toyoyo'].includes(talk))?' listening':'');}
++ const escaping=!battle&&n===2&&ln<4;
++ if(escaping){art.classList.add('escape-shot');add('escape',A.path('events','escape'),'黒い霧から走って逃げる少女とトヨヨ');}else add('partner',image(),names().partnerName);
++ if(!battle&&s.lines.some(l=>l.speaker==='モリィ'))add('morii','images/quest/chapter1/morii_'+GoimonChapter2Portraits.morii(s.id,ln)+'.png','モリィ');
++ if(!battle){for(const [id,name] of [['farmer','農家'],['manager','管理人']])if(s.lines.some(l=>l.speaker===name)){art.classList.add('town-cast');add(id,A.path('characters',id),name);}}
+  const together=n>=2&&!(n>=7&&n<=9)&&!(n===10&&ln<3)&&!(n===23&&ln>=8);
+- if(together&&!capture&&!rescue&&!battle){let expressions=GoimonChapter2Portraits.initial(s.id);for(const l of s.lines.slice(0,ln+1)){const p=GoimonChapter2Portraits.portrait(l);if(p)expressions[p.startsWith('saya')?'saya':'toyoyo']=p;}add('saya',A.path('characters',expressions.saya),n<=2?'少女':'サーヤ');add('toyoyo',A.path('characters',expressions.toyoyo),'トヨヨ');}
++ if(together&&!capture&&!rescue&&!battle&&!escaping){let expressions=GoimonChapter2Portraits.initial(s.id);for(const l of s.lines.slice(0,ln+1)){const p=GoimonChapter2Portraits.portrait(l);if(p)expressions[p.startsWith('saya')?'saya':'toyoyo']=p;}add('saya',A.path('characters',expressions.saya),n<=2?'少女':'サーヤ');add('toyoyo',A.path('characters',expressions.toyoyo),'トヨヨ');}
++ if(present.has('farmer')&&present.has('manager'))art.classList.add('two-npcs');
+  if(capture||rescue)add('captives',A.path('events','captives'),'黒霧に囚われたサーヤとトヨヨ');if(enemy)add('enemy',A.path('enemies',enemy),D.battles.find(x=>x.id===enemy).name);
+  art.querySelectorAll('[data-id]').forEach(img=>{if(!present.has(img.dataset.id))img.remove();});return art;
+ }
+diff --git a/dist/battle-prototype/chapter2_assets.js b/dist/battle-prototype/chapter2_assets.js
+index ff10e40..1ad2010 100644
+--- a/dist/battle-prototype/chapter2_assets.js
++++ b/dist/battle-prototype/chapter2_assets.js
+@@ -13,6 +13,7 @@ const map=Object.freeze({
+  }),
+  details:Object.freeze({founders_relief:'details/ch2_founders_relief.png',work_log:'details/ch2_work_log.png'}),
+  characters:Object.freeze({
++ farmer:'characters/ch2_farmer_worried.png',manager:'characters/ch2_manager_serious.png',
+  saya_full:'characters/ch2_saya_full.png',saya_normal:'characters/ch2_saya_normal.png',
+  saya_happy:'characters/ch2_saya_happy.png',saya_worried:'characters/ch2_saya_worried.png',
+  saya_surprised:'characters/ch2_saya_surprised.png',saya_determined:'characters/ch2_saya_determined.png',
+@@ -28,8 +29,9 @@ const map=Object.freeze({
+  7:'enemies/ch2_enemy_oonushi.png',8:'enemies/ch2_enemy_blackfog_split.png',
+  9:'enemies/ch2_boss_beast.png'
+  }),
+- events:Object.freeze({captives:'events/ch2_boss_captured_saya_toyoyo.png'})
++ events:Object.freeze({escape:'events/ch2_saya_toyoyo_escape.png',captives:'events/ch2_boss_captured_saya_toyoyo.png'})
+ });
++function background(scene,line){return scene.id==='ch2.21'?(line>=4?'restored_canal':'dry_canal'):scene.background;}
+ function path(group,id){const file=map[group]?.[id];return file?rootDir+file:null;}
+-root.GoimonChapter2Assets=Object.freeze({rootDir,map,path});
++root.GoimonChapter2Assets=Object.freeze({rootDir,map,path,background});
+ })(typeof window!=='undefined'?window:globalThis);
+diff --git a/dist/battle-prototype/chapter2_battle.js b/dist/battle-prototype/chapter2_battle.js
+index 4c2bf2c..99e58d2 100644
+--- a/dist/battle-prototype/chapter2_battle.js
++++ b/dist/battle-prototype/chapter2_battle.js
+@@ -1,6 +1,6 @@
+-/* Chapter 2 durability tuning; attack and speed unchanged. */
++/* Chapter 2 durability tuning; boss offense increased; speed unchanged. */
+ (function(root){'use strict';
+-const durability={1:[120,20],2:[130,22],3:[140,24],4:[145,20],5:[165,28],6:[155,22],7:[185,28],8:[175,24],9:[220,28]};
+-function enemy(catalog,id,stage){const scale=Math.max(1,Number(stage)||1),base=catalog.enemies[id===9?'boss':id===5||id===7?'tank':'normal'];const e={...base,id:'ch2-enemy-'+id,attr:id===1||id>=8?'mirage':'metal',reference:9*scale,shield:{hits:0,factor:1}};for(const stat of ['hp','attack','defense','speed'])e[stat]=Math.max(1,Math.round(base[stat]*scale*(stat==='hp'?.65:stat==='attack'?.45:1)));e.hp=Math.round(durability[id][0]*scale);e.defense=Math.round(durability[id][1]*scale);e.maxHp=e.hp;return e;}
++const durability={1:[120,20],2:[130,22],3:[140,24],4:[145,20],5:[210,32],6:[155,22],7:[185,28],8:[175,24],9:[320,36]};
++function enemy(catalog,id,stage){const scale=Math.max(1,Number(stage)||1),base=catalog.enemies[id===9?'boss':id===5||id===7?'tank':'normal'];const e={...base,id:'ch2-enemy-'+id,attr:id===1||id>=8?'mirage':'metal',reference:9*scale,shield:{hits:0,factor:1}};for(const stat of ['hp','attack','defense','speed'])e[stat]=Math.max(1,Math.round(base[stat]*scale*(stat==='hp'?.65:stat==='attack'?.45:1)));e.hp=Math.round(durability[id][0]*scale);e.defense=Math.round(durability[id][1]*scale);if(id===5||id===9)e.attack=Math.round((id===9?10:8)*scale);e.maxHp=e.hp;return e;}
+ const api={enemy};if(typeof module!=='undefined')module.exports=api;else root.GoimonChapter2Battle=api;
+ })(typeof window!=='undefined'?window:globalThis);
+diff --git a/dist/battle-prototype/chapter2_portraits.js b/dist/battle-prototype/chapter2_portraits.js
+index 032fc32..f6ffd07 100644
+--- a/dist/battle-prototype/chapter2_portraits.js
++++ b/dist/battle-prototype/chapter2_portraits.js
+@@ -54,6 +54,8 @@ const cues=Object.freeze({
+  'ch2.23.006':'saya_happy',
+  'ch2.23.007':'toyoyo_happy'
+ });
++const moriiCues=Object.freeze({'ch2.01':'smile','ch2.03':'smile','ch2.07':'serious','ch2.10':'serious','ch2.17':'normal','ch2.18':'serious','ch2.19':'surprised','ch2.22':'smile'});
++function morii(sceneId,lineIndex){return sceneId==='ch2.19'&&lineIndex>=7?'serious':moriiCues[sceneId]||'normal';}
+ function initial(sceneId){return sceneId==='ch2.02'?{saya:'saya_surprised',toyoyo:'toyoyo_surprised'}:{saya:'saya_normal',toyoyo:'toyoyo_normal'};}
+ function portrait(line){const name=String(line?.speaker||'');const cue=cues[line?.id];
+  if(String(line?.id||'').startsWith('ch2.02.')){if(name==='少女'||name==='サーヤ')return 'saya_surprised';if(name==='トヨヨ')return 'toyoyo_surprised';}
+@@ -62,5 +64,5 @@ function portrait(line){const name=String(line?.speaker||'');const cue=cues[line
+  if(name==='トヨヨ')return 'toyoyo_normal';
+  return null;
+ }
+-root.GoimonChapter2Portraits=Object.freeze({cues,portrait,initial});
++root.GoimonChapter2Portraits=Object.freeze({cues,portrait,initial,morii});
+ })(typeof window!=='undefined'?window:globalThis);
+diff --git a/dist/battle-prototype/chapter2_scene_preview.js b/dist/battle-prototype/chapter2_scene_preview.js
+index 20ada41..47eb22a 100644
+--- a/dist/battle-prototype/chapter2_scene_preview.js
++++ b/dist/battle-prototype/chapter2_scene_preview.js
+@@ -12,7 +12,7 @@ function render(){
+  el('sceneSelect').value=String(sceneIndex);el('caption').textContent=s.id+'｜'+s.title;
+  el('speaker').textContent=substitute(line.speaker)||'物語';
+  el('line').textContent=substitute(line.text);
+- src(el('bg'),assets.path('backgrounds',s.background));
++ src(el('bg'),assets.path('backgrounds',assets.background(s,lineIndex)));
+  const isCapture=s.id==='ch2.19'&&lineIndex>=5;
+  const portrait=isCapture?null:portraits.portrait(line);
+  src(el('character'),portrait?assets.path('characters',portrait):null);
+@@ -31,4 +31,4 @@ el('sceneSelect').onchange=()=>{sceneIndex=Number(el('sceneSelect').value);lineI
+ el('next').onclick=()=>{const s=data.scenes[sceneIndex];if(lineIndex<s.lines.length-1)lineIndex++;else if(sceneIndex<data.scenes.length-1){sceneIndex++;lineIndex=0;}render();};
+ el('prev').onclick=()=>{if(lineIndex)lineIndex--;else if(sceneIndex){sceneIndex--;lineIndex=data.scenes[sceneIndex].lines.length-1;}render();};
+ render();
+-})();
+\ No newline at end of file
++})();

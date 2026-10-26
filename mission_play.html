@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ミッション｜GOIMON</title>
+<script src="cloud_schema.js"></script><script src="cloud_storage.js"></script><script src="cloud_config.js"></script>
+<link rel="stylesheet" href="q7.css"><link rel="stylesheet" href="daily-missions/mission_play.css"><script src="daily-missions/daily_mission_rules.js"></script><link rel="stylesheet" href="learning-theme.css">
+</head>
+<body class="mission-page"><header class="mission-header"><a href="index.html">← ホーム</a><span>DAILY MISSION</span></header><h1>今日のミッション</h1><p id="notice">1級のミッションです。採点後に学習記録・育成・星のかけらを保存します。</p>
+<details id="missionSetup" open><summary>挑戦する内容を選ぶ</summary><label>挑戦する内容<select id="kind"><option value="words:enja">単語 英→日</option><option value="words:jaen">単語 日→英</option><option value="words:audio">単語 音声</option><option value="idioms:meaning">熟語 意味</option><option value="idioms:synonym">熟語 同義表現</option><option value="exam:mix">大問9</option><option value="exam:standard">大問11</option><option value="listening">リスニング</option><option value="reading">読解・会話</option><option value="reorder">語句整序</option></select></label>
+<button id="start" disabled>ミッションを始める</button></details><p id="balance"></p><p id="status" role="status" aria-live="polite">準備中…</p><section id="instructions" hidden></section><main id="questions"></main><div class="grading-bar"><span id="answered">問題を選んでスタート</span><button id="finish" disabled>採点する</button></div><dialog id="resultDialog"><div id="resultContent"></div><button id="closeResult">問題と解説を確認</button></dialog><p><a href="index.html">ホームへ戻る</a></p>
+<script type="module" src="daily-missions/mission_play.mjs"></script></body></html>

@@ -1,3 +1,6 @@
+const GOIMON_DAILY_RESULT_ACCOUNT = window.GOIMONProfiles?.account || "guest";
+function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
+// Daily mission result origin: capture account when this quiz script starts.
 (function () {
   "use strict";
 
@@ -441,6 +444,9 @@ function getTargetNoteIdsFromIdiomRange() {
 }
 
 function getRangedData() {
+  const review = URL_PARAMS.get('reviewIds');
+  if(review){const ids=new Set(review.split(','));return DATA.map((q,i)=>({...q,_index:i})).filter(q=>ids.has(String(q.id)));}
+
 
   const rangeType =
     getRangeType();
@@ -1071,9 +1077,18 @@ function setCursor(value) {
       });
   }
 
+  function dailyExamRankIds(ids,category){
+    let history={};try{history=JSON.parse(GOIMONStorage.getItem("goimon_daily_exam_history_v1_lv"+String(UI_LEVEL)+"_"+category)||"{}")||{};}catch(_){}
+    return ids.slice().sort((a,b)=>{
+      const x=history[String(a)]||{},y=history[String(b)]||{};
+      return Number(x.attempts||0)-Number(y.attempts||0)||Number(x.lastSeen||0)-Number(y.lastSeen||0);
+    });
+  }
   function getSessionItems(count, mode) {
   const base = getRangedData();
+  if(URL_PARAMS.has("reviewIds"))return base;
 
+  if (URL_PARAMS.get("dailyMission")==="exam") {const ordered=dailyExamRankIds(base.map(q=>q.id),"paraphrase_quiz");const byId=new Map(base.map(q=>[String(q.id),q]));return ordered.slice(0,count).map(id=>byId.get(String(id))).filter(Boolean);}
   if (mode === "random") {
     return shuffle(base).slice(0, count);
   }
@@ -2061,7 +2076,13 @@ if (typeof window.zenshoLogAdd === "function") {
   });
 }
 
+  function saveDailyExamResult(){
+    if(URL_PARAMS.get("dailyMission")!=="exam"||!URL_PARAMS.get("missionDate")||state.results.length!==10)return;
+    const attempts=state.results.map(a=>({id:String(a.id),correct:a.correct}));
+    try{window.GoimonDailyResultStore.store("goimon_daily_mission_latest_exam_v1",JSON.stringify(goimonDailyStamped({day:URL_PARAMS.get("missionDate"),level:String(UI_LEVEL),category:"paraphrase_quiz",finishedAt:new Date().toISOString(),attempts})));}catch(_){}
+  }
   function finishQuiz() {
+    saveDailyExamResult();
     renderSummary();
     showBox("summary");
   }
@@ -2123,8 +2144,9 @@ if (typeof window.zenshoLogAdd === "function") {
 
   saveCurrentSettings();
 
-const count = goimonCountOverride || countToNumber(el.questionCount.value, rangedData.length);
-const mode = goimonModeOverride || el.quizMode.value;
+const dailyExam=URL_PARAMS.get('dailyMission')==='exam';
+const count = dailyExam?10:(goimonCountOverride || countToNumber(el.questionCount.value, rangedData.length));
+const mode = dailyExam?'order_continue':(goimonModeOverride || el.quizMode.value);
 goimonCountOverride = 0;
 goimonModeOverride = "";
 

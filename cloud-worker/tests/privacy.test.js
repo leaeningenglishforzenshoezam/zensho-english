@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {getPlatformProxy} from 'wrangler';
+import {createLocalPlatform} from '../dev/local-platform.js';
 import worker from '../src/index.js';
 import {createSession,hashToken} from '../src/session.js';
 import {issueDeletionRequest,cleanupPrivacy,deletionSQL} from '../src/privacy.js';
 
 test('Real D1 privacy: receipt rotation, retention boundaries, scoped cascades, expired and revoked sessions',async()=>{
- const mf=await getPlatformProxy({configPath:new URL('../wrangler.jsonc',import.meta.url).pathname,persist:false});
+ const mf=await createLocalPlatform();
  try {
  const DB=mf.env.DB,now=Math.floor(Date.now()/1000),origin='http://localhost:8765';
  for(const f of ['0001_initial.sql','0002_sessions.sql','0003_user_profiles.sql','0004_privacy_operations.sql','0005_profile_avatar.sql'])for(const sql of (await readFile(new URL('../migrations/'+f,import.meta.url),'utf8')).split(';').map(x=>x.trim()).filter(Boolean))await DB.prepare(sql).run();

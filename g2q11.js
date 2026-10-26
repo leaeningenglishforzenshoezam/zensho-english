@@ -3,7 +3,8 @@
 const data=window.GOIMON_G2_Q11_SET1||[],$=id=>document.getElementById(id);
 const KEY='zensho_q11_grammar_weak_v1_lv2';
 const CURSOR_KEY='goimon_g2q11_last_answered_v1';
-const store=window.GOIMONStorage||window.localStorage;
+const store=window.GOIMONStorage;
+if(!store) throw new Error('保存機能を読み込めませんでした。記録を保護するため、再読み込みしてください。');
 const activeLevel=String(store.getItem('zensho_level_v1')||'1');
 if(activeLevel!=='2') { document.body.insertAdjacentHTML('afterbegin','<div style="padding:14px;background:#fff0da;text-align:center">このページは2級用です。ホームで2級を選んでください。</div>'); }
 function load(){try{const obj=JSON.parse(store.getItem(KEY)||'{}');return obj&&typeof obj==='object'&&!Array.isArray(obj)?obj:{}}catch{return {}}}

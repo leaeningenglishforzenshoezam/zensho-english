@@ -9,15 +9,16 @@
  const link=(href,label,name,extra='')=>`<a class="gn-link" href="${href}" ${extra}>${icon(name)}<span>${label}</span><span class="gn-arrow" aria-hidden="true">›</span></a>`;
  const lessons=[['list.html','単語一覧'],['study.html','単語を覚える'],['quiz.html','単語クイズ｜英語 → 日本語'],['quiz_jaen.html','単語クイズ｜日本語 → 英語'],['audio_quiz.html','単語クイズ｜音声 → 意味'],['idiom_quiz.html','イディオム'],['listening.html','リスニング'],['accent.html','大問1｜アクセント'],['q7.html','大問7｜要約空所補充'],['dialogue.html','大問8｜会話文空欄補充'],['sentence.html','大問9｜短文空欄補充'],['q10.html','大問10｜長文空欄補充'],['paraphrase_quiz.html','大問11｜言い換え'],['reorder.html','大問12｜語句整序']];
  dialog.innerHTML=`<div class="gn-head"><div><span class="gn-kicker">GOIMON</span><h2 id="goimon-menu-title">メニュー</h2></div><button type="button" class="gn-close" aria-label="メニューを閉じる" autofocus>${icon('close')}</button></div>
- <a class="gn-profile" href="cloud.html"><span class="gn-avatar">${icon('user')}</span><span><strong>プロフィール設定</strong><small id="gn-account">アカウント・保存の確認</small></span><span class="gn-arrow" aria-hidden="true">›</span></a>
+ <a class="gn-profile" href="cloud.html"><span class="gn-avatar">${icon('user')}</span><span><strong>ログイン・プロフィール</strong><small id="gn-account">アカウント・保存の確認</small></span><span class="gn-arrow" aria-hidden="true">›</span></a>
  <nav aria-label="GOIMONメインメニュー">
- ${link('index.html','ホーム','home')}${link('recommended.html','今日のおすすめ','star')}
+ ${link('index.html','ホーム','home')}${link('quest_chapter1.html','第1章の冒険・続きから','star')}${link('recommended.html','今日のおすすめ','star')}
  <div class="gn-section">ゴイモンと学習の記録</div>
- ${link('index.html?panel=goimon','現在のゴイモンの様子','egg','data-panel="goimon"')}${link('index.html?panel=dex','ゴイモン図鑑','grid','data-panel="dex"')}${link('progress.html','学習履歴・進捗','history')}
- <details class="gn-lessons"><summary>${icon('book')}<span>学習メニュー</span><span class="gn-arrow" aria-hidden="true">⌄</span></summary><div>${lessons.map(([href,label])=>`<a href="${href}">${label}<span aria-hidden="true">›</span></a>`).join('')}</div></details>
+ ${link('index.html?panel=goimon&manage=1','育成・ニックネーム・進化・保存箱','egg','data-panel="goimon"')}${link('index.html?panel=dex&manage=1','ゴイモン図鑑','grid','data-panel="dex"')}${link('progress.html','学習履歴・進捗','history')}
+ <details class="gn-lessons"><summary>${icon('book')}<span>学習メニュー</span><span class="gn-arrow" aria-hidden="true">⌄</span></summary><div>${[['語彙を鍛える',lessons.slice(0,6)],['リスニング',lessons.slice(6,7)],['大問別演習',lessons.slice(7)]].map(([title,links])=>`<h3>${title}</h3>${links.map(([href,label])=>`<a href="${href}">${label}</a>`).join('')}`).join('')}</div></details>
  </nav><div class="gn-footer"><a href="privacy.html">プライバシーポリシー</a><a href="mailto:goimon.admin@gmail.com">お問い合わせ</a></div>`;
  paths.bell='M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4';
  dialog.querySelector('nav').insertAdjacentHTML('afterbegin',link('announcements.html','お知らせ','bell','id="gn-news"'));
+ dialog.querySelector('nav').insertAdjacentHTML('afterbegin',link(window.GOIMON_CLOUD_CONFIG?.missionsEnabled===true?'mission_play.html':'daily_mission_test.html','今日のミッション','star','id="gn-missions"'));
  document.body.append(dialog);
  if(window.GOIMONAvatarUI)window.GOIMONAvatarUI.refresh();else {
   const catalog=document.createElement('script');catalog.src='cloud_avatar_catalog.js';catalog.onload=()=>{const ui=document.createElement('script');ui.src='cloud_avatar.js';document.head.append(ui);};document.head.append(catalog);

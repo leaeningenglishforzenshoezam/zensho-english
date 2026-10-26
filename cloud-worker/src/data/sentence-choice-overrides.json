@@ -1,0 +1,178 @@
+{
+  "F_bind_01": {
+    "lemma": "bind",
+    "answer": "bound"
+  },
+  "F_bless_01": {
+    "lemma": "bless",
+    "answer": "blessed"
+  },
+  "F_boast_01": {
+    "lemma": "boast",
+    "answer": "boasts"
+  },
+  "F_chase_01": {
+    "lemma": "chase",
+    "answer": "chased"
+  },
+  "F_circumstance_01": {
+    "lemma": "circumstance",
+    "answer": "circumstances"
+  },
+  "F_claim_01": {
+    "lemma": "claim",
+    "answer": "claimed"
+  },
+  "F_command_01": {
+    "lemma": "command",
+    "answer": "commanded"
+  },
+  "F_compose_01": {
+    "lemma": "compose",
+    "answer": "composed"
+  },
+  "F_conclude_01": {
+    "lemma": "conclude",
+    "answer": "concluded"
+  },
+  "F_congratulate_01": {
+    "lemma": "congratulate",
+    "answer": "congratulated"
+  },
+  "F_connect_01": {
+    "lemma": "connect",
+    "answer": "connects"
+  },
+  "F_consist_01": {
+    "lemma": "consist",
+    "answer": "consists"
+  },
+  "F_consumer_01": {
+    "lemma": "consumer",
+    "answer": "consumers"
+  },
+  "F_crash_01": {
+    "lemma": "crash",
+    "answer": "crashed"
+  },
+  "F_crawl_01": {
+    "lemma": "crawl",
+    "answer": "crawled"
+  },
+  "F_decorate_01": {
+    "lemma": "decorate",
+    "answer": "decorated"
+  },
+  "F_decrease_01": {
+    "lemma": "decrease",
+    "answer": "decreased"
+  },
+  "F_defeat_01": {
+    "lemma": "defeat",
+    "answer": "defeated"
+  },
+  "F_delay_01": {
+    "lemma": "delay",
+    "answer": "delayed"
+  },
+  "F_deny_01": {
+    "lemma": "deny",
+    "answer": "denied"
+  },
+  "F_dine_01": {
+    "lemma": "dine",
+    "answer": "dined"
+  },
+  "F_display_01": {
+    "lemma": "display",
+    "answer": "displays"
+  },
+  "F_dive_01": {
+    "lemma": "dive",
+    "answer": "dived"
+  },
+  "F_embarrass_01": {
+    "lemma": "embarrass",
+    "answer": "embarrassed"
+  },
+  "F_employee_01": {
+    "lemma": "employee",
+    "answer": "employees"
+  },
+  "F_engage_01": {
+    "lemma": "engage",
+    "answer": "engaged"
+  },
+  "F_estimate_01": {
+    "lemma": "estimate",
+    "answer": "estimated"
+  },
+  "F_expense_01": {
+    "lemma": "expense",
+    "answer": "expenses"
+  },
+  "F_include_01": {
+    "lemma": "include",
+    "answer": "includes"
+  },
+  "F_indicate_01": {
+    "lemma": "indicate",
+    "answer": "indicates"
+  },
+  "F_injure_01": {
+    "lemma": "injure",
+    "answer": "injured"
+  },
+  "F_inquiry_01": {
+    "lemma": "inquiry",
+    "answer": "inquiries"
+  },
+  "F_manufacture_01": {
+    "lemma": "manufacture",
+    "answer": "manufactures"
+  },
+  "F_neglect_01": {
+    "lemma": "neglect",
+    "answer": "neglecting"
+  },
+  "F_occupy_01": {
+    "lemma": "occupy",
+    "answer": "occupied"
+  },
+  "F_occur_01": {
+    "lemma": "occur",
+    "answer": "occurred"
+  },
+  "F_praise_01": {
+    "lemma": "praise",
+    "answer": "praised"
+  },
+  "F_pretend_01": {
+    "lemma": "pretend",
+    "answer": "pretended"
+  },
+  "F_recipe_01": {
+    "lemma": "recipe",
+    "answer": "recipes"
+  },
+  "F_reflect_01": {
+    "lemma": "reflect",
+    "answer": "reflects"
+  },
+  "F_regret_01": {
+    "lemma": "regret",
+    "answer": "regrets"
+  },
+  "F_represent_01": {
+    "lemma": "represent",
+    "answer": "represents"
+  },
+  "F_resemble_01": {
+    "lemma": "resemble",
+    "answer": "resembles"
+  },
+  "F_seize_01": {
+    "lemma": "seize",
+    "answer": "seized"
+  }
+}

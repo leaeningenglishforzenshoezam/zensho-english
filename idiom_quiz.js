@@ -1,3 +1,6 @@
+const GOIMON_DAILY_RESULT_ACCOUNT = window.GOIMONProfiles?.account || "guest";
+function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
+// Daily mission result origin: capture account when this quiz script starts.
 (function () {
   "use strict";
 
@@ -966,6 +969,8 @@ function getCursorRangeKey() {
 
 function getAvailableDataForMode(questionMode, options) {
   let base = DATA.slice();
+  const review=URL_PARAMS.get('reviewIds');if(review&&!options?.skipReview){const ids=new Set(review.split(','));return base.filter(q=>ids.has(String(q.displayNo)));}
+
 
   if (questionMode === "synonym") {
     base = base.filter(hasUsableSynonym);
@@ -981,6 +986,7 @@ function getAvailableDataForMode(questionMode, options) {
 }
 
   function getSessionItems(questionMode, mode, count) {
+ if(URL_PARAMS.has("reviewIds"))return getAvailableDataForMode(questionMode).map((q,i)=>({...q,_index:i}));
     const base = getAvailableDataForMode(questionMode).map(function (item, index) {
       return {
         ...item,
@@ -1043,7 +1049,7 @@ function getAvailableDataForMode(questionMode, options) {
       question._currentCorrectText = correct;
 
       const wrongPool = Array.from(new Set(
-        getAvailableDataForMode(questionMode)
+        getAvailableDataForMode(questionMode,{applyRange:false,skipReview:true})
           .filter(function (item) { return item.id !== question.id; })
           .flatMap(function (item) { return getSynonymList(item); })
           .map(function (text) { return String(text || "").trim(); })
@@ -1965,24 +1971,37 @@ if (el.originSearchBtn) {
     });
   }
 
+  function dailyIdiomRequest(){return URL_PARAMS.get("dailyMission")==="idioms" ? {day:URL_PARAMS.get("missionDate"),level:String(UI_LEVEL),start:Number(URL_PARAMS.get("start")),end:Number(URL_PARAMS.get("end"))}:null;}
+  function saveDailyIdiomResult(){
+    const m=dailyIdiomRequest();if(!m || state.results.length!==15)return;
+    const attempts=state.results.map(q=>({displayNo:Number(q.displayNo),correct:q.correct}));
+    if(attempts.some(q=>!Number.isInteger(q.displayNo)||typeof q.correct!=="boolean"))return;
+    try{window.GoimonDailyResultStore.store("goimon_daily_mission_latest_idiom_v1",JSON.stringify(goimonDailyStamped({...m,category:"idiom_quiz",questionMode:state.questionMode,attempts,finishedAt:new Date().toISOString(),missionAccount:GOIMON_DAILY_RESULT_ACCOUNT})));}catch(_){}
+  }
+
   function finishQuiz() {
+    saveDailyIdiomResult();
     renderSummary();
     showBox("summary");
   }
 
   function startQuiz(useLastSession) {
+ if(URL_PARAMS.has("reviewIds"))el.questionMode.value=URL_PARAMS.get("idiomMode")==="synonym"?"synonym":"meaning";
+    const mission=dailyIdiomRequest();
+    if(mission){el.rangeStart.value=String(mission.start);el.rangeEnd.value=String(mission.end);el.questionCount.value='15';el.questionMode.value=URL_PARAMS.get('idiomMode')==='synonym'?'synonym':'meaning';el.quizMode.value='random';}
     const questionMode = el.questionMode.value;
     const available = getAvailableDataForMode(questionMode);
 
-    if (available.length < 4) {
+    if(mission && (available.length!==15 || mission.end-mission.start!==14)){alert("指定範囲には15問の出題可能データがありません。");return;}
+    if (available.length < 4 && !URL_PARAMS.has("reviewIds")) {
       alert("4択問題を作るには、そのモードで最低4件のデータが必要です。");
       return;
     }
 
     saveCurrentSettings();
 
-const count = goimonCountOverride || countToNumber(el.questionCount.value, available.length);
-const mode = goimonModeOverride || el.quizMode.value;
+const count = mission ? 15 : (goimonCountOverride || countToNumber(el.questionCount.value, available.length));
+const mode = mission ? 'random' : (goimonModeOverride || el.quizMode.value);
 goimonCountOverride = 0;
 goimonModeOverride = "";
 

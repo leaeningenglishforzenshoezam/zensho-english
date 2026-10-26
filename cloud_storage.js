@@ -57,7 +57,7 @@
   root.GOIMONProfiles={account,isWriter:()=>lockState==='owned',read,write,recovery,collect,profileKey,
     activate(id){if(!/^[a-zA-Z0-9-]{1,128}$/.test(id))throw Error('invalid_account');native.setItem(ACTIVE,id);root.dispatchEvent(new Event('goimon-auth-changed'));},
     logout(){native.removeItem(ACTIVE);root.dispatchEvent(new Event('goimon-auth-changed'));},
-    cloudData(data){return Object.fromEntries(Object.entries(data).filter(([k])=>root.GOIMONCloudSchema.allowed(k)));}
+    cloudData(data){if(root.GoimonDailyAutosaveBridge?.enabled())return root.GoimonDailyAutosaveBridge.projectData(data,account?read(account).base:{});return Object.fromEntries(Object.entries(data).filter(([k])=>root.GOIMONCloudSchema.allowed(k)));}
   };
   root.addEventListener('goimon-storage-error',()=>{
     if(!root.document?.body){root.alert('端末に保存できません。空き容量を確認してください。');return;}

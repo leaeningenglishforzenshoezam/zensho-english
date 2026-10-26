@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {getPlatformProxy} from 'wrangler';
+import {createLocalPlatform} from '../dev/local-platform.js';
 import worker from '../src/index.js';
 import {createSession,authenticateSession,hashToken} from '../src/session.js';
 test('Real D1 sessions: hash-only storage, account isolation, expiry, revocation and bounded sessions',async()=>{
- const mf=await getPlatformProxy({configPath:new URL('../wrangler.jsonc',import.meta.url).pathname,persist:false});
+ const mf=await createLocalPlatform();
  try{
   const DB=mf.env.DB;
   for(const file of ['0001_initial.sql','0002_sessions.sql'])for(const s of (await readFile(new URL('../migrations/'+file,import.meta.url),'utf8')).split(';').map(x=>x.trim()).filter(Boolean))await DB.prepare(s).run();

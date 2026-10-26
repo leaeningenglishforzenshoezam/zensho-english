@@ -1,0 +1,71 @@
+diff --git a/checks/idiom-replacement.test.cjs b/checks/idiom-replacement.test.cjs
+new file mode 100644
+index 0000000..e3db1bb
+--- /dev/null
++++ b/checks/idiom-replacement.test.cjs
+@@ -0,0 +1,23 @@
++const test = require('node:test');
++const assert = require('node:assert/strict');
++const fs = require('node:fs');
++const path = require('node:path');
++const vm = require('node:vm');
++test('IM123 replaces the bus pair without changing IDs or count', () => {
++  const ctx = { window: {} };
++  vm.createContext(ctx);
++  for (const file of ['idiom_data_1kyu.js', 'idiom_examples_1kyu.js']) {
++    const source = fs.readFileSync(path.join(__dirname, '../dist', file), 'utf8');
++    assert.doesNotMatch(source, /miss the bus|not make it to the bus/i);
++    vm.runInContext(source, ctx);
++  }
++  const data = ctx.window.IDIOM_DATA_1KYU;
++  assert.equal(data.length, 287);
++  assert.equal(new Set(data.map(x => x.id)).size, 287);
++  assert.equal(data.filter(x => x.expression === 'keep an eye on').length, 1);
++  const entry = data.find(x => x.id === 'IM123');
++  assert.equal(entry.expression, 'keep an eye on');
++  assert.equal(entry.paraphraseTo.join(), 'watch carefully');
++  assert.equal(entry.noteIds.length, 0);
++  assert.match(ctx.window.IDIOM_EXAMPLES_1KYU.IM123.exampleEn, /keep an eye on my bag/);
++});
+diff --git a/dist/idiom_data_1kyu.js b/dist/idiom_data_1kyu.js
+index ef9d9de..b07b91e 100644
+--- a/dist/idiom_data_1kyu.js
++++ b/dist/idiom_data_1kyu.js
+@@ -1329,13 +1329,13 @@
+     ),
+     make(
+       "IM123",
+-      "miss the bus",
+-      "バスに乗り遅れる",
+-      n(125),
+-      ["not make it to the bus"],
+-      ["take the bus", "catch the bus"],
+-      "catch the bus の反対側。",
+-      "定型表現"
++      "keep an eye on",
++      "～から目を離さずに見ている、～に気を配る",
++      n(),
++      ["watch carefully"],
++      [],
++      "keep an eye on + 人・物で『～を注意して見ている』。watch + 人・物 + carefully と言い換える。単に見るのではなく、変化や異常がないか気を配る意味。",
++      "熟語⇄同義表現"
+     ),
+ 
+     make(
+diff --git a/dist/idiom_examples_1kyu.js b/dist/idiom_examples_1kyu.js
+index 49caf20..921fcc7 100644
+--- a/dist/idiom_examples_1kyu.js
++++ b/dist/idiom_examples_1kyu.js
+@@ -740,9 +740,9 @@
+     },
+ 
+     IM123: {
+-      exampleEn: "I missed the early bus this morning.",
+-      exampleJa: "私は今朝、早いバスに乗り遅れました。",
+-      usage: "miss the bus は『バスに乗り遅れる』。catch the bus の反対として覚えやすい。"
++      exampleEn: "Please keep an eye on my bag while I buy the tickets.",
++      exampleJa: "私が切符を買っている間、かばんから目を離さずに見ていてください。",
++      usage: "keep an eye on my bag は watch my bag carefully と言い換えられる。盗まれたり動かされたりしないよう気を配る意味で、ただ目を向ける look at とは異なる。on の後ろに見守る人や物を置く。"
+     },
+ 
+     IM124: {
