@@ -54,11 +54,15 @@ const cues=Object.freeze({
  'ch2.23.006':'saya_happy',
  'ch2.23.007':'toyoyo_happy'
 });
+const moriiCues=Object.freeze({'ch2.01':'smile','ch2.03':'smile','ch2.07':'serious','ch2.10':'serious','ch2.17':'normal','ch2.18':'serious','ch2.19':'surprised','ch2.22':'smile'});
+function morii(sceneId,lineIndex){return sceneId==='ch2.19'&&lineIndex>=7?'serious':moriiCues[sceneId]||'normal';}
+function initial(sceneId){return sceneId==='ch2.02'?{saya:'saya_surprised',toyoyo:'toyoyo_surprised'}:{saya:'saya_normal',toyoyo:'toyoyo_normal'};}
 function portrait(line){const name=String(line?.speaker||'');const cue=cues[line?.id];
+ if(String(line?.id||'').startsWith('ch2.02.')){if(name==='少女'||name==='サーヤ')return 'saya_surprised';if(name==='トヨヨ')return 'toyoyo_surprised';}
  if(cue)return cue;
  if(name==='サーヤ')return 'saya_normal';
  if(name==='トヨヨ')return 'toyoyo_normal';
  return null;
 }
-root.GoimonChapter2Portraits=Object.freeze({cues,portrait});
+root.GoimonChapter2Portraits=Object.freeze({cues,portrait,initial,morii});
 })(typeof window!=='undefined'?window:globalThis);

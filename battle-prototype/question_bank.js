@@ -4,7 +4,7 @@ function allWords(words){return (Array.isArray(words)?words:[]).map((w,i)=>({kin
 function allIdioms(idioms){return (Array.isArray(idioms)?idioms:[]).map((w,i)=>({kind:'熟語',en:w.expression,ja:w.ja,id:w.id||'idiom_'+i})).filter(q=>typeof q.en==='string'&&q.en.trim()&&typeof q.ja==='string'&&q.ja.trim());}
 function pool(kind,stage,words,idioms){
  if(kind==='熟語')return allIdioms(idioms);
- const scope=ranges[stage-1];const full=allWords(words);
+ const scope=stage?.words||ranges[stage-1];const full=allWords(words);
  return scope?full.filter(q=>q.no>=scope[0]&&q.no<=scope[1]):full;
 }
 function select(kind,stage,words,idioms,random=Math.random,previousId=''){

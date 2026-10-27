@@ -1,0 +1,10 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const c={};vm.runInNewContext(fs.readFileSync('battle-prototype/chapter2_portraits.js','utf8'),c);
+const p=c.GoimonChapter2Portraits;
+assert.equal(p.initial('ch2.02').saya,'saya_surprised');
+assert.equal(p.initial('ch2.02').toyoyo,'toyoyo_surprised');
+assert.equal(p.portrait({id:'ch2.02.007',speaker:'少女'}),'saya_surprised');
+assert.equal(p.portrait({id:'ch2.02.003',speaker:'トヨヨ'}),'toyoyo_surprised');
+assert.equal(p.initial('ch2.03').saya,'saya_normal');
+assert.match(fs.readFileSync('battle-prototype/chapter2.js','utf8'),/GoimonChapter2Portraits.initial\(s.id\)/);
+console.log('PASS chase expressions from entrance through dialogue, then normal scene defaults');

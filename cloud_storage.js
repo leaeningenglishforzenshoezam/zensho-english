@@ -54,6 +54,18 @@
     } else lockState='blocked';
   }
   root.GOIMONStorage=storage;
+  // Legacy quest records remain untouched. First successful save adopts the record
+  // into the same account container as learning/raising; reads never initialize data.
+  root.GOIMONQuestStorage={forKey(candidate,key){
+    if(candidate!==native)return candidate; // isolated developer/test stores stay isolated
+    const match=/^goimon_chapter([12])_v1:([^:]+):lv1$/.exec(key);
+    if(!match)return candidate;
+    const owner=account||'guest';
+    if(match[2]!==owner)throw Error('別アカウントの冒険記録にはアクセスできません。');
+    const canonical='goimon_quest_chapter'+match[1]+'_v1_lv1';
+    function check(k){if(k!==key||(native.getItem(ACTIVE)||'guest')!==owner)throw Error('アカウントが変わりました。再読み込みしてください。');}
+    return {getItem(k){check(k);const value=storage.getItem(canonical);return value===null?native.getItem(key):value;},setItem(k,v){check(k);storage.setItem(canonical,v);}};
+  }};
   root.GOIMONProfiles={account,isWriter:()=>lockState==='owned',read,write,recovery,collect,profileKey,
     activate(id){if(!/^[a-zA-Z0-9-]{1,128}$/.test(id))throw Error('invalid_account');native.setItem(ACTIVE,id);root.dispatchEvent(new Event('goimon-auth-changed'));},
     logout(){native.removeItem(ACTIVE);root.dispatchEvent(new Event('goimon-auth-changed'));},

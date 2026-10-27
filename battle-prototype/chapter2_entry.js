@@ -1,7 +1,5 @@
-/* Additive Site integration. Chapter 1's registry, saves and handlers stay intact. */
-(()=>{'use strict';
-if(location.pathname.includes('quest_chapter2')){const link=document.getElementById('quest-home-link');if(link){link.href='quest_home.html';link.textContent='‹ クエスト';}const audio=document.createElement('script');audio.src='battle-prototype/quest_audio.js';audio.onload=()=>{const s=window.GoimonChapter2?.snapshot();window.GoimonQuestAudio?.setMode(s?.mode==='story'?'story':s?.mode==='battle'?(s.battleId===9?'boss':s.battleId===1||s.battleId===8?'blackfog':'battle'):'setup');};document.head.append(audio);return;}
-const picker=document.getElementById('quest-chapter');if(!picker)return;const option=document.createElement('option');option.value='chapter2';option.textContent='第2章 · ふたつの声（確認版）';picker.append(option);
-picker.addEventListener('change',e=>{if(picker.value==='chapter2'){e.stopImmediatePropagation();location.assign('quest_chapter2.html');}},true);
-const box=document.createElement('section');box.className='qh-card';box.style.margin='18px 0';const title=document.createElement('h2');title.textContent='第2章 · ふたつの声';const note=document.createElement('p');note.textContent='もうひと組の相棒と、水の消えた街へ。';const a=document.createElement('a');a.href='quest_chapter2.html';a.className='qh-button primary';a.textContent='第2章をはじめる';try{const account=window.GOIMONProfiles?.account||'guest',s=JSON.parse(localStorage.getItem('goimon_chapter2_v1:'+account+':lv1'));if(s)a.textContent=s.completed?'第2章の記録を見る':'第2章のつづき';}catch{}box.append(title,note,a);document.getElementById('qh-hero').after(box);
+// Site audio/navigation adapter; chapter selection uses the shared hub.
+(()=>{'use strict';if(!location.pathname.includes('quest_chapter2'))return;
+const link=document.getElementById('quest-home-link');if(link){link.href='quest_home.html?chapter=chapter2';link.textContent='‹ クエスト';}
+const audio=document.createElement('script');audio.src='battle-prototype/quest_audio.js';audio.onload=()=>{const s=window.GoimonChapter2?.snapshot();window.GoimonQuestAudio?.setMode(s?.mode==='story'?'story':s?.mode==='battle'?(s.battleId===9?'boss':s.battleId===1||s.battleId===8?'blackfog':'battle'):'setup');};document.head.append(audio);
 })();

@@ -12,7 +12,7 @@ function render(){
  el('sceneSelect').value=String(sceneIndex);el('caption').textContent=s.id+'｜'+s.title;
  el('speaker').textContent=substitute(line.speaker)||'物語';
  el('line').textContent=substitute(line.text);
- src(el('bg'),assets.path('backgrounds',s.background));
+ src(el('bg'),assets.path('backgrounds',assets.background(s,lineIndex)));
  const isCapture=s.id==='ch2.19'&&lineIndex>=5;
  const portrait=isCapture?null:portraits.portrait(line);
  src(el('character'),portrait?assets.path('characters',portrait):null);

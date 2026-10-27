@@ -6,6 +6,6 @@ function validate(s,data){
  if(s.mode==='complete'&&!s.cleared.includes('mist'))throw Error('章完了の記録が一致しません');
  return s;
 }
-function create(storage,key,data){let last=storage.getItem(key);return {load(){return last?validate(JSON.parse(last),data):null;},save(s){if(storage.getItem(key)!==last)throw Error('別のタブで物語が更新されました。再読み込みしてください。');validate(s,data);const next={...s,revision:s.revision+1},raw=JSON.stringify(next);storage.setItem(key,raw);last=raw;s.revision=next.revision;},raw:()=>last};}
+function create(storage,key,data){storage=root.GOIMONQuestStorage?.forKey(storage,key)||storage;let last=storage.getItem(key);return {load(){return last?validate(JSON.parse(last),data):null;},save(s){if(storage.getItem(key)!==last)throw Error('別のタブで物語が更新されました。再読み込みしてください。');validate(s,data);const next={...s,revision:s.revision+1},raw=JSON.stringify(next);storage.setItem(key,raw);last=raw;s.revision=next.revision;},raw:()=>last};}
 const api={validate,create};if(typeof module!=='undefined')module.exports=api;else root.GoimonChapterStore=api;
 })(typeof window!=='undefined'?window:globalThis);

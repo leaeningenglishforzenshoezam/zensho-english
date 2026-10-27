@@ -1,0 +1,7 @@
+/* Reviewed left-facing artwork only. Source PNGs and dex remain unchanged.
+   Independent scale preserves the existing talking/attack transforms. */
+:is(.scene img[data-character="partner"],.stage img.character.partner):is(
+ [src$="hirameki_child.png"],[src$="hirameki_growth.png"],[src$="hirameki_mid.png"],[src$="hirameki_final.png"],
+ [src$="nagomi_child.png"],[src$="nagomi_growth.png"],[src$="nagomi_mid.png"],
+ [src$="kotonoha_child.png"],[src$="shirabe_final.png"],[src$="hibiki_child.png"],[src$="hibiki_growth.png"]
+){scale:-1 1;}

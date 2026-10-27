@@ -17,12 +17,12 @@ test('Chapter 2 contains 23 scenes and 9 battles',()=>{
  assert.equal(data.scenes.length,23);
  assert.equal(data.battles.length,9);
 });
-test('35 unique chapter-specific asset paths, road aliases hills',()=>{
+test('38 unique chapter-specific asset paths, road aliases hills',()=>{
  const files=Object.values(script.map).flatMap(group=>Object.values(group));
- assert.equal(files.length,36); // hills + road alias refer to the same PNG
- assert.equal(new Set(files).size,35);
+ assert.equal(files.length,39); // hills + road alias refer to the same PNG
+ assert.equal(new Set(files).size,38);
  assert.equal(script.path('backgrounds','road'),script.path('backgrounds','hills'));
- for(const p of files)assert.match(p,/\.png$/);
+ for(const p of files)assert.match(p,/\.(png|webp)$/);
 });
 test('every scene background and battle sprite resolves',()=>{
  for(const scene of data.scenes){

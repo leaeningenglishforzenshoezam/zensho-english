@@ -9,9 +9,16 @@ function validate(s,d){
  if(s.mode==='complete'&&(s.scene!==d.scenes.length-1||d.battles.some(b=>!s.cleared.includes(b.id))||!s.completed))throw Error('第2章のクリア記録が不足しています。');
  return s;
 }
+function restart(s,d,pet,skills=[],gear='none'){
+ validate(s,d);
+ // Keep permanent accomplishments. Reset only this run; never mutate the previous state before saving.
+ const next=fresh(d,pet,skills,gear);
+ next.revision=s.revision;next.read=clone(s.read);next.cleared=clone(s.cleared);next.completed=s.completed;
+ return validate(next,d);
+}
 function nextScene(s,d){if(s.scene===d.scenes.length-1){s.mode='complete';s.completed=true;}else{s.scene++;s.line=0;s.mode='story';}}
 function advance(s,d){if(s.mode!=='story')return;const scene=d.scenes[s.scene],line=scene.lines[s.line];if(line){if(!s.read.includes(line.id))s.read.push(line.id);s.line++;}if(s.line===scene.lines.length&&!scene.battleId)nextScene(s,d);}
-function finish(s,d){if(!s.combat?.ended)throw Error('戦闘はまだ終了していません。');if(s.combat.winner!=='player'){s.mode='defeat';return;}if(!s.cleared.includes(s.battleId))s.cleared.push(s.battleId);s.run=clone(s.combat.player);s.run.hp=Math.min(s.run.maxHp,s.run.hp+Math.ceil((s.run.maxHp-s.run.hp)/4));s.combat=null;s.question=null;s.feedback=null;nextScene(s,d);}
-function create(storage,key,d){let last=storage.getItem(key);return {load:()=>last?validate(JSON.parse(last),d):null,save(s){if(storage.getItem(key)!==last)throw Error('別のタブで第2章が更新されました。再読み込みしてください。');validate(s,d);const value=JSON.stringify({...s,revision:s.revision+1});storage.setItem(key,value);last=value;s.revision++;},raw:()=>last};}
-const api={fresh,validate,advance,finish,create};if(typeof module!=='undefined')module.exports=api;else root.GoimonChapter2Progress=api;
+function finish(s,d){if(!s.combat?.ended)throw Error('戦闘はまだ終了していません。');if(s.combat.winner!=='player'){s.mode='defeat';return;}if(!s.cleared.includes(s.battleId))s.cleared.push(s.battleId);s.run=clone(s.combat.player);s.run.hp=Math.min(s.run.maxHp,s.run.hp+Math.ceil((s.run.maxHp-s.run.hp)/3));s.combat=null;s.question=null;s.feedback=null;nextScene(s,d);}
+function create(storage,key,d){storage=root.GOIMONQuestStorage?.forKey(storage,key)||storage;let last=storage.getItem(key);return {load:()=>last?validate(JSON.parse(last),d):null,save(s){if(storage.getItem(key)!==last)throw Error('別のタブで第2章が更新されました。再読み込みしてください。');validate(s,d);const value=JSON.stringify({...s,revision:s.revision+1});storage.setItem(key,value);last=value;s.revision++;},raw:()=>last};}
+const api={fresh,restart,validate,advance,finish,create};if(typeof module!=='undefined')module.exports=api;else root.GoimonChapter2Progress=api;
 })(typeof window!=='undefined'?window:globalThis);

@@ -3,3 +3,19 @@
 @media(max-width:540px){header{padding:8px;font-size:.7rem}header button{font-size:.8rem;padding:8px}main{padding:0 10px}.stage{height:29vh;min-height:190px}.panel{padding:14px}.story-text{line-height:1.75}.battle .stage{height:20vh;min-height:110px}.battle h2{margin:7px 0;font-size:1.1rem}.battle .muted{margin:6px 0}footer{padding:12px}}
 @media(orientation:landscape) and (max-height:550px){header{padding:5px 12px}header button{min-height:32px;padding:5px 10px}.battle{display:grid;grid-template-columns:42% 1fr;gap:0 12px;align-items:start}.battle .hud{grid-column:1}.battle .stage{grid-column:1;height:56vh;min-height:120px}.battle .panel{grid-column:2;grid-row:1/4;max-height:80vh;overflow:auto;margin:0}.battle .choices{gap:6px}.battle .choices button{min-height:38px;padding:6px}footer{display:none}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.stage.rescue .captives,.stage.rescue .enemy{opacity:0}}
+
+/* Larger silhouettes stay inside the arena, not over the question panel. */
+.stage.enemy-large .enemy{right:0;width:48%;height:90%}
+.stage.enemy-giant .enemy{right:0;width:55%;height:97%}
+.stage.enemy-boss .enemy{right:0;width:61%;height:96%}
+.stage.enemy-giant .partner,.stage.enemy-boss .partner{width:25%;height:52%}
+.stage.boss .captives{right:4%;bottom:50%;width:25%;height:48%}
+.character.escape{left:10%;width:80%;height:98%;z-index:4}
+.stage.town-cast .partner{left:0;width:21%;height:48%}
+.stage.town-cast .saya{left:18%;right:auto;width:23%;height:85%}
+.stage.town-cast .toyoyo{left:37%;right:auto;width:18%;height:45%}
+.stage.town-cast .morii{left:45%;width:15%;height:43%}
+.stage.town-cast .farmer,.stage.town-cast .manager{right:1%;width:36%;height:96%;z-index:3}
+.stage.town-cast.two-npcs .farmer{right:24%;width:24%;height:91%}
+.stage.town-cast.two-npcs .manager{right:0;width:27%;height:96%}
+@media(max-width:540px){.stage.enemy-boss .enemy{width:64%}.stage.enemy-giant .enemy{width:58%}}

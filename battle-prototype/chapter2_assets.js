@@ -13,6 +13,7 @@ const map=Object.freeze({
  }),
  details:Object.freeze({founders_relief:'details/ch2_founders_relief.png',work_log:'details/ch2_work_log.png'}),
  characters:Object.freeze({
+ farmer:'characters/ch2_farmer_worried.webp',manager:'characters/ch2_manager_serious.webp',
  saya_full:'characters/ch2_saya_full.png',saya_normal:'characters/ch2_saya_normal.png',
  saya_happy:'characters/ch2_saya_happy.png',saya_worried:'characters/ch2_saya_worried.png',
  saya_surprised:'characters/ch2_saya_surprised.png',saya_determined:'characters/ch2_saya_determined.png',
@@ -28,8 +29,9 @@ const map=Object.freeze({
  7:'enemies/ch2_enemy_oonushi.png',8:'enemies/ch2_enemy_blackfog_split.png',
  9:'enemies/ch2_boss_beast.png'
  }),
- events:Object.freeze({captives:'events/ch2_boss_captured_saya_toyoyo.png'})
+ events:Object.freeze({escape:'events/ch2_saya_toyoyo_escape.webp',captives:'events/ch2_boss_captured_saya_toyoyo.png'})
 });
+function background(scene,line){return scene.id==='ch2.21'?(line>=4?'restored_canal':'dry_canal'):scene.background;}
 function path(group,id){const file=map[group]?.[id];return file?rootDir+file:null;}
-root.GoimonChapter2Assets=Object.freeze({rootDir,map,path});
+root.GoimonChapter2Assets=Object.freeze({rootDir,map,path,background});
 })(typeof window!=='undefined'?window:globalThis);
