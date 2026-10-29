@@ -1,4 +1,5 @@
 import {handleLearningClasses} from './learning_classes.js';
+import {releaseStatus} from './release_status.js';
 import {issueDeletionRequest,cleanupPrivacy} from './privacy.js';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { handleProfile } from './profile.js';
@@ -99,7 +100,7 @@ export default {
     let result;
     try {
       const url=new URL(request.url);
-      if (url.pathname==='/health' && request.method==='GET') result=response({ok:true});
+      if (url.pathname==='/health' && request.method==='GET') result=response(releaseStatus(env));
       else if ((url.pathname.startsWith('/api/v1/learning/') && ['GET','POST'].includes(request.method)) || (url.pathname==='/api/v1/deletion-request' && request.method==='POST') || (['/api/v1/save','/api/v1/profile'].includes(url.pathname) && ['GET','POST'].includes(request.method)) || (url.pathname==='/api/v1/session' && ['GET','POST','DELETE'].includes(request.method))) {
         if(!env.RATE_LIMITER || !env.AUTH_RATE_LIMITER) return response({error:'rate_limiter_not_configured'},503,headers);
         const limited=await env.AUTH_RATE_LIMITER.limit({key:'ip:'+ (request.headers.get('CF-Connecting-IP')||'unknown')});
