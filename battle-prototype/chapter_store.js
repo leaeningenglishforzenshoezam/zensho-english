@@ -7,5 +7,11 @@ function validate(s,data){
  return s;
 }
 function create(storage,key,data){storage=root.GOIMONQuestStorage?.forKey(storage,key)||storage;let last=storage.getItem(key);return {load(){return last?validate(JSON.parse(last),data):null;},save(s){if(storage.getItem(key)!==last)throw Error('別のタブで物語が更新されました。再読み込みしてください。');validate(s,data);const next={...s,revision:s.revision+1},raw=JSON.stringify(next);storage.setItem(key,raw);last=raw;s.revision=next.revision;},raw:()=>last};}
-const api={validate,create};if(typeof module!=='undefined')module.exports=api;else root.GoimonChapterStore=api;
+function eligible(p){return !!p&&['egg','child','growth'].includes(p.stage);}
+function assertEligible(p){if(!eligible(p))throw Error('中級体・上級体はクエストに参加できません。たまご・幼体・成長体を選んでください。');}
+function restart(previous,data,next){validate(previous,data);assertEligible(next.pet);const copy=x=>JSON.parse(JSON.stringify(x));next.revision=previous.revision;next.read=copy(previous.read);next.cleared=copy(previous.cleared);next.completed=!!previous.completed;next.allMisses=copy(previous.allMisses||previous.misses||[]);
+ // Repeat practice, but retain the one-time practice gift and its equipment.
+ for(const k of ['claimed','shards','item','equipped','complete'])if(previous.tutorial[k]!==undefined)next.tutorial[k]=copy(previous.tutorial[k]);
+ return validate(next,data);}
+const api={validate,create,eligible,assertEligible,restart};if(typeof module!=='undefined')module.exports=api;else root.GoimonChapterStore=api;
 })(typeof window!=='undefined'?window:globalThis);
