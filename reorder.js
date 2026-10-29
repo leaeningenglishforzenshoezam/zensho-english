@@ -395,7 +395,7 @@ function showWeakList() {
     if (!current) return "";
     const selectedText = getSelectedTextList().join(" ");
     const blankText = selectedText || "（　）";
-    return `${current.stemBefore} ${blankText} ${current.stemAfter}`.replace(/\s+/g, " ").trim();
+    return `${current.stemBefore} （　） ${current.stemAfter}`.replace(/\s+/g, " ").trim();
   }
 
   function getMaskedQuestionText(q) {
@@ -1254,13 +1254,8 @@ function getRangeFilteredIndexes(startNo, endNo) {
   } else {
     incrementAutoWeak(current.id);
 
-    const map = getChunkMap(current);
-    const yourText = selectedIds.map(id => map.get(id) || "").join(" ");
-    const correctText = current.answer.map(id => map.get(id) || "").join(" ");
-    resultEl.innerHTML =
-      `<span class="ng">❌ 不正解。</span><br>` +
-      `あなたの並び：${escapeHtml(yourText)}<br>` +
-      `正しい並び：${escapeHtml(correctText)}`;
+    // Completed sentence appears in the explanation; selected cards remain in review.
+    resultEl.innerHTML = `<span class="ng">❌ 不正解。正しい文を確認しよう。</span>`;
   }
 
   session.askedIndexes.push(currentQuestionIndex);

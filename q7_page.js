@@ -783,6 +783,8 @@ document.querySelectorAll(".paragraph-translation")
 
     const correct = score();
     const previous = getHistory(current.id);
+    // Count only a newly graded attempt, never a redraw or restored result.
+    window.ZenshoLearningLog?.addCounts("q7",{attempt:5,correct,wrong:5-correct},{level:"1"});
 
     history[current.id] = {
       attempts: previous.attempts + 1,

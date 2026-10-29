@@ -1492,14 +1492,12 @@
   },
   {
     "id": "IM123",
-    "expression": "miss the bus",
-    "ja": "バスに乗り遅れる",
+    "expression": "keep an eye on",
+    "ja": "～から目を離さずに見ている、～に気を配る",
     "paraphraseTo": [
-      "not make it to the bus"
+      "watch carefully"
     ],
-    "noteIds": [
-      "N125"
-    ]
+    "noteIds": []
   },
   {
     "id": "IM124",

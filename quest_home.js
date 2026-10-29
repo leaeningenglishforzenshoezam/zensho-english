@@ -9,7 +9,7 @@ function render(){
  $('qh-unlock-status').textContent=unlocked?'':'第1章のエンディングまで進むと解放';
  try{
  const account=GOIMONProfiles.account||'guest';
- state=L.load(chapter,localStorage,account);
+ state=L.load(chapter,GOIMONQuestStorage.source,account);
  const current=JSON.parse(GOIMONStorage.getItem('zensho_goimon_current_v4_lv'+chapter.level)||'null');
  const archive=JSON.parse(GOIMONStorage.getItem('zensho_goimon_archive_v4_lv'+chapter.level)||'[]');
  pet=state?([current,...(Array.isArray(archive)?archive:[])].find(p=>p?.id===state.partnerId)||state.pet):current;

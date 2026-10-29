@@ -1,4 +1,4 @@
-const test=require('node:test'),assert=require('node:assert/strict'),B=require('../battle-prototype/core.js'),C=require('../battle-prototype/catalog.js');
+const test=require('node:test'),assert=require('node:assert/strict'),B=require('./deterministic-battle.cjs'),C=require('../battle-prototype/catalog.js');
 const actor=()=>B.actor(C.species[0],1,{chie:100,kotoba:100,onkan:100,bunmyaku:100},null,[C.skills.find(x=>x.type==='attack')]);
 test('wrong attack deals one damage and consumes one skill use',()=>{const p=actor(),e=actor(),b=B.create(p,e,()=>0);b.order=['player','enemy'];const hp=e.hp,left=p.skills[0].left;B.resolve(b,'skill:0',false);assert.equal(hp-e.hp,1);assert.equal(p.skills[0].left,left-1);});
 test('wrong defense uses 1.5 multiplier',()=>{const p=actor(),e=actor(),b=B.create(p,e,()=>0);b.order=['enemy','player'];const hp=p.hp,amount=B.damage(e,p,1,1.5,e.attr);B.resolve(b,'normal',false);assert.equal(hp-p.hp,Math.min(hp,amount));});

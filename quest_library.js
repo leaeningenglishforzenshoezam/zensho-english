@@ -7,7 +7,7 @@ const chapters=[{id:'chapter1',number:1,level:'1',name:'ことばの森',url:'qu
 {id:'unknown',name:'？？？',kind:'出会い',image:asset+'unknown_presence.png',description:'石碑の記憶の先で現れた、謎の人物。',seen:f=>f.people.includes('unknown')},
 {id:'mist',name:'黒い霧',kind:'出会い',image:asset+'black_mist.png',battle:'mist',description:'ことばの森に現れた黒い霧。',seen:f=>f.mist||f.enemy==='mist'}],frame:(s,l)=>root.GoimonChapterStaging.frame(s,l)}];
 chapters.push(...(root.GoimonAdditionalQuestChapters||[]));
-function unlocked(chapter,storage=localStorage,account=root.GOIMONProfiles?.account||'guest'){return !chapter.unlocked||chapter.unlocked(storage,account);}
+function unlocked(chapter,storage=GOIMONQuestStorage.source,account=root.GOIMONProfiles?.account||'guest'){return !chapter.unlocked||chapter.unlocked(storage,account);}
 function get(id){return chapters.find(c=>c.id===id)||chapters[0];}
 function load(chapter,storage,account){if(!unlocked(chapter,storage,account))return null;return (chapter.store||root.GoimonChapterStore).create(storage,chapter.key(account||'guest'),chapter.data).load();}
 function scenes(chapter,state){const read=new Set(state?.read||[]);return chapter.data.scenes.map((s,index)=>({...s,index,lines:s.lines.filter(l=>!l.event&&read.has(l.id)),total:s.lines.filter(l=>!l.event).length}));}

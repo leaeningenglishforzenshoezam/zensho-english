@@ -18,7 +18,8 @@
     /^dialogue(CompletionState|QuestionHistory)_v1$/,
     /^goimon_daily_cloud_state_v1_lv[12]$/,
     /^goimon_dialogue_history_v2$/,
-    /^goimon_quest_chapter[12]_v1_lv1$/
+    /^goimon_quest_chapter[12]_v1_lv1$/,
+    /^goimon_adventure_profile_v2$/
   ];
   const allowed = k => typeof k==='string' && patterns.some(p=>p.test(k));
   function safeTree(v, depth=0) {
@@ -35,6 +36,7 @@
       if(!allowed(k)||typeof v!=='string') throw Error('invalid_save_key_or_value');
       if(/reorder_bonus_stat/.test(k)){if(!['wisdom','word','sound','context','chie','kotoba','onkan','bunmyaku'].includes(v)) throw Error('invalid_bonus_stat');}
       else {let parsed; try{parsed=JSON.parse(v);}catch{throw Error('invalid_json_value');} safeTree(parsed);
+        if(k==='goimon_adventure_profile_v2'&&(!parsed||!['male','female','unanswered'].includes(parsed.gender)))throw Error('invalid_adventure_profile');
         if(/^goimon_quest_chapter[12]_v1_lv1$/.test(k)){
           if(!parsed||parsed.version!==1||typeof parsed.scriptVersion!=='string'||!Number.isSafeInteger(parsed.revision)||parsed.revision<0||!Number.isInteger(parsed.scene)||parsed.scene<0||!Number.isInteger(parsed.line)||parsed.line<0||typeof parsed.partnerId!=='string'||!Array.isArray(parsed.read)||parsed.read.some(x=>typeof x!=='string')||!Array.isArray(parsed.cleared)||!['story','battle','defeat','gift','complete'].includes(parsed.mode))throw Error('invalid_quest_record');
         }

@@ -11,7 +11,7 @@
  }
  root.GoimonDailyResultStore=Object.freeze({store});
  if(new URLSearchParams(root.location.search).has('dailyMission')){
-  const link=root.document.createElement('a');link.href='daily_mission_test.html';link.textContent='今日のミッションへ戻る';
+  const link=root.document.createElement('a');link.href='missions.html';link.textContent='今日のミッションへ戻る';
   link.style.cssText='display:block;margin:12px;padding:12px;text-align:center;background:#edf7f1;color:#195c45;border-radius:10px';
   root.document.body.prepend(link);
  }

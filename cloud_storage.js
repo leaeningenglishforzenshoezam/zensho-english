@@ -6,7 +6,7 @@
   const account=native.getItem(ACTIVE)||null;
   const cache=new Map();
   let lockState=account?'pending':'guest',pending=null,pendingBase=null,release=null;
-  const tabId=root.crypto.randomUUID();
+  const tabId=root.crypto.randomUUID?.()||Array.from(root.crypto.getRandomValues(new Uint8Array(16)),x=>x.toString(16).padStart(2,'0')).join('');
   function read(id){const raw=native.getItem(profileKey(id));return raw?JSON.parse(raw):{data:{},base:{},revision:0};}
   function write(id,p){native.setItem(profileKey(id),JSON.stringify(p));root.dispatchEvent(new Event('goimon-profile-written'));}
   function collect(){const data={};for(let i=0;i<native.length;i++){const k=native.key(i);if(/^(zensho_|q7|q10|dialogue|goimon_)/.test(k)&&!k.startsWith(PREFIX))data[k]=native.getItem(k);}return data;}
@@ -56,7 +56,7 @@
   root.GOIMONStorage=storage;
   // Legacy quest records remain untouched. First successful save adopts the record
   // into the same account container as learning/raising; reads never initialize data.
-  root.GOIMONQuestStorage={forKey(candidate,key){
+  root.GOIMONQuestStorage={source:native,forKey(candidate,key){
     if(candidate!==native)return candidate; // isolated developer/test stores stay isolated
     const match=/^goimon_chapter([12])_v1:([^:]+):lv1$/.exec(key);
     if(!match)return candidate;
@@ -66,7 +66,9 @@
     function check(k){if(k!==key||(native.getItem(ACTIVE)||'guest')!==owner)throw Error('アカウントが変わりました。再読み込みしてください。');}
     return {getItem(k){check(k);const value=storage.getItem(canonical);return value===null?native.getItem(key):value;},setItem(k,v){check(k);storage.setItem(canonical,v);}};
   }};
-  root.GOIMONProfiles={account,isWriter:()=>lockState==='owned',read,write,recovery,collect,profileKey,
+  root.GOIMONProfiles={account,currentAccount:()=>native.getItem(ACTIVE)||null,
+    legacyAdventureProfile:()=>native.getItem('goimon_adventure_profile_v1:'+(account||'guest')),
+    isWriter:()=>lockState==='owned',read,write,recovery,collect,profileKey,
     activate(id){if(!/^[a-zA-Z0-9-]{1,128}$/.test(id))throw Error('invalid_account');native.setItem(ACTIVE,id);root.dispatchEvent(new Event('goimon-auth-changed'));},
     logout(){native.removeItem(ACTIVE);root.dispatchEvent(new Event('goimon-auth-changed'));},
     cloudData(data){if(root.GoimonDailyAutosaveBridge?.enabled())return root.GoimonDailyAutosaveBridge.projectData(data,account?read(account).base:{});return Object.fromEntries(Object.entries(data).filter(([k])=>root.GOIMONCloudSchema.allowed(k)));}

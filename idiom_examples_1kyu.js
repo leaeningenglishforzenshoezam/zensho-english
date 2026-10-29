@@ -740,9 +740,9 @@
     },
 
     IM123: {
-      exampleEn: "I missed the early bus this morning.",
-      exampleJa: "私は今朝、早いバスに乗り遅れました。",
-      usage: "miss the bus は『バスに乗り遅れる』。catch the bus の反対として覚えやすい。"
+      exampleEn: "Please keep an eye on my bag while I buy the tickets.",
+      exampleJa: "私が切符を買っている間、かばんから目を離さずに見ていてください。",
+      usage: "keep an eye on my bag は watch my bag carefully と言い換えられる。盗まれたり動かされたりしないよう気を配る意味で、ただ目を向ける look at とは異なる。on の後ろに見守る人や物を置く。"
     },
 
     IM124: {
