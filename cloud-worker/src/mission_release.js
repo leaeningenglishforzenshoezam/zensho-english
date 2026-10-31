@@ -6,7 +6,8 @@ export default {
  scheduled:worker.scheduled,
  async fetch(request,env,ctx){
   const path=new URL(request.url).pathname;
-  if(env.MISSION_RELEASE_ENABLED==='true'&&publicRoutes.has(path)){
+  const drawEnabled=path==='/api/v1/economy/draw'&&env.ECONOMY_DRAW_ENABLED==='true';
+  if(env.MISSION_RELEASE_ENABLED==='true'&&(publicRoutes.has(path)||drawEnabled)){
    return handleMissionDraft(request,{...env,MISSION_REWARDS_TEST_ENABLED:true});
   }
   return worker.fetch(request,env,ctx);

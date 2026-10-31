@@ -2,7 +2,7 @@
 import {authenticateSession} from './session.js';
 import {issueWordAttempt,submitWordAttempt,claimWordReward,issueIdiomAttempt,submitIdiomAttempt,claimIdiomReward,issueExamAttempt,submitExamAttempt,claimExamReward,claimBasicBonus,issueChallengeAttempt,submitChallengeAttempt,claimChallengeReward} from './mission_rewards.js';
 import {applyMissionLearning,readMissionLearning,reviewMissionAttempt} from './mission_learning.js';
-import {readEconomy} from './economy_repository.js';
+import {readEconomy,executeDraw} from './economy_repository.js';
 import {syncMissionSnapshot} from './mission_sync.js';
 import {applyMissionGrowth} from './mission_growth.js';
 import {applyCompanionAction} from './mission_companion.js';
@@ -22,7 +22,7 @@ export async function handleMissionDraft(request,env){
  // Tests explicitly opt in against persist:false D1. Nothing is enabled by default.
  if(env.MISSION_REWARDS_TEST_ENABLED!==true)return json({error:'not_found'},404);
  const path=new URL(request.url).pathname,origin=request.headers.get('Origin');
- if(!routes.includes(path)&&!['/api/v1/missions/status','/api/v1/missions/growth/apply','/api/v1/missions/companion/action'].includes(path))return json({error:'not_found'},404);
+ if(!routes.includes(path)&&!['/api/v1/economy/draw','/api/v1/missions/status','/api/v1/missions/growth/apply','/api/v1/missions/companion/action'].includes(path))return json({error:'not_found'},404);
  if(!origin||origin!==env.ALLOWED_ORIGIN)return json({error:'origin_not_allowed'},403);
  const headers={'access-control-allow-origin':origin,'vary':'Origin'};
  const reply=(v,status=200)=>json(v,status,headers);
@@ -37,6 +37,10 @@ export async function handleMissionDraft(request,env){
   if(path==='/api/v1/missions/status')return reply(await readMissionStatus(env.DB,userId));
   if(path==='/api/v1/economy')return reply(await readEconomy(env.DB,userId));
   const payload=await body(request,path==='/api/v1/missions/learning/sync'?920000:4096),isIdiom=path.includes('/idioms/'),isExam=path.includes('/exam/'),challenge=path.split('/')[4];
+  if(path==='/api/v1/economy/draw'){
+   exact(payload,['operationId','expectedRevision','kind','count']);
+   return reply(await executeDraw(env.DB,userId,payload.operationId,payload.expectedRevision,{type:'draw',kind:payload.kind,count:payload.count}));
+  }
   if(path==='/api/v1/missions/learning/sync'){exact(payload,['operationId','baseRevision','expectedRevision','snapshot']);const result=await syncMissionSnapshot(env.DB,userId,payload);return reply(result,result.conflict?409:200);}
   if(path==='/api/v1/missions/review'){exact(payload,['attemptId']);return reply(await reviewMissionAttempt(env.DB,userId,payload.attemptId));}
   if(path==='/api/v1/missions/learning/apply'){exact(payload,['attemptId','expectedRevision']);return reply(await applyMissionLearning(env.DB,userId,payload.attemptId,payload.expectedRevision));}
@@ -53,6 +57,8 @@ export async function handleMissionDraft(request,env){
   exact(payload,['attemptId','operationId','expectedRevision']);return reply(await (isExam?claimExamReward:isIdiom?claimIdiomReward:claimWordReward)(env.DB,userId,payload.attemptId,payload.operationId,payload.expectedRevision));
  }catch(error){
   const name=error.message;
+  if(['insufficient_shards','inventory_limit'].includes(name))return reply({error:name},409);
+  if(['invalid_command','invalid_draw'].includes(name))return reply({error:name},400);
   if(['growth_target_missing','growth_target_mismatch','invalid_growth_record','evolution_not_ready','companion_archive_full'].includes(name))return reply({error:name},409);
   const status=name==='unauthorized'?401:name==='request_too_large'?413:name==='json_required'?415:name==='attempt_not_found'?404:['sync_ack_unavailable','sync_base_unavailable','mission_daily_limit','mission_storage_limit','learning_revision_conflict','economy_revision_conflict','operation_id_reused','attempt_already_submitted','mission_day_conflict'].includes(name)?409:['attempt_not_submitted','invalid_learning_record','invalid_learning_counter','invalid_request','invalid_answers','invalid_operation','invalid_revision','invalid_json','mission_not_supported','mission_not_completed','attempt_expired','unsupported_attempt','invalid_mission_day','basic_missions_not_completed'].includes(name)?400:500;
   return reply({error:status===500?'server_error':name},status);

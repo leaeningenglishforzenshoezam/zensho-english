@@ -16,7 +16,7 @@ export function validateState(s){
 export function secureRandom(){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]/4294967296;}
 function pick(pool,rng){const r=rng();if(!Number.isFinite(r)||r<0||r>=1)throw Error('invalid_random');return pool[Math.floor(r*pool.length)];}
 export function planDraw(state,kind,count,rng=secureRandom){
- validateState(state);if(!Object.hasOwn(groups,kind)||![1,10].includes(count))throw Error('invalid_draw');
+ validateState(state);if(!Object.hasOwn(groups,kind)||!Number.isInteger(count)||count<1||count>10)throw Error('invalid_draw');
  const cost=count*RULES.cost;if(state.shards<cost)throw Error('insufficient_shards');
  const next=structuredClone(state),items=[];
  for(let i=0;i<count;i++){

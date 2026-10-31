@@ -6,7 +6,8 @@ test('Ten costs 100, guarantees R+, singles have no cumulative pity, input is im
  let single=funded(100);for(let i=0;i<10;i++){const x=planDraw(single,'gear',1,()=>0);assert.equal(x.result.items[0].rarity,'N');single=x.next;}assert.equal(single.shards,0);
  for(const [r,want]of [[0,'N'],[.9399,'N'],[.94,'R'],[.9899,'R'],[.99,'SR'],[.9999,'SR']])assert.equal(planDraw(funded(10),'gear',1,()=>r).result.items[0].rarity,want);
  for(const [r,want]of [[5/6-0.0001,'R'],[5/6,'SR']])assert.equal(planDraw(funded(100),'skills',10,()=>r).result.items[9].rarity,want);
- for(const [kind,count]of [['gear',0],['gear',2],['bad',10],['__proto__',1]])assert.throws(()=>planDraw(s,kind,count));
+ for(const [kind,count]of [['gear',0],['gear',11],['gear',1.5],['gear','3'],['bad',10],['__proto__',1]])assert.throws(()=>planDraw(s,kind,count));
+ for(let count=1;count<=10;count++){const p=planDraw(funded(100),'skills',count,()=>0);assert.equal(p.next.shards,100-count*10);assert.equal(p.result.items.length,count);assert.equal(p.result.items.at(-1).rarity,count===10?'R':'N');}
  assert.throws(()=>planDraw(funded(9),'gear',1),/insufficient_shards/);for(const r of [-1,1,NaN])assert.throws(()=>planDraw(s,'skills',1,()=>r));
 });
 test('Exchange protects registered copies, inventory bounds and malformed states',()=>{

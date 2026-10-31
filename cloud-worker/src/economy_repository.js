@@ -2,7 +2,7 @@
 import {emptyEconomy,validateState,planDraw} from './economy.js';
 const opPattern=/^[A-Za-z0-9_-]{16,80}$/;
 function requestJson(command){
- if(!command||typeof command!=='object'||Array.isArray(command)||Object.keys(command).length!==3||command.type!=='draw'||!['gear','skills'].includes(command.kind)||![1,10].includes(command.count))throw Error('invalid_command');
+ if(!command||typeof command!=='object'||Array.isArray(command)||Object.keys(command).length!==3||command.type!=='draw'||!['gear','skills'].includes(command.kind)||!Number.isInteger(command.count)||command.count<1||command.count>10)throw Error('invalid_command');
  return JSON.stringify({type:'draw',kind:command.kind,count:command.count});
 }
 async function receipt(db,userId,operationId){return db.prepare('SELECT request_json,result_json,expected_revision FROM economy_receipts WHERE user_id=? AND operation_id=?').bind(userId,operationId).first();}
