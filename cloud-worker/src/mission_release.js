@@ -7,7 +7,8 @@ export default {
  async fetch(request,env,ctx){
   const path=new URL(request.url).pathname;
   const drawEnabled=path==='/api/v1/economy/draw'&&env.ECONOMY_DRAW_ENABLED==='true';
-  if(env.MISSION_RELEASE_ENABLED==='true'&&(publicRoutes.has(path)||drawEnabled)){
+  const importEnabled=['/api/v1/economy/import/stage','/api/v1/economy/import/apply'].includes(path)&&env.ECONOMY_IMPORT_ENABLED==='true';
+  if(env.MISSION_RELEASE_ENABLED==='true'&&(publicRoutes.has(path)||drawEnabled||importEnabled)){
    return handleMissionDraft(request,{...env,MISSION_REWARDS_TEST_ENABLED:true});
   }
   return worker.fetch(request,env,ctx);
