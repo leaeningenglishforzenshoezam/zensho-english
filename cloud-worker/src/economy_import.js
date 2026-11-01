@@ -8,6 +8,21 @@ function payloadJson(payload){
  return JSON.stringify({version:1,assets:payload.assets,backup:payload.backup});
 }
 async function digest(value){return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value))),x=>x.toString(16).padStart(2,'0')).join('');}
+// Approved product policy: accept one bounded device snapshot. This cannot prove
+// historical offline earnings. It must be enabled explicitly by the server.
+export async function autoImportLegacy(db,userId,payload){
+ const current=await readEconomy(db,userId);
+ const populated=s=>s.revision>0||s.state.shards>0||Object.values(s.state.owned).some(inv=>Object.values(inv).some(n=>n>0));
+ if(populated(current))return {mode:'restore',...current};
+ try{await stageLegacyImport(db,userId,payload);}catch(e){if(e.message!=='import_snapshot_conflict')throw e;}
+ // First stored snapshot wins even if a second device races with different assets.
+ const row=await db.prepare('SELECT payload_hash,payload_json FROM economy_legacy_imports WHERE user_id=?').bind(userId).first();
+ payloadJson(JSON.parse(row.payload_json));
+ await db.prepare('UPDATE economy_legacy_imports SET approved_hash=payload_hash WHERE user_id=? AND payload_hash=?').bind(userId,row.payload_hash).run();
+ try{await applyApprovedLegacyImport(db,userId,row.payload_hash);}
+ catch(e){const latest=await readEconomy(db,userId);if(!populated(latest))throw e;return {mode:'restore',...latest};}
+ return {mode:'imported',...await readEconomy(db,userId)};
+}
 export async function stageLegacyImport(db,userId,payload){
  const json=payloadJson(payload),hash=await digest(json);
  await db.prepare('INSERT INTO economy_legacy_imports(user_id,payload_hash,payload_json) VALUES (?,?,?) ON CONFLICT(user_id) DO NOTHING').bind(userId,hash,json).run();

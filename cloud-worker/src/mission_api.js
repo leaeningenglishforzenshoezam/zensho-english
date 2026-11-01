@@ -3,7 +3,7 @@ import {authenticateSession} from './session.js';
 import {issueWordAttempt,submitWordAttempt,claimWordReward,issueIdiomAttempt,submitIdiomAttempt,claimIdiomReward,issueExamAttempt,submitExamAttempt,claimExamReward,claimBasicBonus,issueChallengeAttempt,submitChallengeAttempt,claimChallengeReward} from './mission_rewards.js';
 import {applyMissionLearning,readMissionLearning,reviewMissionAttempt} from './mission_learning.js';
 import {readEconomy,executeDraw} from './economy_repository.js';
-import {stageLegacyImport,applyApprovedLegacyImport} from './economy_import.js';
+import {stageLegacyImport,applyApprovedLegacyImport,autoImportLegacy} from './economy_import.js';
 import {syncMissionSnapshot} from './mission_sync.js';
 import {applyMissionGrowth} from './mission_growth.js';
 import {applyCompanionAction} from './mission_companion.js';
@@ -23,7 +23,8 @@ export async function handleMissionDraft(request,env){
  // Tests explicitly opt in against persist:false D1. Nothing is enabled by default.
  if(env.MISSION_REWARDS_TEST_ENABLED!==true)return json({error:'not_found'},404);
  const path=new URL(request.url).pathname,origin=request.headers.get('Origin');
- if(!routes.includes(path)&&!['/api/v1/economy/import/stage','/api/v1/economy/import/apply','/api/v1/economy/draw','/api/v1/missions/status','/api/v1/missions/growth/apply','/api/v1/missions/companion/action'].includes(path))return json({error:'not_found'},404);
+ if(path==='/api/v1/economy/import/auto'&&env.ECONOMY_AUTO_IMPORT_ENABLED!=='true')return json({error:'not_found'},404);
+ if(!routes.includes(path)&&!['/api/v1/economy/import/auto','/api/v1/economy/import/stage','/api/v1/economy/import/apply','/api/v1/economy/draw','/api/v1/missions/status','/api/v1/missions/growth/apply','/api/v1/missions/companion/action'].includes(path))return json({error:'not_found'},404);
  if(!origin||origin!==env.ALLOWED_ORIGIN)return json({error:'origin_not_allowed'},403);
  const headers={'access-control-allow-origin':origin,'vary':'Origin'};
  const reply=(v,status=200)=>json(v,status,headers);
@@ -37,8 +38,9 @@ export async function handleMissionDraft(request,env){
   if(path==='/api/v1/missions/learning')return reply(await readMissionLearning(env.DB,userId));
   if(path==='/api/v1/missions/status')return reply(await readMissionStatus(env.DB,userId));
   if(path==='/api/v1/economy')return reply(await readEconomy(env.DB,userId));
-  const payload=await body(request,path==='/api/v1/missions/learning/sync'?920000:path==='/api/v1/economy/import/stage'?300000:4096),isIdiom=path.includes('/idioms/'),isExam=path.includes('/exam/'),challenge=path.split('/')[4];
+  const payload=await body(request,path==='/api/v1/missions/learning/sync'?920000:['/api/v1/economy/import/stage','/api/v1/economy/import/auto'].includes(path)?300000:4096),isIdiom=path.includes('/idioms/'),isExam=path.includes('/exam/'),challenge=path.split('/')[4];
   if(path==='/api/v1/economy/import/stage'){exact(payload,['version','assets','backup']);return reply(await stageLegacyImport(env.DB,userId,payload));}
+  if(path==='/api/v1/economy/import/auto'){exact(payload,['version','assets','backup']);return reply(await autoImportLegacy(env.DB,userId,payload));}
   if(path==='/api/v1/economy/import/apply'){exact(payload,['hash']);return reply(await applyApprovedLegacyImport(env.DB,userId,payload.hash));}
   if(path==='/api/v1/economy/draw'){
    exact(payload,['operationId','expectedRevision','kind','count']);
