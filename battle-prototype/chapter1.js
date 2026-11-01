@@ -50,7 +50,7 @@ function sceneArt(kind,enemy){
 function fresh(p,skills,gear){return {version:1,scriptVersion:D.scriptVersion,revision:0,partnerId:p.id,pet:p,scene:0,line:0,mode:'story',read:[],cleared:[],tutorial:T.create(),skills,gear,run:null,combat:null,question:null,feedback:null,checkpoint:null,misses:[],completed:false};}
 function setup(restart=false){window.GoimonQuestQuestionAudio?.stop();window.GoimonStudyTime?.end();clearTimeout(skipTimer);setMusicMode('setup');clearInterval(interval);app.replaceChildren();text('p','GOIMON QUEST · 第1章',app,'eyebrow');text('h1','聞こえた言葉');text('p','ある日、相棒の声が届いた。ことばの森で始まる、ふたりの冒険。');
 const c=card();text('h2','一緒に出発する相棒',c);let list=pets().filter(GoimonChapterStore.eligible);text('p','クエストで使えるのは、たまご・幼体・成長体です。中級体・上級体の育成記録はそのまま残ります。',c,'small');if(!list.length){text('p','使用できる1級の相棒がいません。育成・保存箱で確認してください。',c);const link=document.createElement('a');link.href='index.html?panel=goimon&manage=1';link.className='button';link.textContent='ホームで相棒に会う';c.append(link);return;}
-const inventory=window.GoimonDeveloper?.active?GoimonDeveloper.inventory(C):GoimonItemStore.parse(GOIMONStorage.getItem('goimon_item_state_v1_lv1'),'1');
+const inventory=window.GoimonDeveloper?.active?GoimonDeveloper.inventory(C):GoimonItemStore.readState(GOIMONStorage,'1');
 const petLabel=text('label','相棒（1級の現役・保存箱）',c),select=document.createElement('select');select.id='partner';list.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=N.partnerName(p,GoimonDex);select.append(o);});petLabel.append(select);
 if(state&&list.some(x=>x.id===state.partnerId))select.value=state.partnerId;
 text('p','所持している技と装備を選べます。技がなくても通常攻撃で挑戦できます。大問1・3の技は時間制限なしで音声を再生できます。',c,'small');
