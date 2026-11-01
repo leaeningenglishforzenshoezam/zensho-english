@@ -1,6 +1,6 @@
 /* Local account inventory and wallet are committed together in one storage write. */
 (()=>{'use strict';const account=GOIMONProfiles.account||'guest';
-function scope(readOnly=false){if((localStorage.getItem('goimon_cloud_v2:active')||'guest')!==account)throw Error('アカウントが変わりました。再読み込みしてください。');if(!readOnly&&account!=='guest'&&!GOIMONProfiles.isWriter())throw Error('保存の準備ができていません。他の学習タブを閉じてください。');}
+function scope(readOnly=false){if((localStorage.getItem('goimon_cloud_v2:active')||'guest')!==account)throw Error('アカウントが変わりました。再読み込みしてください。');if(!readOnly&&GOIMONStorage.getItem('goimon_economy_mode_v1'))throw Error('サーバー保存への移行中、または移行済みです。端末内のガチャは実行しません。');if(!readOnly&&account!=='guest'&&!GOIMONProfiles.isWriter())throw Error('保存の準備ができていません。他の学習タブを閉じてください。');}
 function read(level='1'){scope(true);return GoimonItemStore.readState(GOIMONStorage,level);}
 async function transaction(level,fn){scope();if(!navigator.locks)throw Error('このブラウザでは安全な保存ができません。別のブラウザで開いてください。');return navigator.locks.request('goimon-item-common-'+account,()=>{scope();const ctx=GoimonItemStore.readShared(GOIMONStorage),s=GoimonItemStore.project(ctx.state,level),result=fn(s);GoimonItemStore.commitShared(GOIMONStorage,ctx,ctx.state);return result;});}
 function grant(s,id,amount){if(s.shop.claims[id])return 0;s.shop.claims[id]=true;s.shop.stars+=amount;return amount;}

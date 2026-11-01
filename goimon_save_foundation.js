@@ -16,6 +16,10 @@
     /^zensho_listening_(attempts|method_attempts|progress|weak)_v\d+_lv[12]$/
   ];
   const devicePatterns = [
+    /^goimon_wallet_migration_v1:/,
+    /^goimon_draw_pending_v1:/,
+    /^goimon_items_legacy_backup_v1:/,
+    /^goimon_economy_mode_v1$/,
     /^goimon_item_shared_v2$/,
     /^goimon_item_state_v1_lv[12]$/,
     /^zensho_level_v1$/,

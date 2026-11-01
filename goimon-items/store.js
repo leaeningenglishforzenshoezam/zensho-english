@@ -38,7 +38,7 @@ function commitShared(storage,ctx,state){
 function readState(storage,level){return project(readShared(storage).state,level);}
 function create(options){const {storage,profiles,activeAccount,level,locks}=options,account=profiles?.account||'guest';
 function scope(){if((activeAccount()||'guest')!==account)fail('アカウントが切り替わりました。入力は保存せず、このページを開き直してください。');const n=level();if(n!=='1'&&n!=='2')fail('級を確認できません。');return n;}
-function writable(){scope();return account==='guest'?!!locks?.request:!!profiles?.isWriter?.();}
+function writable(){scope();if(storage.getItem('goimon_economy_mode_v1'))return false;return account==='guest'?!!locks?.request:!!profiles?.isWriter?.();}
 function owners(n){let current,archive;try{current=JSON.parse(storage.getItem('zensho_goimon_current_v4_lv'+n)||'null');archive=JSON.parse(storage.getItem('zensho_goimon_archive_v4_lv'+n)||'[]');}catch{fail('ゴイモンの記録が読み取れません。育成記録は変更していません。');}if(!Array.isArray(archive))fail('保存箱の形式を確認できません。');const rows=[current,...archive].filter(Boolean);if(rows.some(g=>!record(g)||!id(g.id))||new Set(rows.map(g=>g.id)).size!==rows.length)fail('ゴイモンのIDを確認できません。育成記録は変更していません。');return rows;}
 function read(){const n=scope(),shared=readShared(storage);return {account,level:n,raw:JSON.stringify(project(shared.state,n)),shared,state:project(shared.state,n),goimons:owners(n)};}
 function prepare(ctx,goimonId,gearId,skillIds){
