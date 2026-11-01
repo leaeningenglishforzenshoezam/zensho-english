@@ -19,7 +19,7 @@ async function setup(loadouts){
  await autoImportLegacy(h.db,'local-test',{version:1,assets,backup:JSON.stringify({schemaVersion:2,loadouts})});
  return {...h,snapshot,assets};
 }
-const slots=()=>({gearId:'N_hp',skillIds:['N_echo',null,null,null]});
+const slots=()=>({gearId:'N_hp',skillIds:['N_echo',null,null,null],updatedAt:1793458800000});
 test('legacy loadouts import once from accepted wallet snapshot; edits and learning survive retry',async()=>{
  const h=await setup({'1':{pet1:slots()},'2':{}});try{
   const first=await importLegacyLoadouts(h.db,'local-test');assert.equal(first.revision,1);assert.equal(first.loadouts['1'].pet1.gearId,'N_hp');

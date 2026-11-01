@@ -67,7 +67,7 @@ export async function handleMissionDraft(request,env){
  }catch(error){
   const name=error.message;
   if(name==='invalid_loadout')return reply({error:name},400);
-  if(['loadout_revision_conflict','loadout_owner_missing','loadout_inventory_exceeded','loadout_storage_limit','loadout_import_unavailable'].includes(name))return reply({error:name},409);
+  if(['loadout_revision_conflict','loadout_owner_missing','loadout_inventory_exceeded','loadout_storage_limit','loadout_import_unavailable','legacy_claims_invalid'].includes(name))return reply({error:name},409);
   if(['import_snapshot_conflict','import_not_approved','import_target_not_empty'].includes(name))return reply({error:name},409);
   if(['invalid_import','invalid_economy','invalid_inventory'].includes(name))return reply({error:name},400);
   if(['insufficient_shards','inventory_limit'].includes(name))return reply({error:name},409);

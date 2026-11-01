@@ -11,6 +11,14 @@ test('loadout client resumes identical save after lost reply and preserves chose
 test('runtime is inert without explicit opt-in',async()=>{
  const {connect}=await import('../goimon-items/runtime.mjs');let calls=0;await connect({GOIMON_CLOUD_CONFIG:{},fetch:()=>calls++});assert.equal(calls,0);
 });
+test('server loadouts adapt to the real legacy validator without modifying source',async()=>{
+ const {displayLoadouts}=await import('../goimon-items/runtime.mjs');
+ const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),root={};root.window=root;
+ for(const file of ['battle-prototype/catalog.js','goimon-items/store.js'])vm.runInNewContext(fs.readFileSync(path.join(__dirname,'..',file),'utf8'),root);
+ const input={pet:{gearId:'N_hp',skillIds:['N_echo',null,null,null]}};
+ const state={...root.GoimonItemStore.empty('1'),owned:{gear:{N_hp:1},skills:{N_echo:1}},loadouts:displayLoadouts(input)};
+ root.GoimonItemStore.validate(state,'1');assert.equal(state.loadouts.pet.updatedAt,0);assert.equal(input.pet.updatedAt,undefined);
+});
 test('loadout account switch during reply retains pending command; checkpoint failure prevents send',async()=>{
  const {createCloudLoadout}=await import('../goimon-items/cloud-loadout.mjs');
  const map=new Map();let active='a',sends=0,drop=false;

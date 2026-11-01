@@ -35,7 +35,7 @@ export async function importLegacyLoadouts(db,userId){
   if(Object.keys(next[grade]).length>128)throw Error('loadout_storage_limit');
   for(const [pet,slots]of Object.entries(next[grade])){
    if(!id(pet)||!live[grade].has(pet))throw Error('loadout_owner_missing');
-   if(!slots||Object.keys(slots).length!==2||!(slots.gearId===null||catalog.gear.some(x=>x.id!=='none'&&x.id===slots.gearId))||!Array.isArray(slots.skillIds)||slots.skillIds.length!==4||slots.skillIds.some(s=>s!==null&&!catalog.skills.some(x=>x.id===s))||new Set(slots.skillIds.filter(Boolean)).size!==slots.skillIds.filter(Boolean).length)throw Error('invalid_loadout');
+   if(!slots||!Object.keys(slots).every(k=>['gearId','skillIds','updatedAt'].includes(k))||!(slots.gearId===null||catalog.gear.some(x=>x.id!=='none'&&x.id===slots.gearId))||!Array.isArray(slots.skillIds)||slots.skillIds.length!==4||slots.skillIds.some(s=>s!==null&&!catalog.skills.some(x=>x.id===s))||new Set(slots.skillIds.filter(Boolean)).size!==slots.skillIds.filter(Boolean).length||('updatedAt' in slots&&(!Number.isSafeInteger(slots.updatedAt)||slots.updatedAt<0)))throw Error('invalid_loadout');
    for(const [kind,items]of [['gear',[slots.gearId]],['skills',slots.skillIds]])for(const item of items.filter(Boolean))used[kind][item]=(used[kind][item]||0)+1;
   }
  }

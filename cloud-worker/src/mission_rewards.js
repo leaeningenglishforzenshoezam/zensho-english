@@ -10,6 +10,7 @@ import reading from './data/mission-reading.json' with {type:'json'};
 import reorder from './data/mission-reorder.json' with {type:'json'};
 import {emptyEconomy,validateState,secureRandom} from './economy.js';
 import {readEconomy} from './economy_repository.js';
+import {legacyMissionClaimed} from './economy_legacy_claims.js';
 const DAY=86400000,token=/^[A-Za-z0-9_-]{16,80}$/;
 function identity(userId){if(typeof userId!=='string'||!userId)throw Error('unauthorized');}
 function validId(id){if(typeof id!=='string'||!token.test(id))throw Error('invalid_operation');}
@@ -76,8 +77,10 @@ async function commitReward(db,userId,level,day,slot,attemptId,operationId,expec
  const prior=await claimed();if(prior)return replay(prior,json);
  // A server-scored completed attempt may be claimed after midnight, using its original day.
  const current=await readEconomy(db,userId);if(current.revision!==expectedRevision)throw Error('economy_revision_conflict');
+ const legacyClaimed=await legacyMissionClaimed(db,userId,level,day,slot);
+ if(legacyClaimed)stars=0;
  const next=structuredClone(current.state);next.shards+=stars;validateState(next);
- const result={type:'mission_reward',level,date:day,slot,shards:stars,rulesVersion:rules.version};
+ const result={type:'mission_reward',level,date:day,slot,shards:stars,rulesVersion:rules.version,...(legacyClaimed?{legacyClaimed:true}:{})};
  try{await db.batch([
   db.prepare('INSERT INTO economy_accounts(user_id,state_json) VALUES (?,?) ON CONFLICT(user_id) DO NOTHING').bind(userId,JSON.stringify(emptyEconomy())),
   db.prepare('INSERT INTO economy_receipts(user_id,operation_id,request_json,expected_revision,next_state_json,result_json) VALUES (?,?,?,?,?,?)').bind(userId,operationId,json,expectedRevision,JSON.stringify(next),JSON.stringify(result)),

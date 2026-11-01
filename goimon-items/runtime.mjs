@@ -34,10 +34,16 @@ export async function connect(root){
  const level=storage.getItem('zensho_level_v1')==='2'?'2':'1';
  const local=S.create({storage,profiles:P,activeAccount,level:()=>level,locks:root.navigator.locks});
  const adapter=createCloudLoadout({account,apiBase:cfg.apiBase,activeAccount,storage,lock,request:client.request,level,localStore:local,
-  validate:loadouts=>{for(const n of ['1','2'])S.validate({...S.empty(n),owned:wallet.read().state.owned,loadouts:loadouts[n]},n);}});
+  validate:loadouts=>{for(const n of ['1','2'])S.validate({...S.empty(n),owned:wallet.read().state.owned,loadouts:displayLoadouts(loadouts[n])},n);}});
  await adapter.init();
- const originalRead=adapter.read;adapter.read=()=>{const ctx=originalRead();ctx.state.owned=wallet.read().state.owned;return ctx;};
- const originalSave=adapter.save;adapter.save=async(...args)=>{const ctx=await originalSave(...args);ctx.state.owned=wallet.read().state.owned;return ctx;};
+ const originalRead=adapter.read;adapter.read=()=>{const ctx=originalRead();ctx.state.owned=wallet.read().state.owned;ctx.state.loadouts=displayLoadouts(ctx.state.loadouts);return ctx;};
+ const originalSave=adapter.save;adapter.save=async(...args)=>{const ctx=await originalSave(...args);ctx.state.owned=wallet.read().state.owned;ctx.state.loadouts=displayLoadouts(ctx.state.loadouts);return ctx;};
  root.GoimonItemStore=Object.freeze({...S,create:()=>adapter});
  root.GoimonCloudWallet=wallet;
+}
+// Server revisions establish ordering. Legacy UI requires a timestamp field;
+// zero means unavailable, never a fabricated update time or a new server write.
+export function displayLoadouts(loadouts){
+ if(!loadouts||typeof loadouts!=='object'||Array.isArray(loadouts))throw Error('loadout_response_invalid');
+ return Object.fromEntries(Object.entries(loadouts).map(([id,slots])=>[id,{...slots,updatedAt:slots.updatedAt??0}]));
 }
