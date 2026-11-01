@@ -20,6 +20,7 @@ export async function connect(root){
  }
  const wallet=createCloudWallet({account,apiBase:cfg.apiBase,activeAccount,storage,lock,request:client.request,readLocal:()=>S.readShared(storage).state,catalog:C});
  await wallet.migrate();
+ await client.request('economy/loadouts/import',{});
  const draw=createCloudDraw({account,apiBase:cfg.apiBase,activeAccount,storage,lock,request:client.request});
  let receipt=draw.pending();
  if(receipt){receipt=await draw.resume();await wallet.refresh();}

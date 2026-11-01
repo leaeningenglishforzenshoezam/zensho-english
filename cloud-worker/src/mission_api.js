@@ -8,7 +8,7 @@ import {syncMissionSnapshot} from './mission_sync.js';
 import {applyMissionGrowth} from './mission_growth.js';
 import {applyCompanionAction} from './mission_companion.js';
 import {readMissionStatus} from './mission_status.js';
-import {readLoadouts,saveLoadout} from './economy_loadouts.js';
+import {readLoadouts,saveLoadout,importLegacyLoadouts} from './economy_loadouts.js';
 const routes=['/api/v1/missions/learning/sync','/api/v1/missions/review','/api/v1/missions/learning','/api/v1/missions/learning/apply','/api/v1/missions/words/start','/api/v1/missions/words/submit','/api/v1/missions/words/claim','/api/v1/economy','/api/v1/missions/idioms/start','/api/v1/missions/idioms/submit','/api/v1/missions/idioms/claim','/api/v1/missions/exam/start','/api/v1/missions/exam/submit','/api/v1/missions/exam/claim','/api/v1/missions/basic-bonus/claim',...['listening','reading','reorder'].flatMap(slot=>['start','submit','claim'].map(action=>'/api/v1/missions/'+slot+'/'+action))];
 const json=(value,status=200,headers={})=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store',...headers}});
 async function body(request,limit=4096){
@@ -25,7 +25,7 @@ export async function handleMissionDraft(request,env){
  if(env.MISSION_REWARDS_TEST_ENABLED!==true)return json({error:'not_found'},404);
  const path=new URL(request.url).pathname,origin=request.headers.get('Origin');
  if(path==='/api/v1/economy/import/auto'&&env.ECONOMY_AUTO_IMPORT_ENABLED!=='true')return json({error:'not_found'},404);
- if(!routes.includes(path)&&!['/api/v1/economy/loadouts','/api/v1/economy/loadouts/save','/api/v1/economy/import/auto','/api/v1/economy/import/stage','/api/v1/economy/import/apply','/api/v1/economy/draw','/api/v1/missions/status','/api/v1/missions/growth/apply','/api/v1/missions/companion/action'].includes(path))return json({error:'not_found'},404);
+ if(!routes.includes(path)&&!['/api/v1/economy/loadouts','/api/v1/economy/loadouts/save','/api/v1/economy/loadouts/import','/api/v1/economy/import/auto','/api/v1/economy/import/stage','/api/v1/economy/import/apply','/api/v1/economy/draw','/api/v1/missions/status','/api/v1/missions/growth/apply','/api/v1/missions/companion/action'].includes(path))return json({error:'not_found'},404);
  if(!origin||origin!==env.ALLOWED_ORIGIN)return json({error:'origin_not_allowed'},403);
  const headers={'access-control-allow-origin':origin,'vary':'Origin'};
  const reply=(v,status=200)=>json(v,status,headers);
@@ -43,6 +43,7 @@ export async function handleMissionDraft(request,env){
   const payload=await body(request,path==='/api/v1/missions/learning/sync'?920000:['/api/v1/economy/import/stage','/api/v1/economy/import/auto'].includes(path)?300000:4096),isIdiom=path.includes('/idioms/'),isExam=path.includes('/exam/'),challenge=path.split('/')[4];
   if(path==='/api/v1/economy/import/stage'){exact(payload,['version','assets','backup']);return reply(await stageLegacyImport(env.DB,userId,payload));}
   if(path==='/api/v1/economy/loadouts/save')return reply(await saveLoadout(env.DB,userId,payload));
+  if(path==='/api/v1/economy/loadouts/import'){exact(payload,[]);return reply(await importLegacyLoadouts(env.DB,userId));}
   if(path==='/api/v1/economy/import/auto'){exact(payload,['version','assets','backup']);return reply(await autoImportLegacy(env.DB,userId,payload));}
   if(path==='/api/v1/economy/import/apply'){exact(payload,['hash']);return reply(await applyApprovedLegacyImport(env.DB,userId,payload.hash));}
   if(path==='/api/v1/economy/draw'){
@@ -66,7 +67,7 @@ export async function handleMissionDraft(request,env){
  }catch(error){
   const name=error.message;
   if(name==='invalid_loadout')return reply({error:name},400);
-  if(['loadout_revision_conflict','loadout_owner_missing','loadout_inventory_exceeded','loadout_storage_limit'].includes(name))return reply({error:name},409);
+  if(['loadout_revision_conflict','loadout_owner_missing','loadout_inventory_exceeded','loadout_storage_limit','loadout_import_unavailable'].includes(name))return reply({error:name},409);
   if(['import_snapshot_conflict','import_not_approved','import_target_not_empty'].includes(name))return reply({error:name},409);
   if(['invalid_import','invalid_economy','invalid_inventory'].includes(name))return reply({error:name},400);
   if(['insufficient_shards','inventory_limit'].includes(name))return reply({error:name},409);

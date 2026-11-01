@@ -16,6 +16,36 @@ function owners(snapshot){
   result[level]=new Set(pets.map(p=>p.id));
  }}catch{throw Error('invalid_growth_record');}return result;
 }
+// Import only the immutable snapshot already accepted for this account's wallet.
+// A second device cannot supply another set, and an edited registry is never reset.
+export async function importLegacyLoadouts(db,userId){
+ const current=await readLoadouts(db,userId);if(current.revision>0)return current;
+ const row=await db.prepare('SELECT payload_hash,approved_hash,payload_json FROM economy_legacy_imports WHERE user_id=?').bind(userId).first();
+ const imported=await db.prepare('SELECT result_json FROM economy_receipts WHERE user_id=? AND operation_id=?').bind(userId,'legacy_import_once_v1').first();
+ if(!row||row.payload_hash!==row.approved_hash||!imported||JSON.parse(imported.result_json).hash!==row.payload_hash)throw Error('loadout_import_unavailable');
+ let next;try{
+  const backup=JSON.parse(JSON.parse(row.payload_json).backup);
+  if(backup.schemaVersion!==2||!backup.loadouts)throw Error();
+  next=backup.loadouts;
+  if(Object.keys(next).length!==2||!['1','2'].every(n=>next[n]&&typeof next[n]==='object'&&!Array.isArray(next[n])))throw Error();
+ }catch{throw Error('invalid_loadout');}
+ const learned=await db.prepare('SELECT revision,save_json FROM saves WHERE user_id=?').bind(userId).first();
+ const live=owners(learned?JSON.parse(learned.save_json):{}),economy=await readEconomy(db,userId),used={gear:{},skills:{}};
+ for(const grade of ['1','2']){
+  if(Object.keys(next[grade]).length>128)throw Error('loadout_storage_limit');
+  for(const [pet,slots]of Object.entries(next[grade])){
+   if(!id(pet)||!live[grade].has(pet))throw Error('loadout_owner_missing');
+   if(!slots||Object.keys(slots).length!==2||!(slots.gearId===null||catalog.gear.some(x=>x.id!=='none'&&x.id===slots.gearId))||!Array.isArray(slots.skillIds)||slots.skillIds.length!==4||slots.skillIds.some(s=>s!==null&&!catalog.skills.some(x=>x.id===s))||new Set(slots.skillIds.filter(Boolean)).size!==slots.skillIds.filter(Boolean).length)throw Error('invalid_loadout');
+   for(const [kind,items]of [['gear',[slots.gearId]],['skills',slots.skillIds]])for(const item of items.filter(Boolean))used[kind][item]=(used[kind][item]||0)+1;
+  }
+ }
+ for(const kind of ['gear','skills'])for(const [item,n]of Object.entries(used[kind]))if(n>(economy.state.owned[kind][item]||0))throw Error('loadout_inventory_exceeded');
+ try{await db.batch([
+  db.prepare('INSERT INTO economy_loadouts(user_id,state_json) VALUES (?,?) ON CONFLICT(user_id) DO NOTHING').bind(userId,JSON.stringify(empty())),
+  db.prepare('INSERT INTO economy_loadout_receipts(user_id,operation_id,request_json,expected_revision,economy_revision,learning_revision,next_json) VALUES (?,?,?,?,?,?,?)').bind(userId,'legacy_loadout_import_v1',JSON.stringify({hash:row.payload_hash}),0,economy.revision,learned?.revision||0,JSON.stringify(next))
+ ]);}catch(e){const latest=await readLoadouts(db,userId);if(latest.revision>0)return latest;throw e;}
+ return readLoadouts(db,userId);
+}
 export async function saveLoadout(db,userId,p){
  if(!p||Object.keys(p).length!==6||!['operationId','expectedRevision','level','goimonId','gearId','skillIds'].every(k=>Object.hasOwn(p,k)))throw Error('invalid_loadout');
  const {operationId,expectedRevision,level,goimonId,gearId,skillIds}=p;
