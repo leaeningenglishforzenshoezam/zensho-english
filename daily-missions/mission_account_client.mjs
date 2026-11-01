@@ -32,7 +32,7 @@ export function createMissionAccountClient({apiBase,account,credential,activeAcc
  async function run(work){if(typeof lock!=='function')throw Error('mission_lock_required');return lock('goimon-cloud-sync',async()=>{assertAccount();return work();});}
  return {
   prepare:()=>run(reconcile),
-  request:(path,body)=>run(async()=>{if(!/^missions\/|^economy(?:\/draw|\/import\/auto|\/loadouts(?:\/(?:save|import))?)?$/.test(path))throw Error('invalid_mission_path');return request(path,body);}),
+  request:(path,body)=>run(async()=>{if(!/^missions\/|^economy(?:\/bonus(?:\/claim)?|\/draw|\/import\/auto|\/loadouts(?:\/(?:save|import))?)?$/.test(path))throw Error('invalid_mission_path');return request(path,body);}),
   finish:()=>run(reconcile)
  };
 }

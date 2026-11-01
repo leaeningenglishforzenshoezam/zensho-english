@@ -21,12 +21,22 @@ export async function connect(root){
  const wallet=createCloudWallet({account,apiBase:cfg.apiBase,activeAccount,storage,lock,request:client.request,readLocal:()=>S.readShared(storage).state,catalog:C});
  await wallet.migrate();
  await client.request('economy/loadouts/import',{});
+ let bonuses=await client.request('economy/bonus');
+ async function claim(kind){
+  bonuses=await client.request('economy/bonus');
+  if(bonuses[kind])return 0;
+  const current=await wallet.refresh();
+  const response=await client.request('economy/bonus/claim',{kind,date:bonuses.date,expectedRevision:current.revision});
+  await wallet.refresh();bonuses=await client.request('economy/bonus');
+  return response.replayed?0:response.result.shards;
+ }
  const draw=createCloudDraw({account,apiBase:cfg.apiBase,activeAccount,storage,lock,request:client.request});
  let receipt=draw.pending();
  if(receipt){receipt=await draw.resume();await wallet.refresh();}
- function project(level){const legacy=S.readState(storage,level),cloud=wallet.read();return {...legacy,owned:cloud.state.owned,shop:{...legacy.shop,stars:cloud.state.shards}};}
+ function project(level){const legacy=S.readState(storage,level),cloud=wallet.read();return {...legacy,owned:cloud.state.owned,shop:{...legacy.shop,stars:cloud.state.shards,claims:{...legacy.shop.claims,welcome:bonuses.welcome,['login:'+bonuses.date]:bonuses.login}}};}
  root.GoimonShop={read:project,
-  welcome:async()=>{throw Error('初回報酬のサーバー接続は準備中です。');},
+  welcome:()=>claim('welcome'),claimLogin:()=>claim('login'),
+  loginStatus:()=>({date:bonuses.date,loggedIn:activeAccount()===account,claimed:bonuses.login}),
   draw:async(level,kind,count)=>{if(receipt)throw Error('前回の結果を確認してください。');receipt=await draw.draw(kind,count);await wallet.refresh();return receipt.response.result.items.map(x=>C[kind].find(i=>i.id===x.id));},
   acknowledge:async()=>{if(receipt){await draw.acknowledge(receipt.command.operationId);receipt=null;}},
   pendingResult:()=>receipt?.response?{kind:receipt.response.result.kind,items:receipt.response.result.items.map(x=>C[receipt.response.result.kind].find(i=>i.id===x.id))}:null

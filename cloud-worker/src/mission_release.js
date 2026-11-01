@@ -10,7 +10,8 @@ export default {
   const importEnabled=['/api/v1/economy/import/stage','/api/v1/economy/import/apply'].includes(path)&&env.ECONOMY_IMPORT_ENABLED==='true';
   const autoImportEnabled=path==='/api/v1/economy/import/auto'&&env.ECONOMY_IMPORT_ENABLED==='true'&&env.ECONOMY_AUTO_IMPORT_ENABLED==='true';
   const loadoutEnabled=['/api/v1/economy/loadouts','/api/v1/economy/loadouts/save','/api/v1/economy/loadouts/import'].includes(path)&&env.ECONOMY_LOADOUTS_ENABLED==='true';
-  if(env.MISSION_RELEASE_ENABLED==='true'&&(publicRoutes.has(path)||drawEnabled||importEnabled||autoImportEnabled||loadoutEnabled)){
+  const bonusEnabled=['/api/v1/economy/bonus','/api/v1/economy/bonus/claim'].includes(path)&&env.ECONOMY_BONUS_ENABLED==='true';
+  if(env.MISSION_RELEASE_ENABLED==='true'&&(publicRoutes.has(path)||drawEnabled||importEnabled||autoImportEnabled||loadoutEnabled||bonusEnabled)){
    return handleMissionDraft(request,{...env,MISSION_REWARDS_TEST_ENABLED:true});
   }
   return worker.fetch(request,env,ctx);

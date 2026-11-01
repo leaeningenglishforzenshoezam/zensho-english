@@ -9,8 +9,10 @@ import {applyMissionGrowth} from './mission_growth.js';
 import {applyCompanionAction} from './mission_companion.js';
 import {readMissionStatus} from './mission_status.js';
 import {readLoadouts,saveLoadout,importLegacyLoadouts} from './economy_loadouts.js';
+import {readBonusStatus,claimBonus} from './economy_bonus.js';
 const routes=['/api/v1/missions/learning/sync','/api/v1/missions/review','/api/v1/missions/learning','/api/v1/missions/learning/apply','/api/v1/missions/words/start','/api/v1/missions/words/submit','/api/v1/missions/words/claim','/api/v1/economy','/api/v1/missions/idioms/start','/api/v1/missions/idioms/submit','/api/v1/missions/idioms/claim','/api/v1/missions/exam/start','/api/v1/missions/exam/submit','/api/v1/missions/exam/claim','/api/v1/missions/basic-bonus/claim',...['listening','reading','reorder'].flatMap(slot=>['start','submit','claim'].map(action=>'/api/v1/missions/'+slot+'/'+action))];
 const json=(value,status=200,headers={})=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store',...headers}});
+routes.push('/api/v1/economy/bonus','/api/v1/economy/bonus/claim');
 async function body(request,limit=4096){
  if(!request.headers.get('content-type')?.startsWith('application/json'))throw Error('json_required');
  if(Number(request.headers.get('content-length'))>limit)throw Error('request_too_large');
@@ -24,13 +26,15 @@ export async function handleMissionDraft(request,env){
  // Tests explicitly opt in against persist:false D1. Nothing is enabled by default.
  if(env.MISSION_REWARDS_TEST_ENABLED!==true)return json({error:'not_found'},404);
  const path=new URL(request.url).pathname,origin=request.headers.get('Origin');
+ const bonusPaths=['/api/v1/economy/bonus','/api/v1/economy/bonus/claim'];
+ if(bonusPaths.includes(path)&&env.ECONOMY_BONUS_ENABLED!=='true')return json({error:'not_found'},404);
  if(path==='/api/v1/economy/import/auto'&&env.ECONOMY_AUTO_IMPORT_ENABLED!=='true')return json({error:'not_found'},404);
  if(!routes.includes(path)&&!['/api/v1/economy/loadouts','/api/v1/economy/loadouts/save','/api/v1/economy/loadouts/import','/api/v1/economy/import/auto','/api/v1/economy/import/stage','/api/v1/economy/import/apply','/api/v1/economy/draw','/api/v1/missions/status','/api/v1/missions/growth/apply','/api/v1/missions/companion/action'].includes(path))return json({error:'not_found'},404);
  if(!origin||origin!==env.ALLOWED_ORIGIN)return json({error:'origin_not_allowed'},403);
  const headers={'access-control-allow-origin':origin,'vary':'Origin'};
  const reply=(v,status=200)=>json(v,status,headers);
  if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...headers,'access-control-allow-headers':'Authorization, Content-Type','access-control-allow-methods':'GET, POST, OPTIONS'}});
- if((['/api/v1/economy/loadouts','/api/v1/economy','/api/v1/missions/status','/api/v1/missions/learning'].includes(path)?request.method!=='GET':request.method!=='POST'))return reply({error:'method_not_allowed'},405);
+ if((['/api/v1/economy/bonus','/api/v1/economy/loadouts','/api/v1/economy','/api/v1/missions/status','/api/v1/missions/learning'].includes(path)?request.method!=='GET':request.method!=='POST'))return reply({error:'method_not_allowed'},405);
  if(!env.RATE_LIMITER||!env.AUTH_RATE_LIMITER)return reply({error:'rate_limiter_not_configured'},503);
  try{
   if(!(await env.AUTH_RATE_LIMITER.limit({key:'ip:'+(request.headers.get('CF-Connecting-IP')||'unknown')})).success)return reply({error:'rate_limited'},429);
@@ -40,9 +44,11 @@ export async function handleMissionDraft(request,env){
   if(path==='/api/v1/missions/status')return reply(await readMissionStatus(env.DB,userId));
   if(path==='/api/v1/economy')return reply(await readEconomy(env.DB,userId));
   if(path==='/api/v1/economy/loadouts')return reply(await readLoadouts(env.DB,userId));
+  if(path==='/api/v1/economy/bonus')return reply(await readBonusStatus(env.DB,userId));
   const payload=await body(request,path==='/api/v1/missions/learning/sync'?920000:['/api/v1/economy/import/stage','/api/v1/economy/import/auto'].includes(path)?300000:4096),isIdiom=path.includes('/idioms/'),isExam=path.includes('/exam/'),challenge=path.split('/')[4];
   if(path==='/api/v1/economy/import/stage'){exact(payload,['version','assets','backup']);return reply(await stageLegacyImport(env.DB,userId,payload));}
   if(path==='/api/v1/economy/loadouts/save')return reply(await saveLoadout(env.DB,userId,payload));
+  if(path==='/api/v1/economy/bonus/claim'){exact(payload,['kind','date','expectedRevision']);return reply(await claimBonus(env.DB,userId,payload));}
   if(path==='/api/v1/economy/loadouts/import'){exact(payload,[]);return reply(await importLegacyLoadouts(env.DB,userId));}
   if(path==='/api/v1/economy/import/auto'){exact(payload,['version','assets','backup']);return reply(await autoImportLegacy(env.DB,userId,payload));}
   if(path==='/api/v1/economy/import/apply'){exact(payload,['hash']);return reply(await applyApprovedLegacyImport(env.DB,userId,payload.hash));}
@@ -66,6 +72,8 @@ export async function handleMissionDraft(request,env){
   exact(payload,['attemptId','operationId','expectedRevision']);return reply(await (isExam?claimExamReward:isIdiom?claimIdiomReward:claimWordReward)(env.DB,userId,payload.attemptId,payload.operationId,payload.expectedRevision));
  }catch(error){
   const name=error.message;
+  if(name==='invalid_bonus')return reply({error:name},400);
+  if(['bonus_day_changed','wallet_migration_required'].includes(name))return reply({error:name},409);
   if(name==='invalid_loadout')return reply({error:name},400);
   if(['loadout_revision_conflict','loadout_owner_missing','loadout_inventory_exceeded','loadout_storage_limit','loadout_import_unavailable','legacy_claims_invalid'].includes(name))return reply({error:name},409);
   if(['import_snapshot_conflict','import_not_approved','import_target_not_empty'].includes(name))return reply({error:name},409);
