@@ -15,6 +15,7 @@ export function createCloudLoadout({account,apiBase,activeAccount,storage,lock,r
  return {
   init:()=>run(async()=>{const p=pending();if(p)await send(p);remote=check(await request('economy/loadouts'));scope();return read();}),
   read,writable:()=>activeAccount()===account&&remote!==null,
+  snapshot:()=>{scope();if(!remote)throw Error('loadout_not_ready');return structuredClone(remote);},
   save:(ctx,goimonId,gearId,skillIds)=>run(async()=>{
    if(pending())throw Error('loadout_resume_required');
    if(ctx.account!==account||ctx.level!==level||ctx.serverRevision!==remote?.revision)throw Error('loadout_revision_conflict');

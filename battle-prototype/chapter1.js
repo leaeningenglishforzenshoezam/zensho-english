@@ -1,7 +1,7 @@
-(() => {'use strict';
+(async() => {'use strict';
 const D=GoimonChapter1Data,C=GoimonBattleCatalog,E=GoimonBattlePrototype,T=GoimonQuestTutorial,Q=GoimonChapterQuestions,N=GoimonStoryNames,$=id=>document.getElementById(id),app=$('app');
 const account=GOIMONProfiles.account||'guest',key='goimon_chapter1_v1:'+account+':lv1'+(window.GoimonDeveloper?.keySuffix||'');
-let store,state=null,blocked=false,interval=null,skipTimer=null;
+let store,state=null,blocked=!!window.GoimonEconomyReady,interval=null,skipTimer=null;
 const source={q1:window.ACCENT_1KYU,q3:window.LISTENING_TYPE3_1KYU,words:window.WORDS_1KYU,idioms:window.IDIOM_DATA_1KYU,q9:window.SENTENCE_FIXED_1KYU,q11:window.PARAPHRASE_DATA_1KYU,q12:window.REORDER_1KYU};
 const enemyKinds=['intro','normal','swift','tank','boss'],enemyNames=['森の入口の小番人','装甲甲虫','霧の山猫','遺跡門の番人','ことばの祭壇の守護者'];
 const defaults=['N_echo','N_aid','N_comfort','N_prepare'];
@@ -138,5 +138,5 @@ $('export').onclick=()=>{const content=state?JSON.stringify(state,null,2):store?
 window.addEventListener('storage',e=>{if(e.key==='goimon_cloud_v2:active'||e.key===key)fail(Error('別のタブでアカウントまたは進行が更新されました。再読み込みしてください。'));});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target===document.body&&!$('menu').open&&!$('log').open){const b=$('next');if(b){e.preventDefault();b.click();}}});
 window.GoimonChapter1=Object.freeze({snapshot:()=>structuredClone(state),musicMode:()=>musicMode});
-try{store=GoimonChapterStore.create(window.GoimonDeveloper?.storage||localStorage,key,D);state=store.load();render();if(new URLSearchParams(location.search).get('configure')==='1'&&state){setup(true);}}catch(e){fail(e);}
+try{if(window.GoimonEconomyReady)await window.GoimonEconomyReady;blocked=false;store=GoimonChapterStore.create(window.GoimonDeveloper?.storage||localStorage,key,D);state=store.load();render();if(new URLSearchParams(location.search).get('configure')==='1'&&state){setup(true);}}catch(e){fail(e);}
 })();

@@ -21,9 +21,9 @@ $('start').onclick=()=>run(async()=>{const [slot,mode]=$('kind').value.split(':'
 $('finish').onclick=()=>run(async()=>{
  if(!flow.pending&&answers.some((a,i)=>a===null||Array.isArray(a)&&a.length!==flow.attempt.questions[i].chunks.length))throw Error('すべての問題に回答してください');
  $('questions').querySelectorAll('input,button').forEach(n=>n.disabled=true);
- const r=await flow.finish(answers);$('balance').textContent=`星のかけら：${r.balance}個`;
+ const r=await flow.finish(answers);$('balance').textContent=`星のかけら：${r.balance}個`;let walletWarning='';if(window.GoimonCloudWallet){try{await window.GoimonCloudWallet.refresh();}catch{walletWarning='\n学習結果は保存済みです。残高表示の更新は画面を開き直して確認してください。';}}
  $('status').textContent=`${r.grade.correct} / ${r.grade.total}問正解 — ${r.grade.completed?'達成！':'今回は未達成'}\n学習記録を保存しました。`+(r.growth.growthApplied===false?'\n出題時に育成個体がなかったため、育成加点はありません。':`\n育成反映：${r.growth.awardedPoints}pt`)+(r.reward?`\n${r.reward.replayed?'今回のかけらは受取済みです。追加付与はありません。':`星のかけらを${r.reward.result.shards}個獲得！`}`:'');
- showResult(r);if(r.bonus&&!r.bonus.replayed)$('status').textContent+=`\n基本3ミッション達成ボーナス：${r.bonus.result.shards}個！`;
+ showResult(r);$('status').textContent+=walletWarning;if(r.bonus&&!r.bonus.replayed)$('status').textContent+=`\n基本3ミッション達成ボーナス：${r.bonus.result.shards}個！`;
 });
 function showResult(r){const root=$('resultContent');root.replaceChildren();add(root,'span',r.grade.completed?'MISSION CLEAR':'TRY AGAIN');add(root,'h2',r.grade.completed?'ミッションクリア！':'もう一度覚えよう');add(root,'p',`${r.grade.correct} / ${r.grade.total}問正解`);add(root,'p',r.reward?(r.reward.replayed?'報酬は受取済みです':`ほしのかけら ＋${r.reward.result.shards}個`):'復習して、もう一度挑戦しよう');if(r.bonus&&!r.bonus.replayed)add(root,'p',`達成ボーナス ＋${r.bonus.result.shards}個`);const link=add(root,'a','同じ問題を学習する →');link.href=reviewUrl(flow.attempt,flow.attempt.questions.map(q=>q.id));link.className='button';const retry=add(root,'button','もう一度挑戦');retry.onclick=()=>{$('resultDialog').close();$('start').click();};$('resultDialog').showModal();flow.client.request('missions/review',{attemptId:flow.attempt.attemptId}).then(review=>{review.questions.forEach((q,i)=>{const box=$('questions').querySelectorAll('fieldset')[i];box.classList.add(q.correct?'correct':'wrong');add(box,'p',q.correct?'✓ 正解':'もう一度確認');add(box,'p','正解：'+(q.chunks?q.answer.map(id=>q.chunks.find(c=>c.id===id)?.text||'').join(' '):q.choices[q.answer]));});const wrong=review.questions.filter(q=>!q.correct);if(wrong.length){link.href=reviewUrl(flow.attempt,wrong.map(q=>q.id));link.textContent='間違えた問題を学習する →';}}).catch(()=>{add(root,'p','解説を取得できませんでした。同じ問題の学習画面で確認できます。');});}
 $('closeResult').onclick=()=>{$('resultDialog').close();$('questions').querySelector('.wrong')?.scrollIntoView({block:'center'});};
@@ -32,6 +32,20 @@ function showGoal(){const slot=$('kind').value.split(':')[0],rule=rules.missionS
 $('kind').onchange=showGoal;showGoal();
 window.addEventListener('beforeunload',e=>{if(flow?.pending||working){e.preventDefault();e.returnValue='';}});
 window.addEventListener('pagehide',()=>window.speechSynthesis?.cancel());
-const initialize=()=>run(async()=>{if(flow)return;const client=createBrowserMissionClient();await client.prepare();const balance=await client.request('economy');flow=new MissionFlow(client);$('balance').textContent=`星のかけら：${balance.state.shards}個`;$('status').textContent='挑戦するミッションを選んでください。';});
+async function refreshLoginBonus(){
+ if(!flow||!window.GoimonCloudWallet)return;
+ const bonus=await flow.client.request('economy/bonus');$('loginBonus').hidden=false;
+ $('claimLoginBonus').disabled=bonus.login||!!flow.pending;
+ $('claimLoginBonus').textContent=bonus.login?'受取済み':'1個受け取る';
+ $('loginBonusStatus').textContent=bonus.date+' · 1日1個（日本時間）';
+}
+$('claimLoginBonus').onclick=()=>run(async()=>{
+ if(flow?.pending)throw Error('ミッションの保存を完了してから受け取ってください。');
+ $('claimLoginBonus').disabled=true;
+ try{const n=await window.GoimonShop.claimLogin();const balance=window.GoimonCloudWallet.read();$('balance').textContent=`星のかけら：${balance.state.shards}個`;$('status').textContent=n?'ほしのかけら1個を受け取りました。':'今日は受取済みです。';}
+ finally{await refreshLoginBonus();}
+});
+window.addEventListener('focus',()=>{if(!working&&flow&&!flow.pending)refreshLoginBonus().catch(()=>{$('claimLoginBonus').disabled=true;$('loginBonusStatus').textContent='受取状況を確認できません。画面を開き直してください。';});});
+const initialize=()=>run(async()=>{if(flow)return;if(window.GoimonEconomyReady)await window.GoimonEconomyReady;const client=createBrowserMissionClient();await client.prepare();const balance=await client.request('economy');flow=new MissionFlow(client);$('balance').textContent=`星のかけら：${balance.state.shards}個`;$('status').textContent='挑戦するミッションを選んでください。';await refreshLoginBonus();});
 window.addEventListener('goimon-storage-ready',initialize);
 initialize();

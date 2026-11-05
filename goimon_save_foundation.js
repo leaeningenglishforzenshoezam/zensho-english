@@ -19,6 +19,7 @@
     /^goimon_wallet_migration_v1:/,
     /^goimon_draw_pending_v1:/,
     /^goimon_loadout_pending_v1:/,
+    /^goimon_loadout_cache_v1:/,
     /^goimon_items_legacy_backup_v1:/,
     /^goimon_economy_mode_v1$/,
     /^goimon_item_shared_v2$/,

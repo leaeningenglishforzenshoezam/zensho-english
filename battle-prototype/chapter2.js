@@ -1,9 +1,9 @@
 /* Chapter 2 adapter: shared battle/question engines are read-only dependencies. */
-(()=>{'use strict';
+(async()=>{'use strict';
 const D=GoimonChapter2Data,A=GoimonChapter2Assets,P=GoimonChapter2Progress,C=GoimonBattleCatalog,E=GoimonBattlePrototype,Q=GoimonChapterQuestions,N=GoimonStoryNames;
 const $=id=>document.getElementById(id),app=$('app'),account=GOIMONProfiles.account||'guest',key='goimon_chapter2_v1:'+account+':lv1'+(window.GoimonDeveloper?.keySuffix||'');
 const source={q1:window.ACCENT_1KYU,q3:window.LISTENING_TYPE3_1KYU,words:window.WORDS_1KYU,idioms:window.IDIOM_DATA_1KYU,q9:window.SENTENCE_FIXED_1KYU,q11:window.PARAPHRASE_DATA_1KYU,q12:window.REORDER_1KYU};
-let state,store,timer,blocked=false,art=null;
+let state,store,timer,blocked=!!window.GoimonEconomyReady,art=null;
 const clone=x=>JSON.parse(JSON.stringify(x));
 function fail(e){window.GoimonQuestQuestionAudio?.stop();blocked=true;clearInterval(timer);$('notice').textContent=e.message+' 元の育成・学習記録は変更していません。';app.querySelectorAll('button').forEach(b=>b.disabled=true);}
 function guard(fn){return (...args)=>{if(blocked)return;try{if((localStorage.getItem('goimon_cloud_v2:active')||'guest')!==account)throw Error('アカウントが変わりました。再読み込みしてください。');if(!(window.GoimonDeveloper?.active||GoimonChapter2Access.current())){locked();return;}fn(...args);}catch(e){fail(e);}};}
@@ -75,5 +75,5 @@ function reviews(parent){if(!state.misses.length)return;const details=el('detail
 function defeat(){music('setup');el('h1','もう一度、声をつなごう');el('p','戦闘前のHP・技の回数に戻して再挑戦できます。物語の進行は失われません。');btn('戦闘直前から再挑戦',()=>startBattle(true),app,true);btn('相棒を選んで第2章の最初から',()=>setup(true),app);reviews(app);}
 function history(){const body=$('history-body');body.replaceChildren();if(!state){el('p','読み終えた物語がここに残ります。',body);}else for(const scene of D.scenes){const lines=scene.lines.filter(l=>state.read.includes(l.id));if(!lines.length)continue;el('h2',scene.title,body);for(const l of lines)el('p',(l.speaker?interpolate(l.speaker)+'\n':'')+interpolate(l.text),body,l.speaker?'':'narration-text');}if(!$('history-dialog').open)$('history-dialog').showModal();}
  $('restartRun').onclick=guard(()=>setup(!!state));$('history').onclick=guard(history);$('close-history').onclick=()=>$('history-dialog').close();window.addEventListener('storage',e=>{if(e.key==='goimon_chapter1_v1:'+account+':lv1'){location.reload();return;}if(e.key===key||e.key==='goimon_cloud_v2:active')fail(Error('別の画面で進行またはアカウントが更新されました。再読み込みしてください。'));});
- window.GoimonChapter2=Object.freeze({snapshot:()=>state?clone(state):null});try{store=P.create(window.GoimonDeveloper?.storage||localStorage,key,D);if((window.GoimonDeveloper?.active||GoimonChapter2Access.current())){state=store.load();render();if(new URLSearchParams(location.search).get('configure')==='1'&&state)setup(true);}else locked();}catch(e){fail(e);}
+ window.GoimonChapter2=Object.freeze({snapshot:()=>state?clone(state):null});try{if(window.GoimonEconomyReady)await window.GoimonEconomyReady;blocked=false;store=P.create(window.GoimonDeveloper?.storage||localStorage,key,D);if((window.GoimonDeveloper?.active||GoimonChapter2Access.current())){state=store.load();render();if(new URLSearchParams(location.search).get('configure')==='1'&&state)setup(true);}else locked();}catch(e){fail(e);}
 })();

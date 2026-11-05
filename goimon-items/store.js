@@ -35,7 +35,18 @@ function commitShared(storage,ctx,state){
  // The exact old strings and the common wallet commit together. Never delete old keys.
  storage.setItem(sharedKey,JSON.stringify(state));
 }
-function readState(storage,level){return project(readShared(storage).state,level);}
+function readState(storage,level){
+ const modeRaw=storage.getItem('goimon_economy_mode_v1');
+ if(!modeRaw)return project(readShared(storage).state,level);
+ const mode=JSON.parse(modeRaw),account=root.GOIMONProfiles?.currentAccount();
+ if(mode.status!=='server'||mode.account!==account||mode.apiBase!==root.GOIMON_CLOUD_CONFIG?.apiBase)fail('サーバーの所持品を確認できません。ガチャ・装着画面を開き直してください。');
+ const suffix=encodeURIComponent(mode.apiBase)+':'+encodeURIComponent(account);
+ const wallet=JSON.parse(storage.getItem('goimon_wallet_migration_v1:'+suffix+':cache')||'null');
+ const loadout=JSON.parse(storage.getItem('goimon_loadout_cache_v1:'+suffix)||'null');
+ if(!wallet||!loadout||![wallet.revision,loadout.revision].every(n=>Number.isSafeInteger(n)&&n>=0)||!Number.isSafeInteger(wallet.state?.shards)||wallet.state.shards<0||wallet.state.shards>1000000||!loadout.loadouts?.[level])fail('サーバーの所持品を読み込み中です。装着画面で確認してください。');
+ const state={...empty(level),owned:wallet.state.owned,loadouts:Object.fromEntries(Object.entries(loadout.loadouts[level]).map(([id,v])=>[id,{...v,updatedAt:v.updatedAt??0}])),shop:{stars:wallet.state.shards,claims:{},history:[]}};
+ return validate(state,level);
+}
 function create(options){const {storage,profiles,activeAccount,level,locks}=options,account=profiles?.account||'guest';
 function scope(){if((activeAccount()||'guest')!==account)fail('アカウントが切り替わりました。入力は保存せず、このページを開き直してください。');const n=level();if(n!=='1'&&n!=='2')fail('級を確認できません。');return n;}
 function writable(){scope();if(storage.getItem('goimon_economy_mode_v1'))return false;return account==='guest'?!!locks?.request:!!profiles?.isWriter?.();}

@@ -8,7 +8,7 @@ export async function connect(root){
  const cfg=root.GOIMON_CLOUD_CONFIG,P=root.GOIMONProfiles,S=root.GoimonItemStore,C=root.GoimonBattleCatalog,storage=root.GOIMONStorage;
  if(cfg?.economyServerEnabled!==true)return;
  if(!P.account||!root.navigator.locks)throw Error('ログインしてから開き直してください。');
- if(!P.isWriter())throw Error('保存の準備ができていません。他の学習タブを閉じて開き直してください。');
+ await waitForWriter(root,P);
  const account=P.account,activeAccount=()=>P.currentAccount(),lock=(name,fn)=>root.navigator.locks.request(name,fn);
  const client=createMissionAccountClient({apiBase:cfg.apiBase,account,activeAccount,profiles:P,schema:root.GOIMONCloudSchema,
   credential:()=>JSON.parse(root.sessionStorage.getItem('goimon_cloud_session_v1')||'null'),lock,fetch:root.fetch.bind(root)});
@@ -33,7 +33,7 @@ export async function connect(root){
  const draw=createCloudDraw({account,apiBase:cfg.apiBase,activeAccount,storage,lock,request:client.request});
  let receipt=draw.pending();
  if(receipt){receipt=await draw.resume();await wallet.refresh();}
- function project(level){const legacy=S.readState(storage,level),cloud=wallet.read();return {...legacy,owned:cloud.state.owned,shop:{...legacy.shop,stars:cloud.state.shards,claims:{...legacy.shop.claims,welcome:bonuses.welcome,['login:'+bonuses.date]:bonuses.login}}};}
+ function project(level){const legacy=S.project(S.readShared(storage).state,level),cloud=wallet.read();return {...legacy,owned:cloud.state.owned,shop:{...legacy.shop,stars:cloud.state.shards,claims:{...legacy.shop.claims,welcome:bonuses.welcome,['login:'+bonuses.date]:bonuses.login}}};}
  root.GoimonShop={read:project,
   welcome:()=>claim('welcome'),claimLogin:()=>claim('login'),
   loginStatus:()=>({date:bonuses.date,loggedIn:activeAccount()===account,claimed:bonuses.login}),
@@ -46,14 +46,32 @@ export async function connect(root){
  const adapter=createCloudLoadout({account,apiBase:cfg.apiBase,activeAccount,storage,lock,request:client.request,level,localStore:local,
   validate:loadouts=>{for(const n of ['1','2'])S.validate({...S.empty(n),owned:wallet.read().state.owned,loadouts:displayLoadouts(loadouts[n])},n);}});
  await adapter.init();
+ function cacheLoadouts(){
+  const key='goimon_loadout_cache_v1:'+encodeURIComponent(cfg.apiBase)+':'+encodeURIComponent(account),value=adapter.snapshot();
+  const previous=JSON.parse(storage.getItem(key)||'null');
+  if(previous&&previous.revision>value.revision)throw Error('loadout_stale_response');
+  const raw=JSON.stringify(value);storage.setItem(key,raw);if(storage.getItem(key)!==raw)throw Error('loadout_checkpoint_failed');
+ }
+ cacheLoadouts();
  const originalRead=adapter.read;adapter.read=()=>{const ctx=originalRead();ctx.state.owned=wallet.read().state.owned;ctx.state.loadouts=displayLoadouts(ctx.state.loadouts);return ctx;};
- const originalSave=adapter.save;adapter.save=async(...args)=>{const ctx=await originalSave(...args);ctx.state.owned=wallet.read().state.owned;ctx.state.loadouts=displayLoadouts(ctx.state.loadouts);return ctx;};
+ const originalSave=adapter.save;adapter.save=async(...args)=>{const ctx=await originalSave(...args);cacheLoadouts();ctx.state.owned=wallet.read().state.owned;ctx.state.loadouts=displayLoadouts(ctx.state.loadouts);return ctx;};
  root.GoimonItemStore=Object.freeze({...S,create:()=>adapter});
  root.GoimonCloudWallet=wallet;
+ root.dispatchEvent(new Event('goimon-wallet-changed'));
 }
 // Server revisions establish ordering. Legacy UI requires a timestamp field;
 // zero means unavailable, never a fabricated update time or a new server write.
 export function displayLoadouts(loadouts){
  if(!loadouts||typeof loadouts!=='object'||Array.isArray(loadouts))throw Error('loadout_response_invalid');
  return Object.fromEntries(Object.entries(loadouts).map(([id,slots])=>[id,{...slots,updatedAt:slots.updatedAt??0}]));
+}
+export async function waitForWriter(root,profiles){
+ if(profiles.isWriter())return;
+ await new Promise((resolve,reject)=>{
+  const events=['goimon-storage-ready','goimon-storage-conflict','goimon-storage-error'];
+  const cleanup=()=>{clearTimeout(timer);for(const e of events)root.removeEventListener(e,check);};
+  const check=()=>{cleanup();if(profiles.isWriter())resolve();else reject(Error('保存の準備ができません。他の学習タブを閉じて開き直してください。'));};
+  const timer=setTimeout(check,5000);for(const e of events)root.addEventListener(e,check);
+  if(profiles.isWriter())check();
+ });
 }

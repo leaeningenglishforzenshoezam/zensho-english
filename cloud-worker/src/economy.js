@@ -1,6 +1,6 @@
 // Server-only draft. No HTTP route or production grants are enabled.
 import catalog from '../../battle-prototype/catalog.js';
-export const RULES=Object.freeze({version:2,cost:10,normalWeights:[94,5,1],guaranteedWeights:[0,5,1],exchangeCopies:5,exchangeShards:10});
+export const RULES=Object.freeze({version:3,cost:10,normalWeights:[94,5,1],guaranteedWeights:[0,99,1],exchangeCopies:5,exchangeShards:10});
 const groups={gear:catalog.gear.filter(x=>x.id!=='none'),skills:catalog.skills};
 const MAX=9999;
 export function emptyEconomy(){return {version:1,shards:0,owned:{gear:{},skills:{}}};}
@@ -20,8 +20,9 @@ export function planDraw(state,kind,count,rng=secureRandom){
  const cost=count*RULES.cost;if(state.shards<cost)throw Error('insufficient_shards');
  const next=structuredClone(state),items=[];
  for(let i=0;i<count;i++){
-  // Always reserve the last slot of a bulk ten draw for R/SR, even if earlier slots were rare.
-  const weights=count===10&&i===9?RULES.guaranteedWeights:RULES.normalWeights;
+  // Match the existing public shop: guarantee only when the first nine are all N.
+  // The guarantee changes N to R; SR remains 1%, not the former 1/6 draft rate.
+  const weights=count===10&&i===9&&items.every(x=>x.rarity==='N')?RULES.guaranteedWeights:RULES.normalWeights;
   const tickets=weights.flatMap((n,j)=>Array(n).fill(['N','R','SR'][j]));
   const rarity=pick(tickets,rng),item=pick(groups[kind].filter(x=>x.rarity===rarity),rng);
   const amount=(next.owned[kind][item.id]||0)+1;if(amount>MAX)throw Error('inventory_limit');
