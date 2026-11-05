@@ -5,8 +5,9 @@ import {createCloudLoadout} from './cloud-loadout.mjs';
 
 // Explicit development opt-in only. Public config leaves economyServerEnabled unset.
 export async function connect(root){
+ await root.GoimonReleaseReady;
  const cfg=root.GOIMON_CLOUD_CONFIG,P=root.GOIMONProfiles,S=root.GoimonItemStore,C=root.GoimonBattleCatalog,storage=root.GOIMONStorage;
- if(cfg?.economyServerEnabled!==true)return;
+ if(cfg?.economyServerEnabled!==true){if(storage?.getItem('goimon_economy_mode_v1'))throw Error('サーバー接続を確認できません。通信を確認して開き直してください。');return;}
  // Preserve the existing device-only guest path. Never fall back to local
  // spending for an account whose wallet was already migrated.
  if(P&&!P.account&&!P.currentAccount()){

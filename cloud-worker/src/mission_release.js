@@ -1,4 +1,4 @@
-// Candidate entry point only. No deployment config points here yet.
+// Connected candidate entry point; enabled only by the release configuration.
 import worker from './index.js';
 import {handleMissionDraft} from './mission_api.js';
 const publicRoutes=new Set(['/api/v1/economy',...['status','learning','learning/apply','growth/apply','review','basic-bonus/claim'].map(p=>'/api/v1/missions/'+p),...['words','idioms','exam','listening','reading','reorder'].flatMap(slot=>['start','submit','claim'].map(action=>`/api/v1/missions/${slot}/${action}`))]);
@@ -14,6 +14,7 @@ export default {
   if(env.MISSION_RELEASE_ENABLED==='true'&&(publicRoutes.has(path)||drawEnabled||importEnabled||autoImportEnabled||loadoutEnabled||bonusEnabled)){
    return handleMissionDraft(request,{...env,MISSION_REWARDS_TEST_ENABLED:true});
   }
-  return worker.fetch(request,env,ctx);
+  const connected=env.MISSION_RELEASE_ENABLED==='true'&&['ECONOMY_DRAW_ENABLED','ECONOMY_IMPORT_ENABLED','ECONOMY_AUTO_IMPORT_ENABLED','ECONOMY_LOADOUTS_ENABLED','ECONOMY_BONUS_ENABLED'].every(k=>env[k]==='true');
+  return worker.fetch(request,{...env,CONNECTED_MISSION_RELEASE:connected},ctx);
  }
 };

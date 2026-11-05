@@ -20,6 +20,19 @@
  dialog.querySelector('nav').insertAdjacentHTML('afterbegin',link('announcements.html','お知らせ','bell','id="gn-news"'));
  dialog.querySelector('nav').insertAdjacentHTML('afterbegin',link(window.GOIMON_CLOUD_CONFIG?.missionsEnabled===true?'mission_play.html':'missions.html','今日のミッション','star','id="gn-missions"'));
  document.body.append(dialog);
+ async function missionLinks(){
+  await window.GoimonReleaseReady;
+  const enabled=window.GOIMON_CLOUD_CONFIG?.missionsEnabled===true&&window.GOIMONProfiles?.currentAccount();
+  for(const a of document.querySelectorAll('a[href]')){
+   const u=new URL(a.href,location.href);
+   if(u.origin!==location.origin||!/(?:^|\/)(missions|mission_play)\.html$/.test(u.pathname))continue;
+   u.pathname=u.pathname.replace(/(missions|mission_play)\.html$/,enabled?'mission_play.html':'missions.html');
+   if(!u.searchParams.has('level'))u.searchParams.set('level',window.GOIMONStorage?.getItem('zensho_level_v1')==='2'?'2':'1');
+   a.href=u.href;
+  }
+ }
+ for(const event of ['goimon-storage-ready','goimon-auth-changed','pageshow'])window.addEventListener(event,missionLinks);
+ missionLinks();
  let audioReady;
  dialog.querySelector('#gn-bgm').onclick=()=>{close();setTimeout(async()=>{try{if(!window.GoimonQuestAudio){audioReady ||= new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='battle-prototype/quest_audio.js';s.onload=resolve;s.onerror=()=>{audioReady=null;reject(Error('BGM設定を読み込めませんでした'));};document.head.append(s);});await audioReady;}window.GoimonQuestAudio.openSettings();}catch(e){alert(e.message);}},0);};
  if(window.GOIMONAvatarUI)window.GOIMONAvatarUI.refresh();else {

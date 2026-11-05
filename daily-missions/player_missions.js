@@ -25,10 +25,15 @@ function launch(m,s){
 }
 function text(tag,value,parent){const el=document.createElement(tag);el.textContent=value;parent.append(el);return el;}
 function render(){try{
+ if(window.GOIMON_CLOUD_CONFIG?.missionsEnabled===true&&GOIMONProfiles.currentAccount()){
+  const p=new URLSearchParams(location.search);p.set('level',level.value);location.replace('mission_play.html?'+p);return;
+ }
+ if(GOIMONStorage.getItem('goimon_economy_mode_v1')){$('missionCards').replaceChildren();$('missionMessage').textContent='サーバー接続とログインを確認して開き直してください。';return;}
  importResults();const s=engine.getStatus(level.value);$('missionStatus').textContent=s.date+' · '+s.completedCount+' / '+s.missions.length+' 達成';$('missionCards').replaceChildren();$('missionMessage').textContent='';
  for(const m of s.missions){const card=document.createElement('section');card.className='card';text('p',m.completed?'✓ 達成済み':m.available?'挑戦できます':'準備中',card);text('h2',m.title||m.slot,card);text('p',m.goal,card);if(m.rangeStart)text('p','No. '+m.rangeStart+'〜'+m.rangeEnd,card);const reward=text('p','クリア報酬：ほしのかけら '+m.rewardStars+'個',card);const rewardImage=document.createElement('img');rewardImage.src='images/gacha/star.png';rewardImage.alt='';rewardImage.style.cssText='width:26px;height:26px;object-fit:contain;vertical-align:middle;margin-right:6px';(reward||card.lastElementChild).prepend(rewardImage);
   const href=m.available?launch(m,s):null;if(href){const a=text('a',m.completed?'もう一度練習する':'挑戦する',card);a.href=href;a.className='btn';a.onclick=()=>{GOIMONStorage.setItem('zensho_level_v1',level.value);sessionStorage.setItem('goimon_daily_mission_launch_account_v1',GOIMONProfiles.currentAccount()||'guest');};} $('missionCards').append(card);
  }
 }catch(e){$('missionMessage').textContent=e.message;}}
-level.onchange=()=>{GOIMONStorage.setItem('zensho_level_v1',level.value);render();};window.addEventListener('pageshow',render);window.addEventListener('goimon-storage-ready',render);render();
+const readyRender=()=>Promise.resolve(window.GoimonReleaseReady).then(render);
+level.onchange=()=>{GOIMONStorage.setItem('zensho_level_v1',level.value);readyRender();};window.addEventListener('pageshow',readyRender);window.addEventListener('goimon-storage-ready',readyRender);readyRender();
 })();
