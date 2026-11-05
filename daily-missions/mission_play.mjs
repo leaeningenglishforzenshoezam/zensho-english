@@ -1,10 +1,11 @@
 import {createBrowserMissionClient} from './mission_browser_client.mjs';
 import {missionOptions,missionSettings} from './mission_options.mjs';
+import {createMissionCheckpoint} from './mission_checkpoint.mjs';
 import {MissionFlow} from './mission_flow.mjs';
 const $=id=>document.getElementById(id);let flow,answers=[],working=false;const rules=window.GOIMON_DAILY_MISSION_RULES;
 function add(parent,tag,value){const n=document.createElement(tag);n.textContent=value;parent.append(n);return n;}
 function media(parent,file){if(file){const a=document.createElement('audio');a.controls=true;a.preload='none';a.src=file;parent.append(a);}}
-function progress(){const n=answers.filter((x,i)=>x!==null&&(!Array.isArray(x)||x.length===flow.attempt.questions[i].chunks.length)).length;$('answered').textContent=`解答 ${n} / ${answers.length}`;}
+function progress(){try{flow.saveAnswers(answers);}catch(e){$('status').textContent='回答を端末に保存できません。この画面を閉じず、空き容量や保存タブを確認してください。';$('finish').disabled=true;throw e;}const n=answers.filter((x,i)=>x!==null&&(!Array.isArray(x)||x.length===flow.attempt.questions[i].chunks.length)).length;$('answered').textContent=`解答 ${n} / ${answers.length}`;}
 const instructions={words:'単語に合う意味・英語を選びましょう。',idioms:'熟語の意味、または同じ意味を表す表現を選びましょう。',paraphrase_quiz:'文(a)と文(b)がほぼ同じ意味になるように、空欄に入る最も適切なものを選びなさい。',sentence:'英文の空欄に入る最も適切な語句を選びなさい。',q7:'本文Aを読み、要約Bの空欄に入る最も適切なものを選びなさい。',dialogue8:'会話の流れに合うように、空欄に入る最も適切なものを選びなさい。',q10:'長文を読み、空欄に入る最も適切なものを選びなさい。',listening:'音声を聞き、質問に対する最も適切な答えを選びなさい。',reorder:'英文が完成するように語句を正しい順番に並べ替えなさい。'};
 function reviewUrl(a,ids){const page=a.slot==='words'?(a.mode==='jaen'?'quiz_jaen.html':a.mode==='audio'?'audio_quiz.html':'quiz.html'):a.slot==='idioms'?'idiom_quiz.html':({paraphrase_quiz:'paraphrase_quiz.html',sentence:'sentence.html',q7:'q7.html',dialogue8:'dialogue.html',q10:'q10.html',listening:'listening.html',reorder:'reorder.html'}[a.category]);const p=new URLSearchParams({level:a.level,reviewIds:ids.join(','),fromMission:a.slot});if(a.setId)p.set('setId',a.setId);if(a.format)p.set('format',a.format);if(a.mode)p.set('idiomMode',a.mode);return page+'?'+p;}
 function render(a){
@@ -13,11 +14,11 @@ function render(a){
  media(root,a.audioFile);
  a.questions.forEach((q,i)=>{const box=add(root,'fieldset','');box.dataset.id=q.id;add(box,'legend',`${i+1}問目 · No.${q.id}`);if(a.category==='paraphrase_quiz'){(q.prompt||'').split('\n').forEach((text,j)=>{const line=add(box,'p',`(${j===0?'a':'b'}) ${text}`);line.className='sentence-pair';line.lang='en';});}else add(box,'p',q.prompt||q.stemBefore||'語句を順番に選んでください');media(box,q.audioFile);
   if(q.speech){const b=add(box,'button','音声を再生');b.onclick=()=>{if(!window.speechSynthesis){$('status').textContent='この端末では読み上げを利用できません。';return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(q.speech.text);u.lang=q.speech.lang;u.onerror=()=>{$('status').textContent='音声を再生できませんでした。';};speechSynthesis.speak(u);};}
-  if(q.chunks){answers[i]=[];const line=add(box,'p','');for(const chunk of q.chunks){const b=add(box,'button',chunk.text);b.onclick=()=>{answers[i].push(chunk.id);b.disabled=true;line.textContent=answers[i].map(id=>q.chunks.find(c=>c.id===id).text).join(' ');progress();};}const reset=add(box,'button','選び直す');reset.onclick=()=>{answers[i]=[];line.textContent='';progress();box.querySelectorAll('button').forEach(b=>b.disabled=false);};if(q.stemAfter)add(box,'p',q.stemAfter);}
-  else q.choices.forEach((choice,j)=>{const label=add(box,'label',''),input=document.createElement('input');input.type='radio';input.name='q'+i;input.onchange=()=>{answers[i]=j;progress();};label.append(input,document.createTextNode(choice));});
+  if(q.chunks){answers[i]??=[];const line=add(box,'p',answers[i].map(id=>q.chunks.find(c=>c.id===id)?.text||'').join(' '));for(const chunk of q.chunks){const b=add(box,'button',chunk.text);b.disabled=answers[i].includes(chunk.id);b.onclick=()=>{answers[i].push(chunk.id);b.disabled=true;line.textContent=answers[i].map(id=>q.chunks.find(c=>c.id===id).text).join(' ');progress();};}const reset=add(box,'button','選び直す');reset.onclick=()=>{answers[i]=[];line.textContent='';progress();box.querySelectorAll('button').forEach(b=>b.disabled=false);};if(q.stemAfter)add(box,'p',q.stemAfter);}
+  else q.choices.forEach((choice,j)=>{const label=add(box,'label',''),input=document.createElement('input');input.type='radio';input.name='q'+i;input.checked=answers[i]===j;input.onchange=()=>{answers[i]=j;progress();};label.append(input,document.createTextNode(choice));});
  });
 }
-async function run(fn){if(working)return;working=true;$('start').disabled=true;$('finish').disabled=true;try{await fn();}catch(e){const messages={missions_not_enabled:'ミッションは公開準備中です。',mission_login_required:'保存画面でログインしてから開いてください。',mission_account_changed:'アカウントまたは保存タブが変わりました。保存画面で確認してください。',revision_conflict:'別端末の記録と競合しています。保存画面で確認してください。',growth_target_mismatch:'挑戦中に育成する個体が変わりました。元の個体に戻してから再試行してください。'};$('status').textContent=messages[e.message]||'処理を完了できませんでした：'+e.message;$('status').scrollIntoView({block:'center'});if(flow?.pending)$('status').textContent+='\nこの画面を閉じず「保存を再試行」を押してください。完了済みの処理は重複しません。';}finally{working=false;$('start').disabled=!flow||!!flow.pending;$('finish').disabled=!flow?.attempt||!!flow.result;$('finish').textContent=flow?.pending?'保存を再試行':'採点する';}}
+async function run(fn){if(working)return;working=true;$('start').disabled=true;$('finish').disabled=true;try{await fn();}catch(e){const messages={missions_not_enabled:'ミッションは公開準備中です。',mission_login_required:'保存画面でログインしてから開いてください。',mission_account_changed:'アカウントまたは保存タブが変わりました。保存画面で確認してください。',revision_conflict:'別端末の記録と競合しています。保存画面で確認してください。',growth_target_mismatch:'挑戦中に育成する個体が変わりました。元の個体に戻してから再試行してください。'};$('status').textContent=messages[e.message]||'処理を完了できませんでした：'+e.message;$('status').scrollIntoView({block:'center'});if(flow?.pending)$('status').textContent+='\n「保存を再試行」を押してください。再読み込み後も保留中の処理を引き継ぎます。完了済みの処理は重複しません。';}finally{working=false;$('start').disabled=!flow||!!flow.pending;$('finish').disabled=!flow?.attempt||!!flow.result;$('finish').textContent=flow?.pending?'保存を再試行':'採点する';}}
 $('start').onclick=()=>run(async()=>{const {slot,body}=missionSettings($('missionLevel').value,$('kind').value);const a=await flow.start(slot,body);answers=Array(a.questions.length).fill(null);render(a);progress();$('missionSetup').open=false;$('instructions').hidden=false;$('instructions').textContent=instructions[a.category]||instructions[a.slot];$('status').textContent=`${a.date} / ${a.questions.length}問。回答後に採点・保存します。`;});
 $('finish').onclick=()=>run(async()=>{
  if(!flow.pending&&answers.some((a,i)=>a===null||Array.isArray(a)&&a.length!==flow.attempt.questions[i].chunks.length))throw Error('すべての問題に回答してください');
@@ -52,6 +53,19 @@ $('claimLoginBonus').onclick=()=>run(async()=>{
  finally{await refreshLoginBonus();}
 });
 window.addEventListener('focus',()=>{if(!working&&flow&&!flow.pending)refreshLoginBonus().catch(()=>{$('claimLoginBonus').disabled=true;$('loginBonusStatus').textContent='受取状況を確認できません。画面を開き直してください。';});});
-const initialize=()=>run(async()=>{if(flow)return;if(window.GoimonEconomyReady)await window.GoimonEconomyReady;const client=createBrowserMissionClient();await client.prepare();const balance=await client.request('economy');flow=new MissionFlow(client);$('balance').textContent=`星のかけら：${balance.state.shards}個`;$('status').textContent='挑戦するミッションを選んでください。';await refreshLoginBonus();});
+const initialize=()=>run(async()=>{if(flow)return;if(window.GoimonEconomyReady)await window.GoimonEconomyReady;const client=createBrowserMissionClient();await client.prepare();const balance=await client.request('economy');const profiles=window.GOIMONProfiles;
+ const checkpoint=createMissionCheckpoint({storage:window.GOIMONStorage,account:profiles.account,apiBase:window.GOIMON_CLOUD_CONFIG.apiBase,activeAccount:()=>profiles.currentAccount(),isWriter:()=>profiles.isWriter()});
+ flow=new MissionFlow(client,checkpoint);$('balance').textContent=`星のかけら：${balance.state.shards}個`;$('status').textContent='挑戦するミッションを選んでください。';
+ if(flow.attempt){
+  const a=flow.attempt;grade.value=a.level;setOptions();
+  const value=a.slot==='exam'?(a.level==='2'?'exam:sentence2':a.category==='sentence'?'exam:'+a.variant:'exam:standard'):['words','idioms'].includes(a.slot)?a.slot+':'+a.mode:a.slot;
+  $('kind').value=value;showGoal();answers=structuredClone(flow.pending?.answers||flow.answers);render(a);progress();
+  $('instructions').hidden=false;$('instructions').textContent=instructions[a.category]||instructions[a.slot];
+  $('status').textContent=flow.pending?'保存が保留中です。「保存を再試行」で続けてください。':flow.result?'前回の結果を復元しました。':'前回の回答を復元しました。期限切れの場合は新しく開始してください。';
+  if(flow.pending||flow.result)$('questions').querySelectorAll('input,button').forEach(n=>n.disabled=true);
+  if(flow.result)showResult(flow.result);
+ }
+ await refreshLoginBonus().catch(()=>{$('claimLoginBonus').disabled=true;$('loginBonusStatus').textContent='受取状況を確認できません。画面を開き直してください。';});
+});
 window.addEventListener('goimon-storage-ready',initialize);
 initialize();

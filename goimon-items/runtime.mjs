@@ -7,6 +7,12 @@ import {createCloudLoadout} from './cloud-loadout.mjs';
 export async function connect(root){
  const cfg=root.GOIMON_CLOUD_CONFIG,P=root.GOIMONProfiles,S=root.GoimonItemStore,C=root.GoimonBattleCatalog,storage=root.GOIMONStorage;
  if(cfg?.economyServerEnabled!==true)return;
+ // Preserve the existing device-only guest path. Never fall back to local
+ // spending for an account whose wallet was already migrated.
+ if(P&&!P.account&&!P.currentAccount()){
+  if(storage.getItem('goimon_economy_mode_v1'))throw Error('移行済みのアカウントでログインしてください。');
+  return;
+ }
  if(!P.account||!root.navigator.locks)throw Error('ログインしてから開き直してください。');
  await waitForWriter(root,P);
  const account=P.account,activeAccount=()=>P.currentAccount(),lock=(name,fn)=>root.navigator.locks.request(name,fn);
