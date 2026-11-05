@@ -3,12 +3,12 @@ import {validateSnapshot} from './validation.js';
 import {projectMissionLearning} from './mission_learning.js';
 import {readingGrowthPlan} from './mission_reading_growth.js';
 import {POINT_RULES,MISSION_EXTRA_POINT_RULES,STAGE_ORDER,images,roundPoint,sumStats,calculateLevel,getImageFor,determinePendingEvolution} from './data/mission-growth-rules.js';
-const key='zensho_goimon_current_v4_lv1',dexKey='zensho_goimon_dex_discovery_v2_lv1';
 const object=x=>x!==null&&typeof x==='object'&&!Array.isArray(x);
 function read(data,k){try{const value=JSON.parse(data[k]);if(!object(value))throw Error();return value;}catch{throw Error('invalid_growth_record');}}
 export function projectMissionGrowth(snapshot,attempt,now=Date.now(),readingClaimed=false){
  // Reuse grade/version/question validation; its learning projection is not saved here.
  projectMissionLearning(snapshot,attempt);
+ const key='zensho_goimon_current_v4_lv'+attempt.level,dexKey='zensho_goimon_dex_discovery_v2_lv'+attempt.level;
  const categories={words:['quiz_enja','quiz_jaen','audio_quiz'],idioms:['idiom_quiz'],exam:['sentence','paraphrase_quiz'],listening:['listening'],reorder:['reorder'],reading:['q7','dialogue8','q10']};
  if(!categories[attempt.slot]?.includes(attempt.category))throw Error('unsupported_attempt');
  let delta=POINT_RULES[attempt.category]||MISSION_EXTRA_POINT_RULES[attempt.category];
@@ -60,6 +60,7 @@ export async function applyMissionGrowth(db,userId,attemptId,expectedRevision){
  const readingSet=attempt.slot==='reading'&&['dialogue8','q10'].includes(attempt.category)&&attempt.score===5?String(JSON.parse(attempt.private_json).setId??''):null;
  const claimed=readingSet?await db.prepare('SELECT 1 AS present FROM mission_reading_growth_claims WHERE user_id=? AND level=? AND category=? AND set_id=?').bind(userId,attempt.level,attempt.category,readingSet).first():null;
  const snapshot=current?JSON.parse(current.save_json):{schemaVersion:1,data:{}},next=projectMissionGrowth(snapshot,attempt,Date.now(),!!claimed),json=validateSnapshot(next);
+ const key='zensho_goimon_current_v4_lv'+attempt.level;
  const points=roundPoint(JSON.parse(next.data[key]).totalPoints-JSON.parse(snapshot.data[key]).totalPoints);
  try{await db.batch([
   db.prepare('INSERT INTO mission_growth_receipts(user_id,attempt_id,target_id,applied_revision,awarded_points) VALUES (?,?,?,?,?)').bind(userId,attemptId,attempt.growth_target_id,expectedRevision+1,points),

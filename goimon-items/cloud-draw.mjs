@@ -15,10 +15,21 @@ export function createCloudDraw({account,apiBase,activeAccount,storage,lock,requ
  function write(p){scope();const raw=JSON.stringify(p);storage.setItem(key,raw);if(storage.getItem(key)!==raw)throw Error('cloud_draw_checkpoint_failed');}
  async function run(fn){return lock('goimon-cloud-draw:'+apiBase+':'+account,async()=>{scope();return fn();});}
  async function finish(p){
-  // Keep the exact request on every error, including lost replies and account changes.
-  // Never silently switch to a fresh operation ID or spend again on retry.
+  // Keep the exact request unless the server certifies this operation did not
+  // commit. Never automatically start another draw, even after a rejection.
   if(!p.response){
-   const r=await request('economy/draw',structuredClone(p.command));scope();
+   let r;
+   try{r=await request('economy/draw',structuredClone(p.command));}
+   catch(e){
+    scope();
+    if(e.status===409&&['economy_revision_conflict','insufficient_shards'].includes(e.message)&&
+     e.drawRejection?.operationId===p.command.operationId&&e.drawRejection.expectedRevision===p.command.expectedRevision){
+     storage.removeItem(key);if(storage.getItem(key)!==null)throw Error('cloud_draw_checkpoint_failed');
+     e.drawRejected=true;
+    }
+    throw e;
+   }
+   scope();
    if(r?.revision!==p.command.expectedRevision+1||r.result?.kind!==p.command.kind||r.result?.count!==p.command.count||
     r.result?.cost!==p.command.count*10||!Array.isArray(r.result.items)||r.result.items.length!==p.command.count||
     r.result.items.some(x=>typeof x?.id!=='string'||!['N','R','SR'].includes(x.rarity)))throw Error('cloud_draw_invalid_response');

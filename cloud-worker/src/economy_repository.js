@@ -16,7 +16,20 @@ export async function readEconomy(db,userId){
 export async function executeDraw(db,userId,operationId,expectedRevision,command,rng){
  if(typeof userId!=='string'||!userId||(typeof operationId!=='string'||!opPattern.test(operationId))||!Number.isSafeInteger(expectedRevision)||expectedRevision<0)throw Error('invalid_operation');
  const json=requestJson(command),old=await receipt(db,userId,operationId);if(old)return replay(old,json);
- const current=await readEconomy(db,userId);if(current.revision!==expectedRevision)throw Error('economy_revision_conflict');
+ const current=await readEconomy(db,userId);
+ async function reject(code){
+  // Check again AFTER observing the revision/state: an identical in-flight
+  // request may have committed since the initial receipt lookup.
+  const committed=await receipt(db,userId,operationId);if(committed)return replay(committed,json);
+  throw Object.assign(Error(code),{drawRejection:{operationId,expectedRevision}});
+ }
+ if(current.revision!==expectedRevision){
+  // Only an older revision is permanently unusable. Never certify a future
+  // revision, nor a generic storage/network error, as an uncommitted draw.
+  if(current.revision>expectedRevision)return reject('economy_revision_conflict');
+  throw Error('economy_revision_conflict');
+ }
+ if(current.state.shards<command.count*10)return reject('insufficient_shards');
  const planned=planDraw(current.state,command.kind,command.count,rng);
  try{
   await db.batch([
@@ -26,7 +39,7 @@ export async function executeDraw(db,userId,operationId,expectedRevision,command
  }catch(error){
   // A lost response or concurrent identical request returns the originally persisted result.
   const committed=await receipt(db,userId,operationId);if(committed)return replay(committed,json);
-  if((await readEconomy(db,userId)).revision!==expectedRevision)throw Error('economy_revision_conflict');
+  if((await readEconomy(db,userId)).revision>expectedRevision)return reject('economy_revision_conflict');
   throw error;
  }
  return {replayed:false,revision:expectedRevision+1,result:planned.result};

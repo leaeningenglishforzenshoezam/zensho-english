@@ -1,5 +1,6 @@
 // Isolated draft only. Learning records are independent of spendable rewards.
 import words from './data/mission-words.json' with {type:'json'};
+import words2 from './data/mission-words-2kyu.json' with {type:'json'};
 import {validateSnapshot} from './validation.js';
 import rules from '../../daily-missions/daily_mission_rules.js';
 const object=x=>x&&typeof x==='object'&&!Array.isArray(x);
@@ -21,30 +22,34 @@ function increment(x,key,n){const value=Object.hasOwn(x,key)?x[key]:0;if(!Number
 function read(data,key){if(!Object.hasOwn(data,key))return {};try{return record(JSON.parse(data[key]));}catch{throw Error('invalid_learning_record');}}
 export function projectMissionLearning(snapshot,attempt){
  validateSnapshot(snapshot);const next=structuredClone(snapshot),data=next.data;
- if(attempt.level!=='1'||attempt.submission_json===null||!Number.isInteger(attempt.score))throw Error('attempt_not_submitted');
+ if(!['1','2'].includes(attempt.level)||attempt.submission_json===null||!Number.isInteger(attempt.score))throw Error('attempt_not_submitted');
+ // Grade 2 projection preparation only: issuing/claiming grade 2 attempts remains
+ // disabled until schema, reward rules and player routes are ready together.
+ if(attempt.level==='2'&&!(attempt.slot==='words'&&['quiz_enja','quiz_jaen','audio_quiz'].includes(attempt.category)||attempt.slot==='exam'&&attempt.category==='sentence'))throw Error('unsupported_attempt');
+ const level=attempt.level,bank=level==='2'?words2:words;
  const p=JSON.parse(attempt.private_json),answers=JSON.parse(attempt.submission_json);
  if(p.rulesVersion!==rules.version)throw Error('unsupported_attempt');
  if(!Array.isArray(answers)||answers.length!==p.questions.length)throw Error('invalid_learning_record');
  const correct=p.questions.map((q,i)=>JSON.stringify(q.answer)===JSON.stringify(answers[i]));
  if(correct.filter(Boolean).length!==attempt.score)throw Error('invalid_learning_record');
- const key='zensho_learning_log_v1_lv1',log=read(data,key),day=child(log,attempt.mission_day),slot=child(day,attempt.category);
+ const key='zensho_learning_log_v1_lv'+level,log=read(data,key),day=child(log,attempt.mission_day),slot=child(day,attempt.category);
  increment(slot,'attempt',answers.length);increment(slot,'correct',attempt.score);increment(slot,'wrong',answers.length-attempt.score);data[key]=JSON.stringify(log);
  if(attempt.slot==='words'){
   const mode={quiz_enja:'enja',quiz_jaen:'jaen',audio_quiz:'audio'}[attempt.category];if(!mode)throw Error('unsupported_attempt');
-  const weakKey={enja:'zensho_quiz_weak_points_enja_v2_lv1',jaen:'zensho_quiz_weak_points_jaen_v3_lv1',audio:'zensho_audio_quiz_weak_v1_lv1'}[mode];
-  const weak=read(data,weakKey),global=read(data,'zensho_block_global_lv1_v1'),byBlock=child(global,'byBlock');
-  const statsKey=mode==='jaen'?'zensho_block_stats_jaen_v2_lv1':'zensho_block_stats_enja_v1_lv1',stats=mode==='audio'?null:read(data,statsKey);
+  const weakKey={enja:'zensho_quiz_weak_points_enja_v2_lv',jaen:'zensho_quiz_weak_points_jaen_v3_lv',audio:'zensho_audio_quiz_weak_v1_lv'}[mode]+level;
+  const globalKey='zensho_block_global_lv'+level+'_v1',weak=read(data,weakKey),global=read(data,globalKey),byBlock=child(global,'byBlock');
+  const statsKey=(mode==='jaen'?'zensho_block_stats_jaen_v2_lv':'zensho_block_stats_enja_v1_lv')+level,stats=mode==='audio'?null:read(data,statsKey);
   const fields={enja:['quizAttempted','quizCorrect'],jaen:['quizAttemptedJaEn','quizCorrectJaEn'],audio:['audioAttempted','audioCorrect']}[mode];
   p.questions.forEach((q,i)=>{
-   if(!Number.isInteger(q.id)||q.id<1||q.id>words.length)throw Error('invalid_learning_record');
-   // Existing 1kyu blocks are 1..50, 51..100, ... 451..500; parity is tested.
-   const block=String(Math.floor((q.id-1)/50)+1),word=words[q.id-1].en,key=mode==='audio'?word.trim().toLowerCase():word;
+   if(!Number.isInteger(q.id)||q.id<1||q.id>bank.length)throw Error('invalid_learning_record');
+   // Both existing grade-specific block definitions use groups of 50 words.
+   const block=String(Math.floor((q.id-1)/50)+1),word=bank[q.id-1].en,key=mode==='audio'?word.trim().toLowerCase():word;
    const old=Object.hasOwn(weak,key)?weak[key]:0;if(!Number.isSafeInteger(old)||old<0)throw Error('invalid_learning_counter');
    const value=correct[i]?Math.max(0,old-1):old+1;if(!Number.isSafeInteger(value))throw Error('invalid_learning_counter');if(value)weak[key]=value;else delete weak[key];
    const g=child(byBlock,block);increment(g,fields[0],1);increment(g,fields[1],correct[i]?1:0);
    if(stats){const b=child(stats,block);increment(b,'attempted',1);increment(b,'correct',correct[i]?1:0);}
   });
-  data[weakKey]=JSON.stringify(weak);data.zensho_block_global_lv1_v1=JSON.stringify(global);if(stats)data[statsKey]=JSON.stringify(stats);
+  data[weakKey]=JSON.stringify(weak);data[globalKey]=JSON.stringify(global);if(stats)data[statsKey]=JSON.stringify(stats);
  }
  validateSnapshot(next);return next;
 }

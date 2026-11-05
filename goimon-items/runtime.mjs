@@ -31,13 +31,16 @@ export async function connect(root){
   return response.replayed?0:response.result.shards;
  }
  const draw=createCloudDraw({account,apiBase:cfg.apiBase,activeAccount,storage,lock,request:client.request});
- let receipt=draw.pending();
- if(receipt){receipt=await draw.resume();await wallet.refresh();}
+ let receipt=draw.pending(),drawNotice='';
+ if(receipt){
+  try{receipt=await draw.resume();}catch(e){if(!e.drawRejected)throw e;receipt=null;drawNotice='前回の抽選は成立していません。かけらは消費されていません。残高を確認して、もう一度選んでください。';}
+  await wallet.refresh();
+ }
  function project(level){const legacy=S.project(S.readShared(storage).state,level),cloud=wallet.read();return {...legacy,owned:cloud.state.owned,shop:{...legacy.shop,stars:cloud.state.shards,claims:{...legacy.shop.claims,welcome:bonuses.welcome,['login:'+bonuses.date]:bonuses.login}}};}
- root.GoimonShop={read:project,
+ root.GoimonShop={read:project,drawNotice:()=>drawNotice,
   welcome:()=>claim('welcome'),claimLogin:()=>claim('login'),
   loginStatus:()=>({date:bonuses.date,loggedIn:activeAccount()===account,claimed:bonuses.login}),
-  draw:async(level,kind,count)=>{if(receipt)throw Error('前回の結果を確認してください。');receipt=await draw.draw(kind,count);await wallet.refresh();return receipt.response.result.items.map(x=>C[kind].find(i=>i.id===x.id));},
+  draw:async(level,kind,count)=>{if(receipt)throw Error('前回の結果を確認してください。');try{receipt=await draw.draw(kind,count);}catch(e){if(!e.drawRejected)throw e;await wallet.refresh();throw Error('抽選は成立していません。残高を更新しました。回数を選び直してください。');}await wallet.refresh();return receipt.response.result.items.map(x=>C[kind].find(i=>i.id===x.id));},
   acknowledge:async()=>{if(receipt){await draw.acknowledge(receipt.command.operationId);receipt=null;}},
   pendingResult:()=>receipt?.response?{kind:receipt.response.result.kind,items:receipt.response.result.items.map(x=>C[receipt.response.result.kind].find(i=>i.id===x.id))}:null
  };

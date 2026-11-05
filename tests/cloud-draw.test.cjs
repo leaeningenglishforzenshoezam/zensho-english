@@ -34,6 +34,27 @@ test('failed result save retains original request; ambiguous failures cannot be 
  await assert.rejects(c.acknowledge(c.pending().command.operationId),/receipt_required/);
  const p=await f.make().resume();assert.equal(f.spends(),1);assert.equal(p.response.result.count,3);
 });
+test('only a matching server rejection clears a pending draw; retry is an explicit new action',async()=>{
+ const f=await fixture(),request=f.options.request;let reject=true,calls=0;
+ f.options.request=async(path,body)=>{
+  if(path==='economy/draw'&&reject){calls++;throw Object.assign(Error('economy_revision_conflict'),{status:409,drawRejection:{operationId:body.operationId,expectedRevision:body.expectedRevision}});}
+  return request(path,body);
+ };
+ const c=f.make();await assert.rejects(c.draw('gear',3),e=>e.drawRejected===true);
+ assert.equal(c.pending(),null);assert.equal(calls,1);assert.equal(f.spends(),0);
+ reject=false;const p=await c.draw('skills',1);assert.equal(p.response.result.count,1);assert.equal(f.spends(),1);
+});
+test('unproven conflict, wrong operation, wrong revision, and failed checkpoint removal retain request',async()=>{
+ for(const type of ['absent','operation','revision','status','inventory','storage']){
+  const f=await fixture();f.options.request=async(path,body)=>{
+   if(path==='economy')return {revision:0,state:{shards:100}};
+   throw Object.assign(Error(type==='inventory'?'inventory_limit':'economy_revision_conflict'),{status:type==='status'?500:409,...(type==='absent'?{}:{drawRejection:{operationId:type==='operation'?'different_operation':body.operationId,expectedRevision:type==='revision'?99:body.expectedRevision}})});
+  };
+  if(type==='storage')f.s.removeItem=()=>{};
+  const c=f.make();await assert.rejects(c.draw('gear',3),e=>!e.drawRejected,type);
+  assert(c.pending(),type);assert.equal(f.spends(),0);
+ }
+});
 test('legacy backup preserves both grades, corrupt raw strings, and loadouts without minting or removing items',async()=>{
  const {backupLegacyItems}=await import('../goimon-items/legacy-backup.mjs');const s=storage();
  s.setItem('goimon_item_state_v1_lv1','{"shop":{"stars":30},"loadouts":{"pet":{}}}');s.setItem('goimon_item_state_v1_lv2','broken raw data');

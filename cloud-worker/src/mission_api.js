@@ -72,6 +72,7 @@ export async function handleMissionDraft(request,env){
   exact(payload,['attemptId','operationId','expectedRevision']);return reply(await (isExam?claimExamReward:isIdiom?claimIdiomReward:claimWordReward)(env.DB,userId,payload.attemptId,payload.operationId,payload.expectedRevision));
  }catch(error){
   const name=error.message;
+  if(path==='/api/v1/economy/draw'&&error.drawRejection&&['economy_revision_conflict','insufficient_shards'].includes(name))return reply({error:name,drawRejection:error.drawRejection},409);
   if(name==='invalid_bonus')return reply({error:name},400);
   if(['bonus_day_changed','wallet_migration_required'].includes(name))return reply({error:name},409);
   if(name==='invalid_loadout')return reply({error:name},400);

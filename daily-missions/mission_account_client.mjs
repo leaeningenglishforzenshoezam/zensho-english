@@ -5,7 +5,7 @@ export function createMissionAccountClient({apiBase,account,credential,activeAcc
  async function request(path,body){
   const s=assertAccount();
   const r=await send(apiBase.replace(/\/$/,'')+'/api/v1/'+path,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+s.token,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),cache:'no-store'});
-  assertAccount();const data=await r.json();if(!r.ok)throw Object.assign(Error(data.error||'mission_request_failed'),{status:r.status});return data;
+  assertAccount();const data=await r.json();if(!r.ok)throw Object.assign(Error(data.error||'mission_request_failed'),{status:r.status,...(path==='economy/draw'&&data.drawRejection?{drawRejection:data.drawRejection}:{})});return data;
  }
  async function reconcile(){
   assertAccount();const p=profiles.read(account),local=profiles.cloudData(p.data);
