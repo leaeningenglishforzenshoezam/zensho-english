@@ -1,5 +1,6 @@
 -- Additive mission persistence; apply only after release backup and validation.
--- Grade 2 is not yet enabled by these tables or the application.
+-- Pending migration, revised before first production application. If an earlier
+-- 0011 was applied to a remote database, STOP: do not replay or delete its tables.
 CREATE TABLE mission_companion_receipts (
  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
  operation_id TEXT NOT NULL,
@@ -44,14 +45,14 @@ BEGIN
 END;
 CREATE TABLE mission_word_starts (
  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
- level TEXT NOT NULL CHECK(level='1'),
+ level TEXT NOT NULL CHECK(level IN ('1','2')),
  first_day TEXT NOT NULL,
  PRIMARY KEY(user_id,level)
 );
 CREATE TABLE mission_attempts (
  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
  attempt_id TEXT NOT NULL,
- level TEXT NOT NULL CHECK(level='1'),
+ level TEXT NOT NULL CHECK(level IN ('1','2')),
  mission_day TEXT NOT NULL,
  slot TEXT NOT NULL CHECK(slot IN ('words','idioms','exam','listening','reading','reorder')),
  category TEXT NOT NULL CHECK(category IN ('quiz_enja','quiz_jaen','audio_quiz','idiom_quiz','sentence','paraphrase_quiz','listening','q7','dialogue8','q10','reorder')),
@@ -63,6 +64,7 @@ CREATE TABLE mission_attempts (
  score INTEGER CHECK(score IS NULL OR (typeof(score)='integer' AND score BETWEEN 0 AND CASE WHEN slot='words' THEN 20 WHEN slot='idioms' THEN 15 WHEN slot='exam' THEN 10 ELSE 5 END)),
  completed INTEGER NOT NULL DEFAULT 0 CHECK(completed IN (0,1)),
  PRIMARY KEY(user_id,attempt_id),
+ CHECK(level='1' OR (slot='words' AND category IN ('quiz_enja','quiz_jaen','audio_quiz')) OR (slot='exam' AND category='sentence')),
  CHECK((slot='words' AND category IN ('quiz_enja','quiz_jaen','audio_quiz')) OR (slot='idioms' AND category='idiom_quiz') OR (slot='exam' AND category IN ('sentence','paraphrase_quiz')) OR (slot='listening' AND category='listening') OR (slot='reading' AND category IN ('q7','dialogue8','q10')) OR (slot='reorder' AND category='reorder')),
  CHECK(slot!='idioms' OR (json_extract(private_json,'$.mode') IS NOT NULL AND json_extract(private_json,'$.mode') IN ('meaning','synonym'))),
  CHECK((submission_json IS NULL AND score IS NULL AND completed=0) OR
@@ -77,9 +79,9 @@ BEGIN
  UPDATE mission_attempts SET growth_bonus_stat=COALESCE((
   SELECT CASE WHEN json_extract(save_json,'$.data.zensho_reorder_bonus_stat_v1_lv1') IN ('chie','kotoba','onkan','bunmyaku')
    THEN json_extract(save_json,'$.data.zensho_reorder_bonus_stat_v1_lv1') END FROM saves WHERE user_id=NEW.user_id),'bunmyaku'),growth_target_id=(
-  SELECT CASE WHEN json_valid(json_extract(save_json,'$.data.zensho_goimon_current_v4_lv1'))
-   THEN CASE WHEN json_type(json_extract(save_json,'$.data.zensho_goimon_current_v4_lv1'),'$.id')='text'
-    THEN json_extract(json_extract(save_json,'$.data.zensho_goimon_current_v4_lv1'),'$.id') END END
+  SELECT CASE WHEN json_valid(json_extract(save_json,'$.data.zensho_goimon_current_v4_lv'||NEW.level))
+   THEN CASE WHEN json_type(json_extract(save_json,'$.data.zensho_goimon_current_v4_lv'||NEW.level),'$.id')='text'
+    THEN json_extract(json_extract(save_json,'$.data.zensho_goimon_current_v4_lv'||NEW.level),'$.id') END END
   FROM saves WHERE user_id=NEW.user_id)
  WHERE user_id=NEW.user_id AND attempt_id=NEW.attempt_id;
 END;
@@ -112,11 +114,12 @@ CREATE TABLE mission_reading_growth_claims (
 );
 CREATE TABLE mission_reward_claims (
  user_id TEXT NOT NULL,
- level TEXT NOT NULL CHECK(level='1'),
+ level TEXT NOT NULL CHECK(level IN ('1','2')),
  mission_day TEXT NOT NULL,
  slot TEXT NOT NULL CHECK(slot IN ('words','idioms','exam','listening','reading','reorder','basic_bonus')),
  operation_id TEXT NOT NULL,
  attempt_id TEXT,
+ CHECK(level='1' OR slot IN ('words','exam')),
  CHECK((slot='basic_bonus' AND attempt_id IS NULL) OR (slot!='basic_bonus' AND attempt_id IS NOT NULL)),
  PRIMARY KEY(user_id,level,mission_day,slot),
  FOREIGN KEY(user_id,operation_id) REFERENCES economy_receipts(user_id,operation_id) ON DELETE CASCADE,
@@ -154,12 +157,13 @@ END;
 
 CREATE TABLE mission_exam_sets (
  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
- level TEXT NOT NULL CHECK(level='1'),
+ level TEXT NOT NULL CHECK(level IN ('1','2')),
  mission_day TEXT NOT NULL,
  category TEXT NOT NULL CHECK(category IN ('sentence','paraphrase_quiz')),
  variant TEXT NOT NULL CHECK(variant IN ('a','b','mix','standard')),
  private_json TEXT NOT NULL CHECK(json_valid(private_json)),
- PRIMARY KEY(user_id,level,mission_day,category,variant)
+ PRIMARY KEY(user_id,level,mission_day,category,variant),
+ CHECK(level='1' OR (category='sentence' AND variant='standard'))
 );
 CREATE TRIGGER mission_bonus_guard BEFORE INSERT ON mission_reward_claims
 WHEN NEW.slot='basic_bonus'

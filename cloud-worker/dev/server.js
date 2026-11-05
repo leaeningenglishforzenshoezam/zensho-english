@@ -32,7 +32,7 @@ export async function startHarness(port=0,{seedGrowth=false}={}){
    if(req.method!=='GET')return send(405,'Method not allowed');
    if(url.pathname==='/mission_play.html'){
     const source=await readFile(new URL('../../mission_play.html',import.meta.url),'utf8');
-    return send(200,source.replace(/<script\b(?![^>]*type="module")[^>]*>[\s\S]*?<\/script\s*>/gi,'').replace('1級のミッションです。','隔離環境・テストアカウントです。実報酬は付与しません。1級のミッションです。'),'text/html; charset=utf-8');
+    return send(200,source.replace(/<script\b(?![^>]*type="module")[^>]*>[\s\S]*?<\/script\s*>/gi,'').replace('<p id="notice">','<p id="notice">隔離環境・テストアカウントです。実報酬は付与しません。'),'text/html; charset=utf-8');
    }
    if(['/daily-missions/mission_play.mjs','/daily-missions/mission_flow.mjs'].includes(url.pathname))return send(200,await readFile(new URL('../../'+url.pathname.slice(1),import.meta.url)),'text/javascript; charset=utf-8');
    if(url.pathname==='/daily-missions/mission_browser_client.mjs')return send(200,`export function createBrowserMissionClient(){const request=async(path,body)=>{const r=await fetch('/api/v1/'+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});const data=await r.json();if(!r.ok)throw Object.assign(Error(data.error),{status:r.status});return data;};return {request,prepare:()=>request('missions/learning'),finish:()=>request('missions/learning')};}`,'text/javascript; charset=utf-8');

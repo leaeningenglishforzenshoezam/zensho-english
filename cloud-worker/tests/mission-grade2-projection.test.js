@@ -63,9 +63,9 @@ test('grade 2 sentence projection preserves grade 1 and never substitutes its co
  for(const [slot,category]of [['idioms','idiom_quiz'],['exam','paraphrase_quiz'],['listening','listening'],['reorder','reorder'],['reading','q7']])assert.throws(()=>projectMissionLearning(initial,attempt(category,slot)),/unsupported_attempt/);
 });
 
-test('grade 2 public issuing remains disabled until the complete storage and reward flow is ready',async()=>{
+test('unsupported grade and grade 2 variant are rejected without issuing attempts',async()=>{
  const h=await createOfflineDb();try{
-  await assert.rejects(issueWordAttempt(h.db,'local-test','2',now),/mission_not_supported/);
+  await assert.rejects(issueWordAttempt(h.db,'local-test','3',now),/mission_not_supported/);
   await assert.rejects(issueExamAttempt(h.db,'local-test','2','sentence','a',now),/mission_not_supported/);
   assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM mission_attempts').first()).n,0);
  }finally{h.close();}

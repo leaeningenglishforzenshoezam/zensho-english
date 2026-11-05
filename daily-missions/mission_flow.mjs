@@ -20,7 +20,7 @@ export class MissionFlow {
    if(!p.rewardRequest){const e=await this.client.request('economy');p.rewardRequest={attemptId:a.attemptId,operationId:p.operationId,expectedRevision:e.revision};}
    try{p.reward=await this.client.request(`missions/${a.slot}/claim`,p.rewardRequest);}catch(e){if(e.message==='economy_revision_conflict')p.rewardRequest=null;throw e;}
   }
-  if(p.grade.completed&&!p.bonusChecked){
+  if(p.grade.completed&&a.level==='1'&&!p.bonusChecked){
    if(!p.bonusRequest){const e=await this.client.request('economy');p.bonusRequest={level:a.level,date:a.date,operationId:crypto.randomUUID(),expectedRevision:e.revision};}
    try{p.bonus=await this.client.request('missions/basic-bonus/claim',p.bonusRequest);p.bonusChecked=true;}
    catch(e){if(e.message==='basic_missions_not_completed')p.bonusChecked=true;else{if(e.message==='economy_revision_conflict')p.bonusRequest=null;throw e;}}

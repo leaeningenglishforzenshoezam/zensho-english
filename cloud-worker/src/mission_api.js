@@ -41,7 +41,7 @@ export async function handleMissionDraft(request,env){
   const {userId}=await authenticateSession(request,env.DB);
   if(!(await env.RATE_LIMITER.limit({key:'user:'+userId})).success)return reply({error:'rate_limited'},429);
   if(path==='/api/v1/missions/learning')return reply(await readMissionLearning(env.DB,userId));
-  if(path==='/api/v1/missions/status')return reply(await readMissionStatus(env.DB,userId));
+  if(path==='/api/v1/missions/status')return reply(await readMissionStatus(env.DB,userId,Date.now(),new URL(request.url).searchParams.get('level')||'1'));
   if(path==='/api/v1/economy')return reply(await readEconomy(env.DB,userId));
   if(path==='/api/v1/economy/loadouts')return reply(await readLoadouts(env.DB,userId));
   if(path==='/api/v1/economy/bonus')return reply(await readBonusStatus(env.DB,userId));

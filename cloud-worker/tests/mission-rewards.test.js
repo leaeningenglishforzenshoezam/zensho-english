@@ -48,7 +48,7 @@ test('Local D1: private answers, immutable scores, daily reward race, isolation,
  assert.equal((await readEconomy(db,'a')).state.shards,3);
  await assert.rejects(issueWordAttempt(db,'a','1',start,()=>.5,'unknown'),/mission_not_supported/);
  const other=await issue('b');await submitWordAttempt(db,'b',other.attemptId,await answers(other.attemptId,'b'),start+10);await claimWordReward(db,'b',other.attemptId,'claim_00000000002',0,start+20);assert.equal((await readEconomy(db,'b')).state.shards,3);
- await assert.rejects(issueWordAttempt(db,'a','2',start),/mission_not_supported/);
+ await assert.rejects(issueWordAttempt(db,'a','3',start),/mission_not_supported/);
  const midnight=Date.parse('2026-10-11T15:00:00Z'),late=await issue('a',midnight-1);await assert.rejects(submitWordAttempt(db,'a',late.attemptId,await answers(late.attemptId),midnight),/attempt_expired/);
  const next=await issue('a',midnight);assert.equal(next.rangeStart,21);assert.equal(next.date,'2026-10-12');await submitWordAttempt(db,'a',next.attemptId,await answers(next.attemptId),midnight+10);
  const winningOperation=(await db.prepare('SELECT operation_id FROM mission_reward_claims WHERE user_id=? AND attempt_id=?').bind('a',success.attemptId).first()).operation_id;
@@ -73,7 +73,7 @@ test('Local D1: private answers, immutable scores, daily reward race, isolation,
  assert.equal((await handleMissionDraft(request('/api/v1/economy',sa.token),{...apiEnv,MISSION_REWARDS_TEST_ENABLED:false})).status,404);
  assert.equal((await call('/api/v1/economy','gs1_'+'0'.repeat(64))).status,401);
  assert.equal((await call('/api/v1/missions/words/start',sa.token,{level:'1',userId:'b'})).status,400);
- assert.equal((await call('/api/v1/missions/words/start',sa.token,{level:'2'})).status,400);
+ assert.equal((await call('/api/v1/missions/words/start',sa.token,{level:'3'})).status,400);
  assert.equal((await call('/api/v1/missions/words/start',sa.token,{level:'1',pad:'x'.repeat(5000)})).status,413);
  const issuedResponse=await call('/api/v1/missions/words/start',sa.token,{level:'1'});assert.equal(issuedResponse.status,200);const issued=await issuedResponse.json();
  assert.equal((await call('/api/v1/missions/words/submit',sb.token,{attemptId:issued.attemptId,answers:Array(20).fill(0)})).status,404);

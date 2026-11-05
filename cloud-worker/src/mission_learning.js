@@ -23,8 +23,7 @@ function read(data,key){if(!Object.hasOwn(data,key))return {};try{return record(
 export function projectMissionLearning(snapshot,attempt){
  validateSnapshot(snapshot);const next=structuredClone(snapshot),data=next.data;
  if(!['1','2'].includes(attempt.level)||attempt.submission_json===null||!Number.isInteger(attempt.score))throw Error('attempt_not_submitted');
- // Grade 2 projection preparation only: issuing/claiming grade 2 attempts remains
- // disabled until schema, reward rules and player routes are ready together.
+ // Grade 2 supports only the formats already available in its learning bank.
  if(attempt.level==='2'&&!(attempt.slot==='words'&&['quiz_enja','quiz_jaen','audio_quiz'].includes(attempt.category)||attempt.slot==='exam'&&attempt.category==='sentence'))throw Error('unsupported_attempt');
  const level=attempt.level,bank=level==='2'?words2:words;
  const p=JSON.parse(attempt.private_json),answers=JSON.parse(attempt.submission_json);

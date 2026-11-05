@@ -7,17 +7,17 @@ import {createMissionAccountClient} from '../../daily-missions/mission_account_c
 import {MissionFlow} from '../../daily-missions/mission_flow.mjs';
 import {validateSnapshot,isAllowedKey} from '../src/validation.js';
 
-test('real session adapter: normal save → mission growth/reward → normal save; stale device cannot overwrite',async()=>{
+for(const level of ['1','2'])test('grade '+level+' real session adapter: normal save → mission growth/reward → normal save; stale device cannot overwrite',async()=>{
  const h=await createOfflineDb();try{
   const apiBase='https://mission.test',origin='https://pages.test',session=await createSession(h.db,'local-test');
   const limiter={limit:async()=>({success:true})},env={DB:h.db,ALLOWED_ORIGIN:origin,MISSION_RELEASE_ENABLED:'true',RATE_LIMITER:limiter,AUTH_RATE_LIMITER:limiter};
   const send=(url,options={})=>release.fetch(new Request(url,{...options,headers:{...options.headers,Origin:origin}}),env);
   for(const path of ['learning/sync','companion/action'])assert.equal((await send(apiBase+'/api/v1/missions/'+path,{method:'POST',headers:{Authorization:'Bearer '+session.token,'Content-Type':'application/json'},body:'{}'})).status,404);
-  const key='zensho_goimon_current_v4_lv1';
+  const key='zensho_goimon_current_v4_lv'+level;
   const pet={id:'saved-pet',stage:'egg',type:'nagomi',specialRoute:'',stats:{chie:20,kotoba:0,onkan:0,bunmyaku:0},totalPoints:20,level:2,pendingEvolution:false};
   let profile={revision:0,base:{},data:{[key]:JSON.stringify(pet),deviceOnly:'retained'}};
   const client=createMissionAccountClient({apiBase,account:session.userId,credential:()=>({...session,apiBase}),activeAccount:()=>session.userId,profiles:{account:session.userId,isWriter:()=>true,read:()=>structuredClone(profile),write:(_,p)=>profile=p,recovery:()=>{},cloudData:data=>Object.fromEntries(Object.entries(data).filter(([k])=>isAllowedKey(k)))},schema:{validate:validateSnapshot,allowed:isAllowedKey},fetch:send,lock:async(_,fn)=>fn()});
-  const flow=new MissionFlow(client),a=await flow.start('words',{level:'1',mode:'enja'});
+  const flow=new MissionFlow(client),a=await flow.start('words',{level,mode:'enja'});
   const stale=structuredClone(profile);
   const row=await h.db.prepare('SELECT private_json FROM mission_attempts WHERE user_id=? AND attempt_id=?').bind(session.userId,a.attemptId).first();
   const r=await flow.finish(JSON.parse(row.private_json).questions.map(q=>q.answer));
