@@ -1,4 +1,4 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';import {getPlatformProxy} from 'wrangler';
+import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';import {createLocalPlatform} from '../dev/local-platform.js';
 import worker from '../src/index.js';import {createSession} from '../src/session.js';import {validateProfile} from '../src/profile.js';
 test('Profile validation requires student fields and bounds names',()=>{
  const p={username:'  みかん  ',role:'student',grade:'2',examLevel:'1'};assert.equal(validateProfile(p).username,'みかん');
@@ -6,7 +6,7 @@ test('Profile validation requires student fields and bounds names',()=>{
  assert.deepEqual(validateProfile({...p,role:'teacher'}),{username:'みかん',role:'teacher',grade:null,examLevel:null});
 });
 test('Real D1 profile API: isolation, CAS conflict and limits preserve learning saves',async()=>{
- const mf=await getPlatformProxy({configPath:new URL('../wrangler.jsonc',import.meta.url).pathname,persist:false});
+ const mf=await createLocalPlatform();
  try{const DB=mf.env.DB;for(const f of ['0001_initial.sql','0002_sessions.sql','0003_user_profiles.sql','0005_profile_avatar.sql'])for(const sql of (await readFile(new URL('../migrations/'+f,import.meta.url),'utf8')).split(';').map(x=>x.trim()).filter(Boolean))await DB.prepare(sql).run();
  for(const id of ['a','b'])await DB.prepare('INSERT INTO users(id,google_sub) VALUES (?,?)').bind(id,'sub-'+id).run();
  await DB.prepare('INSERT INTO saves(user_id,save_json) VALUES (?,?)').bind('a','{"untouched":true}').run();

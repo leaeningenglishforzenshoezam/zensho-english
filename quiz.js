@@ -1,3 +1,6 @@
+const GOIMON_DAILY_RESULT_ACCOUNT = window.GOIMONProfiles?.account || "guest";
+function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
+// Daily mission result origin: capture account when this quiz script starts.
 // quiz.js（英→日）ゴイモン版 完全版
 // Block＋3モード＋順番続き＋級ごと保存＋横断ブロック記録＋URLパラメータ（範囲/弱点/自動開始）
 // ★正解=緑/不正解=赤、正解ピンポン/不正解ブッブー、1問1回だけ押せる（連打防止）
@@ -728,6 +731,7 @@ function getSelectedWordIndexes() {
 }
 
 function getActiveIndexes(s, e) {
+  if(dailyMissionRequest())return Array.from({length:e-s+1},(_,i)=>s+i);
   const selected = getSelectedWordIndexes();
 
   if (selected.length) {
@@ -1086,9 +1090,10 @@ clearBlocksBtn?.addEventListener("click", () => {
       if (session.retryOrder.length === 0) return null;
       idx = session.retryOrder.shift();
     } else {
-      idx = pickCorrectIndex(s, e);
+      if(dailyMissionRequest() && Array.isArray(session.dailyMissionOrder)){if(!session.dailyMissionOrder.length)return null;idx=session.dailyMissionOrder.shift();}
+      else idx = pickCorrectIndex(s, e);
 
-      if (weakMode && quizMode !== "order") {
+      if (!dailyMissionRequest() && weakMode && quizMode !== "order") {
         const weakIdxs = [];
 
         for (let i = s; i <= e; i++) {
@@ -1508,7 +1513,24 @@ resultEl.innerHTML = `
     });
   }
 
-  function finishSession() {
+
+  // デイリーミッション連携（開発ブランチ限定・報酬付与なし）
+  function dailyMissionRequest() {
+    const p = new URLSearchParams(location.search);
+    const start = Number(p.get("start")), end = Number(p.get("end"));
+    if (p.get("dailyMission") !== "words" || !Number.isInteger(start) || !Number.isInteger(end) || end-start!==19) return null;
+    return {start,end,level:String(LV),category:"quiz_enja",day:p.get("missionDate")};
+  }
+  function saveDailyMissionResult(attempts) {
+    const request = dailyMissionRequest();
+    if(!request || !Array.isArray(attempts)) return;
+    const clean=attempts.map(a=>({no:a.no,isCorrect:a.isCorrect}));
+    const payload={...request,attempts:clean,finishedAt:new Date().toISOString(),missionAccount:GOIMON_DAILY_RESULT_ACCOUNT};
+    try {window.GoimonDailyResultStore.store("goimon_daily_mission_latest_result_v1",JSON.stringify(goimonDailyStamped(payload)));}catch(_){}
+  }
+ 
+  function finishSession() { 
+    if(askedLog.length===20) saveDailyMissionResult(askedLog);
     session.active = false;
 
     showSummaryView();
@@ -1527,6 +1549,7 @@ resultEl.innerHTML = `
     session.correct = 0;
     session.active = true;
     session.retryOrder = null;
+    if(dailyMissionRequest())session.dailyMissionOrder=shuffle(Array.from({length:20},(_,i)=>session.start+i));
 
     askedSet.clear();
     askedLog = [];
@@ -1553,6 +1576,7 @@ resultEl.innerHTML = `
     session.correct = 0;
     session.limit = askedLog.length;
     session.retryOrder = askedLog.map(item => item.no - 1);
+    if(dailyMissionRequest())session.dailyMissionOrder=null;
 
     askedSet.clear();
     askedLog = [];
@@ -1609,6 +1633,8 @@ resultEl.innerHTML = `
 
   startBtn.addEventListener("click", () => {
 
+    const mission=dailyMissionRequest();
+    if(mission){rangeStartEl.value=String(mission.start);rangeEndEl.value=String(mission.end);limitEl.value='20';}
     const selectedBlockIds = getSelectedBlockIds();
 
 if (!selectedBlockIds.length) {
@@ -1630,6 +1656,10 @@ if (!selectedBlockIds.length) {
     session.correct = 0;
     session.active = true;
     session.retryOrder = null;
+    session.dailyMissionOrder=dailyMissionRequest()?shuffle(Array.from({length:20},(_,i)=>session.start+i)):null;
+    const review=new URLSearchParams(location.search).get('reviewIds');
+    if(review){session.retryOrder=[...new Set(review.split(',').map(Number))].filter(n=>Number.isInteger(n)&&words[n-1]).map(n=>n-1);session.limit=session.retryOrder.length;session.start=0;session.end=words.length-1;}
+
 
     askedSet.clear();
     askedLog = [];
@@ -1733,7 +1763,9 @@ if (!selectedBlockIds.length) {
     }
   });
 
-  function applyQuery() {
+  function applyQuery() { 
+    const daily=dailyMissionRequest(); 
+    if(daily){limitEl.value='20';}
 
   const p =
     new URLSearchParams(

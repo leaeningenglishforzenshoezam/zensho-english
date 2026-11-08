@@ -11,11 +11,15 @@
     /^zensho_(accent_(weak|manual_weak)_v1|audio_quiz_weak_v1|sentence_fixed_weak_v2)_lv[12]$/,
     /^zensho_idiom_quiz_(weak_meaning|weak_synonym|weak_expression_from_meaning|manual_weak)_v1_lv[12]$/,
     /^zensho_paraphrase_quiz_(weak|manual_weak)_v1_lv[12]$/,
+    /^zensho_q11_grammar_weak_v1_lv2$/,
     /^zensho_reorder_(bonus_stat|auto_weak|manual_weak)_v1_lv[12]$/,
     /^q7(SetHistory|VocabHistory)_v1$/,
     /^q10(ReadingCompletionState|WeakExpressions|QuestionHistory)_v1$/,
     /^dialogue(CompletionState|QuestionHistory)_v1$/,
-    /^goimon_dialogue_history_v2$/
+    /^goimon_daily_cloud_state_v1_lv[12]$/,
+    /^goimon_dialogue_history_v2$/,
+    /^goimon_quest_chapter[12]_v1_lv1$/,
+    /^goimon_adventure_profile_v2$/
   ];
   const allowed = k => typeof k==='string' && patterns.some(p=>p.test(k));
   function safeTree(v, depth=0) {
@@ -32,6 +36,14 @@
       if(!allowed(k)||typeof v!=='string') throw Error('invalid_save_key_or_value');
       if(/reorder_bonus_stat/.test(k)){if(!['wisdom','word','sound','context','chie','kotoba','onkan','bunmyaku'].includes(v)) throw Error('invalid_bonus_stat');}
       else {let parsed; try{parsed=JSON.parse(v);}catch{throw Error('invalid_json_value');} safeTree(parsed);
+        if(k==='goimon_adventure_profile_v2'&&(!parsed||!['male','female','unanswered'].includes(parsed.gender)))throw Error('invalid_adventure_profile');
+        if(/^goimon_quest_chapter[12]_v1_lv1$/.test(k)){
+          if(!parsed||parsed.version!==1||typeof parsed.scriptVersion!=='string'||!Number.isSafeInteger(parsed.revision)||parsed.revision<0||!Number.isInteger(parsed.scene)||parsed.scene<0||!Number.isInteger(parsed.line)||parsed.line<0||typeof parsed.partnerId!=='string'||!Array.isArray(parsed.read)||parsed.read.some(x=>typeof x!=='string')||!Array.isArray(parsed.cleared)||!['story','battle','defeat','gift','complete'].includes(parsed.mode))throw Error('invalid_quest_record');
+        }
+        if(k.startsWith('goimon_daily_cloud_state_v1_')){
+          if(!root.GoimonDailyCloudState)throw Error('invalid_daily_validator_missing');
+          root.GoimonDailyCloudState.validateCloud(v,k.slice(-1));
+        }
         if(k.includes('mr_uno_unlocked')){if(typeof parsed!=='boolean')throw Error('invalid_boolean');}
         else if(k.includes('hall_count')){if(!Number.isSafeInteger(parsed)||parsed<0)throw Error('invalid_count');}
         else if(k.includes('archive_v4')){if(!Array.isArray(parsed))throw Error('invalid_archive');}

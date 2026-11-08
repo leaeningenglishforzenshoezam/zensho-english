@@ -4,12 +4,16 @@
  const equal=(a,b)=>{const ak=Object.keys(a),bk=Object.keys(b);return ak.length===bk.length&&ak.every(k=>a[k]===b[k]);};
  function create(o){
   const S=o.schema;let running=false,stopped=false;
-  const dirty=p=>!equal(o.cloudData(p.data),p.base||{});
+  function dirty(p){
+   try{return !equal(o.cloudData(p.data),p.base||{});}
+   catch(error){stopped=true;try{o.recovery(p);}catch{}state('error');return false;}
+  }
   function state(kind){o.state(kind);}
   async function run(check=false){
    if(running||stopped||!o.canWrite())return;
    if(!o.credential()){state('auth');return;}
    let meta=o.meta(),now=o.now(),p=o.read(),changed=dirty(p);
+   if(stopped)return;
    if(meta.conflict){stopped=true;state('conflict');return;}
    if(meta.retryAt>now){state('waiting');return;}
    if(changed&&meta.attemptAt&&now-meta.attemptAt<30000){state('pending');return;}
@@ -28,8 +32,13 @@
     // Never replace data held in an active learning UI after user interaction.
     if(!dirty(current)&&o.canApplyRemote()){
      o.recovery(current);const device=Object.fromEntries(Object.entries(current.data).filter(([k])=>!S.allowed(k)));
-     o.write({...current,data:{...device,...remote},base:remote,revision:r.revision});state('saved');o.reload();return;
+     o.write({...current,data:o.restoreData?o.restoreData(device,remote):{...device,...remote},base:remote,revision:r.revision});state('saved');o.reload();return;
     }
+    if(o.mergeRemote&&o.canApplyRemote()){
+     const next=o.mergeRemote(current,remote,r.revision);
+     if(next){o.recovery(current);o.recovery({data:remote,base:remote,revision:r.revision});o.write(next);state(dirty(next)?'pending':'saved');o.reload();return;}
+    }
+    o.recovery(current);o.recovery({data:remote,base:remote,revision:r.revision});
     meta.conflict=true;o.saveMeta(meta);stopped=true;state('conflict');
    }
    try{

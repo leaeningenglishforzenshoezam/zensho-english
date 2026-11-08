@@ -1,3 +1,4 @@
+const GOIMON_DAILY_RESULT_ORIGIN = window.GOIMONProfiles?.account || "guest";
 // listening.js
 // 第1段階：大問3形式・4択リスニング対応版
 // - 設定保存
@@ -4722,7 +4723,7 @@ sessionResults.push({
       ] || null;
 
     if (!currentQuestion) {
-      showSummary();
+      finishSession();
       return;
     }
 
@@ -6167,8 +6168,15 @@ stopAudio();
 
        
 
-    const built =
-      explicitQuestions
+    const daily = new URLSearchParams(location.search);
+    const dailyEnabled=daily.get("dailyMission")==="listening";
+    const review=daily.get('reviewIds'),reviewIds=new Set((review||'').split(','));
+    const built = review ? getQuestionsByFormat().filter(q=>reviewIds.has(String(q.id))||String(q.id)===daily.get('setId')) :
+      dailyEnabled && explicitQuestions ? explicitQuestions.slice() : dailyEnabled ? getQuestionsByFormat().slice().sort((a,b)=>{
+        let history={};try{history=JSON.parse(GOIMONStorage.getItem("goimon_daily_exam_history_v1_lv1_listening:"+getSelectedFormat())||"{}")||{};}catch(_){}
+        const x=history[String(a.id)]||{},y=history[String(b.id)]||{};
+        return Number(x.attempts||0)-Number(y.attempts||0)||Number(x.lastSeen||0)-Number(y.lastSeen||0);
+      }).slice(0,5) : explicitQuestions
         ? [
             ...explicitQuestions
           ]
@@ -6176,6 +6184,7 @@ stopAudio();
             forceWeak
           );
 
+    if (dailyEnabled && built.length !== 5) {window.alert("この大問にはデイリーミッション用の5問が揃っていません。");return;}
     if (!built.length) {
       window.alert(
         forceWeak ||
@@ -6242,6 +6251,11 @@ stopAudio();
   // ============================================================
 
   function finishSession() {
+  const daily=new URLSearchParams(location.search);
+  if(daily.get("dailyMission")==="listening"&&sessionResults.length===5){
+    const attempts=sessionResults.map(x=>({id:String(x.id),correct:x.isCorrect}));
+    try{window.GoimonDailyResultStore.store("goimon_daily_mission_latest_listening_v1",JSON.stringify({day:daily.get("missionDate"),level:"1",category:"listening",format:getSelectedFormat(),attempts,finishedAt:new Date().toISOString(),missionAccount:GOIMON_DAILY_RESULT_ORIGIN}));}catch(_){}
+  }
   stopAudio();
 
   if (
@@ -8803,12 +8817,14 @@ function applyGoimonLearningQuery() {
   );
 
   // 進捗ページから指定した大問の設定画面へ進む。
-  const requestedFormat = new URLSearchParams(location.search).get("format");
+  const searchParams=new URLSearchParams(location.search);
+  const requestedFormat = searchParams.get("format");
   if (["2", "3", "5"].includes(requestedFormat)) {
     formatSelect.value = requestedFormat;
     setSelectedMethod("quiz");
   }
   updatePoolInfo();
+  if(searchParams.get("dailyMission")==="listening"){setSelectedMethod("quiz");orderMode.value="random";questionCount.value="5";if(![2,3,5].includes(Number(requestedFormat)))formatSelect.value="2";}
 
     if (
   !allQuestions.length

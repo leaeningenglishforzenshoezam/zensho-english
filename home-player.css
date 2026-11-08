@@ -1,0 +1,9 @@
+.homePage *, .quest-home * { box-sizing:border-box }
+.homePage .homeWrap { width:100%; max-width:1120px; padding:20px; margin:auto }
+.homePage .trainingMenuCard,.homePage .trainingMenuButtons,.homePage .trainingGroupHead,.homePage .homeLevelCard { min-width:0; max-width:100% }
+.homePage .btn { min-width:0; max-width:100%; white-space:normal; overflow-wrap:anywhere }
+.homePage .trainingMenuButtons .btn::before { content:none }
+.homePage .goimonHomeCard { display:none }
+.homePage .adventure-links { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px }
+.homePage .adventure-links .btn { text-align:center; margin:0 }
+@media(max-width:600px){.homePage .homeWrap{padding:14px}.homePage .trainingMenuGrid{grid-template-columns:minmax(0,1fr)}.homePage .levelBtns{display:flex;flex-wrap:wrap}.homePage .trainingGroupHead>div{min-width:0}.homePage .homeSectionHead{flex-wrap:wrap}}

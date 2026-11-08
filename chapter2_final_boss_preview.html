@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GOIMON QUEST｜第2章 最終戦 配置確認</title>
+<style>
+:root{font-family:system-ui,"Noto Sans JP",sans-serif;color:#f5f6f8;background:#131927}
+*{box-sizing:border-box}body{margin:0;padding:16px;max-width:980px;margin-inline:auto}
+h1{font-size:1.4rem;margin:10px 0}p{line-height:1.6;color:#c8d1dc}
+.battle{position:relative;isolation:isolate;overflow:hidden;aspect-ratio:16/9;border-radius:14px;border:2px solid #52647b;
+background:radial-gradient(ellipse at 55% 45%,#5c6674 0%,#293545 58%,#152232 100%)}
+.battle::before{content:"";position:absolute;inset:0;z-index:-1;background-image:linear-gradient(90deg,transparent 49%,#95a8b122 50%,transparent 51%),linear-gradient(#c0ced015 1px,transparent 1px);background-size:90px 90px;pointer-events:none}
+.scene-image{position:absolute;object-fit:contain;object-position:bottom center;pointer-events:none;filter:drop-shadow(1px 4px 2px #0b0c1388)}
+.bg{inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;filter:none}
+.captive{left:85%;bottom:43%;width:18%;height:44%;z-index:1;transform:translateX(-50%);animation:float 3.4s ease-in-out infinite alternate}
+.enemy{right:7%;bottom:8%;width:46%;height:72%;z-index:2}
+.player{left:3%;bottom:5%;width:35%;height:58%;z-index:3}
+@keyframes float{to{translate:0 -5px}}
+.nameplate{position:absolute;z-index:5;background:#111c2bcf;border:1px solid #92adbd88;border-radius:8px;padding:5px 10px;font-size:clamp(10px,1.7vw,16px);font-weight:700}
+.enemy-label{right:2%;top:4%;width:42%}.player-label{left:2%;bottom:2%}
+.hp{display:block;height:7px;margin-top:5px;border-radius:5px;background:linear-gradient(90deg,#40c38e 0%,#40c38e 76%,#263540 76%)}
+.captive-label{position:absolute;top:7%;left:52%;transform:translateX(-50%);background:#201b31c9;color:#e8d9fa;padding:4px 8px;border-radius:6px;z-index:5;font-size:clamp(9px,1.5vw,13px)}
+.controls{padding:15px;margin-top:15px;border:1px solid #3d4a59;border-radius:12px;background:#1b2836}
+.inputs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}label{font-size:.85rem;color:#d5e4ee}input[type=file]{width:100%;margin-top:5px;font-size:.8rem}
+small{color:#b7c4d3}.note{font-size:.82rem}.fallback{position:absolute;z-index:0;color:#a0acbc;font-weight:700;font-size:clamp(12px,2vw,18px);text-align:center;pointer-events:none}.p{left:5%;bottom:30%;width:27%}.e{right:4%;bottom:39%;width:43%}.c{left:52%;top:31%;width:24%}body:has(#player:not([src=""])) .fallback.p{display:none}body:has(#enemy:not([src=""])) .fallback.e{display:none}body:has(#captive:not([src=""])) .fallback.c{display:none}
+@media(max-width:520px){body{padding:10px}.inputs{grid-template-columns:1fr}.battle{aspect-ratio:4/3}.player{height:53%;width:38%}.enemy{height:66%;width:52%;right:6%}.captive{height:39%;bottom:47%;width:22%;left:85%}}
+@media(prefers-reduced-motion:reduce){.captive{animation:none}}
+</style></head><body>
+<h1>第2章「ふたつの声」最終戦｜配置確認</h1>
+<p>左手前に自分のゴイモン、右手前に黒霧の共鳴獣、敵の後ろ奥にサーヤとトヨヨ。既存の戦闘プログラムや学習・保存データは変更しない独立プレビューです。</p>
+<div class="battle" aria-label="第2章 最終決戦 仮配置">
+<img id="bg" class="scene-image bg" alt="" src="images/chapter2/backgrounds/ch2_control_room.png">
+<div class="fallback p">自分の<br>ゴイモン</div><div class="fallback c">囚われた<br>サーヤとトヨヨ</div><div class="fallback e">黒霧の共鳴獣</div>
+<img id="captive" class="scene-image captive" alt="囚われたサーヤとトヨヨ" src="images/chapter2/events/ch2_boss_captured_saya_toyoyo.png">
+<img id="enemy" class="scene-image enemy" alt="黒霧の共鳴獣" src="images/chapter2/enemies/ch2_boss_beast.png">
+<img id="player" class="scene-image player" alt="仮の相棒ゴイモン" src="images/goimon/hirameki_child.png">
+<div class="captive-label">黒霧に囚われた2人</div>
+<div class="nameplate enemy-label">黒霧の共鳴獣<span class="hp"></span></div>
+<div class="nameplate player-label">自分のゴイモン<span class="hp"></span></div>
+</div>
+<section class="controls"><h2>素材を表示して確認</h2><p class="note">画像がGitHubに未登録の場合でも、手元の画像を下で選ぶと配置を確認できます。読み込んだ画像は送信・保存されません。完成素材は背景透過PNGを推奨します。</p>
+<div class="inputs"><label>自分のゴイモン<input type="file" accept="image/*" data-target="player"></label>
+<label>黒霧の共鳴獣<input type="file" accept="image/*" data-target="enemy"></label>
+<label>サーヤとトヨヨ<input type="file" accept="image/*" data-target="captive"></label>
+<label>背景（古代制御室）<input type="file" accept="image/*" data-target="bg"></label></div>
+<p><small>本ページは配置確認用です。攻撃・防御・問題・技・セーブとの接続はまだ行いません。</small></p></section>
+<script>
+'use strict';
+const owned=new Map();
+for(const input of document.querySelectorAll('input[type=file]')){
+ input.addEventListener('change',()=>{const f=input.files&&input.files[0];if(!f)return;
+ const target=document.getElementById(input.dataset.target),old=owned.get(target.id);
+ if(old)URL.revokeObjectURL(old);
+ const url=URL.createObjectURL(f);owned.set(target.id,url);target.src=url;
+ });
+}
+for(const img of document.querySelectorAll('.scene-image:not(.bg)'))img.addEventListener('error',()=>{if(!owned.has(img.id))img.removeAttribute('src')});
+</script></body></html>

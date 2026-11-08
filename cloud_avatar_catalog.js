@@ -43,117 +43,117 @@
   },
   {
     "id": "hirameki:growth",
-    "name": "フェネークト",
+    "name": "フェネロ",
     "image": "images/goimon/hirameki_growth.png"
   },
   {
     "id": "hirameki:mid",
-    "name": "フェネクスヴィア",
+    "name": "フェネグラ",
     "image": "images/goimon/hirameki_mid.png"
   },
   {
     "id": "hirameki:final",
-    "name": "ディスフェネヴィクトン",
+    "name": "フェネノクス",
     "image": "images/goimon/hirameki_final.png"
   },
   {
     "id": "tsumugi:child",
-    "name": "クラージェ",
+    "name": "ミコラ",
     "image": "images/goimon/tsumugi_child.png"
   },
   {
     "id": "tsumugi:growth",
-    "name": "ジェリアンヌ",
+    "name": "クラージュ",
     "image": "images/goimon/tsumugi_growth.png"
   },
   {
     "id": "tsumugi:mid",
-    "name": "ネクロジェリアルノ",
+    "name": "オンミョーゲ",
     "image": "images/goimon/tsumugi_mid.png"
   },
   {
     "id": "tsumugi:final",
-    "name": "バイオネクロクラゲンゲン",
+    "name": "セイメイラ",
     "image": "images/goimon/tsumugi_final.png"
   },
   {
     "id": "yomitoki:child",
-    "name": "レムー",
+    "name": "レムパス",
     "image": "images/goimon/yomitoki_child.png"
   },
   {
     "id": "yomitoki:growth",
-    "name": "レムールノ",
+    "name": "レムオルド",
     "image": "images/goimon/yomitoki_growth.png"
   },
   {
     "id": "yomitoki:mid",
-    "name": "レムールギアス",
+    "name": "レムトラス",
     "image": "images/goimon/yomitoki_mid.png"
   },
   {
     "id": "yomitoki:final",
-    "name": "クロノレムールヴァイス",
+    "name": "レムインカ",
     "image": "images/goimon/yomitoki_final.png"
   },
   {
     "id": "shirabe:child",
-    "name": "プラティ",
+    "name": "プラチル",
     "image": "images/goimon/shirabe_child.png"
   },
   {
     "id": "shirabe:growth",
-    "name": "プラティ・クゥ",
+    "name": "プラネモ",
     "image": "images/goimon/shirabe_growth.png"
   },
   {
     "id": "shirabe:mid",
-    "name": "プラティ・ボルグ",
+    "name": "プラチラス",
     "image": "images/goimon/shirabe_mid.png"
   },
   {
     "id": "shirabe:final",
-    "name": "ギガ・プラティ・ボルグヌス",
+    "name": "ノーティプス",
     "image": "images/goimon/shirabe_final.png"
   },
   {
     "id": "hibiki:child",
-    "name": "フローア",
+    "name": "ケロル",
     "image": "images/goimon/hibiki_child.png"
   },
   {
     "id": "hibiki:growth",
-    "name": "フロリアーラ",
+    "name": "ゴロッグ",
     "image": "images/goimon/hibiki_growth.png"
   },
   {
     "id": "hibiki:mid",
-    "name": "ソーラーフログリア",
+    "name": "ライゲロ",
     "image": "images/goimon/hibiki_mid.png"
   },
   {
     "id": "hibiki:final",
-    "name": "キングソーラーフログリア",
+    "name": "トルゲロス",
     "image": "images/goimon/hibiki_final.png"
   },
   {
     "id": "kotonoha:child",
-    "name": "オルカン",
+    "name": "カメロン",
     "image": "images/goimon/kotonoha_child.png"
   },
   {
     "id": "kotonoha:growth",
-    "name": "オルカシア",
+    "name": "トリレオン",
     "image": "images/goimon/kotonoha_growth.png"
   },
   {
     "id": "kotonoha:mid",
-    "name": "オルカシッサ",
+    "name": "シルクレオ",
     "image": "images/goimon/kotonoha_mid.png"
   },
   {
     "id": "kotonoha:final",
-    "name": "アストラオルカシオン",
+    "name": "ファントレオ",
     "image": "images/goimon/kotonoha_final.png"
   },
   {

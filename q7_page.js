@@ -1,3 +1,6 @@
+const GOIMON_DAILY_RESULT_ACCOUNT = window.GOIMONProfiles?.account || "guest";
+function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
+// Daily mission result origin: capture account when this quiz script starts.
 (function () {
   "use strict";
 
@@ -780,6 +783,8 @@ document.querySelectorAll(".paragraph-translation")
 
     const correct = score();
     const previous = getHistory(current.id);
+    // Count only a newly graded attempt, never a redraw or restored result.
+    window.ZenshoLearningLog?.addCounts("q7",{attempt:5,correct,wrong:5-correct},{level:"1"});
 
     history[current.id] = {
       attempts: previous.attempts + 1,
@@ -791,6 +796,10 @@ document.querySelectorAll(".paragraph-translation")
 
     save(HISTORY_KEY, history);
     persistSession();
+    const dp=new URLSearchParams(location.search);
+    if(dp.get("dailyMission")==="reading"&&dp.get("setId")===current.id){
+      try{window.GoimonDailyResultStore.store("goimon_daily_mission_latest_reading_v1",JSON.stringify(goimonDailyStamped({level:"1",day:dp.get("missionDate"),category:"q7",setId:current.id,correct,total:5,finishedAt:new Date().toISOString(),missionAccount:GOIMON_DAILY_RESULT_ACCOUNT})));}catch(_){}
+    }
 
     renderQuestions();
     update();
@@ -906,4 +915,6 @@ document.querySelectorAll(".paragraph-translation")
   });
 
   renderSetList();
+  const daily=new URLSearchParams(location.search);
+  if((daily.get("dailyMission")==="reading"||daily.has("reviewIds"))&&sets.some(set=>set.id===daily.get("setId")))begin(daily.get("setId"));
 })();

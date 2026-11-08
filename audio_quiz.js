@@ -1,3 +1,6 @@
+const GOIMON_DAILY_RESULT_ACCOUNT = window.GOIMONProfiles?.account || "guest";
+function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
+// Daily mission result origin: capture account when this quiz script starts.
 // audio_quiz.js
 // 音声→意味4択クイズ
 // - 英単語を音で聞いて、日本語の意味を4択で選ぶ
@@ -341,6 +344,7 @@ function renderBlockStats() {
   const lo = Math.min(s, e);
   const hi = Math.max(s, e);
 
+  const review=new URLSearchParams(location.search).get("reviewIds"),reviewNos=new Set((review||"").split(",").map(Number));
   const allowedNos = new Set(getSelectedWordNos());
   const pool = [];
   const seenEn = new Set();
@@ -348,8 +352,7 @@ function renderBlockStats() {
   for (let i = 0; i < WORDS.length; i++) {
     const no = i + 1;
 
-    if (no < lo || no > hi) continue;
-    if (!allowedNos.has(no)) continue;
+    if(review){if(!reviewNos.has(no))continue;}else{if (no < lo || no > hi) continue;if (!allowedNos.has(no)) continue;}
 
     const en = String(WORDS[i]?.en || "").trim();
     const ja = String(WORDS[i]?.ja || "").trim();
@@ -1126,7 +1129,24 @@ function restoreSuspendedQuestion() {
   scrollPlayToTop();
 }
 
-  function finishSession(autoWeakEnd) {
+
+  // デイリーミッション連携（開発ブランチ限定・報酬付与なし）
+  function dailyMissionRequest() {
+    const p = new URLSearchParams(location.search);
+    const start = Number(p.get("start")), end = Number(p.get("end"));
+    if (p.get("dailyMission") !== "words" || !Number.isInteger(start) || !Number.isInteger(end) || end-start!==19) return null;
+    return {start,end,level:String(LV),category:"audio_quiz",day:p.get("missionDate")};
+  }
+  function saveDailyMissionResult(attempts) {
+    const request = dailyMissionRequest();
+    if(!request || !Array.isArray(attempts)) return;
+    const clean=attempts.map(a=>({no:a.no,isCorrect:a.isCorrect}));
+    const payload={...request,attempts:clean,finishedAt:new Date().toISOString(),missionAccount:GOIMON_DAILY_RESULT_ACCOUNT};
+    try {window.GoimonDailyResultStore.store("goimon_daily_mission_latest_result_v1",JSON.stringify(goimonDailyStamped(payload)));}catch(_){}
+  }
+ 
+  function finishSession(autoWeakEnd) { 
+    if(askedLog.length===20)saveDailyMissionResult(askedLog);
     showSummary();
     const tail = (session.mode === "weak" && autoWeakEnd) ? "（この回の苦手出題が終わりました）" : "";
     summaryLine.textContent = `結果：${session.correct} / ${session.answered}（${modeLabel(session.mode)}｜範囲 ${session.startNo}〜${session.endNo}｜${LV}級）${tail}`;
@@ -1167,6 +1187,7 @@ function restoreSuspendedQuestion() {
     session.limit = askedSet.length;
     session.answered = 0;
     session.correct = 0;
+    if(dailyMissionRequest())session.mode="random";
     session.autoPlay = !!autoPlay.checked;
     session.askedSet = [];
 
@@ -1191,7 +1212,8 @@ function restoreSuspendedQuestion() {
     let limit = clamp(limitCount.value, 1, 999999);
     const pool = buildPool(startNo, endNo);
 
-    if (pool.length < 4) {
+    if (dailyMissionRequest() && pool.length!==20){showError("ミッション指定の20語を用意できません。ブロックと単語データを確認してください。");return;}
+    if (pool.length < 4 && !new URLSearchParams(location.search).has("reviewIds")) {
       showError("この範囲では4択を作るのに十分な単語数がありません。範囲を広げてください。");
       return;
     }
@@ -1242,6 +1264,7 @@ function restoreSuspendedQuestion() {
       }
     }
 
+    if(new URLSearchParams(location.search).has("reviewIds")){session.order=pool.map((_,i)=>i);session.cursor=0;limit=pool.length;}
     limit = Math.min(limit, session.order.length);
     session.limit = limit;
 
@@ -1654,7 +1677,8 @@ function init() {
 
     renderBlockSelect();
 applySelectedBlockToRange();
-applyProgressRangeQuery();
+applyProgressRangeQuery(); 
+    if(dailyMissionRequest()){const m=dailyMissionRequest();limitCount.value='20';modeSelect.value='random';rangeStart.value=String(m.start);rangeEnd.value=String(m.end);blockSelect.querySelectorAll('input[type=checkbox]').forEach(el=>{const b=BLOCKS.find(x=>String(x.id)===String(el.value));if(b)el.checked=Number(b.end)>=m.start&&Number(b.start)<=m.end;});updateSetupInfo();}
 
     const settings = loadSettings();
     autoPlay.checked = !!settings.autoPlay;

@@ -1,0 +1,53 @@
+diff --git a/checks/skill-balance.test.cjs b/checks/skill-balance.test.cjs
+index fda89d3..b7c02e0 100644
+--- a/checks/skill-balance.test.cjs
++++ b/checks/skill-balance.test.cjs
+@@ -2,8 +2,8 @@ const test=require('node:test'),assert=require('node:assert/strict');
+ const C=require('../dist/battle-prototype/catalog.js'),E=require('../dist/battle-prototype/core.js');
+ function battle(id){const skill=C.skills.find(s=>s.id===id);const p=E.actor(C.species.find(s=>s.id==='hirameki'),1,{chie:0,kotoba:0,bunmyaku:0,onkan:0},null,[skill]);p.speed=999;const e={id:'test',attr:'mirage',hp:99999,maxHp:99999,attack:20,reference:20,defense:20,speed:1,skillTurns:0};return E.create(p,e,()=>.5);}
+ const answer=(b,cmd,correct)=>E.resolve(b,cmd,correct,{elapsedMs:Infinity,rng:()=>.5});
+-test('Harmony has meaningful damage and halves one enemy hit',()=>{const b=battle('N_harmony'),normal=battle('N_harmony');const hp=b.enemy.hp;answer(b,'skill:0',true);answer(normal,'normal',true);assert.ok(hp-b.enemy.hp>=(hp-normal.enemy.hp)*1.5);const before=b.player.hp,other=normal.player.hp;answer(b,'normal',true);answer(normal,'normal',true);assert.ok(Math.abs((before-b.player.hp)*2-(other-normal.player.hp))<=1);assert.equal(b.player.shield.hits,0);assert.equal(b.player.skills[0].left,2);});
++test('Harmony has modest damage and halves one enemy hit',()=>{const b=battle('N_harmony'),normal=battle('N_harmony');const hp=b.enemy.hp;answer(b,'skill:0',true);answer(normal,'normal',true);assert.ok(Math.abs((hp-b.enemy.hp)/(hp-normal.enemy.hp)-1.21)<.06);const before=b.player.hp,other=normal.player.hp;answer(b,'normal',true);answer(normal,'normal',true);assert.ok(Math.abs((before-b.player.hp)*2-(other-normal.player.hp))<=1);assert.equal(b.player.shield.hits,0);assert.equal(b.player.skills[0].left,2);});
+ test('Cure heals more than N healing without exceeding maximum',()=>{const b=battle('heal');b.player.hp=1;answer(b,'skill:0',true);assert.equal(b.player.hp,67);assert.equal(b.player.skills[0].left,2);});
+ test('preparation survives wrong answer and is consumed on next correct attack',()=>{const b=battle('N_observe');answer(b,'skill:0',true);assert.equal(b.player.nextPower,1.8);b.index=0;answer(b,'normal',false);assert.equal(b.player.nextPower,1.8);b.index=0;answer(b,'normal',true);assert.equal(b.player.nextPower,1);});
+-test('saved definitions refresh without refunding uses or changing HP',()=>{const b=battle('N_harmony');Object.assign(b.player.skills[0],{power:1,shieldFactor:.65,left:0});b.player.hp=12;E.refreshSkills(b.player,C);assert.equal(b.player.skills[0].power,1.5);assert.equal(b.player.skills[0].left,0);assert.equal(b.player.skills[0].maxUses,3);assert.equal(b.player.hp,12);});
++test('saved definitions refresh without refunding uses or changing HP',()=>{const b=battle('N_harmony');Object.assign(b.player.skills[0],{power:1,shieldFactor:.65,left:0});b.player.hp=12;E.refreshSkills(b.player,C);assert.equal(b.player.skills[0].power,1.1);assert.equal(b.player.skills[0].left,0);assert.equal(b.player.skills[0].maxUses,3);assert.equal(b.player.hp,12);});
+ test('all 51 skills retain identifiers and consistent descriptions',()=>{assert.equal(C.skills.length,51);assert.equal(new Set(C.skills.map(s=>s.id)).size,51);for(const s of C.skills){assert.ok(s.description.includes('使用可能回数：'+s.uses));if(s.power)assert.ok(s.description.includes('攻撃倍率'+Number((s.power*1.1).toFixed(3))+'倍'));}});
+diff --git a/dist/battle-prototype/catalog.js b/dist/battle-prototype/catalog.js
+index 22202ed..26250e3 100644
+--- a/dist/battle-prototype/catalog.js
++++ b/dist/battle-prototype/catalog.js
+@@ -760,13 +760,13 @@
+       "shieldHits": 1,
+       "shieldFactor": 0.5,
+       "wrongShieldFactor": 0.85,
+-      "power": 1.5,
+-      "description": "正解で攻撃倍率1.65倍。次の敵攻撃1回を正解で50％、不正解で15％軽減。 使用可能回数：3回。",
++      "power": 1.1,
++      "description": "正解で攻撃倍率1.21倍。次の敵攻撃1回を正解で50％、不正解で15％軽減。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "影たちと息を合わせて攻め、守りも整える。一体だけ、合唱の練習だと思って歌っている。",
+         "en": "Attack in harmony with your shadows and build your guard. One shadow thinks this is choir practice."
+       },
+-      "descriptionEn": "Attack multiplier 1.65 on a correct answer. Reduce the next 1 enemy hit(s) by 50% (wrong answer: 15%). Uses: 3.",
++      "descriptionEn": "Attack multiplier 1.21 on a correct answer. Reduce the next 1 enemy hit(s) by 50% (wrong answer: 15%). Uses: 3.",
+       "tactic": "long",
+       "questionFormat": "q3"
+     },
+@@ -995,13 +995,13 @@
+       "shieldHits": 1,
+       "shieldFactor": 0.5,
+       "wrongShieldFactor": 0.85,
+-      "power": 1.5,
+-      "description": "正解で攻撃倍率1.65倍。次の敵攻撃1回を正解で50％、不正解で15％軽減。 使用可能回数：3回。",
++      "power": 1.1,
++      "description": "正解で攻撃倍率1.21倍。次の敵攻撃1回を正解で50％、不正解で15％軽減。 使用可能回数：3回。",
+       "flavor": {
+         "ja": "盾を前に出して攻め、身を守る。鍋のふたを見て思いついたので、構えが少し料理人っぽい。",
+         "en": "Defend yourself with a shield as you attack. A pot lid gave you the idea, so you look a little like a cook."
+       },
+-      "descriptionEn": "Attack multiplier 1.65 on a correct answer. Reduce the next 1 enemy hit(s) by 50% (wrong answer: 15%). Uses: 3.",
++      "descriptionEn": "Attack multiplier 1.21 on a correct answer. Reduce the next 1 enemy hit(s) by 50% (wrong answer: 15%). Uses: 3.",
+       "tactic": "guard",
+       "questionFormat": "q3"
+     },

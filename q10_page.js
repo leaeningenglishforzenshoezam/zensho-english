@@ -1,3 +1,4 @@
+const GOIMON_DAILY_RESULT_ORIGIN = window.GOIMONProfiles?.account || "guest";
 "use strict";
 
 /* =========================================================
@@ -277,6 +278,27 @@ function applyGoimonLearningQuery() {
   return true;
 }
 
+function applyDailyReadingQuery() {
+  const p = new URLSearchParams(location.search);
+  if (p.get("dailyMission") !== "reading" && !p.has("reviewIds")) return false;
+  const setId = p.get("setId");
+  const selected = q10Questions.find(q => String(q.id) === setId);
+  if (!selected) return false;
+  currentSettings = {order:"order",startNumber:Number(selected.number),endNumber:Number(selected.number)};
+  currentQuestionIndex = 0;
+  choiceOrders = {};
+  createQuestionSet();
+  if(questionSet.length !== 1 || String(questionSet[0].id)!==setId) return false;
+  sessionStarted = true;
+  settingsModalOverlay.hidden = true;
+  settingsModal.hidden = true;
+  document.body.classList.remove("setup-mode");
+  restoreBodyScroll();
+  saveState();
+  renderCurrentQuestion();
+  return true;
+}
+
 function initializeQ10Page() {
   validateQuestionData();
 
@@ -308,7 +330,7 @@ function initializeQ10Page() {
   "setup-mode"
 );
 
-if (!applyGoimonLearningQuery()) {
+if (!applyDailyReadingQuery() && !applyGoimonLearningQuery()) {
   openSettingsModal();
 }
 }
@@ -1544,6 +1566,14 @@ function checkCurrentAnswers() {
     details,
     checkedAt: Date.now()
   };
+  const dailyParams = new URLSearchParams(location.search);
+  if(dailyParams.get("dailyMission")==="reading" && dailyParams.get("setId")===String(question.id)){
+    try{window.GoimonDailyResultStore.store("goimon_daily_mission_latest_reading_v1",JSON.stringify({
+      day:dailyParams.get("missionDate"),level:"1",category:"q10",setId:String(question.id),
+      correct:score,total:5,finishedAt:new Date().toISOString(),missionAccount:GOIMON_DAILY_RESULT_ORIGIN
+    }));}catch(_){}
+  }
+
 
   // ★ v1.1 共通学習ログ
 if (typeof window.zenshoLogAdd === "function") {

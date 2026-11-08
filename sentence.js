@@ -1,3 +1,6 @@
+const GOIMON_DAILY_RESULT_ACCOUNT = window.GOIMONProfiles?.account || "guest";
+function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
+// Daily mission result origin: capture account when this quiz script starts.
 // sentence.js（丸ごと置き換え）
 // 固定問題（window.SENTENCE_FIXED）だけで動く版
 // - 音読（読み上げ）は通常時は () を削除した文字列で行う
@@ -309,6 +312,7 @@ const weakPinEmptyEl = document.getElementById("weakPinEmpty");
   const lv = String(window.ACTIVE_LEVEL || GOIMONStorage.getItem("zensho_level_v1") || "1");
 
 function getSentenceSetMode() {
+  if(new URLSearchParams(location.search).has("reviewIds"))return "mix";
   const v = String(sentenceSetModeEl?.value || "a");
   if (v === "b" || v === "mix") return v;
   return "a";
@@ -1116,7 +1120,9 @@ function updatePoolInfo() {
   rebuildFixedData();
 
   const ids = getSelectedBlockIds();
-  const eligible = buildEligibleQuestionsBySelectedBlocks();
+  const review=new URLSearchParams(location.search).get('reviewIds');
+  const reviewIds=new Set((review||'').split(','));
+  const eligible = review?fixed.map((q,i)=>reviewIds.has(String(q.id))?i:-1).filter(i=>i>=0):buildEligibleQuestionsBySelectedBlocks();
 
   if (!ids.length) {
     poolInfo.textContent = "Blockを1つ以上選んでください。";
@@ -2332,7 +2338,13 @@ function renderSummary(autoCleared) {
   renderWrongSummary();
 }
 
+  function saveDailyExamResult(){
+    const q=new URLSearchParams(location.search);if(q.get("dailyMission")!=="exam"||q.get("missionDate")==null||askedLog.length!==10)return;
+    const attempts=askedLog.map(a=>({id:String(a.qId),correct:a.isCorrect}));
+    try{window.GoimonDailyResultStore.store("goimon_daily_mission_latest_exam_v1",JSON.stringify(goimonDailyStamped({day:q.get("missionDate"),level:String(lv),category:"sentence",finishedAt:new Date().toISOString(),attempts})));}catch(_){}
+  }
   function finishSession(autoCleared) {
+    saveDailyExamResult();
     showSummary();
     renderSummary(autoCleared);
 
@@ -2341,6 +2353,13 @@ function renderSummary(autoCleared) {
     retryWeakBtn.disabled = (weakCounts().total === 0);
   }
 
+  function dailyExamRankIds(ids,category){
+    let history={};try{history=JSON.parse(GOIMONStorage.getItem("goimon_daily_exam_history_v1_lv"+String(lv)+"_"+category)||"{}")||{};}catch(_){}
+    return ids.slice().sort((a,b)=>{
+      const x=history[String(a)]||{},y=history[String(b)]||{};
+      return Number(x.attempts||0)-Number(y.attempts||0)||Number(x.lastSeen||0)-Number(y.lastSeen||0);
+    });
+  }
   function startNormalSession() {
   rebuildFixedData();
 
@@ -2351,13 +2370,17 @@ function renderSummary(autoCleared) {
     return;
   }
 
-  const eligible = buildEligibleQuestionsBySelectedBlocks();
+  const review=new URLSearchParams(location.search).get('reviewIds');
+  const reviewIds=new Set((review||'').split(','));
+  const eligible = review?fixed.map((q,i)=>reviewIds.has(String(q.id))?i:-1).filter(i=>i>=0):buildEligibleQuestionsBySelectedBlocks();
 
   if (!eligible.length) {
     alert("この条件では出題できる問題がありません。Blockや単語No.の範囲を確認してください。");
     return;
   }
 
+  const dailyExam=new URLSearchParams(location.search).get('dailyMission')==='exam';
+  if(dailyExam){countInput.value='10';orderModeEl.value='random';}
   let limit = Number(countInput.value);
   if (!Number.isFinite(limit) || limit < 1) limit = 20;
   if (eligible.length > 0) limit = Math.min(limit, eligible.length);
@@ -2374,7 +2397,7 @@ function renderSummary(autoCleared) {
   session.orderMode = String(orderModeEl.value || "continue");
 
   if (session.orderMode === "random") {
-  session.order = shuffle(eligible);
+  session.order = dailyExam ? dailyExamRankIds(eligible.map(i=>fixed[i]?.id),"sentence").map(id=>eligible.find(i=>fixed[i]?.id===id)) : shuffle(eligible);
   session.cursor = 0;
 } else if (session.orderMode === "weak_order") {
   session.order = sortWeakQuestionIndexes(eligible);
@@ -2389,6 +2412,7 @@ function renderSummary(autoCleared) {
   }
 }
 
+  if(review){session.order=[...eligible];session.cursor=0;session.limit=eligible.length;}
   session.autoRead = !!autoReadEl.checked;
   session.askedOrder = [];
 

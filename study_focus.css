@@ -1,0 +1,27 @@
+/* Shared compact quiz chrome; setup pages and learning data are untouched. */
+#playBox.study-focus{scroll-margin-top:72px}
+#playBox.study-focus .study-focus-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;position:relative}
+#playBox.study-focus .study-focus-count{font-size:14px;font-weight:750;color:#294c3d;margin-right:auto;white-space:nowrap}
+#playBox.study-focus .study-focus-bar button{width:auto!important;min-height:40px;padding:8px 12px;margin:0!important;font-size:14px;line-height:1.3;white-space:nowrap}
+#playBox.study-focus .study-focus-more{position:static;margin:0;padding:0;border:0;background:none}
+#playBox.study-focus .study-focus-more>summary{cursor:pointer;list-style:none;padding:10px 8px;font-size:13px;color:#365b49}
+#playBox.study-focus .study-focus-more>summary::-webkit-details-marker{display:none}
+#playBox.study-focus .study-focus-options{position:absolute;z-index:20;right:0;top:100%;width:min(280px,75vw);padding:16px;background:#fffdf4;color:#203a2d;border:1px solid #a9beaf;border-radius:12px;box-shadow:0 8px 24px #102c2426;display:flex;flex-wrap:wrap;gap:10px}
+#playBox.study-focus .study-focus-options>div{width:100%;font-size:13px!important;line-height:1.6;margin:0!important}
+#playBox.study-focus .study-focus-options button{white-space:normal}
+#playBox.study-focus .study-focus-empty,#playBox.study-focus .study-focus-duplicate{display:none!important}
+#playBox.study-focus>.hr{display:none}
+#playBox.study-focus .questionTopRow{margin-bottom:8px}
+#playBox.study-focus .study-focus-review{border:0;padding:0;background:none;margin:10px 0}
+#playBox.study-focus .study-focus-review>summary{display:none}
+#playBox.study-focus.study-focus-answered .study-focus-review>summary{display:list-item;cursor:pointer;padding:12px;border:1px solid #b7c9ba;border-radius:10px;color:#315940;background:#eff4ea;font-size:14px}
+#playBox.study-focus .study-focus-answer-tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 12px}
+#playBox.study-focus .study-focus-answer-tools button{min-height:44px;width:100%;margin:0;padding:8px;font-size:14px;line-height:1.4}
+@media(max-width:600px){#playBox.study-focus .study-focus-answer-tools{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#playBox.study-focus.study-focus-answered #questionLine,#playBox.study-focus.study-focus-answered #hintArea{display:none!important}
+#playBox.study-focus #result,#playBox.study-focus #detail,#playBox.study-focus #feedbackBox{scroll-margin-top:12px}
+#playBox.study-focus #detail{line-height:1.7;color:#243b30}
+#playBox.study-focus #detail .detailBlock{margin-top:10px;padding:10px 12px}
+#playBox.study-focus #detail .detailLabel{margin-bottom:4px}
+#playBox.study-focus button:focus-visible,#playBox.study-focus summary:focus-visible{outline:3px solid #b78325;outline-offset:3px}
+@media(max-width:600px){#playBox.study-focus{padding:12px}#playBox.study-focus .study-focus-bar{gap:4px}#playBox.study-focus .study-focus-bar button{font-size:13px;padding:8px}#playBox.study-focus #detail{font-size:16px}#playBox.study-focus #result{margin-top:8px!important}}

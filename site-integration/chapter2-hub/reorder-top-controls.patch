@@ -1,0 +1,41 @@
+diff --git a/checks/study-focus.test.cjs b/checks/study-focus.test.cjs
+index 7dd379d..5bc0500 100644
+--- a/checks/study-focus.test.cjs
++++ b/checks/study-focus.test.cjs
+@@ -26,4 +26,5 @@ function fixture(reorder=false){
+ test('progress stays on answered question and increments only for next question',()=>{const {counter}=fixture();assert.equal(counter('今回：4/50（正解 4）','',true),'4 / 50問 · 正解 4');assert.equal(counter('今回：4/50（正解 4）','',false),'5 / 50問 · 正解 4');assert.equal(counter('今回：4/50（正解 4）','第4問 / 50問',true),'4 / 50問 · 正解 4');assert.equal(counter('第3問 / 10問 ・ 正解 2問 ・ 出題順：順番','',false),'3 / 10問 · 正解 2');});
+ test('feedback moves above choices and restores for next question without replacing nodes',()=>{const d=fixture(),choices=d.box.querySelector('#choices');d.result.textContent='correct';d.detail.textContent='translation';d.next.disabled=false;d.update();assert.ok(d.box.children.indexOf(d.detail)<d.box.children.indexOf(choices));d.result.textContent='';d.detail.textContent='';d.next.disabled=true;d.update();assert.ok(d.box.children.indexOf(choices)<d.box.children.indexOf(d.result));});
+ test('incomplete reorder is not collapsed; completed answer collapses and next restores cards',()=>{const d=fixture(true);d.result.textContent='まだ並び終わっていません';d.update();assert.equal(d.review.open,true);d.detail.textContent='explanation';d.next.disabled=false;d.update();assert.equal(d.review.open,false);assert.ok(d.box.children.indexOf(d.detail)<d.box.children.indexOf(d.review));d.next.disabled=true;d.detail.textContent='';d.result.textContent='';d.update();assert.equal(d.review.open,true);});
++test('reorder actions remain above cards and feedback before and after answering',()=>{const d=fixture(true),bar=d.box.children.find(n=>n.className==='study-focus-answer-tools');assert.deepEqual(bar.children.map(n=>n.id),['hintBtn','resetBtn','checkBtn','nextBtn']);assert.ok(d.box.children.indexOf(bar)<d.box.children.indexOf(d.review));d.result.textContent='correct';d.detail.textContent='translation';d.next.disabled=false;d.update();assert.equal(d.next.parentElement,bar);assert.ok(d.box.children.indexOf(bar)<d.box.children.indexOf(d.result));assert.equal(d.review.open,false);});
+ test('eight quiz pages load helper after quiz code, once, and no persistence APIs are used',()=>{for(const page of ['quiz','quiz_jaen','audio_quiz','accent','sentence','reorder','idiom_quiz','paraphrase_quiz']){const html=fs.readFileSync(path.join(root,page+'.html'),'utf8');assert.equal(html.split('src="study_focus.js"').length,2);assert.ok(html.indexOf('src="study_focus.js"')>html.indexOf('src="'+page+'.js"'));assert.ok(html.includes('href="study_focus.css"'));}assert.doesNotMatch(source,/localStorage|setItem|fetch\(/);});
+diff --git a/dist/study_focus.css b/dist/study_focus.css
+index d37a3e9..4da567b 100644
+--- a/dist/study_focus.css
++++ b/dist/study_focus.css
+@@ -15,8 +15,10 @@
+ #playBox.study-focus .study-focus-review{border:0;padding:0;background:none;margin:10px 0}
+ #playBox.study-focus .study-focus-review>summary{display:none}
+ #playBox.study-focus.study-focus-answered .study-focus-review>summary{display:list-item;cursor:pointer;padding:12px;border:1px solid #b7c9ba;border-radius:10px;color:#315940;background:#eff4ea;font-size:14px}
+-#playBox.study-focus .study-focus-answer-tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+-#playBox.study-focus.study-focus-answered #questionLine,#playBox.study-focus.study-focus-answered #hintArea,#playBox.study-focus.study-focus-answered .study-focus-answer-tools{display:none!important}
++#playBox.study-focus .study-focus-answer-tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 12px}
++#playBox.study-focus .study-focus-answer-tools button{min-height:44px;width:100%;margin:0;padding:8px;font-size:14px;line-height:1.4}
++@media(max-width:600px){#playBox.study-focus .study-focus-answer-tools{grid-template-columns:repeat(2,minmax(0,1fr))}}
++#playBox.study-focus.study-focus-answered #questionLine,#playBox.study-focus.study-focus-answered #hintArea{display:none!important}
+ #playBox.study-focus #result,#playBox.study-focus #detail,#playBox.study-focus #feedbackBox{scroll-margin-top:12px}
+ #playBox.study-focus #detail{line-height:1.7;color:#243b30}
+ #playBox.study-focus #detail .detailBlock{margin-top:10px;padding:10px 12px}
+diff --git a/dist/study_focus.js b/dist/study_focus.js
+index 69c18e4..63cd76f 100644
+--- a/dist/study_focus.js
++++ b/dist/study_focus.js
+@@ -55,7 +55,8 @@
+       bank.before(review); review.append(summary, bank, slots);
+       const controls = document.createElement('div'); controls.className = 'study-focus-answer-tools';
+       ['hintBtn', 'resetBtn', 'checkBtn'].map(find).filter(Boolean).forEach(el => controls.append(el));
+-      review.append(controls);
++      if (next) controls.append(next);
++      header.after(controls);
+     }
+     box.querySelectorAll('.row').forEach(el => { if (!el.textContent.trim()) el.classList.add('study-focus-empty'); });
+     const anchors = results.map(el => { const marker = document.createComment('feedback-position'); el.before(marker); return marker; });

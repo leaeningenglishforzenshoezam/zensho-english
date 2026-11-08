@@ -18,6 +18,7 @@
   status.textContent=isCloud&&s?'自動保存を設定・確認':labels[k]||labels.pending;
   if(k==='conflict'||k==='error'){account.textContent+=' · 保存を確認';}
   bar.dataset.state=k;
+  dispatchEvent(new CustomEvent("goimon-cloud-status",{detail:k}));
   clearTimeout(expiryTimer);if(s)expiryTimer=setTimeout(render,Math.min(2147483647,Math.max(1,s.expiresAt*1000-Date.now()+1)));
  }
  function canWrite(){return !closed&&id&&localStorage.getItem(activeKey)===id&&P.isWriter();}
@@ -35,7 +36,7 @@
   firstEdit=0;render();if(engine.dirty()||readMeta().retryAt)schedule(!!readMeta().retryAt);
  }
  if(!isCloud&&id&&navigator.locks){
-  engine=GOIMONAutosave.create({schema:GOIMONCloudSchema,account:id,read:()=>P.read(id),write:p=>P.write(id,p),cloudData:P.cloudData,recovery:p=>P.recovery(id,p),now:Date.now,meta:readMeta,saveMeta:storeMeta,canWrite,credential:()=>session()?.token,canApplyRemote:()=>!interacted,reload:()=>location.reload(),expire:()=>{const s=session();if(s?.userId===id)sessionStorage.removeItem(authKey);},state:k=>{kind=k;render();},request:async(method,body)=>{
+  engine=GOIMONAutosave.create({schema:GOIMONCloudSchema,account:id,read:()=>P.read(id),write:p=>P.write(id,p),cloudData:P.cloudData,mergeRemote:window.GoimonDailyAutosaveBridge?.enabled()?((current,remote,revision)=>{const B=GoimonDailyAutosaveBridge,m=B.mergeCloud(current.base||{},P.cloudData(current.data),remote);if(m.conflicts.length)return null;const device=Object.fromEntries(Object.entries(current.data).filter(([k])=>!GOIMONCloudSchema.allowed(k)));return {...current,data:B.restoreData(device,m.data),base:remote,revision};}):null,restoreData:window.GoimonDailyAutosaveBridge?.enabled()?GoimonDailyAutosaveBridge.restoreData:null,recovery:p=>P.recovery(id,p),now:Date.now,meta:readMeta,saveMeta:storeMeta,canWrite,credential:()=>session()?.token,canApplyRemote:()=>!interacted,reload:()=>location.reload(),expire:()=>{const s=session();if(s?.userId===id)sessionStorage.removeItem(authKey);},state:k=>{kind=k;render();},request:async(method,body)=>{
    const token=session()?.token;if(!token)throw Object.assign(Error('unauthorized'),{status:401});
    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
    try{const r=await fetch(cfg.apiBase.replace(/\/$/,'')+'/api/v1/save',{method,headers:{Authorization:'Bearer '+token,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,signal:controller.signal,cache:'no-store'});if(!r.ok)throw Object.assign(Error('http_error'),{status:r.status});return await r.json();}finally{clearTimeout(timeout);}

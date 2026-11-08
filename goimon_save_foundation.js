@@ -16,6 +16,15 @@
     /^zensho_listening_(attempts|method_attempts|progress|weak)_v\d+_lv[12]$/
   ];
   const devicePatterns = [
+    /^goimon_mission_checkpoint_v1:/,
+    /^goimon_wallet_migration_v1:/,
+    /^goimon_draw_pending_v1:/,
+    /^goimon_loadout_pending_v1:/,
+    /^goimon_loadout_cache_v1:/,
+    /^goimon_items_legacy_backup_v1:/,
+    /^goimon_economy_mode_v1$/,
+    /^goimon_item_shared_v2$/,
+    /^goimon_item_state_v1_lv[12]$/,
     /^zensho_level_v1$/,
     /(?:_ui_|_settings_|_cursor_|_order_cursor_|_state_)/,
     /^(?:goimon_learning_request|zensho_goimon_home_ui|zensho_goimon_last_event)/

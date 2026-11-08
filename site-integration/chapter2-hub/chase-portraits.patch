@@ -1,0 +1,48 @@
+diff --git a/checks/chapter2-chase-portraits.cjs b/checks/chapter2-chase-portraits.cjs
+new file mode 100644
+index 0000000..b67c637
+--- /dev/null
++++ b/checks/chapter2-chase-portraits.cjs
+@@ -0,0 +1,10 @@
++const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
++const c={};vm.runInNewContext(fs.readFileSync('dist/battle-prototype/chapter2_portraits.js','utf8'),c);
++const p=c.GoimonChapter2Portraits;
++assert.equal(p.initial('ch2.02').saya,'saya_surprised');
++assert.equal(p.initial('ch2.02').toyoyo,'toyoyo_surprised');
++assert.equal(p.portrait({id:'ch2.02.007',speaker:'少女'}),'saya_surprised');
++assert.equal(p.portrait({id:'ch2.02.003',speaker:'トヨヨ'}),'toyoyo_surprised');
++assert.equal(p.initial('ch2.03').saya,'saya_normal');
++assert.match(fs.readFileSync('dist/battle-prototype/chapter2.js','utf8'),/GoimonChapter2Portraits.initial\(s.id\)/);
++console.log('PASS chase expressions from entrance through dialogue, then normal scene defaults');
+diff --git a/dist/battle-prototype/chapter2.js b/dist/battle-prototype/chapter2.js
+index af14cbe..6151a13 100644
+--- a/dist/battle-prototype/chapter2.js
++++ b/dist/battle-prototype/chapter2.js
+@@ -38,7 +38,7 @@ function staging(battle=false){const s=D.scenes[state.scene],line=s.lines[Math.m
+  function add(id,src,alt,cls=id){if(!src)return;present.add(id);let img=art.querySelector('[data-id="'+id+'"]');if(!img){img=document.createElement('img');img.dataset.id=id;img.onerror=()=>{img.hidden=true;};art.append(img);}if(img.getAttribute('src')!==src){img.hidden=false;img.src=src;}img.alt=alt;img.className='character '+cls+(!battle&&talk&&talk!==id?' listening':'');}
+  add('partner',image(),names().partnerName);if(!battle)add('morii','images/quest/chapter1/morii_normal.png','モリィ');
+  const together=n>=2&&!(n>=7&&n<=9)&&!(n===10&&ln<3)&&!(n===23&&ln>=8);
+- if(together&&!capture&&!rescue&&!battle){let expressions={saya:'saya_normal',toyoyo:'toyoyo_normal'};for(const l of s.lines.slice(0,ln+1)){const p=GoimonChapter2Portraits.portrait(l);if(p)expressions[p.startsWith('saya')?'saya':'toyoyo']=p;}add('saya',A.path('characters',expressions.saya),n<=2?'少女':'サーヤ');add('toyoyo',A.path('characters',expressions.toyoyo),'トヨヨ');}
++ if(together&&!capture&&!rescue&&!battle){let expressions=GoimonChapter2Portraits.initial(s.id);for(const l of s.lines.slice(0,ln+1)){const p=GoimonChapter2Portraits.portrait(l);if(p)expressions[p.startsWith('saya')?'saya':'toyoyo']=p;}add('saya',A.path('characters',expressions.saya),n<=2?'少女':'サーヤ');add('toyoyo',A.path('characters',expressions.toyoyo),'トヨヨ');}
+  if(capture||rescue)add('captives',A.path('events','captives'),'黒霧に囚われたサーヤとトヨヨ');if(enemy)add('enemy',A.path('enemies',enemy),D.battles.find(x=>x.id===enemy).name);
+  art.querySelectorAll('[data-id]').forEach(img=>{if(!present.has(img.dataset.id))img.remove();});return art;
+ }
+diff --git a/dist/battle-prototype/chapter2_portraits.js b/dist/battle-prototype/chapter2_portraits.js
+index 6c60d47..032fc32 100644
+--- a/dist/battle-prototype/chapter2_portraits.js
++++ b/dist/battle-prototype/chapter2_portraits.js
+@@ -54,11 +54,13 @@ const cues=Object.freeze({
+  'ch2.23.006':'saya_happy',
+  'ch2.23.007':'toyoyo_happy'
+ });
++function initial(sceneId){return sceneId==='ch2.02'?{saya:'saya_surprised',toyoyo:'toyoyo_surprised'}:{saya:'saya_normal',toyoyo:'toyoyo_normal'};}
+ function portrait(line){const name=String(line?.speaker||'');const cue=cues[line?.id];
++ if(String(line?.id||'').startsWith('ch2.02.')){if(name==='少女'||name==='サーヤ')return 'saya_surprised';if(name==='トヨヨ')return 'toyoyo_surprised';}
+  if(cue)return cue;
+  if(name==='サーヤ')return 'saya_normal';
+  if(name==='トヨヨ')return 'toyoyo_normal';
+  return null;
+ }
+-root.GoimonChapter2Portraits=Object.freeze({cues,portrait});
++root.GoimonChapter2Portraits=Object.freeze({cues,portrait,initial});
+ })(typeof window!=='undefined'?window:globalThis);

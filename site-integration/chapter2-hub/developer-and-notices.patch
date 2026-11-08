@@ -1,0 +1,257 @@
+diff --git a/checks/developer-mode.test.cjs b/checks/developer-mode.test.cjs
+new file mode 100644
+index 0000000..10738bb
+--- /dev/null
++++ b/checks/developer-mode.test.cjs
+@@ -0,0 +1,17 @@
++const test=require('node:test');
++const assert=require('node:assert/strict');
++const fs=require('node:fs');
++const vm=require('node:vm');
++const path=require('node:path');
++const root=path.join(__dirname,'../dist');
++function run(host,search){
++ const sessionStorage={getItem:()=>JSON.stringify({token:'test',type:'hirameki',stage:'child',skills:['scream']})};
++ const localStorage={setItem(){throw Error('real save touched');}};
++ const ctx={window:{},location:{hostname:host,search},sessionStorage,localStorage,URLSearchParams,document:{addEventListener(){}}};
++ vm.runInNewContext(fs.readFileSync(path.join(root,'battle-prototype/developer_mode.js'),'utf8'),ctx);
++ return {api:ctx.window.GoimonDeveloper,sessionStorage,localStorage};
++}
++test('private preview developer uses isolated session storage',()=>{const x=run('terminal.local','?dev=1');assert.equal(x.api.active,true);assert.equal(x.api.storage,x.sessionStorage);assert.equal(x.api.keySuffix,':developer:test');assert.equal(x.api.pet.id,'developer-partner');});
++test('normal preview keeps normal records',()=>{const x=run('terminal.local','');assert.equal(x.api.active,false);assert.equal(x.api.storage,x.localStorage);assert.equal(x.api.keySuffix,'');});
++test('public GitHub host cannot enable developer mode',()=>{const x=run('leaeningenglishforzenshoezam.github.io','?dev=1');assert.equal(x.api.active,false);});
++test('announcements parse and no duplicate identifiers',()=>{const data=JSON.parse(fs.readFileSync(path.join(root,'announcements.json'),'utf8'));const rows=Array.isArray(data)?data:data.items||data.announcements;assert.ok(rows);assert.equal(new Set(rows.map(x=>x.id)).size,rows.length);});
+diff --git a/dist/announcements.json b/dist/announcements.json
+index a1b2f59..ba7739f 100644
+--- a/dist/announcements.json
++++ b/dist/announcements.json
+@@ -1,17 +1,24 @@
+ [
++  {
++    "id": "vercel-close-github-pages-20261026",
++    "title": "【重要】Vercel版は10月31日で終了します。今後はGitHub Pages版をご利用ください",
++    "publishedAt": "2026-10-25T16:12:55Z",
++    "updatedAt": "2026-10-25T16:12:55Z",
++    "body": "GOIMONの公開先をGitHub Pages版に一本化します。Vercel版は2026年10月31日をもって公開を終了し、11月1日以降は旧URLをご利用いただけなくなります。\n\n■ 今後はこちらから\nhttps://leaeningenglishforzenshoezam.github.io/zensho-english/\nブックマークやホーム画面のショートカットを、新しいURLに変更してください。\n\n■ 学習記録・ゴイモンについて【必ずご確認ください】\nVercel版とGitHub Pages版は別のサイトです。Vercel版の端末内だけに保存された記録は、URLを開き直すだけでは自動で移りません。\nGitHub Pages版でクラウド保存済みの方は、同じGoogleアカウントでログインし、ゴイモンと学習記録を確認してください。\nVercel版だけに記録がある方や、移行先で記録が見つからない方は、10月31日までに下記へご連絡ください。確認が済むまでは、元の端末・ブラウザーのサイトデータを削除しないでください。\nお問い合わせ：goimon.admin@gmail.com\n\nログインしなくてもGitHub Pages版で学習できます。ただし、端末内だけの記録は、別URL・別端末には自動で引き継がれません。"
++  },
+   {
+     "id": "goimon-quest-gacha-preview-20261016",
+     "title": "【予告】学んだことばで冒険へ！クエスト・ガチャ・新ステータス",
+     "publishedAt": "2026-10-16T07:55:00Z",
+-    "updatedAt": "2026-10-16T07:55:00Z",
+-    "body": "GOIMONに、相棒と冒険する新しい遊び方が加わります！\nただいま公開に向けて準備中です。公開後は、ホーム下部のゴイモンカードから遊べます。\n\n■ クエスト：覚えた英語が、冒険の力に\n相棒と「ことばの森」へ。英語の問題に答えて攻撃したり、敵の攻撃を防いだりしながら、森の奥へ進みます。\nなぜ、人とゴイモンはことばが通じなくなったのか？ ステージをクリアして、物語の謎を追いかけましょう。\nまずは全商英検1級の単語1〜50を使った、5つのステージからスタート。負けても、出題範囲を復習して再挑戦できます。\n\n■ ほしのかけら：毎日の学習をごほうびに\n今日のミッションをクリアして、ほしのかけらを集めましょう。もらえる個数は、それぞれのミッションに表示されます。\nクエストの初回クリアでも手に入ります。\n\n■ ガチャ：相棒の戦い方を広げよう\nほしのかけら10個で1回。SKILL（ワザ）とEQUIPMENT（装備）の2種類から選べます。10連ではR以上が1つ確定！\n手に入れたものは図鑑で説明を確認し、相棒にセット。SKILLは最大4つ、EQUIPMENTは1つ装着できます。\n\n■ ステータス：相棒の強さが、ひと目でわかる\nバトルで使う能力を「HP・攻撃・防御・素早さ」の4つに整理します。\n日々の学習や進化が相棒の成長につながり、装備でも強さが変わります。能力や属性の相性の説明も、まとめて確認できるようになります。\n\nまずは「ミッション → ほしのかけら → ガチャ → 相棒にセット → クエスト」！\n毎日の学習を、相棒との冒険につなげていきましょう。"
++    "updatedAt": "2026-10-25T16:12:55Z",
++    "body": "GOIMONに、相棒と冒険する新しい遊び方が加わります！\nただいま公開に向けて準備中です。公開後は、ホームやメニューの「クエスト」から遊べるようになります。\n\n■ クエスト：覚えた英語が、冒険の力に\n相棒と「ことばの森」へ。英語の問題に答えて攻撃したり、敵の攻撃を防いだりしながら、森の奥へ進みます。\nなぜ、人とゴイモンはことばが通じなくなったのか？ ステージをクリアして、物語の謎を追いかけましょう。\n第1章「ことばの森」は、全商英検1級の単語1〜300を段階的に学ぶ5つのステージからスタート。Stage 1は1〜50、Stage 2は51〜100、Stage 3は101〜150、Stage 4は151〜200、Stage 5は201〜300が範囲です。負けても、出題範囲を復習して再挑戦できます。\n\n■ ほしのかけら：毎日の学習をごほうびに\n今日のミッションをクリアして、ほしのかけらを集めましょう。もらえる個数は、それぞれのミッションに表示されます。\nクエストの初回クリアでも手に入ります。\n\n■ ガチャ：相棒の戦い方を広げよう\nほしのかけら10個で1回。SKILL（ワザ）とEQUIPMENT（装備）の2種類から選べます。10連ではR以上が1つ確定！\n手に入れたものは図鑑で説明を確認し、相棒にセット。SKILLは最大4つ、EQUIPMENTは1つ装着できます。\n\n■ ステータス：相棒の強さが、ひと目でわかる\nバトルで使う能力を「HP・攻撃・防御・素早さ」の4つに整理します。\n日々の学習や進化が相棒の成長につながり、装備でも強さが変わります。能力や属性の相性の説明も、まとめて確認できるようになります。\n\nまずは「ミッション → ほしのかけら → ガチャ → 相棒にセット → クエスト」！\n毎日の学習を、相棒との冒険につなげていきましょう。"
+   },
+   {
+     "id": "google-login-cloud-save-20261011",
+     "title": "Googleログインに対応！ゴイモンと学習記録をスマホ・PCで引き継げます",
+     "publishedAt": "2026-10-11T08:00:00Z",
+-    "updatedAt": "2026-10-11T08:00:00Z",
+-    "body": "Googleアカウントでログインして、ゴイモンや学習記録をクラウドに保存できるようになりました！ 同じGoogleアカウントを使えば、スマホとPCで学習の続きを引き継げます。\n\n■ 今まで育てたゴイモンを引き継ぐには\n① これまで学習していた端末・同じブラウザーでGOIMONを開きます。\n② メニューからログイン・プロフィール画面を開き、Googleでログインします。\n③ 「今までのゴイモンを引き継ぎますか？」と表示されたら、自分の記録であることを確認して「OK」を選びます。\n④ 初めての方はプロフィールを登録し、同期できたことを確認してから学習へ進んでください。\n\n引き継ぎの案内は、このブラウザーに以前の記録があり、ログイン先のアカウントにまだ学習記録がない場合に表示されます。元のゲスト記録は残ります。共用端末では、他の人の記録を引き継がないようにしてください。\n\n■ ログイン後は自動保存\n学習中の変更をまとめて保存します。別の端末では同じGoogleアカウントでログインしてください。端末を切り替える前に、画面上部の「クラウド保存済み」を確認しましょう。通信できない間も学習できますが、別端末への引き継ぎには通信と保存完了が必要です。\n\n■ 引き継ぎを忘れて学習を始めた場合\nログイン画面の「以前のゴイモン・学習記録を救済する」から確認できます。変更前にバックアップを保存し、以前の記録とログイン後の記録を比較して、使う記録を選べます。記録を足し合わせる機能ではありません。ブラウザーの履歴・サイトデータは削除せずに確認してください。\n\n■ ご利用のURLについて\n今回のログイン・保存はGitHub Pages版が対象です。\nhttps://leaeningenglishforzenshoezam.github.io/zensho-english/\n別のURL（Vercel版）で学習していた記録は、このURLには自動では移りません。これまでのURLを残したまま、移行方法をご案内するまでお待ちください。\n\nログインしなくても、これまでどおり学習できます。"
++    "updatedAt": "2026-10-25T16:12:55Z",
++    "body": "Googleアカウントでログインして、ゴイモンや学習記録をクラウドに保存できるようになりました！ 同じGoogleアカウントを使えば、スマホとPCで学習の続きを引き継げます。\n\n■ 今まで育てたゴイモンを引き継ぐには\n① これまで学習していた端末・同じブラウザーでGOIMONを開きます。\n② メニューからログイン・プロフィール画面を開き、Googleでログインします。\n③ 「今までのゴイモンを引き継ぎますか？」と表示されたら、自分の記録であることを確認して「OK」を選びます。\n④ 初めての方はプロフィールを登録し、同期できたことを確認してから学習へ進んでください。\n\n引き継ぎの案内は、このブラウザーに以前の記録があり、ログイン先のアカウントにまだ学習記録がない場合に表示されます。元のゲスト記録は残ります。共用端末では、他の人の記録を引き継がないようにしてください。\n\n■ ログイン後は自動保存\n学習中の変更をまとめて保存します。別の端末では同じGoogleアカウントでログインしてください。端末を切り替える前に、画面上部の「クラウド保存済み」を確認しましょう。通信できない間も学習できますが、別端末への引き継ぎには通信と保存完了が必要です。\n\n■ 引き継ぎを忘れて学習を始めた場合\nログイン画面の「以前のゴイモン・学習記録を救済する」から確認できます。変更前にバックアップを保存し、以前の記録とログイン後の記録を比較して、使う記録を選べます。記録を足し合わせる機能ではありません。ブラウザーの履歴・サイトデータは削除せずに確認してください。\n\n■ ご利用のURLについて\n今回のログイン・保存はGitHub Pages版が対象です。\nhttps://leaeningenglishforzenshoezam.github.io/zensho-english/\n別のURL（Vercel版）で学習していた記録は、このURLには自動では移りません。Vercel版は2026年10月31日で終了します。最新の「Vercel版終了のお知らせ」を確認し、記録が移行先に見つからない場合は終了前にお問い合わせください。\n\nログインしなくても、これまでどおり学習できます。"
+   },
+   {
+     "id": "welcome",
+diff --git a/dist/battle-prototype/chapter1.js b/dist/battle-prototype/chapter1.js
+index 1b6a9a8..758a084 100644
+--- a/dist/battle-prototype/chapter1.js
++++ b/dist/battle-prototype/chapter1.js
+@@ -1,6 +1,6 @@
+ (() => {'use strict';
+ const D=GoimonChapter1Data,C=GoimonBattleCatalog,E=GoimonBattlePrototype,T=GoimonQuestTutorial,Q=GoimonChapterQuestions,N=GoimonStoryNames,$=id=>document.getElementById(id),app=$('app');
+-const account=GOIMONProfiles.account||'guest',key='goimon_chapter1_v1:'+account+':lv1';
++const account=GOIMONProfiles.account||'guest',key='goimon_chapter1_v1:'+account+':lv1'+(window.GoimonDeveloper?.keySuffix||'');
+ let store,state=null,blocked=false,interval=null,skipTimer=null;
+ const source={q1:window.ACCENT_1KYU,q3:window.LISTENING_TYPE3_1KYU,words:window.WORDS_1KYU,idioms:window.IDIOM_DATA_1KYU,q9:window.SENTENCE_FIXED_1KYU,q11:window.PARAPHRASE_DATA_1KYU,q12:window.REORDER_1KYU};
+ const enemyKinds=['intro','normal','swift','tank','boss'],enemyNames=['森の入口の小番人','装甲甲虫','霧の山猫','遺跡門の番人','ことばの祭壇の守護者'];
+@@ -13,7 +13,7 @@ function fail(e){window.GoimonQuestQuestionAudio?.stop();blocked=true;clearInter
+ function button(text,fn,primary=false){const b=document.createElement('button');b.textContent=text;if(primary)b.className='primary';b.onclick=guarded(fn);return b;}
+ function text(tag,value,parent=app,cls=''){const el=document.createElement(tag);el.textContent=value;if(cls)el.className=cls;parent.append(el);return el;}
+ function card(parent=app,cls='card'){const el=document.createElement('section');el.className=cls;parent.append(el);return el;}
+-function pets(){const current=JSON.parse(GOIMONStorage.getItem('zensho_goimon_current_v4_lv1')||'null'),archive=JSON.parse(GOIMONStorage.getItem('zensho_goimon_archive_v4_lv1')||'[]');return [current,...archive].filter(Boolean);}
++function pets(){if(window.GoimonDeveloper?.active)return [GoimonDeveloper.pet];const current=JSON.parse(GOIMONStorage.getItem('zensho_goimon_current_v4_lv1')||'null'),archive=JSON.parse(GOIMONStorage.getItem('zensho_goimon_archive_v4_lv1')||'[]');return [current,...archive].filter(Boolean);}
+ function partner(){return pets().find(p=>p.id===state?.partnerId)||state?.pet;}
+ function names(){return {playerName:N.playerName(sessionStorage,GOIMON_CLOUD_CONFIG.apiBase,account==='guest'?null:account),partnerName:N.partnerName(partner(),GoimonDex)};}
+ const interpolate=s=>N.interpolate(s,names());
+@@ -49,10 +49,10 @@ function sceneArt(kind,enemy){
+ function fresh(p,skills,gear){return {version:1,scriptVersion:D.scriptVersion,revision:0,partnerId:p.id,pet:p,scene:0,line:0,mode:'story',read:[],cleared:[],tutorial:T.create(),skills,gear,run:null,combat:null,question:null,feedback:null,checkpoint:null,misses:[],completed:false};}
+ function setup(restart=false){setMusicMode('setup');clearInterval(interval);app.replaceChildren();text('p','GOIMON QUEST · 第1章',app,'eyebrow');text('h1','聞こえた言葉');text('p','ある日、相棒の声が届いた。ことばの森で始まる、ふたりの冒険。');
+ const c=card();text('h2','一緒に出発する相棒',c);let list=pets();if(!list.length){text('p','ホームで1級の相棒を迎えてから、森へ出発しよう。',c);const link=document.createElement('a');link.href='index.html?panel=goimon&manage=1';link.className='button';link.textContent='ホームで相棒に会う';c.append(link);return;}
+-const inventory=GoimonItemStore.parse(GOIMONStorage.getItem('goimon_item_state_v1_lv1'),'1');
++const inventory=window.GoimonDeveloper?.active?GoimonDeveloper.inventory(C):GoimonItemStore.parse(GOIMONStorage.getItem('goimon_item_state_v1_lv1'),'1');
+ const petLabel=text('label','相棒（1級の現役・保存箱）',c),select=document.createElement('select');select.id='partner';list.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=N.partnerName(p,GoimonDex);select.append(o);});petLabel.append(select);
+ if(state&&list.some(x=>x.id===state.partnerId))select.value=state.partnerId;
+-text('p','所持している技と装備を選べます。技がなくても通常攻撃で挑戦できます。大問1・3の技はクエスト対応を準備中です。',c,'small');
++text('p','所持している技と装備を選べます。技がなくても通常攻撃で挑戦できます。大問1・3の技は時間制限なしで音声を再生できます。',c,'small');
+ const selects=[];for(let i=0;i<4;i++){const label=text('label','SKILL '+(i+1),c),s=document.createElement('select');s.id='chapterSkill'+i;const none=document.createElement('option');none.value='';none.textContent='セットしない';s.append(none);C.skills.filter(x=>inventory.owned.skills[x.id]>0).forEach(x=>{const o=document.createElement('option');o.value=x.id;o.disabled=!Q.supported.includes(x.questionFormat);o.textContent=x.rarity+' '+x.name+' · '+(C.questionFormats[x.questionFormat]?.label||x.questionFormat)+' · '+x.uses+'回'+(o.disabled?'（準備中）':'');s.append(o);});label.append(s);selects.push(s);}
+ const gearLabel=text('label','EQUIPMENT',c),gear=document.createElement('select');gear.id='chapterGear';C.gear.filter(x=>x.id==='none'||inventory.owned.gear[x.id]>0).forEach(x=>{const o=document.createElement('option');o.value=x.id;o.textContent=x.name;gear.append(o);});gearLabel.append(gear);
+ function registered(){const set=inventory.loadouts[select.value]||{};selects.forEach((el,i)=>{const id=set.skillIds?.[i];el.value=inventory.owned.skills[id]>0&&Q.supported.includes(C.skills.find(x=>x.id===id)?.questionFormat)?id:'';});gear.value=inventory.owned.gear[set.gearId]>0?set.gearId:'none';}select.onchange=registered;registered();
+@@ -111,14 +111,14 @@ function failureLesson(panel){
+ function ask(command){const b=state.combat,format=GoimonSkillQuestionRouting.skillFormat(b.player.skills,command,E.current(b),state.battleId===0),stage=state.battleId==='mist'?5:state.battleId||1;
+ const q=Q.select(format,stage,source,GoimonQuestQuestionBank,Math.random,state.lastQuestion||'');state.lastQuestion=q.id;
+ const seconds=state.battleId===0||['q1','q3'].includes(format)?null:format==='q12'?45:format==='word_meaning'?(state.battleId===5?5:10):30;
+-if(state.battleId!==0)window.GoimonStudyTime?.begin({q1:'accent',q3:'listening',word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'}[format],'1');state.question={...q,command,selected:[],startedAt:Date.now(),deadline:seconds?Date.now()+seconds*1000:null};save();render();window.scrollTo?.({top:0,behavior:'instant'});}
++if(state.battleId!==0&&!window.GoimonDeveloper?.active)window.GoimonStudyTime?.begin({q1:'accent',q3:'listening',word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'}[format],'1');state.question={...q,command,selected:[],startedAt:Date.now(),deadline:seconds?Date.now()+seconds*1000:null};save();render();window.scrollTo?.({top:0,behavior:'instant'});}
+ function questionView(panel){const q=state.question;const labels={q1:'最も強く読む音節を選ぼう',q3:'音声に合う応答を選ぼう',word_meaning:'英語の意味を選ぼう',idiom:'同じ意味の英語表現を選ぼう',q9:'空所に入る最も適切な語句を選ぼう',q11:'文aと文bが同じ意味になる語句を選ぼう',q12:'語句を正しい順番に並べよう'};const timer=text('span','',panel,'timer');timer.id='timer';text('p',labels[q.format],panel,'small');text('h2',q.prompt,panel);text('p',['q1','q3'].includes(q.format)?'時間制限・3秒以内ボーナスはありません。落ち着いて聞いて答えよう。':q.deadline?'制限時間内に答えよう。3秒以内の正解は、この一回だけ攻撃力×1.1／防御力×1.1。':'3秒以内の正解で、この一回だけ攻撃力×1.1／防御力×1.1。',panel,'small');
+ window.GoimonQuestQuestionAudio?.mount(panel,q);if(q.format==='q12'){const chosen=card(panel,'chips');chosen.id='chosen';for(const id of q.selected){const chunk=q.chunks.find(c=>c.id===id);chosen.append(button(chunk.text,()=>{q.selected=q.selected.filter(x=>x!==id);save();render();}));}
+  const choices=card(panel,'chips');for(const ch of q.chunks){const b=button(ch.text,()=>{q.selected.push(ch.id);save();render();});b.disabled=q.selected.includes(ch.id);choices.append(b);}const submit=button('この順番で答える',()=>answer([...q.selected]),true);submit.disabled=q.selected.length!==q.chunks.length;panel.append(submit,button('並べ直す',()=>{q.selected=[];save();render();}));
+ }else{const choices=card(panel,'grid');choices.id='choices';for(const value of q.choices){const choice=button(value,()=>answer(value));choice.disabled=state.tutorial.demoKind==='timeout'&&state.battleId===0;choices.append(choice);}if(state.battleId===0&&state.tutorial.demoKind==='wrong-defense')panel.append(button('練習：間違えた場合を体験',()=>answer('__tutorial_wrong__')));if(state.battleId===0&&state.tutorial.demoKind==='timeout')text('p','今回は時間切れの練習です。残り0秒まで待って、結果を見てみよう。',panel,'tutorial-copy');}
+ if(q.deadline){const tick=()=>{if(!state.question||blocked)return;const left=q.deadline-Date.now();timer.textContent=Math.max(0,Math.ceil(left/1000))+'秒';if(left<=0)guarded(()=>answer(null))();};interval=setInterval(tick,200);tick();}}
+ function answer(value){if(!state.question)return;window.GoimonQuestQuestionAudio?.stop();clearInterval(interval);const q=state.question,expired=q.deadline&&Date.now()>=q.deadline,correct=!expired&&Q.correct(q,value),side=E.current(state.combat);
+-try{if(state.battleId!==0)window.ZenshoLearningLog?.addResult({q1:'accent',q3:'listening',word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'}[q.format],correct,{level:'1'});}catch(e){console.warn('学習記録を保存できませんでした',e);}window.GoimonStudyTime?.end();
++try{if(state.battleId!==0&&!window.GoimonDeveloper?.active)window.ZenshoLearningLog?.addResult({q1:'accent',q3:'listening',word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'}[q.format],correct,{level:'1'});}catch(e){console.warn('学習記録を保存できませんでした',e);}if(!window.GoimonDeveloper?.active)window.GoimonStudyTime?.end();
+ const entry=E.resolve(state.combat,q.command,correct,{elapsedMs:!['q1','q3'].includes(q.format)&&Number.isFinite(q.startedAt)?Date.now()-q.startedAt:Infinity});if(state.battleId===0&&state.tutorial.demoKind){if(state.tutorial.demoKind==='timeout')state.tutorial.failureStep=1;else if(!correct){state.tutorial.failureStep=2;state.tutorial.failuresDone=true;}delete state.tutorial.demoKind;if(state.combat.player.hp<=0){state.combat.player.hp=1;state.combat.ended=false;state.combat.winner=null;}}else if(state.battleId===0)T.practice(state.tutorial,side==='enemy'?'defense':q.command==='normal'?'normal':'skill');
+ const answerText=q.format==='q12'?q.answer.map(id=>q.chunks.find(c=>c.id===id).text).join(' '):q.answer;
+ if(!correct){const miss={prompt:q.prompt,answer:answerText,review:q.review,reviewId:q.reviewId};state.misses.push(miss);state.allMisses ||= [];if(!state.allMisses.some(m=>m.review===miss.review&&m.reviewId===miss.reviewId))state.allMisses.push(miss);}state.feedback={correct,answer:(expired?'時間切れ。':'')+'正答：'+answerText,action:entry.text,explanation:Q.explain(q,source)};state.question=null;state.run=state.battleId===0?state.run:structuredClone(state.combat.player);save();render();app.querySelector('.scene')?.classList.add('strike');}
+@@ -137,5 +137,5 @@ $('export').onclick=()=>{const content=state?JSON.stringify(state,null,2):store?
+ window.addEventListener('storage',e=>{if(e.key==='goimon_cloud_v2:active'||e.key===key)fail(Error('別のタブでアカウントまたは進行が更新されました。再読み込みしてください。'));});
+ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target===document.body&&!$('menu').open&&!$('log').open){const b=$('next');if(b){e.preventDefault();b.click();}}});
+ window.GoimonChapter1=Object.freeze({snapshot:()=>structuredClone(state),musicMode:()=>musicMode});
+-try{store=GoimonChapterStore.create(localStorage,key,D);state=store.load();render();if(new URLSearchParams(location.search).get('configure')==='1'&&state){if(state.tutorial.complete){setup(true);}else{tell('チュートリアルを終えると編成を変更できます。');}}}catch(e){fail(e);}
++try{store=GoimonChapterStore.create(window.GoimonDeveloper?.storage||localStorage,key,D);state=store.load();render();if(new URLSearchParams(location.search).get('configure')==='1'&&state){if(state.tutorial.complete){setup(true);}else{tell('チュートリアルを終えると編成を変更できます。');}}}catch(e){fail(e);}
+ })();
+diff --git a/dist/battle-prototype/chapter2.js b/dist/battle-prototype/chapter2.js
+index 579a746..19fc1de 100644
+--- a/dist/battle-prototype/chapter2.js
++++ b/dist/battle-prototype/chapter2.js
+@@ -1,18 +1,18 @@
+ /* Chapter 2 adapter: shared battle/question engines are read-only dependencies. */
+ (()=>{'use strict';
+ const D=GoimonChapter2Data,A=GoimonChapter2Assets,P=GoimonChapter2Progress,C=GoimonBattleCatalog,E=GoimonBattlePrototype,Q=GoimonChapterQuestions,N=GoimonStoryNames;
+-const $=id=>document.getElementById(id),app=$('app'),account=GOIMONProfiles.account||'guest',key='goimon_chapter2_v1:'+account+':lv1';
++const $=id=>document.getElementById(id),app=$('app'),account=GOIMONProfiles.account||'guest',key='goimon_chapter2_v1:'+account+':lv1'+(window.GoimonDeveloper?.keySuffix||'');
+ const source={q1:window.ACCENT_1KYU,q3:window.LISTENING_TYPE3_1KYU,words:window.WORDS_1KYU,idioms:window.IDIOM_DATA_1KYU,q9:window.SENTENCE_FIXED_1KYU,q11:window.PARAPHRASE_DATA_1KYU,q12:window.REORDER_1KYU};
+ let state,store,timer,blocked=false,art=null;
+ const clone=x=>JSON.parse(JSON.stringify(x));
+ function fail(e){window.GoimonQuestQuestionAudio?.stop();blocked=true;clearInterval(timer);$('notice').textContent=e.message+' 元の育成・学習記録は変更していません。';app.querySelectorAll('button').forEach(b=>b.disabled=true);}
+-function guard(fn){return (...args)=>{if(blocked)return;try{if((localStorage.getItem('goimon_cloud_v2:active')||'guest')!==account)throw Error('アカウントが変わりました。再読み込みしてください。');if(!GoimonChapter2Access.current()){locked();return;}fn(...args);}catch(e){fail(e);}};}
+-function save(){if(!GoimonChapter2Access.current())throw Error('第1章のクリア記録を確認できません。');store.save(state);}
++function guard(fn){return (...args)=>{if(blocked)return;try{if((localStorage.getItem('goimon_cloud_v2:active')||'guest')!==account)throw Error('アカウントが変わりました。再読み込みしてください。');if(!(window.GoimonDeveloper?.active||GoimonChapter2Access.current())){locked();return;}fn(...args);}catch(e){fail(e);}};}
++function save(){if(!(window.GoimonDeveloper?.active||GoimonChapter2Access.current()))throw Error('第1章のクリア記録を確認できません。');store.save(state);}
+ function locked(){clearInterval(timer);music('setup');app.replaceChildren();art=null;el('p','CHAPTER 02',app,'eyebrow');el('h1','ふたつの声');el('p','第1章「ことばの森」をクリアすると解放されます。');el('p','第2章の保存済み記録は、そのまま保持しています。',app,'muted');link('第1章の冒険へ','quest_chapter1.html',app);link('クエストメニューへ','quest_home.html?chapter=chapter2',app);}
+ function el(tag,value,parent=app,cls=''){const n=document.createElement(tag);n.textContent=value;n.className=cls;parent.append(n);return n;}
+ function btn(label,fn,parent,primary=false){const b=el('button',label,parent,primary?'primary':'');b.onclick=guard(fn);return b;}
+ function link(label,href,parent){const a=el('a',label,parent,'link');a.href=href;return a;}
+-function pets(){const cur=JSON.parse(GOIMONStorage.getItem('zensho_goimon_current_v4_lv1')||'null'),archive=JSON.parse(GOIMONStorage.getItem('zensho_goimon_archive_v4_lv1')||'[]');return [cur,...archive].filter(Boolean).filter((p,i,a)=>a.findIndex(x=>x.id===p.id)===i);}
++function pets(){if(window.GoimonDeveloper?.active)return [GoimonDeveloper.pet];const cur=JSON.parse(GOIMONStorage.getItem('zensho_goimon_current_v4_lv1')||'null'),archive=JSON.parse(GOIMONStorage.getItem('zensho_goimon_archive_v4_lv1')||'[]');return [cur,...archive].filter(Boolean).filter((p,i,a)=>a.findIndex(x=>x.id===p.id)===i);}
+ function partner(){return pets().find(p=>p.id===state?.partnerId)||state?.pet;}
+ function names(){return {playerName:N.playerName(sessionStorage,GOIMON_CLOUD_CONFIG.apiBase,account==='guest'?null:account),partnerName:N.partnerName(partner(),GoimonDex)};}
+ const interpolate=s=>N.interpolate(s,names());
+@@ -20,7 +20,7 @@ function image(){const p=partner();return GoimonDex.getEntry(p?.type,p?.stage)?.
+ function music(mode){window.GoimonQuestAudio?.setMode(mode);}
+ function setup(){music('setup');app.replaceChildren();art=null;el('p','CHAPTER 02 · 1級',app,'eyebrow');el('h1','ふたつの声');el('p','森の外で出会う、もうひと組の相棒。');const box=el('section','',app,'panel'),list=pets();
+  if(!list.length){el('p','ホームで1級の相棒を迎えると、この相棒で冒険できます。',box);link('ホームで相棒に会う','index.html?panel=goimon&manage=1',box);return;}
+- const inv=GoimonItemStore.parse(GOIMONStorage.getItem('goimon_item_state_v1_lv1'),'1');const label=el('label','冒険の相棒',box),select=el('select','',label);for(const p of list){const o=el('option',N.partnerName(p,GoimonDex),select);o.value=p.id;}
++ const inv=window.GoimonDeveloper?.active?GoimonDeveloper.inventory(C):GoimonItemStore.parse(GOIMONStorage.getItem('goimon_item_state_v1_lv1'),'1');const label=el('label','冒険の相棒',box),select=el('select','',label);for(const p of list){const o=el('option',N.partnerName(p,GoimonDex),select);o.value=p.id;}
+  const info=el('p','',box);function describe(){const load=inv.loadouts[select.value]||{};info.textContent='登録中の技：'+((load.skillIds||[]).filter(id=>inv.owned.skills[id]>0).map(id=>C.skills.find(s=>s.id===id)?.name).filter(Boolean).join('・')||'なし（通常攻撃で挑戦できます）');}select.onchange=describe;describe();
+  el('p','23シーン・9戦。HPと技の残り回数を引き継ぎ、勝利後は減ったHPの1/3を回復します。敗北時は戦闘直前から再挑戦できます。',box,'muted');el('p','前半は単語301〜500、後半はイディオム1〜287。音声を使う大問1・3のSKILLは時間制限なしです。',box,'muted');
+  link('技・装備を確認','index.html?panel=goimon&manage=1',box);
+@@ -60,15 +60,15 @@ function battleView(){const b=state.combat,id=state.battleId;music(id===9?'boss'
+  const actions=el('div','',panel,'actions');for(const cmd of E.commands(b)){const skill=cmd.id==='normal'?null:b.player.skills[Number(cmd.id.split(':')[1])];const button=btn(cmd.name+(skill?' · '+skill.left+'/'+skill.maxUses+'回':''),()=>ask(cmd.id),actions);button.disabled=cmd.disabled||!!(skill&&!Q.supported.includes(skill.questionFormat));}
+  const details=el('details','',panel);el('summary','技の効果と問題形式（攻撃・回復10％強化）',details);for(const s of b.player.skills)el('p',s.name+'：'+s.description+'（'+(C.questionFormats[s.questionFormat]?.label||s.questionFormat)+'）',details);
+ }
+-function ask(command){const b=state.combat,base=GoimonSkillQuestionRouting.skillFormat(b.player.skills,command,E.current(b),false),format=base==='word_meaning'&&state.battleId>=7?'idiom':base,stage={words:({1:[301,350],2:[351,400],3:[301,400],4:[401,450],5:[451,500],6:[301,500]})[state.battleId]||[301,500],idioms:state.battleId===7?[1,100]:state.battleId===8?[101,200]:[1,287]};const q=Q.select(format,stage,source,GoimonQuestQuestionBank,Math.random,state.lastQuestion||'');state.lastQuestion=q.id;window.GoimonStudyTime?.begin(({q1:'accent',q3:'listening',word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'})[format],'1');const seconds=['q1','q3'].includes(format)?null:format==='word_meaning'?10:format==='q12'?45:30;state.question={...q,command,selected:[],startedAt:Date.now(),deadline:seconds?Date.now()+seconds*1000:null};save();render();}
++function ask(command){const b=state.combat,base=GoimonSkillQuestionRouting.skillFormat(b.player.skills,command,E.current(b),false),format=base==='word_meaning'&&state.battleId>=7?'idiom':base,stage={words:({1:[301,350],2:[351,400],3:[301,400],4:[401,450],5:[451,500],6:[301,500]})[state.battleId]||[301,500],idioms:state.battleId===7?[1,100]:state.battleId===8?[101,200]:[1,287]};const q=Q.select(format,stage,source,GoimonQuestQuestionBank,Math.random,state.lastQuestion||'');state.lastQuestion=q.id;if(!window.GoimonDeveloper?.active)window.GoimonStudyTime?.begin(({q1:'accent',q3:'listening',word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'})[format],'1');const seconds=['q1','q3'].includes(format)?null:format==='word_meaning'?10:format==='q12'?45:30;state.question={...q,command,selected:[],startedAt:Date.now(),deadline:seconds?Date.now()+seconds*1000:null};save();render();}
+ function questionView(panel){const q=state.question,t=el('span','',panel,'timer');el('p',({q1:'最も強く読む音節を選ぼう',q3:'音声に合う応答を選ぼう',word_meaning:'英語の意味を選ぼう',idiom:'同じ意味の表現を選ぼう',q9:'空所に合う語句を選ぼう',q11:'文aと文bが同じ意味になる語句を選ぼう',q12:'語句を正しい順番に並べよう'})[q.format],panel,'muted');el('h2',q.prompt,panel,'prompt');
+  window.GoimonQuestQuestionAudio?.mount(panel,q);if(q.format==='q12'){const chosen=el('div','',panel,'chips');for(const id of q.selected)btn(q.chunks.find(c=>c.id===id).text,()=>{q.selected=q.selected.filter(x=>x!==id);save();render();},chosen);const choices=el('div','',panel,'chips');for(const c of q.chunks){const b=btn(c.text,()=>{q.selected.push(c.id);save();render();},choices);b.disabled=q.selected.includes(c.id);}const submit=btn('この順番で答える',()=>answer([...q.selected]),panel,true);submit.disabled=q.selected.length!==q.chunks.length;}else{const choices=el('div','',panel,'choices');for(const value of q.choices)btn(value,()=>answer(value),choices);}
+  if(!q.deadline){t.textContent='時間制限なし';return;}const tick=guard(()=>{if(!state.question)return;const ms=q.deadline-Date.now();t.textContent=Math.max(0,Math.ceil(ms/1000))+'秒';if(ms<=0)answer(null);});timer=setInterval(tick,200);tick();}
+ function answer(value){const q=state.question;if(!q)return;window.GoimonQuestQuestionAudio?.stop();clearInterval(timer);const expired=!!q.deadline&&Date.now()>=q.deadline,correct=!expired&&Q.correct(q,value),entry=E.resolve(state.combat,q.command,correct,{elapsedMs:['q1','q3'].includes(q.format)?Infinity:Date.now()-q.startedAt});const answer=q.format==='q12'?q.answer.map(id=>q.chunks.find(c=>c.id===id).text).join(' '):q.answer;
+- if(!correct&&!state.misses.some(m=>m.review===q.review&&m.reviewId===q.reviewId))state.misses.push({prompt:q.prompt,answer,review:q.review,reviewId:q.reviewId});state.feedback={correct,expired,answer,action:entry.text,translation:q.translation||'',explanation:Q.explain?.(q,source)||null};state.question=null;save();try{window.ZenshoLearningLog?.addResult(({q1:'accent',q3:'listening',word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'})[q.format],correct,{level:'1'});window.GoimonStudyTime?.end();}catch{ $('notice').textContent='学習記録の保存を確認できませんでした。第2章の進行は保存済みです。';}render();}
++ if(!correct&&!state.misses.some(m=>m.review===q.review&&m.reviewId===q.reviewId))state.misses.push({prompt:q.prompt,answer,review:q.review,reviewId:q.reviewId});state.feedback={correct,expired,answer,action:entry.text,translation:q.translation||'',explanation:Q.explain?.(q,source)||null};state.question=null;save();try{if(!window.GoimonDeveloper?.active)window.ZenshoLearningLog?.addResult(({q1:'accent',q3:'listening',word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'})[q.format],correct,{level:'1'});if(!window.GoimonDeveloper?.active)window.GoimonStudyTime?.end();}catch{ $('notice').textContent='学習記録の保存を確認できませんでした。第2章の進行は保存済みです。';}render();}
+ function reviews(parent){if(!state.misses.length)return;const details=el('details','',parent);el('summary','間違えた問題を復習（'+state.misses.length+'問）',details);for(const m of state.misses){el('p',m.prompt+' → '+m.answer,details);const u=new URL(m.review,location.href);u.searchParams.set('reviewIds',m.reviewId);if(m.review==='accent.html'){u.searchParams.set('start',m.reviewId);u.searchParams.set('end',m.reviewId);}if(m.review==='listening.html')u.searchParams.set('format','3');u.searchParams.set('returnTo','quest_chapter2.html');if(m.review==='idiom_quiz.html')u.searchParams.set('idiomMode','synonym');const a=link('対応する学習へ',u.pathname+u.search,details);a.onclick=guard(()=>GOIMONStorage.setItem('zensho_level_v1','1'));}}
+ function defeat(){music('setup');el('h1','もう一度、声をつなごう');el('p','戦闘前のHP・技の回数に戻して再挑戦できます。物語の進行は失われません。');btn('戦闘直前から再挑戦',()=>startBattle(true),app,true);reviews(app);}
+ function history(){const body=$('history-body');body.replaceChildren();if(!state){el('p','読み終えた物語がここに残ります。',body);}else for(const scene of D.scenes){const lines=scene.lines.filter(l=>state.read.includes(l.id));if(!lines.length)continue;el('h2',scene.title,body);for(const l of lines)el('p',(l.speaker?interpolate(l.speaker)+'\n':'')+interpolate(l.text),body);}if(!$('history-dialog').open)$('history-dialog').showModal();}
+  $('history').onclick=guard(history);$('close-history').onclick=()=>$('history-dialog').close();window.addEventListener('storage',e=>{if(e.key==='goimon_chapter1_v1:'+account+':lv1'){location.reload();return;}if(e.key===key||e.key==='goimon_cloud_v2:active')fail(Error('別の画面で進行またはアカウントが更新されました。再読み込みしてください。'));});
+- window.GoimonChapter2=Object.freeze({snapshot:()=>state?clone(state):null});try{store=P.create(localStorage,key,D);if(GoimonChapter2Access.current()){state=store.load();render();}else locked();}catch(e){fail(e);}
++ window.GoimonChapter2=Object.freeze({snapshot:()=>state?clone(state):null});try{store=P.create(window.GoimonDeveloper?.storage||localStorage,key,D);if((window.GoimonDeveloper?.active||GoimonChapter2Access.current())){state=store.load();render();}else locked();}catch(e){fail(e);}
+ })();
+diff --git a/dist/battle-prototype/developer_mode.js b/dist/battle-prototype/developer_mode.js
+new file mode 100644
+index 0000000..374ea01
+--- /dev/null
++++ b/dist/battle-prototype/developer_mode.js
+@@ -0,0 +1,8 @@
++/* Temporary owner-private Site test mode. Never grant real inventory or progress. */
++(()=>{'use strict';const allowed=['terminal.local','localhost','127.0.0.1','goimon-chapter1-playtest-oct19.speedydove1024.chatgpt.site'].includes(location.hostname);let config=null;try{config=JSON.parse(sessionStorage.getItem('goimon_dev_config')||'null');}catch{}
++const active=allowed&&new URLSearchParams(location.search).get('dev')==='1'&&!!config?.token;
++const pet=active?{id:'developer-partner',type:config.type,stage:config.stage,stats:{chie:0,kotoba:0,bunmyaku:0,onkan:0}}:null;
++function inventory(catalog){return {owned:{skills:Object.fromEntries(catalog.skills.map(s=>[s.id,1])),gear:Object.fromEntries(catalog.gear.map(g=>[g.id,1]))},loadouts:{'developer-partner':{skillIds:config.skills,gearId:'none'}}};}
++window.GoimonDeveloper={allowed,active,pet,inventory,keySuffix:active?':developer:'+config.token:'',storage:active?sessionStorage:localStorage};
++if(active){document.addEventListener('DOMContentLoaded',()=>{const p=document.createElement('p');p.textContent='開発者用 · 仮の相棒・技／通常の記録や所持品には反映しません';p.style.cssText='background:#eedfa5;color:#173c2d;padding:12px;text-align:center;margin:0';const a=document.createElement('a');a.href='quest_developer.html';a.textContent='　編成を選び直す';p.append(a);document.body.prepend(p);});}
++})();
+diff --git a/dist/battle-prototype/partner-facing.css b/dist/battle-prototype/partner-facing.css
+new file mode 100644
+index 0000000..8b2d279
+--- /dev/null
++++ b/dist/battle-prototype/partner-facing.css
+@@ -0,0 +1,7 @@
++/* Reviewed left-facing artwork only. Source PNGs and dex remain unchanged.
++   Independent scale preserves the existing talking/attack transforms. */
++:is(.scene img[data-character="partner"],.stage img.character.partner):is(
++ [src$="hirameki_child.png"],[src$="hirameki_growth.png"],[src$="hirameki_mid.png"],[src$="hirameki_final.png"],
++ [src$="nagomi_child.png"],[src$="nagomi_growth.png"],[src$="nagomi_mid.png"],
++ [src$="kotonoha_child.png"],[src$="shirabe_final.png"],[src$="hibiki_child.png"],[src$="hibiki_growth.png"]
++){scale:-1 1;}
+diff --git a/dist/quest_chapter1.html b/dist/quest_chapter1.html
+index d2eb0c8..b054e6d 100644
+--- a/dist/quest_chapter1.html
++++ b/dist/quest_chapter1.html
+@@ -1,11 +1,11 @@
+ <!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第1章 聞こえた言葉｜GOIMON QUEST</title>
+ <link rel="stylesheet" href="battle-prototype/chapter1.css">
+ <script src="cloud_schema.js"></script><script src="cloud_storage.js"></script><script src="cloud_config.js"></script>
+-<script src="goimon_rules.js" defer></script><script src="goimon_dex.js" defer></script>
++<script src="battle-prototype/developer_mode.js" defer></script><script src="goimon_rules.js" defer></script><script src="goimon_dex.js" defer></script>
+ <script src="battle-prototype/catalog.js" defer></script><script src="goimon-items/store.js" defer></script><script src="battle-prototype/core.js" defer></script><script src="battle-prototype/tutorial.js" defer></script><script src="battle-prototype/story_names.js" defer></script><script src="battle-prototype/question-routing.js" defer></script><script src="battle-prototype/question_bank.js" defer></script>
+ <script src="accent_1kyu.js" defer></script><script src="listening_type3_1kyu.js" defer></script><script src="battle-prototype/quest_question_audio.js" defer></script><script src="words_1kyu.js" defer></script><script src="idiom_data_1kyu.js" defer></script><script src="sentence_fixed_1kyu.js" defer></script><script src="paraphrase_data_1kyu.js" defer></script><script src="reorder_1kyu.js" defer></script>
+ <script src="battle-prototype/chapter1_data.js" defer></script><script src="battle-prototype/chapter_questions.js" defer></script><script src="battle-prototype/chapter_store.js" defer></script><script src="battle-prototype/chapter_staging.js" defer></script><script src="adventure-profile.js" defer></script><script src="battle-prototype/quest-review.js" defer></script><script src="battle-prototype/chapter1.js" defer></script>
+-<script src="battle-prototype/quest_audio.js" defer></script><link rel="stylesheet" href="battle-prototype/battle-responsive.css"><script src="learning_categories.js"></script><script src="learning_log.js"></script><script src="study-time.js" defer></script></head><body><aside class="player-preview-note" style="padding:8px 16px;text-align:center;font-size:.8rem;background:#e7f0eb;color:#244d3f">確認用サイト：記録はこのブラウザに保存されます。ログイン同期・報酬の正式付与は準備中です。</aside><header><a href="index.html">GOIMON</a><span>QUEST · 第1章</span><button id="home">中断・メニュー</button></header>
++<script src="battle-prototype/quest_audio.js" defer></script><link rel="stylesheet" href="battle-prototype/battle-responsive.css"><script src="learning_categories.js"></script><script src="learning_log.js"></script><script src="study-time.js" defer></script><link rel="stylesheet" href="battle-prototype/partner-facing.css"></head><body><aside class="player-preview-note" style="padding:8px 16px;text-align:center;font-size:.8rem;background:#e7f0eb;color:#244d3f">確認用サイト：記録はこのブラウザに保存されます。ログイン同期・報酬の正式付与は準備中です。</aside><header><a href="index.html">GOIMON</a><span>QUEST · 第1章</span><button id="home">中断・メニュー</button></header>
+ <main id="app" tabindex="-1"></main><aside id="notice" role="status" aria-live="polite"></aside>
+ <footer>進行はこのブラウザに保存します。第1章は1級の学習内容に対応しています。</footer>
+ <dialog id="log"><div class="dialog-head"><h2>物語の記録</h2><button id="closeLog">閉じる</button></div><div id="logBody"></div></dialog>
+diff --git a/dist/quest_chapter2.html b/dist/quest_chapter2.html
+index 4ece41f..d7ee027 100644
+--- a/dist/quest_chapter2.html
++++ b/dist/quest_chapter2.html
+@@ -1,6 +1,6 @@
+ <!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ふたつの声｜GOIMON QUEST 第2章</title><link rel="stylesheet" href="battle-prototype/chapter2.css">
+ <script src="cloud_schema.js"></script><script src="cloud_storage.js"></script><script src="cloud_config.js"></script>
+-<script src="goimon_rules.js" defer></script><script src="goimon_dex.js" defer></script><script src="battle-prototype/story_names.js" defer></script><script src="battle-prototype/catalog.js" defer></script><script src="battle-prototype/core.js" defer></script><script src="goimon-items/store.js" defer></script>
++<script src="battle-prototype/developer_mode.js" defer></script><script src="goimon_rules.js" defer></script><script src="goimon_dex.js" defer></script><script src="battle-prototype/story_names.js" defer></script><script src="battle-prototype/catalog.js" defer></script><script src="battle-prototype/core.js" defer></script><script src="goimon-items/store.js" defer></script>
+ <script src="accent_1kyu.js" defer></script><script src="listening_type3_1kyu.js" defer></script><script src="battle-prototype/quest_question_audio.js" defer></script><script src="words_1kyu.js" defer></script><script src="idiom_data_1kyu.js" defer></script><script src="sentence_fixed_1kyu.js" defer></script><script src="paraphrase_data_1kyu.js" defer></script><script src="reorder_1kyu.js" defer></script><script src="battle-prototype/question_bank.js" defer></script><script src="battle-prototype/question-routing.js" defer></script><script src="battle-prototype/chapter_questions.js" defer></script>
+-<script src="battle-prototype/chapter2_data.js" defer></script><script src="battle-prototype/chapter2_assets.js" defer></script><script src="battle-prototype/chapter2_portraits.js" defer></script><script src="battle-prototype/chapter2_progress.js" defer></script><script src="battle-prototype/chapter2_battle.js" defer></script><script src="battle-prototype/chapter1_data.js" defer></script><script src="battle-prototype/chapter_store.js" defer></script><script src="battle-prototype/chapter2_access.js" defer></script><script src="battle-prototype/chapter2.js" defer></script><script src="battle-prototype/chapter2_entry.js" defer></script><script src="learning_categories.js" defer></script><script src="learning_log.js" defer></script><script src="study-time.js" defer></script></head>
++<script src="battle-prototype/chapter2_data.js" defer></script><script src="battle-prototype/chapter2_assets.js" defer></script><script src="battle-prototype/chapter2_portraits.js" defer></script><script src="battle-prototype/chapter2_progress.js" defer></script><script src="battle-prototype/chapter2_battle.js" defer></script><script src="battle-prototype/chapter1_data.js" defer></script><script src="battle-prototype/chapter_store.js" defer></script><script src="battle-prototype/chapter2_access.js" defer></script><script src="battle-prototype/chapter2.js" defer></script><script src="battle-prototype/chapter2_entry.js" defer></script><script src="learning_categories.js" defer></script><script src="learning_log.js" defer></script><script src="study-time.js" defer></script><link rel="stylesheet" href="battle-prototype/partner-facing.css"></head>
+ <body><header><a id="quest-home-link" href="index.html">‹ ホーム</a><span>GOIMON QUEST · 02</span><button id="history">物語の記録</button></header><main><p id="notice" role="alert"></p><div id="app"></div></main><footer>第2章の確認版 · 進行はこのブラウザに保存されます</footer><dialog id="history-dialog"><button id="close-history">閉じる</button><div id="history-body"></div></dialog></body></html>
+diff --git a/dist/quest_developer.html b/dist/quest_developer.html
+new file mode 100644
+index 0000000..d2764df
+--- /dev/null
++++ b/dist/quest_developer.html
+@@ -0,0 +1 @@
++<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>開発者用クエスト｜GOIMON</title><link rel="stylesheet" href="battle-prototype/chapter2.css"><script src="battle-prototype/catalog.js" defer></script><script src="battle-prototype/developer_mode.js" defer></script><script src="quest_developer.js" defer></script></head><body><header><a href="quest_home.html">‹ 通常のクエストメニュー</a></header><main><p class="eyebrow">DEVELOPER · TEMPORARY</p><h1>相棒と技を自由に試す</h1><p>所持していないゴイモン・技も試せます。通常の育成・所持品・学習記録・章の進行は変更しません。試遊の続きはこのタブだけに保存します。</p><section class="panel"><label>章<select id="dev-chapter"><option value="1">第1章 · ことばの森</option><option value="2">第2章 · ふたつの声</option></select></label><label>ゴイモン<select id="dev-species"></select></label><label>進化段階<select id="dev-stage"><option value="child">幼体</option><option value="growth">成長体</option><option value="mid">中級体</option><option value="final">上級体</option></select></label><div id="dev-skills"></div><p id="dev-error" role="alert"></p><button id="dev-start" class="primary">この編成で新しく試す</button></section></main></body></html>
+diff --git a/dist/quest_developer.js b/dist/quest_developer.js
+new file mode 100644
+index 0000000..9325239
+--- /dev/null
++++ b/dist/quest_developer.js
+@@ -0,0 +1,5 @@
++(()=>{'use strict';const C=GoimonBattleCatalog,$=id=>document.getElementById(id);if(!GoimonDeveloper.allowed){$('dev-start').disabled=true;$('dev-error').textContent='確認用Site限定の機能です。';return;}
++function option(select,value,text){const o=document.createElement('option');o.value=value;o.textContent=text;select.append(o);}
++for(const s of C.species)option($('dev-species'),s.id,s.name);
++const selects=[];for(let i=0;i<4;i++){const label=document.createElement('label'),select=document.createElement('select');label.textContent='SKILL '+(i+1);select.id='dev-skill-'+i;option(select,'','セットしない');for(const s of C.skills)option(select,s.id,s.rarity+' '+s.name+' · '+(C.questionFormats[s.questionFormat]?.label||s.questionFormat));label.append(select);$('dev-skills').append(label);selects.push(select);}
++$('dev-start').onclick=()=>{const skills=selects.map(s=>s.value).filter(Boolean);if(new Set(skills).size!==skills.length){$('dev-error').textContent='同じ技は複数セットできません。';return;}sessionStorage.setItem('goimon_dev_config',JSON.stringify({type:$('dev-species').value,stage:$('dev-stage').value,skills,token:Date.now().toString(36)}));location.href='quest_chapter'+$('dev-chapter').value+'.html?dev=1';};})();
+diff --git a/dist/quest_home.html b/dist/quest_home.html
+index 5a0395a..258af29 100644
+--- a/dist/quest_home.html
++++ b/dist/quest_home.html
+@@ -6,5 +6,5 @@
+ <div class="qh-chapter-picker"><label for="quest-chapter">冒険する章</label><select id="quest-chapter"></select><span id="qh-unlock-status" role="status"></span></div><section class="qh-hero" id="qh-hero"><div><p class="qh-kicker"><span id="qh-chapter-label">CHAPTER 01 · 1級</span></p><h2 id="qh-chapter-title">ことばの森</h2><p id="qh-progress" role="status">冒険の準備をしよう。</p><div class="qh-actions"><a class="qh-button primary" id="qh-continue" href="quest_chapter1.html">冒険をはじめる</a><a class="qh-button" id="qh-map-open" href="#area-map">マップ</a></div></div></section>
+ <div class="qh-grid"><section class="qh-card"><p class="qh-kicker">PARTNER</p><h2>冒険の相棒</h2><div class="qh-partner"><img id="qh-pet-image" src="images/goimon/goimon_egg.png" alt=""><strong id="qh-pet">相棒を選ぼう</strong></div><div class="qh-actions"><a class="qh-button primary" href="quest_loadout.html">技・装備をセット</a><a class="qh-button" id="qh-configure" href="quest_chapter1.html?configure=1">相棒・編成を選ぶ</a><a class="qh-button" href="index.html?panel=goimon&amp;manage=1">育成・保存箱</a></div><p><span id="qh-party-note">編成変更後は森の入口から。出発するまで今の冒険は残ります。</span></p></section>
+ <section class="qh-card"><p class="qh-kicker">COLLECTION</p><h2>冒険の記録</h2><p>出会いも、交わした言葉も、ここに。</p><div class="qh-record-links"><a class="qh-button" id="qh-dex" href="quest_records.html?view=dex">クエスト図鑑<span id="qh-dex-count"></span></a><a class="qh-button" id="qh-story" href="quest_records.html?view=story">物語の記録<span id="qh-story-count"></span></a></div><p>出会った相手・読み終えた文章が開放されます。</p><a href="index.html?panel=dex&amp;manage=1">育成ゴイモンの図鑑はこちら</a></section></div>
+-<section class="qh-card" id="area-map"><p class="qh-kicker">AREA MAP</p><h2 id="qh-map-title">ことばの森</h2><img id="qh-map-image" class="qh-map" src="images/quest/chapter1/chapter1_map.png" alt="ことばの森のエリアマップ"><ol class="qh-stages" id="qh-stages"></ol><a id="qh-map-link" class="qh-button" href="quest_chapter1.html">冒険へ</a><div class="qh-future">？　次のエリア · 近日実装予定</div></section>
+-<section class="qh-card" id="gacha" style="margin-top:18px"><p class="qh-kicker">GACHA</p><h2>ガチャ</h2><p>技と装備、それぞれ1回10個。</p><div class="qh-actions"><a class="qh-button" href="gacha.html">ガチャをひく</a><a class="qh-button" href="missions.html">今日のミッション</a></div></section></main></body></html>
++<section class="qh-card" id="area-map"><p class="qh-kicker">AREA MAP</p><h2 id="qh-map-title">ことばの森</h2><img id="qh-map-image" class="qh-map" src="images/quest/chapter1/chapter1_map.png" alt="ことばの森のエリアマップ"><ol class="qh-stages" id="qh-stages"></ol><a id="qh-map-link" class="qh-button" href="quest_chapter1.html">冒険へ</a></section>
++<section class="qh-card" id="gacha" style="margin-top:18px"><p class="qh-kicker">GACHA</p><h2>ガチャ</h2><p>技と装備、それぞれ1回10個。</p><div class="qh-actions"><a class="qh-button" href="gacha.html">ガチャをひく</a><a class="qh-button" href="missions.html">今日のミッション</a></div></section><section class="qh-card"><p class="qh-kicker">開発者用・一時機能</p><a class="qh-button" href="quest_developer.html">ゴイモン・技を自由に試す</a><p>通常の所持品・育成記録は変更しません。</p></section></main></body></html>

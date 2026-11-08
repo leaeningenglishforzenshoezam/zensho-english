@@ -1,3 +1,6 @@
+const GOIMON_DAILY_RESULT_ACCOUNT = window.GOIMONProfiles?.account || "guest";
+function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_DAILY_RESULT_ACCOUNT}; }
+// Daily mission result origin: capture account when this quiz script starts.
 // reorder.js
 // 大問12 語句整序
 // - 英文だけを見て4つの語句を並べる
@@ -392,7 +395,7 @@ function showWeakList() {
     if (!current) return "";
     const selectedText = getSelectedTextList().join(" ");
     const blankText = selectedText || "（　）";
-    return `${current.stemBefore} ${blankText} ${current.stemAfter}`.replace(/\s+/g, " ").trim();
+    return `${current.stemBefore} （　） ${current.stemAfter}`.replace(/\s+/g, " ").trim();
   }
 
   function getMaskedQuestionText(q) {
@@ -1251,13 +1254,8 @@ function getRangeFilteredIndexes(startNo, endNo) {
   } else {
     incrementAutoWeak(current.id);
 
-    const map = getChunkMap(current);
-    const yourText = selectedIds.map(id => map.get(id) || "").join(" ");
-    const correctText = current.answer.map(id => map.get(id) || "").join(" ");
-    resultEl.innerHTML =
-      `<span class="ng">❌ 不正解。</span><br>` +
-      `あなたの並び：${escapeHtml(yourText)}<br>` +
-      `正しい並び：${escapeHtml(correctText)}`;
+    // Completed sentence appears in the explanation; selected cards remain in review.
+    resultEl.innerHTML = `<span class="ng">❌ 不正解。正しい文を確認しよう。</span>`;
   }
 
   session.askedIndexes.push(currentQuestionIndex);
@@ -1509,7 +1507,14 @@ function renderSummary() {
 }
 
 
+  function dailyReorderRequest(){const p=new URLSearchParams(location.search);return p.get("dailyMission")==="reorder"?{day:p.get("missionDate"),level:lv}:null;}
+  function saveDailyReorderResult(){
+    const req=dailyReorderRequest();if(!req||wrongLogs.length!==5)return;
+    const attempts=wrongLogs.map(a=>({id:String(a.id),correct:a.isCorrect}));
+    try{window.GoimonDailyResultStore.store("goimon_daily_mission_latest_reorder_v1",JSON.stringify(goimonDailyStamped({...req,category:"reorder",finishedAt:new Date().toISOString(),attempts})));}catch(_){}
+  }
   function finishSession() {
+    saveDailyReorderResult();
     showSummary();
     renderSummary();
   }
@@ -1520,6 +1525,8 @@ function renderSummary() {
     return;
   }
 
+  const isDaily=!!dailyReorderRequest();
+  if(isDaily){countInput.value="5";orderModeEl.value="random";}
   let requestedLimit = Number(countInput.value);
   if (!Number.isFinite(requestedLimit) || requestedLimit < 1) requestedLimit = 10;
 
@@ -1536,7 +1543,10 @@ function renderSummary() {
   }
 
   const orderMode = String(orderModeEl.value || "continue");
-  const baseOrder = getRangeFilteredIndexes(startNo, endNo);
+  const review=new URLSearchParams(location.search).get('reviewIds');
+  const ids=new Set((review||'').split(','));
+  const baseOrder = review?QUESTIONS.map((q,i)=>ids.has(String(q.id))?i:-1).filter(i=>i>=0):getRangeFilteredIndexes(startNo, endNo);
+  if(review)requestedLimit=baseOrder.length;
 
   if (!baseOrder.length) {
     alert("指定した問題番号の範囲に問題がありません。");
@@ -1547,7 +1557,9 @@ function renderSummary() {
   let cursor = 0;
 
  if (orderMode === "random") {
-  order = shuffle(baseOrder);
+  if(isDaily){let history={};try{history=JSON.parse(GOIMONStorage.getItem("goimon_daily_exam_history_v1_lv"+lv+"_reorder")||"{}")||{};}catch(_){}
+    order=baseOrder.slice().sort((a,b)=>{const x=history[String(QUESTIONS[a]?.id)]||{},y=history[String(QUESTIONS[b]?.id)]||{};return Number(x.attempts||0)-Number(y.attempts||0)||Number(x.lastSeen||0)-Number(y.lastSeen||0);});
+  }else order = shuffle(baseOrder);
   cursor = 0;
 } else if (orderMode === "weak") {
   order = buildWeakOrder().filter(i => baseOrder.includes(i));
@@ -1565,6 +1577,7 @@ function renderSummary() {
   cursor = savedCursor >= order.length ? 0 : savedCursor;
 }
 
+  if(review){order=baseOrder;cursor=0;}
   const limit = Math.min(requestedLimit, order.length);
 
   session.limit = limit;

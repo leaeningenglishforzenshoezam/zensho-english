@@ -1,0 +1,55 @@
+diff --git a/checks/CHAPTER2_ART_UPDATE.md b/checks/CHAPTER2_ART_UPDATE.md
+index 216419a..699081a 100644
+--- a/checks/CHAPTER2_ART_UPDATE.md
++++ b/checks/CHAPTER2_ART_UPDATE.md
+@@ -1,6 +1,6 @@
+ # Chapter 2 art integration — 2026-10-26
+ 
+-Original uploaded PNGs are copied without modifying artwork or alpha.
++Original uploaded PNGs are preserved in source-assets/chapter2 and on the GitHub development branch. Site delivery uses lossless WebP copies at the same paths with .webp extensions; decoded alpha and visible RGB are verified identical. This keeps the Site archive within its 256 MiB limit.
+ 
+ | Asset | Source | Usage |
+ | --- | --- | --- |
+diff --git a/checks/package-chapter2-art.cjs b/checks/package-chapter2-art.cjs
+new file mode 100644
+index 0000000..dca507a
+--- /dev/null
++++ b/checks/package-chapter2-art.cjs
+@@ -0,0 +1,15 @@
++// Lossless delivery copies; originals stay in source-assets and GitHub.
++const fs=require('node:fs'),path=require('node:path'),sharp=require('sharp');
++const root=path.join(__dirname,'..');
++(async()=>{for(const file of ['characters/ch2_farmer_worried','characters/ch2_manager_serious','events/ch2_saya_toyoyo_escape']){
++const png=path.join(root,'dist/images/chapter2',file+'.png');
++const source=path.join(root,'source-assets/chapter2',file+'.png');
++fs.mkdirSync(path.dirname(source),{recursive:true});
++if(fs.existsSync(png))fs.renameSync(png,source);
++const out=path.join(root,'dist/images/chapter2',file+'.webp');
++await sharp(source).webp({lossless:true,effort:6}).toFile(out);
++const a=await sharp(source).ensureAlpha().raw().toBuffer(),b=await sharp(out).ensureAlpha().raw().toBuffer();
++if(a.length!==b.length)throw Error('dimensions differ');
++for(let i=0;i<a.length;i+=4){if(a[i+3]!==b[i+3]||(a[i+3]>0&&(a[i]!==b[i]||a[i+1]!==b[i+1]||a[i+2]!==b[i+2])))throw Error('visible pixels differ');}
++console.log(file,fs.statSync(source).size,'->',fs.statSync(out).size,'alpha/visible pixels identical');
++}})().catch(e=>{console.error(e);process.exitCode=1;});
+diff --git a/dist/battle-prototype/chapter2_assets.js b/dist/battle-prototype/chapter2_assets.js
+index 1ad2010..f7723f6 100644
+--- a/dist/battle-prototype/chapter2_assets.js
++++ b/dist/battle-prototype/chapter2_assets.js
+@@ -13,7 +13,7 @@ const map=Object.freeze({
+  }),
+  details:Object.freeze({founders_relief:'details/ch2_founders_relief.png',work_log:'details/ch2_work_log.png'}),
+  characters:Object.freeze({
+- farmer:'characters/ch2_farmer_worried.png',manager:'characters/ch2_manager_serious.png',
++ farmer:'characters/ch2_farmer_worried.webp',manager:'characters/ch2_manager_serious.webp',
+  saya_full:'characters/ch2_saya_full.png',saya_normal:'characters/ch2_saya_normal.png',
+  saya_happy:'characters/ch2_saya_happy.png',saya_worried:'characters/ch2_saya_worried.png',
+  saya_surprised:'characters/ch2_saya_surprised.png',saya_determined:'characters/ch2_saya_determined.png',
+@@ -29,7 +29,7 @@ const map=Object.freeze({
+  7:'enemies/ch2_enemy_oonushi.png',8:'enemies/ch2_enemy_blackfog_split.png',
+  9:'enemies/ch2_boss_beast.png'
+  }),
+- events:Object.freeze({escape:'events/ch2_saya_toyoyo_escape.png',captives:'events/ch2_boss_captured_saya_toyoyo.png'})
++ events:Object.freeze({escape:'events/ch2_saya_toyoyo_escape.webp',captives:'events/ch2_boss_captured_saya_toyoyo.png'})
+ });
+ function background(scene,line){return scene.id==='ch2.21'?(line>=4?'restored_canal':'dry_canal'):scene.background;}
+ function path(group,id){const file=map[group]?.[id];return file?rootDir+file:null;}

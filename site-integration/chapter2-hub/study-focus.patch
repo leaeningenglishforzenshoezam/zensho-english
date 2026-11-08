@@ -1,0 +1,342 @@
+diff --git a/checks/study-focus.test.cjs b/checks/study-focus.test.cjs
+new file mode 100644
+index 0000000..7dd379d
+--- /dev/null
++++ b/checks/study-focus.test.cjs
+@@ -0,0 +1,29 @@
++const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
++const root=path.join(__dirname,'../dist'),source=fs.readFileSync(path.join(root,'study_focus.js'),'utf8');
++function fixture(reorder=false){
++  class N{
++    constructor(tag='div',id='',text=''){this.tagName=tag;this.id=id;this.children=[];this.dataset={};this._text=text;this.disabled=false;this.classes=new Set();this.classList={add:(x)=>this.classes.add(x),contains:(x)=>this.classes.has(x),toggle:(x,on)=>on?this.classes.add(x):this.classes.delete(x)};}
++    get textContent(){return this._text+this.children.map(x=>x.textContent).join('');}set textContent(t){this._text=t;this.children=[];}
++    append(...nodes){nodes.forEach(n=>{n.remove();n.parentElement=this;this.children.push(n);});}
++    remove(){if(this.parentElement){const a=this.parentElement.children;a.splice(a.indexOf(this),1);}this.parentElement=null;}
++    prepend(n){this.append(n);this.children.unshift(this.children.pop());}
++    before(n){const p=this.parentElement;n.remove();n.parentElement=p;p.children.splice(p.children.indexOf(this),0,n);}
++    after(n){const p=this.parentElement;n.remove();n.parentElement=p;p.children.splice(p.children.indexOf(this)+1,0,n);}
++    querySelector(s){return this.querySelectorAll(s)[0]||null;}
++    querySelectorAll(s){const all=this.children.flatMap(n=>[n,...n.querySelectorAll('*')]);return s==='*'?all:all.filter(n=>s.startsWith('#')?n.id===s.slice(1):s.split(',').some(k=>n.classes.has(k.trim().slice(1))));}
++    getClientRects(){return [1];}getBoundingClientRect(){return {top:100};}scrollIntoView(){}
++  }
++  const box=new N('div','playBox'),el=(id,text='',parent=box)=>{const n=new N('div',id,text);parent.append(n);return n;};
++  const stats=el('stats','今回：0/10（正解 0）'),meta=el('qMeta','番号1'),next=el('nextBtn');next.disabled=true;
++  el('backBtn','設定へ');
++  let review;
++  if(reorder){const bank=el('bank');el('chunkBank','cards',bank);const slots=el('slots');el('answerSlots','chosen',slots);el('hintBtn');el('resetBtn');el('checkBtn');}else el('choices','choices');
++  const result=el('result'),detail=el('detail');
++  const updates=[];const context={window:{},document:{readyState:'complete',getElementById:id=>id==='playBox'?box:box.querySelector('#'+id),createElement:tag=>new N(tag),createComment:()=>new N('comment')},location:{pathname:reorder?'/reorder.html':'/accent.html'},MutationObserver:class{constructor(fn){updates.push(fn);}observe(){}},requestAnimationFrame:fn=>fn(),innerHeight:844};
++  vm.runInNewContext(source,context);review=box.children.find(n=>n.className==='study-focus-review');
++  return {box,stats,next,result,detail,review,update:updates[0],counter:context.window.StudyFocus.counter};
++}
++test('progress stays on answered question and increments only for next question',()=>{const {counter}=fixture();assert.equal(counter('今回：4/50（正解 4）','',true),'4 / 50問 · 正解 4');assert.equal(counter('今回：4/50（正解 4）','',false),'5 / 50問 · 正解 4');assert.equal(counter('今回：4/50（正解 4）','第4問 / 50問',true),'4 / 50問 · 正解 4');assert.equal(counter('第3問 / 10問 ・ 正解 2問 ・ 出題順：順番','',false),'3 / 10問 · 正解 2');});
++test('feedback moves above choices and restores for next question without replacing nodes',()=>{const d=fixture(),choices=d.box.querySelector('#choices');d.result.textContent='correct';d.detail.textContent='translation';d.next.disabled=false;d.update();assert.ok(d.box.children.indexOf(d.detail)<d.box.children.indexOf(choices));d.result.textContent='';d.detail.textContent='';d.next.disabled=true;d.update();assert.ok(d.box.children.indexOf(choices)<d.box.children.indexOf(d.result));});
++test('incomplete reorder is not collapsed; completed answer collapses and next restores cards',()=>{const d=fixture(true);d.result.textContent='まだ並び終わっていません';d.update();assert.equal(d.review.open,true);d.detail.textContent='explanation';d.next.disabled=false;d.update();assert.equal(d.review.open,false);assert.ok(d.box.children.indexOf(d.detail)<d.box.children.indexOf(d.review));d.next.disabled=true;d.detail.textContent='';d.result.textContent='';d.update();assert.equal(d.review.open,true);});
++test('eight quiz pages load helper after quiz code, once, and no persistence APIs are used',()=>{for(const page of ['quiz','quiz_jaen','audio_quiz','accent','sentence','reorder','idiom_quiz','paraphrase_quiz']){const html=fs.readFileSync(path.join(root,page+'.html'),'utf8');assert.equal(html.split('src="study_focus.js"').length,2);assert.ok(html.indexOf('src="study_focus.js"')>html.indexOf('src="'+page+'.js"'));assert.ok(html.includes('href="study_focus.css"'));}assert.doesNotMatch(source,/localStorage|setItem|fetch\(/);});
+diff --git a/dist/accent.html b/dist/accent.html
+index 2d896cb..7ad5ab4 100644
+--- a/dist/accent.html
++++ b/dist/accent.html
+@@ -901,7 +901,7 @@
+ <link rel="stylesheet" href="cloud_navigation.css">
+ <script src="cloud_navigation.js" defer></script>
+ <link rel="stylesheet" href="learning-theme.css">
+-<script src="study-time.js" defer></script></head>
++<script src="study-time.js" defer></script><link rel="stylesheet" href="study_focus.css"></head>
+ <body><aside class="player-preview-note" style="padding:8px 16px;text-align:center;font-size:.8rem;background:#e7f0eb;color:#244d3f">確認用サイト：記録はこのブラウザに保存されます。ログイン同期・報酬の正式付与は準備中です。</aside>
+   <div class="wrap">
+ 
+@@ -1321,5 +1321,6 @@
+   <script src="accent.js"></script>
+   <script src="quiz_ui_common.js"></script>
+ <script src="quiz_shortcuts.js"></script>
++<script src="study_focus.js"></script>
+ </body>
+ </html>
+diff --git a/dist/audio_quiz.html b/dist/audio_quiz.html
+index 0011177..f9b7fbd 100644
+--- a/dist/audio_quiz.html
++++ b/dist/audio_quiz.html
+@@ -432,7 +432,7 @@
+ <link rel="stylesheet" href="cloud_navigation.css">
+ <script src="cloud_navigation.js" defer></script>
+ <script src="daily-missions/review_banner.js"></script><link rel="stylesheet" href="learning-theme.css">
+-<script src="study-time.js" defer></script></head>
++<script src="study-time.js" defer></script><link rel="stylesheet" href="study_focus.css"></head>
+ <body><aside class="player-preview-note" style="padding:8px 16px;text-align:center;font-size:.8rem;background:#e7f0eb;color:#244d3f">確認用サイト：記録はこのブラウザに保存されます。ログイン同期・報酬の正式付与は準備中です。</aside>
+ <div class="wrap">
+ 
+@@ -751,5 +751,6 @@
+ <script src="daily-missions/daily_mission_results.js"></script>
+ <script src="audio_quiz.js"></script>
+ <script src="battle-prototype/return_to_quest.js"></script>
++<script src="study_focus.js"></script>
+ </body>
+ </html>
+diff --git a/dist/idiom_quiz.html b/dist/idiom_quiz.html
+index 0c7c7b4..de6f221 100644
+--- a/dist/idiom_quiz.html
++++ b/dist/idiom_quiz.html
+@@ -1068,7 +1068,7 @@
+ <link rel="stylesheet" href="cloud_navigation.css">
+ <script src="cloud_navigation.js" defer></script>
+ <script src="daily-missions/review_banner.js"></script><link rel="stylesheet" href="learning-theme.css">
+-<script src="study-time.js" defer></script></head>
++<script src="study-time.js" defer></script><link rel="stylesheet" href="study_focus.css"></head>
+ <body><aside class="player-preview-note" style="padding:8px 16px;text-align:center;font-size:.8rem;background:#e7f0eb;color:#244d3f">確認用サイト：記録はこのブラウザに保存されます。ログイン同期・報酬の正式付与は準備中です。</aside>
+   <div class="wrap">
+ 
+@@ -1550,5 +1550,6 @@
+ <script src="daily-missions/daily_mission_results.js"></script>
+ <script src="idiom_quiz.js"></script>
+ <script src="battle-prototype/return_to_quest.js"></script>
++<script src="study_focus.js"></script>
+ </body>
+ </html>
+diff --git a/dist/paraphrase_quiz.html b/dist/paraphrase_quiz.html
+index 897c292..b73b97e 100644
+--- a/dist/paraphrase_quiz.html
++++ b/dist/paraphrase_quiz.html
+@@ -905,7 +905,7 @@
+ <link rel="stylesheet" href="cloud_navigation.css">
+ <script src="cloud_navigation.js" defer></script>
+ <script src="daily-missions/review_banner.js"></script><link rel="stylesheet" href="learning-theme.css">
+-<script src="study-time.js" defer></script></head>
++<script src="study-time.js" defer></script><link rel="stylesheet" href="study_focus.css"></head>
+ <body><aside class="player-preview-note" style="padding:8px 16px;text-align:center;font-size:.8rem;background:#e7f0eb;color:#244d3f">確認用サイト：記録はこのブラウザに保存されます。ログイン同期・報酬の正式付与は準備中です。</aside>
+   <div class="wrap">
+ 
+@@ -1321,6 +1321,7 @@
+ <script src="daily-missions/daily_mission_results.js"></script>
+ <script src="paraphrase_quiz.js"></script>
+ <script src="battle-prototype/return_to_quest.js"></script>
++<script src="study_focus.js"></script>
+ </body>
+ </html>
+ 
+diff --git a/dist/quiz.html b/dist/quiz.html
+index 9b36182..518fe53 100644
+--- a/dist/quiz.html
++++ b/dist/quiz.html
+@@ -1034,7 +1034,7 @@
+ <link rel="stylesheet" href="cloud_navigation.css">
+ <script src="cloud_navigation.js" defer></script>
+ <script src="daily-missions/review_banner.js"></script><link rel="stylesheet" href="learning-theme.css">
+-<script src="study-time.js" defer></script></head>
++<script src="study-time.js" defer></script><link rel="stylesheet" href="study_focus.css"></head>
+ 
+ <body><aside class="player-preview-note" style="padding:8px 16px;text-align:center;font-size:.8rem;background:#e7f0eb;color:#244d3f">確認用サイト：記録はこのブラウザに保存されます。ログイン同期・報酬の正式付与は準備中です。</aside>
+ <div class="wrap">
+@@ -1404,5 +1404,6 @@
+ <script src="quiz_shortcuts.js"></script>
+ 
+ <script src="battle-prototype/return_to_quest.js"></script>
++<script src="study_focus.js"></script>
+ </body>
+ </html>
+diff --git a/dist/quiz_jaen.html b/dist/quiz_jaen.html
+index f316560..7ebd58d 100644
+--- a/dist/quiz_jaen.html
++++ b/dist/quiz_jaen.html
+@@ -906,7 +906,7 @@
+ <link rel="stylesheet" href="cloud_navigation.css">
+ <script src="cloud_navigation.js" defer></script>
+ <script src="daily-missions/review_banner.js"></script><link rel="stylesheet" href="learning-theme.css">
+-<script src="study-time.js" defer></script></head>
++<script src="study-time.js" defer></script><link rel="stylesheet" href="study_focus.css"></head>
+ 
+ <body><aside class="player-preview-note" style="padding:8px 16px;text-align:center;font-size:.8rem;background:#e7f0eb;color:#244d3f">確認用サイト：記録はこのブラウザに保存されます。ログイン同期・報酬の正式付与は準備中です。</aside>
+ <div class="wrap">
+@@ -1261,5 +1261,6 @@
+ <script src="daily-missions/daily_mission_results.js"></script>
+ <script src="quiz_jaen.js"></script>
+ <script src="battle-prototype/return_to_quest.js"></script>
++<script src="study_focus.js"></script>
+ </body>
+ </html>
+diff --git a/dist/reorder.html b/dist/reorder.html
+index 54afbda..442eaf6 100644
+--- a/dist/reorder.html
++++ b/dist/reorder.html
+@@ -857,7 +857,7 @@
+ <link rel="stylesheet" href="cloud_navigation.css">
+ <script src="cloud_navigation.js" defer></script>
+ <script src="daily-missions/review_banner.js"></script><link rel="stylesheet" href="learning-theme.css">
+-<style>#questionLine{background:#fffef5;color:#203c30;padding:20px;border-radius:14px;font-size:22px;line-height:1.65}.bankAreaWrap{background:#edf3e7;color:#203c30;padding:18px;border-radius:14px}.answerAreaWrap{background:#fffef5;color:#203c30;padding:14px;border-radius:14px}.chunkBank button,.answerSlots button{font-size:16px;min-height:44px}#questionLine:empty{display:none}</style><script src="study-time.js" defer></script></head>
++<style>#questionLine{background:#fffef5;color:#203c30;padding:20px;border-radius:14px;font-size:22px;line-height:1.65}.bankAreaWrap{background:#edf3e7;color:#203c30;padding:18px;border-radius:14px}.answerAreaWrap{background:#fffef5;color:#203c30;padding:14px;border-radius:14px}.chunkBank button,.answerSlots button{font-size:16px;min-height:44px}#questionLine:empty{display:none}</style><script src="study-time.js" defer></script><link rel="stylesheet" href="study_focus.css"></head>
+ <body><aside class="player-preview-note" style="padding:8px 16px;text-align:center;font-size:.8rem;background:#e7f0eb;color:#244d3f">確認用サイト：記録はこのブラウザに保存されます。ログイン同期・報酬の正式付与は準備中です。</aside>
+   <div class="wrap">
+ 
+@@ -1175,5 +1175,6 @@
+ <script src="daily-missions/daily_mission_results.js"></script>
+ <script src="reorder.js"></script>
+ <script src="battle-prototype/return_to_quest.js"></script>
++<script src="study_focus.js"></script>
+ </body>
+ </html>
+diff --git a/dist/reorder.js b/dist/reorder.js
+index 579bf74..8b77024 100644
+--- a/dist/reorder.js
++++ b/dist/reorder.js
+@@ -1254,13 +1254,8 @@ function getRangeFilteredIndexes(startNo, endNo) {
+   } else {
+     incrementAutoWeak(current.id);
+ 
+-    const map = getChunkMap(current);
+-    const yourText = selectedIds.map(id => map.get(id) || "").join(" ");
+-    const correctText = current.answer.map(id => map.get(id) || "").join(" ");
+-    resultEl.innerHTML =
+-      `<span class="ng">❌ 不正解。</span><br>` +
+-      `あなたの並び：${escapeHtml(yourText)}<br>` +
+-      `正しい並び：${escapeHtml(correctText)}`;
++    // Completed sentence appears in the explanation; selected cards remain in review.
++    resultEl.innerHTML = `<span class="ng">❌ 不正解。正しい文を確認しよう。</span>`;
+   }
+ 
+   session.askedIndexes.push(currentQuestionIndex);
+diff --git a/dist/sentence.html b/dist/sentence.html
+index 9137b72..5ff50f9 100644
+--- a/dist/sentence.html
++++ b/dist/sentence.html
+@@ -1143,7 +1143,7 @@
+ <link rel="stylesheet" href="cloud_navigation.css">
+ <script src="cloud_navigation.js" defer></script>
+ <script src="daily-missions/review_banner.js"></script><link rel="stylesheet" href="learning-theme.css">
+-<script src="study-time.js" defer></script></head>
++<script src="study-time.js" defer></script><link rel="stylesheet" href="study_focus.css"></head>
+ <body><aside class="player-preview-note" style="padding:8px 16px;text-align:center;font-size:.8rem;background:#e7f0eb;color:#244d3f">確認用サイト：記録はこのブラウザに保存されます。ログイン同期・報酬の正式付与は準備中です。</aside>
+   <div class="wrap">
+ 
+@@ -1625,5 +1625,6 @@
+ <script src="daily-missions/daily_mission_results.js"></script>
+ <script src="sentence.js?v=20260510-3"></script>
+ <script src="battle-prototype/return_to_quest.js"></script>
++<script src="study_focus.js"></script>
+ </body>
+ </html>
+diff --git a/dist/study_focus.css b/dist/study_focus.css
+new file mode 100644
+index 0000000..d37a3e9
+--- /dev/null
++++ b/dist/study_focus.css
+@@ -0,0 +1,25 @@
++/* Shared compact quiz chrome; setup pages and learning data are untouched. */
++#playBox.study-focus{scroll-margin-top:72px}
++#playBox.study-focus .study-focus-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;position:relative}
++#playBox.study-focus .study-focus-count{font-size:14px;font-weight:750;color:#294c3d;margin-right:auto;white-space:nowrap}
++#playBox.study-focus .study-focus-bar button{width:auto!important;min-height:40px;padding:8px 12px;margin:0!important;font-size:14px;line-height:1.3;white-space:nowrap}
++#playBox.study-focus .study-focus-more{position:static;margin:0;padding:0;border:0;background:none}
++#playBox.study-focus .study-focus-more>summary{cursor:pointer;list-style:none;padding:10px 8px;font-size:13px;color:#365b49}
++#playBox.study-focus .study-focus-more>summary::-webkit-details-marker{display:none}
++#playBox.study-focus .study-focus-options{position:absolute;z-index:20;right:0;top:100%;width:min(280px,75vw);padding:16px;background:#fffdf4;color:#203a2d;border:1px solid #a9beaf;border-radius:12px;box-shadow:0 8px 24px #102c2426;display:flex;flex-wrap:wrap;gap:10px}
++#playBox.study-focus .study-focus-options>div{width:100%;font-size:13px!important;line-height:1.6;margin:0!important}
++#playBox.study-focus .study-focus-options button{white-space:normal}
++#playBox.study-focus .study-focus-empty,#playBox.study-focus .study-focus-duplicate{display:none!important}
++#playBox.study-focus>.hr{display:none}
++#playBox.study-focus .questionTopRow{margin-bottom:8px}
++#playBox.study-focus .study-focus-review{border:0;padding:0;background:none;margin:10px 0}
++#playBox.study-focus .study-focus-review>summary{display:none}
++#playBox.study-focus.study-focus-answered .study-focus-review>summary{display:list-item;cursor:pointer;padding:12px;border:1px solid #b7c9ba;border-radius:10px;color:#315940;background:#eff4ea;font-size:14px}
++#playBox.study-focus .study-focus-answer-tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
++#playBox.study-focus.study-focus-answered #questionLine,#playBox.study-focus.study-focus-answered #hintArea,#playBox.study-focus.study-focus-answered .study-focus-answer-tools{display:none!important}
++#playBox.study-focus #result,#playBox.study-focus #detail,#playBox.study-focus #feedbackBox{scroll-margin-top:12px}
++#playBox.study-focus #detail{line-height:1.7;color:#243b30}
++#playBox.study-focus #detail .detailBlock{margin-top:10px;padding:10px 12px}
++#playBox.study-focus #detail .detailLabel{margin-bottom:4px}
++#playBox.study-focus button:focus-visible,#playBox.study-focus summary:focus-visible{outline:3px solid #b78325;outline-offset:3px}
++@media(max-width:600px){#playBox.study-focus{padding:12px}#playBox.study-focus .study-focus-bar{gap:4px}#playBox.study-focus .study-focus-bar button{font-size:13px;padding:8px}#playBox.study-focus #detail{font-size:16px}#playBox.study-focus #result{margin-top:8px!important}}
+diff --git a/dist/study_focus.js b/dist/study_focus.js
+new file mode 100644
+index 0000000..69c18e4
+--- /dev/null
++++ b/dist/study_focus.js
+@@ -0,0 +1,89 @@
++/* Presentation only: never changes answers, scoring, storage or quiz handlers. */
++(function () {
++  'use strict';
++  function counter(stats, progress, answered) {
++    const score = stats.match(/正解\s*(\d+)/)?.[1] || '0';
++    const current = (progress || stats).match(/第\s*(\d+)問\s*\/\s*(\d+)問/);
++    const session = stats.match(/今回：\s*(\d+)\s*\/\s*(\d+)/);
++    if (current) return `${current[1]} / ${current[2]}問 · 正解 ${score}`;
++    if (session) return `${Math.min(Number(session[2]), Number(session[1]) + (answered ? 0 : 1))} / ${session[2]}問 · 正解 ${score}`;
++    return '';
++  }
++  window.StudyFocus = { counter };
++  function mount() {
++    const box = document.getElementById('playBox');
++    if (!box || box.dataset.focusMounted) return;
++    box.dataset.focusMounted = '1';
++    box.classList.add('study-focus');
++    const find = id => box.querySelector('#' + id);
++    const stats = find('stats');
++    const progress = find('questionProgress') || find('questionNo');
++    const next = find('nextQTop') || find('nextBtn') || find('nextQ');
++    const results = ['result', 'detail', 'feedbackBox'].map(find).filter(Boolean);
++    const bank = find('chunkBank')?.parentElement;
++    const slots = find('answerSlots')?.parentElement;
++    const choices = bank || find('choices') || find('choicesBox');
++    const header = document.createElement('div'); header.className = 'study-focus-bar';
++    const count = document.createElement('span'); count.className = 'study-focus-count';
++    header.append(count);
++    const more = document.createElement('details'); more.className = 'study-focus-more';
++    const title = document.createElement('summary'); title.textContent = '詳細';
++    const content = document.createElement('div'); content.className = 'study-focus-options';
++    more.append(title, content); header.append(more); box.prepend(header);
++    [stats, progress, find('qMeta'), find('questionNoLine')].filter(Boolean).forEach(el => content.append(el));
++    ['backBtn', 'jumpIdiomBtn', 'jumpParaphraseBtn', 'manualWeakBtn', 'prevBtn'].map(find).filter(Boolean).forEach(el => content.append(el));
++    const audioQuiz = location.pathname.endsWith('audio_quiz.html');
++    if (!audioQuiz) {
++      const sound = find('speakQ') || find('speakBtn') || find('readBtn');
++      if (sound) {
++        const oldParent = sound.parentElement;
++        sound.classList.add('study-focus-sound'); header.append(sound);
++        if (oldParent !== box && oldParent.textContent.includes('※自動発音')) oldParent.classList.add('study-focus-empty');
++      }
++    }
++    if (next) { next.classList.add('study-focus-next'); header.append(next); }
++    // Remove only redundant navigation, retaining the existing button and its listeners.
++    const duplicate = next?.id === 'nextQTop' ? find('nextQ') : null;
++    if (duplicate) duplicate.classList.add('study-focus-duplicate');
++    box.querySelectorAll('.row, .questionNavRow').forEach(el => {
++      if (!el.textContent.trim()) el.classList.add('study-focus-empty');
++    });
++    let review = null;
++    if (bank && slots) {
++      review = document.createElement('details'); review.className = 'study-focus-review'; review.open = true;
++      const summary = document.createElement('summary'); summary.textContent = '自分の解答・語句カードを確認';
++      bank.before(review); review.append(summary, bank, slots);
++      const controls = document.createElement('div'); controls.className = 'study-focus-answer-tools';
++      ['hintBtn', 'resetBtn', 'checkBtn'].map(find).filter(Boolean).forEach(el => controls.append(el));
++      review.append(controls);
++    }
++    box.querySelectorAll('.row').forEach(el => { if (!el.textContent.trim()) el.classList.add('study-focus-empty'); });
++    const anchors = results.map(el => { const marker = document.createComment('feedback-position'); el.before(marker); return marker; });
++    let previous = false;
++    const update = () => {
++      // Feedback is empty on a fresh question. A validation warning is not an answer.
++      const ready = next ? !next.disabled && results.some(el => el.textContent.trim()) : !!find('feedbackBox') && !find('feedbackBox').classList.contains('hidden');
++      const value = counter(stats?.textContent || '', progress?.textContent || '', ready);
++      if (count.textContent !== value) count.textContent = value;
++      if (ready === previous) return;
++      previous = ready; box.classList.toggle('study-focus-answered', ready); more.open = false;
++      if (review) review.open = !ready;
++      if (ready && (review || choices)) results.forEach(el => (review || choices).before(el));
++      else results.forEach((el, i) => anchors[i].after(el));
++      if (ready) {
++        requestAnimationFrame(() => {
++          if (!box.getClientRects().length) return;
++          const first = results.find(el => el.textContent.trim());
++          if (!first) return;
++          const rect = first.getBoundingClientRect();
++          if (rect.top < 72 || rect.top > innerHeight * .25) box.scrollIntoView({block:'start', behavior:'auto'});
++        });
++      }
++    };
++    const observer = new MutationObserver(update);
++    [stats, progress, next, ...results].filter(Boolean).forEach(el => observer.observe(el, {childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:['disabled','class']}));
++    update();
++  }
++  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount);
++  else mount();
++})();

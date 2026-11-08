@@ -1,0 +1,344 @@
+diff --git a/checks/chapter-flow.cjs b/checks/chapter-flow.cjs
+index d729f62..66629eb 100644
+--- a/checks/chapter-flow.cjs
++++ b/checks/chapter-flow.cjs
+@@ -28,12 +28,12 @@ for(let step=0;step<1000;step++){
+  // Deterministic win isolates stage-transition persistence from balance (tested separately).
+  s.combat.enemy.hp=1;s.combat.index=s.combat.order.indexOf('player');s.combat.player.hp=Math.max(1,s.combat.player.maxHp-10);
+  const before=s.combat.player.hp,max=s.combat.player.maxHp;a.ask('normal');a.save();const expected=JSON.stringify(s.question);a.reload();assert.equal(JSON.stringify(a.get().question),expected);
+- a.answer(a.get().question.answer);questions++;s=a.get();assert.equal(s.feedback.explanation,null);assert.equal(s.combat.winner,'player');a.finishBattle();s=a.get();if(typeof id==='number'){assert.equal(s.run.hp,before+Math.ceil((max-before)/4));stages++;}a.reload();assert.equal(a.get().run.hp,s.run.hp);
++ a.answer(a.get().question.answer);questions++;s=a.get();assert.equal(s.feedback.explanation,null);assert.equal(s.combat.winner,'player');a.finishBattle();s=a.get();if(typeof id==='number'){assert.equal(s.run.hp,before+Math.ceil((max-before)/3));stages++;}a.reload();assert.equal(a.get().run.hp,s.run.hp);
+ }
+ assert.equal(a.get().mode,'complete');assert.equal(stages,5);assert.equal(questions,6);assert(a.get().cleared.includes('mist'));
+ a.reload();assert.equal(a.get().mode,'complete');
+ const stale=ctx.GoimonChapterStore.create(storage,'conflict',D),other=ctx.GoimonChapterStore.create(storage,'conflict',D);stale.save(a.get());assert.throws(()=>other.save(a.get()),/別のタブ/);
+-console.log('PASS 20 scenes; tutorial failures; 5 stages + mist; explanation; answer resume; quarter-missing-HP recovery; mist defeat/retry; completion resume; cross-tab conflict');
++console.log('PASS 20 scenes; tutorial failures; 5 stages + mist; explanation; answer resume; third-missing-HP recovery; mist defeat/retry; completion resume; cross-tab conflict');
+ 
+ const panel=element();a.showExplanation(panel,null);assert.equal(panel.children.length,0);
+ a.showExplanation(panel,{format:'q12',completed:'I study English.',translation:'私は英語を学びます。',notes:['文法上のポイント']});
+diff --git a/checks/quest-audio-handoff.cjs b/checks/quest-audio-handoff.cjs
+new file mode 100644
+index 0000000..891bca1
+--- /dev/null
++++ b/checks/quest-audio-handoff.cjs
+@@ -0,0 +1,8 @@
++const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
++let stops=0,resumes=0,latest;const element=()=>({children:[],append(...x){this.children.push(...x);},setAttribute(){}});
++const c={document:{createElement:element,addEventListener(){}},addEventListener(){},GoimonQuestAudio:{suspend(){stops++;return ()=>resumes++;}},Audio:class{constructor(){latest=this;}play(){return Promise.resolve();}pause(){}},SpeechSynthesisUtterance:class{constructor(){latest=this;}},speechSynthesis:{speak(){},cancel(){}}};c.window=c;
++vm.runInNewContext(fs.readFileSync('dist/battle-prototype/quest_question_audio.js','utf8'),c);
++let p=element();c.GoimonQuestQuestionAudio.mount(p,{audio:'test.mp3'});p.children[0].children[0].onclick();assert.equal(stops,1);latest.onended();assert.equal(resumes,1);
++p.children[0].children[0].onclick();c.GoimonQuestQuestionAudio.stop();assert.equal(resumes,2);
++p=element();c.GoimonQuestQuestionAudio.mount(p,{speech:'hello'});p.children[0].children[0].onclick();latest.onerror();assert.equal(stops,3);assert.equal(resumes,3);
++console.log('PASS English audio pauses BGM and releases on end, cancel and error');
+diff --git a/checks/quest-question-update.cjs b/checks/quest-question-update.cjs
+new file mode 100644
+index 0000000..ef3306d
+--- /dev/null
++++ b/checks/quest-question-update.cjs
+@@ -0,0 +1,9 @@
++const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
++const root=path.join(__dirname,'../dist'),c={};c.window=c;vm.createContext(c);
++for(const f of ['words_1kyu.js','idiom_data_1kyu.js','accent_1kyu.js','listening_type3_1kyu.js','battle-prototype/question_bank.js','battle-prototype/chapter_questions.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),c);
++const Q=c.GoimonChapterQuestions,B=c.GoimonQuestQuestionBank,data={words:c.WORDS_1KYU,idioms:c.IDIOM_DATA_1KYU,q1:c.ACCENT_1KYU,q3:c.LISTENING_TYPE3_1KYU};
++for(const range of [[301,350],[351,400],[301,400],[401,450],[451,500],[301,500]])for(let i=0;i<100;i++){const q=Q.select('word_meaning',{words:range},data,B);assert.ok(q.reviewId>=range[0]&&q.reviewId<=range[1]);assert.equal(q.choices.length,4);}
++for(const range of [[1,100],[101,200],[1,287]])for(let i=0;i<100;i++){const q=Q.select('idiom',{idioms:range},data,B);assert.ok(data.idioms.slice(range[0]-1,range[1]).some(x=>x.id===q.id));assert.equal(q.choices.length,4);}
++for(const format of ['q1','q3'])for(let i=0;i<100;i++){const q=Q.select(format,1,data,B);assert.equal(q.choices.length,4);assert.ok(Q.correct(q,q.answer));assert.ok(Q.explain(q,data));if(q.audio)assert.ok(fs.existsSync(path.join(root,q.audio)));if(format==='q3')assert.ok(!q.prompt.includes(q.completed));}
++for(const chapter of [1,2]){const html=fs.readFileSync(path.join(root,'quest_chapter'+chapter+'.html'),'utf8');assert.ok(html.includes('accent_1kyu.js')&&html.includes('listening_type3_1kyu.js'));const js=fs.readFileSync(path.join(root,'battle-prototype/chapter'+chapter+'.js'),'utf8');assert.ok(js.includes("['q1','q3'].includes(format)?null"));assert.ok(js.includes('GoimonQuestQuestionAudio?.stop()'));}
++console.log('PASS word/idiom ranges, audio assets, questions, explanations and untimed integration');
+diff --git a/checks/quest-revision.cjs b/checks/quest-revision.cjs
+index 4425ae7..9cb86be 100644
+--- a/checks/quest-revision.cjs
++++ b/checks/quest-revision.cjs
+@@ -6,7 +6,7 @@ const actor=()=>({id:'test',hp:1000,maxHp:1000,attack:100,defense:100,reference:
+ const battle=()=>E.create(actor(),{...actor(),skillTurns:0},()=>0);
+ function hit(ms,rng=.5,side=0,correct=true){const b=battle();b.index=side;const entry=E.resolve(b,'normal',correct,{elapsedMs:ms,rng:()=>rng});return {b,entry,amount:1000-(side?b.player.hp:b.enemy.hp)};}
+ assert(hit(3000).amount>hit(3001).amount);assert.equal(hit(3000).b.player.attack,100);assert.equal(hit(3000,0).entry.variance,.95);assert.equal(hit(3000,1).entry.variance,1.05);assert(hit(3000,.5,1).amount<hit(3001,.5,1).amount);assert.equal(hit(3000,.5,1).b.player.defense,100);assert.equal(hit(2000,.5,0,false).amount,1);
+-const b=battle();b.player.hp=1;b.player.skills=[{id:'heal',name:'heal',type:'heal',healFraction:.25,left:2}];E.resolve(b,'skill:0',true);assert.equal(b.player.hp,501);assert.equal(b.player.skills[0].left,1);
++const b=battle();b.player.hp=1;b.player.skills=[{id:'heal',name:'heal',type:'heal',healFraction:.25,left:2}];E.resolve(b,'skill:0',true);assert.equal(b.player.hp,551);assert.equal(b.player.skills[0].left,1);
+ assert.equal(S.frame(1,5).background,'rockfall_before');assert.equal(S.frame(1,6).background,'rockfall_falling');assert.equal(S.frame(2,0).background,'rockfall_after');assert.equal(S.frame(15,0).background,'altar');assert.equal(S.frame(15,7).background,'stele_awakened');assert.equal(S.frame(15,10).memory,false);assert.equal(S.frame(15,11).memory,true);assert.equal(S.frame(15,0).enemy,5);assert(S.frame(15,0).people.includes('morii'));
+ assert.equal(S.frame(19,4).mist,false);assert.equal(S.frame(19,5).mist,true);assert.equal(S.frame(19,7).departing,true);assert.equal(S.frame(19,8).mist,false);
+ const q={id:9,format:'q9',prompt:'I ( ) a book.',answer:'have'};const ex=Q.explain(q,{q9:[{id:9,ja:'私は本を持っています。',note:'have は「持っている」。'}]});assert.equal(ex.completed,'I have a book.');assert(ex.translation);assert(ex.notes.includes('have は「持っている」。'));
+diff --git a/dist/battle-prototype/chapter1.js b/dist/battle-prototype/chapter1.js
+index 285d6df..1b6a9a8 100644
+--- a/dist/battle-prototype/chapter1.js
++++ b/dist/battle-prototype/chapter1.js
+@@ -2,14 +2,14 @@
+ const D=GoimonChapter1Data,C=GoimonBattleCatalog,E=GoimonBattlePrototype,T=GoimonQuestTutorial,Q=GoimonChapterQuestions,N=GoimonStoryNames,$=id=>document.getElementById(id),app=$('app');
+ const account=GOIMONProfiles.account||'guest',key='goimon_chapter1_v1:'+account+':lv1';
+ let store,state=null,blocked=false,interval=null,skipTimer=null;
+-const source={words:window.WORDS_1KYU,idioms:window.IDIOM_DATA_1KYU,q9:window.SENTENCE_FIXED_1KYU,q11:window.PARAPHRASE_DATA_1KYU,q12:window.REORDER_1KYU};
++const source={q1:window.ACCENT_1KYU,q3:window.LISTENING_TYPE3_1KYU,words:window.WORDS_1KYU,idioms:window.IDIOM_DATA_1KYU,q9:window.SENTENCE_FIXED_1KYU,q11:window.PARAPHRASE_DATA_1KYU,q12:window.REORDER_1KYU};
+ const enemyKinds=['intro','normal','swift','tank','boss'],enemyNames=['森の入口の小番人','装甲甲虫','霧の山猫','遺跡門の番人','ことばの祭壇の守護者'];
+ const defaults=['N_echo','N_aid','N_comfort','N_prepare'];
+ function tell(t){$('notice').textContent=t;}
+ function guarded(fn){return (...args)=>{if(blocked)return;try{assertAccount();fn(...args);}catch(e){fail(e);}};}
+ function assertAccount(){if((localStorage.getItem('goimon_cloud_v2:active')||'guest')!==account)throw Error('アカウントが変わりました。再読み込みして続けてください。');}
+ function save(){assertAccount();store.save(state);}
+-function fail(e){blocked=true;clearInterval(interval);clearTimeout(skipTimer);tell(e.message+' 進行の書き出しはメニューから利用できます。');app.querySelectorAll('button,select').forEach(b=>b.disabled=true);}
++function fail(e){window.GoimonQuestQuestionAudio?.stop();blocked=true;clearInterval(interval);clearTimeout(skipTimer);tell(e.message+' 進行の書き出しはメニューから利用できます。');app.querySelectorAll('button,select').forEach(b=>b.disabled=true);}
+ function button(text,fn,primary=false){const b=document.createElement('button');b.textContent=text;if(primary)b.className='primary';b.onclick=guarded(fn);return b;}
+ function text(tag,value,parent=app,cls=''){const el=document.createElement(tag);el.textContent=value;if(cls)el.className=cls;parent.append(el);return el;}
+ function card(parent=app,cls='card'){const el=document.createElement('section');el.className=cls;parent.append(el);return el;}
+@@ -56,7 +56,7 @@ text('p','所持している技と装備を選べます。技がなくても通
+ const selects=[];for(let i=0;i<4;i++){const label=text('label','SKILL '+(i+1),c),s=document.createElement('select');s.id='chapterSkill'+i;const none=document.createElement('option');none.value='';none.textContent='セットしない';s.append(none);C.skills.filter(x=>inventory.owned.skills[x.id]>0).forEach(x=>{const o=document.createElement('option');o.value=x.id;o.disabled=!Q.supported.includes(x.questionFormat);o.textContent=x.rarity+' '+x.name+' · '+(C.questionFormats[x.questionFormat]?.label||x.questionFormat)+' · '+x.uses+'回'+(o.disabled?'（準備中）':'');s.append(o);});label.append(s);selects.push(s);}
+ const gearLabel=text('label','EQUIPMENT',c),gear=document.createElement('select');gear.id='chapterGear';C.gear.filter(x=>x.id==='none'||inventory.owned.gear[x.id]>0).forEach(x=>{const o=document.createElement('option');o.value=x.id;o.textContent=x.name;gear.append(o);});gearLabel.append(gear);
+ function registered(){const set=inventory.loadouts[select.value]||{};selects.forEach((el,i)=>{const id=set.skillIds?.[i];el.value=inventory.owned.skills[id]>0&&Q.supported.includes(C.skills.find(x=>x.id===id)?.questionFormat)?id:'';});gear.value=inventory.owned.gear[set.gearId]>0?set.gearId:'none';}select.onchange=registered;registered();
+-text('p','STAGE1〜5は技の残り回数を引き継ぎ、クリアごとに減ったHPの1/4を回復します。単語問題は1〜4が10秒、5が5秒。大問別SKILLは30秒、語句整序は45秒です。',c,'small');
++text('p','STAGE1〜5は技の残り回数を引き継ぎ、クリアごとに減ったHPの1/3を回復します。単語問題は1〜4が10秒、5が5秒。大問1・3は時間制限なし、その他の大問別SKILLは30秒、語句整序は45秒です。',c,'small');
+ c.append(button(restart?'この編成で森の入口から再挑戦':'物語をはじめる',()=>{const ids=selects.map(s=>s.value).filter(Boolean);if(new Set(ids).size!==ids.length){tell('同じSKILLは複数セットできません。');return;}
+  const p=list.find(p=>p.id===select.value);if(restart){state.partnerId=p.id;state.pet=p;state.skills=ids;state.gear=gear.value;state.scene=6;state.line=0;state.mode='story';state.run=null;state.combat=null;state.question=null;state.feedback=null;state.misses=[];}else state=fresh(p,ids,gear.value);save();render();},true));
+ if(state)c.append(button('続きに戻る',render));}
+@@ -91,7 +91,7 @@ if(state.question){questionView(panel);return;}
+ if(E.current(b)==='enemy'){panel.append(button('防御の問題へ',()=>ask('normal'),true));return;}
+ const actions=card(panel,'grid');let commands=E.commands(b);if(id===0)commands=commands.filter(x=>state.tutorial.practice===0?x.id==='normal':x.id==='skill:0');
+ for(const cmd of commands){const skill=cmd.id==='normal'?null:b.player.skills[Number(cmd.id.slice(-1))];const btn=button(cmd.name+(skill?' · 残り'+skill.left+'/'+skill.maxUses+'回':''),()=>ask(cmd.id));btn.disabled=cmd.disabled||!!(skill&&!Q.supported.includes(skill.questionFormat));btn.className='skill';if(skill)text('small',C.questionFormats[skill.questionFormat]?.label||skill.questionFormat,btn);actions.append(btn);}
+-const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent='SKILLの効果';details.append(summary);b.player.skills.forEach(s=>text('p',s.name+'：'+(s.type==='heal'?'正解で最大HPの50％以上を回復。':s.description),details,'small'));panel.append(details);}
++const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent='SKILLの効果（攻撃・回復10％強化）';details.append(summary);b.player.skills.forEach(s=>text('p',s.name+'：'+(s.type==='heal'?'正解で最大HPの55％以上を回復。':s.description),details,'small'));panel.append(details);}
+ function showExplanation(panel,explanation){
+  if(!explanation||explanation.notes?.some(note=>note.includes('英語と意味を組にして覚えましょう')))return;
+  const ex=explanation;
+@@ -110,24 +110,24 @@ function failureLesson(panel){
+ }
+ function ask(command){const b=state.combat,format=GoimonSkillQuestionRouting.skillFormat(b.player.skills,command,E.current(b),state.battleId===0),stage=state.battleId==='mist'?5:state.battleId||1;
+ const q=Q.select(format,stage,source,GoimonQuestQuestionBank,Math.random,state.lastQuestion||'');state.lastQuestion=q.id;
+-const seconds=state.battleId===0?null:format==='q12'?45:format==='word_meaning'?(state.battleId===5?5:10):30;
+-if(state.battleId!==0)window.GoimonStudyTime?.begin({word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'}[format],'1');state.question={...q,command,selected:[],startedAt:Date.now(),deadline:seconds?Date.now()+seconds*1000:null};save();render();window.scrollTo?.({top:0,behavior:'instant'});}
+-function questionView(panel){const q=state.question;const labels={word_meaning:'英語の意味を選ぼう',idiom:'同じ意味の英語表現を選ぼう',q9:'空所に入る最も適切な語句を選ぼう',q11:'文aと文bが同じ意味になる語句を選ぼう',q12:'語句を正しい順番に並べよう'};const timer=text('span','',panel,'timer');timer.id='timer';text('p',labels[q.format],panel,'small');text('h2',q.prompt,panel);text('p',q.deadline?'制限時間内に答えよう。3秒以内の正解は、この一回だけ攻撃力×1.1／防御力×1.1。':'3秒以内の正解で、この一回だけ攻撃力×1.1／防御力×1.1。',panel,'small');
+-if(q.format==='q12'){const chosen=card(panel,'chips');chosen.id='chosen';for(const id of q.selected){const chunk=q.chunks.find(c=>c.id===id);chosen.append(button(chunk.text,()=>{q.selected=q.selected.filter(x=>x!==id);save();render();}));}
++const seconds=state.battleId===0||['q1','q3'].includes(format)?null:format==='q12'?45:format==='word_meaning'?(state.battleId===5?5:10):30;
++if(state.battleId!==0)window.GoimonStudyTime?.begin({q1:'accent',q3:'listening',word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'}[format],'1');state.question={...q,command,selected:[],startedAt:Date.now(),deadline:seconds?Date.now()+seconds*1000:null};save();render();window.scrollTo?.({top:0,behavior:'instant'});}
++function questionView(panel){const q=state.question;const labels={q1:'最も強く読む音節を選ぼう',q3:'音声に合う応答を選ぼう',word_meaning:'英語の意味を選ぼう',idiom:'同じ意味の英語表現を選ぼう',q9:'空所に入る最も適切な語句を選ぼう',q11:'文aと文bが同じ意味になる語句を選ぼう',q12:'語句を正しい順番に並べよう'};const timer=text('span','',panel,'timer');timer.id='timer';text('p',labels[q.format],panel,'small');text('h2',q.prompt,panel);text('p',['q1','q3'].includes(q.format)?'時間制限・3秒以内ボーナスはありません。落ち着いて聞いて答えよう。':q.deadline?'制限時間内に答えよう。3秒以内の正解は、この一回だけ攻撃力×1.1／防御力×1.1。':'3秒以内の正解で、この一回だけ攻撃力×1.1／防御力×1.1。',panel,'small');
++window.GoimonQuestQuestionAudio?.mount(panel,q);if(q.format==='q12'){const chosen=card(panel,'chips');chosen.id='chosen';for(const id of q.selected){const chunk=q.chunks.find(c=>c.id===id);chosen.append(button(chunk.text,()=>{q.selected=q.selected.filter(x=>x!==id);save();render();}));}
+  const choices=card(panel,'chips');for(const ch of q.chunks){const b=button(ch.text,()=>{q.selected.push(ch.id);save();render();});b.disabled=q.selected.includes(ch.id);choices.append(b);}const submit=button('この順番で答える',()=>answer([...q.selected]),true);submit.disabled=q.selected.length!==q.chunks.length;panel.append(submit,button('並べ直す',()=>{q.selected=[];save();render();}));
+ }else{const choices=card(panel,'grid');choices.id='choices';for(const value of q.choices){const choice=button(value,()=>answer(value));choice.disabled=state.tutorial.demoKind==='timeout'&&state.battleId===0;choices.append(choice);}if(state.battleId===0&&state.tutorial.demoKind==='wrong-defense')panel.append(button('練習：間違えた場合を体験',()=>answer('__tutorial_wrong__')));if(state.battleId===0&&state.tutorial.demoKind==='timeout')text('p','今回は時間切れの練習です。残り0秒まで待って、結果を見てみよう。',panel,'tutorial-copy');}
+ if(q.deadline){const tick=()=>{if(!state.question||blocked)return;const left=q.deadline-Date.now();timer.textContent=Math.max(0,Math.ceil(left/1000))+'秒';if(left<=0)guarded(()=>answer(null))();};interval=setInterval(tick,200);tick();}}
+-function answer(value){if(!state.question)return;clearInterval(interval);const q=state.question,expired=q.deadline&&Date.now()>=q.deadline,correct=!expired&&Q.correct(q,value),side=E.current(state.combat);
+-try{if(state.battleId!==0)window.ZenshoLearningLog?.addResult({word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'}[q.format],correct,{level:'1'});}catch(e){console.warn('学習記録を保存できませんでした',e);}window.GoimonStudyTime?.end();
+-const entry=E.resolve(state.combat,q.command,correct,{elapsedMs:Number.isFinite(q.startedAt)?Date.now()-q.startedAt:Infinity});if(state.battleId===0&&state.tutorial.demoKind){if(state.tutorial.demoKind==='timeout')state.tutorial.failureStep=1;else if(!correct){state.tutorial.failureStep=2;state.tutorial.failuresDone=true;}delete state.tutorial.demoKind;if(state.combat.player.hp<=0){state.combat.player.hp=1;state.combat.ended=false;state.combat.winner=null;}}else if(state.battleId===0)T.practice(state.tutorial,side==='enemy'?'defense':q.command==='normal'?'normal':'skill');
++function answer(value){if(!state.question)return;window.GoimonQuestQuestionAudio?.stop();clearInterval(interval);const q=state.question,expired=q.deadline&&Date.now()>=q.deadline,correct=!expired&&Q.correct(q,value),side=E.current(state.combat);
++try{if(state.battleId!==0)window.ZenshoLearningLog?.addResult({q1:'accent',q3:'listening',word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'}[q.format],correct,{level:'1'});}catch(e){console.warn('学習記録を保存できませんでした',e);}window.GoimonStudyTime?.end();
++const entry=E.resolve(state.combat,q.command,correct,{elapsedMs:!['q1','q3'].includes(q.format)&&Number.isFinite(q.startedAt)?Date.now()-q.startedAt:Infinity});if(state.battleId===0&&state.tutorial.demoKind){if(state.tutorial.demoKind==='timeout')state.tutorial.failureStep=1;else if(!correct){state.tutorial.failureStep=2;state.tutorial.failuresDone=true;}delete state.tutorial.demoKind;if(state.combat.player.hp<=0){state.combat.player.hp=1;state.combat.ended=false;state.combat.winner=null;}}else if(state.battleId===0)T.practice(state.tutorial,side==='enemy'?'defense':q.command==='normal'?'normal':'skill');
+ const answerText=q.format==='q12'?q.answer.map(id=>q.chunks.find(c=>c.id===id).text).join(' '):q.answer;
+ if(!correct){const miss={prompt:q.prompt,answer:answerText,review:q.review,reviewId:q.reviewId};state.misses.push(miss);state.allMisses ||= [];if(!state.allMisses.some(m=>m.review===miss.review&&m.reviewId===miss.reviewId))state.allMisses.push(miss);}state.feedback={correct,answer:(expired?'時間切れ。':'')+'正答：'+answerText,action:entry.text,explanation:Q.explain(q,source)};state.question=null;state.run=state.battleId===0?state.run:structuredClone(state.combat.player);save();render();app.querySelector('.scene')?.classList.add('strike');}
+-function finishBattle(){if(state.combat.winner!=='player'){state.mode='defeat';save();render();return;}const id=state.battleId;if(!state.cleared.includes(id))state.cleared.push(id);state.run=structuredClone(state.combat.player);if(Number.isInteger(id)&&id>=1&&id<=5){const amount=Math.ceil((state.run.maxHp-state.run.hp)/4);state.run.hp=Math.min(state.run.maxHp,state.run.hp+amount);state.recoveryNotice='STAGE '+id+' クリア！ 減っていたHPの1/4（'+amount+'）を回復しました。HP '+state.run.hp+'/'+state.run.maxHp;}state.combat=null;state.question=null;state.mode='story';advance();}
+-function gift(){text('h1','モリィと装備の練習');text('p','学習でほしのかけらを集めて、ガチャでSKILLやEQUIPMENTを増やそう。回復技は正解すると最大HPの50％以上を回復できます。戦闘前にセットして、残り回数を考えて使おう。');const c=card();text('p','練習用のほしのかけらと装備です。実際の所持品には加算されません。',c);text('p','練習用 ✦ '+state.tutorial.shards,c);
++function finishBattle(){if(state.combat.winner!=='player'){state.mode='defeat';save();render();return;}const id=state.battleId;if(!state.cleared.includes(id))state.cleared.push(id);state.run=structuredClone(state.combat.player);if((Number.isInteger(id)&&id>=1&&id<=5)||id==='mist'){const amount=Math.ceil((state.run.maxHp-state.run.hp)/3);state.run.hp=Math.min(state.run.maxHp,state.run.hp+amount);state.recoveryNotice=(id==='mist'?'黒い霧':'STAGE '+id)+' クリア！ 減っていたHPの1/3（'+amount+'）を回復しました。HP '+state.run.hp+'/'+state.run.maxHp;}state.combat=null;state.question=null;state.mode='story';advance();}
++function gift(){text('h1','モリィと装備の練習');text('p','学習でほしのかけらを集めて、ガチャでSKILLやEQUIPMENTを増やそう。回復技は正解すると最大HPの55％以上を回復できます。戦闘前にセットして、残り回数を考えて使おう。');const c=card();text('p','練習用のほしのかけらと装備です。実際の所持品には加算されません。',c);text('p','練習用 ✦ '+state.tutorial.shards,c);
+ if(!state.tutorial.claimed)c.append(button('練習用10個を受け取る',()=>{T.claim(state.tutorial);save();render();},true));
+ else if(!state.tutorial.item)c.append(button('装備ガチャをひく · ✦10',()=>{T.draw(state.tutorial,C.gear);save();render();},true));
+ else{text('h2',state.tutorial.item.name,c);text('p',state.tutorial.item.description,c);c.append(button('練習装備をセットして進む',()=>{if(!state.tutorial.equipped)T.equip(state.tutorial);state.mode='story';save();advance();},true));}}
+-function defeat(){text('h1','もう一度、声をつなごう');window.GoimonQuestReview?.studyLinks(state.misses||[],state.battleId,app);window.GoimonQuestReview?.show(state.misses||[],app);const help=card();text('h2','HPがなくなったら、回復技も試そう',help);text('p','回復SKILLは問題に正解すると最大HPの50％以上を回復します。HPが0になる前に使うのがポイント。ほしのかけらを集め、技ガチャで新しいSKILLを手に入れよう。回復技を手に入れたら、相棒の管理画面でセットできます。',help);text('p',state.battleId==='mist'?'守護者の救出は、まだ終わっていません。黒い霧との戦闘直前から再挑戦できます。':'少し準備して、もう一度森へ。読んだ物語とクリア済みの記録は残ります。');const c=card();
++function defeat(){text('h1','もう一度、声をつなごう');window.GoimonQuestReview?.studyLinks(state.misses||[],state.battleId,app);window.GoimonQuestReview?.show(state.misses||[],app);const help=card();text('h2','HPがなくなったら、回復技も試そう',help);text('p','回復SKILLは問題に正解すると最大HPの55％以上を回復します。HPが0になる前に使うのがポイント。ほしのかけらを集め、技ガチャで新しいSKILLを手に入れよう。回復技を手に入れたら、相棒の管理画面でセットできます。',help);text('p',state.battleId==='mist'?'守護者の救出は、まだ終わっていません。黒い霧との戦闘直前から再挑戦できます。':'少し準備して、もう一度森へ。読んだ物語とクリア済みの記録は残ります。');const c=card();
+ if(state.battleId==='mist')c.append(button('霧の戦闘直前から再挑戦',()=>startBattle('mist',true),true));c.append(button('編成を見直して森の入口から',()=>setup(true)));}
+ function showHistory(){const body=$('logBody');body.replaceChildren();for(const s of D.scenes){const lines=s.lines.filter(l=>!l.event&&state?.read.includes(l.id));if(!lines.length)continue;text('h3',s.title,body);for(const l of lines)text('p',(l.speaker?interpolate(l.speaker)+'\n':'')+interpolate(window.GoimonAdventureProfile?.line(l.text,l.speaker)||l.text),body);}if(!body.children.length)text('p','読み終えた文章がここに残ります。',body);if($('menu').open)$('menu').close();$('log').showModal();}
+ function complete(){window.GoimonQuestReview?.show(state.allMisses||state.misses||[],app);text('p','CHAPTER 1 · COMPLETE',app,'eyebrow');text('h1','聞こえた言葉');sceneArt('forest');text('p','相棒とつないだ声は、森の外へ。第1章クリア！');text('p','第2章「ふたつの声」が解放されました。クエストメニューで章を切り替えて、冒険を続けよう。');const c=card();c.append(button('物語を読み返す',showHistory,true),button('別の編成で森に再挑戦',()=>setup(true)));const a=document.createElement('a');a.className='button';a.href='quest_home.html?chapter=chapter2';a.textContent='クエストホームへ';c.append(a);}
+diff --git a/dist/battle-prototype/chapter2.js b/dist/battle-prototype/chapter2.js
+index 6151a13..579a746 100644
+--- a/dist/battle-prototype/chapter2.js
++++ b/dist/battle-prototype/chapter2.js
+@@ -2,10 +2,10 @@
+ (()=>{'use strict';
+ const D=GoimonChapter2Data,A=GoimonChapter2Assets,P=GoimonChapter2Progress,C=GoimonBattleCatalog,E=GoimonBattlePrototype,Q=GoimonChapterQuestions,N=GoimonStoryNames;
+ const $=id=>document.getElementById(id),app=$('app'),account=GOIMONProfiles.account||'guest',key='goimon_chapter2_v1:'+account+':lv1';
+-const source={words:window.WORDS_1KYU,idioms:window.IDIOM_DATA_1KYU,q9:window.SENTENCE_FIXED_1KYU,q11:window.PARAPHRASE_DATA_1KYU,q12:window.REORDER_1KYU};
++const source={q1:window.ACCENT_1KYU,q3:window.LISTENING_TYPE3_1KYU,words:window.WORDS_1KYU,idioms:window.IDIOM_DATA_1KYU,q9:window.SENTENCE_FIXED_1KYU,q11:window.PARAPHRASE_DATA_1KYU,q12:window.REORDER_1KYU};
+ let state,store,timer,blocked=false,art=null;
+ const clone=x=>JSON.parse(JSON.stringify(x));
+-function fail(e){blocked=true;clearInterval(timer);$('notice').textContent=e.message+' 元の育成・学習記録は変更していません。';app.querySelectorAll('button').forEach(b=>b.disabled=true);}
++function fail(e){window.GoimonQuestQuestionAudio?.stop();blocked=true;clearInterval(timer);$('notice').textContent=e.message+' 元の育成・学習記録は変更していません。';app.querySelectorAll('button').forEach(b=>b.disabled=true);}
+ function guard(fn){return (...args)=>{if(blocked)return;try{if((localStorage.getItem('goimon_cloud_v2:active')||'guest')!==account)throw Error('アカウントが変わりました。再読み込みしてください。');if(!GoimonChapter2Access.current()){locked();return;}fn(...args);}catch(e){fail(e);}};}
+ function save(){if(!GoimonChapter2Access.current())throw Error('第1章のクリア記録を確認できません。');store.save(state);}
+ function locked(){clearInterval(timer);music('setup');app.replaceChildren();art=null;el('p','CHAPTER 02',app,'eyebrow');el('h1','ふたつの声');el('p','第1章「ことばの森」をクリアすると解放されます。');el('p','第2章の保存済み記録は、そのまま保持しています。',app,'muted');link('第1章の冒険へ','quest_chapter1.html',app);link('クエストメニューへ','quest_home.html?chapter=chapter2',app);}
+@@ -22,7 +22,7 @@ function setup(){music('setup');app.replaceChildren();art=null;el('p','CHAPTER 0
+  if(!list.length){el('p','ホームで1級の相棒を迎えると、この相棒で冒険できます。',box);link('ホームで相棒に会う','index.html?panel=goimon&manage=1',box);return;}
+  const inv=GoimonItemStore.parse(GOIMONStorage.getItem('goimon_item_state_v1_lv1'),'1');const label=el('label','冒険の相棒',box),select=el('select','',label);for(const p of list){const o=el('option',N.partnerName(p,GoimonDex),select);o.value=p.id;}
+  const info=el('p','',box);function describe(){const load=inv.loadouts[select.value]||{};info.textContent='登録中の技：'+((load.skillIds||[]).filter(id=>inv.owned.skills[id]>0).map(id=>C.skills.find(s=>s.id===id)?.name).filter(Boolean).join('・')||'なし（通常攻撃で挑戦できます）');}select.onchange=describe;describe();
+- el('p','23シーン・9戦。HPと技の残り回数を引き継ぎ、勝利後は減ったHPの1/4を回復します。敗北時は戦闘直前から再挑戦できます。',box,'muted');el('p','出題範囲・敵の強さは確認版の仮設定です。第1章の単語範囲と既存の大問別SKILLを再利用しています。',box,'muted');
++ el('p','23シーン・9戦。HPと技の残り回数を引き継ぎ、勝利後は減ったHPの1/3を回復します。敗北時は戦闘直前から再挑戦できます。',box,'muted');el('p','前半は単語301〜500、後半はイディオム1〜287。音声を使う大問1・3のSKILLは時間制限なしです。',box,'muted');
+  link('技・装備を確認','index.html?panel=goimon&manage=1',box);
+  btn('この相棒と出発',()=>{const pet=list.find(p=>p.id===select.value),load=inv.loadouts[pet.id]||{};const ids=(load.skillIds||[]).filter(id=>inv.owned.skills[id]>0&&Q.supported.includes(C.skills.find(s=>s.id===id)?.questionFormat));state=P.fresh(D,pet,[...new Set(ids)],inv.owned.gear[load.gearId]>0?load.gearId:'none');save();render();},box,true);
+ }
+@@ -58,15 +58,15 @@ function battleView(){const b=state.combat,id=state.battleId;music(id===9?'boss'
+  if(b.ended){P.finish(state,D);save();render();return;}
+  el('p',E.current(b)==='player'?'攻撃を選ぼう':'敵の攻撃 · 正解でダメージ軽減',panel,'muted');if(state.question){questionView(panel);return;}if(E.current(b)==='enemy'){btn('防御の問題へ',()=>ask('normal'),panel,true);return;}
+  const actions=el('div','',panel,'actions');for(const cmd of E.commands(b)){const skill=cmd.id==='normal'?null:b.player.skills[Number(cmd.id.split(':')[1])];const button=btn(cmd.name+(skill?' · '+skill.left+'/'+skill.maxUses+'回':''),()=>ask(cmd.id),actions);button.disabled=cmd.disabled||!!(skill&&!Q.supported.includes(skill.questionFormat));}
+- const details=el('details','',panel);el('summary','技の効果と問題形式',details);for(const s of b.player.skills)el('p',s.name+'：'+s.description+'（'+(C.questionFormats[s.questionFormat]?.label||s.questionFormat)+'）',details);
++ const details=el('details','',panel);el('summary','技の効果と問題形式（攻撃・回復10％強化）',details);for(const s of b.player.skills)el('p',s.name+'：'+s.description+'（'+(C.questionFormats[s.questionFormat]?.label||s.questionFormat)+'）',details);
+ }
+-function ask(command){const b=state.combat,format=GoimonSkillQuestionRouting.skillFormat(b.player.skills,command,E.current(b),false),stage=Math.min(5,Math.ceil(state.battleId/2));const q=Q.select(format,stage,source,GoimonQuestQuestionBank,Math.random,state.lastQuestion||'');state.lastQuestion=q.id;window.GoimonStudyTime?.begin(({word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'})[format],'1');const seconds=format==='word_meaning'?10:format==='q12'?45:30;state.question={...q,command,selected:[],startedAt:Date.now(),deadline:Date.now()+seconds*1000};save();render();}
+-function questionView(panel){const q=state.question,t=el('span','',panel,'timer');el('p',({word_meaning:'英語の意味を選ぼう',idiom:'同じ意味の表現を選ぼう',q9:'空所に合う語句を選ぼう',q11:'文aと文bが同じ意味になる語句を選ぼう',q12:'語句を正しい順番に並べよう'})[q.format],panel,'muted');el('h2',q.prompt,panel,'prompt');
+- if(q.format==='q12'){const chosen=el('div','',panel,'chips');for(const id of q.selected)btn(q.chunks.find(c=>c.id===id).text,()=>{q.selected=q.selected.filter(x=>x!==id);save();render();},chosen);const choices=el('div','',panel,'chips');for(const c of q.chunks){const b=btn(c.text,()=>{q.selected.push(c.id);save();render();},choices);b.disabled=q.selected.includes(c.id);}const submit=btn('この順番で答える',()=>answer([...q.selected]),panel,true);submit.disabled=q.selected.length!==q.chunks.length;}else{const choices=el('div','',panel,'choices');for(const value of q.choices)btn(value,()=>answer(value),choices);}
+- const tick=guard(()=>{if(!state.question)return;const ms=q.deadline-Date.now();t.textContent=Math.max(0,Math.ceil(ms/1000))+'秒';if(ms<=0)answer(null);});timer=setInterval(tick,200);tick();}
+-function answer(value){const q=state.question;if(!q)return;clearInterval(timer);const expired=Date.now()>=q.deadline,correct=!expired&&Q.correct(q,value),entry=E.resolve(state.combat,q.command,correct,{elapsedMs:Date.now()-q.startedAt});const answer=q.format==='q12'?q.answer.map(id=>q.chunks.find(c=>c.id===id).text).join(' '):q.answer;
+- if(!correct&&!state.misses.some(m=>m.review===q.review&&m.reviewId===q.reviewId))state.misses.push({prompt:q.prompt,answer,review:q.review,reviewId:q.reviewId});state.feedback={correct,expired,answer,action:entry.text,translation:q.translation||'',explanation:Q.explain?.(q,source)||null};state.question=null;save();try{window.ZenshoLearningLog?.addResult(({word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'})[q.format],correct,{level:'1'});window.GoimonStudyTime?.end();}catch{ $('notice').textContent='学習記録の保存を確認できませんでした。第2章の進行は保存済みです。';}render();}
+-function reviews(parent){if(!state.misses.length)return;const details=el('details','',parent);el('summary','間違えた問題を復習（'+state.misses.length+'問）',details);for(const m of state.misses){el('p',m.prompt+' → '+m.answer,details);const u=new URL(m.review,location.href);u.searchParams.set('reviewIds',m.reviewId);u.searchParams.set('returnTo','quest_chapter2.html');if(m.review==='idiom_quiz.html')u.searchParams.set('idiomMode','synonym');const a=link('対応する学習へ',u.pathname+u.search,details);a.onclick=guard(()=>GOIMONStorage.setItem('zensho_level_v1','1'));}}
++function ask(command){const b=state.combat,base=GoimonSkillQuestionRouting.skillFormat(b.player.skills,command,E.current(b),false),format=base==='word_meaning'&&state.battleId>=7?'idiom':base,stage={words:({1:[301,350],2:[351,400],3:[301,400],4:[401,450],5:[451,500],6:[301,500]})[state.battleId]||[301,500],idioms:state.battleId===7?[1,100]:state.battleId===8?[101,200]:[1,287]};const q=Q.select(format,stage,source,GoimonQuestQuestionBank,Math.random,state.lastQuestion||'');state.lastQuestion=q.id;window.GoimonStudyTime?.begin(({q1:'accent',q3:'listening',word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'})[format],'1');const seconds=['q1','q3'].includes(format)?null:format==='word_meaning'?10:format==='q12'?45:30;state.question={...q,command,selected:[],startedAt:Date.now(),deadline:seconds?Date.now()+seconds*1000:null};save();render();}
++function questionView(panel){const q=state.question,t=el('span','',panel,'timer');el('p',({q1:'最も強く読む音節を選ぼう',q3:'音声に合う応答を選ぼう',word_meaning:'英語の意味を選ぼう',idiom:'同じ意味の表現を選ぼう',q9:'空所に合う語句を選ぼう',q11:'文aと文bが同じ意味になる語句を選ぼう',q12:'語句を正しい順番に並べよう'})[q.format],panel,'muted');el('h2',q.prompt,panel,'prompt');
++ window.GoimonQuestQuestionAudio?.mount(panel,q);if(q.format==='q12'){const chosen=el('div','',panel,'chips');for(const id of q.selected)btn(q.chunks.find(c=>c.id===id).text,()=>{q.selected=q.selected.filter(x=>x!==id);save();render();},chosen);const choices=el('div','',panel,'chips');for(const c of q.chunks){const b=btn(c.text,()=>{q.selected.push(c.id);save();render();},choices);b.disabled=q.selected.includes(c.id);}const submit=btn('この順番で答える',()=>answer([...q.selected]),panel,true);submit.disabled=q.selected.length!==q.chunks.length;}else{const choices=el('div','',panel,'choices');for(const value of q.choices)btn(value,()=>answer(value),choices);}
++ if(!q.deadline){t.textContent='時間制限なし';return;}const tick=guard(()=>{if(!state.question)return;const ms=q.deadline-Date.now();t.textContent=Math.max(0,Math.ceil(ms/1000))+'秒';if(ms<=0)answer(null);});timer=setInterval(tick,200);tick();}
++function answer(value){const q=state.question;if(!q)return;window.GoimonQuestQuestionAudio?.stop();clearInterval(timer);const expired=!!q.deadline&&Date.now()>=q.deadline,correct=!expired&&Q.correct(q,value),entry=E.resolve(state.combat,q.command,correct,{elapsedMs:['q1','q3'].includes(q.format)?Infinity:Date.now()-q.startedAt});const answer=q.format==='q12'?q.answer.map(id=>q.chunks.find(c=>c.id===id).text).join(' '):q.answer;
++ if(!correct&&!state.misses.some(m=>m.review===q.review&&m.reviewId===q.reviewId))state.misses.push({prompt:q.prompt,answer,review:q.review,reviewId:q.reviewId});state.feedback={correct,expired,answer,action:entry.text,translation:q.translation||'',explanation:Q.explain?.(q,source)||null};state.question=null;save();try{window.ZenshoLearningLog?.addResult(({q1:'accent',q3:'listening',word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'})[q.format],correct,{level:'1'});window.GoimonStudyTime?.end();}catch{ $('notice').textContent='学習記録の保存を確認できませんでした。第2章の進行は保存済みです。';}render();}
++function reviews(parent){if(!state.misses.length)return;const details=el('details','',parent);el('summary','間違えた問題を復習（'+state.misses.length+'問）',details);for(const m of state.misses){el('p',m.prompt+' → '+m.answer,details);const u=new URL(m.review,location.href);u.searchParams.set('reviewIds',m.reviewId);if(m.review==='accent.html'){u.searchParams.set('start',m.reviewId);u.searchParams.set('end',m.reviewId);}if(m.review==='listening.html')u.searchParams.set('format','3');u.searchParams.set('returnTo','quest_chapter2.html');if(m.review==='idiom_quiz.html')u.searchParams.set('idiomMode','synonym');const a=link('対応する学習へ',u.pathname+u.search,details);a.onclick=guard(()=>GOIMONStorage.setItem('zensho_level_v1','1'));}}
+ function defeat(){music('setup');el('h1','もう一度、声をつなごう');el('p','戦闘前のHP・技の回数に戻して再挑戦できます。物語の進行は失われません。');btn('戦闘直前から再挑戦',()=>startBattle(true),app,true);reviews(app);}
+ function history(){const body=$('history-body');body.replaceChildren();if(!state){el('p','読み終えた物語がここに残ります。',body);}else for(const scene of D.scenes){const lines=scene.lines.filter(l=>state.read.includes(l.id));if(!lines.length)continue;el('h2',scene.title,body);for(const l of lines)el('p',(l.speaker?interpolate(l.speaker)+'\n':'')+interpolate(l.text),body);}if(!$('history-dialog').open)$('history-dialog').showModal();}
+  $('history').onclick=guard(history);$('close-history').onclick=()=>$('history-dialog').close();window.addEventListener('storage',e=>{if(e.key==='goimon_chapter1_v1:'+account+':lv1'){location.reload();return;}if(e.key===key||e.key==='goimon_cloud_v2:active')fail(Error('別の画面で進行またはアカウントが更新されました。再読み込みしてください。'));});
+diff --git a/dist/battle-prototype/chapter2_progress.js b/dist/battle-prototype/chapter2_progress.js
+index cf90283..0fc79b5 100644
+--- a/dist/battle-prototype/chapter2_progress.js
++++ b/dist/battle-prototype/chapter2_progress.js
+@@ -11,7 +11,7 @@ function validate(s,d){
+ }
+ function nextScene(s,d){if(s.scene===d.scenes.length-1){s.mode='complete';s.completed=true;}else{s.scene++;s.line=0;s.mode='story';}}
+ function advance(s,d){if(s.mode!=='story')return;const scene=d.scenes[s.scene],line=scene.lines[s.line];if(line){if(!s.read.includes(line.id))s.read.push(line.id);s.line++;}if(s.line===scene.lines.length&&!scene.battleId)nextScene(s,d);}
+-function finish(s,d){if(!s.combat?.ended)throw Error('戦闘はまだ終了していません。');if(s.combat.winner!=='player'){s.mode='defeat';return;}if(!s.cleared.includes(s.battleId))s.cleared.push(s.battleId);s.run=clone(s.combat.player);s.run.hp=Math.min(s.run.maxHp,s.run.hp+Math.ceil((s.run.maxHp-s.run.hp)/4));s.combat=null;s.question=null;s.feedback=null;nextScene(s,d);}
++function finish(s,d){if(!s.combat?.ended)throw Error('戦闘はまだ終了していません。');if(s.combat.winner!=='player'){s.mode='defeat';return;}if(!s.cleared.includes(s.battleId))s.cleared.push(s.battleId);s.run=clone(s.combat.player);s.run.hp=Math.min(s.run.maxHp,s.run.hp+Math.ceil((s.run.maxHp-s.run.hp)/3));s.combat=null;s.question=null;s.feedback=null;nextScene(s,d);}
+ function create(storage,key,d){let last=storage.getItem(key);return {load:()=>last?validate(JSON.parse(last),d):null,save(s){if(storage.getItem(key)!==last)throw Error('別のタブで第2章が更新されました。再読み込みしてください。');validate(s,d);const value=JSON.stringify({...s,revision:s.revision+1});storage.setItem(key,value);last=value;s.revision++;},raw:()=>last};}
+ const api={fresh,validate,advance,finish,create};if(typeof module!=='undefined')module.exports=api;else root.GoimonChapter2Progress=api;
+ })(typeof window!=='undefined'?window:globalThis);
+diff --git a/dist/battle-prototype/chapter_questions.js b/dist/battle-prototype/chapter_questions.js
+index 827475a..d84d334 100644
+--- a/dist/battle-prototype/chapter_questions.js
++++ b/dist/battle-prototype/chapter_questions.js
+@@ -1,11 +1,18 @@
+ // Uses the existing real question banks and strict SKILL format routing.
+ (function(root){'use strict';
+-const supported=['word_meaning','idiom','q9','q11','q12'];
++const supported=['word_meaning','idiom','q1','q3','q9','q11','q12'];
+ function shuffle(a,rng){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+ function select(format,stage,data,bank,rng=Math.random,previous=''){
+  if(!supported.includes(format))throw Error('この形式はまだ接続されていません。別のSKILLを選んでください。');
++ if(format==='q1'||format==='q3'){
++  const pool=(data[format]||[]).filter(q=>format==='q1'?q.sylRaw&&q.stress>=1:q.audioFile&&q.choices?.some(c=>c.id===q.answerId));
++  const eligible=pool.filter(q=>(format==='q1'?'accent_'+q.no:q.id)!==previous);const choices=eligible.length?eligible:pool;if(!choices.length)throw Error('音声問題データがありません');const q=choices[Math.floor(rng()*choices.length)];
++  if(format==='q1')return {id:'accent_'+q.no,format,prompt:q.sylRaw.replace(/[ˈˌ]/g,''),answer:'第'+Math.min(4,q.stress)+'音節',choices:[1,2,3,4].map(n=>'第'+n+'音節'),speech:q.en,translation:q.ja,teaching:q.note||'',completed:q.sylRaw,review:'accent.html',reviewId:String(q.no)};
++  return {id:q.id,format,prompt:'音声を聞き、最も適切な応答を選ぼう。',answer:q.choices.find(c=>c.id===q.answerId).text,choices:shuffle(q.choices.map(c=>c.text),rng),audio:q.audioFile,translation:q.scriptJa,teaching:q.explanation,completed:q.script,review:'listening.html',reviewId:q.id};
++ }
+  if(format==='word_meaning'){const q=bank.select('単語',stage,data.words,data.idioms,rng,previous);if(!q)throw Error('単語データがありません');return {...q,format,prompt:q.en,answer:q.ja,choices:bank.options(q,stage,data.words,data.idioms,rng),review:'quiz.html',reviewId:q.no};}
+- const source={idiom:data.idioms,q9:data.q9,q11:data.q11,q12:data.q12}[format]||[];
++ let source={idiom:data.idioms,q9:data.q9,q11:data.q11,q12:data.q12}[format]||[];
++ if(format==='idiom'&&stage?.idioms)source=source.slice(stage.idioms[0]-1,stage.idioms[1]);
+  const pool=source.filter(q=>format==='idiom'?q.expression&&q.paraphraseTo?.length:format==='q12'?q.chunks?.length&&q.answer?.length:format==='q11'?q.a&&q.b&&q.choices?.includes(q.answer):q.en&&q.choices?.includes(q.answer));
+  if(!pool.length)throw Error('問題データがありません');
+  const eligible=pool.length>1?pool.filter(q=>q.id!==previous):pool,q=eligible[Math.floor(rng()*eligible.length)];
+@@ -15,6 +22,7 @@ function select(format,stage,data,bank,rng=Math.random,previous=''){
+ }
+ function correct(q,value){return q.format==='q12'?Array.isArray(value)&&value.length===q.answer.length&&value.every((x,i)=>x===q.answer[i]):value===q.answer;}
+ function explain(q,data){
++ if(q.format==='q1'||q.format==='q3')return {format:q.format,completed:q.completed,translation:q.translation,notes:q.teaching?[q.teaching]:[]};
+  const source={word_meaning:data.words,idiom:data.idioms,q9:data.q9,q11:data.q11,q12:data.q12}[q.format]||[];
+  const original=(q.id!=null?source.find(x=>x.id===q.id):null)||(q.format==='word_meaning'?source.find(x=>x.en===(q.en||q.prompt)):null)||q;
+  const notes=[];let completed='',translation=original.ja||q.translation||'';
+diff --git a/dist/battle-prototype/core.js b/dist/battle-prototype/core.js
+index 2962b2c..2e62f54 100644
+--- a/dist/battle-prototype/core.js
++++ b/dist/battle-prototype/core.js
+@@ -23,12 +23,12 @@ function resolve(b,command,correct,options={}){
+  if(side==='player'&&command!=='normal'){if(!/^skill:[0-3]$/.test(command))throw Error('invalid command');skill=p.skills[Number(command.slice(-1))];if(!skill||skill.left<=0)throw Error('skill exhausted');}
+  const quick=correct&&Number.isFinite(options.elapsedMs)&&options.elapsedMs>=0&&options.elapsedMs<=3000;const rng=options.rng||Math.random;const variance=.95+.1*Math.min(1,Math.max(0,rng()));const attackActor=quick?{...p,attack:p.attack*1.1}:p,defendActor=quick?{...p,defense:p.defense*1.1}:p;const entry={turn:b.turn,side,correct,quick,variance,text:''};b.questions++;if(skill)skill.left--;
+  if(side==='player'){
+-  if(skill?.type==='heal'){entry.text=skill.name+'：HPを'+heal(p,p.maxHp*Math.max(.5,skill.healFraction||.5)*(p.id==='tsumugi'?1.3:1)*(correct?1:.5))+'回復';}
++  if(skill?.type==='heal'){entry.text=skill.name+'：HPを'+heal(p,p.maxHp*Math.min(1,Math.max(.5,skill.healFraction||.5)*1.1)*(p.id==='tsumugi'?1.3:1)*(correct?1:.5))+'回復';}
+   else{
+    let extra=p.nextPower;p.nextPower=1;
+    if(p.gearEffect==='courage'&&p.hp<=p.maxHp/2)extra*=1.12;
+    if(p.gearEffect==='streak'){if(p.streak>=2){extra*=1.15;p.streak=0;}else p.streak=correct?p.streak+1:0;}
+-   const attr=skill?.attr||p.attr,amount=correct?damage(attackActor,e,skill?.power||1,1,attr,speedBonus(p,e)*(attackIds.includes(p.id)?1.1:1)*extra,1,variance):1;
++   const attr=skill?.attr||p.attr,amount=correct?damage(attackActor,e,skill?(skill.power||1)*1.1:1,1,attr,speedBonus(p,e)*(attackIds.includes(p.id)?1.1:1)*extra,1,variance):1;
+    e.hp=Math.max(0,e.hp-amount);entry.text=(skill?.name||'通常攻撃')+'：'+amount+'ダメージ';
+    if(correct&&skill?.type==='replenish'){const target=restoreTarget(p,skill);if(target){const restored=Math.min(skill.restoreUses,target.maxUses-target.left);target.left+=restored;entry.text+='・'+target.name+'の使用回数を'+restored+'回復';}else entry.text+='・回復できる技がありません';}
+    if(skill?.type==='ward'){p.shield={hits:skill.shieldHits,factor:correct?skill.shieldFactor:skill.wrongShieldFactor};entry.text+='・盾を展開';}
+diff --git a/dist/battle-prototype/quest-review.js b/dist/battle-prototype/quest-review.js
+index e98ac64..15ca729 100644
+--- a/dist/battle-prototype/quest-review.js
++++ b/dist/battle-prototype/quest-review.js
+@@ -1,9 +1,9 @@
+ (()=>{'use strict';
+ const keys={'quiz.html':'zensho_quiz_manual_weak_enja_v1_lv1','idiom_quiz.html':'zensho_idiom_quiz_manual_weak_v1_lv1','sentence.html':'zensho_sentence_fixed_weak_v2_lv1','paraphrase_quiz.html':'zensho_paraphrase_quiz_manual_weak_v1_lv1','reorder.html':'zensho_reorder_manual_weak_v1_lv1'};
+ async function add(m){const key=keys[m.review];if(!key)throw Error('この形式は学習画面で登録してください。');const account=GOIMONProfiles.account||'guest';const action=()=>{if((localStorage.getItem('goimon_cloud_v2:active')||'guest')!==account)throw Error('再読み込みしてください。');if(account!=='guest'&&!GOIMONProfiles.isWriter())throw Error('別の学習タブを閉じてください。');const map=JSON.parse(GOIMONStorage.getItem(key)||'{}');if(!map||Array.isArray(map)||typeof map!=='object')throw Error('苦手データを確認できません。');const id=m.review==='quiz.html'?m.prompt.trim().toLowerCase():String(m.reviewId);if(['__proto__','constructor','prototype'].includes(id))throw Error('問題IDを確認できません。');map[id]=m.review==='sentence.html'?{auto:!!map[id]?.auto,pin:true}:true;GOIMONStorage.setItem(key,JSON.stringify(map));};if(!navigator.locks)throw Error('安全に保存できるブラウザで開いてください。');return navigator.locks.request('goimon-quest-weak-'+account,action);}
+-function studyUrl(review,ids){const u=new URL(review,location.href);u.searchParams.set('level','1');u.searchParams.set('reviewIds',ids.map(id=>{if(review!=='idiom_quiz.html')return id;const data=window.IDIOM_DATA_1KYU||[],index=data.findIndex(q=>String(q.id)===String(id));return index<0?id:data[index].displayNo||index+1;}).join(','));u.searchParams.set('returnTo','quest_chapter1.html');if(review==='idiom_quiz.html')u.searchParams.set('idiomMode','synonym');return u.pathname+u.search;}
+-function studyLinks(misses,battleId,parent){const groups=new Map(),labels={'quiz.html':'単語','idiom_quiz.html':'熟語の言い換え','sentence.html':'短文空所補充','paraphrase_quiz.html':'同意文完成','reorder.html':'語句整序'};for(const m of misses){if(!labels[m.review])continue;if(!groups.has(m.review))groups.set(m.review,new Set());groups.get(m.review).add(m.reviewId);}
++function studyUrl(review,ids){const u=new URL(review,location.href);u.searchParams.set('level','1');u.searchParams.set('reviewIds',ids.map(id=>{if(review!=='idiom_quiz.html')return id;const data=window.IDIOM_DATA_1KYU||[],index=data.findIndex(q=>String(q.id)===String(id));return index<0?id:data[index].displayNo||index+1;}).join(','));if(review==='accent.html'){u.searchParams.set('start',Math.min(...ids.map(Number)));u.searchParams.set('end',Math.max(...ids.map(Number)));}if(review==='listening.html')u.searchParams.set('format','3');u.searchParams.set('returnTo','quest_chapter1.html');if(review==='idiom_quiz.html')u.searchParams.set('idiomMode','synonym');return u.pathname+u.search;}
++function studyLinks(misses,battleId,parent){const groups=new Map(),labels={'accent.html':'アクセント','listening.html':'大問3・応答問題','quiz.html':'単語','idiom_quiz.html':'熟語の言い換え','sentence.html':'短文空所補充','paraphrase_quiz.html':'同意文完成','reorder.html':'語句整序'};for(const m of misses){if(!labels[m.review])continue;if(!groups.has(m.review))groups.set(m.review,new Set());groups.get(m.review).add(m.reviewId);}
+  if(!groups.size){const ranges=[[1,50],[51,100],[101,150],[151,200],[201,300]],range=ranges[(Number.isInteger(battleId)&&battleId>0?battleId:5)-1]||ranges[0];groups.set('quiz.html',new Set(Array.from({length:range[1]-range[0]+1},(_,i)=>i+range[0])));}
+  const box=document.createElement('section');box.className='card defeat-study';const title=document.createElement('h2');title.textContent='復習して、もう一度挑もう';const note=document.createElement('p');note.textContent=misses.length?'間違えた問題を学習画面で練習できます。':'この戦闘の単語を学習画面で練習できます。';const links=document.createElement('div');links.className='study-links';for(const [review,ids] of groups){const link=document.createElement('a');link.className='button';link.href=studyUrl(review,[...ids]);link.textContent=labels[review]+'を復習する · '+ids.size+'問';link.onclick=()=>GOIMONStorage.setItem('zensho_level_v1','1');links.append(link);}box.append(title,note,links);parent.append(box);}
+-function show(misses,parent){const unique=[...new Map(misses.map(m=>[m.review+':'+m.reviewId,m])).values()];const box=document.createElement('details');box.className='card quest-review';const summary=document.createElement('summary');summary.textContent='間違えた問題を確認 · '+unique.length+'問';box.append(summary);if(!unique.length){const p=document.createElement('p');p.textContent='今回はすべて正解！';box.append(p);}for(const m of unique){const row=document.createElement('section');const p=document.createElement('p');p.textContent=m.prompt+' → '+m.answer;const b=document.createElement('button');b.textContent='苦手に追加';b.onclick=async()=>{b.disabled=true;try{await add(m);b.textContent='苦手に追加済み';}catch(e){b.disabled=false;p.textContent=m.prompt+' → '+m.answer+'\n'+e.message;}};const a=document.createElement('a');a.href=studyUrl(m.review,[m.reviewId]);a.textContent='学習画面で復習';a.className='button';a.onclick=()=>GOIMONStorage.setItem('zensho_level_v1','1');row.append(p,b,a);box.append(row);}parent.append(box);}
++function show(misses,parent){const unique=[...new Map(misses.map(m=>[m.review+':'+m.reviewId,m])).values()];const box=document.createElement('details');box.className='card quest-review';const summary=document.createElement('summary');summary.textContent='間違えた問題を確認 · '+unique.length+'問';box.append(summary);if(!unique.length){const p=document.createElement('p');p.textContent='今回はすべて正解！';box.append(p);}for(const m of unique){const row=document.createElement('section');const p=document.createElement('p');p.textContent=m.prompt+' → '+m.answer;const b=document.createElement('button');b.textContent='苦手に追加';b.onclick=async()=>{b.disabled=true;try{await add(m);b.textContent='苦手に追加済み';}catch(e){b.disabled=false;p.textContent=m.prompt+' → '+m.answer+'\n'+e.message;}};const a=document.createElement('a');a.href=studyUrl(m.review,[m.reviewId]);a.textContent='学習画面で復習';a.className='button';a.onclick=()=>GOIMONStorage.setItem('zensho_level_v1','1');row.append(p);if(keys[m.review])row.append(b);row.append(a);box.append(row);}parent.append(box);}
+ window.GoimonQuestReview={add,show,studyLinks};})();
+diff --git a/dist/battle-prototype/quest_audio.js b/dist/battle-prototype/quest_audio.js
+index 52d6403..f7f621c 100644
+--- a/dist/battle-prototype/quest_audio.js
++++ b/dist/battle-prototype/quest_audio.js
+@@ -3,12 +3,12 @@
+ const labels={setup:'クエストメニュー',story:'物語',battle:'通常バトル',boss:'ボス戦',blackfog:'黒い霧戦'},files={setup:'goimon_menu_theme.mp3',story:'goimon_storybackground1.mp3',battle:'goimon_battle_normal.mp3',boss:'goimon_vs_boss1.mp3',blackfog:'goimon_vs_blackfog.mp3'},builtins=Object.fromEntries(Object.entries(files).map(([k,v])=>[k,'audio/quest/'+v])),urls={...builtins},custom={},audio=new Audio();audio.loop=true;audio.preload='metadata';
+ function stored(key){try{return localStorage.getItem(key);}catch{return null;}}function persist(key,value){try{localStorage.setItem(key,value);}catch{}}
+ const rawVolume=stored('goimon_preview_bgm_volume');let volume=rawVolume===null?.35:Number(rawVolume);volume=Number.isFinite(volume)?Math.min(1,Math.max(0,volume)):.35;
+-let launchButton=null,refreshControls=()=>{};
++let suspended=0;let launchButton=null,refreshControls=()=>{};
+ let enabled=stored('goimon_preview_bgm_enabled')!=='0',current='',failed=false,waiting=false,mode=null;
+ const initial=window.GoimonChapter1?.snapshot?.(),page=location.pathname.split('/').filter(Boolean).pop()?.replace(/\.html$/,'')+'.html';if(page==='quest_chapter1.html')mode=window.GoimonChapter1?.musicMode?.()||(initial?.mode==='battle'?(initial.battleId==='mist'?'blackfog':initial.battleId===5?'boss':'battle'):initial?.mode==='story'?'story':'setup');else if(['quest_home.html','quest_loadout.html','gacha.html'].includes(page))mode='setup';else if(page==='quest_records.html')mode='setup';
+ const dbp=new Promise((resolve,reject)=>{try{const r=indexedDB.open('goimon-preview-bgm',1);r.onupgradeneeded=()=>r.result.createObjectStore('tracks');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);}catch(e){reject(e);}});
+ function status(){if(launchButton){launchButton.hidden=!(mode==='setup'&&(waiting||failed||!enabled||volume===0));launchButton.textContent=failed?'♪ BGMを再試行':'♪ BGMを再生';}document.querySelectorAll('.audio-status').forEach(p=>p.textContent=!enabled?'OFF':failed?'BGMを読み込めませんでした。':!mode?'クエストで再生します。':waiting?'画面をタップすると再生します。':labels[mode]+(custom[mode]?' · 端末の音源':''));}
+-function play(){if(!enabled||!current||document.hidden)return;const src=current;audio.play().then(()=>{if(src===current){waiting=false;status();}}).catch(e=>{if(src!==current||e.name==='AbortError')return;waiting=e.name==='NotAllowedError';failed=!waiting;status();});}
++function play(){if(suspended||!enabled||!current||document.hidden)return;const src=current;audio.play().then(()=>{if(src===current){waiting=false;status();}}).catch(e=>{if(src!==current||e.name==='AbortError')return;waiting=e.name==='NotAllowedError';failed=!waiting;status();});}
+ // Keep preparation music at the same position across full-page navigation.
+ const resumeKey='goimon_quest_menu_playhead';let activeMode=null,activeIdentity='',pendingSeek=null;
+ function identity(){return custom.setup||builtins.setup;}
+@@ -27,4 +27,4 @@ const label=document.createElement('label');label.textContent='音量';const out
+ const p=document.createElement('p');p.className='audio-status';p.setAttribute('role','status');box.append(p);
+ const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='端末の音源を使う';details.append(summary);for(const [key,name]of Object.entries(labels)){const l=document.createElement('label');l.textContent=name;const input=document.createElement('input');input.type='file';input.accept='audio/*,.mp3,.wav,.ogg,.m4a';input.onchange=async()=>{const file=input.files[0];if(!file)return;try{const db=await dbp;await new Promise((resolve,reject)=>{const tx=db.transaction('tracks','readwrite');tx.objectStore('tracks').put({blob:file,name:file.name},key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});if(custom[key])URL.revokeObjectURL(urls[key]);urls[key]=URL.createObjectURL(file);custom[key]=JSON.stringify([file.name,file.size,file.lastModified||0]);failed=false;sync();}catch{p.textContent='音源を保存できませんでした。';}};l.append(input);details.append(l);}
+ const reset=document.createElement('button');reset.type='button';reset.textContent='標準の5曲に戻す';reset.onclick=async()=>{try{const db=await dbp;await new Promise((resolve,reject)=>{const tx=db.transaction('tracks','readwrite');tx.objectStore('tracks').clear();tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});for(const key of Object.keys(labels)){if(custom[key])URL.revokeObjectURL(urls[key]);urls[key]=builtins[key];delete custom[key];}sync();}catch{p.textContent='設定を変更できませんでした。';}};details.append(reset);box.append(details);section.append(box);document.body.append(section);status();}
+-audio.onerror=()=>{failed=true;status();};for(const event of ['pointerup','touchend','click'])document.addEventListener(event,()=>{if(audio.paused)play();},{passive:true});document.addEventListener('keydown',()=>{if(audio.paused)play();});document.addEventListener('visibilitychange',()=>{if(document.hidden){checkpoint();audio.pause();}else sync();});window.addEventListener('pagehide',()=>{checkpoint();audio.pause();});window.addEventListener('pageshow',()=>sync());window.GoimonQuestAudio={openSettings(){const d=document.getElementById('bgm-settings');if(!d.open)d.showModal();},setMode(next){if(labels[next]&&next!==mode){mode=next;failed=false;sync();}}};mount();sync();load();})();
++audio.onerror=()=>{failed=true;status();};for(const event of ['pointerup','touchend','click'])document.addEventListener(event,()=>{if(audio.paused)play();},{passive:true});document.addEventListener('keydown',()=>{if(audio.paused)play();});document.addEventListener('visibilitychange',()=>{if(document.hidden){checkpoint();audio.pause();}else sync();});window.addEventListener('pagehide',()=>{checkpoint();audio.pause();});window.addEventListener('pageshow',()=>sync());window.GoimonQuestAudio={suspend(){suspended++;audio.pause();let released=false;return ()=>{if(released)return;released=true;suspended=Math.max(0,suspended-1);if(!suspended)sync();};},openSettings(){const d=document.getElementById('bgm-settings');if(!d.open)d.showModal();},setMode(next){if(labels[next]&&next!==mode){mode=next;failed=false;sync();}}};mount();sync();load();})();
+diff --git a/dist/battle-prototype/quest_question_audio.js b/dist/battle-prototype/quest_question_audio.js
+new file mode 100644
+index 0000000..93d8b05
+--- /dev/null
++++ b/dist/battle-prototype/quest_question_audio.js
+@@ -0,0 +1,8 @@
++/* One English voice at a time. Never change the user's BGM setting. */
++(()=>{'use strict';let active=null,serial=0,release=null;
++function stop(){serial++;if(active){if(active.pause)active.pause();else window.speechSynthesis?.cancel();active=null;}if(release){release();release=null;}}
++function mount(parent,q){if(!q.audio&&!q.speech)return;const row=document.createElement('div'),button=document.createElement('button'),status=document.createElement('span');button.type='button';button.textContent='▶ 音声を聞く・もう一度';status.setAttribute('role','status');row.append(button,status);parent.append(row);
++button.onclick=()=>{stop();const token=serial;release=window.GoimonQuestAudio?.suspend?.()||null;status.textContent='再生中';const done=error=>{if(token!==serial)return;active=null;if(release){release();release=null;}status.textContent=error?'再生できませんでした。もう一度お試しください。':'再生終了';};
++try{if(q.audio){active=new Audio(q.audio);active.onended=()=>done(false);active.onerror=()=>done(true);active.play().catch(()=>done(true));}else{if(!window.speechSynthesis)throw Error('Speech unavailable');active=new SpeechSynthesisUtterance(q.speech);active.lang='en-US';active.rate=.9;active.onend=()=>done(false);active.onerror=()=>done(true);window.speechSynthesis.speak(active);}}catch{done(true);}};
++const hint=document.createElement('p');hint.textContent='時間制限なし・音声中はBGMを停止';row.append(hint);}
++window.addEventListener('pagehide',stop);document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});window.GoimonQuestQuestionAudio={mount,stop};})();
+diff --git a/dist/battle-prototype/question_bank.js b/dist/battle-prototype/question_bank.js
+index 6c0dcb5..61a9e9a 100644
+--- a/dist/battle-prototype/question_bank.js
++++ b/dist/battle-prototype/question_bank.js
+@@ -4,7 +4,7 @@ function allWords(words){return (Array.isArray(words)?words:[]).map((w,i)=>({kin
+ function allIdioms(idioms){return (Array.isArray(idioms)?idioms:[]).map((w,i)=>({kind:'熟語',en:w.expression,ja:w.ja,id:w.id||'idiom_'+i})).filter(q=>typeof q.en==='string'&&q.en.trim()&&typeof q.ja==='string'&&q.ja.trim());}
+ function pool(kind,stage,words,idioms){
+  if(kind==='熟語')return allIdioms(idioms);
+- const scope=ranges[stage-1];const full=allWords(words);
++ const scope=stage?.words||ranges[stage-1];const full=allWords(words);
+  return scope?full.filter(q=>q.no>=scope[0]&&q.no<=scope[1]):full;
+ }
+ function select(kind,stage,words,idioms,random=Math.random,previousId=''){
+diff --git a/dist/quest_chapter1.html b/dist/quest_chapter1.html
+index 4fbdc9b..d2eb0c8 100644
+--- a/dist/quest_chapter1.html
++++ b/dist/quest_chapter1.html
+@@ -3,7 +3,7 @@
+ <script src="cloud_schema.js"></script><script src="cloud_storage.js"></script><script src="cloud_config.js"></script>
+ <script src="goimon_rules.js" defer></script><script src="goimon_dex.js" defer></script>
+ <script src="battle-prototype/catalog.js" defer></script><script src="goimon-items/store.js" defer></script><script src="battle-prototype/core.js" defer></script><script src="battle-prototype/tutorial.js" defer></script><script src="battle-prototype/story_names.js" defer></script><script src="battle-prototype/question-routing.js" defer></script><script src="battle-prototype/question_bank.js" defer></script>
+-<script src="words_1kyu.js" defer></script><script src="idiom_data_1kyu.js" defer></script><script src="sentence_fixed_1kyu.js" defer></script><script src="paraphrase_data_1kyu.js" defer></script><script src="reorder_1kyu.js" defer></script>
++<script src="accent_1kyu.js" defer></script><script src="listening_type3_1kyu.js" defer></script><script src="battle-prototype/quest_question_audio.js" defer></script><script src="words_1kyu.js" defer></script><script src="idiom_data_1kyu.js" defer></script><script src="sentence_fixed_1kyu.js" defer></script><script src="paraphrase_data_1kyu.js" defer></script><script src="reorder_1kyu.js" defer></script>
+ <script src="battle-prototype/chapter1_data.js" defer></script><script src="battle-prototype/chapter_questions.js" defer></script><script src="battle-prototype/chapter_store.js" defer></script><script src="battle-prototype/chapter_staging.js" defer></script><script src="adventure-profile.js" defer></script><script src="battle-prototype/quest-review.js" defer></script><script src="battle-prototype/chapter1.js" defer></script>
+ <script src="battle-prototype/quest_audio.js" defer></script><link rel="stylesheet" href="battle-prototype/battle-responsive.css"><script src="learning_categories.js"></script><script src="learning_log.js"></script><script src="study-time.js" defer></script></head><body><aside class="player-preview-note" style="padding:8px 16px;text-align:center;font-size:.8rem;background:#e7f0eb;color:#244d3f">確認用サイト：記録はこのブラウザに保存されます。ログイン同期・報酬の正式付与は準備中です。</aside><header><a href="index.html">GOIMON</a><span>QUEST · 第1章</span><button id="home">中断・メニュー</button></header>
+ <main id="app" tabindex="-1"></main><aside id="notice" role="status" aria-live="polite"></aside>
+diff --git a/dist/quest_chapter2.html b/dist/quest_chapter2.html
+index ad5c950..4ece41f 100644
+--- a/dist/quest_chapter2.html
++++ b/dist/quest_chapter2.html
+@@ -1,6 +1,6 @@
+ <!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ふたつの声｜GOIMON QUEST 第2章</title><link rel="stylesheet" href="battle-prototype/chapter2.css">
+ <script src="cloud_schema.js"></script><script src="cloud_storage.js"></script><script src="cloud_config.js"></script>
+ <script src="goimon_rules.js" defer></script><script src="goimon_dex.js" defer></script><script src="battle-prototype/story_names.js" defer></script><script src="battle-prototype/catalog.js" defer></script><script src="battle-prototype/core.js" defer></script><script src="goimon-items/store.js" defer></script>
+-<script src="words_1kyu.js" defer></script><script src="idiom_data_1kyu.js" defer></script><script src="sentence_fixed_1kyu.js" defer></script><script src="paraphrase_data_1kyu.js" defer></script><script src="reorder_1kyu.js" defer></script><script src="battle-prototype/question_bank.js" defer></script><script src="battle-prototype/question-routing.js" defer></script><script src="battle-prototype/chapter_questions.js" defer></script>
++<script src="accent_1kyu.js" defer></script><script src="listening_type3_1kyu.js" defer></script><script src="battle-prototype/quest_question_audio.js" defer></script><script src="words_1kyu.js" defer></script><script src="idiom_data_1kyu.js" defer></script><script src="sentence_fixed_1kyu.js" defer></script><script src="paraphrase_data_1kyu.js" defer></script><script src="reorder_1kyu.js" defer></script><script src="battle-prototype/question_bank.js" defer></script><script src="battle-prototype/question-routing.js" defer></script><script src="battle-prototype/chapter_questions.js" defer></script>
+ <script src="battle-prototype/chapter2_data.js" defer></script><script src="battle-prototype/chapter2_assets.js" defer></script><script src="battle-prototype/chapter2_portraits.js" defer></script><script src="battle-prototype/chapter2_progress.js" defer></script><script src="battle-prototype/chapter2_battle.js" defer></script><script src="battle-prototype/chapter1_data.js" defer></script><script src="battle-prototype/chapter_store.js" defer></script><script src="battle-prototype/chapter2_access.js" defer></script><script src="battle-prototype/chapter2.js" defer></script><script src="battle-prototype/chapter2_entry.js" defer></script><script src="learning_categories.js" defer></script><script src="learning_log.js" defer></script><script src="study-time.js" defer></script></head>
+ <body><header><a id="quest-home-link" href="index.html">‹ ホーム</a><span>GOIMON QUEST · 02</span><button id="history">物語の記録</button></header><main><p id="notice" role="alert"></p><div id="app"></div></main><footer>第2章の確認版 · 進行はこのブラウザに保存されます</footer><dialog id="history-dialog"><button id="close-history">閉じる</button><div id="history-body"></div></dialog></body></html>

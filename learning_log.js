@@ -29,13 +29,7 @@
   }
 
   function formatDateKey(date) {
-    const d = date instanceof Date ? date : new Date(date);
-
-    return (
-      `${d.getFullYear()}-` +
-      `${pad2(d.getMonth() + 1)}-` +
-      `${pad2(d.getDate())}`
-    );
+    return new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'}).format(date instanceof Date?date:new Date(date));
   }
 
   function todayKey() {
@@ -43,8 +37,7 @@
   }
 
   function dateKeyByOffset(offset) {
-    const d = new Date();
-    d.setDate(d.getDate() - Number(offset || 0));
+    const d = new Date(Date.now() - Number(offset || 0)*86400000);
     return formatDateKey(d);
   }
 
@@ -78,7 +71,8 @@
     return {
       attempt: Math.max(0, Number(slot.attempt || 0)),
       correct: Math.max(0, Number(slot.correct || 0)),
-      wrong: Math.max(0, Number(slot.wrong || 0))
+      wrong: Math.max(0, Number(slot.wrong || 0)),
+      ...(Number.isFinite(slot.seconds)?{seconds:Math.max(0,slot.seconds)}:{})
     };
   }
 
@@ -130,6 +124,10 @@
   // 正誤あり学習
   // --------------------------------
 
+  function addTime(category,seconds,level,day=todayKey()){
+    if(!/^[a-zA-Z0-9_]+$/.test(category)||['__proto__','constructor','prototype'].includes(category)||!Number.isFinite(seconds)||seconds<=0)return false;
+    const log=readLog(level),slot=ensureSlot(log,day,category);slot.seconds=Math.round(((slot.seconds||0)+seconds)*10)/10;saveLog(log,level);return true;
+  }
   function addResult(category, isCorrect, options) {
     if (!category) return false;
 
@@ -482,6 +480,7 @@
     getDay,
     getToday,
 
+    addTime,
     addResult,
     addAttempt,
     addCounts,

@@ -58,7 +58,7 @@
   function apply(before,data,revision){
     localUnchanged(before);
     const device=Object.fromEntries(Object.entries(before.data).filter(([k])=>!S.allowed(k)));
-    const next={data:{...device,...data},base:data,revision};
+    const next={data:window.GoimonDailyAutosaveBridge?.enabled()?GoimonDailyAutosaveBridge.restoreData(device,data):{...device,...data},base:data,revision};
     if(!equal(before,next)){if(!equal(before.data,next.data))P.recovery(userId,before);P.write(userId,next);}
     try{const key='goimon_cloud_v2:auto:'+userId,m=JSON.parse(localStorage.getItem(key)||'{}');localStorage.setItem(key,JSON.stringify({...m,checkedAt:Date.now(),retryAt:0,failures:0,conflict:false}));}catch{}
     conflict=null;message(savedSession()?'同期しました。学習中は自動保存されます。このまま学習へ進めます。':'同期しました。ブラウザの設定によりログインを保持できないため、学習後の保存には再ログインが必要です。');
@@ -68,7 +68,7 @@
     const before=current(),local=P.cloudData(before.data);S.validate(snap(local));
     const remote=await request('GET');checkRemote(remote);localUnchanged(before);
     if(remote.userId!==userId)throw Error('account_mismatch');
-    const r=remote.snapshot?.data||{}, merged=S.merge(before.base||{},local,r);
+    const r=remote.snapshot?.data||{}, merged=window.GoimonDailyAutosaveBridge?.enabled()?GoimonDailyAutosaveBridge.mergeCloud(before.base||{},local,r):S.merge(before.base||{},local,r);
     if(merged.conflicts.length){conflict={before,local,remote:r,revision:remote.revision,keys:merged.conflicts};$('conflict-keys').textContent=merged.conflicts.join('\n');message('競合が見つかったため、自動上書きを止めました。');return;}
     if(equal(merged.data,r)){apply(before,merged.data,remote.revision);return;}
     const result=await request('POST',{expectedRevision:remote.revision,snapshot:snap(merged.data)});

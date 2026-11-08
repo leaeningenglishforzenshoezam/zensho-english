@@ -1329,13 +1329,13 @@
     ),
     make(
       "IM123",
-      "miss the bus",
-      "バスに乗り遅れる",
-      n(125),
-      ["not make it to the bus"],
-      ["take the bus", "catch the bus"],
-      "catch the bus の反対側。",
-      "定型表現"
+      "keep an eye on",
+      "～から目を離さずに見ている、～に気を配る",
+      n(),
+      ["watch carefully"],
+      [],
+      "keep an eye on + 人・物で『～を注意して見ている』。watch + 人・物 + carefully と言い換える。単に見るのではなく、変化や異常がないか気を配る意味。",
+      "熟語⇄同義表現"
     ),
 
     make(
