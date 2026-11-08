@@ -2,7 +2,10 @@ import {createBrowserMissionClient} from './mission_browser_client.mjs';
 import {missionOptions,missionSettings} from './mission_options.mjs';
 import {createMissionCheckpoint} from './mission_checkpoint.mjs';
 import {MissionFlow} from './mission_flow.mjs';
+import {explanationBank,explanationFor} from './mission_explanations.mjs';
+import {createReviewGate,answerText,dashboardRows} from './mission_presentation.mjs';
 const $=id=>document.getElementById(id);let flow,answers=[],working=false;const rules=window.GOIMON_DAILY_MISSION_RULES;
+const reviewGate=createReviewGate(()=>flow?.attempt?.attemptId);let dailyState=null,statusGeneration=0;
 function add(parent,tag,value){const n=document.createElement(tag);n.textContent=value;parent.append(n);return n;}
 function media(parent,file){if(file){const a=document.createElement('audio');a.controls=true;a.preload='none';a.src=file;parent.append(a);}}
 function progress(){try{flow.saveAnswers(answers);}catch(e){$('status').textContent='回答を端末に保存できません。この画面を閉じず、空き容量や保存タブを確認してください。';$('finish').disabled=true;throw e;}const n=answers.filter((x,i)=>x!==null&&(!Array.isArray(x)||x.length===flow.attempt.questions[i].chunks.length)).length;$('answered').textContent=`解答 ${n} / ${answers.length}`;}
@@ -18,22 +21,133 @@ function render(a){
   else q.choices.forEach((choice,j)=>{const label=add(box,'label',''),input=document.createElement('input');input.type='radio';input.name='q'+i;input.checked=answers[i]===j;input.onchange=()=>{answers[i]=j;progress();};label.append(input,document.createTextNode(choice));});
  });
 }
-async function run(fn){if(working)return;working=true;$('start').disabled=true;$('finish').disabled=true;try{await fn();}catch(e){const messages={missions_not_enabled:'ミッションは公開準備中です。',mission_login_required:'保存画面でログインしてから開いてください。',mission_account_changed:'アカウントまたは保存タブが変わりました。保存画面で確認してください。',revision_conflict:'別端末の記録と競合しています。保存画面で確認してください。',growth_target_mismatch:'挑戦中に育成する個体が変わりました。元の個体に戻してから再試行してください。'};$('status').textContent=messages[e.message]||'処理を完了できませんでした：'+e.message;$('status').scrollIntoView({block:'center'});if(flow?.pending)$('status').textContent+='\n「保存を再試行」を押してください。再読み込み後も保留中の処理を引き継ぎます。完了済みの処理は重複しません。';}finally{working=false;$('start').disabled=!flow||!!flow.pending;$('finish').disabled=!flow?.attempt||!!flow.result;$('finish').textContent=flow?.pending?'保存を再試行':'採点する';}}
-$('start').onclick=()=>run(async()=>{const {slot,body}=missionSettings($('missionLevel').value,$('kind').value);const a=await flow.start(slot,body);answers=Array(a.questions.length).fill(null);render(a);progress();$('missionSetup').open=false;$('instructions').hidden=false;$('instructions').textContent=instructions[a.category]||instructions[a.slot];$('status').textContent=`${a.date} / ${a.questions.length}問。回答後に採点・保存します。`;});
+async function run(fn){if(working)return;working=true;renderDashboard();$('start').disabled=true;$('finish').disabled=true;try{await fn();}catch(e){const messages={missions_not_enabled:'ミッションは公開準備中です。',mission_login_required:'保存画面でログインしてから開いてください。',mission_account_changed:'アカウントまたは保存タブが変わりました。保存画面で確認してください。',revision_conflict:'別端末の記録と競合しています。保存画面で確認してください。',growth_target_mismatch:'挑戦中に育成する個体が変わりました。元の個体に戻してから再試行してください。'};$('status').textContent=messages[e.message]||'処理を完了できませんでした：'+e.message;$('status').scrollIntoView({block:'center'});if(flow?.pending)$('status').textContent+='\n「保存を再試行」を押してください。再読み込み後も保留中の処理を引き継ぎます。完了済みの処理は重複しません。';}finally{working=false;$('start').disabled=!flow||!!flow.pending;$('finish').disabled=!flow?.attempt||!!flow.result;$('finish').textContent=flow?.pending?'保存を再試行':'採点する';renderDashboard();}}
+$('start').onclick=()=>run(async()=>{const {slot,body}=missionSettings($('missionLevel').value,$('kind').value);reviewGate.invalidate();const a=await flow.start(slot,body);$('reviewToolbar').hidden=true;$('wrongOnly').checked=false;setQuestionView(true);answers=Array(a.questions.length).fill(null);render(a);progress();$('missionSetup').open=false;$('instructions').hidden=false;$('instructions').textContent=instructions[a.category]||instructions[a.slot];$('status').textContent=`${a.date} / ${a.questions.length}問。回答後に採点・保存します。`;});
 $('finish').onclick=()=>run(async()=>{
  if(!flow.pending&&answers.some((a,i)=>a===null||Array.isArray(a)&&a.length!==flow.attempt.questions[i].chunks.length))throw Error('すべての問題に回答してください');
  $('questions').querySelectorAll('input,button').forEach(n=>n.disabled=true);
  const r=await flow.finish(answers);$('balance').textContent=`星のかけら：${r.balance}個`;let walletWarning='';if(window.GoimonCloudWallet){try{await window.GoimonCloudWallet.refresh();}catch{walletWarning='\n学習結果は保存済みです。残高表示の更新は画面を開き直して確認してください。';}}
  $('status').textContent=`${r.grade.correct} / ${r.grade.total}問正解 — ${r.grade.completed?'達成！':'今回は未達成'}\n学習記録を保存しました。`+(r.growth.growthApplied===false?'\n出題時に育成個体がなかったため、育成加点はありません。':`\n育成反映：${r.growth.awardedPoints}pt`)+(r.reward?`\n${r.reward.replayed?'今回のかけらは受取済みです。追加付与はありません。':`星のかけらを${r.reward.result.shards}個獲得！`}`:'');
- showResult(r);$('status').textContent+=walletWarning;if(r.bonus&&!r.bonus.replayed)$('status').textContent+=`\n基本3ミッション達成ボーナス：${r.bonus.result.shards}個！`;
+ showResult(r);refreshDashboard();$('status').textContent+=walletWarning;if(r.bonus&&!r.bonus.replayed)$('status').textContent+=`\n基本3ミッション達成ボーナス：${r.bonus.result.shards}個！`;
 });
-function showResult(r){const root=$('resultContent');root.replaceChildren();add(root,'span',r.grade.completed?'MISSION CLEAR':'TRY AGAIN');add(root,'h2',r.grade.completed?'ミッションクリア！':'もう一度覚えよう');add(root,'p',`${r.grade.correct} / ${r.grade.total}問正解`);add(root,'p',r.reward?(r.reward.replayed?'報酬は受取済みです':`ほしのかけら ＋${r.reward.result.shards}個`):'復習して、もう一度挑戦しよう');if(r.bonus&&!r.bonus.replayed)add(root,'p',`達成ボーナス ＋${r.bonus.result.shards}個`);const link=add(root,'a','同じ問題を学習する →');link.href=reviewUrl(flow.attempt,flow.attempt.questions.map(q=>q.id));link.className='button';const retry=add(root,'button','もう一度挑戦');retry.onclick=()=>{$('resultDialog').close();$('start').click();};$('resultDialog').showModal();flow.client.request('missions/review',{attemptId:flow.attempt.attemptId}).then(review=>{review.questions.forEach((q,i)=>{const box=$('questions').querySelectorAll('fieldset')[i];box.classList.add(q.correct?'correct':'wrong');add(box,'p',q.correct?'✓ 正解':'もう一度確認');add(box,'p','正解：'+(q.chunks?q.answer.map(id=>q.chunks.find(c=>c.id===id)?.text||'').join(' '):q.choices[q.answer]));});const wrong=review.questions.filter(q=>!q.correct);if(wrong.length){link.href=reviewUrl(flow.attempt,wrong.map(q=>q.id));link.textContent='間違えた問題を学習する →';}}).catch(()=>{add(root,'p','解説を取得できませんでした。同じ問題の学習画面で確認できます。');});}
-$('closeResult').onclick=()=>{$('resultDialog').close();$('questions').querySelector('.wrong')?.scrollIntoView({block:'center'});};
+function setQuestionView(active){
+ document.body.classList.toggle('answering',active);
+ $('dashboard').hidden=active;$('loginBonus').hidden=active||!flow;
+ $('gradingBar').hidden=!active;$('finish').hidden=!!flow?.result;
+ $('backToMissions').hidden=!flow?.result;
+ $('questions').hidden=!active;$('instructions').hidden=!active;
+ $('reviewToolbar').hidden=!active||!flow?.result;
+}
+$('backToMissions').onclick=()=>{setQuestionView(false);$('missionSetup').open=false;$('dashboard').scrollIntoView({block:'start'});refreshDashboard();};
+function filterReview(){
+ $('questions').querySelectorAll('fieldset').forEach(box=>box.hidden=$('wrongOnly').checked&&box.classList.contains('correct'));
+}
+$('wrongOnly').onchange=filterReview;
+function showResult(r){
+ const root=$('resultContent');root.replaceChildren();
+ add(root,'span',r.grade.completed?'MISSION CLEAR':'TRY AGAIN');
+ add(root,'h2',r.grade.completed?'ミッションクリア！':'復習して、もう一度').id='resultTitle';
+ add(root,'p',`${r.grade.correct} / ${r.grade.total}問正解`).className='result-score';
+ add(root,'p',r.reward?(r.reward.replayed?'報酬は受取済みです':`ほしのかけら ＋${r.reward.result.shards}個`):'学習記録は保存しました。');
+ if(r.bonus&&!r.bonus.replayed)add(root,'p',`達成ボーナス ＋${r.bonus.result.shards}個`);
+ const a=flow.attempt,link=add(root,'a','同じ問題を学習する');link.id='resultStudyLink';link.href=reviewUrl(a,a.questions.map(q=>q.id));link.className='button secondary';
+ const retry=add(root,'button','もう一度挑戦');retry.onclick=()=>{if(working)return;$('resultDialog').close();$('start').click();};
+ setQuestionView(true);$('reviewToolbar').hidden=false;
+ if(!$('resultDialog').open)$('resultDialog').showModal();
+ loadReview(a,link);
+}
+async function loadReview(attempt,link){
+ const current=reviewGate.begin(attempt.attemptId);
+ $('reviewStatus').textContent='答えを確認しています…';$('retryReview').hidden=true;
+ try{
+  const review=await flow.client.request('missions/review',{attemptId:attempt.attemptId});
+  if(!current())return;
+  if(review.attemptId!==attempt.attemptId)throw Error('review_mismatch');
+  const boxes=[...$('questions').querySelectorAll('fieldset')];
+  review.questions.forEach(q=>{
+   const box=boxes.find(b=>b.dataset.id===String(q.id));if(!box||box.querySelector('.review-answer'))return;
+   box.classList.add(q.correct?'correct':'wrong');
+   const panel=document.createElement('section');panel.className='review-answer';
+   add(panel,'h3',q.correct?'✓ 正解':'もう一度確認');
+   if(q.prompt&&!q.chunks){const prompt=add(panel,'p',q.prompt);prompt.className='review-prompt';prompt.lang='en';}
+   if(!q.correct){add(panel,'p','あなたの答え').className='answer-label';add(panel,'p',answerText(q,q.selected)).className='selected-answer';}
+   add(panel,'p','正解').className='answer-label';add(panel,'p',answerText(q,q.answer)).className='correct-answer';
+   if(q.chunks)add(panel,'p',[q.prompt,answerText(q,q.answer),q.stemAfter].filter(Boolean).join(' ')).lang='en';
+   const details=document.createElement('details');details.className='review-choices';add(details,'summary','問題・選択肢を確認');
+   [...box.children].filter(n=>n.tagName!=='LEGEND').forEach(n=>details.append(n));
+   box.append(panel,details);
+   const learn=add(panel,'a','この問題の訳・解説を学習画面で見る');learn.href=reviewUrl(attempt,[q.id]);learn.className='review-link';
+  });
+  // Text is optional: grading and answer review do not wait for this download.
+  attachExplanations(attempt,review,current);
+  const wrong=review.questions.filter(q=>!q.correct);
+  if(link?.isConnected&&wrong.length){link.href=reviewUrl(attempt,wrong.map(q=>q.id));link.textContent='間違えた問題を学習する';}
+  $('reviewStatus').textContent=wrong.length?`復習したい問題は${wrong.length}問。「訳・解説を見る」から振り返りましょう。`:'全問正解！問題ごとに学習画面で振り返れます。';
+  filterReview();
+ }catch{
+  if(!current())return;
+  $('reviewStatus').textContent='答えを取得できませんでした。学習結果は保存済みです。再取得するか、学習画面で確認してください。';
+  $('retryReview').hidden=false;
+ }
+}
+$('retryReview').onclick=()=>{if(flow?.result)loadReview(flow.attempt,$('resultStudyLink'));};
+$('closeResult').onclick=()=>{$('resultDialog').close();$('reviewToolbar').scrollIntoView({block:'start'});};
+async function attachExplanations(attempt,review,current){
+ try{
+  const bank=await explanationBank(attempt);if(!current())return;
+  for(const q of review.questions){
+   const text=explanationFor(bank,q);if(!text||!text.translation&&!text.notes.length)continue;
+   const box=[...$('questions').querySelectorAll('fieldset')].find(n=>n.dataset.id===String(q.id));
+   const panel=box?.querySelector('.review-answer');if(!panel||panel.querySelector('.review-explanation'))continue;
+   const details=document.createElement('details');details.className='review-explanation';add(details,'summary','訳・解説を見る');
+   if(text.translation){add(details,'h4','日本語訳');add(details,'p',text.translation);}
+   if(text.notes.length){add(details,'h4','考え方');text.notes.forEach(note=>add(details,'p',note));}
+   panel.insertBefore(details,panel.querySelector('.review-link'));
+  }
+ }catch{
+  if(current())$('reviewStatus').textContent+=' 訳・解説を読み込めませんでした。各問題の学習画面から確認できます。';
+ }
+}
+function renderDashboard(){
+ const rows=dashboardRows(rules,missionOptions($('missionLevel').value),dailyState);
+ $('missionCards').replaceChildren();
+ for(const row of rows){
+  const card=add($('missionCards'),'section','');card.className='mission-card '+row.state;
+  const header=add(card,'div','');header.className='card-top';
+  add(header,'span',row.group==='basic'?'BASIC':'CHALLENGE').className='eyebrow';
+  add(header,'span',row.state==='completed'?'✓ 達成済み':row.state==='open'?'挑戦しよう':'状況未確認').className='mission-state';
+  add(card,'h3',row.title);add(card,'p',row.goal).className='mission-goal';
+  add(card,'p',`✦ ほしのかけら ${row.rewardStars}個`).className='mission-reward';
+  const actions=add(card,'div','');actions.className='card-actions';
+  for(const [value,label] of row.options){
+   const b=add(actions,'button',label);b.type='button';
+   b.disabled=!flow||working||!!flow.pending||!!flow.attempt&&!flow.result;
+   b.onclick=()=>{$('kind').value=value;showGoal();$('start').click();};
+  }
+ }
+ $('refreshMissions').disabled=!flow||working;
+ $('basicBonus').hidden=$('missionLevel').value!=='1';
+ $('basicBonus').textContent=`基本3ミッションを達成すると、さらに${rules.allBasicBonusStars}個。`;
+}
+async function refreshDashboard(){
+ if(!flow)return;
+ const generation=++statusGeneration,level=$('missionLevel').value;
+ dailyState=null;renderDashboard();$('dailyProgress').hidden=true;$('dailySummary').textContent='達成状況を確認しています…';
+ try{
+  const state=await flow.client.request('missions/status?level='+level);
+  if(generation!==statusGeneration||$('missionLevel').value!==level)return;
+  dailyState=state;const done=state.missions.filter(m=>m.completed).length;
+  $('dailySummary').textContent=`${state.date} · ${done} / ${state.missions.length} 達成`;
+  $('dailyProgress').max=state.missions.length;$('dailyProgress').value=done;$('dailyProgress').hidden=false;
+ }catch{if(generation!==statusGeneration)return;$('dailySummary').textContent='達成状況を取得できません。「更新」で再確認できます。';}
+ if(generation===statusGeneration)renderDashboard();
+}
+$('refreshMissions').onclick=refreshDashboard;
 const params=new URLSearchParams(location.search),grade=$('missionLevel');
 grade.value=(params.get('level')||window.GOIMONStorage.getItem('zensho_level_v1'))==='2'?'2':'1';
-function setOptions(){ $('kind').replaceChildren(...missionOptions(grade.value).map(([value,label])=>new Option(label,value))); }
+function setOptions(){ $('kind').replaceChildren(...missionOptions(grade.value).map(([value,label])=>new Option(label,value)));renderDashboard(); }
 setOptions();
-grade.onchange=()=>{if(working||flow?.pending||flow?.attempt&&!flow.result){grade.value=flow?.attempt?.level||grade.value;$('status').textContent='回答・保存を終えてから級を切り替えてください。';return;}setOptions();showGoal();};
+grade.onchange=()=>{if(working||flow?.pending||flow?.attempt&&!flow.result){grade.value=flow?.attempt?.level||grade.value;$('status').textContent='回答・保存を終えてから級を切り替えてください。';return;}setOptions();showGoal();refreshDashboard();};
 const selectedSlot=params.get('slot');const selected=[...$('kind').options].find(x=>x.value.split(':')[0]===selectedSlot);if(selected)$('kind').value=selected.value;
 function showGoal(){const slot=$('kind').value.split(':')[0],rule=rules.missionSlots.find(x=>x.slot===slot);$('notice').textContent=`${rule.goal}で、ほしのかけら${rule.rewardStars}個。各ミッションの報酬は1日1回です。`;}
 $('kind').onchange=showGoal;showGoal();
@@ -41,7 +155,7 @@ window.addEventListener('beforeunload',e=>{if(flow?.pending||working){e.preventD
 window.addEventListener('pagehide',()=>window.speechSynthesis?.cancel());
 async function refreshLoginBonus(){
  if(!flow||!window.GoimonCloudWallet)return;
- const bonus=await flow.client.request('economy/bonus');$('loginBonus').hidden=false;
+ const bonus=await flow.client.request('economy/bonus');$('loginBonus').hidden=document.body.classList.contains('answering');
  $('claimLoginBonus').disabled=bonus.login||!!flow.pending;
  $('claimLoginBonus').textContent=bonus.login?'受取済み':'1個受け取る';
  $('loginBonusStatus').textContent=bonus.date+' · 1日1個（日本時間）';
@@ -60,12 +174,14 @@ const initialize=()=>run(async()=>{if(flow)return;if(window.GoimonEconomyReady)a
   const a=flow.attempt;grade.value=a.level;setOptions();
   const value=a.slot==='exam'?(a.level==='2'?'exam:sentence2':a.category==='sentence'?'exam:'+a.variant:'exam:standard'):['words','idioms'].includes(a.slot)?a.slot+':'+a.mode:a.slot;
   $('kind').value=value;showGoal();answers=structuredClone(flow.pending?.answers||flow.answers);render(a);progress();
-  $('instructions').hidden=false;$('instructions').textContent=instructions[a.category]||instructions[a.slot];
+  setQuestionView(true);$('instructions').textContent=instructions[a.category]||instructions[a.slot];
   $('status').textContent=flow.pending?'保存が保留中です。「保存を再試行」で続けてください。':flow.result?'前回の結果を復元しました。':'前回の回答を復元しました。期限切れの場合は新しく開始してください。';
   if(flow.pending||flow.result)$('questions').querySelectorAll('input,button').forEach(n=>n.disabled=true);
   if(flow.result)showResult(flow.result);
  }
+ refreshDashboard();
  await refreshLoginBonus().catch(()=>{$('claimLoginBonus').disabled=true;$('loginBonusStatus').textContent='受取状況を確認できません。画面を開き直してください。';});
 });
 window.addEventListener('goimon-storage-ready',initialize);
 initialize();
+
