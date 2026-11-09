@@ -48,7 +48,11 @@
   async function request(method,body,credential=token,endpoint='save'){
     const startedEpoch=epoch;
     const c=new AbortController(),timer=setTimeout(()=>c.abort(),15000);
-    try{const r=await fetch(cfg.apiBase.replace(/\/$/,'')+'/api/v1/'+endpoint,{method,headers:{Authorization:'Bearer '+credential,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,signal:c.signal,cache:'no-store'});
+    try{
+      const r=await fetch(cfg.apiBase.replace(/\/$/,'')+'/api/v1/'+endpoint,{method,headers:{Authorization:'Bearer '+credential,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,signal:c.signal,cache:'no-store'}).catch(error=>{
+        if(error.name==='TypeError')throw Error('GOIMONのサーバーに接続できません。通信環境を確認し、ページを開き直してください。端末の学習記録は残っています。');
+        throw error;
+      });
       const j=await r.json();if(startedEpoch!==epoch)throw Error('アカウントが切り替わったため処理を中止しました。');if(!r.ok){if(r.status===401 && credential===token)forget();const e=Error(r.status===409?'別の端末が先に保存しました。もう一度同期してください。':r.status===401?'認証の期限が切れました。再ログインしてください。':`通信できませんでした (${r.status})`);e.status=r.status;throw e;}return j;
     }finally{clearTimeout(timer);}
   }
