@@ -7,6 +7,9 @@ function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_D
   const DATA_LEVEL = 1;
   const UI_LEVEL = window.ACTIVE_LEVEL || "1";
   const URL_PARAMS = new URLSearchParams(window.location.search);
+  const REVIEW_QUESTION_MODE = URL_PARAMS.has("reviewIds")
+    ? (URL_PARAMS.get("idiomMode") === "synonym" ? "synonym" : "meaning")
+    : null;
 
     const STORAGE_KEYS = {
     weakMeaning: `zensho_idiom_quiz_weak_meaning_v1_lv${DATA_LEVEL}`,
@@ -1986,7 +1989,7 @@ if (el.originSearchBtn) {
   }
 
   function startQuiz(useLastSession) {
- if(URL_PARAMS.has("reviewIds"))el.questionMode.value=URL_PARAMS.get("idiomMode")==="synonym"?"synonym":"meaning";
+    if (REVIEW_QUESTION_MODE) el.questionMode.value = REVIEW_QUESTION_MODE;
     const mission=dailyIdiomRequest();
     if(mission){el.rangeStart.value=String(mission.start);el.rangeEnd.value=String(mission.end);el.questionCount.value='15';el.questionMode.value=URL_PARAMS.get('idiomMode')==='synonym'?'synonym':'meaning';el.quizMode.value='random';}
     const questionMode = el.questionMode.value;
@@ -2071,7 +2074,7 @@ goimonModeOverride = "";
   const settings = getSavedSettings();
   const maxNo = getMaxDisplayNo();
 
-  el.questionMode.value = settings.questionMode;
+  el.questionMode.value = REVIEW_QUESTION_MODE || settings.questionMode;
   el.questionCount.value = settings.questionCount;
   el.quizMode.value = settings.quizMode;
   el.autoRead.checked = settings.autoRead;
