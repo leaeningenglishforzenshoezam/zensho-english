@@ -36,3 +36,13 @@ body .btn:not(.gray):not(.soft):not(.danger):not(.good):not(.bad) { background:#
 body.mission-page .mission-header { background:#173b2d; color:#edf5eb; padding:16px; border-radius:12px; }
 .mission-page .mission-header a { color:#f2ce75; }
 .account-page > main { background:#f5f7f1; color:#20362c; padding:24px; border-radius:20px; margin-top:20px; }
+
+@media (max-width: 600px) {
+  .quizBlockGrid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 88px), 1fr));
+  }
+
+  .quizBlockItem {
+    white-space: normal;
+  }
+}
