@@ -17,7 +17,6 @@ body .btn:not(.gray):not(.soft):not(.danger):not(.good):not(.bad) { background:#
 #goimon-navigation .gn-profile, #goimon-navigation .gn-link, #goimon-navigation .gn-lessons { border-color:#41604e; }
 #goimon-navigation .gn-profile { background:#264b38; }
 #goimon-navigation .gn-kicker, #goimon-navigation .gn-section, #goimon-navigation small { color:#d3dfc9; }
-#goimon-navigation a:hover { background:#31553e; }
 #goimon-navigation .gn-avatar, #goimon-navigation .gn-close { background:#31553e; color:#f2ce75; }
 #goimon-navigation .gn-lessons h3 { color:#f2ce75; font-size:13px; padding:8px 12px; }
 .news-page { background:#102620; color:#eff5ec; }
