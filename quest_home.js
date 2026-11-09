@@ -22,6 +22,7 @@ function render(){
  const people=L.characters(chapter,state),scenes=L.scenes(chapter,state);$('qh-dex-count').textContent=people.filter(c=>c.unlocked).length+' / '+people.length+' 出会い';$('qh-story-count').textContent=scenes.filter(s=>s.lines.length).length+' / '+scenes.length+' 場面';$('qh-dex').href='quest_records.html?view=dex&chapter='+chapter.id;$('qh-story').href='quest_records.html?view=story&chapter='+chapter.id;
  $('qh-party-note').textContent=chapter.id==='chapter2'?'第2章は出発時の編成で進みます。HP・技の残り回数を引き継ぎます。':'編成変更後は森の入口から。出発するまで今の冒険は残ります。';
  $('qh-configure').hidden=!unlocked;$('qh-configure').textContent=state?'相棒を選んで章の最初から':'相棒・編成を選ぶ';$('qh-party-note').textContent='参加できるのは、たまご・幼体・成長体。やり直しても育成・学習・クリア記録は残ります。';
+ if(pet&&!['egg','child','growth'].includes(pet.stage)){$('qh-party-note').textContent='この相棒は中級体以上のため参加できません。育成・学習・クリア記録は残ります。参加できる相棒を選んで章の最初から挑戦できます。';if(unlocked&&state?.mode!=='complete'){$('qh-continue').textContent='参加できる相棒を選ぶ';$('qh-continue').href=chapter.configure;}}else if(pet?.stage==='growth'){$('qh-party-note').textContent='成長体で参加できます。中級体に進化すると途中でも参加不可になります。育成・学習・クリア記録は残ります。';}
  if(!unlocked){$('qh-progress').textContent='第1章「ことばの森」をクリアして、次の冒険へ。';$('qh-continue').textContent='第1章の冒険へ';$('qh-continue').href='quest_chapter1.html';$('qh-map-link').href='quest_chapter1.html';$('qh-map-link').textContent='第1章の冒険へ';}else $('qh-map-link').textContent='冒険へ';
  $('qh-stages').classList.toggle('qh-route',!chapter.map);
  if(!chapter.map){renderRoute(state,unlocked);return;}
@@ -35,3 +36,4 @@ function renderRoute(state,unlocked){const list=$('qh-stages');list.replaceChild
 }
 render();window.addEventListener('pageshow',render);window.addEventListener('storage',render);window.addEventListener('goimon-auth-changed',render);
 })();
+

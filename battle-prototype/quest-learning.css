@@ -1,0 +1,17 @@
+/* Scoped, high-contrast results and practice; no changes to story/battle layout. */
+.battle:has(.quest-learning){display:block!important}
+.battle:has(.quest-learning)>.hud,.battle:has(.quest-learning)>.scene,.battle:has(.quest-learning)>.stage{display:none}
+.battle .panel:has(>.quest-learning),.battle .question:has(>.quest-learning){padding:0;max-height:none;overflow:visible;border:0;background:transparent}
+.quest-learning{color:#183c30;background:#fffdf4;border:1px solid #b2c8b8;border-radius:18px;padding:clamp(16px,3vw,28px);width:100%;box-sizing:border-box;text-align:left;overflow-wrap:anywhere}
+.quest-learning h2,.quest-learning h3,.quest-learning p,.quest-learning summary{color:#183c30;background:transparent;white-space:pre-line}
+.quest-learning h2{font-size:clamp(20px,4vw,26px);line-height:1.5;margin:0 0 12px}
+.quest-learning h2:focus,.quest-learning h3:focus{outline:none}
+.quest-learning p{line-height:1.7;margin:10px 0}.quest-learning .ql-score{font-size:clamp(26px,5vw,36px);font-weight:800;letter-spacing:.02em}
+.quest-learning .ql-note{font-size:14px;color:#486456}.quest-learning .ql-prompt{font-size:20px;line-height:1.65}.quest-learning .ql-answer{font-size:18px;font-weight:700}
+.quest-learning button,.quest-learning a.button{min-height:46px;margin:0;padding:12px 16px;font-size:16px;line-height:1.5;color:#183c30;background:#f0f5ee;border:1px solid #658372;border-radius:12px;text-align:center;white-space:normal;overflow-wrap:anywhere;box-sizing:border-box;max-width:100%;cursor:pointer}
+.quest-learning button.ql-primary{background:#20503e;color:#fffdf4;border-color:#20503e;font-weight:750}
+.quest-learning button:disabled{opacity:.5;cursor:default}.quest-learning button:focus-visible,.quest-learning a:focus-visible,.quest-learning summary:focus-visible{outline:3px solid #976519;outline-offset:3px}
+.ql-actions{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.ql-actions>*{flex:1 1 180px}.ql-answers{display:grid;gap:10px;margin:16px 0}.ql-options,.ql-chosen{display:flex;flex-wrap:wrap;gap:8px}.ql-chosen{min-height:52px;padding:10px;border:1px dashed #658372;border-radius:10px}
+.quest-learning .quest-review{background:#fffdf4;color:#183c30;border:1px solid #b2c8b8;margin:20px 0 0;padding:12px}.quest-learning .quest-review section{padding:16px 0;border-top:1px solid #d7e2d6;display:flex;flex-wrap:wrap;gap:10px}.quest-learning .quest-review section p{width:100%}.quest-learning a{color:#20503e}.quest-learning summary{cursor:pointer;min-height:44px;line-height:1.6;padding:8px 0}.ql-explanation{border-top:1px solid #b2c8b8;margin:12px 0}
+.quest-eligibility{margin:12px 0;padding:12px;border:1px solid #698775;border-radius:12px;color:inherit}.quest-eligibility summary{cursor:pointer;min-height:32px;font-weight:700}.quest-eligibility p{line-height:1.7;font-size:15px}.quest-eligibility a{display:inline-block;min-height:44px;line-height:44px;color:inherit;text-decoration:underline}
+@media(max-width:480px){.quest-learning .ql-actions{display:grid;grid-template-columns:1fr}.quest-learning .ql-actions>*{width:100%}.quest-learning .quest-review section>*{width:100%}.quest-learning{border-radius:12px;padding:16px}.ql-answers button{text-align:left}}
