@@ -594,13 +594,15 @@ function renderBlockStatsLine() {
     return pool;
   }
 
+  const reviewIds = new Set((new URLSearchParams(location.search).get("reviewIds") || "").split(",").filter(Boolean));
+
   function buildSelectedPool(startNo, endNo) {
   const selectedIds = new Set(getSelectedBlockIds());
 
   if (!selectedIds.size) return [];
 
   return buildPool(startNo, endNo)
-    .filter(item => selectedIds.has(Number(item.blockId)));
+    .filter(item => selectedIds.has(Number(item.blockId)) && (!reviewIds.size || reviewIds.has(String(item.no))));
 }
 
 function updateSetupInfo() {
@@ -1753,7 +1755,7 @@ clearBlocksBtn?.addEventListener("click", () => {
       return;
     }
 
-    const mode = modeSelect.value;
+    const mode = reviewIds.size ? "random" : modeSelect.value;
     session.mode = (mode === "continue" || mode === "random" || mode === "weak") ? mode : "continue";
     session.startNo = startNo;
     session.endNo = endNo;
@@ -2047,6 +2049,10 @@ function init() {
     renderBlockSelect();
 applySelectedBlockToRange();
 applyProgressRangeQuery();
+    if (reviewIds.size) {
+      limitEl.value = String(reviewIds.size);
+      modeSelect.value = "random";
+    }
 updateSetupInfo();
     renderGoimonVisibility();
     renderEvolutionNotice();
