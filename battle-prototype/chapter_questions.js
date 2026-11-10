@@ -21,7 +21,78 @@ function select(format,stage,data,bank,rng=Math.random,previous=''){
  return {id:q.id,format,prompt:format==='q11'?'文a：'+q.a+'\n\n文b：'+q.b:q.en,answer:q.answer,choices:shuffle(q.choices,rng),translation:q.ja||'',review:format==='q11'?'paraphrase_quiz.html':'sentence.html',reviewId:q.id};
 }
 function correct(q,value){return q.format==='q12'?Array.isArray(value)&&value.length===q.answer.length&&value.every((x,i)=>x===q.answer[i]):value===q.answer;}
+const sentenceMeaningFallback = {
+  "passport": "旅券、パスポート",
+  "postpone": "延期する",
+  "biological": "生物学の、生物学的な",
+  "gratitude": "感謝",
+  "fresh": "新鮮な、新しい",
+  "volume": "量、容積、巻",
+  "omitted": "省いた、省略した",
+  "rubbish": "ごみ、くだらないもの",
+  "smile": "ほほ笑む、ほほ笑み",
+  "temporary": "一時的な",
+  "toward": "～の方へ、～に向かって",
+  "stone": "石"
+};
+  const IRREGULAR = new Map([
+    ["bound", "bind"], ["woven", "weave"], ["wove", "weave"], ["occurred", "occur"],
+    ["written", "write"], ["wrote", "write"], ["drove", "drive"], ["driven", "drive"],
+    ["spoken", "speak"], ["spoke", "speak"], ["broken", "break"], ["broke", "break"],
+    ["taken", "take"], ["took", "take"], ["dropped", "drop"], ["given", "give"], ["gave", "give"],
+    ["stirred", "stir"], ["made", "make"], ["ran", "run"], ["gone", "go"], ["went", "go"],
+    ["seen", "see"], ["saw", "see"], ["known", "know"], ["knew", "know"], ["felt", "feel"],
+    ["left", "leave"], ["lost", "lose"], ["paid", "pay"], ["kept", "keep"], ["held", "hold"],
+    ["built", "build"], ["bought", "buy"], ["caught", "catch"], ["taught", "teach"],
+    ["thought", "think"], ["found", "find"], ["said", "say"], ["sent", "send"], ["spent", "spend"],
+    ["stood", "stand"], ["told", "tell"], ["understood", "understand"], ["worn", "wear"],
+    ["wore", "wear"], ["cut", "cut"], ["put", "put"], ["set", "set"], ["hit", "hit"], ["hurt", "hurt"]
+  ]);
+
+  function CAZ(x) {
+    return String(x || "").trim().toLowerCase().replace(/[^a-z]/g, "");
+  }
+
+  function guessBaseForms(w) {
+    const s = CAZ(w);
+    const cand = [];
+    if (!s) return cand;
+
+    const irr = IRREGULAR.get(s);
+    if (irr) cand.push(irr);
+
+    cand.push(s);
+
+    if (s.endsWith("ied")) cand.push(s.slice(0, -3) + "y");
+    if (s.endsWith("ed")) cand.push(s.slice(0, -2));
+    if (s.endsWith("ed")) cand.push(s.slice(0, -1));
+
+    if (s.endsWith("ing")) cand.push(s.slice(0, -3));
+    if (s.endsWith("ing")) cand.push(s.slice(0, -3) + "e");
+
+    if (s.endsWith("ies")) cand.push(s.slice(0, -3) + "y");
+    if (s.endsWith("es")) cand.push(s.slice(0, -2));
+    if (s.endsWith("s")) cand.push(s.slice(0, -1));
+
+    return Array.from(new Set(cand)).filter(Boolean);
+  }
+
+  function meaningForForm(word, lookupMeaningBase) {
+    const w = CAZ(word);
+    if (!w) return "(未登録)";
+
+    const direct = lookupMeaningBase(w);
+    if (direct) return direct;
+
+    const bases = guessBaseForms(w);
+    for (const b of bases) {
+      const m = lookupMeaningBase(b);
+      if (m) return (b === w) ? m : `${m}（= ${b}）`;
+    }
+    return "(未登録)";
+  }
 function explain(q,data){
+
  if(q.format==='q1'||q.format==='q3')return {format:q.format,completed:q.completed,translation:q.translation,notes:q.teaching?[q.teaching]:[]};
  const source={word_meaning:data.words,idiom:data.idioms,q9:data.q9,q11:data.q11,q12:data.q12}[q.format]||[];
  const original=(q.id!=null?source.find(x=>x.id===q.id):null)||(q.format==='word_meaning'?source.find(x=>x.en===(q.en||q.prompt)):null)||q;
@@ -45,7 +116,18 @@ function explain(q,data){
   completed=q.en||q.prompt;
  }
  if(!completed&&!translation&&!notes.length)return null;
- return {format:q.format,completed,translation,notes};
+ const explanation={format:q.format,completed,translation,notes};
+ if(q.format==='q9'){
+  const meanings=new Map();
+  for(const item of [...(data.words||[]),...(data.words2||[]),...(data.extraWords||[])]){
+   const key=CAZ(item.en);
+   if(key&&item.ja&&!meanings.has(key))meanings.set(key,item.ja);
+  }
+  explanation.choiceMeanings=q.choices.map(choice=>({
+   choice, meaning:meaningForForm(choice,key=>meanings.get(key)||Object.prototype.hasOwnProperty.call(sentenceMeaningFallback,key)&&sentenceMeaningFallback[key])
+  }));
+ }
+ return explanation;
 }
 const api={supported,select,correct,explain};if(typeof module!=='undefined')module.exports=api;else root.GoimonChapterQuestions=api;
 })(typeof window!=='undefined'?window:globalThis);
