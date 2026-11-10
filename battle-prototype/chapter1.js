@@ -2,7 +2,7 @@
 const D=GoimonChapter1Data,C=GoimonBattleCatalog,E=GoimonBattlePrototype,T=GoimonQuestTutorial,Q=GoimonChapterQuestions,N=GoimonStoryNames,$=id=>document.getElementById(id),app=$('app');
 const account=GOIMONProfiles.account||'guest',key='goimon_chapter1_v1:'+account+':lv1'+(window.GoimonDeveloper?.keySuffix||'');
 let store,state=null,blocked=!!window.GoimonEconomyReady,interval=null,skipTimer=null;
-const source={q1:window.ACCENT_1KYU,q3:window.LISTENING_TYPE3_1KYU,words:window.WORDS_1KYU,idioms:window.IDIOM_DATA_1KYU,q9:window.SENTENCE_FIXED_1KYU,q11:window.PARAPHRASE_DATA_1KYU,q12:window.REORDER_1KYU};
+const source={q1:window.ACCENT_1KYU,q3:window.LISTENING_TYPE3_1KYU,words:window.WORDS_1KYU,idioms:window.IDIOM_DATA_1KYU,q9:window.SENTENCE_FIXED_1KYU,words2:window.WORDS_2KYU,extraWords:window.EXTRA_WORDS,q11:window.PARAPHRASE_DATA_1KYU,q12:window.REORDER_1KYU};
 const enemyKinds=['intro','normal','swift','tank','boss'],enemyNames=['森の入口の小番人','装甲甲虫','霧の山猫','遺跡門の番人','ことばの祭壇の守護者'];
 const defaults=['N_echo','N_aid','N_comfort','N_prepare'];
 function tell(t){$('notice').textContent=t;}
@@ -83,7 +83,7 @@ function battleView(){const b=state.combat,id=state.battleId;app.id='app';const 
 const hud=card(root,'hud');for(const [name,a]of [[names().partnerName,b.player],[id===0?'モリィの練習':id==='mist'?'黒い霧':enemyNames[id-1],b.enemy]]){const c=card(hud,'');text('p',name+' · HP '+a.hp+'/'+a.maxHp,c);const bar=document.createElement('progress');bar.max=a.maxHp;bar.value=a.hp;bar.setAttribute('aria-label',name+'のHP');c.append(bar);}
 const art=sceneArt(id==='mist'?'mist':'forest',id);root.append(art);
 const panel=card(root,'question');panel.id='question';
-if(state.feedback){text('p',state.feedback.correct?'正解！':'もう一度、覚えよう',panel,'feedback');text('p',state.feedback.answer,panel);text('p',state.feedback.action,panel);showExplanation(panel,state.feedback.explanation);panel.append(button('次へ',()=>{state.feedback=null;if(id===0&&state.tutorial.trained){if(!state.tutorial.failuresDone){save();render();return;}state.combat=null;state.mode='story';advance();return;}if(b.ended&&b.winner!=='player'){finishBattle();return;}save();render();},true));return;}
+if(state.feedback){text('p',state.feedback.correct?'正解！':'もう一度、覚えよう',panel,'feedback');text('p',state.feedback.answer,panel);text('p',state.feedback.action,panel);showExplanation(panel,state.feedback.explanation);panel.append(GoimonQuestLearning.nextKey(button('次へ',()=>{state.feedback=null;if(id===0&&state.tutorial.trained){if(!state.tutorial.failuresDone){save();render();return;}state.combat=null;state.mode='story';advance();return;}if(b.ended&&b.winner!=='player'){finishBattle();return;}save();render();},true)));return;}
 if(b.ended){if(b.winner==='player'&&id!==0){GoimonVictory.show({chapter:1,id,stage:art,panel,onContinue:()=>{GoimonQuestLearning.result(panel,b,{guard:guarded,onContinue:finishBattle,misses:state.misses||[]});},guard:fn=>()=>{try{fn();}catch(e){fail(e);}}});return;}finishBattle();return;}
 if(id===0&&state.tutorial.trained&&!state.question){failureLesson(panel);return;}
 text('p',id===0?(state.tutorial.trained?((state.tutorial.failureStep||0)===0?'練習 4/5：時間切れを体験しよう':'練習 5/5：防御の失敗を体験しよう'):'練習 '+(state.tutorial.practice+1)+'/5：'+['通常攻撃を選ぼう','問題に答えて防ごう','SKILLを使ってみよう'][state.tutorial.practice]):(E.current(b)==='player'?'あなたのターン':'敵の攻撃 · 正解でダメージ軽減'),panel,id===0?'tutorial-heading':'turn-heading');
@@ -103,6 +103,7 @@ function showExplanation(panel,explanation){
  if(ex.translation){text('h3','日本語訳・意味',body);text('p',ex.translation,body);}
  const notes=ex.format?(ex.notes||[]):(ex.notes||[]).filter(note=>!note.startsWith('空所には ')&&!note.startsWith('この問題では ')&&!note.startsWith('文bの空所に ')&&!note.startsWith('正しい語順：'));
  if(notes.length){text('h3','理解のポイント',body);for(const note of notes)text('p',note,body);}
+ GoimonQuestLearning.showChoiceMeanings(body,ex);
 }
 function failureLesson(panel){
  const step=state.tutorial.failureStep||0;text('h2',step===0?'時間制限を体験しよう':'防御に失敗したら？',panel,'tutorial-heading');
@@ -116,7 +117,7 @@ if(state.battleId!==0&&!window.GoimonDeveloper?.active)window.GoimonStudyTime?.b
 function questionView(panel){const q=state.question;const labels={q1:'最も強く読む音節を選ぼう',q3:'音声に合う応答を選ぼう',word_meaning:'英語の意味を選ぼう',idiom:'同じ意味の英語表現を選ぼう',q9:'空所に入る最も適切な語句を選ぼう',q11:'文aと文bが同じ意味になる語句を選ぼう',q12:'語句を正しい順番に並べよう'};const timer=text('span','',panel,'timer');timer.id='timer';text('p',labels[q.format],panel,'small');text('h2',q.prompt,panel);text('p',['q1','q3'].includes(q.format)?'時間制限・3秒以内ボーナスはありません。落ち着いて聞いて答えよう。':q.deadline?'制限時間内に答えよう。3秒以内の正解は、この一回だけ攻撃力×1.1／防御力×1.1。':'3秒以内の正解で、この一回だけ攻撃力×1.1／防御力×1.1。',panel,'small');
 window.GoimonQuestQuestionAudio?.mount(panel,q);if(q.format==='q12'){const chosen=card(panel,'chips');chosen.id='chosen';for(const id of q.selected){const chunk=q.chunks.find(c=>c.id===id);chosen.append(button(chunk.text,()=>{q.selected=q.selected.filter(x=>x!==id);save();render();}));}
  const choices=card(panel,'chips');for(const ch of q.chunks){const b=button(ch.text,()=>{q.selected.push(ch.id);save();render();});b.disabled=q.selected.includes(ch.id);choices.append(b);}const submit=button('この順番で答える',()=>answer([...q.selected]),true);submit.disabled=q.selected.length!==q.chunks.length;panel.append(submit,button('並べ直す',()=>{q.selected=[];save();render();}));
-}else{const choices=card(panel,'grid');choices.id='choices';for(const value of q.choices){const choice=button(value,()=>answer(value));choice.disabled=state.tutorial.demoKind==='timeout'&&state.battleId===0;choices.append(choice);}if(state.battleId===0&&state.tutorial.demoKind==='wrong-defense')panel.append(button('練習：間違えた場合を体験',()=>answer('__tutorial_wrong__')));if(state.battleId===0&&state.tutorial.demoKind==='timeout')text('p','今回は時間切れの練習です。残り0秒まで待って、結果を見てみよう。',panel,'tutorial-copy');}
+}else{const choices=card(panel,'grid');choices.id='choices';for(const [index,value] of q.choices.entries()){const choice=GoimonQuestLearning.choiceKey(button(value,()=>answer(value)),index);choice.disabled=state.tutorial.demoKind==='timeout'&&state.battleId===0;choices.append(choice);}if(state.battleId===0&&state.tutorial.demoKind==='wrong-defense')panel.append(button('練習：間違えた場合を体験',()=>answer('__tutorial_wrong__')));if(state.battleId===0&&state.tutorial.demoKind==='timeout')text('p','今回は時間切れの練習です。残り0秒まで待って、結果を見てみよう。',panel,'tutorial-copy');}
 if(q.deadline){const tick=()=>{if(!state.question||blocked)return;const left=q.deadline-Date.now();timer.textContent=Math.max(0,Math.ceil(left/1000))+'秒';if(left<=0)guarded(()=>answer(null))();};interval=setInterval(tick,200);tick();}}
 function answer(value){if(!state.question)return;GoimonChapterStore.assertEligible(partner());window.GoimonQuestQuestionAudio?.stop();clearInterval(interval);const q=state.question,expired=q.deadline&&Date.now()>=q.deadline,correct=!expired&&Q.correct(q,value),side=E.current(state.combat);
 try{if(state.battleId!==0&&!window.GoimonDeveloper?.active)window.ZenshoLearningLog?.addResult({q1:'accent',q3:'listening',word_meaning:'quiz_enja',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'}[q.format],correct,{level:'1'});}catch(e){console.warn('学習記録を保存できませんでした',e);}if(!window.GoimonDeveloper?.active)window.GoimonStudyTime?.end();
@@ -137,7 +138,7 @@ $('home').onclick=()=>{clearTimeout(skipTimer);$('menu').showModal();};$('resume
 $('restartRun').onclick=guarded(()=>{if(!state)return;$('menu').close();setup(true);});
 $('export').onclick=()=>{const content=state?JSON.stringify(state,null,2):store?.raw()||'';const url=URL.createObjectURL(new Blob([content],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='GOIMON-chapter1-progress.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
 window.addEventListener('storage',e=>{if(e.key==='goimon_cloud_v2:active'||e.key===key)fail(Error('別のタブでアカウントまたは進行が更新されました。再読み込みしてください。'));});
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target===document.body&&!$('menu').open&&!$('log').open){const b=$('next');if(b){e.preventDefault();b.click();}}});
+GoimonQuestLearning.bindKeys(app);
 window.GoimonChapter1=Object.freeze({snapshot:()=>structuredClone(state),musicMode:()=>musicMode});
 try{if(window.GoimonEconomyReady)await window.GoimonEconomyReady;blocked=false;store=GoimonChapterStore.create(window.GoimonDeveloper?.storage||localStorage,key,D);state=store.load();render();if(new URLSearchParams(location.search).get('configure')==='1'&&state){setup(true);}}catch(e){fail(e);}
 })();
