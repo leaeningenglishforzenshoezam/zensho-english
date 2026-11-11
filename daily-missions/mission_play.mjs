@@ -32,7 +32,7 @@ $('finish').onclick=()=>run(async()=>{
 });
 function setQuestionView(active){
  document.body.classList.toggle('answering',active);
- $('dashboard').hidden=active;$('loginBonus').hidden=active||!flow;
+ $('dashboard').hidden=active;$('loginBonus').hidden=active;
  $('gradingBar').hidden=!active;$('finish').hidden=!!flow?.result;
  $('backToMissions').hidden=!flow?.result;
  $('questions').hidden=!active;$('instructions').hidden=!active;
@@ -176,18 +176,14 @@ $('kind').onchange=showGoal;showGoal();
 window.addEventListener('beforeunload',e=>{if(flow?.pending||working){e.preventDefault();e.returnValue='';}});
 window.addEventListener('pagehide',()=>window.speechSynthesis?.cancel());
 async function refreshLoginBonus(){
- if(!flow||!window.GoimonCloudWallet)return;
- const bonus=await flow.client.request('economy/bonus');$('loginBonus').hidden=document.body.classList.contains('answering');
- $('claimLoginBonus').disabled=bonus.login||!!flow.pending;
- $('claimLoginBonus').textContent=bonus.login?'受取済み':'1個受け取る';
- $('loginBonusStatus').textContent=bonus.date+' · 1日1個（日本時間）';
+ const date=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ const received=JSON.parse(localStorage.getItem('goimon_device_bonus_v1:'+date)||'null')?.status==='claimed';
+ $('loginBonus').hidden=document.body.classList.contains('answering');
+ $('claimLoginBonus').hidden=true;
+ $('loginBonusStatus').textContent=date+' · '+(received?'今日は受取済みです。':'このブラウザで1日1回、自動で受け取れます。');
 }
-$('claimLoginBonus').onclick=()=>run(async()=>{
- if(flow?.pending)throw Error('ミッションの保存を完了してから受け取ってください。');
- $('claimLoginBonus').disabled=true;
- try{const n=await window.GoimonShop.claimLogin();const balance=window.GoimonCloudWallet.read();$('balance').textContent=`星のかけら：${balance.state.shards}個`;$('status').textContent=n?'ほしのかけら1個を受け取りました。':'今日は受取済みです。';}
- finally{await refreshLoginBonus();}
-});
+window.addEventListener('goimon-wallet-changed',()=>refreshLoginBonus().catch(()=>{}));
+refreshLoginBonus().catch(()=>{});
 window.addEventListener('focus',()=>{if(!working&&flow&&!flow.pending)refreshLoginBonus().catch(()=>{$('claimLoginBonus').disabled=true;$('loginBonusStatus').textContent='受取状況を確認できません。画面を開き直してください。';});});
 const initialize=()=>run(async()=>{if(flow)return;if(window.GoimonEconomyReady)await window.GoimonEconomyReady;const client=createBrowserMissionClient();await client.prepare();const balance=await client.request('economy');const profiles=window.GOIMONProfiles;
  const checkpoint=createMissionCheckpoint({storage:window.GOIMONStorage,account:profiles.account,apiBase:window.GOIMON_CLOUD_CONFIG.apiBase,activeAccount:()=>profiles.currentAccount(),isWriter:()=>profiles.isWriter()});
