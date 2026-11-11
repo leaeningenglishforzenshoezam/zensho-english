@@ -12,3 +12,13 @@ window.GoimonReleaseReady=(async()=>{
   c.missionsEnabled=ready;c.economyServerEnabled=ready;return ready;
  }catch{return false;}
 })();
+
+(() => {
+ const start=()=>{
+  if(location.pathname.endsWith('/cloud.html'))return;
+  import('./goimon-items/daily-bonus.mjs').then(module=>module.start(window))
+   .catch(error=>console.warn('今日のボーナスを読み込めませんでした。',error.message));
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+ else start();
+})();
