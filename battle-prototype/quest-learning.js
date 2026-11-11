@@ -16,7 +16,37 @@ function record(combat,q,correct,expired,explanation){
 function summary(combat){const log=(combat?.log||[]).filter(x=>typeof x.correct==='boolean');return {total:log.length,correct:log.filter(x=>x.correct).length,misses:combat?.learning?.misses||[],questions:combat?.learning?.questions||[]};}
 function node(tag,text,parent,cls){const n=document.createElement(tag);n.textContent=text||'';if(cls)n.className=cls;if(parent)parent.append(n);return n;}
 function focus(n){n.tabIndex=-1;n.focus({preventScroll:true});n.scrollIntoView?.({block:'nearest',behavior:'auto'});}
-function explain(parent,q){const ex=q.explanation;if(!ex)return;const d=node('details','',parent,'ql-explanation');node('summary','訳・解説を見る',d);for(const s of [ex.completed,ex.translation,...(ex.notes||[])].filter(Boolean))node('p',s,d);}
+function showChoiceMeanings(parent,ex,order){
+ if(!ex?.choiceMeanings?.length)return;
+ node('h3','選択肢の意味',parent);
+ const list=node('ol','',parent);
+ const meanings=new Map(ex.choiceMeanings.map(({choice,meaning})=>[choice,meaning]));
+ for(const choice of order||meanings.keys())node('li',choice+'：'+meanings.get(choice),list);
+}
+function choiceKey(button,index){
+ const key=String(index+1);
+ button.dataset.questChoiceKey=key;
+ button.setAttribute('aria-keyshortcuts',key);
+ return button;
+}
+function nextKey(button){
+ button.dataset.questNextKey='';
+ button.setAttribute('aria-keyshortcuts','Enter');
+ return button;
+}
+function bindKeys(app){
+ document.addEventListener('keydown',event=>{
+  if(event.defaultPrevented||event.repeat||event.isComposing||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||document.querySelector('dialog[open]'))return;
+  if(event.target.closest?.('input, select, textarea, [contenteditable]'))return;
+  let button;
+  if(/^[1-4]$/.test(event.key))button=app.querySelector('[data-quest-choice-key="'+event.key+'"]');
+  else if(event.key==='Enter'&&!event.target.closest?.('button, a, summary'))button=app.querySelector('[data-quest-next-key], #next');
+  if(!button||button.disabled||!button.getClientRects().length)return;
+  event.preventDefault();
+  button.click();
+ });
+}
+function explain(parent,q){const ex=q.explanation;if(!ex)return;const d=node('details','',parent,'ql-explanation');node('summary','訳・解説を見る',d);for(const s of [ex.completed,ex.translation,...(ex.notes||[])].filter(Boolean))node('p',s,d);showChoiceMeanings(d,ex,[...q.choices||[]].reverse());}
 function result(parent,combat,{guard=fn=>fn,onContinue,continueLabel='物語の続きへ',misses=[]}={}){
  root.GoimonQuestQuestionAudio?.stop();parent.replaceChildren();
  const box=node('section','',parent,'quest-learning'),s=summary(combat),review=s.misses.length?s.misses:misses;
@@ -41,16 +71,16 @@ function practice(box,questions,{guard=fn=>fn,onExit}={}){
   const title=node('h2',q.prompt,box,'ql-prompt');
   root.GoimonQuestQuestionAudio?.mount(box,q);
   const controls=node('div','',box,'ql-answers'),feedback=node('div','',box);feedback.setAttribute('aria-live','polite');
-  function grade(value){if(graded)return;graded=true;root.GoimonQuestQuestionAudio?.stop();const ok=root.GoimonChapterQuestions.correct(q,value);if(ok)score++;controls.replaceChildren();const h=node('h3',ok?'正解！':'もう一度、確認しよう',feedback);const answer=q.format==='q12'?q.answer.map(id=>q.chunks.find(c=>c.id===id)?.text||'').join(' '):q.answer;node('p','正答：'+answer,feedback,'ql-answer');explain(feedback,q);action(index+1===queue.length?'復習の結果へ':'次の問題へ',()=>{index++;render();},feedback,true);focus(h);}
+  function grade(value){if(graded)return;graded=true;root.GoimonQuestQuestionAudio?.stop();const ok=root.GoimonChapterQuestions.correct(q,value);if(ok)score++;controls.replaceChildren();const h=node('h3',ok?'正解！':'もう一度、確認しよう',feedback);const answer=q.format==='q12'?q.answer.map(id=>q.chunks.find(c=>c.id===id)?.text||'').join(' '):q.answer;node('p','正答：'+answer,feedback,'ql-answer');explain(feedback,q);nextKey(action(index+1===queue.length?'復習の結果へ':'次の問題へ',()=>{index++;render();},feedback,true));focus(h);}
   if(q.format==='q12'){
    const actions=node('div','',controls,'ql-actions'),chosen=node('div','',controls,'ql-chosen'),options=node('div','',controls,'ql-options');chosen.setAttribute('aria-label','選んだ語句');
    const submit=action('答え合わせ',()=>grade([...selection]),actions,true);action('並びをリセット',()=>{selection=[];paint();},actions);
    const chunks=[...q.chunks].reverse();function paint(){chosen.replaceChildren();options.replaceChildren();for(const id of selection)action(q.chunks.find(c=>c.id===id).text,()=>{selection=selection.filter(x=>x!==id);paint();},chosen);for(const c of chunks){const b=action(c.text,()=>{selection.push(c.id);paint();},options);b.disabled=selection.includes(c.id);}submit.disabled=selection.length!==q.answer.length;}paint();
-  }else{for(const value of [...(q.choices||[])].reverse())action(value,()=>grade(value),controls);}
+  }else{[...(q.choices||[])].reverse().forEach((value,index)=>choiceKey(action(value,()=>grade(value),controls),index));}
   action('戦闘結果へ戻る',exit,box);focus(title);
  }
  render();
 }
 function eligibility(parent){const details=node('details','',parent,'quest-eligibility');node('summary','参加条件と、進化したときのこと',details);node('p','参加できるのは、たまご・幼体・成長体です。',details);node('p','中級体に進化すると、冒険の途中でも参加できなくなります。育成・学習・既読・クリア記録は消えません。',details);node('p','保存箱などから参加できる相棒を選び、章の最初から再挑戦できます。編成の確定までは今の冒険を残します。',details);const a=node('a','育成・保存箱を確認',details);a.href='index.html?panel=goimon&manage=1';return details;}
-const api={record,summary,result,practice,eligibility};if(typeof module!=='undefined')module.exports=api;else root.GoimonQuestLearning=api;
+const api={record,summary,result,practice,eligibility,showChoiceMeanings,choiceKey,nextKey,bindKeys};if(typeof module!=='undefined')module.exports=api;else root.GoimonQuestLearning=api;
 })(typeof window!=='undefined'?window:globalThis);
