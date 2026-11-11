@@ -3709,9 +3709,9 @@
     {
       id: "B_wisdom_01",
       answer: "wisdom",
-      en: "She questioned the （　） of investing all the money in one company.",
-      ja: "彼女は全資金を一社に投資することの「賢明さ」に疑問を持った。",
-      note: "the wisdom of Ving で「Vすることの賢明さ」。",
+      en: "His decision showed great （　） and experience.",
+      ja: "彼の決断は大きな「知恵」と経験を示していた。",
+      note: "show great wisdom で「大きな知恵・賢明さを示す」。",
       choices: ["wisdom", "welfare", "victory", "voyage"]
     },
     {
