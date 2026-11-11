@@ -21,7 +21,7 @@ function render(a){
   else q.choices.forEach((choice,j)=>{const label=add(box,'label',''),input=document.createElement('input');input.type='radio';input.name='q'+i;input.checked=answers[i]===j;input.onchange=()=>{answers[i]=j;progress();};label.append(input,document.createTextNode(choice));});
  });
 }
-async function run(fn){if(working)return;working=true;renderDashboard();$('start').disabled=true;$('finish').disabled=true;try{await fn();}catch(e){const messages={missions_not_enabled:'ミッションは公開準備中です。',mission_login_required:'保存画面でログインしてから開いてください。',mission_account_changed:'アカウントまたは保存タブが変わりました。保存画面で確認してください。',revision_conflict:'別端末の記録と競合しています。保存画面で確認してください。',growth_target_mismatch:'挑戦中に育成する個体が変わりました。元の個体に戻してから再試行してください。'};$('status').textContent=messages[e.message]||'処理を完了できませんでした：'+e.message;$('status').scrollIntoView({block:'center'});if(flow?.pending)$('status').textContent+='\n「保存を再試行」を押してください。再読み込み後も保留中の処理を引き継ぎます。完了済みの処理は重複しません。';}finally{working=false;$('start').disabled=!flow||!!flow.pending;$('finish').disabled=!flow?.attempt||!!flow.result;$('finish').textContent=flow?.pending?'保存を再試行':'採点する';renderDashboard();}}
+async function run(fn){if(working)return;working=true;$('resetMission').disabled=true;renderDashboard();$('start').disabled=true;$('finish').disabled=true;try{await fn();}catch(e){const messages={missions_not_enabled:'ミッションは公開準備中です。',mission_login_required:'保存画面でログインしてから開いてください。',mission_account_changed:'アカウントまたは保存タブが変わりました。保存画面で確認してください。',revision_conflict:'別端末の記録と競合しています。保存画面で確認してください。',AbortError:'通信が時間切れになりました。保存を再試行するか、今回の挑戦をリセットできます。',growth_target_mismatch:'挑戦中に育成する個体が変わりました。元の個体に戻して保存を再試行するか、「今回の挑戦をリセット」で一覧へ戻ってください。'};$('status').textContent=messages[e.name]||messages[e.message]||'処理を完了できませんでした：'+e.message;$('status').scrollIntoView({block:'center'});if(flow?.pending)$('status').textContent+='\n「保存を再試行」を押してください。再読み込み後も保留中の処理を引き継ぎます。完了済みの処理は重複しません。';}finally{working=false;$('resetMission').hidden=!flow?.attempt;$('resetMission').disabled=false;$('start').disabled=!flow||!!flow.pending;$('finish').disabled=!flow?.attempt||!!flow.result;$('finish').textContent=flow?.pending?'保存を再試行':'採点する';renderDashboard();}}
 $('start').onclick=()=>run(async()=>{const {slot,body}=missionSettings($('missionLevel').value,$('kind').value);reviewGate.invalidate();const a=await flow.start(slot,body);$('reviewToolbar').hidden=true;$('wrongOnly').checked=false;setQuestionView(true);answers=Array(a.questions.length).fill(null);render(a);progress();$('missionSetup').open=false;$('instructions').hidden=false;$('instructions').textContent=instructions[a.category]||instructions[a.slot];$('status').textContent=`${a.date} / ${a.questions.length}問。回答後に採点・保存します。`;$('instructions').scrollIntoView({block:'start'});});
 $('finish').onclick=()=>run(async()=>{
  if(!flow.pending&&answers.some((a,i)=>a===null||Array.isArray(a)&&a.length!==flow.attempt.questions[i].chunks.length))throw Error('すべての問題に回答してください');
@@ -39,6 +39,28 @@ function setQuestionView(active){
  $('reviewToolbar').hidden=!active||!flow?.result;
 }
 $('backToMissions').onclick=()=>{setQuestionView(false);$('missionSetup').open=false;$('dashboard').scrollIntoView({block:'start'});refreshDashboard();};
+
+$('resetMission').onclick=()=>run(async()=>{
+ if(!flow?.attempt)return;
+ if(!window.confirm('今回の挑戦をリセットして一覧に戻りますか？\n保存済みの学習記録・育成・獲得済み報酬は残ります。未保存の回答と、未受取の育成加点・報酬は、この挑戦からは再試行できなくなります。'))return;
+ flow.reset();
+ reviewGate.invalidate();
+ answers=[];
+ window.speechSynthesis?.cancel();
+ $('questions').querySelectorAll('audio').forEach(audio=>audio.pause());
+ $('questions').replaceChildren();
+ if($('resultDialog').open)$('resultDialog').close();
+ $('reviewToolbar').hidden=true;
+ $('reviewStatus').textContent='';
+ $('wrongOnly').checked=false;
+ $('answered').textContent='問題を選んでスタート';
+ $('finish').textContent='採点する';
+ setQuestionView(false);
+ $('missionSetup').open=false;
+ $('status').textContent='今回の挑戦をリセットしました。ミッションを選んで始められます。保存済みの学習記録・育成・獲得済み報酬は残っています。';
+ $('dashboard').scrollIntoView({block:'start'});
+ await refreshDashboard();
+});
 function filterReview(){
  $('questions').querySelectorAll('fieldset').forEach(box=>box.hidden=$('wrongOnly').checked&&box.classList.contains('correct'));
 }
