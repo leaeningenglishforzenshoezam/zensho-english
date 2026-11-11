@@ -4,8 +4,11 @@ export function createMissionAccountClient({apiBase,account,credential,activeAcc
  function assertAccount(){if(!account||activeAccount()!==account||profiles.account!==account||!profiles.isWriter())throw Error('mission_account_changed');const s=credential();if(s?.userId!==account||s.apiBase!==apiBase||s.expiresAt*1000<=Date.now()||!/^gs1_[a-f0-9]{64}$/.test(s.token||''))throw Error('mission_login_required');return s;}
  async function request(path,body){
   const s=assertAccount();
-  const r=await send(apiBase.replace(/\/$/,'')+'/api/v1/'+path,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+s.token,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),cache:'no-store'});
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
+  try{
+  const r=await send(apiBase.replace(/\/$/,'')+'/api/v1/'+path,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+s.token,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),cache:'no-store',signal:controller.signal});
   assertAccount();const data=await r.json();if(!r.ok)throw Object.assign(Error(data.error||'mission_request_failed'),{status:r.status,...(path==='economy/draw'&&data.drawRejection?{drawRejection:data.drawRejection}:{})});return data;
+  }finally{clearTimeout(timer);}
  }
  async function reconcile(){
   assertAccount();const p=profiles.read(account),local=profiles.cloudData(p.data);

@@ -1,6 +1,12 @@
 export class MissionFlow {
  constructor(client,checkpoint=null){this.client=client;this.checkpoint=checkpoint;this.busy=false;this.pending=null;this.answers=[];const saved=checkpoint?.read();if(saved){this.attempt=saved.attempt;this.pending=saved.pending;this.answers=saved.answers;this.result=saved.result;}}
  save(){this.checkpoint?.write({attempt:this.attempt||null,pending:this.pending,answers:this.answers,result:this.result||null});}
+ reset(){
+  if(this.busy)throw Error('request_pending');
+  const cleared={attempt:null,pending:null,answers:[],result:null};
+  if(this.checkpoint)this.checkpoint.reset(cleared);
+  this.attempt=null;this.pending=null;this.answers=[];this.result=null;
+ }
  saveAnswers(answers){if(this.pending||this.result)return;this.answers=structuredClone(answers);this.save();}
  async request(path,body){this.save();return this.client.request(path,body);}
  async locked(fn){if(this.busy)throw Error('request_pending');this.busy=true;try{return await fn();}finally{this.busy=false;this.save();}}

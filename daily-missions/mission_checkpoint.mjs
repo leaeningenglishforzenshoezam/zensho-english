@@ -13,6 +13,20 @@ export function createMissionCheckpoint({storage,account,apiBase,activeAccount,i
  }
  return {
   read(){scope();observed=storage.getItem(key);if(observed===null)return null;if(observed.length>600000)throw Error('mission_checkpoint_invalid');try{return validate(JSON.parse(observed));}catch{throw Error('mission_checkpoint_invalid');}},
+  reset(value){
+   scope();
+   if(observed===undefined)throw Error('mission_checkpoint_not_loaded');
+   if(storage.getItem(key)!==observed)throw Error('mission_checkpoint_conflict');
+   if(observed!==null){
+    const previous=validate(JSON.parse(observed));
+    if(previous.attempt){
+     const recoveryKey=key+':reset:'+encodeURIComponent(previous.attempt.attemptId);
+     storage.setItem(recoveryKey,observed);
+     if(storage.getItem(recoveryKey)!==observed)throw Error('mission_checkpoint_failed');
+    }
+   }
+   this.write(value);
+  },
   write(value){scope();if(observed===undefined)throw Error('mission_checkpoint_not_loaded');if(storage.getItem(key)!==observed)throw Error('mission_checkpoint_conflict');
    const next=JSON.stringify(validate({...value,version:1,account,apiBase}));if(next.length>600000)throw Error('mission_checkpoint_invalid');
    storage.setItem(key,next);if(storage.getItem(key)!==next)throw Error('mission_checkpoint_failed');observed=next;
