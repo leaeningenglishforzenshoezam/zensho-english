@@ -1,0 +1,40 @@
+name: Chapter 2 post-battle story checks
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/chapter2-post-battle-checks.yml'
+      - 'battle-prototype/chapter2.js'
+      - 'battle-prototype/chapter2_data.js'
+      - 'battle-prototype/chapter2_progress.js'
+      - 'tests/chapter2-runtime.test.cjs'
+      - 'tests/site-chapter2-render.test.cjs'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/chapter2-post-battle-checks.yml'
+      - 'battle-prototype/chapter2.js'
+      - 'battle-prototype/chapter2_data.js'
+      - 'battle-prototype/chapter2_progress.js'
+      - 'tests/chapter2-runtime.test.cjs'
+      - 'tests/site-chapter2-render.test.cjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chapter2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Chapter 2 quest progression and legacy saves
+        run: node --test tests/chapter2-runtime.test.cjs tests/quest-save-integration.test.cjs
+      - name: Battle-to-story DOM transitions
+        run: node tests/site-chapter2-render.test.cjs
+      - name: JavaScript syntax
+        run: |
+          node --check battle-prototype/chapter2_data.js
+          node --check battle-prototype/chapter2_progress.js
+          node --check battle-prototype/chapter2.js

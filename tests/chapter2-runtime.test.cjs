@@ -5,8 +5,34 @@ const box={};box.window=box;vm.runInNewContext(fs.readFileSync(require.resolve('
 test('nine battles connect for seven grown partners with limited healing and one-third recovery',()=>{for(const species of C.species.slice(0,7)){let player=E.actor(species,2,{chie:20,kotoba:20,onkan:20,bunmyaku:20},C.gear.find(g=>g.id==='none'),['heal'].map(id=>C.skills.find(s=>s.id===id)));for(let id=1;id<=9;id++){const b=E.create(player,B.enemy(C,id,1),()=>.5);let turns=0;while(!b.ended&&turns++<200)E.resolve(b,E.current(b)==='player'&&player.hp<player.maxHp*.4&&player.skills[0].left>0?'skill:0':'normal',true,{elapsedMs:2000,rng:()=>.5});assert.equal(b.winner,'player',species.id+' battle '+id);player=b.player;player.hp=Math.min(player.maxHp,player.hp+Math.ceil((player.maxHp-player.hp)/3));}}});
 test('all supported question formats use existing real question banks',()=>{for(const file of ['accent_1kyu.js','listening_type3_1kyu.js','words_1kyu.js','idiom_data_1kyu.js','sentence_fixed_1kyu.js','paraphrase_data_1kyu.js','reorder_1kyu.js'])vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'..',file),'utf8'),box);const Q=require('../battle-prototype/chapter_questions'),bank=require('../battle-prototype/question_bank');const source={q1:box.ACCENT_1KYU,q3:box.LISTENING_TYPE3_1KYU,words:box.WORDS_1KYU,idioms:box.IDIOM_DATA_1KYU,q9:box.SENTENCE_FIXED_1KYU,q11:box.PARAPHRASE_DATA_1KYU,q12:box.REORDER_1KYU};for(const format of Q.supported){const q=Q.select(format,1,source,bank,()=>.5);assert.ok(Q.correct(q,q.answer));assert.ok(!Q.correct(q,null));assert.ok(q.review);}});
 function memory(){const data=new Map([['goimon_chapter1_v1:guest:lv1','keep-ch1'],['learning','keep-learning']]);return {data,getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v)};}
-test('all 23 scenes and nine victory returns survive reload without touching chapter 1',()=>{const mem=memory(),key='goimon_chapter2_v1:guest:lv1';let store=P.create(mem,key,D),s=P.fresh(D,pet),battles=[];store.save(s);let steps=0;while(s.mode!=='complete'&&steps++<1000){const scene=D.scenes[s.scene];if(s.line===scene.lines.length&&scene.battleId){battles.push(scene.battleId);s.battleId=scene.battleId;s.checkpoint={hp:100};s.mode='battle';s.combat={ended:true,winner:'player',player:{hp:60,maxHp:100}};store.save(s);store=P.create(mem,key,D);s=store.load();P.finish(s,D);assert.equal(s.line,0);assert.equal(s.run.hp,74);}else P.advance(s,D);store.save(s);store=P.create(mem,key,D);s=store.load();}assert.equal(s.mode,'complete');assert.deepEqual(battles,[1,2,3,4,5,6,7,8,9]);assert.equal(s.read.length,D.scenes.reduce((n,s)=>n+s.lines.length,0));assert.equal(mem.data.get('goimon_chapter1_v1:guest:lv1'),'keep-ch1');assert.equal(mem.data.get('learning'),'keep-learning');});
+test('all 23 scenes and nine victory returns survive reload without touching chapter 1',()=>{const mem=memory(),key='goimon_chapter2_v1:guest:lv1';let store=P.create(mem,key,D),s=P.fresh(D,pet),battles=[];store.save(s);let steps=0;while(s.mode!=='complete'&&steps++<1000){const scene=D.scenes[s.scene];if(s.line===scene.lines.length&&scene.battleId){battles.push(scene.battleId);s.battleId=scene.battleId;s.checkpoint={hp:100};s.mode='battle';s.combat={ended:true,winner:'player',player:{hp:60,maxHp:100}};store.save(s);store=P.create(mem,key,D);s=store.load();P.finish(s,D);assert.equal(s.line,0);assert.equal(s.run.hp,74);assert.equal(s.afterBattle,scene.battleId);store.save(s);store=P.create(mem,key,D);s=store.load();assert.equal(s.afterBattle,scene.battleId);P.advance(s,D);assert.equal(s.line,0,'normal dialogue stays blocked until aftermath is read');P.dismissAfterBattle(s,D);assert.equal(s.afterBattle,null);}else P.advance(s,D);store.save(s);store=P.create(mem,key,D);s=store.load();}assert.equal(s.mode,'complete');assert.deepEqual(battles,[1,2,3,4,5,6,7,8,9]);assert.equal(s.read.length,D.scenes.reduce((n,s)=>n+s.lines.length,0)+Object.values(D.afterBattles).reduce((n,b)=>n+b.lines.length,0));assert.equal(mem.data.get('goimon_chapter1_v1:guest:lv1'),'keep-ch1');assert.equal(mem.data.get('learning'),'keep-learning');});
 test('loss keeps exact battle boundary and pre-battle actor',()=>{const s=P.fresh(D,pet);s.scene=1;s.line=D.scenes[1].lines.length;s.mode='battle';s.battleId=1;s.checkpoint={hp:87,skills:[{left:2}]};s.combat={ended:true,winner:'enemy',player:{hp:0,maxHp:100}};P.finish(s,D);P.validate(s,D);assert.equal(s.scene,1);assert.equal(s.mode,'defeat');assert.equal(s.checkpoint.hp,87);assert.equal(s.checkpoint.skills[0].left,2);assert.deepEqual(s.cleared,[]);});
 test('stale tab cannot overwrite newer progress',()=>{const m=memory(),a=P.create(m,'ch2',D),b=P.create(m,'ch2',D);a.save(P.fresh(D,pet));assert.throws(()=>b.save(P.fresh(D,pet)),/別のタブ/);});
 test('corrupt save is rejected and retained',()=>{const m=memory();m.setItem('ch2','{"version":0}');assert.throws(()=>P.create(m,'ch2',D).load());assert.equal(m.getItem('ch2'),'{"version":0}');});
 test('all supplied assets exist with matching PNG/WebP signature',()=>{const box={};vm.runInNewContext(fs.readFileSync(require.resolve('../battle-prototype/chapter2_assets.js'),'utf8'),box);const a=box.GoimonChapter2Assets;for(const group of Object.values(a.map))for(const file of Object.values(group)){const bytes=fs.readFileSync(require('node:path').join(__dirname,'..',a.rootDir,file));if(file.endsWith('.webp')){assert.equal(bytes.toString('ascii',0,4),'RIFF',file);assert.equal(bytes.toString('ascii',8,12),'WEBP',file);}else assert.equal(bytes.subarray(0,8).toString('hex'),'89504e470d0a1a0a',file);}});
+
+test('existing Chapter 2 saves with no aftermath field remain readable',()=>{
+ const mem=memory(),key='ch2-old-save',legacy=P.fresh(D,pet);
+ legacy.scene=6;legacy.line=1;
+ const original=JSON.stringify(legacy);
+ mem.setItem(key,original);
+ const restored=P.create(mem,key,D).load();
+ assert.equal(restored.afterBattle,undefined);
+ assert.equal(mem.getItem(key),original);
+});
+test('after-battle bridge remains on battle background until dismissed and safely writes history',()=>{
+ const mem=memory(),key='ch2-after',s=P.fresh(D,pet);
+ s.scene=15;s.line=D.scenes[15].lines.length;s.mode='battle';s.battleId=7;s.checkpoint={hp:100};s.combat={ended:true,winner:'player',player:{hp:30,maxHp:100}};
+ let store=P.create(mem,key,D);store.save(s);P.finish(s,D);store.save(s);
+ store=P.create(mem,key,D);const reloaded=store.load();
+ assert.equal(reloaded.scene,16);assert.equal(reloaded.afterBattle,7);
+ assert.equal(D.scenes[reloaded.scene-1].battleId,7);
+ assert.equal(D.afterBattles[7].button,'奥の操作室へ進む');
+ assert.throws(()=>{const bad={...reloaded,afterBattle:99};P.validate(bad,D);},/戦闘後イベント/);
+ P.dismissAfterBattle(reloaded,D);store.save(reloaded);
+ const after=P.create(mem,key,D).load();
+ assert.equal(after.afterBattle,null);
+ assert.ok(D.afterBattles[7].lines.every(l=>after.read.includes(l.id)));
+ P.advance(after,D);assert.equal(after.line,1);
+ assert.equal(mem.getItem('goimon_chapter1_v1:guest:lv1'),'keep-ch1');
+});
