@@ -33,3 +33,22 @@
 .scene.illustrated.enemy-giant .ally-solo,.scene.illustrated.enemy-boss .ally-solo{left:2%;width:32%;height:62%}
 .scene.illustrated.enemy-giant .ally-one,.scene.illustrated.enemy-boss .ally-one{left:0;width:24%;height:59%}
 .scene.illustrated.enemy-giant .ally-two,.scene.illustrated.enemy-boss .ally-two{left:21%;width:20%;height:54%!important}
+
+
+/* Story navigation remains reachable without scrolling after each line. */
+#app:has(> .text-panel){padding-bottom:calc(112px + env(safe-area-inset-bottom, 0px))}
+#app:has(> .text-panel) > .actions{
+ position:fixed;left:50%;bottom:0;transform:translateX(-50%);
+ z-index:50;width:min(920px,100%);margin:0;
+ padding:12px max(18px,env(safe-area-inset-left,0px)) calc(12px + env(safe-area-inset-bottom,0px));
+ background:#10271ff2;border-top:1px solid var(--line);
+ box-shadow:0 -8px 24px #07170f50;display:flex;gap:8px;align-items:center;
+}
+#app:has(> .text-panel) > .actions button{min-height:48px}
+#app:has(> .text-panel) > .actions #next{flex:2;min-width:105px;font-size:16px}
+#app:has(> .text-panel) > .actions button:not(#next){flex:1;white-space:normal}
+@media(max-width:450px){
+ #app:has(> .text-panel) > .actions{padding:9px 12px calc(9px + env(safe-area-inset-bottom,0px));gap:6px}
+ #app:has(> .text-panel) > .actions button{padding:9px 6px;font-size:12px}
+ #app:has(> .text-panel) > .actions #next{font-size:16px}
+}
