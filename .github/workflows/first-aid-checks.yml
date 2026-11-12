@@ -1,0 +1,42 @@
+name: First Aid safety checks
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/first-aid-checks.yml'
+      - 'battle-prototype/catalog.js'
+      - 'battle-prototype/core.js'
+      - 'battle-prototype/question_bank.js'
+      - 'battle-prototype/chapter_questions.js'
+      - 'battle-prototype/question-routing.js'
+      - 'tests/first-aid-skill.test.cjs'
+      - 'cloud-worker/src/**'
+      - 'cloud-worker/tests/economy-gift.test.js'
+      - 'cloud-worker/package-lock.json'
+  pull_request:
+    paths:
+      - '.github/workflows/first-aid-checks.yml'
+      - 'battle-prototype/**'
+      - 'goimon-items/**'
+      - 'cloud-worker/**'
+      - 'tests/first-aid-skill.test.cjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  first-aid:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: cloud-worker/package-lock.json
+      - name: First Aid skill, audio and stage scopes
+        run: node --test tests/first-aid-skill.test.cjs
+      - name: Install Worker test dependencies
+        run: npm ci --prefix cloud-worker
+      - name: Gift authorization, migration and replay
+        run: node --test cloud-worker/tests/economy-gift.test.js
