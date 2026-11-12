@@ -29,6 +29,8 @@ export async function connect(root){
  await wallet.migrate();
  await client.request('economy/loadouts/import',{});
  let bonuses=await client.request('economy/bonus');
+ let firstAidGift=null;
+ try{firstAidGift=await client.request('economy/gift');}catch(error){console.warn('First Aidギフトの受取状況を確認できませんでした。',error.message);}
  async function claim(kind){
   bonuses=await client.request('economy/bonus');
   if(bonuses[kind])return 0;
@@ -45,6 +47,16 @@ export async function connect(root){
  }
  function project(level){const legacy=S.project(S.readShared(storage).state,level),cloud=wallet.read();return {...legacy,owned:cloud.state.owned,shop:{...legacy.shop,stars:cloud.state.shards,claims:{...legacy.shop.claims,welcome:bonuses.welcome,['login:'+bonuses.date]:bonuses.login}}};}
  root.GoimonShop={read:project,drawNotice:()=>drawNotice,
+  firstAidClaimed:()=>firstAidGift?.claimed===true||(wallet.read()?.state?.owned?.skills?.N_first_aid_gift||0)>0,
+  claimFirstAid:async()=>{
+   if(firstAidGift?.claimed)return false;
+   if(!firstAidGift)throw Error('プレゼント受取機能がサーバー側で利用できません。');
+   const current=await wallet.refresh();
+   const response=await client.request('economy/gift/claim',{expectedRevision:current.revision});
+   await wallet.refresh();firstAidGift=await client.request('economy/gift');
+   root.dispatchEvent(new Event('goimon-wallet-changed'));
+   return !!response.result?.received&&!response.replayed;
+  },
   welcome:()=>claim('welcome'),claimLogin:()=>import('./daily-bonus.mjs').then(module=>module.claim(root)),
   loginStatus:()=>({date:bonuses.date,loggedIn:activeAccount()===account,claimed:bonuses.login}),
   draw:async(level,kind,count)=>{if(receipt)throw Error('前回の結果を確認してください。');try{receipt=await draw.draw(kind,count);}catch(e){if(!e.drawRejected)throw e;await wallet.refresh();throw Error('抽選は成立していません。残高を更新しました。回数を選び直してください。');}await wallet.refresh();return receipt.response.result.items.map(x=>C[kind].find(i=>i.id===x.id));},
