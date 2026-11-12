@@ -23,7 +23,7 @@ function resolve(b,command,correct,options={}){
  if(side==='player'&&command!=='normal'){if(!/^skill:[0-3]$/.test(command))throw Error('invalid command');skill=p.skills[Number(command.slice(-1))];if(!skill||skill.left<=0)throw Error('skill exhausted');}
  const quick=correct&&Number.isFinite(options.elapsedMs)&&options.elapsedMs>=0&&options.elapsedMs<=3000;const rng=options.rng||Math.random;const variance=.95+.1*Math.min(1,Math.max(0,rng()));const attackActor=quick?{...p,attack:p.attack*1.1}:p,defendActor=quick?{...p,defense:p.defense*1.1}:p;const entry={turn:b.turn,side,correct,quick,variance,text:''};b.questions++;if(skill)skill.left--;
  if(side==='player'){
-  if(skill?.type==='heal'){entry.text=skill.name+'：HPを'+heal(p,p.maxHp*Math.min(1,Math.max(0,skill.healFraction??.5)*(skill.healMultiplier??1.1))*(p.id==='tsumugi'?1.3:1)*(correct?1:.5))+'回復';}
+  if(skill?.type==='heal'){entry.text=skill.name+'：HPを'+heal(p,p.maxHp*Math.min(1,Math.max(0,skill.healFraction??.5)*(skill.healMultiplier??1.1))*(p.id==='tsumugi'&&!skill.giftOnly?1.3:1)*(correct?1:.5))+'回復';}
   else{
    let extra=p.nextPower;if(correct)p.nextPower=1;
    if(p.gearEffect==='courage'&&p.hp<=p.maxHp/2)extra*=1.12;
