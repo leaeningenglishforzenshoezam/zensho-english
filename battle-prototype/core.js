@@ -8,7 +8,7 @@ function actor(species,stage,points,gear,skills){
  const out={...species,reference:20*stage*gain(points.chie),shield:{hits:0,factor:1},nextPower:1,streak:0,gearEffect:gear?.effect||null,spareUsed:false,steadyUsed:false};
  const map={hp:'kotoba',attack:'chie',defense:'bunmyaku',speed:'onkan'};
  for(const stat of Object.keys(map)){if(!Number.isFinite(points[map[stat]])||points[map[stat]]<0)throw Error('invalid points');out[stat]=round(species[stat]*stage*gain(points[map[stat]]));const bonus=gear?.bonuses?.[stat]||(gear?.stat===stat?gear.bonus:0);if(bonus)out[stat]=round(out[stat]*(1+bonus));}
- out.maxHp=out.hp;out.skills=skills.map(s=>{const maxUses=s.uses+(species.id==='hibiki'?1:0);return {...s,left:maxUses,maxUses};});return out;
+ out.maxHp=out.hp;out.skills=skills.map(s=>{const maxUses=s.uses+(species.id==='hibiki'&&!s.giftOnly?1:0);return {...s,left:maxUses,maxUses};});return out;
 }
 function damage(a,b,power,answer,attribute,bonus=1,shield=1,variance=1){const base=((a.attack+a.reference)/2)*Math.sqrt(2*a.attack/(a.attack+b.defense));return round(base*power*answer*affinity(attribute,b.attr)*bonus*shield*variance);}
 function speedBonus(a,b){return speedIds.includes(a.id)&&a.speed>b.speed?(a.id==='yomitoki'?1.65:1.35):1;}
@@ -23,7 +23,7 @@ function resolve(b,command,correct,options={}){
  if(side==='player'&&command!=='normal'){if(!/^skill:[0-3]$/.test(command))throw Error('invalid command');skill=p.skills[Number(command.slice(-1))];if(!skill||skill.left<=0)throw Error('skill exhausted');}
  const quick=correct&&Number.isFinite(options.elapsedMs)&&options.elapsedMs>=0&&options.elapsedMs<=3000;const rng=options.rng||Math.random;const variance=.95+.1*Math.min(1,Math.max(0,rng()));const attackActor=quick?{...p,attack:p.attack*1.1}:p,defendActor=quick?{...p,defense:p.defense*1.1}:p;const entry={turn:b.turn,side,correct,quick,variance,text:''};b.questions++;if(skill)skill.left--;
  if(side==='player'){
-  if(skill?.type==='heal'){entry.text=skill.name+'：HPを'+heal(p,p.maxHp*Math.min(1,Math.max(.5,skill.healFraction||.5)*1.1)*(p.id==='tsumugi'?1.3:1)*(correct?1:.5))+'回復';}
+  if(skill?.type==='heal'){entry.text=skill.name+'：HPを'+heal(p,p.maxHp*Math.min(1,Math.max(0,skill.healFraction??.5)*(skill.healMultiplier??1.1))*(p.id==='tsumugi'&&!skill.giftOnly?1.3:1)*(correct?1:.5))+'回復';}
   else{
    let extra=p.nextPower;if(correct)p.nextPower=1;
    if(p.gearEffect==='courage'&&p.hp<=p.maxHp/2)extra*=1.12;

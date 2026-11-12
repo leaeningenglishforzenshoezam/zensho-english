@@ -17,6 +17,23 @@
  try{const c=get('cache',null);if(c){items=validate(c.items);checked=Number(c.checked)||0;available=true;}}catch{}
  const list=document.getElementById('news-list'),status=document.getElementById('news-status'),all=document.getElementById('news-read-all'),refresh=document.getElementById('news-refresh');
  const unread=x=>read[x.id]!==x.updatedAt;
+ const firstAidNewsId='first-aid-gift-20261112';
+ function giftControls(detail){
+  const area=document.createElement('div'),button=document.createElement('button'),message=document.createElement('p'),link=document.createElement('a');
+  area.className='news-gift-actions';button.type='button';button.textContent='プレゼントを受け取る';message.setAttribute('role','status');
+  link.href='quest_loadout.html?skill=N_first_aid_gift';link.textContent='ゴイモンにSKILLをセットする';link.hidden=true;
+  area.append(button,message,link);detail.append(area);
+  const refresh=()=>{let received=false;try{received=!!window.GoimonShop?.firstAidClaimed?.();}catch(e){message.textContent=e.message;}
+   button.hidden=received;link.hidden=!received;if(received)message.textContent='First Aidを受け取り済みです。';};
+  button.addEventListener('click',async()=>{
+   button.disabled=true;message.textContent='受け取りを確認しています…';
+   try{await window.GoimonReleaseReady;if(window.GOIMON_CLOUD_CONFIG?.economyServerEnabled===true){window.GoimonEconomyReady ||= import('./goimon-items/runtime.mjs').then(m=>m.connect(window));await window.GoimonEconomyReady;}if(typeof window.GoimonShop?.claimFirstAid!=='function')throw Error('サーバー保存の所持品は現在受け取りに対応していません。記録を変更せず、後日対応をお待ちください。');
+    const received=await window.GoimonShop.claimFirstAid();
+    message.textContent=received?'First Aidを受け取りました！':'すでに受け取り済みです。';
+    refresh();
+   }catch(e){message.textContent=e.message;}finally{button.disabled=false;}
+  });refresh();window.GoimonEconomyReady?.then(refresh).catch(e=>{button.disabled=true;message.textContent=e.message;});
+ }
  const badge=document.createElement('span');badge.className='news-badge';document.getElementById('gn-news')?.append(badge);
  function paint(){
   const count=items.filter(unread).length;badge.hidden=!count;badge.textContent=String(count);badge.setAttribute('aria-label',`未読${count}件`);
@@ -28,7 +45,7 @@
  function render(){
   if(list){const open=new Set([...list.querySelectorAll('details[open]')].map(e=>e.dataset.id));list.replaceChildren();
    for(const x of items){const detail=document.createElement('details');detail.dataset.id=x.id;detail.open=open.has(x.id);const summary=document.createElement('summary'),meta=document.createElement('span'),date=document.createElement('time'),label=document.createElement('span'),title=document.createElement('strong'),body=document.createElement('p');
-    meta.className='news-meta';date.dateTime=x.updatedAt;date.textContent=new Date(x.updatedAt).toLocaleDateString('ja-JP')+(x.updatedAt!==x.publishedAt?' 更新':'');label.className='news-new';label.textContent='未読';title.textContent=x.title;body.textContent=x.body;meta.append(date,label);summary.append(meta,title);detail.append(summary,body);detail.addEventListener('toggle',()=>{if(detail.open)mark(x.id);});list.append(detail);
+    meta.className='news-meta';date.dateTime=x.updatedAt;date.textContent=new Date(x.updatedAt).toLocaleDateString('ja-JP')+(x.updatedAt!==x.publishedAt?' 更新':'');label.className='news-new';label.textContent='未読';title.textContent=x.title;body.textContent=x.body;meta.append(date,label);summary.append(meta,title);detail.append(summary,body);if(x.id===firstAidNewsId)giftControls(detail);detail.addEventListener('toggle',()=>{if(detail.open)mark(x.id);});list.append(detail);
    }
   }paint();
  }

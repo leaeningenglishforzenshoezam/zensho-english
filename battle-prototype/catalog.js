@@ -356,6 +356,23 @@
   ],
   "skills": [
     {
+      "id": "N_first_aid_gift",
+      "name": "First Aid／ファーストエイド",
+      "vocab": {"en":"first aid","ja":"応急手当","level":1},
+      "attr": "echo",
+      "rarity": "N",
+      "type": "heal",
+      "uses": 2,
+      "healFraction": 0.4,
+      "healMultiplier": 1,
+      "giftOnly": true,
+      "description": "運営からのプレゼント。音声を聞き意味を選ぶ4択。正解で最大HPの40％を回復。不正解では半分。2回使用可能。",
+      "descriptionEn": "Gift-only. Listen and choose the meaning. Restore 40% max HP on a correct answer; half on a wrong answer. Uses: 2.",
+      "flavor": {"ja":"冒険の前に受け取った小さな救急箱。", "en":"A little first-aid kit for the adventure ahead."},
+      "tactic": "heal",
+      "questionFormat": "audio_word_meaning"
+    },
+    {
       "id": "N_echo",
       "name": "Burst／バースト",
       "vocab": {
@@ -2198,6 +2215,7 @@
     }
   },
   "questionFormats": {
+    "audio_word_meaning": {"label":"音声 → 意味","rank":0},
     "word_meaning": {
       "label": "単語の意味",
       "rank": 0

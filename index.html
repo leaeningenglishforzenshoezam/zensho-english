@@ -1651,7 +1651,12 @@
         </div>
         <section id="itemDexPanel" role="tabpanel" aria-labelledby="dexGearTab" hidden>
           <label for="itemDexSearch">名前・単語・意味・レア度で検索</label>
-          <input id="itemDexSearch" type="search" placeholder="例：Prepare、準備、SR">
+          <input id="itemDexSearch" type="search" placeholder="例：First Aid、Prepare、SR">
+          <label for="itemDexSort">表示順</label>
+          <select id="itemDexSort" aria-label="図鑑の表示順">
+            <option value="owned">入手済みを優先</option>
+            <option value="catalog">図鑑の順番</option>
+          </select>
           <p id="itemDexStatus" role="status" aria-live="polite"></p>
           <div id="itemDexList"></div>
         </section>

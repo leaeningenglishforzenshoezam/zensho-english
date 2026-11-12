@@ -2,7 +2,7 @@
  * Short practice is deliberately separate from combat, growth and reward transactions. */
 (function(root){'use strict';
 const clone=x=>JSON.parse(JSON.stringify(x));
-const formats={word_meaning:'単語',idiom:'イディオム',q1:'アクセント',q3:'応答問題',q9:'短文空所補充',q11:'同意文完成',q12:'語句整序'};
+const formats={word_meaning:'単語',audio_word_meaning:'音声→意味',idiom:'イディオム',q1:'アクセント',q3:'応答問題',q9:'短文空所補充',q11:'同意文完成',q12:'語句整序'};
 function record(combat,q,correct,expired,explanation){
  const learn=combat.learning||(combat.learning={questions:[],misses:[]});
  if(correct)return;
@@ -66,7 +66,7 @@ function practice(box,questions,{guard=fn=>fn,onExit}={}){
  function render(){root.GoimonQuestQuestionAudio?.stop();box.replaceChildren();
   if(index>=queue.length){const title=node('h2','復習、おつかれさま！',box);node('p',score+' / '+queue.length+'問 正解',box,'ql-score');node('p',score===queue.length?'さっきの問題、今度はできた！':'迷った問題は「苦手」に残して、また練習しよう。',box);action('戦闘結果へ戻る',exit,box,true);focus(title);return;}
   graded=false;selection=[];const q=queue[index];node('p','復習 '+(index+1)+' / '+queue.length+' · '+(formats[q.format]||''),box,'ql-note');
-  const instructions={q1:'最も強く読む音節を選ぼう',q3:'音声を聞いて、合う応答を選ぼう',q9:'空所に入る語句を選ぼう',q11:'文aと文bが同じ意味になる語句を選ぼう',q12:'語句を正しい順番に並べよう',idiom:'同じ意味の表現を選ぼう',word_meaning:'英語の意味を選ぼう'};
+  const instructions={q1:'最も強く読む音節を選ぼう',q3:'音声を聞いて、合う応答を選ぼう',q9:'空所に入る語句を選ぼう',q11:'文aと文bが同じ意味になる語句を選ぼう',q12:'語句を正しい順番に並べよう',idiom:'同じ意味の表現を選ぼう',word_meaning:'英語の意味を選ぼう',audio_word_meaning:'音声を聞いて意味を選ぼう'};
   node('p',instructions[q.format]||'',box,'ql-note');
   const title=node('h2',q.prompt,box,'ql-prompt');
   root.GoimonQuestQuestionAudio?.mount(box,q);
