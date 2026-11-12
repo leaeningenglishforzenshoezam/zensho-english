@@ -27,12 +27,12 @@
    button.hidden=received;link.hidden=!received;if(received)message.textContent='First Aidを受け取り済みです。';};
   button.addEventListener('click',async()=>{
    button.disabled=true;message.textContent='受け取りを確認しています…';
-   try{if(typeof window.GoimonShop?.claimFirstAid!=='function')throw Error('サーバー保存の所持品は現在受け取りに対応していません。記録を変更せず、後日対応をお待ちください。');
+   try{if(window.GoimonEconomyReady)await window.GoimonEconomyReady;if(typeof window.GoimonShop?.claimFirstAid!=='function')throw Error('サーバー保存の所持品は現在受け取りに対応していません。記録を変更せず、後日対応をお待ちください。');
     const received=await window.GoimonShop.claimFirstAid();
     message.textContent=received?'First Aidを受け取りました！':'すでに受け取り済みです。';
     refresh();
    }catch(e){message.textContent=e.message;}finally{button.disabled=false;}
-  });refresh();
+  });refresh();window.GoimonEconomyReady?.then(refresh).catch(e=>{button.disabled=true;message.textContent=e.message;});
  }
  const badge=document.createElement('span');badge.className='news-badge';document.getElementById('gn-news')?.append(badge);
  function paint(){
