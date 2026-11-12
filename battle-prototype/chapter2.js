@@ -51,10 +51,31 @@ function staging(battle=false){const s=D.scenes[state.scene],line=s.lines[Math.m
 }
 function render(){for(const p of [state?.run,state?.checkpoint,state?.combat?.player]){E.ensureFirstAid(p,C);E.refreshSkills(p,C);}clearInterval(timer);if(blocked)return;const retain=state?.mode==='story'&&art?.parentNode===app;if(retain){[...app.children].forEach(c=>{if(c!==art)c.remove();});}else{app.replaceChildren();art=null;}
  if(!state){setup();return;}if(state.mode!=='complete'&&(!GoimonChapterStore.eligible(state.pet)||!GoimonChapterStore.eligible(partner()))){setup(true);$('notice').textContent='この冒険の相棒は参加条件に合いません。別の相棒を選ぶまで今の記録は残ります。';return;}if(state.mode==='battle'){battleView();return;}if(state.mode==='defeat'){defeat();return;}if(state.mode==='complete'){music('setup');el('p','CHAPTER 02 · COMPLETE',app,'eyebrow');el('h1','ふたつの声');el('p','次の目的地は、トシャカ中央記録院。');GoimonChapterComplete.mount(app,{history:guard(history),restart:guard(()=>setup(true)),restartLabel:'別の編成で第2章に再挑戦',home:'quest_home.html?chapter=chapter2'});reviews(app);return;}
+ if(state.afterBattle){afterBattleView();return;}
  music('story');const s=D.scenes[state.scene],line=s.lines[state.line],heading=el('p','第2章 · '+s.title,app,'eyebrow');staging();app.insertBefore(heading,art);
  const panel=el('section','',app,'panel');if(!line&&s.battleId){el('h2',D.battles.find(x=>x.id===s.battleId).name,panel);el('p','問題に正解して攻撃・防御。時間切れは不正解になります。',panel,'muted');btn('戦闘へ',()=>startBattle(false),panel,true);return;}
  if(line.speaker)el('p',interpolate(line.speaker),panel,'speaker');const dialogue=el('p',interpolate(line.text),panel,line.speaker?'story-text':'story-text narration-text');dialogue.onclick=guard(()=>{if(!getSelection().toString())advance();});el('p',(state.scene+1)+' / 23 場面 · '+(state.line+1)+' / '+s.lines.length+' 行',panel,'muted');
  const actions=el('div','',panel,'actions');btn('次へ',advance,actions,true);btn('履歴',history,actions);btn('既読を進める',()=>{let count=0;while(state.mode==='story'&&count++<500){const l=D.scenes[state.scene].lines[state.line];if(!l||!state.read.includes(l.id))break;P.advance(state,D);}save();render();},actions);
+}
+function afterBattleView(){
+ music('story');
+ const bridge=D.afterBattles?.[state.afterBattle];
+ const previous=D.scenes[state.scene-1];
+ if(!bridge||!previous||previous.battleId!==state.afterBattle)throw Error('戦闘後の物語が見つかりません。元の進行は保持しています。');
+ el('p','第2章 · 戦いのあと',app,'eyebrow');
+ const background=el('div','',app,'stage');
+ background.setAttribute('role','img');
+ background.setAttribute('aria-label',previous.title+'での戦闘後');
+ background.style.backgroundImage='url("'+A.path('backgrounds',previous.background)+'")';
+ const panel=el('section','',app,'panel');
+ el('h2',previous.title,panel);
+ for(const line of bridge.lines){
+  if(line.speaker)el('p',interpolate(line.speaker),panel,'speaker');
+  el('p',interpolate(line.text),panel,line.speaker?'story-text':'story-text narration-text');
+ }
+ const actions=el('div','',panel,'actions');
+ btn(bridge.button,()=>{P.dismissAfterBattle(state,D);save();render();},actions,true);
+ btn('履歴',history,actions);
 }
 function advance(){const previousScroll=window.scrollY;P.advance(state,D);save();render();if(state.mode==='story')window.scrollTo(0,previousScroll);}
 function actor(){const p=state.pet,species=C.species.find(s=>s.id===p.type)||C.species[0];const points=Object.fromEntries(['chie','kotoba','onkan','bunmyaku'].map(k=>[k,Math.max(0,Number(p.stats?.[k])||0)]));return E.actor(species,C.stages[p.stage]||1,points,C.gear.find(g=>g.id===state.gear)||C.gear.find(g=>g.id==='none'),state.skills.map(id=>C.skills.find(s=>s.id===id)).filter(Boolean));}
@@ -76,7 +97,7 @@ function answer(value){const q=state.question;if(!q)return;GoimonChapterStore.as
  if(!correct&&!state.misses.some(m=>m.review===q.review&&m.reviewId===q.reviewId))state.misses.push({prompt:q.prompt,answer,review:q.review,reviewId:q.reviewId});state.feedback={correct,expired,answer,action:entry.text,translation:q.translation||'',explanation:Q.explain?.(q,source)||null};state.question=null;GoimonQuestGrowth.queue(state,q,correct);save();GoimonQuestGrowth.flush(state,save);try{if(!window.GoimonDeveloper?.active)window.ZenshoLearningLog?.addResult(({q1:'accent',q3:'listening',word_meaning:'quiz_enja',audio_word_meaning:'audio_quiz',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'})[q.format],correct,{level:'1'});if(!window.GoimonDeveloper?.active)window.GoimonStudyTime?.end();}catch{ $('notice').textContent='学習記録の保存を確認できませんでした。第2章の進行は保存済みです。';}render();}
 function reviews(parent){if(state.misses.length)GoimonQuestReview.show(state.misses,parent);}
 function defeat(){music('setup');el('h1','もう一度、声をつなごう');el('p','戦闘前のHP・技の回数に戻して再挑戦できます。物語の進行は失われません。');GoimonQuestLearning.result(el('section','',app),state.combat,{guard,onAnswer:practiceLearning,onContinue:()=>startBattle(true),continueLabel:'戦闘直前から再挑戦'});btn('相棒を選んで第2章の最初から',()=>setup(true),app);}
-function history(){const body=$('history-body');body.replaceChildren();if(!state){el('p','読み終えた物語がここに残ります。',body);}else for(const scene of D.scenes){const lines=scene.lines.filter(l=>state.read.includes(l.id));if(!lines.length)continue;el('h2',scene.title,body);for(const l of lines)el('p',(l.speaker?interpolate(l.speaker)+'\n':'')+interpolate(l.text),body,l.speaker?'':'narration-text');}if(!$('history-dialog').open)$('history-dialog').showModal();}
+function history(){const body=$('history-body');body.replaceChildren();if(!state){el('p','読み終えた物語がここに残ります。',body);}else for(const scene of D.scenes){const lines=scene.lines.filter(l=>state.read.includes(l.id));if(!lines.length)continue;el('h2',scene.title,body);for(const l of lines)el('p',(l.speaker?interpolate(l.speaker)+'\n':'')+interpolate(l.text),body,l.speaker?'':'narration-text');const aftermath=D.afterBattles?.[scene.battleId]?.lines.filter(l=>state.read.includes(l.id))||[];if(aftermath.length){el('h3','戦闘後',body);for(const l of aftermath)el('p',(l.speaker?interpolate(l.speaker)+'\n':'')+interpolate(l.text),body,l.speaker?'':'narration-text');}}if(!$('history-dialog').open)$('history-dialog').showModal();}
  $('restartRun').onclick=guard(()=>setup(!!state));$('history').onclick=guard(history);$('close-history').onclick=()=>$('history-dialog').close();window.addEventListener('storage',e=>{if(e.key==='goimon_chapter1_v1:'+account+':lv1'){location.reload();return;}if(e.key===key||e.key==='goimon_cloud_v2:active')fail(Error('別の画面で進行またはアカウントが更新されました。再読み込みしてください。'));});
  GoimonQuestLearning.bindKeys(app);
  window.GoimonChapter2=Object.freeze({snapshot:()=>state?clone(state):null});try{if(window.GoimonEconomyReady)await window.GoimonEconomyReady;blocked=false;store=P.create(window.GoimonDeveloper?.storage||localStorage,key,D);if((window.GoimonDeveloper?.active||GoimonChapter2Access.current())){state=store.load();if(state)GoimonQuestGrowth.flush(state,save);render();if(new URLSearchParams(location.search).get('configure')==='1'&&state)setup(true);}else locked();}catch(e){fail(e);}
