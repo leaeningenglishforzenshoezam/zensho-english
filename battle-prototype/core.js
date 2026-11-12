@@ -8,7 +8,7 @@ function actor(species,stage,points,gear,skills){
  const out={...species,reference:20*stage*gain(points.chie),shield:{hits:0,factor:1},nextPower:1,streak:0,gearEffect:gear?.effect||null,spareUsed:false,steadyUsed:false};
  const map={hp:'kotoba',attack:'chie',defense:'bunmyaku',speed:'onkan'};
  for(const stat of Object.keys(map)){if(!Number.isFinite(points[map[stat]])||points[map[stat]]<0)throw Error('invalid points');out[stat]=round(species[stat]*stage*gain(points[map[stat]]));const bonus=gear?.bonuses?.[stat]||(gear?.stat===stat?gear.bonus:0);if(bonus)out[stat]=round(out[stat]*(1+bonus));}
- out.maxHp=out.hp;out.skills=skills.map(s=>{const maxUses=s.uses+(species.id==='hibiki'?1:0);return {...s,left:maxUses,maxUses};});return out;
+ out.maxHp=out.hp;out.skills=skills.map(s=>{const maxUses=s.uses+(species.id==='hibiki'&&!s.giftOnly?1:0);return {...s,left:maxUses,maxUses};});return out;
 }
 function damage(a,b,power,answer,attribute,bonus=1,shield=1,variance=1){const base=((a.attack+a.reference)/2)*Math.sqrt(2*a.attack/(a.attack+b.defense));return round(base*power*answer*affinity(attribute,b.attr)*bonus*shield*variance);}
 function speedBonus(a,b){return speedIds.includes(a.id)&&a.speed>b.speed?(a.id==='yomitoki'?1.65:1.35):1;}
