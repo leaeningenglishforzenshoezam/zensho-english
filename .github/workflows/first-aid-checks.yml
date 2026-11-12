@@ -12,6 +12,8 @@ on:
       - 'tests/first-aid-skill.test.cjs'
       - 'cloud-worker/src/**'
       - 'cloud-worker/tests/economy-gift.test.js'
+      - 'cloud-worker/tests/mission-account-client.test.js'
+      - 'daily-missions/mission_account_client.mjs'
       - 'cloud-worker/package-lock.json'
   pull_request:
     paths:
@@ -40,3 +42,5 @@ jobs:
         run: npm ci --prefix cloud-worker
       - name: Gift authorization, migration and replay
         run: node --test cloud-worker/tests/economy-gift.test.js
+      - name: Client gift API allowlist and account isolation
+        run: node --test cloud-worker/tests/mission-account-client.test.js
