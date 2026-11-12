@@ -20,18 +20,18 @@ function renderItems(){
  const all=C[kind].filter(x=>x.id!=='none');
  const owned=item=>state?(state.owned[kind][item.id]||0):0;
  const ownedCount=state?all.filter(item=>owned(item)>0).length:0;
- if(state)$('itemDexStatus').textContent='全'+all.length+'種 · 入手済み'+ownedCount+'種。未入手は名前のみ表示します。';
+ if(state)$('itemDexStatus').textContent='全'+all.length+'種 · 入手済み'+ownedCount+'種。'+(kind==='skills'?'未入手の技は名前のみ表示します。':'装備の説明を確認できます。');
  const query=$('itemDexSearch').value.trim().toLowerCase();
  const matches=item=>{
   const seen=owned(item)>0;
-  const searchable=[item.name,item.rarity,...(seen?[item.vocab?.en,item.vocab?.ja]:[])].filter(Boolean);
+  const searchable=[item.name,item.rarity,...(seen||kind==='gear'?[item.vocab?.en,item.vocab?.ja]:[])].filter(Boolean);
   return !query||searchable.join(' ').toLowerCase().includes(query);
  };
  const items=all.filter(matches);
  if($('itemDexSort').value==='owned')items.sort((a,b)=>Number(owned(b)>0)-Number(owned(a)>0));
  for(const item of items){
   const count=owned(item);
-  if(count>0)list.append(card(item,count));
+  if(count>0||kind==='gear')list.append(card(item,state?count:undefined));
   else{
    const row=document.createElement('div');row.className='item-description item-locked';
    const title=document.createElement('p');title.className='item-locked-title';
