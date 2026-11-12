@@ -1,0 +1,46 @@
+name: Quest chapter setup UI
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/quest-chapter-setup.yml'
+      - 'battle-prototype/chapter1.js'
+      - 'battle-prototype/chapter2.js'
+      - 'battle-prototype/quest-partner-preview.js'
+      - 'battle-prototype/quest-partner-preview.css'
+      - 'quest_chapter1.html'
+      - 'quest_chapter2.html'
+      - 'tests/quest-companion-setup.test.cjs'
+      - 'tests/site-chapter2-render.test.cjs'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/quest-chapter-setup.yml'
+      - 'battle-prototype/chapter1.js'
+      - 'battle-prototype/chapter2.js'
+      - 'battle-prototype/quest-partner-preview.js'
+      - 'battle-prototype/quest-partner-preview.css'
+      - 'quest_chapter1.html'
+      - 'quest_chapter2.html'
+      - 'tests/quest-companion-setup.test.cjs'
+      - 'tests/site-chapter2-render.test.cjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chapter-setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Companion preview and launch-only selection
+        run: node --test tests/quest-companion-setup.test.cjs tests/chapter2-runtime.test.cjs tests/quest-save-integration.test.cjs
+      - name: Chapter 2 DOM transitions
+        run: node tests/site-chapter2-render.test.cjs
+      - name: JavaScript syntax
+        run: |
+          node --check battle-prototype/chapter1.js
+          node --check battle-prototype/chapter2.js
+          node --check battle-prototype/quest-partner-preview.js
