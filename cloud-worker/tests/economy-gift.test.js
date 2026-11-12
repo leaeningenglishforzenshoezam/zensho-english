@@ -12,7 +12,7 @@ async function setup(){
  const h=await createOfflineDb();
  const sql=await readFile(new URL('../migrations/0009_economy_legacy_imports.sql',import.meta.url),'utf8');
  for(const s of sql.match(/CREATE TABLE[\s\S]*?;/g))await h.db.prepare(s).run();
- await autoImportLegacy(h.db,'gift-test',{
+ await autoImportLegacy(h.db,'local-test',{
   version:1,
   assets:{version:1,shards:42,owned:{gear:{},skills:{}}},
   backup:JSON.stringify({schemaVersion:2,shop:{claims:{}}})
@@ -23,17 +23,17 @@ async function setup(){
 test('gift: a migrated user receives one First Aid without losing shards; retry is idempotent',async()=>{
  const h=await setup();
  try{
-  assert.deepEqual(await readGiftStatus(h.db,'gift-test'),{claimed:false});
-  const before=await readEconomy(h.db,'gift-test');
+  assert.deepEqual(await readGiftStatus(h.db,'local-test'),{claimed:false});
+  const before=await readEconomy(h.db,'local-test');
   const payload={expectedRevision:before.revision};
-  const [a,b]=await Promise.all([claimFirstAidGift(h.db,'gift-test',payload),claimFirstAidGift(h.db,'gift-test',payload)]);
+  const [a,b]=await Promise.all([claimFirstAidGift(h.db,'local-test',payload),claimFirstAidGift(h.db,'local-test',payload)]);
   assert.equal([a,b].filter(x=>!x.replayed).length,1);
-  assert.equal((await readEconomy(h.db,'gift-test')).state.owned.skills.N_first_aid_gift,1);
-  assert.equal((await readEconomy(h.db,'gift-test')).state.shards,42);
-  assert.deepEqual(await readGiftStatus(h.db,'gift-test'),{claimed:true});
-  const retry=await claimFirstAidGift(h.db,'gift-test',payload);
+  assert.equal((await readEconomy(h.db,'local-test')).state.owned.skills.N_first_aid_gift,1);
+  assert.equal((await readEconomy(h.db,'local-test')).state.shards,42);
+  assert.deepEqual(await readGiftStatus(h.db,'local-test'),{claimed:true});
+  const retry=await claimFirstAidGift(h.db,'local-test',payload);
   assert.equal(retry.replayed,true);
-  assert.equal((await readEconomy(h.db,'gift-test')).state.owned.skills.N_first_aid_gift,1);
+  assert.equal((await readEconomy(h.db,'local-test')).state.owned.skills.N_first_aid_gift,1);
  }finally{h.close();}
 });
 
@@ -41,15 +41,15 @@ test('gift: account migration and exact payload are mandatory',async()=>{
  const h=await setup();
  try{
   await assert.rejects(claimFirstAidGift(h.db,'unmigrated',{expectedRevision:0}),/wallet_migration_required/);
-  await assert.rejects(claimFirstAidGift(h.db,'gift-test',{expectedRevision:1,amount:100}),/invalid_gift/);
-  assert.equal((await readEconomy(h.db,'gift-test')).state.owned.skills.N_first_aid_gift||0,0);
+  await assert.rejects(claimFirstAidGift(h.db,'local-test',{expectedRevision:1,amount:100}),/invalid_gift/);
+  assert.equal((await readEconomy(h.db,'local-test')).state.owned.skills.N_first_aid_gift||0,0);
  }finally{h.close();}
 });
 
 test('gift: GET and POST require gate, correct Origin and signed session',async()=>{
  const h=await setup();
  try{
-  const session=await createSession(h.db,'gift-test');
+  const session=await createSession(h.db,'local-test');
   const limiter={limit:async()=>({success:true})};
   const env={DB:h.db,ALLOWED_ORIGIN:'https://leaeningenglishforzenshoezam.github.io',
    MISSION_RELEASE_ENABLED:'true',ECONOMY_GIFT_ENABLED:'true',
