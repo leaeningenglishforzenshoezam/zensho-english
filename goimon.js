@@ -760,7 +760,7 @@ if (eventKey === "listening") {
     return base;
   }
 
-  function applyDeltaToGoimon(g, deltaObj, eventKey) {
+  function applyLearningDelta(g, deltaObj) {
     const delta = normalizePointDelta(deltaObj);
 
     g.stats.chie = roundPoint(Number(g.stats.chie || 0) + delta.chie);
@@ -778,6 +778,11 @@ if (eventKey === "listening") {
       g.imageKey = getImageFor(g.type, g.stage);
     }
 
+    return g;
+  }
+
+  function applyDeltaToGoimon(g, deltaObj, eventKey) {
+    g = applyLearningDelta(g, deltaObj);
     markDiscovered(g.type, g.stage);
     saveCurrent(g);
 
@@ -805,6 +810,29 @@ if (eventKey === "listening") {
     // 取得済みIDとポイントを同じ個体レコードへ保存する。
     applyDeltaToGoimon(g, delta, eventKey);
     renderHome(); renderAllMiniHooks();
+    return true;
+  }
+
+  // One sequence receipt per adventure, stored atomically with the participating pet.
+  // The quest's combat snapshot is intentionally never changed by this API.
+  function addQuestLearningPointsOnce(petId, runId, sequence, delta, level = "1") {
+    if (!petId || !runId || !Number.isSafeInteger(sequence) || sequence < 1 || !["1", "2"].includes(String(level))) throw Error("育成ポイントの保存情報を確認できません。");
+    const currentKey = `${CURRENT_KEY_BASE}_lv${level}`;
+    const archiveKey = `${ARCHIVE_KEY_BASE}_lv${level}`;
+    const current = JSON.parse(GOIMONStorage.getItem(currentKey) || "null");
+    const archive = JSON.parse(GOIMONStorage.getItem(archiveKey) || "[]");
+    const isCurrent = current?.id === petId;
+    const index = archive.findIndex(g => g.id === petId);
+    const original = isCurrent ? current : archive[index];
+    if (!original) throw Error("学習した相棒を確認できません。育成ポイントは再開時に保存し直します。");
+    const g = sanitizeGoimon(structuredClone(original));
+    const claim = `quest:${runId}`;
+    if (Number(g.learningRewardClaims?.[claim] || 0) >= sequence) return false;
+    g.learningRewardClaims = {...g.learningRewardClaims, [claim]: sequence};
+    applyLearningDelta(g, delta);
+    g.updatedAt = Date.now();
+    if (isCurrent) saveJson(currentKey, g);
+    else { archive[index] = g; saveJson(archiveKey, archive); }
     return true;
   }
 
@@ -2032,6 +2060,7 @@ function isMrUnoUnlocked() {
     addQ7ReadingResult,
     addQ7VocabCorrect,
     addLearningPointsOnce,
+    addQuestLearningPointsOnce,
 
     addPoints,
 addPointsByRuleKey,
