@@ -1,0 +1,52 @@
+name: Deploy First Aid gift API (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: first-aid-cloudflare-release
+  cancel-in-progress: false
+jobs:
+  deploy-gift-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check Cloudflare authorization
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::Repository secrets CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID are required. Nothing deployed."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: cloud-worker/package-lock.json
+      - name: Validate First Aid battle engine
+        run: node --test tests/first-aid-skill.test.cjs
+      - name: Install Worker dependencies
+        run: npm ci --prefix cloud-worker
+      - name: Validate account gift and client paths
+        run: node --test cloud-worker/tests/economy-gift.test.js cloud-worker/tests/mission-account-client.test.js
+      - name: Verify release feature flag
+        run: |
+          node -e "const c=require('./cloud-worker/wrangler.release.jsonc');if(c.name!=='goimon-cloud-api-staging'||c.main!=='src/mission_release.js'||c.vars.ECONOMY_GIFT_ENABLED!=='true'||c.vars.ALLOWED_ORIGIN!=='https://leaeningenglishforzenshoezam.github.io')process.exit(1)"
+      - name: Deploy existing Worker (no D1 migrations)
+        working-directory: cloud-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler deploy --config wrangler.release.jsonc
+      - name: Confirm gift API is enabled and requires authentication
+        run: |
+          status=$(curl --silent --show-error --max-time 15 --output /dev/null --write-out '%{http_code}' -H 'Origin: https://leaeningenglishforzenshoezam.github.io' 'https://goimon-cloud-api-staging.one-consistent.workers.dev/api/v1/economy/gift')
+          echo "Unauthenticated First Aid gift endpoint: HTTP $status"
+          if [ "$status" != "401" ]; then
+            echo "::error::Expected HTTP 401 after deploy; do not publish the announcement."
+            exit 1
+          fi
+          echo "Gift endpoint is enabled. Announcement remains unpublished pending test-account claim."
