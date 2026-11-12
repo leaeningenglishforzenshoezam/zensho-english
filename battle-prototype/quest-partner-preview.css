@@ -1,0 +1,7 @@
+/* Companion portrait shared by the Chapter 1 and Chapter 2 setup screens. */
+.quest-partner-preview{display:flex;align-items:center;gap:18px;margin:12px 0 18px;padding:14px;border:1px solid #527364;border-radius:16px;background:#102d24;min-height:162px}
+.quest-partner-image{display:block;width:132px;height:144px;object-fit:contain;object-position:center;flex:0 0 auto}
+.quest-partner-meta{min-width:0;flex:1}
+.quest-partner-name{font-size:clamp(18px,3.5vw,23px);font-weight:750;line-height:1.4;margin:0 0 8px;overflow-wrap:anywhere}
+.quest-partner-stage{font-size:14px;line-height:1.5;margin:0;color:#c9d6ca}
+@media(max-width:480px){.quest-partner-preview{gap:10px;padding:10px;min-height:124px}.quest-partner-image{width:100px;height:118px}.quest-partner-name{font-size:18px}}
