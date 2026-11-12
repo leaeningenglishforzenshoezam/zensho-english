@@ -15,12 +15,22 @@ function speedBonus(a,b){return speedIds.includes(a.id)&&a.speed>b.speed?(a.id==
 function counter(a,b){return round(a.defense*({nagomi:.20,shirabe:.18,q7_special:.12}[a.id]||0)*affinity(a.attr,b.attr));}
 function create(player,enemy,rng=Math.random){enemy.weaken={hits:0,factor:1};return {player,enemy,turn:1,ended:false,winner:null,questions:0,log:[],order:player.speed===enemy.speed?(rng()<.5?['player','enemy']:['enemy','player']):player.speed>enemy.speed?['player','enemy']:['enemy','player'],index:0};}
 function current(b){return b.ended?'ended':b.order[b.index];}
+// Quest-only universal emergency aid. This never changes owned inventory, loadouts or cloud balances.
+function ensureFirstAid(player,catalog){
+ if(!player||!Array.isArray(player.skills)||!catalog?.skills)return false;
+ if(player.skills.some(skill=>skill.id==='N_first_aid_gift'))return false;
+ if(player.skills.length>4)throw Error('Too many quest skills');
+ const aid=catalog.skills.find(skill=>skill.id==='N_first_aid_gift');
+ if(!aid)throw Error('First Aid is unavailable');
+ player.skills.push({...aid,left:aid.uses,maxUses:aid.uses,questStarter:true});
+ return true;
+}
 function commands(b){return [{id:'normal',name:'通常攻撃'},...b.player.skills.map((s,i)=>({id:'skill:'+i,name:s.name,left:s.left,disabled:s.left===0}))];}
 function restoreTarget(p,excluded){return p.skills.filter(s=>s!==excluded&&s.type!=='replenish'&&s.left<s.maxUses).sort((a,b)=>(b.maxUses-b.left)-(a.maxUses-a.left))[0];}
 function heal(p,amount){const before=p.hp;p.hp=Math.min(p.maxHp,p.hp+round(amount));return p.hp-before;}
 function resolve(b,command,correct,options={}){
  if(b.ended)throw Error('battle ended');if(typeof correct!=='boolean')throw Error('invalid answer');const side=current(b),p=b.player,e=b.enemy;let skill=null;
- if(side==='player'&&command!=='normal'){if(!/^skill:[0-3]$/.test(command))throw Error('invalid command');skill=p.skills[Number(command.slice(-1))];if(!skill||skill.left<=0)throw Error('skill exhausted');}
+ if(side==='player'&&command!=='normal'){if(!/^skill:[0-4]$/.test(command))throw Error('invalid command');skill=p.skills[Number(command.slice(-1))];if(!skill||skill.left<=0)throw Error('skill exhausted');}
  const quick=correct&&Number.isFinite(options.elapsedMs)&&options.elapsedMs>=0&&options.elapsedMs<=3000;const rng=options.rng||Math.random;const variance=.95+.1*Math.min(1,Math.max(0,rng()));const attackActor=quick?{...p,attack:p.attack*1.1}:p,defendActor=quick?{...p,defense:p.defense*1.1}:p;const entry={turn:b.turn,side,correct,quick,variance,text:''};b.questions++;if(skill)skill.left--;
  if(side==='player'){
   if(skill?.type==='heal'){entry.text=skill.name+'：HPを'+heal(p,p.maxHp*Math.min(1,Math.max(0,skill.healFraction??.5)*(skill.healMultiplier??1.1))*(p.id==='tsumugi'&&!skill.giftOnly?1.3:1)*(correct?1:.5))+'回復';}
@@ -55,5 +65,5 @@ function resolve(b,command,correct,options={}){
 }
 // Refresh definitions only: retain HP, spent uses, equipment and progression.
 function refreshSkills(p,catalog){if(!p?.skills||!catalog?.skills)return;for(const s of p.skills){const latest=catalog.skills.find(x=>x.id===s.id);if(latest){const left=s.left,maxUses=s.maxUses;Object.assign(s,latest,{left,maxUses});}}}
-const api={refreshSkills,gain,affinity,actor,damage,speedBonus,counter,create,current,commands,resolve};if(typeof module!=='undefined')module.exports=api;else root.GoimonBattlePrototype=api;
+const api={refreshSkills,ensureFirstAid,gain,affinity,actor,damage,speedBonus,counter,create,current,commands,resolve};if(typeof module!=='undefined')module.exports=api;else root.GoimonBattlePrototype=api;
 })(typeof window!=='undefined'?window:globalThis);

@@ -2,7 +2,7 @@
 const FORMATS=['word_meaning','audio_word_meaning','q1','q3','idiom','q9','q11','q12'];
 function skillFormat(skills,command,side,training){
  if(side==='enemy'||command==='normal'||training)return 'word_meaning';
- const match=/^skill:([0-3])$/.exec(command||'');
+ const match=/^skill:([0-4])$/.exec(command||'');
  if(!match)throw Error('Invalid skill command');
  const skill=skills[Number(match[1])];
  if(!skill||!FORMATS.includes(skill.questionFormat))throw Error('Skill question format unavailable');
