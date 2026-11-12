@@ -24,7 +24,7 @@ export function planDraw(state,kind,count,rng=secureRandom){
   // The guarantee changes N to R; SR remains 1%, not the former 1/6 draft rate.
   const weights=count===10&&i===9&&items.every(x=>x.rarity==='N')?RULES.guaranteedWeights:RULES.normalWeights;
   const tickets=weights.flatMap((n,j)=>Array(n).fill(['N','R','SR'][j]));
-  const rarity=pick(tickets,rng),item=pick(groups[kind].filter(x=>x.rarity===rarity),rng);
+  const rarity=pick(tickets,rng),item=pick(groups[kind].filter(x=>x.rarity===rarity&&!x.giftOnly),rng);
   const amount=(next.owned[kind][item.id]||0)+1;if(amount>MAX)throw Error('inventory_limit');
   next.owned[kind][item.id]=amount;items.push({id:item.id,rarity});
  }
