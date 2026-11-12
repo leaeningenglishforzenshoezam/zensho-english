@@ -13,7 +13,7 @@
     ["P1_073",5,"N073","Parents have to protect their children.","Parents have the ( ) of protecting their children.",["responsibility","difficulty","possibility","experience"],"responsibility"],
     ["P1_003",6,"N003","The manager turned down my proposal.","The manager ( ) my proposal.",["accepted","refused","explained","prepared"],"refused"],
     ["P1_065",7,"N065","He never accepted my advice.","He ( ) to accept my advice.",["refused","offered","agreed","managed"],"refused"],
-    ["P1_005",8,"N005","We should make a decision as soon as possible.","We should decide ( ).",["as soon as possible","by chance","at first sight","in charge of"],"as soon as possible"],
+    ["P1_005",8,"N005","We should make a decision immediately.","We should decide ( ).",["at once","by chance","at first sight","in charge of"],"at once"],
     ["P1_014",9,"N014","The new product became popular immediately.","The new product became popular ( ).",["at once","on purpose","by chance","in detail"],"at once"],
     ["P1_022",10,"N022","The event was canceled due to the storm.","The storm ( ) the cancellation of the event.",["led to","looked for","depended on","took after"],"led to"],
     ["P1_034",11,"N034","Heavy traffic caused the delay of the bus.","The delay of the bus was ( ) heavy traffic.",["due to","different from","proud of","full of"],"due to"],
@@ -211,7 +211,7 @@
     "P1_002": { ja: "彼女は営業チームの管理を担当している。", answerJa: "～を担当している" },
     "P1_003": { ja: "部長は私の提案を断った。", answerJa: "断った、拒否した" },
     "P1_004": { ja: "こんなに美しい景色は今まで見たことがない。", answerJa: "今までに" },
-    "P1_005": { ja: "私たちはできるだけ早く決定すべきだ。", answerJa: "できるだけ早く" },
+    "P1_005": { ja: "私たちは直ちに決定すべきだ。", answerJa: "直ちに、すぐに" },
     "P1_006": { ja: "列車は大雪のため遅れた。", answerJa: "引き起こした" },
     "P1_007": { ja: "彼は昨日その会議に出席しなかった。", answerJa: "欠席して" },
     "P1_008": { ja: "この機械は操作するのが簡単だ。", answerJa: "操作すること" },
@@ -438,7 +438,7 @@
   ],
 
   "P1_005": [
-    "できるだけ早く",
+    "直ちに、すぐに",
     "偶然に",
     "一目見て",
     "～を担当して"
@@ -1825,9 +1825,9 @@
   },
 
   "P1_005": {
-    pointA: "make a decision",
-    pointB: "decide",
-    pointNote: "make a decision は「決定する」。動詞 decide と言い換えられる。"
+    pointA: "make a decision immediately",
+    pointB: "decide at once",
+    pointNote: "immediately と at once はどちらも「直ちに、すぐに」を表す。make a decision「決定する」は動詞 decide に言い換えられる。"
   },
 
   "P1_006": {
