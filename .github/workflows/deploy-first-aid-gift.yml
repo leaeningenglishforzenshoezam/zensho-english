@@ -34,7 +34,7 @@ jobs:
         run: node --test cloud-worker/tests/economy-gift.test.js cloud-worker/tests/mission-account-client.test.js
       - name: Verify release feature flag
         run: |
-          node -e "const c=require('./cloud-worker/wrangler.release.jsonc');if(c.name!=='goimon-cloud-api-staging'||c.main!=='src/mission_release.js'||c.vars.ECONOMY_GIFT_ENABLED!=='true'||c.vars.ALLOWED_ORIGIN!=='https://leaeningenglishforzenshoezam.github.io')process.exit(1)"
+          node -e "const fs=require('node:fs');const c=JSON.parse(fs.readFileSync('./cloud-worker/wrangler.release.jsonc','utf8'));if(c.name!=='goimon-cloud-api-staging'||c.main!=='src/mission_release.js'||c.vars.ECONOMY_GIFT_ENABLED!=='true'||c.vars.ALLOWED_ORIGIN!=='https://leaeningenglishforzenshoezam.github.io')process.exit(1)"
       - name: Deploy existing Worker (no D1 migrations)
         working-directory: cloud-worker
         env:
