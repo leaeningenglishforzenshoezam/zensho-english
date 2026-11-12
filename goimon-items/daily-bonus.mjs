@@ -20,7 +20,6 @@ export async function claim(root=window){
    const {waitForWriter}=await import('./runtime.mjs');
    await waitForWriter(root,P);scope();
   }
-  save('pending');
   if(!root.GoimonBattleCatalog)await import('../battle-prototype/catalog.js');
   if(!root.GoimonItemStore)await import('./store.js');
   scope();
@@ -37,6 +36,7 @@ export async function claim(root=window){
    const wallet=createCloudWallet({account:owner,apiBase:cfg.apiBase,activeAccount:()=>P.currentAccount(),storage,lock:(name,fn)=>root.navigator.locks.request(name,fn),request:client.request,readLocal:()=>S.readShared(storage).state,catalog:root.GoimonBattleCatalog});
    if(!bonus.login){
     const current=await wallet.refresh();
+    save('pending');
     const result=await client.request('economy/bonus/claim',{kind:'login',date,expectedRevision:current.revision});
     amount=result.replayed?0:result.result.shards;
    }
@@ -48,6 +48,7 @@ export async function claim(root=window){
     const ctx=S.readShared(storage),state=ctx.state,id='login:'+date;
     if(state.shop.claims[id])return 0;
     if(state.shop.stars>=1000000)throw Error('星のかけらが上限です。');
+    save('pending');
     state.shop.stars++;state.shop.claims[id]=true;
     S.commitShared(storage,ctx,state);
     return 1;
