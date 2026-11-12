@@ -18,7 +18,7 @@ function restart(s,d,pet,skills=[],gear='none'){
  return validate(next,d);
 }
 function nextScene(s,d){if(s.scene===d.scenes.length-1){s.mode='complete';s.completed=true;}else{s.scene++;s.line=0;s.mode='story';}}
-function advance(s,d){if(s.mode!=='story')return;const scene=d.scenes[s.scene],line=scene.lines[s.line];if(line){if(!s.read.includes(line.id))s.read.push(line.id);s.line++;}if(s.line===scene.lines.length&&!scene.battleId)nextScene(s,d);}
+function advance(s,d){if(s.mode!=='story'||s.afterBattle!=null)return;const scene=d.scenes[s.scene],line=scene.lines[s.line];if(line){if(!s.read.includes(line.id))s.read.push(line.id);s.line++;}if(s.line===scene.lines.length&&!scene.battleId)nextScene(s,d);}
 function finish(s,d){if(!s.combat?.ended)throw Error('戦闘はまだ終了していません。');if(s.combat.winner!=='player'){s.mode='defeat';return;}if(!s.cleared.includes(s.battleId))s.cleared.push(s.battleId);s.run=clone(s.combat.player);s.run.hp=Math.min(s.run.maxHp,s.run.hp+Math.ceil((s.run.maxHp-s.run.hp)/3));s.combat=null;s.question=null;s.feedback=null;const finishedBattle=s.battleId;nextScene(s,d);s.afterBattle=d.afterBattles?.[finishedBattle]?finishedBattle:null;}
 function dismissAfterBattle(s,d){
  validate(s,d);
