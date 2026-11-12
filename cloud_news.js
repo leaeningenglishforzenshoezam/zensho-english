@@ -21,7 +21,7 @@
  function giftControls(detail){
   const area=document.createElement('div'),button=document.createElement('button'),message=document.createElement('p'),link=document.createElement('a');
   area.className='news-gift-actions';button.type='button';button.textContent='プレゼントを受け取る';message.setAttribute('role','status');
-  link.href='quest_loadout.html';link.textContent='ゴイモンにSKILLをセットする';link.hidden=true;
+  link.href='quest_loadout.html?skill=N_first_aid_gift';link.textContent='ゴイモンにSKILLをセットする';link.hidden=true;
   area.append(button,message,link);detail.append(area);
   const refresh=()=>{let received=false;try{received=!!window.GoimonShop?.firstAidClaimed?.();}catch(e){message.textContent=e.message;}
    button.hidden=received;link.hidden=!received;if(received)message.textContent='First Aidを受け取り済みです。';};
