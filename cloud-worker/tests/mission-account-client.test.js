@@ -26,3 +26,16 @@ test('release candidate stays off by default and enabled routes still require se
  const limiter={limit:async()=>({success:true})};
  assert.equal((await release.fetch(req,{...env,MISSION_RELEASE_ENABLED:'true',RATE_LIMITER:limiter,AUTH_RATE_LIMITER:limiter})).status,401);
 });
+
+test('authenticated First Aid gift routes are allowed; arbitrary economy routes stay blocked',async()=>{
+ const f=setup();
+ await f.client.request('economy/gift');
+ assert.equal(f.calls.at(-1).url,'https://test.invalid/api/v1/economy/gift');
+ await f.client.request('economy/gift/claim',{expectedRevision:1});
+ assert.equal(f.calls.at(-1).url,'https://test.invalid/api/v1/economy/gift/claim');
+ assert.equal(f.calls.at(-1).options.headers.Authorization,'Bearer gs1_'+'a'.repeat(64));
+ const calls=f.calls.length;
+ await assert.rejects(f.client.request('economy/gift/claim/extra'),/invalid_mission_path/);
+ await assert.rejects(f.client.request('economy/admin'),/invalid_mission_path/);
+ assert.equal(f.calls.length,calls);
+});
