@@ -10,6 +10,7 @@ on:
       - 'battle-prototype/chapter_questions.js'
       - 'battle-prototype/question-routing.js'
       - 'tests/first-aid-skill.test.cjs'
+      - 'tests/first-aid-universal.test.cjs'
       - 'cloud-worker/src/**'
       - 'cloud-worker/tests/economy-gift.test.js'
       - 'cloud-worker/tests/mission-account-client.test.js'
@@ -38,6 +39,8 @@ jobs:
           cache-dependency-path: cloud-worker/package-lock.json
       - name: First Aid skill, audio and stage scopes
         run: node --test tests/first-aid-skill.test.cjs
+      - name: Universal quest-only First Aid and compatibility
+        run: node --test tests/first-aid-universal.test.cjs
       - name: Install Worker test dependencies
         run: npm ci --prefix cloud-worker
       - name: Gift authorization, migration and replay
