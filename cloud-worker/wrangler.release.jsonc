@@ -10,7 +10,8 @@
     "ECONOMY_IMPORT_ENABLED": "true",
     "ECONOMY_AUTO_IMPORT_ENABLED": "true",
     "ECONOMY_LOADOUTS_ENABLED": "true",
-    "ECONOMY_BONUS_ENABLED": "true"
+    "ECONOMY_BONUS_ENABLED": "true",
+    "ECONOMY_GIFT_ENABLED": "true"
   },
   "d1_databases": [
     {
