@@ -19,3 +19,20 @@
 .stage.town-cast.two-npcs .farmer{right:24%;width:24%;height:91%}
 .stage.town-cast.two-npcs .manager{right:0;width:27%;height:96%}
 @media(max-width:540px){.stage.enemy-boss .enemy{width:64%}.stage.enemy-giant .enemy{width:58%}}
+
+
+/* Keep story controls on screen while the player reads each dialogue line. */
+#app:has(> .panel .story-text){padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+#app:has(> .panel .story-text) > .panel > .actions{
+ position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+ z-index:50;width:min(1100px,100%);margin:0;
+ padding:12px max(16px,env(safe-area-inset-left,0px)) calc(12px + env(safe-area-inset-bottom,0px));
+ background:#0c231df2;border-top:1px solid #527364;
+ box-shadow:0 -8px 24px #06170f55;
+ grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:8px;
+}
+#app:has(> .panel .story-text) > .panel > .actions button{min-height:48px}
+#app:has(> .panel .story-text) > .panel > .actions button:first-child{font-size:16px}
+@media(max-width:540px){
+ #app:has(> .panel .story-text) > .panel > .actions{padding:9px 12px calc(9px + env(safe-area-inset-bottom,0px))}
+}
