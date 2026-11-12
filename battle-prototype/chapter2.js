@@ -54,7 +54,7 @@ function render(){for(const p of [state?.run,state?.checkpoint,state?.combat?.pl
  if(line.speaker)el('p',interpolate(line.speaker),panel,'speaker');const dialogue=el('p',interpolate(line.text),panel,line.speaker?'story-text':'story-text narration-text');dialogue.onclick=guard(()=>{if(!getSelection().toString())advance();});el('p',(state.scene+1)+' / 23 場面 · '+(state.line+1)+' / '+s.lines.length+' 行',panel,'muted');
  const actions=el('div','',panel,'actions');btn('次へ',advance,actions,true);btn('既読を進める',()=>{let count=0;while(state.mode==='story'&&count++<500){const l=D.scenes[state.scene].lines[state.line];if(!l||!state.read.includes(l.id))break;P.advance(state,D);}save();render();},actions);
 }
-function advance(){P.advance(state,D);save();render();}
+function advance(){const previousScroll=window.scrollY;P.advance(state,D);save();render();if(state.mode==='story')window.scrollTo(0,previousScroll);}
 function actor(){const p=partner(),species=C.species.find(s=>s.id===p.type)||C.species[0];const points=Object.fromEntries(['chie','kotoba','onkan','bunmyaku'].map(k=>[k,Math.max(0,Number(p.stats?.[k])||0)]));return E.actor(species,C.stages[p.stage]||1,points,C.gear.find(g=>g.id===state.gear)||C.gear.find(g=>g.id==='none'),state.skills.map(id=>C.skills.find(s=>s.id===id)).filter(Boolean));}
 function startBattle(retry){GoimonChapterStore.assertEligible(state.pet);GoimonChapterStore.assertEligible(partner());const id=D.scenes[state.scene].battleId;const p=retry?clone(state.checkpoint):state.run?clone(state.run):actor();if(!retry)state.checkpoint=clone(p);const enemy=GoimonChapter2Battle.enemy(C,id,C.stages[state.pet.stage]);
  state.battleId=id;state.combat=E.create(p,enemy);state.mode='battle';state.question=null;state.feedback=null;save();render();}
