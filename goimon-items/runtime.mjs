@@ -57,6 +57,14 @@ export async function connect(root){
    root.dispatchEvent(new Event('goimon-wallet-changed'));
    return !!response.result?.received&&!response.replayed;
   },
+  claimTutorialGear:async()=>{
+   const current=await wallet.refresh();
+   const response=await client.request('economy/gift/tutorial-gear/claim',{expectedRevision:current.revision});
+   await wallet.refresh();
+   const item=C.gear.find(g=>g.id===response.result?.gearId&&g.rarity==='N');
+   if(!item)throw Error('プレゼントの装備を確認できません。');
+   root.dispatchEvent(new Event('goimon-wallet-changed'));return item;
+  },
   welcome:()=>claim('welcome'),claimLogin:()=>import('./daily-bonus.mjs').then(module=>module.claim(root)),
   loginStatus:()=>({date:bonuses.date,loggedIn:activeAccount()===account,claimed:bonuses.login}),
   draw:async(level,kind,count)=>{if(receipt)throw Error('前回の結果を確認してください。');try{receipt=await draw.draw(kind,count);}catch(e){if(!e.drawRejected)throw e;await wallet.refresh();throw Error('抽選は成立していません。残高を更新しました。回数を選び直してください。');}await wallet.refresh();return receipt.response.result.items.map(x=>C[kind].find(i=>i.id===x.id));},

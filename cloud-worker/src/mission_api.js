@@ -10,10 +10,10 @@ import {applyCompanionAction} from './mission_companion.js';
 import {readMissionStatus} from './mission_status.js';
 import {readLoadouts,saveLoadout,importLegacyLoadouts} from './economy_loadouts.js';
 import {readBonusStatus,claimBonus} from './economy_bonus.js';
-import {readGiftStatus,claimFirstAidGift} from './economy_gift.js';
+import {readGiftStatus,claimFirstAidGift,claimTutorialGearGift} from './economy_gift.js';
 const routes=['/api/v1/missions/learning/sync','/api/v1/missions/review','/api/v1/missions/learning','/api/v1/missions/learning/apply','/api/v1/missions/words/start','/api/v1/missions/words/submit','/api/v1/missions/words/claim','/api/v1/economy','/api/v1/missions/idioms/start','/api/v1/missions/idioms/submit','/api/v1/missions/idioms/claim','/api/v1/missions/exam/start','/api/v1/missions/exam/submit','/api/v1/missions/exam/claim','/api/v1/missions/basic-bonus/claim',...['listening','reading','reorder'].flatMap(slot=>['start','submit','claim'].map(action=>'/api/v1/missions/'+slot+'/'+action))];
 const json=(value,status=200,headers={})=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store',...headers}});
-routes.push('/api/v1/economy/bonus','/api/v1/economy/bonus/claim','/api/v1/economy/gift','/api/v1/economy/gift/claim');
+routes.push('/api/v1/economy/bonus','/api/v1/economy/bonus/claim','/api/v1/economy/gift','/api/v1/economy/gift/claim','/api/v1/economy/gift/tutorial-gear/claim');
 async function body(request,limit=4096){
  if(!request.headers.get('content-type')?.startsWith('application/json'))throw Error('json_required');
  if(Number(request.headers.get('content-length'))>limit)throw Error('request_too_large');
@@ -52,6 +52,7 @@ export async function handleMissionDraft(request,env){
   if(path==='/api/v1/economy/import/stage'){exact(payload,['version','assets','backup']);return reply(await stageLegacyImport(env.DB,userId,payload));}
   if(path==='/api/v1/economy/loadouts/save')return reply(await saveLoadout(env.DB,userId,payload));
   if(path==='/api/v1/economy/bonus/claim'){exact(payload,['kind','date','expectedRevision']);return reply(await claimBonus(env.DB,userId,payload));}
+  if(path==='/api/v1/economy/gift/tutorial-gear/claim'){exact(payload,['expectedRevision']);return reply(await claimTutorialGearGift(env.DB,userId,payload));}
   if(path==='/api/v1/economy/gift/claim'){exact(payload,['expectedRevision']);return reply(await claimFirstAidGift(env.DB,userId,payload));}
   if(path==='/api/v1/economy/loadouts/import'){exact(payload,[]);return reply(await importLegacyLoadouts(env.DB,userId));}
   if(path==='/api/v1/economy/import/auto'){exact(payload,['version','assets','backup']);return reply(await autoImportLegacy(env.DB,userId,payload));}

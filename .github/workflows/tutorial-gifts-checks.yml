@@ -1,0 +1,29 @@
+name: Tutorial presents and recovery lesson
+on:
+  pull_request:
+    paths:
+      - 'battle-prototype/chapter1.js'
+      - 'battle-prototype/tutorial*'
+      - 'goimon-items/shop.js'
+      - 'goimon-items/runtime.mjs'
+      - 'quest_chapter1.html'
+      - 'tests/tutorial-gifts*'
+      - 'cloud-worker/src/economy_gift.js'
+      - '.github/workflows/tutorial-gifts-checks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tutorial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --prefix cloud-worker --ignore-scripts --omit=dev
+      - run: node --test tests/tutorial-gifts.test.cjs tests/quest-tutorial.test.cjs cloud-worker/tests/economy-gift.test.js tests/quest-restart-policy.test.cjs tests/quest-companion-setup.test.cjs tests/first-aid-skill.test.cjs tests/first-aid-universal.test.cjs
+      - run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/tutorial-gifts-browser.cjs

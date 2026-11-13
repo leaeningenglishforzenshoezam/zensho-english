@@ -12,7 +12,7 @@ export default {
   const loadoutEnabled=['/api/v1/economy/loadouts','/api/v1/economy/loadouts/save','/api/v1/economy/loadouts/import'].includes(path)&&env.ECONOMY_LOADOUTS_ENABLED==='true';
   const bonusEnabled=['/api/v1/economy/bonus','/api/v1/economy/bonus/claim'].includes(path)&&env.ECONOMY_BONUS_ENABLED==='true';
   // Gift endpoints stay unreachable until the Worker is explicitly released with this flag.
-  const giftEnabled=['/api/v1/economy/gift','/api/v1/economy/gift/claim'].includes(path)&&env.ECONOMY_GIFT_ENABLED==='true';
+  const giftEnabled=['/api/v1/economy/gift','/api/v1/economy/gift/claim','/api/v1/economy/gift/tutorial-gear/claim'].includes(path)&&env.ECONOMY_GIFT_ENABLED==='true';
   if(env.MISSION_RELEASE_ENABLED==='true'&&(publicRoutes.has(path)||drawEnabled||importEnabled||autoImportEnabled||loadoutEnabled||bonusEnabled||giftEnabled)){
    return handleMissionDraft(request,{...env,MISSION_REWARDS_TEST_ENABLED:true});
   }
