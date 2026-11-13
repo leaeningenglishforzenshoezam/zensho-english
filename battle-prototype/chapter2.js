@@ -19,28 +19,29 @@ function names(){return {playerName:N.playerName(sessionStorage,GOIMON_CLOUD_CON
 const interpolate=s=>N.interpolate(s,names());
 function image(){const p=partner();return GoimonDex.getEntry(p?.type,p?.stage)?.image||'images/goimon/goimon_egg.png';}
 function music(mode){window.GoimonQuestAudio?.setMode(mode);}
-function setup(restart=false){window.GoimonQuestQuestionAudio?.stop();window.GoimonStudyTime?.end();clearInterval(timer);music('setup');app.replaceChildren();art=null;el('p','CHAPTER 02 · 1級',app,'eyebrow');el('h1','ふたつの声');el('p','森の外で出会う、もうひと組の相棒。');const box=el('section','',app,'panel'),list=pets().filter(GoimonChapterStore.eligible);GoimonQuestLearning.eligibility(box);GoimonQuestGrowth.note(box);el('p','クエストで使えるのは、たまご・幼体・成長体です。中級体・上級体の育成記録はそのまま残ります。',box,'muted');
+function setup(restart=false){window.GoimonQuestQuestionAudio?.stop();window.GoimonStudyTime?.end();clearInterval(timer);music('setup');app.replaceChildren();art=null;el('p','CHAPTER 02 · 1級',app,'eyebrow');el('h1','ふたつの声');const box=el('section','',app,'panel quest-setup-card'),list=pets().filter(GoimonChapterStore.eligible);el('h2','冒険の準備',box);
  if(!list.length){el('p','使用できる1級の相棒がいません。育成・保存箱で確認してください。',box);link('ホームで相棒に会う','index.html?panel=goimon&manage=1',box);return;}
- const inv=window.GoimonDeveloper?.active?GoimonDeveloper.inventory(C):GoimonItemStore.readState(GOIMONStorage,'1');const label=el('label','冒険の相棒',box),select=el('select','',label);for(const p of list){const o=el('option',N.partnerName(p,GoimonDex),select);o.value=p.id;}
+ const inv=window.GoimonDeveloper?.active?GoimonDeveloper.inventory(C):GoimonItemStore.readState(GOIMONStorage,'1');const label=el('label','一緒に出発するゴイモン',box,'quest-setup-picker'),select=el('select','',label);for(const p of list){const o=el('option',N.partnerName(p,GoimonDex),select);o.value=p.id;}
  if(state&&list.some(g=>g.id===state.partnerId))select.value=state.partnerId;
- const companion=GoimonQuestPartnerPreview.mount(box,select,list,GoimonDex,N);
- el('p','所持しているSKILLとEQUIPMENTを出発時に選べます。技がなくても通常攻撃で挑戦できます。',box,'muted');
+ const overview=el('div','',box,'quest-setup-overview'),companion=GoimonQuestPartnerPreview.mount(overview,select,list,GoimonDex,N);
+ const loadout=el('section','',overview,'quest-setup-loadout');el('h3','SKILL・EQUIPMENT',loadout);const skillGrid=el('div','',loadout,'quest-skill-grid');
  const skillSelectors=[];
  for(let i=0;i<4;i++){
-  const label=el('label','SKILL '+(i+1),box),field=el('select','',label);field.id='chapter2Skill'+i;
+  const label=el('label','SKILL '+(i+1),skillGrid,'quest-skill-field'),field=el('select','',label);field.id='chapter2Skill'+i;
   const none=el('option','セットしない',field);none.value='';
   for(const skill of C.skills.filter(x=>inv.owned.skills[x.id]>0)){
-   const opt=el('option',skill.rarity+' '+skill.name+' · '+(C.questionFormats[skill.questionFormat]?.label||skill.questionFormat)+' · '+skill.uses+'回',field);
+   const opt=el('option',skill.rarity+' '+skill.name+' · '+skill.uses+'回',field);
    opt.value=skill.id;opt.disabled=!Q.supported.includes(skill.questionFormat);
    if(opt.disabled)opt.textContent+='（準備中）';
   }
   skillSelectors.push(field);
  }
- const gearLabel=el('label','EQUIPMENT',box),gearSelect=el('select','',gearLabel);gearSelect.id='chapter2Gear';
+ const gearLabel=el('label','EQUIPMENT',loadout,'quest-gear-field'),gearSelect=el('select','',gearLabel);gearSelect.id='chapter2Gear';
  for(const gear of C.gear.filter(g=>g.id==='none'||inv.owned.gear[g.id]>0)){
   const opt=el('option',gear.name,gearSelect);opt.value=gear.id;
  }
- const stageNote=el('p','',box,'muted');
+ el('p','回復SKILL「First Aid」は全員使用可（2回）',loadout,'quest-setup-perk');
+ const stageNote=el('p','',box,'quest-setup-status');
  function describe(){
   companion.refresh();
   stageNote.textContent=list.find(p=>p.id===select.value)?.stage==='growth'?'成長体の相棒です。中級体に進化するとクエストには参加できません。':'';
@@ -52,12 +53,14 @@ function setup(restart=false){window.GoimonQuestQuestionAudio?.stop();window.Goi
   gearSelect.value=inv.owned.gear[load.gearId]>0?load.gearId:'none';
  }
  select.onchange=describe;describe();
- el('p','First Aid（回復）は全員が第2章で使えます。装着枠とは別のクエスト専用技で、残り回数は戦闘間で引き継ぎます。',box,'muted');
-el('p','23シーン・9戦。HPと技の残り回数を引き継ぎ、勝利後は減ったHPの1/3を回復します。敗北時は戦闘直前から再挑戦できます。',box,'muted');el('p','前半は単語301〜500、後半はイディオム1〜287。音声を使う大問1・3のSKILLは時間制限なしです。',box,'muted');
- el('p','ここで選んだ編成は今回の冒険にのみ適用されます。所持品画面の登録は変更しません。',box,'muted');
- link('技・装備を管理','quest_loadout.html',box);
- if(restart){el('p','既読・クリア記録は残ります。HPと技の回数を戻し、冒頭から始めます。',box,'muted');btn('戻る',render,box);}
- btn(restart?'この編成で最初から再挑戦':'この相棒と出発',()=>{const pet=pets().find(p=>p.id===select.value);GoimonChapterStore.assertEligible(pet);const ids=skillSelectors.map(field=>field.value).filter(Boolean);if(new Set(ids).size!==ids.length){$('notice').textContent='同じSKILLは複数セットできません。';return;}const gear=gearSelect.value;if(restart&&!confirm('第2章の冒頭からやり直しますか？ 今回のHP・技の残り回数はリセットします。育成・学習・既読・クリア記録と獲得済み報酬は残ります。'))return;const next=restart?P.restart(state,D,pet,[...new Set(ids)],gear):P.fresh(D,pet,[...new Set(ids)],gear);store.save(next);state=next;render();},box,true);
+ const help=el('details','',box,'quest-setup-help');el('summary','参加条件・戦闘ルールを見る',help);GoimonQuestLearning.eligibility(help);GoimonQuestGrowth.note(help);
+ el('p','参加できるのは、たまご・幼体・成長体。中級体・上級体の記録はそのまま残ります。',help);
+ el('p','23シーン・9戦。HPとSKILL使用回数は戦闘間で引き継ぎ、勝利後は減ったHPの1/3が回復します。負けた場合は戦闘直前から再挑戦できます。',help);
+ el('p','前半は単語301〜500、後半はイディオム1〜287。大問1・3と音声問題のSKILLは時間制限なしです。',help);
+ el('p','ここで選んだ編成は今回の冒険だけに使われ、所持品の登録は変更されません。',help);
+ link('技・装備を管理','quest_loadout.html',help);
+ if(restart){el('p','再挑戦ではHPとSKILL回数が戻り、既読・クリア記録は残ります。',help);const back=btn('続きに戻る',render,box);back.classList.add('quest-setup-back');}
+ const submit=btn(restart?'この編成で最初から再挑戦':'この相棒と出発',()=>{const pet=pets().find(p=>p.id===select.value);GoimonChapterStore.assertEligible(pet);const ids=skillSelectors.map(field=>field.value).filter(Boolean);if(new Set(ids).size!==ids.length){$('notice').textContent='同じSKILLは複数セットできません。';return;}const gear=gearSelect.value;if(restart&&!confirm('第2章の冒頭からやり直しますか？ 今回のHP・技の残り回数はリセットします。育成・学習・既読・クリア記録と獲得済み報酬は残ります。'))return;const next=restart?P.restart(state,D,pet,[...new Set(ids)],gear):P.fresh(D,pet,[...new Set(ids)],gear);store.save(next);state=next;render();},box,true);submit.classList.add('quest-setup-submit');
 }
 function active(speaker){return speaker==='{{partnerName}}'?'partner':speaker==='モリィ'?'morii':['サーヤ','少女'].includes(speaker)?'saya':speaker==='トヨヨ'?'toyoyo':speaker==='農家'?'farmer':speaker==='管理人'?'manager':'';}
 function staging(battle=false){const s=D.scenes[state.scene],line=s.lines[Math.min(state.line,s.lines.length-1)],n=state.scene+1,ln=state.line;
