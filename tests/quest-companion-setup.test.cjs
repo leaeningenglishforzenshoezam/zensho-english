@@ -43,11 +43,28 @@ test('chapter 2 renders four independent SKILL slots and an equipment slot; sele
  assert(js.includes("skillSelectors.map(field=>field.value)"));
  assert(js.includes("gear=gearSelect.value"));
  assert(js.includes("new Set(ids).size!==ids.length"));
- assert(js.includes("GoimonQuestPartnerPreview.mount(box,select,list,GoimonDex,N)"));
+ assert(js.includes("GoimonQuestPartnerPreview.mount(overview,select,list,GoimonDex,N)"));
  assert(!js.includes('GoimonItemStore.create('));
 });
 test('chapter 1 reflects selection changes in companion preview',()=>{
  const js=fs.readFileSync(path.join(root,'battle-prototype/chapter1.js'),'utf8');
- assert(js.includes('GoimonQuestPartnerPreview.mount(c,select,list,GoimonDex,N)'));
+ assert(js.includes('GoimonQuestPartnerPreview.mount(overview,select,list,GoimonDex,N)'));
  assert(js.includes('select.onchange=()=>{registered();companion.refresh();}'));
+});
+
+test('both setup screens use responsive 2x2 skill grid, visible first aid and collapsible help',()=>{
+ const css=fs.readFileSync(path.join(root,'battle-prototype/quest-partner-preview.css'),'utf8');
+ assert(css.includes('.quest-setup-overview'));
+ assert(css.includes('.quest-skill-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))'));
+ assert(css.includes('@media(max-width:640px)'));
+ for(const chapter of [1,2]){
+  const js=fs.readFileSync(path.join(root,'battle-prototype/chapter'+chapter+'.js'),'utf8');
+  assert(js.includes('quest-setup-overview'));
+  assert(js.includes('quest-setup-loadout'));
+  assert(js.includes('quest-skill-grid'));
+  assert(js.includes('quest-setup-perk'));
+  assert(js.includes('quest-setup-help'));
+  assert(js.includes('参加条件・戦闘ルールを見る'));
+  assert(js.includes('quest-setup-submit'));
+ }
 });

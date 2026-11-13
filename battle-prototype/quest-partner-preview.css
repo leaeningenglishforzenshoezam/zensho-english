@@ -5,3 +5,38 @@
 .quest-partner-name{font-size:clamp(18px,3.5vw,23px);font-weight:750;line-height:1.4;margin:0 0 8px;overflow-wrap:anywhere}
 .quest-partner-stage{font-size:14px;line-height:1.5;margin:0;color:#c9d6ca}
 @media(max-width:480px){.quest-partner-preview{gap:10px;padding:10px;min-height:124px}.quest-partner-image{width:100px;height:118px}.quest-partner-name{font-size:18px}}
+
+/* Chapter setup: portrait + loadout should read as one concise overview. */
+.quest-setup-card{max-width:860px;margin-inline:auto}
+.quest-setup-card>h2{margin:0 0 8px;font-size:clamp(19px,3vw,23px)}
+.quest-setup-picker{display:block;margin:8px 0 14px;font-weight:700;font-size:14px}
+.quest-setup-picker select{display:block;width:100%;margin:5px 0 0;min-height:44px;font-size:16px}
+.quest-setup-overview{display:grid;grid-template-columns:minmax(190px,.78fr) minmax(0,1.4fr);gap:14px;align-items:stretch}
+.quest-setup-overview>.quest-partner-preview{margin:0;min-width:0;flex-direction:column;justify-content:center;gap:4px;text-align:center;padding:12px}
+.quest-setup-overview .quest-partner-image{width:min(100%,190px);height:184px;flex:0 0 auto}
+.quest-setup-overview .quest-partner-name{margin:0;font-size:20px}
+.quest-setup-overview .quest-partner-stage{margin:2px 0 0}
+.quest-setup-loadout{min-width:0;border:1px solid #527364;border-radius:16px;padding:12px;background:#102d24}
+.quest-setup-loadout>h3{font-size:16px;line-height:1.4;margin:0 0 10px}
+.quest-skill-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.quest-skill-field{display:block;min-width:0;font-weight:650;font-size:12px;letter-spacing:.01em}
+.quest-skill-field select{display:block;width:100%;margin:4px 0 0;min-width:0;min-height:44px;padding:8px 8px;font-size:14px;letter-spacing:0;font-weight:500}
+.quest-gear-field{display:block;margin-top:10px;font-size:12px;font-weight:650}
+.quest-gear-field select{display:block;width:100%;margin:4px 0 0;min-height:44px;padding:8px;font-size:14px;font-weight:500}
+.quest-setup-perk{font-size:13px;line-height:1.5;margin:10px 0 0;padding:9px 11px;border-radius:10px;background:#204d3a;color:#ebf6e5}
+.quest-setup-help{border-top:1px solid #527364;margin-top:14px;padding-top:10px;font-size:13px}
+.quest-setup-help>summary{font-weight:700;cursor:pointer;min-height:32px;line-height:32px}
+.quest-setup-help p{margin:8px 0;line-height:1.65}
+.quest-setup-help a{display:inline-block;margin-top:4px}
+.quest-setup-status:empty{display:none}
+.quest-setup-status{margin:8px 0;font-size:13px;line-height:1.6}
+.quest-setup-submit{display:block;width:100%;margin-top:14px;min-height:50px;font-size:16px;font-weight:750}
+.quest-setup-back{display:block;width:100%;margin-top:8px}
+@media(max-width:640px){
+ .quest-setup-overview{grid-template-columns:minmax(0,1fr)}
+ .quest-setup-overview>.quest-partner-preview{flex-direction:row;text-align:left;min-height:112px;padding:8px 12px;justify-content:flex-start;gap:12px}
+ .quest-setup-overview .quest-partner-image{width:100px;height:112px;flex:0 0 100px}
+ .quest-setup-overview .quest-partner-name{font-size:18px}
+ .quest-setup-loadout{padding:12px}
+}
+@media(max-width:360px){.quest-skill-grid{gap:7px}.quest-skill-field select{font-size:13px;padding:7px 4px}.quest-setup-overview .quest-partner-image{width:86px;flex-basis:86px}}
