@@ -17,6 +17,6 @@ export default {
    return handleMissionDraft(request,{...env,MISSION_REWARDS_TEST_ENABLED:true});
   }
   const connected=env.MISSION_RELEASE_ENABLED==='true'&&['ECONOMY_DRAW_ENABLED','ECONOMY_IMPORT_ENABLED','ECONOMY_AUTO_IMPORT_ENABLED','ECONOMY_LOADOUTS_ENABLED','ECONOMY_BONUS_ENABLED'].every(k=>env[k]==='true');
-  return worker.fetch(request,{...env,CONNECTED_MISSION_RELEASE:connected},ctx);
+  return worker.fetch(request,{...env,CONNECTED_MISSION_RELEASE:connected,CONNECTED_TUTORIAL_GIFTS:connected&&env.ECONOMY_GIFT_ENABLED==='true'},ctx);
  }
 };

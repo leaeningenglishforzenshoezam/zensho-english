@@ -25,3 +25,7 @@ test('preview gifts do not change real inventory; legacy lesson recovery creates
  for(const ok of [true,false]){const player=E.actor(C.species[0],1,{chie:0,kotoba:0,onkan:0,bunmyaku:0},null,[]),enemy={...player,hp:999,maxHp:999,speed:0},state={tutorial:{skillReceived:true},combat:E.create(player,enemy)};
  f.c.GoimonTutorialGifts.equipRecovery(state,C);assert(player.hp<player.maxHp);assert.equal(player.skills[0].id,'N_first_aid_gift');const reduced=player.hp;E.resolve(state.combat,'skill:0',ok);assert(player.hp>reduced);assert.equal(player.skills[0].left,1);}
 });
+test('new tutorials are enabled for device saves, and server wallets wait for the advertised API capability',()=>{
+ const source=fs.readFileSync('battle-prototype/chapter1.js','utf8'),fn=source.match(/function permanentTutorialGifts\(\)\{[^\n]+\}/)[0];
+ for(const [server,capability,expected]of [[false,false,true],[true,false,false],[true,true,true]]){const c={GOIMONStorage:{getItem:()=>server?'server':null},GOIMON_CLOUD_CONFIG:{tutorialGiftsEnabled:capability}};c.window=c;vm.createContext(c);vm.runInContext(fn,c);assert.equal(c.permanentTutorialGifts(),expected);}
+});
