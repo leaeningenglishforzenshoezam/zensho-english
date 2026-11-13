@@ -1,17 +1,23 @@
 (async() => {'use strict';
 const D=GoimonChapter1Data,C=GoimonBattleCatalog,E=GoimonBattlePrototype,T=GoimonQuestTutorial,Q=GoimonChapterQuestions,N=GoimonStoryNames,$=id=>document.getElementById(id),app=$('app');
 const account=GOIMONProfiles.account||'guest',key='goimon_chapter1_v1:'+account+':lv1'+(window.GoimonDeveloper?.keySuffix||'');
-let store,state=null,blocked=!!window.GoimonEconomyReady,interval=null,skipTimer=null;
+let store,state=null,blocked=!!window.GoimonEconomyReady,interval=null,skipTimer=null,tutorialBusy=false;
 const source={q1:window.ACCENT_1KYU,q3:window.LISTENING_TYPE3_1KYU,words:window.WORDS_1KYU,idioms:window.IDIOM_DATA_1KYU,q9:window.SENTENCE_FIXED_1KYU,words2:window.WORDS_2KYU,extraWords:window.EXTRA_WORDS,q11:window.PARAPHRASE_DATA_1KYU,q12:window.REORDER_1KYU};
 const enemyKinds=['intro','normal','swift','tank','boss'],enemyNames=['森の入口の小番人','装甲甲虫','霧の山猫','遺跡門の番人','ことばの祭壇の守護者'];
 const defaults=['N_echo','N_aid','N_comfort','N_prepare'];
+function permanentTutorialGifts(){return !!window.GoimonDeveloper?.active||!GOIMONStorage.getItem('goimon_economy_mode_v1')||window.GOIMON_CLOUD_CONFIG?.tutorialGiftsEnabled===true;}
 function practiceLearning(q,correct){GoimonQuestGrowth.practice(state,q,correct,save);}
 function tell(t){$('notice').textContent=t;}
-function guarded(fn){return (...args)=>{if(blocked)return;try{assertAccount();fn(...args);}catch(e){fail(e);}};}
+function guarded(fn){return (...args)=>{if(blocked||tutorialBusy)return;try{assertAccount();fn(...args);}catch(e){fail(e);}};}
 function assertAccount(){if((localStorage.getItem('goimon_cloud_v2:active')||'guest')!==account)throw Error('アカウントが変わりました。再読み込みして続けてください。');}
 function save(){assertAccount();store.save(state);}
 function fail(e){window.GoimonQuestQuestionAudio?.stop();blocked=true;clearInterval(interval);clearTimeout(skipTimer);tell(e.message+' 進行の書き出しはメニューから利用できます。');app.querySelectorAll('button,select').forEach(b=>b.disabled=true);}
 function button(text,fn,primary=false){const b=document.createElement('button');b.textContent=text;if(primary)b.className='primary';b.onclick=guarded(fn);return b;}
+function tutorialAction(label,fn){
+ const b=button(label,()=>{tutorialBusy=true;b.disabled=true;
+  Promise.resolve().then(fn).catch(error=>{render();tell(error.message+' 受け取ったプレゼントは保存されています。同じボタンから再開できます。');}).finally(()=>{tutorialBusy=false;b.disabled=false;});
+ },true);return b;
+}
 function text(tag,value,parent=app,cls=''){const el=document.createElement(tag);el.textContent=value;if(cls)el.className=cls;parent.append(el);return el;}
 function card(parent=app,cls='card'){const el=document.createElement('section');el.className=cls;parent.append(el);return el;}
 function pets(){if(window.GoimonDeveloper?.active)return [GoimonDeveloper.pet];const current=JSON.parse(GOIMONStorage.getItem('zensho_goimon_current_v4_lv1')||'null'),archive=JSON.parse(GOIMONStorage.getItem('zensho_goimon_archive_v4_lv1')||'[]');return [current,...archive].filter(Boolean);}
@@ -65,7 +71,10 @@ const submit=button(restart?'この編成で最初から再挑戦':'この相棒
  const p=pets().find(p=>p.id===select.value);GoimonChapterStore.assertEligible(p);if(restart&&!confirm('第1章の冒頭からやり直しますか？ 今回のHP・技の残り回数はリセットします。育成・学習・既読・クリア記録と獲得済み報酬は残ります。'))return;const next=restart?GoimonChapterStore.restart(state,D,fresh(p,ids,gear.value)):fresh(p,ids,gear.value);store.save(next);state=next;render();},true);submit.classList.add('quest-setup-submit');c.append(submit);
 if(state){const back=button('続きに戻る',render);back.classList.add('quest-setup-back');c.append(back);}}
 function advance(){const previousScroll=window.scrollY;const s=D.scenes[state.scene],line=s.lines[state.line];if(line&&!state.read.includes(line.id))state.read.push(line.id);state.line++;if(state.line>=s.lines.length){if(state.scene===D.scenes.length-1){state.mode='complete';state.completed=true;}else{state.scene++;state.line=0;}}save();render();if(state.mode==='story')window.scrollTo(0,previousScroll);}
-function render(){for(const p of [state?.run,state?.checkpoint,state?.combat?.player]){if(state?.battleId!==0)E.ensureFirstAid(p,C);E.refreshSkills(p,C);}setMusicMode(state?.mode==='battle'?(state.battleId==='mist'?'blackfog':state.battleId===5?'boss':'battle'):state?.mode==='story'?'story':'setup');clearInterval(interval);clearTimeout(skipTimer);if(state?.mode==='story'&&storyArt?.parentNode===app){Array.from(app.children).forEach(node=>{if(node!==storyArt)node.remove();});}else{app.replaceChildren();storyArt=null;}tell('');if(blocked)return;
+function render(){
+ if(permanentTutorialGifts()&&state?.battleId===0&&state.combat&&state.tutorial.lessonVersion!==2){const t=state.tutorial;t.lessonVersion=2;if(t.practice>=2){t.practice=2;t.trained=false;state.question=null;state.feedback=null;}t.skillEquipped=false;state.combat.player.skills=[];save();}
+ if(!permanentTutorialGifts()&&state?.battleId===0&&state.combat&&state.tutorial.practice===2&&!state.tutorial.skillEquipped&&!state.combat.player.skills.length){state.combat.player.skills=[{...C.skills.find(x=>x.id==='N_echo'),left:3,maxUses:3}];save();}
+ for(const p of [state?.run,state?.checkpoint,state?.combat?.player]){if(state?.battleId!==0)E.ensureFirstAid(p,C);E.refreshSkills(p,C);}setMusicMode(state?.mode==='battle'?(state.battleId==='mist'?'blackfog':state.battleId===5?'boss':'battle'):state?.mode==='story'?'story':'setup');clearInterval(interval);clearTimeout(skipTimer);if(state?.mode==='story'&&storyArt?.parentNode===app){Array.from(app.children).forEach(node=>{if(node!==storyArt)node.remove();});}else{app.replaceChildren();storyArt=null;}tell('');if(blocked)return;
 if(!state){setup();return;}if(state.mode!=='complete'&&(!GoimonChapterStore.eligible(state.pet)||!GoimonChapterStore.eligible(partner()))){setup(true);tell('この冒険の相棒は現在の参加条件に合いません。記録は残したまま、別の相棒で最初からやり直せます。');return;}if(state.mode==='complete'){complete();return;}if(state.mode==='battle'){battleView();return;}if(state.mode==='defeat'){defeat();return;}if(state.mode==='gift'){gift();return;}
 if(state.recoveryNotice){const recovery=card();text('p',state.recoveryNotice,recovery,'recovery-notice');window.GoimonQuestReview?.show(state.misses||[],recovery);recovery.append(button('確認した',()=>{state.recoveryNotice=null;save();render();}));}
 const s=D.scenes[state.scene],line=s.lines[state.line];if(!line)throw Error('場面の続きが見つかりません');const heading=text('p','第1章 · '+s.title,app,'eyebrow'),art=sceneArt(s.background);app.insertBefore(heading,art);
@@ -79,18 +88,19 @@ let down;panel.onpointerdown=e=>{down={x:e.clientX,y:e.clientY};};panel.onpointe
 function makeActor(){const p=state.pet,species=C.species.find(x=>x.id===p.type)||C.species[0],stats=Object.fromEntries(['chie','kotoba','onkan','bunmyaku'].map(k=>[k,Math.max(0,Number(p.stats?.[k])||0)]));state.pet=structuredClone(p);return E.actor(species,C.stages[p.stage]||1,stats,C.gear.find(x=>x.id===state.gear),state.skills.map(id=>C.skills.find(x=>x.id===id)));}
 function enemy(id,player){const kind=id==='mist'?'boss':enemyKinds[id-1],base=id===0?{hp:999,attack:2,defense:10,speed:1,skillTurns:0,skillPower:1}:C.enemies[kind],scale=Math.max(1,C.stages[state.pet.stage]||1);const e={...base,id:'chapter-enemy',attr:id==='mist'?'mirage':id===3?'mirage':'metal',reference:20*scale,shield:{hits:0,factor:1}};for(const stat of ['hp','attack','defense','speed'])e[stat]=Math.round(e[stat]*scale);if(id===5){e.hp=Math.round(200*scale);e.defense=Math.round(22*scale);e.attack=Math.round(18*scale);}if(id==='mist'){e.hp=Math.round(140*scale);e.defense=Math.round(20*scale);e.attack=Math.round(13*scale);}e.maxHp=e.hp;if(id===0)e.speed=0;return e;}
 function startBattle(id,retry=false){GoimonChapterStore.assertEligible(state.pet);GoimonChapterStore.assertEligible(partner());let p;if(retry){p=structuredClone(state.checkpoint);}
-else if(id===0){p=makeActor();p.hp=p.maxHp;p.skills=[{...C.skills.find(x=>x.id==='N_echo'),left:3,maxUses:3}];}
+else if(id===0){p=makeActor();p.hp=p.maxHp;p.skills=permanentTutorialGifts()?[]:[{...C.skills.find(x=>x.id==='N_echo'),left:3,maxUses:3}];}
 else{p=state.run?structuredClone(state.run):makeActor();if(p.hp<=0)throw Error('森の入口から再挑戦してください');E.ensureFirstAid(p,C);state.checkpoint=structuredClone(p);}
 if(id!==0)E.ensureFirstAid(p,C);if(id===0)state.checkpoint=structuredClone(p);state.battleId=id;state.combat=E.create(p,enemy(id,p));state.mode='battle';state.question=null;state.feedback=null;state.misses=[];state.combat.log=[];save();render();}
 function battleView(){const b=state.combat,id=state.battleId;app.id='app';const root=card(app,'battle');root.id='arena';
 const hud=card(root,'hud');for(const [name,a]of [[names().partnerName,b.player],[id===0?'モリィの練習':id==='mist'?'黒い霧':enemyNames[id-1],b.enemy]]){const c=card(hud,'');text('p',name+' · HP '+a.hp+'/'+a.maxHp,c);const bar=document.createElement('progress');bar.max=a.maxHp;bar.value=a.hp;bar.setAttribute('aria-label',name+'のHP');c.append(bar);}
 const art=sceneArt(id==='mist'?'mist':'forest',id);root.append(art);
 const panel=card(root,'question');panel.id='question';
-if(state.feedback){text('p',state.feedback.correct?'正解！':'もう一度、覚えよう',panel,'feedback');text('p',state.feedback.answer,panel);text('p',state.feedback.action,panel);showExplanation(panel,state.feedback.explanation);panel.append(GoimonQuestLearning.nextKey(button('次へ',()=>{state.feedback=null;if(id===0&&state.tutorial.trained){if(!state.tutorial.failuresDone){save();render();return;}state.combat=null;state.mode='story';advance();return;}if(b.ended&&b.winner!=='player'){finishBattle();return;}save();render();},true)));return;}
+if(state.feedback){text('p',state.feedback.correct?'正解！':'もう一度、覚えよう',panel,'feedback');text('p',state.feedback.answer,panel);text('p',state.feedback.action,panel);if(state.feedback.recovery)text('p','HP '+state.feedback.recovery.before+' → '+state.feedback.recovery.after+' / '+b.player.maxHp,panel,'tutorial-recovery-hp');showExplanation(panel,state.feedback.explanation);panel.append(GoimonQuestLearning.nextKey(button('次へ',()=>{state.feedback=null;if(id===0&&state.tutorial.trained){if(!state.tutorial.failuresDone){save();render();return;}state.combat=null;state.mode='story';advance();return;}if(b.ended&&b.winner!=='player'){finishBattle();return;}save();render();},true)));return;}
 if(b.ended){if(b.winner==='player'&&id!==0){GoimonVictory.show({chapter:1,id,stage:art,panel,onContinue:()=>{GoimonQuestLearning.result(panel,b,{guard:guarded,onAnswer:practiceLearning,onContinue:finishBattle,misses:state.misses||[]});},guard:fn=>()=>{try{fn();}catch(e){fail(e);}}});return;}finishBattle();return;}
+if(permanentTutorialGifts()&&id===0&&state.tutorial.practice===2&&!state.tutorial.skillEquipped){skillGiftLesson(panel);return;}
 if(id===0&&state.tutorial.trained&&!state.question){failureLesson(panel);return;}
-text('p',id===0?(state.tutorial.trained?((state.tutorial.failureStep||0)===0?'練習 4/5：時間切れを体験しよう':'練習 5/5：防御の失敗を体験しよう'):'練習 '+(state.tutorial.practice+1)+'/5：'+['通常攻撃を選ぼう','問題に答えて防ごう','SKILLを使ってみよう'][state.tutorial.practice]):(E.current(b)==='player'?'あなたのターン':'敵の攻撃 · 正解でダメージ軽減'),panel,id===0?'tutorial-heading':'turn-heading');
-if(id===0){text('p',['通常攻撃は単語の意味を答えて攻撃します。正解で力が届き、誤答では1ダメージになります。','敵の攻撃には、問題に答えて防御します。正解ならダメージを軽減。誤答や時間切れでは被ダメージが増えます。','SKILLは強い攻撃・回復・防護などを行う技です。技ごとに使用回数と問題形式が違います。残り回数はステージをまたいで引き継ぎます。'][state.tutorial.practice]||'時間制限と失敗時の動きを試そう。',panel,'tutorial-copy');}
+text('p',id===0?(state.tutorial.trained?((state.tutorial.failureStep||0)===0?'練習 4/5：時間切れを体験しよう':'練習 5/5：防御の失敗を体験しよう'):'練習 '+(state.tutorial.practice+1)+'/5：'+['通常攻撃を選ぼう','問題に答えて防ごう',(permanentTutorialGifts()?'First Aidで回復してみよう':'SKILLを使ってみよう')][state.tutorial.practice]):(E.current(b)==='player'?'あなたのターン':'敵の攻撃 · 正解でダメージ軽減'),panel,id===0?'tutorial-heading':'turn-heading');
+if(id===0){text('p',['通常攻撃は単語の意味を答えて攻撃します。正解で力が届き、誤答では1ダメージになります。','敵の攻撃には、問題に答えて防御します。正解ならダメージを軽減。誤答や時間切れでは被ダメージが増えます。',(permanentTutorialGifts()?'HPを減らして、回復の準備をしました。First Aidは音声を聞いて意味を選ぶSKILL。正解で最大HPの40％、不正解でも20％回復します。使える回数も確認しよう。':'SKILLは強い攻撃・回復・防護などを行う技です。技ごとに使用回数と問題形式が違います。')][state.tutorial.practice]||'時間制限と失敗時の動きを試そう。',panel,'tutorial-copy');}
 if(state.question){questionView(panel);return;}
 if(E.current(b)==='enemy'){panel.append(button('防御の問題へ',()=>ask('normal'),true));return;}
 const actions=card(panel,'grid');let commands=E.commands(b);if(id===0)commands=commands.filter(x=>state.tutorial.practice===0?x.id==='normal':x.id==='skill:0');
@@ -108,12 +118,25 @@ function showExplanation(panel,explanation){
  if(notes.length){text('h3','理解のポイント',body);for(const note of notes)text('p',note,body);}
  GoimonQuestLearning.showChoiceMeanings(body,ex);
 }
+function skillGiftLesson(panel){
+ text('h2','SKILLを手に入れて、セットしよう',panel,'tutorial-heading');
+ if(!state.tutorial.skillReceived){
+  text('p','モリィから、SKILLガチャを1回プレゼント。手に入れたSKILLは、冒険のあとも使えます。',panel,'tutorial-copy');
+  panel.append(tutorialAction('SKILLガチャをひく（プレゼント）',async()=>{
+   const item=await GoimonTutorialGifts.receive('skills',C);assertAccount();state.tutorial.skillReceived=true;save();render();
+   await GoimonGachaReveal.play([item],'skills',{label:'モリィからのプレゼント',note:'First Aidを受け取りました。次はSKILLにセットしよう。'});
+  }));return;
+ }
+ const item=C.skills.find(s=>s.id==='N_first_aid_gift');GoimonTutorialGifts.card(panel,item,'skills');
+ text('p','受け取り完了。First Aidをセットして、HPの回復を試そう。',panel);
+ panel.append(button('First AidをSKILLにセット',()=>{GoimonTutorialGifts.equipRecovery(state,C);save();render();},true));
+}
 function failureLesson(panel){
  const step=state.tutorial.failureStep||0;text('h2',step===0?'時間制限を体験しよう':'防御に失敗したら？',panel,'tutorial-heading');
  text('p',step===0?'本番では単語問題は10秒、STAGE5は5秒です。今回は5秒間、答えずに待ってみよう。時間切れは誤答として扱われ、通常攻撃は1ダメージになります。':'防御で間違えると、敵の攻撃ダメージが1.5倍になります。今回は「間違えた場合を体験」を押して、HPの減り方を見てみよう。練習では倒れません。',panel,'tutorial-copy');
  panel.append(button(step===0?'5秒の時間切れを体験':'防御の失敗を体験',()=>{const b=state.combat;b.ended=false;b.winner=null;b.player.hp=b.player.maxHp;b.index=b.order.indexOf(step===0?'player':'enemy');state.tutorial.demoKind=step===0?'timeout':'wrong-defense';const q=Q.select('word_meaning',1,source,GoimonQuestQuestionBank);state.question={...q,command:'normal',selected:[],startedAt:Date.now(),deadline:step===0?Date.now()+5000:null};save();render();},true));
 }
-function ask(command){const b=state.combat,format=GoimonSkillQuestionRouting.skillFormat(b.player.skills,command,E.current(b),state.battleId===0),stage=state.battleId==='mist'?(format==='audio_word_meaning'?null:5):state.battleId||1;
+function ask(command){const b=state.combat,format=GoimonSkillQuestionRouting.skillFormat(b.player.skills,command,E.current(b),state.battleId===0&&!(command==='skill:0'&&state.tutorial.skillEquipped)),stage=state.battleId==='mist'?(format==='audio_word_meaning'?null:5):state.battleId||1;
 const q=Q.select(format,stage,source,GoimonQuestQuestionBank,Math.random,state.lastQuestion||'');state.lastQuestion=q.id;
 const seconds=state.battleId===0||['q1','q3','audio_word_meaning'].includes(format)?null:format==='q12'?45:format==='word_meaning'?(state.battleId===5?5:10):30;
 if(state.battleId!==0&&!window.GoimonDeveloper?.active)window.GoimonStudyTime?.begin({q1:'accent',q3:'listening',word_meaning:'quiz_enja',audio_word_meaning:'audio_quiz',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'}[format],'1');state.question={...q,command,selected:[],startedAt:Date.now(),deadline:seconds?Date.now()+seconds*1000:null};save();render();window.scrollTo?.({top:0,behavior:'instant'});}
@@ -124,12 +147,33 @@ window.GoimonQuestQuestionAudio?.mount(panel,q);if(q.format==='q12'){const chose
 if(q.deadline){const tick=()=>{if(!state.question||blocked)return;const left=q.deadline-Date.now();timer.textContent=Math.max(0,Math.ceil(left/1000))+'秒';if(left<=0)guarded(()=>answer(null))();};interval=setInterval(tick,200);tick();}}
 function answer(value){if(!state.question)return;GoimonChapterStore.assertEligible(partner());window.GoimonQuestQuestionAudio?.stop();clearInterval(interval);const q=state.question,expired=q.deadline&&Date.now()>=q.deadline,correct=!expired&&Q.correct(q,value),side=E.current(state.combat);
 try{if(state.battleId!==0&&!window.GoimonDeveloper?.active)window.ZenshoLearningLog?.addResult({q1:'accent',q3:'listening',word_meaning:'quiz_enja',audio_word_meaning:'audio_quiz',idiom:'idiom_quiz',q9:'sentence',q11:'paraphrase_quiz',q12:'reorder'}[q.format],correct,{level:'1'});}catch(e){console.warn('学習記録を保存できませんでした',e);}if(!window.GoimonDeveloper?.active)window.GoimonStudyTime?.end();
+const recoveryBefore=state.battleId===0&&state.tutorial.practice===2&&state.tutorial.skillEquipped?state.combat.player.hp:null;
 const entry=E.resolve(state.combat,q.command,correct,{elapsedMs:!['q1','q3','audio_word_meaning'].includes(q.format)&&Number.isFinite(q.startedAt)?Date.now()-q.startedAt:Infinity});if(state.battleId===0&&state.tutorial.demoKind){if(state.tutorial.demoKind==='timeout')state.tutorial.failureStep=1;else if(!correct){state.tutorial.failureStep=2;state.tutorial.failuresDone=true;}delete state.tutorial.demoKind;if(state.combat.player.hp<=0){state.combat.player.hp=1;state.combat.ended=false;state.combat.winner=null;}}else if(state.battleId===0)T.practice(state.tutorial,side==='enemy'?'defense':q.command==='normal'?'normal':'skill');
 const answerText=q.format==='q12'?q.answer.map(id=>q.chunks.find(c=>c.id===id).text).join(' '):q.answer;
 if(state.battleId!==0)GoimonQuestLearning.record(state.combat,q,correct,expired,Q.explain(q,source));
-if(!correct){const miss={prompt:q.prompt,answer:answerText,review:q.review,reviewId:q.reviewId};state.misses.push(miss);state.allMisses ||= [];if(!state.allMisses.some(m=>m.review===miss.review&&m.reviewId===miss.reviewId))state.allMisses.push(miss);}state.feedback={correct,answer:(expired?'時間切れ。':'')+'正答：'+(q.format==='audio_word_meaning'?q.speech+' ＝ ':'')+answerText,action:entry.text,explanation:Q.explain(q,source)};state.question=null;state.run=state.battleId===0?state.run:structuredClone(state.combat.player);if(state.battleId!==0)GoimonQuestGrowth.queue(state,q,correct);save();GoimonQuestGrowth.flush(state,save);render();app.querySelector('.scene')?.classList.add('strike');}
+if(!correct){const miss={prompt:q.prompt,answer:answerText,review:q.review,reviewId:q.reviewId};state.misses.push(miss);state.allMisses ||= [];if(!state.allMisses.some(m=>m.review===miss.review&&m.reviewId===miss.reviewId))state.allMisses.push(miss);}state.feedback={correct,answer:(expired?'時間切れ。':'')+'正答：'+(q.format==='audio_word_meaning'?q.speech+' ＝ ':'')+answerText,action:entry.text,explanation:Q.explain(q,source)};if(recoveryBefore!==null)state.feedback.recovery={before:recoveryBefore,after:state.combat.player.hp};state.question=null;state.run=state.battleId===0?state.run:structuredClone(state.combat.player);if(state.battleId!==0)GoimonQuestGrowth.queue(state,q,correct);save();GoimonQuestGrowth.flush(state,save);render();app.querySelector('.scene')?.classList.add('strike');}
 function finishBattle(){if(state.combat.winner!=='player'){state.mode='defeat';save();render();return;}const id=state.battleId;if(!state.cleared.includes(id))state.cleared.push(id);state.run=structuredClone(state.combat.player);if((Number.isInteger(id)&&id>=1&&id<=5)||id==='mist'){const amount=Math.ceil((state.run.maxHp-state.run.hp)/3);state.run.hp=Math.min(state.run.maxHp,state.run.hp+amount);state.recoveryNotice=(id==='mist'?'黒い霧':'STAGE '+id)+' クリア！ 減っていたHPの1/3（'+amount+'）を回復しました。HP '+state.run.hp+'/'+state.run.maxHp;}state.combat=null;state.question=null;state.mode='story';advance();}
-function gift(){text('h1','モリィと装備の練習');text('p','学習でほしのかけらを集めて、ガチャでSKILLやEQUIPMENTを増やそう。回復SKILLは種類によって回復量が異なります。戦闘前にセットして、残り回数を考えて使おう。');const c=card();text('p','練習用のほしのかけらと装備です。実際の所持品には加算されません。',c);text('p','練習用 ✦ '+state.tutorial.shards,c);
+function gift(){
+ if(!permanentTutorialGifts()){legacyGift();return;}
+ text('h1','EQUIPMENTを手に入れて、装着しよう');const c=card();
+ if(!state.tutorial.gearReceived){
+  text('p','モリィから、装備ガチャを1回プレゼント。手に入れた装備は所持品に残り、この先も使えます。',c);
+  c.append(tutorialAction('装備ガチャをひく（プレゼント）',async()=>{
+   const item=await GoimonTutorialGifts.receive('gear',C);assertAccount();state.tutorial.item=structuredClone(item);state.tutorial.gearReceived=true;state.tutorial.equipped=false;save();render();
+   await GoimonGachaReveal.play([item],'gear',{label:'モリィからのプレゼント',note:'装備を受け取りました。次は相棒に装着しよう。'});
+  }));return;
+ }
+ const item=state.tutorial.item;GoimonTutorialGifts.card(c,item,'gear');
+ if(!state.tutorial.equipped){
+  text('p','受け取り完了。ボタンを押して、相棒のEQUIPMENTに装着しよう。',c);
+  c.append(button('この装備を相棒に装着',()=>{state.gear=item.id;T.equip(state.tutorial);state.tutorial.guideSeen=false;save();render();},true));return;
+ }
+ text('p',item.name+' を装着しました。この先の戦闘から効果が反映されます。',c);
+ const proceed=guarded(()=>{state.tutorial.guideSeen=true;state.mode='story';save();advance();});
+ c.append(button('ガチャとミッションの案内を見る',()=>GoimonTutorialGifts.guide(proceed),true));
+ GoimonTutorialGifts.guide(proceed);
+}
+function legacyGift(){text('h1','モリィと装備の練習');text('p','学習でほしのかけらを集めて、ガチャでSKILLやEQUIPMENTを増やそう。回復SKILLは種類によって回復量が異なります。戦闘前にセットして、残り回数を考えて使おう。');const c=card();text('p','練習用のほしのかけらと装備です。実際の所持品には加算されません。',c);text('p','練習用 ✦ '+state.tutorial.shards,c);
 if(!state.tutorial.claimed)c.append(button('練習用10個を受け取る',()=>{T.claim(state.tutorial);save();render();},true));
 else if(!state.tutorial.item)c.append(button('装備ガチャをひく · ✦10',()=>{T.draw(state.tutorial,C.gear);save();render();GoimonGachaReveal.play([state.tutorial.item],'gear',{label:'TUTORIAL · 装備ガチャ',note:'練習用の装備です。実際の所持品は変わりません。'}).catch(fail);},true));
 else{text('h2',state.tutorial.item.name,c);text('p',state.tutorial.item.description,c);c.append(button('練習装備をセットして進む',()=>{if(!state.tutorial.equipped)T.equip(state.tutorial);state.mode='story';save();advance();},true));}}

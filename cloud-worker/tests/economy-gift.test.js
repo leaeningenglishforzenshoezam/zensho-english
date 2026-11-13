@@ -74,3 +74,25 @@ test('gift: GET and POST require gate, correct Origin and signed session',async(
   assert.deepEqual(await (await request()).json(),{claimed:true});
  }finally{h.close();}
 });
+
+test('tutorial equipment: N-only permanent gift has one server receipt and never spends shards',async()=>{
+ const {claimTutorialGearGift}=await import('../src/economy_gift.js');const h=await setup();
+ try{const before=await readEconomy(h.db,'local-test'),p={expectedRevision:before.revision};
+ const [a,b]=await Promise.all([claimTutorialGearGift(h.db,'local-test',p,()=>.999),claimTutorialGearGift(h.db,'local-test',p,()=>0)]);
+ assert.equal([a,b].filter(x=>!x.replayed).length,1);assert.equal(a.result.gearId,b.result.gearId);
+ const catalog=(await import('../../battle-prototype/catalog.js')).default;assert.equal(catalog.gear.find(g=>g.id===a.result.gearId).rarity,'N');
+ const after=await readEconomy(h.db,'local-test');assert.equal(after.state.shards,before.state.shards);assert.equal(after.state.owned.gear[a.result.gearId],1);
+ const retry=await claimTutorialGearGift(h.db,'local-test',p);assert.equal(retry.result.gearId,a.result.gearId);
+ await assert.rejects(claimTutorialGearGift(h.db,'local-test',{...p,gearId:'SR_guard'}),/invalid_gift/);
+ await assert.rejects(claimTutorialGearGift(h.db,'unmigrated',{expectedRevision:0}),/wallet_migration_required/);
+ }finally{h.close();}
+});
+
+test('tutorial equipment: a previously received device present survives account import without a second copy',async()=>{
+ const {claimTutorialGearGift}=await import('../src/economy_gift.js'),h=await createOfflineDb();
+ try{const sql=await readFile(new URL('../migrations/0009_economy_legacy_imports.sql',import.meta.url),'utf8');for(const s of sql.match(/CREATE TABLE[\s\S]*?;/g))await h.db.prepare(s).run();
+ await autoImportLegacy(h.db,'local-test',{version:1,assets:{version:1,shards:15,owned:{gear:{N_hp:1},skills:{}}},backup:JSON.stringify({schemaVersion:2,shop:{claims:{'gift:tutorial-gear:v1':true},tutorialGearId:'N_hp'}})});
+ const before=await readEconomy(h.db,'local-test'),r=await claimTutorialGearGift(h.db,'local-test',{expectedRevision:before.revision},()=>.99);
+ assert.equal(r.result.gearId,'N_hp');assert.equal(r.result.received,false);const after=await readEconomy(h.db,'local-test');assert.deepEqual(after.state,before.state);
+ }finally{h.close();}
+});

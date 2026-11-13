@@ -34,7 +34,10 @@ test('authenticated First Aid gift routes are allowed; arbitrary economy routes 
  await f.client.request('economy/gift/claim',{expectedRevision:1});
  assert.equal(f.calls.at(-1).url,'https://test.invalid/api/v1/economy/gift/claim');
  assert.equal(f.calls.at(-1).options.headers.Authorization,'Bearer gs1_'+'a'.repeat(64));
+ await f.client.request('economy/gift/tutorial-gear/claim',{expectedRevision:2});
+ assert.equal(f.calls.at(-1).url,'https://test.invalid/api/v1/economy/gift/tutorial-gear/claim');
  const calls=f.calls.length;
+ await assert.rejects(f.client.request('economy/gift/tutorial-gear/claim/extra'),/invalid_mission_path/);
  await assert.rejects(f.client.request('economy/gift/claim/extra'),/invalid_mission_path/);
  await assert.rejects(f.client.request('economy/admin'),/invalid_mission_path/);
  assert.equal(f.calls.length,calls);
