@@ -5,15 +5,26 @@ const gain=p=>1+.6*p/(p+200),round=n=>Math.max(1,Math.round(n));
 function affinity(a,b){return a===b?1:({echo:'metal',metal:'mirage',mirage:'echo'}[a]===b?1.2:.8);}
 function actor(species,stage,points,gear,skills){
  if(!Array.isArray(skills)||skills.length>4||skills.some(s=>!s)||new Set(skills.map(s=>s.id)).size!==skills.length)throw Error('技は重複なしで最大4つです。');
- const out={...species,reference:20*stage*gain(points.chie),shield:{hits:0,factor:1},nextPower:1,streak:0,gearEffect:gear?.effect||null,spareUsed:false,steadyUsed:false};
+ const out={...species,reference:20*stage*gain(points.chie),wordPoints:points.kotoba,shield:{hits:0,factor:1},nextPower:1,streak:0,gearEffect:gear?.effect||null,spareUsed:false,steadyUsed:false};
  const map={hp:'bunmyaku',attack:'chie',defense:'onkan',speed:'kotoba'};
  for(const stat of Object.keys(map)){if(!Number.isFinite(points[map[stat]])||points[map[stat]]<0)throw Error('invalid points');out[stat]=round(species[stat]*stage*gain(points[map[stat]]));const bonus=gear?.bonuses?.[stat]||(gear?.stat===stat?gear.bonus:0);if(bonus)out[stat]=round(out[stat]*(1+bonus));}
  out.maxHp=out.hp;out.skills=skills.map(s=>{const maxUses=s.uses+(species.id==='hibiki'&&!s.giftOnly?1:0);return {...s,left:maxUses,maxUses};});return out;
 }
 function damage(a,b,power,answer,attribute,bonus=1,shield=1,variance=1){const base=((a.attack+a.reference)/2)*Math.sqrt(2*a.attack/(a.attack+b.defense));return round(base*power*answer*affinity(attribute,b.attr)*bonus*shield*variance);}
-function speedBonus(a,b){return speedIds.includes(a.id)&&a.speed>b.speed?(a.id==='yomitoki'?1.65:1.35):1;}
+// Extra actions are earned through word learning and adjusted by actual speed.
+// The minimum interval is two ordinary player actions; bonus actions never count.
+function extraInterval(player,enemy){
+ const words=Number(player.wordPoints)||0;
+ if(words<100)return 0;
+ let interval=words>=600?2:words>=350?3:words>=200?4:5;
+ if(player.speed>=enemy.speed*1.25)interval--;
+ else if(player.speed<enemy.speed*.8)interval++;
+ return Math.max(2,interval);
+}
+// Kept as a compatibility hook; old always-on speed damage has been retired.
+function speedBonus(){return 1;}
 function counter(a,b){return round(a.defense*({nagomi:.20,shirabe:.18,q7_special:.12}[a.id]||0)*affinity(a.attr,b.attr));}
-function create(player,enemy,rng=Math.random){enemy.weaken={hits:0,factor:1};return {player,enemy,turn:1,ended:false,winner:null,questions:0,log:[],order:player.speed===enemy.speed?(rng()<.5?['player','enemy']:['enemy','player']):player.speed>enemy.speed?['player','enemy']:['enemy','player'],index:0};}
+function create(player,enemy,rng=Math.random){enemy.weaken={hits:0,factor:1};return {player,enemy,turn:1,ended:false,winner:null,questions:0,log:[],normalActions:0,extraAttackPending:false,extraInterval:extraInterval(player,enemy),order:player.speed===enemy.speed?(rng()<.5?['player','enemy']:['enemy','player']):player.speed>enemy.speed?['player','enemy']:['enemy','player'],index:0};}
 function current(b){return b.ended?'ended':b.order[b.index];}
 // Quest-only universal emergency aid. This never changes owned inventory, loadouts or cloud balances.
 function ensureFirstAid(player,catalog){
@@ -25,21 +36,23 @@ function ensureFirstAid(player,catalog){
  player.skills.push({...aid,left:aid.uses,maxUses:aid.uses,questStarter:true});
  return true;
 }
-function commands(b){return [{id:'normal',name:'通常攻撃'},...b.player.skills.map((s,i)=>({id:'skill:'+i,name:s.name,left:s.left,disabled:s.left===0}))];}
+function commands(b){if(b.extraAttackPending)return [{id:'normal',name:'追加攻撃'}];return [{id:'normal',name:'通常攻撃'},...b.player.skills.map((s,i)=>({id:'skill:'+i,name:s.name,left:s.left,disabled:s.left===0}))];}
 function restoreTarget(p,excluded){return p.skills.filter(s=>s!==excluded&&s.type!=='replenish'&&s.left<s.maxUses).sort((a,b)=>(b.maxUses-b.left)-(a.maxUses-a.left))[0];}
 function heal(p,amount){const before=p.hp;p.hp=Math.min(p.maxHp,p.hp+round(amount));return p.hp-before;}
 function resolve(b,command,correct,options={}){
  if(b.ended)throw Error('battle ended');if(typeof correct!=='boolean')throw Error('invalid answer');const side=current(b),p=b.player,e=b.enemy;let skill=null;
+ if(side==='player'&&b.extraAttackPending&&command!=='normal')throw Error('extra attack must be normal');
+ const extra=side==='player'&&!!b.extraAttackPending;
  if(side==='player'&&command!=='normal'){if(!/^skill:[0-4]$/.test(command))throw Error('invalid command');skill=p.skills[Number(command.slice(-1))];if(!skill||skill.left<=0)throw Error('skill exhausted');}
  const quick=correct&&Number.isFinite(options.elapsedMs)&&options.elapsedMs>=0&&options.elapsedMs<=3000;const rng=options.rng||Math.random;const variance=.95+.1*Math.min(1,Math.max(0,rng()));const attackActor=quick?{...p,attack:p.attack*1.1}:p,defendActor=quick?{...p,defense:p.defense*1.1}:p;const entry={turn:b.turn,side,correct,quick,variance,text:''};b.questions++;if(skill)skill.left--;
  if(side==='player'){
   if(skill?.type==='heal'){entry.text=skill.name+'：HPを'+heal(p,p.maxHp*Math.min(1,Math.max(0,skill.healFraction??.5)*(skill.healMultiplier??1.1))*(p.id==='tsumugi'&&!skill.giftOnly?1.3:1)*(correct?1:.5))+'回復';}
   else{
-   let extra=p.nextPower;if(correct)p.nextPower=1;
-   if(p.gearEffect==='courage'&&p.hp<=p.maxHp/2)extra*=1.12;
-   if(p.gearEffect==='streak'){if(p.streak>=2){extra*=1.15;p.streak=0;}else p.streak=correct?p.streak+1:0;}
-   const attr=skill?.attr||p.attr,amount=correct?damage(attackActor,e,skill?(skill.power||1)*(skill.rarity==='N'?1:1.1):1,1,attr,speedBonus(p,e)*(attackIds.includes(p.id)?1.1:1)*extra,1,variance):1;
-   e.hp=Math.max(0,e.hp-amount);entry.text=(skill?.name||'通常攻撃')+'：'+amount+'ダメージ';
+   let extraPower=p.nextPower;if(correct)p.nextPower=1;
+   if(p.gearEffect==='courage'&&p.hp<=p.maxHp/2)extraPower*=1.12;
+   if(p.gearEffect==='streak'){if(p.streak>=2){extraPower*=1.15;p.streak=0;}else p.streak=correct?p.streak+1:0;}
+   const attr=skill?.attr||p.attr,amount=correct?damage(attackActor,e,skill?(skill.power||1)*(skill.rarity==='N'?1:1.1):1,1,attr,(extra&&speedIds.includes(p.id)?1.25:1)*(attackIds.includes(p.id)?1.1:1)*extraPower,1,variance):1;
+   e.hp=Math.max(0,e.hp-amount);entry.text=(extra?'追加攻撃':skill?.name||'通常攻撃')+'：'+amount+'ダメージ';
    if(correct&&skill?.type==='replenish'){const target=restoreTarget(p,skill);if(target){const restored=Math.min(skill.restoreUses,target.maxUses-target.left);target.left+=restored;entry.text+='・'+target.name+'の使用回数を'+restored+'回復';}else entry.text+='・回復できる技がありません';}
    if(skill?.type==='ward'){p.shield={hits:skill.shieldHits,factor:correct?skill.shieldFactor:skill.wrongShieldFactor};entry.text+='・盾を展開';}
    if(correct&&skill?.type==='prepare'){p.nextPower=skill.nextPower;entry.text+='・次の攻撃を'+p.nextPower+'倍に準備';}
@@ -60,10 +73,20 @@ function resolve(b,command,correct,options={}){
   if(p.hp>0&&correct){if(guardIds.includes(p.id)){const reflected=round(counter(defendActor,e)*variance);e.hp=Math.max(0,e.hp-reflected);entry.text+='・反撃'+reflected;}if(p.gearEffect==='harmony')entry.text+='・HarmonyでHPを'+heal(p,p.maxHp*.03)+'回復';}
  }
  if(quick&&!(side==='player'&&skill?.type==='heal'))entry.text+='・3秒以内！ '+(side==='player'?'攻撃力×1.1':'防御力×1.1');
- b.log.push(entry);if(p.hp===0||e.hp===0){b.ended=true;b.winner=e.hp===0?'player':'enemy';return entry;}
+ b.log.push(entry);if(p.hp===0||e.hp===0){b.ended=true;b.winner=e.hp===0?'player':'enemy';b.extraAttackPending=false;return entry;}
+ if(side==='player'){
+  if(extra){b.extraAttackPending=false;}
+  else{
+   b.normalActions=(b.normalActions||0)+1;
+   if(!b.extraAttackPending&&b.extraInterval>0&&b.normalActions%b.extraInterval===0){
+    b.extraAttackPending=true;
+    return entry; // Same player's turn; next question is a no-SKILL extra attack.
+   }
+  }
+ }
  b.index++;if(b.index===2){b.index=0;b.turn++;}return entry;
 }
 // Refresh definitions only: retain HP, spent uses, equipment and progression.
 function refreshSkills(p,catalog){if(!p?.skills||!catalog?.skills)return;for(const s of p.skills){const latest=catalog.skills.find(x=>x.id===s.id);if(latest){const left=s.left,maxUses=s.maxUses;Object.assign(s,latest,{left,maxUses});}}}
-const api={refreshSkills,ensureFirstAid,gain,affinity,actor,damage,speedBonus,counter,create,current,commands,resolve};if(typeof module!=='undefined')module.exports=api;else root.GoimonBattlePrototype=api;
+const api={refreshSkills,ensureFirstAid,gain,affinity,actor,damage,speedBonus,extraInterval,counter,create,current,commands,resolve};if(typeof module!=='undefined')module.exports=api;else root.GoimonBattlePrototype=api;
 })(typeof window!=='undefined'?window:globalThis);
