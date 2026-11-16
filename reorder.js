@@ -819,12 +819,26 @@ function renderWeakList() {
     }
   }
 
+  function renderReorderRewardBadge() {
+    const bonus = loadBonusStat();
+    const reward = bonus === "bunmyaku"
+      ? "ぶんみゃく +2 / 正解"
+      : `ぶんみゃく +0.5・${BONUS_LABELS[bonus]} +1.5 / 正解`;
+    const badge = $("reorderRewardBadge");
+    if (badge) {
+      badge.textContent = reward;
+      badge.setAttribute("aria-label", `正解すると ${reward.replace(" / 正解", "")}`);
+    }
+    setText("reorderPointGuide", `正解：${reward.replace(" / 正解", "")}`);
+  }
+
   function renderBonusButtons() {
     const bonus = loadBonusStat();
     const buttons = bonusButtonsWrap.querySelectorAll("[data-stat]");
     buttons.forEach(btn => {
       btn.classList.toggle("active", btn.dataset.stat === bonus);
     });
+    renderReorderRewardBadge();
   }
 
   function renderReorderGoimonMini() {
@@ -875,7 +889,7 @@ function renderWeakList() {
     setText("reorderGoimonName", displayName);
     setText("reorderGoimonMeta", `Lv ${g.level} / ${ptText} pt`);
     setText("reorderGoimonDesc", desc);
-    setText("reorderPointGuide", `正解：ぶんみゃく +0.5 ＋ ${BONUS_LABELS[bonus]} +1.5`);
+    renderReorderRewardBadge();
 
     const img = $("reorderGoimonImage");
     if (img) {
