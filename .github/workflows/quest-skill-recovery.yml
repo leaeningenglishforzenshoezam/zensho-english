@@ -1,0 +1,39 @@
+name: Quest skill recovery checks
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/quest-skill-recovery.yml'
+      - 'battle-prototype/quest-learning.js'
+      - 'battle-prototype/chapter1.js'
+      - 'battle-prototype/chapter2.js'
+      - 'battle-prototype/chapter2_progress.js'
+      - 'tests/quest-learning.test.cjs'
+  pull_request:
+    paths:
+      - '.github/workflows/quest-skill-recovery.yml'
+      - 'battle-prototype/quest-learning.js'
+      - 'battle-prototype/chapter1.js'
+      - 'battle-prototype/chapter2.js'
+      - 'battle-prototype/chapter2_progress.js'
+      - 'tests/quest-learning.test.cjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  skill-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Review, recovery, and saved combat regression tests
+        run: node --test tests/quest-learning.test.cjs tests/quest-restart-policy.test.cjs
+      - name: Script syntax checks
+        run: |
+          node --check battle-prototype/quest-learning.js
+          node --check battle-prototype/chapter1.js
+          node --check battle-prototype/chapter2.js
+          node --check battle-prototype/chapter2_progress.js
