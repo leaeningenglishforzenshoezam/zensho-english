@@ -4589,3 +4589,24 @@ summary::after {
 
 }
 
+
+
+/* GOIMON ability guide: compact meaning first, training on demand. */
+.goimonAbilityPurpose{display:grid;gap:7px;padding:11px 12px;margin:0 0 12px;border:1px solid #e0e9f1;border-radius:12px;background:#f8fafc}
+.goimonAbilityPurpose p{display:flex;align-items:baseline;gap:7px;margin:0;font-size:12px;line-height:1.5;color:#43556a}
+.goimonAbilityPurpose strong{color:#223b53;white-space:nowrap}
+.goimonPurposeIcon{display:inline-flex;width:16px;flex:0 0 16px;justify-content:center;color:#52779b;font-weight:800}
+.goimonAbilityBattleStat{font-size:10px;color:#526b83;background:#edf3f8;border-radius:5px;padding:2px 5px;white-space:nowrap;font-weight:700}
+.goimonAbilityBattleRole{padding:8px 10px;margin:0 0 8px;background:#edf3f8;color:#294d6b;border-radius:8px;font-size:12px;font-weight:750;line-height:1.5}
+.goimonRecommendedStart{display:block;width:100%;min-height:44px;margin-top:12px;padding:9px 12px;background:#285e9a;color:white;border:0;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer}
+.goimonRecommendedStart:hover{background:#204d80}
+.goimonRecommendedStart:focus-visible,.goimonRecommendedCountDetails summary:focus-visible{outline:3px solid #86b6ed;outline-offset:2px}
+.goimonRecommendedCountDetails{margin-top:8px}
+.goimonRecommendedCountDetails summary{color:#315e88;cursor:pointer;font-size:12px;font-weight:700;padding:5px 0}
+.goimonRecommendedCountDetails .goimonRecommendedCounts{margin-top:7px}
+@media(max-width:600px){
+ .goimonAbilityPurpose{padding:9px 10px;gap:6px}
+ .goimonAbilityPurpose p{font-size:11px}
+ .goimonAbilityBattleStat{font-size:10px}
+ .goimonRecommendedStart{min-height:44px}
+}
