@@ -17,3 +17,5 @@
 @media(max-width:480px){.quest-learning .ql-actions{display:grid;grid-template-columns:1fr}.quest-learning .ql-actions>*{width:100%}.quest-learning .quest-review section>*{width:100%}.quest-learning{border-radius:12px;padding:16px}.ql-answers button{text-align:left}}
 
 .ql-skill-recovery{border-top:1px solid #b2c8b8;margin-top:16px;padding-top:16px}.ql-skill-recovery h3{margin:0 0 10px}.ql-recovery-choices{display:grid;gap:8px;margin-top:12px}.ql-recovery-choices button{text-align:left}
+
+.ql-review-groups{border-top:1px solid #b2c8b8;padding-top:14px;margin-top:16px;display:grid;gap:8px}.ql-review-groups h3{margin:0}.ql-group-button{width:100%;text-align:left!important}.quest-review ol{padding-left:1.7em;margin:12px 0}.quest-review li{margin:8px 0;line-height:1.65;overflow-wrap:anywhere}
