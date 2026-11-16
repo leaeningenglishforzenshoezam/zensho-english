@@ -71,16 +71,21 @@ function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_D
   // The pending receipt is written BEFORE awarding. Replaying a receipt cannot
   // double-award: GoimonUI stores the receipt and points on the same pet.
   function deliverQ7Reward(id){
-    const record=history[id],pending=record?.pendingGoimonReward;
-    if(!pending||!window.GoimonUI?.addQ7ReadingResult)return;
-    try{
-      window.GoimonUI.addQ7ReadingResult(pending.id,pending.correct);
-      const updated={...record};delete updated.pendingGoimonReward;
-      history[id]=updated;
-      if(!save(HISTORY_KEY,history))history[id]=record;
-    }catch(error){
-      console.warn("大問7の育成ポイントは次回再試行します",error);
-      storageWarning();
+    if(!window.GoimonUI?.addQ7ReadingResult)return;
+    // Keep all undelivered attempts, even when the same set is graded again.
+    const old=history[id],queue=[...(old?.pendingGoimonRewards||[]),...(old?.pendingGoimonReward?[old.pendingGoimonReward]:[])];
+    for(const pending of queue){
+      try{
+        window.GoimonUI.addQ7ReadingResult(pending.id,pending.correct);
+        const current=history[id],remaining=(current.pendingGoimonRewards||queue).filter(x=>x.id!==pending.id);
+        const updated={...current,pendingGoimonRewards:remaining};
+        delete updated.pendingGoimonReward;
+        history[id]=updated;
+        if(!save(HISTORY_KEY,history)){history[id]=current;break;}
+      }catch(error){
+        console.warn("大問7の育成ポイントは次回再試行します",error);
+        storageWarning();break;
+      }
     }
   }
   function retryPendingQ7Rewards(){for(const id of Object.keys(history))deliverQ7Reward(id);}
@@ -811,7 +816,11 @@ document.querySelectorAll(".paragraph-translation")
       lastScore: correct,
       passed: previous.passed || correct >= 4,
       lastAttemptedAt: Date.now(),
-      pendingGoimonReward: {id:current.id+':'+(previous.attempts+1),correct}
+      pendingGoimonRewards: [
+        ...(history[current.id]?.pendingGoimonRewards||[]),
+        ...(history[current.id]?.pendingGoimonReward?[history[current.id].pendingGoimonReward]:[]),
+        {id:current.id+':'+(previous.attempts+1),correct}
+      ]
     };
 
     const recorded=save(HISTORY_KEY, history);
