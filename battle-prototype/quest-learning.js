@@ -55,7 +55,7 @@ function result(parent,combat,{guard=fn=>fn,onContinue,continueLabel='物語の�
  if(onAnswer)root.GoimonQuestGrowth?.note(box);
  const actions=node('div','',box,'ql-actions');
  if(s.questions.length){const b=node('button',s.questions.length+'問だけ再挑戦',actions,'ql-primary');b.type='button';b.onclick=guard(()=>practice(box,s.questions,{guard,onAnswer,onExit:()=>result(parent,combat,{guard,onContinue,continueLabel,misses,onAnswer})}));}
- const next=node('button',continueLabel,actions,s.questions.length?'':'ql-primary');next.type='button';let continued=false;next.onclick=guard(()=>{if(continued)return;continued=true;next.disabled=true;try{onContinue();}catch(e){continued=false;next.disabled=false;throw e;}});
+ const next=node('button',continueLabel,actions,s.questions.length?'':'ql-primary');next.type='button';let continued=false;next.onclick=guard(()=>{if(continued)return;try{onContinue();continued=true;next.disabled=true;}catch(e){continued=false;next.disabled=false;throw e;}});
  if(s.questions.length)node('p','間違えた問題から最大5問。時間制限なしで練習できます。',box,'ql-note');
  if(review.length)root.GoimonQuestReview?.show(review,box);
  focus(title);return box;
