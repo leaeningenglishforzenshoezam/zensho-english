@@ -177,7 +177,16 @@ function legacyGift(){text('h1','モリィと装備の練習');text('p','学習�
 if(!state.tutorial.claimed)c.append(button('練習用10個を受け取る',()=>{T.claim(state.tutorial);save();render();},true));
 else if(!state.tutorial.item)c.append(button('装備ガチャをひく · ✦10',()=>{T.draw(state.tutorial,C.gear);save();render();GoimonGachaReveal.play([state.tutorial.item],'gear',{label:'TUTORIAL · 装備ガチャ',note:'練習用の装備です。実際の所持品は変わりません。'}).catch(fail);},true));
 else{text('h2',state.tutorial.item.name,c);text('p',state.tutorial.item.description,c);c.append(button('練習装備をセットして進む',()=>{if(!state.tutorial.equipped)T.equip(state.tutorial);state.mode='story';save();advance();},true));}}
-function defeat(){text('h1','もう一度、声をつなごう');GoimonQuestLearning.result(card(),state.combat,{guard:guarded,onAnswer:practiceLearning,onContinue:()=>startBattle(state.battleId,true),continueLabel:'戦闘直前から再挑戦',misses:state.misses||[]});const help=card();text('h2','HPがなくなったら、回復技も試そう',help);text('p','回復SKILLの回復量は技によって異なります。HPが0になる前に使うのがポイント。ほしのかけらを集め、技ガチャで新しいSKILLを手に入れよう。回復技を手に入れたら、相棒の管理画面でセットできます。',help);text('p',state.battleId==='mist'?'守護者の救出は、まだ終わっていません。黒い霧との戦闘直前から再挑戦できます。':'少し準備して、もう一度森へ。読んだ物語とクリア済みの記録は残ります。');const c=card();
+function retryDefeatedBattle(){
+ const previous=structuredClone(state);
+ try{startBattle(state.battleId,true);}catch(e){
+  state=previous;
+  // Account changes and concurrent writes need a reload, not a potentially unsafe retry.
+  if(/アカウント|別のタブ|保存/.test(e.message||''))throw e;
+  render();tell('再挑戦を開始できませんでした：'+e.message+'。記録は保持されています。もう一度試すか、最初から再挑戦を選んでください。');
+ }
+}
+function defeat(){text('h1','もう一度、声をつなごう');GoimonQuestLearning.result(card(),state.combat,{guard:guarded,onAnswer:practiceLearning,onContinue:retryDefeatedBattle,continueLabel:'戦闘直前から再挑戦',misses:state.misses||[]});const help=card();text('h2','HPがなくなったら、回復技も試そう',help);text('p','回復SKILLの回復量は技によって異なります。HPが0になる前に使うのがポイント。ほしのかけらを集め、技ガチャで新しいSKILLを手に入れよう。回復技を手に入れたら、相棒の管理画面でセットできます。',help);text('p',state.battleId==='mist'?'守護者の救出は、まだ終わっていません。黒い霧との戦闘直前から再挑戦できます。':'少し準備して、もう一度森へ。読んだ物語とクリア済みの記録は残ります。');const c=card();
 if(state.battleId==='mist')c.append(button('霧の戦闘直前から再挑戦',()=>startBattle('mist',true),true));c.append(button('相棒を選んで第1章の最初から',()=>setup(true)));}
 function showHistory(){const body=$('logBody');body.replaceChildren();for(const s of D.scenes){const lines=s.lines.filter(l=>!l.event&&state?.read.includes(l.id));if(!lines.length)continue;text('h3',s.title,body);for(const l of lines)text('p',(l.speaker?interpolate(l.speaker)+'\n':'')+interpolate(window.GoimonAdventureProfile?.line(l.text,l.speaker)||l.text),body,l.speaker?'':'narration-text');}if(!body.children.length)text('p','読み終えた文章がここに残ります。',body);if($('menu').open)$('menu').close();$('log').showModal();}
 function complete(){window.GoimonQuestReview?.show(state.allMisses||state.misses||[],app);text('p','CHAPTER 1 · COMPLETE',app,'eyebrow');text('h1','聞こえた言葉');sceneArt('forest');text('p','相棒とつないだ声は、森の外へ。第1章クリア！');text('p','第2章「ふたつの声」が解放されました。クエストメニューで章を切り替えて、冒険を続けよう。');const c=card();GoimonChapterComplete.mount(c,{history:guarded(showHistory),restart:guarded(()=>setup(true)),restartLabel:'別の編成で森に再挑戦',home:'quest_home.html?chapter=chapter2'});}
