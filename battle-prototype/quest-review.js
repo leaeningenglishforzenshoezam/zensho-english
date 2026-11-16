@@ -12,7 +12,7 @@ function show(misses,parent){
  const groups=new Map();for(const m of unique){if(!groups.has(m.review))groups.set(m.review,[]);groups.get(m.review).push(m);}
  for(const [format,questions] of groups){
   const section=document.createElement('section'),heading=document.createElement('h3');heading.textContent=({'quiz.html':'単語','audio_quiz.html':'音声→意味','accent.html':'アクセント','listening.html':'応答問題','idiom_quiz.html':'熟語','sentence.html':'短文空所補充','paraphrase_quiz.html':'同意文完成','reorder.html':'語句整序'})[format]||'その他';section.append(heading);
-  const list=document.createElement('ol');for(const m of questions){const row=document.createElement('li');row.textContent=m.prompt+' → '+m.answer;list.append(row);}section.append(list);box.append(section);
+  const list=document.createElement('ol');for(const m of questions){const row=document.createElement('li'),content=document.createElement('span');content.textContent=m.prompt+' → '+m.answer;row.append(content);if(keys[m.review]){const b=document.createElement('button');b.type='button';b.textContent='苦手に追加';b.onclick=async()=>{b.disabled=true;try{await add(m);b.textContent='追加済み';}catch(e){b.disabled=false;content.textContent=m.prompt+' → '+m.answer+'\n'+e.message;}};row.append(b);}list.append(row);}section.append(list);box.append(section);
  }
  if(!unique.length){const p=document.createElement('p');p.textContent='今回はすべて正解！';box.append(p);}
  parent.append(box);
