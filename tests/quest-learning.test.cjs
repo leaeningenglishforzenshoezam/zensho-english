@@ -13,3 +13,12 @@ test('short practice grades once, can exit, and never mutates combat or grants r
 test('reorder controls precede choices; grading removes choices and shows explanation',()=>{const c=dom(),box=new Element('div'),q={format:'q12',prompt:'彼は（　）。',answer:['a','b'],chunks:[{id:'a',text:'is'},{id:'b',text:'kind'}],explanation:{completed:'He is kind.',translation:'彼は親切です。',notes:[]}};c.GoimonQuestLearning.practice(box,[q],{onExit(){}});assert(button(box,'答え合わせ').disabled);press(box,'kind');press(box,'並びをリセット');press(box,'is');press(box,'kind');press(box,'答え合わせ');assert(!all(box).some(n=>n.tagName==='button'&&n.textContent==='kind'));assert(all(box).some(n=>n.textContent==='正答：is kind'));assert(all(box).some(n=>n.textContent==='訳・解説を見る'));});
 test('new saved learning payload remains accepted without changing schema or unrelated records',()=>{const c=dom();vm.runInContext(fs.readFileSync('cloud_schema.js','utf8'),c);const b={log:[{correct:false}]};c.GoimonQuestLearning.record(b,question,false,true,null);const s={version:1,scriptVersion:'test',revision:1,scene:0,line:0,partnerId:'p',read:[],cleared:[],mode:'battle',combat:b};assert.doesNotThrow(()=>c.GOIMONCloudSchema.validate({schemaVersion:1,data:{goimon_quest_chapter2_v1_lv1:JSON.stringify(s)}}));});
 test('practice reports each graded answer once and keeps the learning callback after returning to results',()=>{const c=dom(),parent=new Element('div'),b={log:[]},results=[];c.GoimonQuestLearning.record(b,question,false,false,null);c.GoimonQuestLearning.result(parent,b,{onContinue(){},onAnswer:(q,correct)=>results.push([q.id,correct])});for(let i=0;i<2;i++){press(parent,'1問だけ再挑戦');const answer=button(parent,'収入');answer.onclick();answer.onclick();press(parent,'復習の結果へ');press(parent,'戦闘結果へ戻る');}assert.deepEqual(results,[[question.id,true],[question.id,true]]);});
+
+test('retry remains available if its callback throws and a chapter guard reports the error',()=>{
+ const c=dom(),parent=new Element('div'),combat={log:[{correct:false}]};let calls=0;
+ const swallow=fn=>()=>{try{fn();}catch(e){assert.match(e.message,/temporary/);}};
+ c.GoimonQuestLearning.result(parent,combat,{guard:swallow,continueLabel:'戦闘直前から再挑戦',onContinue:()=>{calls++;if(calls===1)throw Error('temporary');}});
+ const retry=button(parent,'戦闘直前から再挑戦');retry.onclick();
+ assert.equal(retry.disabled,false,'transient failure must not lock the retry button');
+ retry.onclick();assert.equal(calls,2);assert.equal(retry.disabled,true);
+});
