@@ -36,13 +36,28 @@
   function save(key, v) {
     try {
       GOIMONStorage.setItem(key, JSON.stringify(v));
+      return true;
     } catch (_) {
       warning();
+      return false;
     }
   }
 
   const history = load(KEY);
   const settings = load(PREF);
+  function deliverVocabReward(id){
+    const row=history[id],receipt=row?.pendingGoimonReward;
+    if(!receipt||!window.GoimonUI?.addQ7VocabCorrect)return;
+    try{
+      window.GoimonUI.addQ7VocabCorrect(receipt);
+      const next={...row};delete next.pendingGoimonReward;
+      history[id]=next;
+      if(!save(KEY,history))history[id]=row;
+    }catch(error){
+      console.warn("大問7の語句ポイントは次回再試行します",error);warning();
+    }
+  }
+  for(const id of Object.keys(history))deliverVocabReward(id);
 
   if (!object(settings.starts)) {
     settings.starts = {};
@@ -518,10 +533,12 @@
     history[w.id] = {
       attempts: old.attempts + 1,
       wrong: !correct,
-      lastAnsweredAt: Date.now()
+      lastAnsweredAt: Date.now(),
+      ...(correct?{pendingGoimonReward:w.id+':'+(old.attempts+1)}:{})
     };
 
-    save(KEY, history);
+    const recorded=save(KEY, history);
+    if(correct&&recorded)deliverVocabReward(w.id);
 
     answers.push({
       w,
