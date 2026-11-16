@@ -141,6 +141,21 @@
       useWeakness: true
     },
 
+    q7: {
+      key: "q7", label: "大問7 長文読解", shortLabel: "大問7",
+      group: "exam", page: "q7.html", levels: ["1"],
+      abilities: {bunmyaku: 2}, pointAwardMode: "per_correct",
+      hasCorrectWrong: true, useLearningLog: false, useProgress: false,
+      useRecommendation: false, useWeakness: false
+    },
+    q7_vocab: {
+      key: "q7_vocab", label: "大問7 SET別語句", shortLabel: "大問7語句",
+      group: "vocabulary", page: "q7_vocab.html", levels: ["1"],
+      abilities: {chie: 1}, pointAwardMode: "per_correct",
+      hasCorrectWrong: true, useLearningLog: false, useProgress: false,
+      useRecommendation: false, useWeakness: false
+    },
+
     dialogue8: {
       key: "dialogue8",
       label: "大問8 会話文空欄補充",
