@@ -38,3 +38,39 @@ test('unsupported legacy review destinations never lock the chapter 1 result scr
  let continued=0;assert.doesNotThrow(()=>c.GoimonQuestLearning.result(parent,b,{onContinue:()=>continued++,continueLabel:'戦闘直前から再挑戦'}));
  press(parent,'戦闘直前から再挑戦');assert.equal(continued,1);
 });
+
+test('skill recovery restores exactly one spent use, persists a claim, and prevents duplicate rewards',()=>{
+ const c=dom(),state={battleId:2,mode:'defeat',combat:{ended:true,winner:'enemy',player:{skills:[]}},checkpoint:{skills:[{id:'N_first_aid_gift',name:'First Aid',left:0,maxUses:2},{id:'N_echo',name:'Echo',left:2,maxUses:2}]}};
+ let saved=0;
+ assert.equal(c.GoimonQuestLearning.recoverySkills(state).length,1);
+ c.GoimonQuestLearning.restoreSkill(state,'N_first_aid_gift',()=>saved++);
+ assert.equal(saved,1);assert.equal(state.checkpoint.skills[0].left,1);
+ assert.equal(c.GoimonQuestLearning.recoveryClaimed(state),true);
+ assert.throws(()=>c.GoimonQuestLearning.restoreSkill(state,'N_first_aid_gift',()=>saved++));
+ assert.equal(saved,1);
+});
+test('skill recovery rolls back the spent use and claim if saving fails',()=>{
+ const c=dom(),state={battleId:'mist',mode:'defeat',combat:{ended:true,winner:'enemy'},checkpoint:{skills:[{id:'x',left:0,maxUses:1}]}};
+ assert.throws(()=>c.GoimonQuestLearning.restoreSkill(state,'x',()=>{throw Error('write failed')}));
+ assert.equal(state.checkpoint.skills[0].left,0);assert.equal(c.GoimonQuestLearning.recoveryClaimed(state),false);
+});
+test('victory reward updates battle actor and can be carried into the next battle',()=>{
+ const c=dom(),state={battleId:1,mode:'battle',combat:{ended:true,winner:'player',player:{skills:[{id:'attack',left:1,maxUses:3}]}}};
+ c.GoimonQuestLearning.restoreSkill(state,'attack',()=>{});
+ assert.equal(state.combat.player.skills[0].left,2);
+});
+test('short review earns the recovery after enough correct answers',()=>{
+ const c=dom(),parent=new Element('div'),b={log:[{correct:false}]},state={battleId:1,combat:{ended:true,winner:'enemy'},checkpoint:{skills:[{id:'aid',name:'Aid',left:0,maxUses:2}]}};
+ c.GoimonQuestLearning.record(b,question,false,false,null);
+ const restore=id=>c.GoimonQuestLearning.restoreSkill(state,id,()=>{});
+ c.GoimonQuestLearning.result(parent,b,{onContinue(){},recoveryState:state,onSkillRestore:restore});
+ assert(!all(parent).some(x=>x.tagName==='button'&&x.textContent.startsWith('Aid（')));
+ press(parent,'1問だけ再挑戦');press(parent,'収入');press(parent,'復習の結果へ');press(parent,'戦闘結果へ戻る');
+ press(parent,'Aid（0/2回 → 1/2回）');assert.equal(state.checkpoint.skills[0].left,1);
+ assert(all(parent).some(x=>x.textContent==='この戦闘のSKILL回復は受け取り済みです。'));
+});
+test('all-correct combat earns recovery without questions',()=>{
+ const c=dom(),parent=new Element('div'),b={log:[{correct:true}]},state={battleId:3,combat:{ended:true,winner:'player',player:{skills:[{id:'a',name:'Aid',left:1,maxUses:2}]}}};
+ c.GoimonQuestLearning.result(parent,b,{onContinue(){},recoveryState:state,onSkillRestore:id=>c.GoimonQuestLearning.restoreSkill(state,id,()=>{})});
+ press(parent,'Aid（1/2回 → 2/2回）');assert.equal(state.combat.player.skills[0].left,2);
+});
