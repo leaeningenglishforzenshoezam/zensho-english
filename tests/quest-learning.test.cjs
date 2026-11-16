@@ -22,3 +22,19 @@ test('retry remains available if its callback throws and a chapter guard reports
  assert.equal(retry.disabled,false,'transient failure must not lock the retry button');
  retry.onclick();assert.equal(calls,2);assert.equal(retry.disabled,true);
 });
+
+test('chapter 1 audio-to-meaning missed answer renders results without disabling the retry',()=>{
+ const c=dom(),parent=new Element('div'),b={log:[{correct:false}]};
+ c.location.pathname='/quest_chapter1.html';
+ c.GoimonQuestLearning.record(b,{...question,format:'audio_word_meaning',review:'audio_quiz.html',prompt:'音声を聞いて意味を選ぼう。'},false,false,null);
+ let continued=0;
+ assert.doesNotThrow(()=>c.GoimonQuestLearning.result(parent,b,{onContinue:()=>continued++,continueLabel:'戦闘直前から再挑戦'}));
+ const retry=button(parent,'戦闘直前から再挑戦');assert.equal(retry.disabled,false);
+ assert(all(parent).some(n=>n.tagName==='a'&&n.href.includes('audio_quiz.html')));
+ retry.onclick();assert.equal(continued,1);
+});
+test('unsupported legacy review destinations never lock the chapter 1 result screen',()=>{
+ const c=dom(),parent=new Element('div'),b={log:[{correct:false}],learning:{questions:[],misses:[{prompt:'old question',answer:'answer',review:'missing_legacy.html',reviewId:99}]}};
+ let continued=0;assert.doesNotThrow(()=>c.GoimonQuestLearning.result(parent,b,{onContinue:()=>continued++,continueLabel:'戦闘直前から再挑戦'}));
+ press(parent,'戦闘直前から再挑戦');assert.equal(continued,1);
+});
