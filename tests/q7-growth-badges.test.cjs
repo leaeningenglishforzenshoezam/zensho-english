@@ -27,3 +27,36 @@ test('Q7 receipts are saved before award, no accidental rewrite of old attempts'
  assert.match(readJs,/addQ7ReadingResult\(pending\.id,pending\.correct\)/);
  assert.match(vocab,/addQ7VocabCorrect\(receipt\)/);
 });
+
+test('learning page reward badges use concise right-of-title layout and show award conditions',()=>{
+ const titles={
+  'study.html':'ちえ +0.1 / 1語完了',
+  'quiz.html':'ちえ +1 / 正解',
+  'quiz_jaen.html':'ことば +1 / 正解',
+  'audio_quiz.html':'ちえ +0.5 / おんかん +0.5',
+  'accent.html':'おんかん +1 / 正解',
+  'listening.html':'おんかん +1 / 正解',
+  'idiom_quiz.html':'ちえ +0.5 / ことば +0.5',
+  'q7.html':'ぶんみゃく +2 / 正解',
+  'q7_vocab.html':'ちえ +1 / 正解',
+  'dialogue.html':'ぶんみゃく +1 / 全問正解',
+  'sentence.html':'ぶんみゃく +1 / 正解',
+  'q10.html':'ぶんみゃく +1 / 全問正解',
+  'paraphrase_quiz.html':'ことば +0.5 / ぶんみゃく +0.5',
+  'g2q11.html':'ことば +0.5 / ぶんみゃく +0.5',
+  'reorder.html':'ぶんみゃく +0.5 / 選択能力 +1.5'
+ };
+ for(const [page,label] of Object.entries(titles)){
+  const html=read(page);
+  assert(html.includes('>'+label+'</span>'),page+' reward label');
+  assert.match(html,/goimon-reward-badge\.css/,page);
+ }
+ for(const page of ['study.html','q7.html','q7_vocab.html','dialogue.html','q10.html','g2q11.html']){
+  assert.match(read(page),/class="goimonRewardHeadingText"/,page);
+ }
+ const css=read('goimon-reward-badge.css');
+ assert.match(css,/justify-content:space-between/);
+ assert.match(css,/\.goimonRewardTitle\s*>\s*\.goimonRewardBadge\{margin-left:auto\}/);
+ assert.match(css,/display:inline-flex!important/);
+ assert.match(css,/@media\(max-width:600px\)/);
+});
