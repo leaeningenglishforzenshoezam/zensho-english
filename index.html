@@ -1040,16 +1040,21 @@
       </div>
 
       <h3 class="goimonDetailSectionTitle">
-        能力
+        能力と育成
       </h3>
 
       <div class="goimonAbilityGuideText">
-        能力を押すと、その力を伸ばせる学習を選べます。
+        能力をタップすると、育て方を選べます。
       </div>
     </div>
 
   </div>
 
+
+  <div class="goimonAbilityPurpose" aria-label="能力を育てる意味">
+    <p><span class="goimonPurposeIcon" aria-hidden="true">↗</span><strong>進化</strong> 能力の育ち方で、進化先が変わります。</p>
+    <p><span class="goimonPurposeIcon" aria-hidden="true">⚔</span><strong>クエスト</strong> 育てた能力が、バトルの強さにつながります。</p>
+  </div>
 
   <!-- ==============================
        ちえ
@@ -1070,6 +1075,7 @@
         <span class="goimonAbilityName">
           ちえ
         </span>
+        <span class="goimonAbilityBattleStat">攻撃力 ATK</span>
 
         <span class="goimonAbilityGrowBadge hidden">
           伸ばしどき
@@ -1135,6 +1141,7 @@
         <span class="goimonAbilityName">
           ことば
         </span>
+        <span class="goimonAbilityBattleStat">素早さ SPD</span>
 
         <span class="goimonAbilityGrowBadge hidden">
           伸ばしどき
@@ -1200,6 +1207,7 @@
         <span class="goimonAbilityName">
           おんかん
         </span>
+        <span class="goimonAbilityBattleStat">防御力 DEF</span>
 
         <span class="goimonAbilityGrowBadge hidden">
           伸ばしどき
@@ -1265,6 +1273,7 @@
         <span class="goimonAbilityName">
           ぶんみゃく
         </span>
+        <span class="goimonAbilityBattleStat">体力 HP</span>
 
         <span class="goimonAbilityGrowBadge hidden">
           伸ばしどき
@@ -1350,6 +1359,7 @@
     </div>
 
 
+    <div class="goimonAbilityBattleRole" id="goimonAbilityBattleRole"></div>
     <div
       class="goimonAbilityLearningDesc"
       id="goimonAbilityLearningDesc"
@@ -1380,11 +1390,10 @@
       ></div>
 
 
-      <div class="goimonRecommendedCountTitle">
-        どれくらいやる？
-      </div>
-
-      <div class="goimonRecommendedCounts">
+      <button type="button" class="goimonRecommendedStart" id="goimonRecommendedStart">この学習を始める</button>
+      <details class="goimonRecommendedCountDetails" id="goimonRecommendedCountDetails">
+        <summary>問題数を選んで始める</summary>
+        <div class="goimonRecommendedCounts">
 
         <button
           type="button"
@@ -1413,7 +1422,8 @@
           <span>しっかり</span>
         </button>
 
-      </div>
+        </div>
+      </details>
 
     </div>
 
@@ -3145,6 +3155,13 @@
     "goimon_learning_request_v1";
 
 
+  const ABILITY_BATTLE_ROLE = {
+    chie: "攻撃力（ATK）",
+    kotoba: "素早さ（SPD）",
+    onkan: "防御力（DEF）",
+    bunmyaku: "体力（HP）"
+  };
+
   const ABILITY_TRAINING = {
   chie: {
     label:"ちえ",
@@ -3463,6 +3480,7 @@ function renderRecommendedCounts(item) {
       document.getElementById(
         "goimonAbilityLearningDesc"
       );
+    const battleRole = document.getElementById("goimonAbilityBattleRole");
 
     const recommendedName =
       document.getElementById(
@@ -3487,9 +3505,13 @@ function renderRecommendedCounts(item) {
 
 
     if (desc) {
-      desc.textContent =
-        config.description;
+      desc.textContent = config.description;
     }
+    if (battleRole) {
+      battleRole.textContent = `クエストでは ${ABILITY_BATTLE_ROLE[ability]} に対応`;
+    }
+    const countDetails = document.getElementById("goimonRecommendedCountDetails");
+    if (countDetails) countDetails.open = false;
 
 
     if (recommendedName) {
@@ -3503,8 +3525,7 @@ function renderRecommendedCounts(item) {
 
 
     if (recommendedReason) {
-      recommendedReason.textContent =
-        recommendedReason.textContent = makeRecommendedReason(recommended);
+      recommendedReason.textContent = makeRecommendedReason(recommended);
     }
 
     renderRecommendedCounts(recommended);
@@ -3690,6 +3711,16 @@ function renderRecommendedCounts(item) {
       );
     }
 
+
+    const recommendedStart = document.getElementById("goimonRecommendedStart");
+    if (recommendedStart) {
+      recommendedStart.addEventListener("click", () => {
+        if (!activeAbility) return;
+        const config = ABILITY_TRAINING[activeAbility];
+        const recommended = getRecommendedTraining(config);
+        if (recommended) saveLearningRequest(activeAbility, recommended, recommended.setMode ? 1 : 10);
+      });
+    }
 
     document
       .querySelectorAll(
