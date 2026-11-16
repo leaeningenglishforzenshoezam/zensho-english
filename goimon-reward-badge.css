@@ -1,0 +1,5 @@
+/* Compact GOIMON rewards, visible at every viewport width */
+.goimonRewardBadge{display:inline-flex!important;align-items:center;justify-content:center;flex:0 1 auto;max-width:min(52vw,250px);min-width:0;padding:4px 9px;border-radius:999px;border:1px solid #d6e3ee;background:#f2f7fc;color:#345774;font-size:11px;font-weight:800;line-height:1.4;text-align:center;white-space:normal;overflow-wrap:anywhere;vertical-align:middle}
+.goimonRewardTitle{display:flex;align-items:center;flex-wrap:wrap;gap:6px 9px;min-width:0}
+@media(max-width:600px){.goimonRewardBadge{font-size:10px;padding:3px 7px;max-width:min(49vw,210px)}.trainingHeader{gap:5px;flex-wrap:wrap}.trainingHeader .trainingMore{margin-left:auto}.trainingHeader .trainingPageTitle{min-width:0}.compactTrainingHeaderMain .goimonRewardBadge{display:inline-flex!important}}
+@media(max-width:360px){.goimonRewardBadge{max-width:58vw;font-size:9.5px}}
