@@ -1,0 +1,41 @@
+name: Learning growth badges and Q7 rewards
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'goimon-reward-badge.css'
+      - 'goimon.js'
+      - 'learning_categories.js'
+      - 'q7*'
+      - 'study.html'
+      - 'quiz.html'
+      - 'quiz_jaen.html'
+      - 'audio_quiz.html'
+      - 'accent.html'
+      - 'listening.html'
+      - 'idiom_quiz.html'
+      - 'sentence.html'
+      - 'paraphrase_quiz.html'
+      - 'reorder.html'
+      - 'dialogue.html'
+      - 'q10.html'
+      - 'g2q11.html'
+      - 'tests/q7-growth-badges.test.cjs'
+      - '.github/workflows/q7-growth-badges.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  growth:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/q7-growth-badges.test.cjs
+      - run: |
+          node --check q7_page.js
+          node --check q7_vocab.js
+          node --check goimon.js
+          node --check learning_categories.js
