@@ -46,15 +46,18 @@
   const history = load(KEY);
   const settings = load(PREF);
   function deliverVocabReward(id){
-    const row=history[id],receipt=row?.pendingGoimonReward;
-    if(!receipt||!window.GoimonUI?.addQ7VocabCorrect)return;
-    try{
-      window.GoimonUI.addQ7VocabCorrect(receipt);
-      const next={...row};delete next.pendingGoimonReward;
-      history[id]=next;
-      if(!save(KEY,history))history[id]=row;
-    }catch(error){
-      console.warn("大問7の語句ポイントは次回再試行します",error);warning();
+    if(!window.GoimonUI?.addQ7VocabCorrect)return;
+    const row=history[id],queue=[...(row?.pendingGoimonRewards||[]),...(row?.pendingGoimonReward?[row.pendingGoimonReward]:[])];
+    for(const receipt of queue){
+      try{
+        window.GoimonUI.addQ7VocabCorrect(receipt);
+        const old=history[id],next={...old,pendingGoimonRewards:(old.pendingGoimonRewards||queue).filter(x=>x!==receipt)};
+        delete next.pendingGoimonReward;
+        history[id]=next;
+        if(!save(KEY,history)){history[id]=old;break;}
+      }catch(error){
+        console.warn("大問7の語句ポイントは次回再試行します",error);warning();break;
+      }
     }
   }
   for(const id of Object.keys(history))deliverVocabReward(id);
@@ -534,7 +537,11 @@
       attempts: old.attempts + 1,
       wrong: !correct,
       lastAnsweredAt: Date.now(),
-      ...(correct?{pendingGoimonReward:w.id+':'+(old.attempts+1)}:{})
+      pendingGoimonRewards:[
+        ...(history[w.id]?.pendingGoimonRewards||[]),
+        ...(history[w.id]?.pendingGoimonReward?[history[w.id].pendingGoimonReward]:[]),
+        ...(correct?[w.id+':'+(old.attempts+1)]:[])
+      ]
     };
 
     const recorded=save(KEY, history);
