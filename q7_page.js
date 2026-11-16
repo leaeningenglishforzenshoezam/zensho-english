@@ -58,13 +58,32 @@ function goimonDailyStamped(payload){ return {...payload,missionAccount:GOIMON_D
   function save(key, value) {
     try {
       GOIMONStorage.setItem(key, JSON.stringify(value));
+      return true;
     } catch (_) {
       storageWarning();
+      return false;
     }
   }
 
   const history = load(HISTORY_KEY);
   const sessions = load(SESSION_KEY);
+
+  // The pending receipt is written BEFORE awarding. Replaying a receipt cannot
+  // double-award: GoimonUI stores the receipt and points on the same pet.
+  function deliverQ7Reward(id){
+    const record=history[id],pending=record?.pendingGoimonReward;
+    if(!pending||!window.GoimonUI?.addQ7ReadingResult)return;
+    try{
+      window.GoimonUI.addQ7ReadingResult(pending.id,pending.correct);
+      const updated={...record};delete updated.pendingGoimonReward;
+      history[id]=updated;
+      if(!save(HISTORY_KEY,history))history[id]=record;
+    }catch(error){
+      console.warn("大問7の育成ポイントは次回再試行します",error);
+      storageWarning();
+    }
+  }
+  function retryPendingQ7Rewards(){for(const id of Object.keys(history))deliverQ7Reward(id);}
 
   /* データ確認 */
 
@@ -791,10 +810,12 @@ document.querySelectorAll(".paragraph-translation")
       bestScore: Math.max(previous.bestScore || 0, correct),
       lastScore: correct,
       passed: previous.passed || correct >= 4,
-      lastAttemptedAt: Date.now()
+      lastAttemptedAt: Date.now(),
+      pendingGoimonReward: {id:current.id+':'+(previous.attempts+1),correct}
     };
 
-    save(HISTORY_KEY, history);
+    const recorded=save(HISTORY_KEY, history);
+    if(recorded)deliverQ7Reward(current.id);
     persistSession();
     const dp=new URLSearchParams(location.search);
     if(dp.get("dailyMission")==="reading"&&dp.get("setId")===current.id){
@@ -844,6 +865,8 @@ document.querySelectorAll(".paragraph-translation")
 
     $("summaryPanel").focus({ preventScroll: true });
   }
+
+  retryPendingQ7Rewards();
 
   /* イベント登録 */
 
