@@ -838,7 +838,7 @@ if (eventKey === "listening") {
 
   function addQ7ReadingResult(claimId, correct) {
     if (!Number.isInteger(correct) || correct < 0 || correct > 5) return false;
-    return addLearningPointsOnce(`q7:${claimId}`, {bunmyaku:correct * 2 + (correct === 5 ? 10 : 0)}, "sentence");
+    return addLearningPointsOnce(`q7:${claimId}`, {bunmyaku:correct * 2}, "sentence");
   }
 
   function addQ7VocabCorrect(claimId) {
