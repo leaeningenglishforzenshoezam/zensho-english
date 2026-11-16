@@ -1,12 +1,12 @@
-/* GOIMON: one small reward badge to the right of the learning title.
-   Shared across the 15 learning pages; never hide it on phones. */
+/* Shared, non-intrusive learning reward labels. A single line when space allows,
+   and a compact second line on narrow screens without shrinking the question area. */
 .goimonRewardBadge{
   display:inline-flex!important;
   box-sizing:border-box;
   align-items:center;
   justify-content:center;
-  flex:0 0 auto;
-  max-width:min(48vw,240px);
+  flex:0 1 auto;
+  max-width:100%;
   min-width:0;
   padding:4px 9px;
   border:1px solid #d6e3ee;
@@ -14,25 +14,25 @@
   background:#f2f7fc;
   color:#345774;
   font-size:11px;
-  font-weight:800;
-  line-height:1.4;
+  font-weight:700;
+  line-height:1.5;
   text-align:center;
   white-space:normal;
-  overflow-wrap:anywhere;
+  overflow-wrap:break-word;
   vertical-align:middle;
 }
 .goimonRewardTitle{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  flex-wrap:nowrap;
-  gap:8px;
+  flex-wrap:wrap;
+  gap:6px 10px;
   min-width:0;
 }
 .goimonRewardHeadingText{
-  flex:1 1 auto;
+  flex:0 1 auto;
   min-width:0;
-  overflow-wrap:anywhere;
+  overflow-wrap:break-word;
 }
 .goimonRewardTitle > .goimonRewardBadge{margin-left:auto}
 .trainingHeader .trainingPageTitle,
@@ -43,9 +43,9 @@
 @media(max-width:600px){
   .goimonRewardBadge{
     display:inline-flex!important;
-    max-width:min(48vw,190px);
-    padding:3px 7px;
-    font-size:10px;
+    max-width:100%;
+    padding:3px 8px;
+    font-size:11px;
   }
   .trainingHeader{gap:6px;flex-wrap:wrap;min-height:0}
   .trainingHeader .trainingMore{margin-left:auto}
@@ -53,7 +53,4 @@
   .compactTrainingHeaderMain .goimonRewardBadge{display:inline-flex!important}
   .goimonRewardTitle{gap:6px}
   .app-header .goimonRewardTitle{font-size:clamp(13px,3.6vw,18px)}
-}
-@media(max-width:360px){
-  .goimonRewardBadge{max-width:50vw;font-size:9.5px}
 }
