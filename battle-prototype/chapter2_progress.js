@@ -1,6 +1,6 @@
 (function(root){'use strict';
 const clone=x=>JSON.parse(JSON.stringify(x));
-function fresh(data,pet,skills=[],gear='none'){return {version:1,scriptVersion:data.scriptVersion,revision:0,scene:0,line:0,mode:'story',pet:clone(pet),partnerId:pet.id,skills,gear,read:[],cleared:[],run:null,checkpoint:null,combat:null,question:null,feedback:null,misses:[],completed:false};}
+function fresh(data,pet,skills=[],gear='none'){return {version:1,scriptVersion:data.scriptVersion,revision:0,scene:0,line:0,mode:'story',pet:clone(pet),partnerId:pet.id,skills,gear,read:[],cleared:[],run:null,checkpoint:null,combat:null,question:null,feedback:null,misses:[],skillRecoveryClaimed:[],completed:false};}
 function validate(s,d){
  if(!s||s.version!==1||s.scriptVersion!==d.scriptVersion||!Number.isSafeInteger(s.revision)||s.revision<0||!Number.isInteger(s.scene)||!d.scenes[s.scene]||!Number.isInteger(s.line)||s.line<0||s.line>d.scenes[s.scene].lines.length||!['story','battle','defeat','complete'].includes(s.mode)||!s.pet||typeof s.partnerId!=='string'||!Array.isArray(s.skills)||!Array.isArray(s.read)||!Array.isArray(s.cleared)||!Array.isArray(s.misses))throw Error('第2章の保存形式を確認できません。元の記録は保持しています。');
  const lines=new Set([...d.scenes.flatMap(x=>x.lines.map(l=>l.id)),...Object.values(d.afterBattles||{}).flatMap(x=>x.lines.map(l=>l.id))]),battles=new Set(d.battles.map(b=>b.id));
