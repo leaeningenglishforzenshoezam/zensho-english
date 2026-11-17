@@ -129,6 +129,7 @@ function startBattle(retry=false){
  E.ensureFirstAid(player,C);
  if(!Number.isFinite(player.wordPoints))player.wordPoints=Math.max(0,Number(state.pet.stats?.kotoba)||0);
  const enemy=B.enemy(C,id,C.stages[state.pet.stage]),combat=E.create(player,enemy);
+ if(id==='bado')combat.extraInterval=0; // The chase has evasion turns, not consecutive attacks.
  P.beginBattle(state,D,player,combat);
  state.question=null;state.feedback=null;save();render();
 }
@@ -148,12 +149,17 @@ function battleView(){
  el('p','CHAPTER 03 · '+D.battles.find(x=>x.id===id).name,app,'eyebrow');
  const wrap=el('div','',app,'battle'),hud=el('div','',wrap,'hud');
  for(const [name,a] of [[names().partnerName,b.player],[D.battles.find(x=>x.id===id).name,b.enemy]]){
-  const box=el('div','',hud);el('p',name+' · HP '+a.hp+'/'+a.maxHp,box);
-  const meter=el('progress','',box);meter.max=a.maxHp;meter.value=a.hp;
+  const box=el('div','',hud);
+  const scripted=['bado','ambush'].includes(id)&&a===b.enemy;
+  const max=scripted?B.durability[id].requiredQuestions:a.maxHp;
+  const value=scripted?Math.min(max,b.questions):a.hp;
+  el('p',scripted?'対応した問題 '+value+' / '+max:name+' · HP '+a.hp+'/'+a.maxHp,box);
+  const meter=el('progress','',box);meter.max=max;meter.value=value;
  }
  stage(wrap,true);
  if(id==='hiro_ally')el('p','バドが斧の攻撃を妨げ、受けるダメージが減少しています。',wrap,'quest-battle-hint');
  if(id==='hiro_duel')el('p','障害物を利用してヒロトシの攻撃をしのごう。',wrap,'quest-battle-hint');
+ if(id==='bado')el('p','バドと戦うのではなく、追跡をかわそう。移動や防御の問題で進みます。',wrap,'quest-battle-hint');
  const panel=el('section','',wrap,'panel');
  if(state.feedback){
   const f=state.feedback;
@@ -170,7 +176,17 @@ function battleView(){
  if(b.ended){const spec=D.battles.find(x=>x.id===id);if(spec?.objective!=='survive'&&b.winner!=='player'){state.mode='defeat';save();defeat();return;}battleResult();return;}
  el('p',b.extraAttackPending?'追加攻撃！ 正解するともう一撃（SKILL不可）':E.current(b)==='player'?'攻撃を選ぼう':'敵の攻撃 · 正解でダメージ軽減',panel,'muted');
  if(state.question){questionView(panel);return;}
- if(E.current(b)==='enemy'){btn('防御の問題へ',()=>ask('normal'),panel,true);return;}
+ if(E.current(b)==='enemy'){btn(id==='bado'?'バドの攻撃をかわす（防御問題）':'防御の問題へ',()=>ask('normal'),panel,true);return;}
+ if(id==='bado'){
+  const actions=el('div','',panel,'actions');btn('隙を見て進む（問題へ）',()=>ask('normal'),actions,true);
+  for(const cmd of E.commands(b).filter(c=>c.id!=='normal')){
+   const skill=b.player.skills[Number(cmd.id.split(':')[1])];
+   if(!['heal','ward','weaken'].includes(skill?.type))continue;
+   const button=btn(cmd.name+' · '+skill.left+'/'+skill.maxUses+'回',()=>ask(cmd.id),actions);
+   button.disabled=cmd.disabled||!Q.supported.includes(skill.questionFormat);
+  }
+  return;
+ }
  const actions=el('div','',panel,'actions');
  for(const cmd of E.commands(b)){
   const skill=cmd.id==='normal'?null:b.player.skills[Number(cmd.id.split(':')[1])];
@@ -212,7 +228,13 @@ function answer(value){
  const q=state.question;if(!q)return;
  window.GoimonQuestQuestionAudio?.stop();clearTimer();
  const expired=!!q.deadline&&Date.now()>=q.deadline,correct=!expired&&Q.correct(q,value);
- const b=state.combat,entry=E.resolve(b,q.command,correct,{elapsedMs:['q1','q3','audio_word_meaning'].includes(q.format)?Infinity:Date.now()-q.startedAt});
+ const b=state.combat,side=E.current(b),entry=E.resolve(b,q.command,correct,{elapsedMs:['q1','q3','audio_word_meaning'].includes(q.format)?Infinity:Date.now()-q.startedAt});
+ if(state.battleId==='bado'&&side==='player'){
+  // The duel-route encounter is a chase. Do not harm Bud while answering.
+  b.enemy.hp=b.enemy.maxHp;
+  if(q.command==='normal')entry.text=correct?'バドの動きを読み、距離をとった':'足場を探しながら下がった';
+  else if(!entry.text.includes('回復'))entry.text='バドの動きをかわしながら '+entry.text;
+ }
  if(!b.ended&&B.scriptedEnd(state.battleId,b)){b.ended=true;b.winner='survived';}
  const explanation=Q.explain?.(q,source),response=q.format==='q12'?q.answer.map(id=>q.chunks.find(c=>c.id===id)?.text||'').join(' '):q.answer;
  GoimonQuestLearning.record(b,q,correct,expired,explanation);
