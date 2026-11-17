@@ -287,3 +287,2569 @@
     set.words.forEach((w, i) => { w.number = i + 1; });
   }
 })();
+
+
+/* SET 5〜11の語句。ID・番号は履歴に使うため、追加は各SETの末尾に行います。
+ * locationは本文・要約・選択肢の出現箇所。本文データの並び順に対応します。
+ */
+(function () {
+  "use strict";
+  const additions = [
+  {
+    "setId": "q7_set_005",
+    "words": [
+      {
+        "id": "q7_set_005_v001",
+        "number": 1,
+        "en": "clothing donation",
+        "ja": "衣類の寄付",
+        "wrong": [
+          "衣類の修理",
+          "衣類の輸出",
+          "衣類の試着"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_005_v002",
+        "number": 2,
+        "en": "temporary",
+        "ja": "一時的な",
+        "wrong": [
+          "恒久的な",
+          "個人的な",
+          "伝統的な"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_005_v003",
+        "number": 3,
+        "en": "displayed items",
+        "ja": "展示された品物",
+        "wrong": [
+          "予約された品物",
+          "返品された品物",
+          "配達された品物"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_005_v004",
+        "number": 4,
+        "en": "select",
+        "ja": "選ぶ",
+        "wrong": [
+          "並べる",
+          "数える",
+          "届ける"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_005_v005",
+        "number": 5,
+        "en": "suits",
+        "ja": "〜に合う",
+        "wrong": [
+          "〜を隠す",
+          "〜を壊す",
+          "〜を借りる"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_005_v006",
+        "number": 6,
+        "en": "particular importance",
+        "ja": "特別な重要性",
+        "wrong": [
+          "共通の欠点",
+          "一定の費用",
+          "具体的な手順"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_005_v007",
+        "number": 7,
+        "en": "consumers",
+        "ja": "消費者",
+        "wrong": [
+          "生産者",
+          "投資家",
+          "主催者"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_005_v008",
+        "number": 8,
+        "en": "communication",
+        "ja": "情報の伝達・意思疎通",
+        "wrong": [
+          "商品の保管",
+          "料金の支払い",
+          "衣類の加工"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_005_v009",
+        "number": 9,
+        "en": "creative experience",
+        "ja": "創造的な経験",
+        "wrong": [
+          "専門的な資格",
+          "経済的な支援",
+          "定期的な点検"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_005_v010",
+        "number": 10,
+        "en": "communities",
+        "ja": "地域社会",
+        "wrong": [
+          "広告媒体",
+          "衣料品店",
+          "国際会議"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_005_v011",
+        "number": 11,
+        "en": "make a pledge",
+        "ja": "意思表示・誓約を行う",
+        "wrong": [
+          "料金を払い戻す",
+          "開催場所を変更する",
+          "参加資格を確認する"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_005_v012",
+        "number": 12,
+        "en": "gain access to",
+        "ja": "〜を利用できるようになる",
+        "wrong": [
+          "〜への関心を失う",
+          "〜の費用を負担する",
+          "〜からの支援を断る"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_005_v013",
+        "number": 13,
+        "en": "instructions",
+        "ja": "指示・手順の説明",
+        "wrong": [
+          "広告費",
+          "参加者名簿",
+          "開催実績"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_005_v014",
+        "number": 14,
+        "en": "commit",
+        "ja": "義務を負わせる",
+        "wrong": [
+          "不安を取り除く",
+          "意見を求める",
+          "利益を分配する"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_005_v015",
+        "number": 15,
+        "en": "go ahead",
+        "ja": "実行に移す",
+        "wrong": [
+          "最初に戻る",
+          "開催を延期する",
+          "相手に譲る"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_005_v016",
+        "number": 16,
+        "en": "considerable freedom",
+        "ja": "かなりの自由",
+        "wrong": [
+          "わずかな負担",
+          "共通の責任",
+          "厳しい制限"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_005_v017",
+        "number": 17,
+        "en": "adapt",
+        "ja": "状況に合わせて変える",
+        "wrong": [
+          "予定どおり繰り返す",
+          "完全に取り除く",
+          "代わりの物を購入する"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_005_v018",
+        "number": 18,
+        "en": "for the benefit of",
+        "ja": "〜のために・〜の利益となるように",
+        "wrong": [
+          "〜の代わりに",
+          "〜の反対を受けて",
+          "〜の許可なしに"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_005_v019",
+        "number": 19,
+        "en": "responsible for",
+        "ja": "〜に責任がある",
+        "wrong": [
+          "〜に無関心である",
+          "〜に似ている",
+          "〜に反対している"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_005_v020",
+        "number": 20,
+        "en": "principle",
+        "ja": "原則",
+        "wrong": [
+          "利益",
+          "設備",
+          "資格"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_005_v021",
+        "number": 21,
+        "en": "condition",
+        "ja": "状態",
+        "wrong": [
+          "値段",
+          "所有者",
+          "数量"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_005_v022",
+        "number": 22,
+        "en": "torn",
+        "ja": "破れた",
+        "wrong": [
+          "折り畳まれた",
+          "洗濯された",
+          "予約された"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_005_v023",
+        "number": 23,
+        "en": "unsuitable",
+        "ja": "適していない",
+        "wrong": [
+          "使いやすい",
+          "目立たない",
+          "手に入りやすい"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_005_v024",
+        "number": 24,
+        "en": "mending",
+        "ja": "修繕",
+        "wrong": [
+          "仕分け",
+          "包装",
+          "展示"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_005_v025",
+        "number": 25,
+        "en": "professional cleaner's",
+        "ja": "専門のクリーニング店",
+        "wrong": [
+          "衣料品の製造工場",
+          "地域のリサイクル施設",
+          "衣服の小売店"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_005_v026",
+        "number": 26,
+        "en": "as a pair",
+        "ja": "一組として",
+        "wrong": [
+          "一つずつ",
+          "無料で",
+          "順番に"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_005_v027",
+        "number": 27,
+        "en": "step-by-step guide",
+        "ja": "手順を順に示したガイド",
+        "wrong": [
+          "参加者の体験談",
+          "年間の活動報告",
+          "商品の価格一覧"
+        ],
+        "location": "A6"
+      },
+      {
+        "id": "q7_set_005_v028",
+        "number": 28,
+        "en": "preparation tasks",
+        "ja": "準備作業",
+        "wrong": [
+          "事後の感想",
+          "当日の売上",
+          "参加条件"
+        ],
+        "location": "A6"
+      },
+      {
+        "id": "q7_set_005_v029",
+        "number": 29,
+        "en": "planning checklist",
+        "ja": "準備のためのチェックリスト",
+        "wrong": [
+          "来場者の予約表",
+          "寄付品の領収書",
+          "収支の報告書"
+        ],
+        "location": "e3"
+      },
+      {
+        "id": "q7_set_005_v030",
+        "number": 30,
+        "en": "respectful",
+        "ja": "相手を尊重した",
+        "wrong": [
+          "競争的な",
+          "形式だけの",
+          "無関心な"
+        ],
+        "location": "A7"
+      }
+    ]
+  },
+  {
+    "setId": "q7_set_006",
+    "words": [
+      {
+        "id": "q7_set_006_v001",
+        "number": 1,
+        "en": "low-vision",
+        "ja": "視力が低い・ロービジョンの",
+        "wrong": [
+          "記憶力が低い",
+          "聴力が低い",
+          "運動能力が低い"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_006_v002",
+        "number": 2,
+        "en": "identify",
+        "ja": "特定する・識別する",
+        "wrong": [
+          "移動する",
+          "修理する",
+          "購入する"
+        ],
+        "location": "a2"
+      },
+      {
+        "id": "q7_set_006_v003",
+        "number": 3,
+        "en": "locate",
+        "ja": "位置を見つける",
+        "wrong": [
+          "色を変える",
+          "音を消す",
+          "値段を調べる"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_006_v004",
+        "number": 4,
+        "en": "visually impaired",
+        "ja": "視覚に障害のある",
+        "wrong": [
+          "聴覚に障害のある",
+          "言語の異なる",
+          "専門資格を持つ"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_006_v005",
+        "number": 5,
+        "en": "organization",
+        "ja": "組織・団体",
+        "wrong": [
+          "申請書",
+          "通信機器",
+          "視覚情報"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_006_v006",
+        "number": 6,
+        "en": "solved",
+        "ja": "解決した",
+        "wrong": [
+          "延期した",
+          "報告した",
+          "無視した"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_006_v007",
+        "number": 7,
+        "en": "visual problems",
+        "ja": "視覚に関する問題",
+        "wrong": [
+          "言葉遣いの問題",
+          "通信料金の問題",
+          "家族関係の問題"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_006_v008",
+        "number": 8,
+        "en": "video call",
+        "ja": "ビデオ通話",
+        "wrong": [
+          "録画映像",
+          "音声メッセージ",
+          "電子メール"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_006_v009",
+        "number": 9,
+        "en": "network",
+        "ja": "つながり・ネットワーク",
+        "wrong": [
+          "利用料金",
+          "申請手続き",
+          "個人の予定"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_006_v010",
+        "number": 10,
+        "en": "willing to help",
+        "ja": "進んで助けようとする",
+        "wrong": [
+          "助けを求められない",
+          "支援に費用を請求する",
+          "支援を受ける必要がある"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_006_v011",
+        "number": 11,
+        "en": "depend only on",
+        "ja": "〜だけに頼る",
+        "wrong": [
+          "〜だけを避ける",
+          "〜だけを招待する",
+          "〜だけを比較する"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_006_v012",
+        "number": 12,
+        "en": "communicate",
+        "ja": "意思疎通する",
+        "wrong": [
+          "身元を確認する",
+          "料金を請求する",
+          "資格を取得する"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_006_v013",
+        "number": 13,
+        "en": "considers",
+        "ja": "考慮する",
+        "wrong": [
+          "取り消す",
+          "拒否する",
+          "隠す"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_006_v014",
+        "number": 14,
+        "en": "local clock",
+        "ja": "現地の時刻",
+        "wrong": [
+          "利用者の年齢",
+          "地域の天気",
+          "通話の長さ"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_006_v015",
+        "number": 15,
+        "en": "located",
+        "ja": "位置している",
+        "wrong": [
+          "予約されている",
+          "修理されている",
+          "翻訳されている"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_006_v016",
+        "number": 16,
+        "en": "request",
+        "ja": "依頼",
+        "wrong": [
+          "許可",
+          "料金",
+          "結果"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_006_v017",
+        "number": 17,
+        "en": "alert",
+        "ja": "通知",
+        "wrong": [
+          "予約",
+          "資格",
+          "報酬"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_006_v018",
+        "number": 18,
+        "en": "suitable volunteers",
+        "ja": "条件に合うボランティア",
+        "wrong": [
+          "研修中のボランティア",
+          "近所の利用者",
+          "専門の販売員"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_006_v019",
+        "number": 19,
+        "en": "simultaneously",
+        "ja": "同時に",
+        "wrong": [
+          "交互に",
+          "個別に",
+          "徐々に"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_006_v020",
+        "number": 20,
+        "en": "accepts",
+        "ja": "受け入れる・応答する",
+        "wrong": [
+          "延期する",
+          "送信する",
+          "拒否する"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_006_v021",
+        "number": 21,
+        "en": "ignore",
+        "ja": "無視する",
+        "wrong": [
+          "承認する",
+          "記録する",
+          "共有する"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_006_v022",
+        "number": 22,
+        "en": "continuously",
+        "ja": "継続して",
+        "wrong": [
+          "一度だけ",
+          "交互に",
+          "時々"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_006_v023",
+        "number": 23,
+        "en": "pointing toward",
+        "ja": "〜の方向を向いている",
+        "wrong": [
+          "〜から遠ざかっている",
+          "〜の後ろに隠れている",
+          "〜の下に置かれている"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_006_v024",
+        "number": 24,
+        "en": "describe",
+        "ja": "説明する・描写する",
+        "wrong": [
+          "取り替える",
+          "持ち帰る",
+          "印刷する"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_006_v025",
+        "number": 25,
+        "en": "printed information",
+        "ja": "印刷された情報",
+        "wrong": [
+          "録音された情報",
+          "入力途中の情報",
+          "削除された情報"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_006_v026",
+        "number": 26,
+        "en": "slightly",
+        "ja": "少し",
+        "wrong": [
+          "急に",
+          "完全に",
+          "繰り返し"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_006_v027",
+        "number": 27,
+        "en": "particular products",
+        "ja": "特定の商品",
+        "wrong": [
+          "すべての商品",
+          "返品された商品",
+          "無料の商品"
+        ],
+        "location": "A6"
+      },
+      {
+        "id": "q7_set_006_v028",
+        "number": 28,
+        "en": "partner businesses",
+        "ja": "提携企業",
+        "wrong": [
+          "競合企業",
+          "個人の利用者",
+          "行政の担当部署"
+        ],
+        "location": "A6"
+      },
+      {
+        "id": "q7_set_006_v029",
+        "number": 29,
+        "en": "specialized information",
+        "ja": "専門的な情報",
+        "wrong": [
+          "個人的なうわさ",
+          "一般的な広告",
+          "古い記録"
+        ],
+        "location": "A6"
+      },
+      {
+        "id": "q7_set_006_v030",
+        "number": 30,
+        "en": "principle",
+        "ja": "原則・基本的な考え方",
+        "wrong": [
+          "利益",
+          "資格",
+          "設備"
+        ],
+        "location": "A7"
+      }
+    ]
+  },
+  {
+    "setId": "q7_set_007",
+    "words": [
+      {
+        "id": "q7_set_007_v001",
+        "number": 1,
+        "en": "estimate",
+        "ja": "見積もる・予測する",
+        "wrong": [
+          "予約する",
+          "廃棄する",
+          "比較する"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_007_v002",
+        "number": 2,
+        "en": "remain unsold",
+        "ja": "売れ残る",
+        "wrong": [
+          "売り切れる",
+          "配達される",
+          "値上げされる"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_007_v003",
+        "number": 3,
+        "en": "in advance",
+        "ja": "事前に",
+        "wrong": [
+          "直後に",
+          "偶然に",
+          "順番に"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_007_v004",
+        "number": 4,
+        "en": "left over",
+        "ja": "余った",
+        "wrong": [
+          "値下げされた",
+          "注文された",
+          "調理中の"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_007_v005",
+        "number": 5,
+        "en": "cancel reservations",
+        "ja": "予約を取り消す",
+        "wrong": [
+          "予約を確定する",
+          "代金を支払う",
+          "商品を配送する"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_007_v006",
+        "number": 6,
+        "en": "collection period",
+        "ja": "受取時間帯",
+        "wrong": [
+          "食品の保存期間",
+          "予約の申込期間",
+          "代金の支払期限"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_007_v007",
+        "number": 7,
+        "en": "ordinary circumstances",
+        "ja": "通常の状況",
+        "wrong": [
+          "例外的な状況",
+          "緊急の依頼",
+          "予想外の結果"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_007_v008",
+        "number": 8,
+        "en": "operation",
+        "ja": "業務・運営",
+        "wrong": [
+          "予約者",
+          "販売価格",
+          "商品名"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_007_v009",
+        "number": 9,
+        "en": "exceptional situations",
+        "ja": "例外的な状況",
+        "wrong": [
+          "日常的な習慣",
+          "共通の目的",
+          "厳密な条件"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_007_v010",
+        "number": 10,
+        "en": "specified",
+        "ja": "指定された",
+        "wrong": [
+          "延期された",
+          "変更可能な",
+          "不明な"
+        ],
+        "location": "A6"
+      },
+      {
+        "id": "q7_set_007_v011",
+        "number": 11,
+        "en": "confirmation",
+        "ja": "確認",
+        "wrong": [
+          "取消し",
+          "返品",
+          "値引き"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_007_v012",
+        "number": 12,
+        "en": "demonstrates",
+        "ja": "示す",
+        "wrong": [
+          "妨げる",
+          "忘れる",
+          "隠す"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_007_v013",
+        "number": 13,
+        "en": "hand over",
+        "ja": "手渡す",
+        "wrong": [
+          "持ち去る",
+          "返却を求める",
+          "代金を請求する"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_007_v014",
+        "number": 14,
+        "en": "in place of",
+        "ja": "〜の代わりに",
+        "wrong": [
+          "〜の手前で",
+          "〜に加えて",
+          "〜のためではなく"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_007_v015",
+        "number": 15,
+        "en": "responsibilities",
+        "ja": "責任",
+        "wrong": [
+          "割引",
+          "余り物",
+          "評価"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_007_v016",
+        "number": 16,
+        "en": "list",
+        "ja": "掲載する",
+        "wrong": [
+          "回収する",
+          "値下げする",
+          "取り消す"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_007_v017",
+        "number": 17,
+        "en": "combination",
+        "ja": "組み合わせ",
+        "wrong": [
+          "保管場所",
+          "受取期限",
+          "販売方法"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_007_v018",
+        "number": 18,
+        "en": "vary",
+        "ja": "変わる",
+        "wrong": [
+          "一致する",
+          "不足する",
+          "確定する"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_007_v019",
+        "number": 19,
+        "en": "precisely",
+        "ja": "正確に",
+        "wrong": [
+          "偶然に",
+          "簡単に",
+          "定期的に"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_007_v020",
+        "number": 20,
+        "en": "normal selling prices",
+        "ja": "通常の販売価格",
+        "wrong": [
+          "商品の仕入れ価格",
+          "最終的な割引価格",
+          "配送にかかる費用"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_007_v021",
+        "number": 21,
+        "en": "fall below",
+        "ja": "〜を下回る",
+        "wrong": [
+          "〜と等しくなる",
+          "〜を上回る",
+          "〜に比例する"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_007_v022",
+        "number": 22,
+        "en": "ensure",
+        "ja": "確実にする",
+        "wrong": [
+          "疑う",
+          "取り消す",
+          "比較する"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_007_v023",
+        "number": 23,
+        "en": "distinction",
+        "ja": "区別",
+        "wrong": [
+          "一致",
+          "依存",
+          "対立"
+        ],
+        "location": "A6"
+      },
+      {
+        "id": "q7_set_007_v024",
+        "number": 24,
+        "en": "completed purchase",
+        "ja": "完了した購入",
+        "wrong": [
+          "取り消された予約",
+          "未払いの請求",
+          "変更された注文"
+        ],
+        "location": "A6"
+      },
+      {
+        "id": "q7_set_007_v025",
+        "number": 25,
+        "en": "transaction",
+        "ja": "取引",
+        "wrong": [
+          "食品",
+          "店舗",
+          "割引券"
+        ],
+        "location": "A6"
+      },
+      {
+        "id": "q7_set_007_v026",
+        "number": 26,
+        "en": "accepted",
+        "ja": "受け入れられた",
+        "wrong": [
+          "返品された",
+          "廃棄された",
+          "延期された"
+        ],
+        "location": "A6"
+      },
+      {
+        "id": "q7_set_007_v027",
+        "number": 27,
+        "en": "predictable",
+        "ja": "予測しやすい",
+        "wrong": [
+          "変更できない",
+          "避けられない",
+          "利用できない"
+        ],
+        "location": "A7"
+      },
+      {
+        "id": "q7_set_007_v028",
+        "number": 28,
+        "en": "on their behalf",
+        "ja": "その人の代わりに",
+        "wrong": [
+          "その人に知らせずに",
+          "その人と一緒に",
+          "その人の反対を受けて"
+        ],
+        "location": "c1"
+      },
+      {
+        "id": "q7_set_007_v029",
+        "number": 29,
+        "en": "retail value",
+        "ja": "小売価値",
+        "wrong": [
+          "生産費用",
+          "配送料金",
+          "廃棄費用"
+        ],
+        "location": "B4"
+      },
+      {
+        "id": "q7_set_007_v030",
+        "number": 30,
+        "en": "minimum value",
+        "ja": "最低価値",
+        "wrong": [
+          "平均価格",
+          "最高利益",
+          "追加料金"
+        ],
+        "location": "d3"
+      }
+    ]
+  },
+  {
+    "setId": "q7_set_008",
+    "words": [
+      {
+        "id": "q7_set_008_v001",
+        "number": 1,
+        "en": "examine",
+        "ja": "詳しく調べる",
+        "wrong": [
+          "配布する",
+          "隠す",
+          "取り替える"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_008_v002",
+        "number": 2,
+        "en": "on its own",
+        "ja": "それだけで・独力で",
+        "wrong": [
+          "予定どおりに",
+          "順番を待って",
+          "一定の間隔で"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_008_v003",
+        "number": 3,
+        "en": "distant",
+        "ja": "遠く離れた",
+        "wrong": [
+          "最近の",
+          "身近な",
+          "人工的な"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_008_v004",
+        "number": 4,
+        "en": "identifying",
+        "ja": "特定すること",
+        "wrong": [
+          "作り直すこと",
+          "配布すること",
+          "保存すること"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_008_v005",
+        "number": 5,
+        "en": "a great deal of",
+        "ja": "非常に多くの",
+        "wrong": [
+          "ごくわずかな",
+          "ほぼ同じ量の",
+          "予想より少ない"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_008_v006",
+        "number": 6,
+        "en": "platform",
+        "ja": "活動のためのオンライン基盤",
+        "wrong": [
+          "研究用の観測装置",
+          "研究者の資格",
+          "古文書の保管庫"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_008_v007",
+        "number": 7,
+        "en": "qualifications",
+        "ja": "資格",
+        "wrong": [
+          "報酬",
+          "予定",
+          "意見"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_008_v008",
+        "number": 8,
+        "en": "entirely up to",
+        "ja": "完全に〜に任されている",
+        "wrong": [
+          "完全に〜に反対している",
+          "必ず〜と一致している",
+          "すでに〜を終えている"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_008_v009",
+        "number": 9,
+        "en": "contribution",
+        "ja": "貢献",
+        "wrong": [
+          "観察対象",
+          "研究費用",
+          "申請条件"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_008_v010",
+        "number": 10,
+        "en": "independently",
+        "ja": "独立して",
+        "wrong": [
+          "交互に",
+          "強制的に",
+          "同じ場所で"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_008_v011",
+        "number": 11,
+        "en": "observations",
+        "ja": "観察結果",
+        "wrong": [
+          "研究機材",
+          "参加申込書",
+          "操作説明書"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_008_v012",
+        "number": 12,
+        "en": "assessments",
+        "ja": "評価",
+        "wrong": [
+          "許可",
+          "指示",
+          "予測"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_008_v013",
+        "number": 13,
+        "en": "combines",
+        "ja": "組み合わせる",
+        "wrong": [
+          "切り離す",
+          "取り消す",
+          "交換する"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_008_v014",
+        "number": 14,
+        "en": "worth examining",
+        "ja": "調べる価値がある",
+        "wrong": [
+          "調べることが禁じられた",
+          "調査が完了した",
+          "調査を必要としない"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_008_v015",
+        "number": 15,
+        "en": "reconsider",
+        "ja": "考え直す",
+        "wrong": [
+          "書き写す",
+          "放置する",
+          "取り除く"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_008_v016",
+        "number": 16,
+        "en": "adjustments",
+        "ja": "修正・調整",
+        "wrong": [
+          "資格・免許",
+          "支払い・請求",
+          "出会い・交流"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_008_v017",
+        "number": 17,
+        "en": "submission",
+        "ja": "提出・送信",
+        "wrong": [
+          "保存場所",
+          "調査対象",
+          "参加資格"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_008_v018",
+        "number": 18,
+        "en": "permanent record",
+        "ja": "恒久的な記録",
+        "wrong": [
+          "一時的なメモ",
+          "未完成の資料",
+          "修正前の見本"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_008_v019",
+        "number": 19,
+        "en": "alter",
+        "ja": "変更する",
+        "wrong": [
+          "承認する",
+          "比較する",
+          "再生する"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_008_v020",
+        "number": 20,
+        "en": "accidental mistake",
+        "ja": "偶然の間違い",
+        "wrong": [
+          "意図的な虚偽",
+          "確実な証拠",
+          "正式な申請"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_008_v021",
+        "number": 21,
+        "en": "not necessarily",
+        "ja": "必ずしも〜とは限らない",
+        "wrong": [
+          "定期的に",
+          "事前に",
+          "同時に"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_008_v022",
+        "number": 22,
+        "en": "conclusion",
+        "ja": "結論",
+        "wrong": [
+          "目的",
+          "準備",
+          "仮説"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_008_v023",
+        "number": 23,
+        "en": "beta testers",
+        "ja": "一般公開前に試す人々",
+        "wrong": [
+          "正式公開後の購入者",
+          "研究費を提供する人々",
+          "研究を審査する専門家"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_008_v024",
+        "number": 24,
+        "en": "reactions",
+        "ja": "反応・感想",
+        "wrong": [
+          "資格・免許",
+          "費用・料金",
+          "記録・資料"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_008_v025",
+        "number": 25,
+        "en": "brief",
+        "ja": "短い",
+        "wrong": [
+          "複雑な",
+          "詳しい",
+          "長期の"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_008_v026",
+        "number": 26,
+        "en": "questionnaire",
+        "ja": "アンケート",
+        "wrong": [
+          "掲示板",
+          "許可証",
+          "研究論文"
+        ],
+        "location": "d2"
+      },
+      {
+        "id": "q7_set_008_v027",
+        "number": 27,
+        "en": "official launch",
+        "ja": "正式公開",
+        "wrong": [
+          "試験運用",
+          "個人登録",
+          "活動停止"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_008_v028",
+        "number": 28,
+        "en": "technical setup",
+        "ja": "技術的な設定",
+        "wrong": [
+          "研究の結論",
+          "費用の見積もり",
+          "観察対象の選定"
+        ],
+        "location": "B6"
+      },
+      {
+        "id": "q7_set_008_v029",
+        "number": 29,
+        "en": "Visibility section",
+        "ja": "公開範囲を管理する欄",
+        "wrong": [
+          "支払方法を選ぶ欄",
+          "回答履歴を調べる欄",
+          "研究結果を発表する欄"
+        ],
+        "location": "e4"
+      },
+      {
+        "id": "q7_set_008_v030",
+        "number": 30,
+        "en": "academic projects",
+        "ja": "学術的なプロジェクト",
+        "wrong": [
+          "商品の販売企画",
+          "日常の買い物",
+          "個人の旅行計画"
+        ],
+        "location": "B1"
+      }
+    ]
+  },
+  {
+    "setId": "q7_set_009",
+    "words": [
+      {
+        "id": "q7_set_009_v001",
+        "number": 1,
+        "en": "eventually",
+        "ja": "最終的に",
+        "wrong": [
+          "直ちに",
+          "一時的に",
+          "偶然に"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_009_v002",
+        "number": 2,
+        "en": "reduce",
+        "ja": "減らす",
+        "wrong": [
+          "増やす",
+          "維持する",
+          "比較する"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_009_v003",
+        "number": 3,
+        "en": "pollution",
+        "ja": "汚染",
+        "wrong": [
+          "資源",
+          "流速",
+          "容量"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_009_v004",
+        "number": 4,
+        "en": "natural movement",
+        "ja": "自然な動き",
+        "wrong": [
+          "人工的な振動",
+          "定期的な点検",
+          "機械の停止"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_009_v005",
+        "number": 5,
+        "en": "floating barrier",
+        "ja": "水面に浮かぶ障壁",
+        "wrong": [
+          "川底に沈む容器",
+          "川岸に立つ標識",
+          "橋に固定された照明"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_009_v006",
+        "number": 6,
+        "en": "current",
+        "ja": "水流",
+        "wrong": [
+          "現在時刻",
+          "電池残量",
+          "大気の温度"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_009_v007",
+        "number": 7,
+        "en": "transferred",
+        "ja": "移された",
+        "wrong": [
+          "捨てられた",
+          "修理された",
+          "分解された"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_009_v008",
+        "number": 8,
+        "en": "considerable amount",
+        "ja": "かなりの量",
+        "wrong": [
+          "わずかな費用",
+          "一定の時間",
+          "共通の種類"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_009_v009",
+        "number": 9,
+        "en": "available",
+        "ja": "利用できる・空いている",
+        "wrong": [
+          "故障している",
+          "禁止されている",
+          "購入済みの"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_009_v010",
+        "number": 10,
+        "en": "plenty of space",
+        "ja": "十分な空き容量",
+        "wrong": [
+          "一定の処理時間",
+          "少量の電力",
+          "限られた作業員"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_009_v011",
+        "number": 11,
+        "en": "measure",
+        "ja": "測定する",
+        "wrong": [
+          "仕分ける",
+          "運搬する",
+          "修理する"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_009_v012",
+        "number": 12,
+        "en": "mechanism",
+        "ja": "仕組み・機構",
+        "wrong": [
+          "廃棄物",
+          "作業員",
+          "流域"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_009_v013",
+        "number": 13,
+        "en": "incoming waste",
+        "ja": "流れ込んでくるごみ",
+        "wrong": [
+          "処理済みのごみ",
+          "回収できないごみ",
+          "分別後のごみ"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_009_v014",
+        "number": 14,
+        "en": "adjusting",
+        "ja": "調整すること",
+        "wrong": [
+          "中止すること",
+          "予測すること",
+          "記録すること"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_009_v015",
+        "number": 15,
+        "en": "destination",
+        "ja": "送り先",
+        "wrong": [
+          "発生源",
+          "残り時間",
+          "最大重量"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_009_v016",
+        "number": 16,
+        "en": "prevents",
+        "ja": "防ぐ",
+        "wrong": [
+          "許可する",
+          "勧める",
+          "確認する"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_009_v017",
+        "number": 17,
+        "en": "reaching their limits",
+        "ja": "容量の限界に達すること",
+        "wrong": [
+          "川岸に到着すること",
+          "流れを変えること",
+          "回収を終えること"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_009_v018",
+        "number": 18,
+        "en": "powered by",
+        "ja": "〜を動力として動く",
+        "wrong": [
+          "〜を材料として作られる",
+          "〜に固定される",
+          "〜から切り離される"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_009_v019",
+        "number": 19,
+        "en": "regularly",
+        "ja": "定期的に",
+        "wrong": [
+          "偶然に",
+          "一度だけ",
+          "急に"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_009_v020",
+        "number": 20,
+        "en": "keeps track of",
+        "ja": "〜を継続的に把握する",
+        "wrong": [
+          "〜を取り替える",
+          "〜の許可を得る",
+          "〜を廃棄する"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_009_v021",
+        "number": 21,
+        "en": "automatically",
+        "ja": "自動的に",
+        "wrong": [
+          "手作業で",
+          "一時的に",
+          "個別に"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_009_v022",
+        "number": 22,
+        "en": "in person",
+        "ja": "直接その場で",
+        "wrong": [
+          "電話を通して",
+          "電子メールで",
+          "代理人を通して"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_009_v023",
+        "number": 23,
+        "en": "permanently",
+        "ja": "永久に",
+        "wrong": [
+          "一時的に",
+          "交互に",
+          "毎月"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_009_v024",
+        "number": 24,
+        "en": "detached",
+        "ja": "取り外された",
+        "wrong": [
+          "固定された",
+          "満たされた",
+          "測定された"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_009_v025",
+        "number": 25,
+        "en": "riverbank",
+        "ja": "川岸",
+        "wrong": [
+          "河口",
+          "川底",
+          "水面"
+        ],
+        "location": "d1"
+      },
+      {
+        "id": "q7_set_009_v026",
+        "number": 26,
+        "en": "unloaded",
+        "ja": "荷降ろしされた",
+        "wrong": [
+          "積み込まれた",
+          "取り付けられた",
+          "測定された"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_009_v027",
+        "number": 27,
+        "en": "waste-management facility",
+        "ja": "廃棄物処理施設",
+        "wrong": [
+          "水力発電施設",
+          "気象観測施設",
+          "河川の案内所"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_009_v028",
+        "number": 28,
+        "en": "storage capacity",
+        "ja": "保管容量",
+        "wrong": [
+          "運転速度",
+          "処理費用",
+          "機械の重さ"
+        ],
+        "location": "A6"
+      },
+      {
+        "id": "q7_set_009_v029",
+        "number": 29,
+        "en": "equivalent volume",
+        "ja": "同じ体積",
+        "wrong": [
+          "異なる形状",
+          "一定の重さ",
+          "余分な面積"
+        ],
+        "location": "A6"
+      },
+      {
+        "id": "q7_set_009_v030",
+        "number": 30,
+        "en": "dimensions",
+        "ja": "寸法",
+        "wrong": [
+          "材質",
+          "用途",
+          "値段"
+        ],
+        "location": "A6"
+      }
+    ]
+  },
+  {
+    "setId": "q7_set_010",
+    "words": [
+      {
+        "id": "q7_set_010_v001",
+        "number": 1,
+        "en": "treasure hunts",
+        "ja": "宝探し",
+        "wrong": [
+          "自然観察",
+          "施設見学",
+          "集団研修"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_010_v002",
+        "number": 2,
+        "en": "participants",
+        "ja": "参加者",
+        "wrong": [
+          "所有者",
+          "審査員",
+          "販売員"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_010_v003",
+        "number": 3,
+        "en": "containers",
+        "ja": "容器",
+        "wrong": [
+          "記録",
+          "座標",
+          "端末"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_010_v004",
+        "number": 4,
+        "en": "exchange",
+        "ja": "交換する",
+        "wrong": [
+          "保管する",
+          "返却する",
+          "購入する"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_010_v005",
+        "number": 5,
+        "en": "property",
+        "ja": "所有物",
+        "wrong": [
+          "目的地",
+          "参加資格",
+          "使用記録"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_010_v006",
+        "number": 6,
+        "en": "intended to",
+        "ja": "〜することを目的としている",
+        "wrong": [
+          "〜することを禁じられている",
+          "〜することを忘れている",
+          "〜することを疑っている"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_010_v007",
+        "number": 7,
+        "en": "destinations",
+        "ja": "目的地",
+        "wrong": [
+          "出発時刻",
+          "所有者",
+          "参加費"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_010_v008",
+        "number": 8,
+        "en": "roughly",
+        "ja": "およそ",
+        "wrong": [
+          "正確に",
+          "最低でも",
+          "最大でも"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_010_v009",
+        "number": 9,
+        "en": "particular",
+        "ja": "特定の",
+        "wrong": [
+          "すべての",
+          "不明な",
+          "無関係な"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_010_v010",
+        "number": 10,
+        "en": "permission",
+        "ja": "許可",
+        "wrong": [
+          "指示",
+          "記録",
+          "報酬"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_010_v011",
+        "number": 11,
+        "en": "responsible for",
+        "ja": "〜を管理する責任がある",
+        "wrong": [
+          "〜について知らない",
+          "〜と関係がない",
+          "〜を探している"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_010_v012",
+        "number": 12,
+        "en": "physical parts",
+        "ja": "実際に設置された物",
+        "wrong": [
+          "オンライン上の記録",
+          "参加者の個人情報",
+          "所有者の連絡先"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_010_v013",
+        "number": 13,
+        "en": "separate geocaches",
+        "ja": "別々のジオキャッシュ",
+        "wrong": [
+          "同じジオキャッシュの各段階",
+          "移動中のトラッカブル",
+          "未登録の参加者"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_010_v014",
+        "number": 14,
+        "en": "conversion",
+        "ja": "換算",
+        "wrong": [
+          "予約",
+          "設置",
+          "交換"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_010_v015",
+        "number": 15,
+        "en": "restriction",
+        "ja": "制限",
+        "wrong": [
+          "推薦",
+          "報酬",
+          "許可"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_010_v016",
+        "number": 16,
+        "en": "apply to",
+        "ja": "〜に適用される",
+        "wrong": [
+          "〜を探しに行く",
+          "〜の所有者になる",
+          "〜から遠ざかる"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_010_v017",
+        "number": 17,
+        "en": "sense of smell",
+        "ja": "嗅覚",
+        "wrong": [
+          "視覚",
+          "聴覚",
+          "触覚"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_010_v018",
+        "number": 18,
+        "en": "air fresheners",
+        "ja": "芳香剤",
+        "wrong": [
+          "保存容器",
+          "携帯用充電器",
+          "防虫網"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_010_v019",
+        "number": 19,
+        "en": "damage",
+        "ja": "損傷を与える",
+        "wrong": [
+          "修理する",
+          "取り替える",
+          "移動させる"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_010_v020",
+        "number": 20,
+        "en": "unsuitable",
+        "ja": "適さない",
+        "wrong": [
+          "見つけやすい",
+          "十分な",
+          "無害な"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_010_v021",
+        "number": 21,
+        "en": "identification codes",
+        "ja": "識別コード",
+        "wrong": [
+          "暗証番号の変更履歴",
+          "商品の価格表",
+          "緊急連絡先"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_010_v022",
+        "number": 22,
+        "en": "visible",
+        "ja": "見える",
+        "wrong": [
+          "利用できない",
+          "取り外せる",
+          "変更できない"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_010_v023",
+        "number": 23,
+        "en": "reference number",
+        "ja": "参照番号",
+        "wrong": [
+          "受取番号",
+          "電話番号",
+          "郵便番号"
+        ],
+        "location": "B5"
+      },
+      {
+        "id": "q7_set_010_v024",
+        "number": 24,
+        "en": "limited purpose",
+        "ja": "限られた用途",
+        "wrong": [
+          "共通の目標",
+          "一定の距離",
+          "複雑な仕組み"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_010_v025",
+        "number": 25,
+        "en": "encountered",
+        "ja": "実際に出会った・接した",
+        "wrong": [
+          "予約した",
+          "修理した",
+          "購入した"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_010_v026",
+        "number": 26,
+        "en": "geological features",
+        "ja": "地質学的な特徴",
+        "wrong": [
+          "地域の交通事情",
+          "季節ごとの行事",
+          "施設の利用規則"
+        ],
+        "location": "A6"
+      },
+      {
+        "id": "q7_set_010_v027",
+        "number": 27,
+        "en": "rock formations",
+        "ja": "岩の形・岩の構造",
+        "wrong": [
+          "動物の足跡",
+          "木々の種類",
+          "天候の変化"
+        ],
+        "location": "A6"
+      },
+      {
+        "id": "q7_set_010_v028",
+        "number": 28,
+        "en": "privately",
+        "ja": "非公開で",
+        "wrong": [
+          "大勢の前で",
+          "自動的に",
+          "定期的に"
+        ],
+        "location": "A6"
+      },
+      {
+        "id": "q7_set_010_v029",
+        "number": 29,
+        "en": "requirements",
+        "ja": "求められる条件",
+        "wrong": [
+          "支払い済みの費用",
+          "集められた記録",
+          "予想された結果"
+        ],
+        "location": "A6"
+      },
+      {
+        "id": "q7_set_010_v030",
+        "number": 30,
+        "en": "reliable",
+        "ja": "信頼できる",
+        "wrong": [
+          "使い捨ての",
+          "非公開の",
+          "一時的な"
+        ],
+        "location": "A7"
+      }
+    ]
+  },
+  {
+    "setId": "q7_set_011",
+    "words": [
+      {
+        "id": "q7_set_011_v001",
+        "number": 1,
+        "en": "neighborhood",
+        "ja": "近所・地域",
+        "wrong": [
+          "図書館の館内",
+          "利用者の年齢層",
+          "本の分類"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_011_v002",
+        "number": 2,
+        "en": "membership cards",
+        "ja": "会員カード",
+        "wrong": [
+          "貸出記録",
+          "購入証明書",
+          "利用案内"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_011_v003",
+        "number": 3,
+        "en": "borrowing records",
+        "ja": "貸出記録",
+        "wrong": [
+          "購入費用",
+          "書籍の目録",
+          "設置許可証"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_011_v004",
+        "number": 4,
+        "en": "contribute",
+        "ja": "提供する・寄付する",
+        "wrong": [
+          "購入する",
+          "返却を求める",
+          "修理する"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_011_v005",
+        "number": 5,
+        "en": "willingness",
+        "ja": "進んで〜する気持ち",
+        "wrong": [
+          "〜する義務",
+          "〜する能力",
+          "〜する許可"
+        ],
+        "location": "A1"
+      },
+      {
+        "id": "q7_set_011_v006",
+        "number": 6,
+        "en": "finished box",
+        "ja": "完成した箱",
+        "wrong": [
+          "使い古した箱",
+          "壊れた箱",
+          "持ち主のいない箱"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_011_v007",
+        "number": 7,
+        "en": "automatically",
+        "ja": "自動的に",
+        "wrong": [
+          "手作業で",
+          "例外的に",
+          "一時的に"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_011_v008",
+        "number": 8,
+        "en": "official network",
+        "ja": "公式ネットワーク",
+        "wrong": [
+          "個人の蔵書",
+          "貸出履歴",
+          "地域の販売店"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_011_v009",
+        "number": 9,
+        "en": "registered",
+        "ja": "登録された",
+        "wrong": [
+          "貸し出された",
+          "返却された",
+          "廃棄された"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_011_v010",
+        "number": 10,
+        "en": "plate",
+        "ja": "プレート・板",
+        "wrong": [
+          "扉の取っ手",
+          "屋根の支柱",
+          "本の表紙"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_011_v011",
+        "number": 11,
+        "en": "identification number",
+        "ja": "識別番号",
+        "wrong": [
+          "電話番号",
+          "価格表示",
+          "貸出期限"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_011_v012",
+        "number": 12,
+        "en": "recognize",
+        "ja": "識別する",
+        "wrong": [
+          "修繕する",
+          "提供する",
+          "保管する"
+        ],
+        "location": "A2"
+      },
+      {
+        "id": "q7_set_011_v013",
+        "number": 13,
+        "en": "steward",
+        "ja": "管理者",
+        "wrong": [
+          "著者",
+          "読者",
+          "購入希望者"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_011_v014",
+        "number": 14,
+        "en": "condition",
+        "ja": "状態",
+        "wrong": [
+          "設置日",
+          "所有権",
+          "貸出期限"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_011_v015",
+        "number": 15,
+        "en": "available",
+        "ja": "利用できる",
+        "wrong": [
+          "予約が必要な",
+          "返却済みの",
+          "販売禁止の"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_011_v016",
+        "number": 16,
+        "en": "business days",
+        "ja": "営業日",
+        "wrong": [
+          "祝日",
+          "休業日",
+          "申込日"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_011_v017",
+        "number": 17,
+        "en": "individual",
+        "ja": "個人・人",
+        "wrong": [
+          "団体・組織",
+          "地域・地区",
+          "設備・施設"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_011_v018",
+        "number": 18,
+        "en": "responsibility",
+        "ja": "責任",
+        "wrong": [
+          "費用",
+          "利益",
+          "希望"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_011_v019",
+        "number": 19,
+        "en": "transferred",
+        "ja": "移された",
+        "wrong": [
+          "破棄された",
+          "禁止された",
+          "記録された"
+        ],
+        "location": "A3"
+      },
+      {
+        "id": "q7_set_011_v020",
+        "number": 20,
+        "en": "maintains",
+        "ja": "維持・管理する",
+        "wrong": [
+          "取り消す",
+          "購入する",
+          "見学する"
+        ],
+        "location": "B5"
+      },
+      {
+        "id": "q7_set_011_v021",
+        "number": 21,
+        "en": "immediately",
+        "ja": "すぐに",
+        "wrong": [
+          "定期的に",
+          "徐々に",
+          "偶然に"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_011_v022",
+        "number": 22,
+        "en": "location information",
+        "ja": "位置情報",
+        "wrong": [
+          "貸出情報",
+          "価格情報",
+          "利用者情報"
+        ],
+        "location": "B5"
+      },
+      {
+        "id": "q7_set_011_v023",
+        "number": 23,
+        "en": "public map",
+        "ja": "一般公開の地図",
+        "wrong": [
+          "私有地の一覧",
+          "非公開の設計図",
+          "店内の案内表示"
+        ],
+        "location": "A4"
+      },
+      {
+        "id": "q7_set_011_v024",
+        "number": 24,
+        "en": "protect",
+        "ja": "守る",
+        "wrong": [
+          "取り替える",
+          "比較する",
+          "移動する"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_011_v025",
+        "number": 25,
+        "en": "extending beyond",
+        "ja": "〜より外側に張り出す",
+        "wrong": [
+          "〜より内側に収まる",
+          "〜の下に隠れる",
+          "〜の上に重なる"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_011_v026",
+        "number": 26,
+        "en": "overhang",
+        "ja": "張り出し部分",
+        "wrong": [
+          "扉の留め具",
+          "床のすき間",
+          "棚の仕切り"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_011_v027",
+        "number": 27,
+        "en": "no less than",
+        "ja": "〜以上",
+        "wrong": [
+          "〜未満",
+          "〜と同じ",
+          "〜より少し少ない"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_011_v028",
+        "number": 28,
+        "en": "no more than",
+        "ja": "〜以下",
+        "wrong": [
+          "〜を超える",
+          "〜とほぼ同じ",
+          "〜より少し多い"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_011_v029",
+        "number": 29,
+        "en": "practical details",
+        "ja": "実用上の細かな工夫",
+        "wrong": [
+          "理論上の問題点",
+          "見た目だけの飾り",
+          "個人的な感想"
+        ],
+        "location": "A5"
+      },
+      {
+        "id": "q7_set_011_v030",
+        "number": 30,
+        "en": "approximately",
+        "ja": "およそ",
+        "wrong": [
+          "正確に",
+          "最低でも",
+          "最大でも"
+        ],
+        "location": "B6"
+      }
+    ]
+  }
+];
+  window.q7VocabSets.push(...additions);
+})();
