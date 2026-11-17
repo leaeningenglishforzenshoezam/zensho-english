@@ -55,8 +55,8 @@ function frame(sceneId,line=0,route=null,battleId=null){
  if(sceneId==='s16'&&point>=3&&point<=5)event='evidence';
  if(sceneId==='s18'&&point>=3&&point<=5)event='farewell';
  const people=[];
- if(sceneId==='s01'&&point<7)people.push({key:'robbers',kind:'enemies'});
- else if(['s01','s02','s03','s05','s09','s11','s12','s13','s14','s15','s17','s18'].includes(sceneId)){
+ if(sceneId==='s01'&&point<11)people.push({key:'robbers',kind:'enemies'});
+ else if(['s01','s02','s03','s05','s09','s11','s12','s13','s14','s15','s17','s18'].includes(sceneId)&&(sceneId!=='s01'||point>=11)){
   const hiro=sceneId==='s15'||sceneId==='s17'||sceneId==='s18'?'hiro_defeated':sceneId==='s14'?'hiro_axe':'hiro_normal';
   people.push({key:hiro,kind:'characters'});
  }
@@ -68,9 +68,9 @@ function frame(sceneId,line=0,route=null,battleId=null){
   if(sceneId==='s14'&&route==='ally')b='bado_ally';
   if(sceneId==='s14'&&route==='duel')b='bado_defensive';
   if(sceneId==='s13')b='bado_alert';
-  if(sceneId==='s01'&&point<7){}else if(sceneId==='s08'&&point<4){}else people.push({key:b,kind:'characters'});
+  if(sceneId==='s01'&&point<14){}else if(sceneId==='s08'&&point<4){}else people.push({key:b,kind:'characters'});
  }
- if(sceneId==='s09')people.push({key:'injured',kind:'characters'});
+ if(sceneId==='s09'||(sceneId==='s03'&&point<5)||(sceneId==='s16'&&point>=6))people.push({key:'injured',kind:'characters'});
  if(sceneId==='s17'&&point>=3||sceneId==='s18'&&point>=0)people.push({key:'guard',kind:'characters'});
  if(battleId==='bado'){const i=people.findIndex(x=>x.key.startsWith('bado_'));if(i>=0)people[i].key='bado_defensive';}
  if(battleId==='hiro_ally'||battleId==='hiro_duel'){const i=people.findIndex(x=>x.key.startsWith('hiro_'));if(i>=0)people[i].key='hiro_axe';}
