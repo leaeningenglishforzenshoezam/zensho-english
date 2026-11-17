@@ -57,7 +57,7 @@ function frame(sceneId,line=0,route=null,battleId=null){
  const people=[];
  if(sceneId==='s01'&&point<11)people.push({key:'robbers',kind:'enemies'});
  else if(['s01','s02','s03','s05','s09','s11','s12','s13','s14','s15','s17','s18'].includes(sceneId)&&(sceneId!=='s01'||point>=11)){
-  const hiro=sceneId==='s15'||sceneId==='s17'||sceneId==='s18'?'hiro_defeated':sceneId==='s14'?'hiro_axe':'hiro_normal';
+  const hiro=sceneId==='s15'||sceneId==='s17'||sceneId==='s18'?'hiro_defeated':sceneId==='s14'&&route==='ally'&&point>=6&&point<=9?'hiro_surprised':sceneId==='s14'?'hiro_axe':'hiro_normal';
   people.push({key:hiro,kind:'characters'});
  }
  if(sceneId==='s04'&&point>=8)people.push({key:'hiro_normal',kind:'characters'});
