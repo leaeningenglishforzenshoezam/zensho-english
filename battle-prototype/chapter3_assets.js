@@ -1,4 +1,8 @@
 // GOIMON QUEST Chapter 3 image manifest.
+// Bud artwork roles (5 uploaded source poses prepared for installation):
+// normal: firm closed-mouth posture / alert: open-mouth roar / conflicted: downcast with sweat
+// defensive: forward roar blocking the path / ally: firm protective posture
+// All expected PNGs are transparent overlays in images/chapter3/characters/.
 // The game gracefully shows placeholder gradients until the planned files are uploaded.
 // All paths are rooted at the site root; never overwrite Chapter 1/2 artwork.
 (function(root){'use strict';
@@ -64,7 +68,7 @@ function frame(sceneId,line=0,route=null,battleId=null){
  if(['s01','s02','s03','s05','s07','s08','s09','s10','s12','s13','s14','s15','s16','s17','s18','s19'].includes(sceneId)){
   let b='bado_normal';
   if(sceneId==='s08'||sceneId==='s09'||sceneId==='s10'||sceneId==='s14')b='bado_conflicted';
-  if(sceneId==='s12')b='bado_alert';
+  if(sceneId==='s12')b='bado_normal'; // Friendly demonstration until the mock fight starts
   if(sceneId==='s14'&&route==='ally')b='bado_ally';
   if(sceneId==='s14'&&route==='duel')b='bado_defensive';
   if(sceneId==='s13')b='bado_alert';
@@ -72,6 +76,7 @@ function frame(sceneId,line=0,route=null,battleId=null){
  }
  if(sceneId==='s09'||(sceneId==='s03'&&point<5)||(sceneId==='s16'&&point>=6))people.push({key:'injured',kind:'characters'});
  if(sceneId==='s17'&&point>=3||sceneId==='s18'&&point>=0)people.push({key:'guard',kind:'characters'});
+ if(battleId==='demo'){const i=people.findIndex(x=>x.key.startsWith('bado_'));if(i>=0)people[i].key='bado_alert';}
  if(battleId==='bado'){const i=people.findIndex(x=>x.key.startsWith('bado_'));if(i>=0)people[i].key='bado_defensive';}
  if(battleId==='hiro_ally'||battleId==='hiro_duel'){const i=people.findIndex(x=>x.key.startsWith('hiro_'));if(i>=0)people[i].key='hiro_axe';}
  return {background,event,people};
