@@ -20,7 +20,7 @@ function validate(s,d){
  const knownNodes=new Set(d.scenes.flatMap(scene=>scene.nodes.map(n=>n.id)));
  const knownBattles=new Set(d.battles.map(b=>b.id));
  if(s.cleared.some(id=>!knownBattles.has(id)))throw Error('第3章の戦闘記録が一致しません。');
- if(s.read.some(id=>!knownNodes.has(id)&&!/^ch3\\.c0[1-8]\\.[abc]\\.\\d+$/.test(id)))throw Error('第3章の閲覧記録が一致しません。');
+ if(s.read.some(id=>!knownNodes.has(id)&&!/^ch3[.]c0[1-8][.][abc][.][0-9]+$/.test(id)))throw Error('第3章の閲覧記録が一致しません。');
  const node=d.scenes[s.scene].nodes[s.line];
  if(s.mode==='choice'){
   if(!node||node.type!=='choice'||node.choiceId!==s.branchChoice||!s.choices[node.choiceId])throw Error('第3章の選択肢再開位置が不正です。');
