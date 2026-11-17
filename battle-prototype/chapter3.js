@@ -199,7 +199,7 @@ function battleView(){
   }
   GoimonQuestLearning.nextKey(btn('次へ',()=>{state.feedback=null;save();render();},panel,true));return;
  }
- if(b.ended){const spec=D.battles.find(x=>x.id===id);if(spec?.objective!=='survive'&&b.winner!=='player'){state.mode='defeat';save();defeat();return;}battleResult();return;}
+ if(b.ended){const spec=D.battles.find(x=>x.id===id);const cleared=b.winner==='player'||b.winner==='survived'||(spec?.scriptedRescue===true);if(!cleared){state.mode='defeat';save();defeat();return;}battleResult();return;}
  el('p',b.extraAttackPending?'追加攻撃！ 正解するともう一撃（SKILL不可）':E.current(b)==='player'?'攻撃を選ぼう':'敵の攻撃 · 正解でダメージ軽減',panel,'muted');
  if(state.question){questionView(panel);return;}
  if(E.current(b)==='enemy'){btn(id==='bado'?'バドの攻撃をかわす（防御問題）':'防御の問題へ',()=>ask('normal'),panel,true);return;}
@@ -278,7 +278,7 @@ function defeat(){
    const before=clone(state.checkpoint);
    state.mode='story';state.combat=null;state.battleId=null;state.checkpoint=null;state.question=null;state.feedback=null;
    const node=P.current(state,D),enemy=B.enemy(C,node.battleId,C.stages[state.pet.stage]);
-   E.ensureFirstAid(before,C);P.beginBattle(state,D,before,E.create(before,enemy));save();render();
+   E.ensureFirstAid(before,C);const retryCombat=E.create(before,enemy);if(node.battleId==='bado')retryCombat.extraInterval=0;P.beginBattle(state,D,before,retryCombat);save();render();
   },continueLabel:'戦闘直前から再挑戦',recoveryState:state,onSkillRestore:id=>GoimonQuestLearning.restoreSkill(state,id,save)});
 }
 function complete(){
