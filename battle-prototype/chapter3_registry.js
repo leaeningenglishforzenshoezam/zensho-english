@@ -21,7 +21,8 @@ function frame(scene,line){
  return {people,enemy:null};
 }
 const chapter={id:'chapter3',number:3,level:'1',name:D.title,url:'quest_chapter3.html',configure:'quest_chapter3.html?configure=1',
- cover:'images/quest/chapter2/ch2_hills.png',map:null,backgroundPreview:()=>null,stages:D.battles.map(b=>b.id),
+ cover:'images/chapter2/backgrounds/ch2_hills.png',map:null,backgroundPreview:()=>null,stages:D.battles.map(b=>b.id),
+ visibleLines:(scene,state)=>scene.lines.filter(l=>{const m=/^ch3[.](c0[1-8])[.]([abc])[.]/.exec(l.id);return !m||state?.choices?.[m[1]]===m[2];}),
  data:viewData,store:root.GoimonChapter3Progress,key:account=>'goimon_chapter3_v1:'+account+':lv1',
  unlocked:(storage,account)=>root.GoimonChapter3Access.unlocked(storage,account,root.GoimonChapter2Data,root.GoimonChapter2Progress),
  intro:'トシャカへ続く山道。親切な斧使いと、言葉の届かない相棒。',
