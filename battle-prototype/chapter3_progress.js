@@ -92,11 +92,14 @@ function beginBattle(s,d,checkpoint,combat){
 function finishBattle(s,d){
  if(s.mode!=='battle'||!s.combat?.ended)throw Error('戦闘終了を確認できません。');
  const node=d.scenes[s.scene].nodes[s.line],spec=d.battles.find(b=>b.id===node.battleId);
- const success=s.combat.winner==='player'||(spec?.objective==='survive'&&!!s.combat.ended);
+ const success=s.combat.winner==='player'||s.combat.winner==='survived'||(spec?.scriptedRescue===true&&s.combat.ended);
  if(!success){s.mode='defeat';return false;}
  if(!s.cleared.includes(node.battleId))s.cleared.push(node.battleId);
  if(!s.read.includes(node.id))s.read.push(node.id);
- if(s.combat.player){s.run=clone(s.combat.player);if(Number.isFinite(s.run.hp)&&Number.isFinite(s.run.maxHp))s.run.hp=Math.min(s.run.maxHp,Math.max(1,s.run.hp)+Math.ceil((s.run.maxHp-Math.max(1,s.run.hp))/3));}
+ if(s.combat.player){s.run=clone(s.combat.player);if(Number.isFinite(s.run.hp)&&Number.isFinite(s.run.maxHp)){
+  // Hirotoshi treats the injured partner before dinner; recover fully after the scripted rescue.
+  s.run.hp=spec?.scriptedRescue===true?s.run.maxHp:Math.min(s.run.maxHp,Math.max(1,s.run.hp)+Math.ceil((s.run.maxHp-Math.max(1,s.run.hp))/3));
+ }}
  s.combat=null;s.checkpoint=null;s.battleId=null;s.question=null;s.feedback=null;s.mode='story';s.line++;normalize(s,d);return true;
 }
 function restart(s,d,pet,skills=[],gear='none'){
