@@ -6,7 +6,7 @@ function render(){
  $('qh-map-open').textContent=chapter.map?'マップ':'冒険の道のり';
  let state=null,pet=null;const unlocked=L.unlocked(chapter);
  for(const option of $('quest-chapter').options){const c=L.get(option.value);option.textContent='第'+c.number+'章 · '+c.name+(L.unlocked(c)?'':'（未解放）');}
- $('qh-unlock-status').textContent=unlocked?'':'第1章のエンディングまで進むと解放';
+ $('qh-unlock-status').textContent=unlocked?'':(chapter.number===3?'第2章のエンディングまで進むと解放':'第1章のエンディングまで進むと解放');
  try{
  const account=GOIMONProfiles.account||'guest';
  state=L.load(chapter,GOIMONQuestStorage.source,account);
@@ -23,7 +23,7 @@ function render(){
  $('qh-party-note').textContent=chapter.id==='chapter2'?'第2章は出発時の編成で進みます。HP・技の残り回数を引き継ぎます。':'編成変更後は森の入口から。出発するまで今の冒険は残ります。';
  $('qh-configure').hidden=!unlocked;$('qh-configure').textContent=state?'相棒を選んで章の最初から':'相棒・編成を選ぶ';$('qh-party-note').textContent='参加できるのは、たまご・幼体・成長体。やり直しても育成・学習・クリア記録は残ります。';
  if(pet&&!['egg','child','growth'].includes(pet.stage)){$('qh-party-note').textContent='この相棒は中級体以上のため参加できません。育成・学習・クリア記録は残ります。参加できる相棒を選んで章の最初から挑戦できます。';if(unlocked&&state?.mode!=='complete'){$('qh-continue').textContent='参加できる相棒を選ぶ';$('qh-continue').href=chapter.configure;}}else if(pet?.stage==='growth'){$('qh-party-note').textContent='成長体で参加できます。中級体に進化すると途中でも参加不可になります。育成・学習・クリア記録は残ります。';}
- if(!unlocked){$('qh-progress').textContent='第1章「ことばの森」をクリアして、次の冒険へ。';$('qh-continue').textContent='第1章の冒険へ';$('qh-continue').href='quest_chapter1.html';$('qh-map-link').href='quest_chapter1.html';$('qh-map-link').textContent='第1章の冒険へ';}else $('qh-map-link').textContent='冒険へ';
+ if(!unlocked){$('qh-progress').textContent=chapter.number===3?'第2章「ふたつの声」をクリアすると第3章が解放されます。':'第1章「ことばの森」をクリアして、次の冒険へ。';$('qh-continue').textContent='第1章の冒険へ';$('qh-continue').href='quest_chapter1.html';$('qh-map-link').href='quest_chapter1.html';$('qh-map-link').textContent='第1章の冒険へ';}else $('qh-map-link').textContent='冒険へ';
  $('qh-stages').classList.toggle('qh-route',!chapter.map);
  if(!chapter.map){renderRoute(state,unlocked);return;}
  const cleared=state?.cleared||[],next=chapter.stages.find(n=>!cleared.includes(n));
@@ -32,7 +32,7 @@ function render(){
 }
 function renderRoute(state,unlocked){const list=$('qh-stages');list.replaceChildren();$('qh-map-title').textContent=chapter.name+' · 冒険の道のり';
  if(!unlocked){const li=document.createElement('li');li.textContent='第1章クリア後に、現在地と訪れた場所が表示されます。';list.append(li);return;}
- const read=new Set(state?.read||[]);chapter.data.scenes.forEach((s,i)=>{const visited=!!state&&(s.lines.some(l=>read.has(l.id))||state.scene===i),current=!!state&&!state.completed&&state.scene===i;const li=document.createElement('li');if(current){li.className='current';li.setAttribute('aria-current','step');const marker=document.createElement('img');marker.src=window.GoimonAdventureProfile?.image()||'images/avatars/traveler.svg';marker.alt='現在地';marker.className='route-marker';li.append(marker);}else if(visited){const img=document.createElement('img');img.src=GoimonChapter2Assets.path('backgrounds',s.background);img.alt='';img.loading='lazy';li.append(img);}const body=document.createElement('div'),title=document.createElement('strong'),status=document.createElement('span');title.textContent=String(i+1).padStart(2,'0')+' · '+(visited?s.title:'？？？');status.textContent=current?'現在地':visited?(s.battleId&&!state.cleared.includes(s.battleId)?'戦闘前':s.lines.every(l=>read.has(l.id))?'通過済み':'訪問済み'):'未到達';body.append(title,status);li.append(body);list.append(li);});
+ const read=new Set(state?.read||[]);chapter.data.scenes.forEach((s,i)=>{const visited=!!state&&(s.lines.some(l=>read.has(l.id))||state.scene===i),current=!!state&&!state.completed&&state.scene===i;const li=document.createElement('li');if(current){li.className='current';li.setAttribute('aria-current','step');const marker=document.createElement('img');marker.src=window.GoimonAdventureProfile?.image()||'images/avatars/traveler.svg';marker.alt='現在地';marker.className='route-marker';li.append(marker);}else if(visited){const src=chapter.backgroundPreview?chapter.backgroundPreview(s):GoimonChapter2Assets.path('backgrounds',s.background);if(src){const img=document.createElement('img');img.src=src;img.alt='';img.loading='lazy';li.append(img);}}const body=document.createElement('div'),title=document.createElement('strong'),status=document.createElement('span');title.textContent=String(i+1).padStart(2,'0')+' · '+(visited?s.title:'？？？');status.textContent=current?'現在地':visited?(s.battleId&&!state.cleared.includes(s.battleId)?'戦闘前':s.lines.every(l=>read.has(l.id))?'通過済み':'訪問済み'):'未到達';body.append(title,status);li.append(body);list.append(li);});
 }
 render();window.addEventListener('pageshow',render);window.addEventListener('storage',render);window.addEventListener('goimon-auth-changed',render);
 })();
