@@ -55,8 +55,7 @@ P.beginBattle(s,D,{hp:50},{ended:true,winner:'enemy',player:{hp:0,maxHp:50}});
 assert(P.finishBattle(s,D),'Scripted ambush completes even if HP reaches zero');
 // The ambush is scripted rescue, but losing the six-question Bud chase must not advance.
 const lose=P.fresh(D,{id:'test-pet',stage:'egg'});
-while(P.current(lose,D).type!=='choice')P.advance(lose,D);
-P.choose(lose,D,'c01','c');while(P.current(lose,D).type!=='battle')P.advance(lose,D);
+while(P.current(lose,D).type!=='battle')P.advance(lose,D);
 P.beginBattle(lose,D,{hp:50},{ended:true,winner:'enemy',player:{hp:0,maxHp:50}});
 assert(P.finishBattle(lose,D));assert.equal(lose.run.hp,50,'Hirotoshi rest restores full HP after ambush');
 // Verify asset registry and each of the 19 stages can render without missing keys.
