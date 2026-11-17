@@ -167,7 +167,7 @@ function battleView(){
   }
   GoimonQuestLearning.nextKey(btn('次へ',()=>{state.feedback=null;save();render();},panel,true));return;
  }
- if(b.ended){battleResult();return;}
+ if(b.ended){const spec=D.battles.find(x=>x.id===id);if(spec?.objective!=='survive'&&b.winner!=='player'){state.mode='defeat';save();defeat();return;}battleResult();return;}
  el('p',b.extraAttackPending?'追加攻撃！ 正解するともう一撃（SKILL不可）':E.current(b)==='player'?'攻撃を選ぼう':'敵の攻撃 · 正解でダメージ軽減',panel,'muted');
  if(state.question){questionView(panel);return;}
  if(E.current(b)==='enemy'){btn('防御の問題へ',()=>ask('normal'),panel,true);return;}
