@@ -4,7 +4,7 @@ const D=root.GoimonChapter3Data,C=root.GoimonChapter3Choices;
 const scenes=D.scenes.map(scene=>{
  const lines=[];
  for(const n of scene.nodes){
-  if(n.type==='line'||n.type==='narration')lines.push({id:n.id,speaker:n.speaker||'',text:n.text});
+  if(n.type==='line'||n.type==='narration')lines.push({id:n.id,speaker:n.speaker||'',text:n.text,route:n.route||null});
   if(n.type==='choice'){
    const event=C.byId[n.choiceId];
    for(const option of event.options)option.lines.forEach((l,i)=>lines.push({id:'ch3.'+event.id+'.'+option.key+'.'+i,
@@ -22,7 +22,7 @@ function frame(scene,line){
 }
 const chapter={id:'chapter3',number:3,level:'1',name:D.title,url:'quest_chapter3.html',configure:'quest_chapter3.html?configure=1',
  cover:'images/chapter2/backgrounds/ch2_hills.png',map:null,backgroundPreview:()=>null,stages:D.battles.map(b=>b.id),
- visibleLines:(scene,state)=>scene.lines.filter(l=>{const m=/^ch3[.](c0[1-8])[.]([abc])[.]/.exec(l.id);return !m||state?.choices?.[m[1]]===m[2];}),
+ visibleLines:(scene,state)=>scene.lines.filter(l=>{if(l.route&&l.route!==state?.budRoute)return false;const m=/^ch3[.](c0[1-8])[.]([abc])[.]/.exec(l.id);return !m||state?.choices?.[m[1]]===m[2];}),
  data:viewData,store:root.GoimonChapter3Progress,key:account=>'goimon_chapter3_v1:'+account+':lv1',
  unlocked:(storage,account)=>root.GoimonChapter3Access.unlocked(storage,account,root.GoimonChapter2Data,root.GoimonChapter2Progress),
  intro:'トシャカへ続く山道。親切な斧使いと、言葉の届かない相棒。',
