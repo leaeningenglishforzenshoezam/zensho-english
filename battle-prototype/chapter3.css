@@ -28,3 +28,25 @@ body.chapter3{background:#161c1b;color:var(--ink)}
 .chapter3 .story-progress{font-size:.82rem;color:var(--muted);margin:12px 0 5px}
 @media(max-width:680px){.chapter3 .quest-setup-overview{grid-template-columns:1fr}.chapter3 .quest-skill-grid{grid-template-columns:1fr 1fr}.chapter3 .hud{grid-template-columns:1fr 1fr}}
 @media(max-width:420px){.chapter3 .quest-skill-grid{grid-template-columns:1fr}.chapter3 .decision-option{padding:10px}}
+
+/* Art layers: chapter assets appear automatically as soon as their PNGs exist. */
+.chapter3 .stage{background-position:center center;background-size:cover;background-repeat:no-repeat}
+.chapter3 .stage .stage-label{z-index:9;background:#14231dc9;padding:5px 12px;border-radius:8px;pointer-events:none}
+.chapter3 .stage .character{position:absolute;display:block;bottom:0;object-fit:contain;object-position:bottom center;pointer-events:none}
+.chapter3 .stage .chapter3-partner{left:1%;width:31%;height:55%;z-index:5}
+.chapter3 .stage .ch3-cast-0{right:28%;width:33%;height:80%;z-index:4}
+.chapter3 .stage .ch3-cast-1{right:3%;width:42%;height:68%;z-index:3}
+.chapter3 .stage .ch3-cast-2{right:0;width:28%;height:75%;z-index:2}
+.chapter3 .stage .ch3-cast[src*="ch3_robber_group"]{right:2%;width:67%;height:84%}
+.chapter3 .stage .ch3-cast[src*="ch3_injured_goimon"]{right:0;width:23%;height:40%}
+.chapter3 .stage .ch3-cast[src*="ch3_guard"]{right:0;width:27%;height:83%}
+.chapter3 .stage.art-ready .stage-label{font-size:.86rem}
+.chapter3 .stage[data-background="woodpile_path"]{background-color:#293e33}
+.chapter3 .stage[data-background="yard_window"]{background-color:#3e4038}
+.chapter3 .stage[data-background="locked_window"]{background-color:#333b38}
+@media(max-width:600px){
+ .chapter3 .stage .chapter3-partner{width:30%;height:47%}
+ .chapter3 .stage .ch3-cast-0{right:25%;width:37%;height:72%}
+ .chapter3 .stage .ch3-cast-1{right:2%;width:43%;height:64%}
+ .chapter3 .stage .stage-label{font-size:.75rem;padding:4px 7px}
+}
