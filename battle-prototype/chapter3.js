@@ -29,9 +29,35 @@ function pets(){
 function partner(){return pets().find(x=>x.id===state?.partnerId)||state?.pet;}
 function names(){return {playerName:N.playerName(sessionStorage,GOIMON_CLOUD_CONFIG.apiBase,account==='guest'?null:account),partnerName:N.partnerName(partner(),GoimonDex)};}
 function interpolate(s){return N.interpolate(String(s||''),names());}
+const imageChecks=new Map();
+function showAsset(url,onReady){
+ if(!url)return;
+ let status=imageChecks.get(url);
+ if(!status){
+  status=new Promise(resolve=>{const image=new Image();image.onload=()=>resolve(true);image.onerror=()=>resolve(false);image.src=url;});
+  imageChecks.set(url,status);
+ }
+ status.then(ok=>{if(ok)onReady(url);}).catch(()=>{});
+}
 function stage(parent,battle=false){
- const scene=D.scenes[state.scene],wrap=el('div','',parent,'stage');
- wrap.dataset.background=scene.background;
+ const scene=D.scenes[state.scene],wrap=el('div','',parent,'stage'),visual=GoimonChapter3Assets.frame(scene.id,state.line,state.budRoute,battle?state.battleId:null);
+ wrap.dataset.background=visual.background;
+ const background=visual.event?GoimonChapter3Assets.path('events',visual.event):GoimonChapter3Assets.path('backgrounds',visual.background);
+ showAsset(background,url=>{if(wrap.isConnected){wrap.style.backgroundImage='url("'+url+'")';wrap.classList.add('art-ready');}});
+ if(!visual.event){
+  // Partner identity varies by player and must never be represented by a fixed chapter sprite.
+  const pet=partner(),petImage=GoimonDex.getEntry(pet?.type,pet?.stage)?.image;
+  if(petImage){
+   const sprite=el('img','',wrap,'character chapter3-partner');sprite.alt='';sprite.setAttribute('aria-hidden','true');
+   showAsset(petImage,url=>{if(sprite.isConnected)sprite.src=url;});
+  }
+  for(const [index,item]of visual.people.entries()){
+   const sprite=el('img','',wrap,'character ch3-cast ch3-cast-'+index);
+   sprite.alt='';sprite.setAttribute('aria-hidden','true');
+   const url=GoimonChapter3Assets.path(item.kind,item.key);
+   showAsset(url,ready=>{if(sprite.isConnected)sprite.src=ready;});
+  }
+ }
  const label=el('div',scene.title,wrap,'stage-label');
  if(battle)wrap.classList.add('encounter');
  return wrap;
