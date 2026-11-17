@@ -33,18 +33,18 @@ test('learning page reward badges use concise right-of-title layout and show awa
   'study.html':'ちえ +0.1 / 1語完了',
   'quiz.html':'ちえ +1 / 正解',
   'quiz_jaen.html':'ことば +1 / 正解',
-  'audio_quiz.html':'ちえ +0.5 / おんかん +0.5',
+  'audio_quiz.html':'ちえ +0.5・おんかん +0.5 / 正解',
   'accent.html':'おんかん +1 / 正解',
-  'listening.html':'おんかん +1 / 正解',
-  'idiom_quiz.html':'ちえ +0.5 / ことば +0.5',
-  'q7.html':'ぶんみゃく +2 / 正解',
+  'listening.html':'おんかん +1 / 1回完了',
+  'idiom_quiz.html':'ちえ +0.5・ことば +0.5 / 正解',
+  'q7.html':'ぶんみゃく +2 / 1問正解',
   'q7_vocab.html':'ちえ +1 / 正解',
-  'dialogue.html':'ぶんみゃく +1 / 全問正解',
+  'dialogue.html':'ぶんみゃく +1 / 5問全正解',
   'sentence.html':'ぶんみゃく +1 / 正解',
-  'q10.html':'ぶんみゃく +1 / 全問正解',
-  'paraphrase_quiz.html':'ことば +0.5 / ぶんみゃく +0.5',
+  'q10.html':'ぶんみゃく +1 / 5問全正解',
+  'paraphrase_quiz.html':'ことば +0.5・ぶんみゃく +0.5 / 正解',
   'g2q11.html':'ことば +0.5 / ぶんみゃく +0.5',
-  'reorder.html':'ぶんみゃく +0.5 / 選択能力 +1.5'
+  'reorder.html':'ぶんみゃく +2 / 正解'
  };
  for(const [page,label] of Object.entries(titles)){
   const html=read(page);
