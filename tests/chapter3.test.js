@@ -78,6 +78,14 @@ let safety=0;while(++safety<700){const node=P.current(badChase,D);if(node.type==
 assert.equal(P.current(badChase,D).battleId,'bado');
 P.beginBattle(badChase,D,{hp:50},{ended:true,winner:'enemy',player:{hp:0,maxHp:50}});
 assert.equal(P.finishBattle(badChase,D),false);assert.equal(badChase.mode,'defeat');
+// Five supplied Bud sprite poses match their narrative moments.
+const bud=(scene,line,route=null,battle=null)=>A.frame(scene,line,route,battle).people.filter(p=>p.key.startsWith('bado_')).map(p=>p.key);
+assert.deepEqual(bud('s01',16),['bado_normal']);
+assert.deepEqual(bud('s12',0),['bado_normal']);
+assert.deepEqual(bud('s12',2,null,'demo'),['bado_alert']);
+assert.deepEqual(bud('s09',6),['bado_conflicted']);
+assert.deepEqual(bud('s14',17,'duel','bado'),['bado_defensive']);
+assert.deepEqual(bud('s14',10,'ally','hiro_ally'),['bado_ally']);
 const mock={enemies:{normal:{speed:2},tank:{speed:2},boss:{speed:2}}};
 const allyBoss=B.enemy(mock,'hiro_ally',1),duelBoss=B.enemy(mock,'hiro_duel',1);
 assert.equal(allyBoss.hp,duelBoss.hp);
