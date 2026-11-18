@@ -109,3 +109,20 @@ test('grouped review skill reward requires completion of all formats',()=>{
  press(parent,'Aid（0/2回 → 1/2回）');
  assert.equal(state.checkpoint.skills[0].left,1);
 });
+
+test('successive defeats replenish the retry checkpoint across reloads, including legacy saves',()=>{
+ const learning=dom().GoimonQuestLearning,engine=require('../battle-prototype/core.js');
+ let state={battleId:2,skillRecoveryClaimed:['2'],combat:{ended:true,winner:'enemy'},checkpoint:{skills:[{id:'aid',left:0,maxUses:2}]}};
+ assert.equal(learning.recoveryClaimed(state),true);
+ for(const expected of [1,2]){
+  state.combat=engine.create(structuredClone(state.checkpoint),{});
+  Object.assign(state.combat,{ended:true,winner:'enemy'});
+  learning.restoreSkill(state,'aid',()=>{});
+  state=JSON.parse(JSON.stringify(state));
+  assert.equal(state.checkpoint.skills[0].left,expected);
+  assert.throws(()=>learning.restoreSkill(state,'aid',()=>{}));
+ }
+ state.combat=engine.create(structuredClone(state.checkpoint),{});
+ Object.assign(state.combat,{ended:true,winner:'enemy'});
+ assert.equal(learning.recoverySkills(state).length,0);
+});
