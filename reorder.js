@@ -819,6 +819,11 @@ function renderWeakList() {
     }
   }
 
+  function setText(id, value) {
+    const el = $(id);
+    if (el) el.textContent = value;
+  }
+
   function renderReorderRewardBadge() {
     const bonus = loadBonusStat();
     const reward = bonus === "bunmyaku"
@@ -864,11 +869,6 @@ function renderWeakList() {
       hibiki: "知性と音感が響き合う、共鳴神獣タイプ。",
       kotonoha: "ことばと文脈を束ねる、言霊神獣タイプ。",
       mr_uno: "特別に解放された、学びを導く隠しルート。"
-    };
-
-    const setText = (id, value) => {
-      const el = $(id);
-      if (el) el.textContent = value;
     };
 
     const displayName = (typeof window.GoimonUI.getGoimonPrimaryName === "function")
