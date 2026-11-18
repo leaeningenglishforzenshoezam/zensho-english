@@ -1525,7 +1525,8 @@ function renderSummary() {
   function saveDailyReorderResult(){
     const req=dailyReorderRequest();if(!req||wrongLogs.length!==5)return;
     const attempts=wrongLogs.map(a=>({id:String(a.id),correct:a.isCorrect}));
-    try{window.GoimonDailyResultStore.store("goimon_daily_mission_latest_reorder_v1",JSON.stringify(goimonDailyStamped({...req,category:"reorder",finishedAt:new Date().toISOString(),attempts})));}catch(_){}
+    window.GoimonDailyResultStore.show("goimon_daily_mission_latest_reorder_v1",
+      goimonDailyStamped({...req,category:"reorder",finishedAt:new Date().toISOString(),attempts}), summaryBox);
   }
   function finishSession() {
     saveDailyReorderResult();
@@ -1539,8 +1540,7 @@ function renderSummary() {
     return;
   }
 
-  const isDaily=!!dailyReorderRequest();
-  if(isDaily){countInput.value="5";orderModeEl.value="random";}
+  const isDaily = !!dailyReorderRequest();
   let requestedLimit = Number(countInput.value);
   if (!Number.isFinite(requestedLimit) || requestedLimit < 1) requestedLimit = 10;
 
@@ -1556,11 +1556,23 @@ function renderSummary() {
     endNo = tmp;
   }
 
-  const orderMode = String(orderModeEl.value || "continue");
-  const review=new URLSearchParams(location.search).get('reviewIds');
-  const ids=new Set((review||'').split(','));
-  const baseOrder = review?QUESTIONS.map((q,i)=>ids.has(String(q.id))?i:-1).filter(i=>i>=0):getRangeFilteredIndexes(startNo, endNo);
-  if(review)requestedLimit=baseOrder.length;
+  const orderMode = isDaily ? "random" : String(orderModeEl.value || "continue");
+  const review = isDaily ? null : new URLSearchParams(location.search).get("reviewIds");
+  const ids = new Set((review || "").split(","));
+  const baseOrder = isDaily
+    ? QUESTIONS.map((_, index) => index)
+    : review
+      ? QUESTIONS.map((q, i) => ids.has(String(q.id)) ? i : -1).filter(i => i >= 0)
+      : getRangeFilteredIndexes(startNo, endNo);
+  if (isDaily) {
+    requestedLimit = 5;
+    if (baseOrder.length < requestedLimit) {
+      alert("デイリーミッション用の問題が5問揃っていません。");
+      return;
+    }
+  } else if (review) {
+    requestedLimit = baseOrder.length;
+  }
 
   if (!baseOrder.length) {
     alert("指定した問題番号の範囲に問題がありません。");
@@ -1603,12 +1615,9 @@ function renderSummary() {
   session.askedIndexes = [];
 
   wrongLogs = [];
-  saveSettings({
-    count: limit,
-    orderMode: session.orderMode,
-    startNo,
-    endNo
-  });
+  if (!isDaily) {
+    saveSettings({count: limit, orderMode, startNo, endNo});
+  }
 
   showPlay();
   renderQuestion();
@@ -1663,12 +1672,23 @@ function renderSummary() {
     if (startNoInput) startNoInput.value = String(settings.startNo || 1);
     if (endNoInput) endNoInput.value = String(settings.endNo || 9999);
 
+    if (dailyReorderRequest()) {
+      countInput.value = "5";
+      orderModeEl.value = "random";
+      startNoInput.value = "1";
+      endNoInput.value = String(QUESTIONS.length);
+      for (const control of [countInput, orderModeEl, startNoInput, endNoInput]) {
+        control.disabled = true;
+      }
+      goimonUi.open = true;
+    }
+
     renderLevelBadge();
     renderPoolInfo();
     bindBonusButtons();
     initGoimonBindings();
     showSetup();
-    applyGoimonLearningQuery();
+    if (!dailyReorderRequest()) applyGoimonLearningQuery();
 
     toggleGoimonBtn.addEventListener("click", () => {
       goimonUi.open = !goimonUi.open;

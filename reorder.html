@@ -1137,7 +1137,8 @@
   </div>
 
   <script>
-    window.ACTIVE_LEVEL = GOIMONStorage.getItem("zensho_level_v1") || "1";
+    window.ACTIVE_LEVEL = new URLSearchParams(location.search).get("dailyMission") === "reorder"
+      ? "1" : (GOIMONStorage.getItem("zensho_level_v1") || "1");
   </script>
 
   <script src="learning_categories.js"></script>

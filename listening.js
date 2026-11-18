@@ -21,6 +21,11 @@ const GOIMON_DAILY_RESULT_ORIGIN = window.GOIMONProfiles?.account || "guest";
 document.addEventListener("DOMContentLoaded", () => {
   "use strict";
 
+  const params = new URLSearchParams(location.search);
+  const isDailyMission = params.get("dailyMission") === "listening";
+  const requestedFormat = Number(params.get("format"));
+  const dailyFormat = [2, 3, 5].includes(requestedFormat) ? requestedFormat : 2;
+
   const LEVEL_KEY = "zensho_level_v1";
   const lv = String(
     window.ACTIVE_LEVEL ||
@@ -1151,9 +1156,7 @@ function updateStartButton() {
   startBtn.textContent =
     "▶ 学習を始める";
 
-  startWeakBtn
-    .classList
-    .remove("hidden");
+  startWeakBtn.classList.toggle("hidden", isDailyMission);
 }
 
 function updatePoolInfo() {
@@ -1877,6 +1880,7 @@ function setQuestionSelectMode(
   }
 
   function saveSettings() {
+    if (isDailyMission) return;
     GOIMONStorage.setItem(
       SETTINGS_KEY,
       JSON.stringify(
@@ -5438,11 +5442,11 @@ sessionResults.push({
 
     answered = true;
 
-    const pointAdded =
-  awardListeningPoint(
-    currentQuestion.id,
-    "quiz"
-  );
+    if (isDailyMission) {
+      questions.forEach(q => awardListeningPoint(q.id, "quiz"));
+    } else {
+      awardListeningPoint(currentQuestion.id, "quiz");
+    }
 
 // この長文問題に1回取り組んだことを記録
 incrementMethodAttemptCount(
@@ -6168,23 +6172,38 @@ stopAudio();
 
        
 
-    const daily = new URLSearchParams(location.search);
-    const dailyEnabled=daily.get("dailyMission")==="listening";
-    const review=daily.get('reviewIds'),reviewIds=new Set((review||'').split(','));
-    const built = review ? getQuestionsByFormat().filter(q=>reviewIds.has(String(q.id))||String(q.id)===daily.get('setId')) :
-      dailyEnabled && explicitQuestions ? explicitQuestions.slice() : dailyEnabled ? getQuestionsByFormat().slice().sort((a,b)=>{
-        let history={};try{history=JSON.parse(GOIMONStorage.getItem("goimon_daily_exam_history_v1_lv1_listening:"+getSelectedFormat())||"{}")||{};}catch(_){}
-        const x=history[String(a.id)]||{},y=history[String(b.id)]||{};
-        return Number(x.attempts||0)-Number(y.attempts||0)||Number(x.lastSeen||0)-Number(y.lastSeen||0);
-      }).slice(0,5) : explicitQuestions
-        ? [
-            ...explicitQuestions
-          ]
-        : buildSessionQuestions(
-            forceWeak
-          );
+    const review = isDailyMission ? null : params.get("reviewIds");
+    const reviewIds = new Set((review || "").split(","));
+    let built;
+    if (isDailyMission) {
+      const pool = getQuestionsByFormat(dailyFormat);
+      let history = {};
+      try {
+        history = JSON.parse(GOIMONStorage.getItem(
+          "goimon_daily_exam_history_v1_lv1_listening:" + dailyFormat
+        ) || "{}") || {};
+      } catch (_) {}
 
-    if (dailyEnabled && built.length !== 5) {window.alert("この大問にはデイリーミッション用の5問が揃っていません。");return;}
+      const count = dailyFormat === 5 ? 1 : 5;
+      const ranked = pool.slice().sort((a, b) => {
+        const seen = q => q.format === 5
+          ? q.questions.reduce((sum, sub) => sum + (history[sub.id]?.attempts || 0), 0)
+          : history[q.id]?.attempts || 0;
+        return seen(a) - seen(b);
+      });
+      built = explicitQuestions?.length === count &&
+        explicitQuestions.every(q => q.format === dailyFormat)
+        ? explicitQuestions.slice() : ranked.slice(0, count);
+      if (built.length !== count) {
+        window.alert("デイリーミッション用の問題が5問揃っていません。");
+        return;
+      }
+    } else {
+      built = review
+        ? getQuestionsByFormat().filter(q => reviewIds.has(String(q.id)) || String(q.id) === params.get("setId"))
+        : explicitQuestions?.slice() || buildSessionQuestions(forceWeak);
+    }
+
     if (!built.length) {
       window.alert(
         forceWeak ||
@@ -6251,10 +6270,12 @@ stopAudio();
   // ============================================================
 
   function finishSession() {
-  const daily=new URLSearchParams(location.search);
-  if(daily.get("dailyMission")==="listening"&&sessionResults.length===5){
+  if (isDailyMission && sessionResults.length === 5) {
     const attempts=sessionResults.map(x=>({id:String(x.id),correct:x.isCorrect}));
-    try{window.GoimonDailyResultStore.store("goimon_daily_mission_latest_listening_v1",JSON.stringify({day:daily.get("missionDate"),level:"1",category:"listening",format:getSelectedFormat(),attempts,finishedAt:new Date().toISOString(),missionAccount:GOIMON_DAILY_RESULT_ORIGIN}));}catch(_){}
+    window.GoimonDailyResultStore.show("goimon_daily_mission_latest_listening_v1", {
+      day: params.get("missionDate"), level: "1", category: "listening", format: dailyFormat,
+      attempts, finishedAt: new Date().toISOString(), missionAccount: GOIMON_DAILY_RESULT_ORIGIN
+    }, summaryBox);
   }
   stopAudio();
 
@@ -8817,14 +8838,23 @@ function applyGoimonLearningQuery() {
   );
 
   // 進捗ページから指定した大問の設定画面へ進む。
-  const searchParams=new URLSearchParams(location.search);
-  const requestedFormat = searchParams.get("format");
-  if (["2", "3", "5"].includes(requestedFormat)) {
-    formatSelect.value = requestedFormat;
+  if (isDailyMission) {
+    formatSelect.value = String(dailyFormat);
+    setSelectedMethod("quiz");
+    setQuestionSelectMode("auto");
+    orderMode.value = "random";
+    questionCount.value = "5";
+    for (const control of [formatSelect, orderMode, questionCount, ...document.querySelectorAll(
+      'input[name="learningMethod"], input[name="questionSelectMode"]'
+    )]) {
+      control.disabled = true;
+    }
+    goimonCard.classList.remove("hidden");
+  } else if ([2, 3, 5].includes(requestedFormat)) {
+    formatSelect.value = String(requestedFormat);
     setSelectedMethod("quiz");
   }
   updatePoolInfo();
-  if(searchParams.get("dailyMission")==="listening"){setSelectedMethod("quiz");orderMode.value="random";questionCount.value="5";if(![2,3,5].includes(Number(requestedFormat)))formatSelect.value="2";}
 
     if (
   !allQuestions.length

@@ -93,3 +93,6 @@ body.mission-page{max-width:980px;margin:auto;padding:22px 24px 112px;background
 }
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 
+
+.mission-companion{display:flex;align-items:center;gap:10px;margin:12px 0}
+.mission-companion img{object-fit:contain}

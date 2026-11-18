@@ -15,15 +15,51 @@ async function play(url,start,choice,next,n,check){
 }
 await play('idiom_quiz.html','idioms&idiomMode=meaning&start=1&end=15','#choicesBox button','#nextBtn',15);
 await play('sentence.html','exam','#choices button','#nextQ',10);
-await p.goto('http://localhost:8890/reorder.html?dailyMission=reorder&missionDate='+day);await p.locator('#startBtn').click();
+// An earlier practice session left an empty range and the wrong grade selected.
+await p.evaluate(()=>{
+ GOIMONStorage.setItem('zensho_level_v1','2');
+ GOIMONStorage.setItem('zensho_reorder_settings_v1_lv1',JSON.stringify({startNo:9998,endNo:9999,count:1}));
+});
+await p.goto('http://localhost:8890/reorder.html?dailyMission=reorder&missionDate='+day);
+assert.equal(await p.locator('#countInput').inputValue(),'5');
+assert.equal(await p.locator('#goimonCard').isVisible(),true);
+await p.locator('#startBtn').click();
 for(let i=0;i<5;i++){const slots=await p.locator('#answerSlots .slotCard').count();for(let j=0;j<slots;j++)await p.locator('#chunkBank button:enabled').first().click();await p.locator('#checkBtn').click();await p.locator('#nextBtn').click();}
+assert.match(await p.locator('#summaryBox .daily-mission-result').innerText(),/達成|記録しました/);
+assert.equal(await p.evaluate(()=>JSON.parse(GOIMONStorage.getItem('zensho_reorder_settings_v1_lv1')).startNo),9998);
+await p.evaluate(()=>GOIMONStorage.setItem('zensho_level_v1','1'));
 await p.goto('http://localhost:8890/q7.html?dailyMission=reading&setId=q7_set_001&missionDate='+day);
 for(const id of ['a','b','c','d','e']){await p.locator('#summaryContent [data-blank="'+id+'"]').click();await p.locator('#sheetChoices input[data-question="'+id+'"]').first().check();}await p.locator('#gradeButton').click();
-await p.goto('http://localhost:8890/listening.html?dailyMission=listening&format=2&missionDate='+day);await p.selectOption('#autoPlayCount','0');await p.locator('#startBtn').click();
+await p.evaluate(()=>GOIMONStorage.setItem('zensho_listening_settings_v1_lv1',JSON.stringify({format:'3',method:'dictation',questionSelectMode:'manual'})));
+await p.goto('http://localhost:8890/listening.html?dailyMission=listening&format=2&missionDate='+day);
+assert.equal(await p.locator('input[name="questionSelectMode"]:checked').inputValue(),'auto');
+assert.equal(await p.locator('#goimonCard').isVisible(),true);await p.selectOption('#autoPlayCount','0');await p.locator('#startBtn').click();
 for(let i=0;i<5;i++){await p.locator('#choices .choiceBtn').first().click();await p.locator('#nextQuestionBtn').click();}
 await p.goto('http://localhost:8890/daily_mission_test.html');await p.waitForFunction(()=>window.GoimonDailyMissions);
 const sessions=await p.evaluate(key=>JSON.parse(GOIMONStorage.getItem(key)).completed,key);for(const slot of ['words','idioms','exam','reorder','reading','listening'])assert(sessions[slot],slot);
 console.log('PASS: real DOM play records all six mission sessions (scores vary; thresholds tested separately)');
+// One long audio passage contains all five answers in the format-5 mission.
+const longDay='2026-10-12';
+await p.clock.setSystemTime(new Date(longDay+'T01:00:00Z'));
+await p.evaluate(()=>GOIMONStorage.setItem('goimon_daily_listening_rotation_v1_lv1','3'));
+await p.goto('http://localhost:8890/missions.html');
+await p.locator('a[href^="listening.html"][href*="format=5"]').click();
+const before=await p.evaluate(()=>GoimonUI.loadCurrent().stats.onkan);
+await p.selectOption('#autoPlayCount','0');
+await p.locator('#startBtn').click();
+const key5=await p.evaluate(()=>window.LISTENING_TYPE5_1KYU[0].questions.map(q=>[q.id,q.answerId]));
+for(const [id,answer] of key5)await p.locator(`.type5ChoiceBtn[data-question-id="${id}"][data-choice-id="${answer}"]`).click();
+await p.locator('#type5CheckBtn').click();
+await p.locator('#type5NextBtn').click();
+assert.match(await p.locator('#summaryBox .daily-mission-result').innerText(),/達成！/);
+assert.equal(await p.evaluate(()=>GoimonUI.loadCurrent().stats.onkan),before+5);
+await p.getByRole('link',{name:'今日のミッションへ戻る'}).click();
+const longResult=await p.evaluate(()=>GoimonDailyMissions.getStatus('1').missions.find(x=>x.slot==='listening'));
+assert.equal(longResult.completed,true);
+assert.equal(longResult.bestCorrect,5);
+assert.equal(longResult.attemptCount,1);
+await p.clock.setSystemTime(new Date(day+'T01:00:00Z'));
+
 
 // All eleven quiz pages load their locked setup and return link without exceptions.
 for(const [page,query] of [['quiz_jaen','words&start=1&end=20'],['audio_quiz','words&start=1&end=20'],['idiom_quiz','idioms&idiomMode=meaning&start=1&end=15'],['paraphrase_quiz','exam'],['sentence','exam'],['reorder','reorder'],['q7','reading&setId=q7_set_001'],['dialogue','reading&setId=1'],['q10','reading&setId=q10_original_001'],['listening','listening&format=2']]){await p.goto(`http://localhost:8890/${page}.html?dailyMission=${query}&missionDate=${day}`);assert.equal(await p.getByRole('link',{name:'今日のミッションへ戻る'}).count(),1);}

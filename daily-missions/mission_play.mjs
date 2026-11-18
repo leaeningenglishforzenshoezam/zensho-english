@@ -21,16 +21,33 @@ function render(a){
   else q.choices.forEach((choice,j)=>{const label=add(box,'label',''),input=document.createElement('input');input.type='radio';input.name='q'+i;input.checked=answers[i]===j;input.onchange=()=>{answers[i]=j;progress();};label.append(input,document.createTextNode(choice));});
  });
 }
-async function run(fn){if(working)return;working=true;$('resetMission').disabled=true;renderDashboard();$('start').disabled=true;$('finish').disabled=true;try{await fn();}catch(e){const messages={missions_not_enabled:'ミッションは公開準備中です。',mission_login_required:'保存画面でログインしてから開いてください。',mission_account_changed:'アカウントまたは保存タブが変わりました。保存画面で確認してください。',revision_conflict:'別端末の記録と競合しています。保存画面で確認してください。',AbortError:'通信が時間切れになりました。保存を再試行するか、今回の挑戦をリセットできます。',growth_target_mismatch:'挑戦中に育成する個体が変わりました。元の個体に戻して保存を再試行するか、「今回の挑戦をリセット」で一覧へ戻ってください。'};$('status').textContent=messages[e.name]||messages[e.message]||'処理を完了できませんでした：'+e.message;$('status').scrollIntoView({block:'center'});if(flow?.pending)$('status').textContent+='\n「保存を再試行」を押してください。再読み込み後も保留中の処理を引き継ぎます。完了済みの処理は重複しません。';}finally{working=false;$('resetMission').hidden=!flow?.attempt;$('resetMission').disabled=false;$('start').disabled=!flow||!!flow.pending;$('finish').disabled=!flow?.attempt||!!flow.result;$('finish').textContent=flow?.pending?'保存を再試行':'採点する';renderDashboard();}}
-$('start').onclick=()=>run(async()=>{const {slot,body}=missionSettings($('missionLevel').value,$('kind').value);reviewGate.invalidate();const a=await flow.start(slot,body);$('reviewToolbar').hidden=true;$('wrongOnly').checked=false;setQuestionView(true);answers=Array(a.questions.length).fill(null);render(a);progress();$('missionSetup').open=false;$('instructions').hidden=false;$('instructions').textContent=instructions[a.category]||instructions[a.slot];$('status').textContent=`${a.date} / ${a.questions.length}問。回答後に採点・保存します。`;$('instructions').scrollIntoView({block:'start'});});
+function usesChallengeCompanion(slot) {
+ return slot==='reorder'||slot==='listening';
+}
+function showCompanion(attempt) {
+ const panel=$('missionCompanion');
+ panel.hidden=true;
+ if(!usesChallengeCompanion(attempt?.slot))return;
+ const raw=window.GOIMONStorage.getItem('zensho_goimon_current_v4_lv'+attempt.level);
+ if(!raw)return;
+ let pet;
+ try{pet=JSON.parse(raw);}catch{return;}
+ if(!pet?.id||!pet.imageKey)return;
+ $('missionCompanionImage').src=pet.imageKey;
+ $('missionCompanionLabel').textContent=`育成中のゴイモン · ${window.GoimonUI.getGoimonPrimaryName(pet)} · ${pet.totalPoints} pt`;
+ panel.hidden=false;
+}
+async function run(fn){if(working)return;working=true;$('resetMission').disabled=true;renderDashboard();$('start').disabled=true;$('finish').disabled=true;try{await fn();}catch(e){const messages={missions_not_enabled:'ミッションは公開準備中です。',mission_login_required:'保存画面でログインしてから開いてください。',attempt_expired:'今回の挑戦の期限が切れました。「今回の挑戦をリセット」から始め直してください。',mission_account_changed:'アカウントまたは保存タブが変わりました。保存画面で確認してください。',revision_conflict:'別端末の記録と競合しています。保存画面で確認してください。',AbortError:'通信が時間切れになりました。保存を再試行するか、今回の挑戦をリセットできます。',growth_target_mismatch:'挑戦中に育成する個体が変わりました。元の個体に戻して保存を再試行するか、「今回の挑戦をリセット」で一覧へ戻ってください。'};$('status').textContent=messages[e.name]||messages[e.message]||'処理を完了できませんでした：'+e.message;$('status').scrollIntoView({block:'center'});if(flow?.pending)$('status').textContent+='\n「保存を再試行」を押してください。再読み込み後も保留中の処理を引き継ぎます。完了済みの処理は重複しません。';}finally{working=false;$('resetMission').hidden=!flow?.attempt;$('resetMission').disabled=false;$('start').disabled=!flow||!!flow.pending;$('finish').disabled=!flow?.attempt||!!flow.result;$('finish').textContent=flow?.pending?'保存を再試行':'採点する';renderDashboard();}}
+$('start').onclick=()=>run(async()=>{const {slot,body}=missionSettings($('missionLevel').value,$('kind').value);reviewGate.invalidate();if(usesChallengeCompanion(slot)){window.ACTIVE_LEVEL=body.level;window.GoimonUI.loadCurrent();}const a=await flow.start(slot,body);$('reviewToolbar').hidden=true;$('wrongOnly').checked=false;setQuestionView(true);answers=Array(a.questions.length).fill(null);render(a);progress();$('missionSetup').open=false;$('instructions').hidden=false;$('instructions').textContent=instructions[a.category]||instructions[a.slot];$('status').textContent=`${a.date} / ${a.questions.length}問。回答後に採点・保存します。`;$('instructions').scrollIntoView({block:'start'});});
 $('finish').onclick=()=>run(async()=>{
  if(!flow.pending&&answers.some((a,i)=>a===null||Array.isArray(a)&&a.length!==flow.attempt.questions[i].chunks.length))throw Error('すべての問題に回答してください');
  $('questions').querySelectorAll('input,button').forEach(n=>n.disabled=true);
- const r=await flow.finish(answers);$('balance').textContent=`星のかけら：${r.balance}個`;let walletWarning='';if(window.GoimonCloudWallet){try{await window.GoimonCloudWallet.refresh();}catch{walletWarning='\n学習結果は保存済みです。残高表示の更新は画面を開き直して確認してください。';}}
+ const r=await flow.finish(answers);showCompanion(flow.attempt);$('balance').textContent=`星のかけら：${r.balance}個`;let walletWarning='';if(window.GoimonCloudWallet){try{await window.GoimonCloudWallet.refresh();}catch{walletWarning='\n学習結果は保存済みです。残高表示の更新は画面を開き直して確認してください。';}}
  $('status').textContent=`${r.grade.correct} / ${r.grade.total}問正解 — ${r.grade.completed?'達成！':'今回は未達成'}\n学習記録を保存しました。`+(r.growth.growthApplied===false?'\n出題時に育成個体がなかったため、育成加点はありません。':`\n育成反映：${r.growth.awardedPoints}pt`)+(r.reward?`\n${r.reward.replayed?'今回のかけらは受取済みです。追加付与はありません。':`星のかけらを${r.reward.result.shards}個獲得！`}`:'');
  showResult(r);refreshDashboard();$('status').textContent+=walletWarning;if(r.bonus&&!r.bonus.replayed)$('status').textContent+=`\n基本3ミッション達成ボーナス：${r.bonus.result.shards}個！`;
 });
 function setQuestionView(active){
+ showCompanion(active ? flow?.attempt : null);
  document.body.classList.toggle('answering',active);
  $('dashboard').hidden=active;$('loginBonus').hidden=active;
  $('gradingBar').hidden=!active;$('finish').hidden=!!flow?.result;
