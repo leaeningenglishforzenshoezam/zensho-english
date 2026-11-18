@@ -187,6 +187,6 @@ function practice(box,questions,{guard=fn=>fn,onExit,onAnswer}={}){
  }
  render();
 }
-function eligibility(parent){const details=node('details','',parent,'quest-eligibility');node('summary','参加条件と、進化したときのこと',details);node('p','参加できるのは、たまご・幼体・成長体です。',details);node('p','中級体に進化すると、冒険の途中でも参加できなくなります。育成・学習・既読・クリア記録は消えません。',details);node('p','保存箱などから参加できる相棒を選び、章の最初から再挑戦できます。編成の確定までは今の冒険を残します。',details);const a=node('a','育成・保存箱を確認',details);a.href='index.html?panel=goimon&manage=1';return details;}
+function eligibility(parent){const details=node('details','',parent,'quest-eligibility');node('summary','参加条件と、進化したときのこと',details);node('p','たまご・幼体・成長体は初めての冒険に参加できます。',details);node('p','成長体で冒険に参加した相棒は、中級体に進化しても、続きや解放済みの次の章に参加できます。',details);node('p','保存箱などから参加できる相棒を選び、章の最初から再挑戦できます。編成の確定までは今の冒険を残します。',details);const a=node('a','育成・保存箱を確認',details);a.href='index.html?panel=goimon&manage=1';return details;}
 const api={record,summary,result,practice,reviewGroups,eligibility,showChoiceMeanings,choiceKey,nextKey,bindKeys,recoverySkills,recoveryClaimed,restoreSkill};if(typeof module!=='undefined')module.exports=api;else root.GoimonQuestLearning=api;
 })(typeof window!=='undefined'?window:globalThis);

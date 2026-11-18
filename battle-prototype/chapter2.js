@@ -8,7 +8,7 @@ const clone=x=>JSON.parse(JSON.stringify(x));
 function practiceLearning(q,correct){GoimonQuestGrowth.practice(state,q,correct,save);}
 function fail(e){window.GoimonQuestQuestionAudio?.stop();blocked=true;clearInterval(timer);$('notice').textContent=e.message+' 保存済みの育成・学習記録は残っています。';app.querySelectorAll('button').forEach(b=>b.disabled=true);}
 function guard(fn){return (...args)=>{if(blocked)return;try{if((localStorage.getItem('goimon_cloud_v2:active')||'guest')!==account)throw Error('アカウントが変わりました。再読み込みしてください。');if(!(window.GoimonDeveloper?.active||GoimonChapter2Access.current())){locked();return;}fn(...args);}catch(e){fail(e);}};}
-function save(){if(!(window.GoimonDeveloper?.active||GoimonChapter2Access.current()))throw Error('第1章のクリア記録を確認できません。');store.save(state);}
+function save(){if(!(window.GoimonDeveloper?.active||GoimonChapter2Access.current()))throw Error('第1章のクリア記録を確認できません。');GoimonChapterStore.rememberParticipation(state,null,partner());store.save(state);}
 function locked(){clearInterval(timer);music('setup');app.replaceChildren();art=null;el('p','CHAPTER 02',app,'eyebrow');el('h1','ふたつの声');el('p','第1章「ことばの森」をクリアすると解放されます。');el('p','第2章の保存済み記録は、そのまま保持しています。',app,'muted');link('第1章の冒険へ','quest_chapter1.html',app);link('クエストメニューへ','quest_home.html?chapter=chapter2',app);}
 function el(tag,value,parent=app,cls=''){const n=document.createElement(tag);n.textContent=value;n.className=cls;parent.append(n);return n;}
 function btn(label,fn,parent,primary=false){const b=el('button',label,parent,primary?'primary':'');b.onclick=guard(fn);return b;}
@@ -44,7 +44,7 @@ function setup(restart=false){window.GoimonQuestQuestionAudio?.stop();window.Goi
  const stageNote=el('p','',box,'quest-setup-status');
  function describe(){
   companion.refresh();
-  stageNote.textContent=list.find(p=>p.id===select.value)?.stage==='growth'?'成長体の相棒です。中級体に進化するとクエストには参加できません。':'';
+  stageNote.textContent=list.find(p=>p.id===select.value)?.stage==='growth'?'成長体で冒険に参加した相棒は、中級体に進化しても、続きや解放済みの次の章に参加できます。':'';
   const load=inv.loadouts[select.value]||{};
   for(let i=0;i<skillSelectors.length;i++){
    const id=load.skillIds?.[i];
@@ -54,13 +54,12 @@ function setup(restart=false){window.GoimonQuestQuestionAudio?.stop();window.Goi
  }
  select.onchange=describe;describe();
  const help=el('details','',box,'quest-setup-help');el('summary','参加条件・戦闘ルールを見る',help);GoimonQuestLearning.eligibility(help);GoimonQuestGrowth.note(help);
- el('p','参加できるのは、たまご・幼体・成長体。中級体・上級体の記録はそのまま残ります。',help);
  el('p','23シーン・9戦。HPとSKILL使用回数は戦闘間で引き継ぎ、勝利後は減ったHPの1/3が回復します。負けた場合は戦闘直前から再挑戦できます。',help);
  el('p','前半は単語301〜500、後半はイディオム1〜287。大問1・3と音声問題のSKILLは時間制限なしです。',help);
  el('p','ここで選んだ編成は今回の冒険だけに使われ、所持品の登録は変更されません。',help);
  link('技・装備を管理','quest_loadout.html',help);
  if(restart){el('p','再挑戦ではHPとSKILL回数が戻り、既読・クリア記録は残ります。',help);const back=btn('続きに戻る',render,box);back.classList.add('quest-setup-back');}
- const submit=btn(restart?'この編成で最初から再挑戦':'この相棒と出発',()=>{const pet=pets().find(p=>p.id===select.value);GoimonChapterStore.assertEligible(pet);const ids=skillSelectors.map(field=>field.value).filter(Boolean);if(new Set(ids).size!==ids.length){$('notice').textContent='同じSKILLは複数セットできません。';return;}const gear=gearSelect.value;if(restart&&!confirm('第2章の冒頭からやり直しますか？ 今回のHP・技の残り回数はリセットします。育成・学習・既読・クリア記録と獲得済み報酬は残ります。'))return;const next=restart?P.restart(state,D,pet,[...new Set(ids)],gear):P.fresh(D,pet,[...new Set(ids)],gear);store.save(next);state=next;render();},box,true);submit.classList.add('quest-setup-submit');
+ const submit=btn(restart?'この編成で最初から再挑戦':'この相棒と出発',()=>{const pet=pets().find(p=>p.id===select.value);GoimonChapterStore.assertEligible(pet);const ids=skillSelectors.map(field=>field.value).filter(Boolean);if(new Set(ids).size!==ids.length){$('notice').textContent='同じSKILLは複数セットできません。';return;}const gear=gearSelect.value;if(restart&&!confirm('第2章の冒頭からやり直しますか？ 今回のHP・技の残り回数はリセットします。育成・学習・既読・クリア記録と獲得済み報酬は残ります。'))return;const next=restart?P.restart(state,D,pet,[...new Set(ids)],gear):P.fresh(D,pet,[...new Set(ids)],gear);GoimonChapterStore.rememberParticipation(next,state,next.pet);store.save(next);state=next;render();},box,true);submit.classList.add('quest-setup-submit');
 }
 function active(speaker){return speaker==='{{partnerName}}'?'partner':speaker==='モリィ'?'morii':['サーヤ','少女'].includes(speaker)?'saya':speaker==='トヨヨ'?'toyoyo':speaker==='農家'?'farmer':speaker==='管理人'?'manager':'';}
 function staging(battle=false){const s=D.scenes[state.scene],line=s.lines[Math.min(state.line,s.lines.length-1)],n=state.scene+1,ln=state.line;

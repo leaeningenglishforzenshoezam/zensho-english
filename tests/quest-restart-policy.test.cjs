@@ -34,3 +34,24 @@ test('both chapters enforce eligibility on resume and battle start and expose re
  const first=fs.readFileSync('battle-prototype/chapter1.js','utf8');assert.doesNotMatch(first,/state.scene=6/);assert.doesNotMatch(first,/教習と練習装備を終えてから/);
  const second=fs.readFileSync('quest_chapter2.html','utf8');assert.match(second,/id="restartRun"/);
 });
+test('a growth participant keeps individual access to unlocked chapters after evolving',()=>{
+ const vm=require('node:vm'),records=new Map(),key='goimon_chapter1_v1:guest:lv1';
+ const root={GOIMONQuestStorage:{source:{getItem:k=>records.get(k)},forKey:s=>s},GOIMONProfiles:{account:'guest'}};
+ vm.runInNewContext(fs.readFileSync('battle-prototype/chapter_store.js','utf8'),{window:root});
+ const store=root.GoimonChapterStore,mid={...pet,stage:'mid'};
+ const legacy={pet:{...pet,stage:'growth'},partnerId:pet.id};
+ records.set(key,JSON.stringify(legacy));
+ assert.equal(store.eligible(mid),true);
+ assert.equal(store.eligible({...mid,id:'other'}),false);
+ assert.equal(store.eligible({...mid,stage:'final'}),false);
+ assert.equal(store.eligibleForLevel(mid,2),false);
+ const next={pet:{...pet,id:'other'},partnerId:'other'};
+ store.rememberParticipation(next,legacy,next.pet);
+ records.set(key,JSON.stringify(next));
+ assert.equal(store.eligible(mid),true);
+ store.rememberParticipation(next,null,{...next.pet,stage:'growth'});
+ records.set(key,JSON.stringify(next));
+ assert.equal(store.eligible({...mid,id:'other'}),true);
+ root.GOIMONProfiles.account='different';
+ assert.equal(store.eligible(mid),false);
+});
