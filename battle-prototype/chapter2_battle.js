@@ -1,6 +1,40 @@
-/* Chapter 2 durability tuning; boss offense increased; speed unchanged. */
-(function(root){'use strict';
-const durability={1:[120,20],2:[130,22],3:[140,24],4:[145,20],5:[210,32],6:[155,22],7:[185,28],8:[175,24],9:[320,36]};
-function enemy(catalog,id,stage){const scale=Math.max(1,Number(stage)||1),base=catalog.enemies[id===9?'boss':id===5||id===7?'tank':'normal'];const e={...base,id:'ch2-enemy-'+id,attr:id===1||id>=8?'mirage':'metal',reference:9*scale,shield:{hits:0,factor:1}};for(const stat of ['hp','attack','defense','speed'])e[stat]=Math.max(1,Math.round(base[stat]*scale*(stat==='hp'?.65:stat==='attack'?.45:1)));e.hp=Math.round(durability[id][0]*scale);e.defense=Math.round(durability[id][1]*scale);if(id===5||id===9)e.attack=Math.round((id===9?10:8)*scale);e.maxHp=e.hp;return e;}
-const api={enemy};if(typeof module!=='undefined')module.exports=api;else root.GoimonChapter2Battle=api;
-})(typeof window!=='undefined'?window:globalThis);
+(function(root) {
+  'use strict';
+
+  // Base stats before scaling to the partner's evolution stage.
+  const encounters = {
+    1: { hp: 120, defense: 20, attack: 8.1 },
+    2: { hp: 130, defense: 22, attack: 8.1 },
+    3: { hp: 140, defense: 24, attack: 8.1 },
+    4: { hp: 145, defense: 20, attack: 8.1 },
+    5: { hp: 210, defense: 32, attack: 11 },
+    6: { hp: 155, defense: 22, attack: 8.1 },
+    7: { hp: 185, defense: 28, attack: 11 },
+    8: { hp: 175, defense: 24, attack: 9 },
+    9: { hp: 320, defense: 36, attack: 14 }
+  };
+
+  function enemy(catalog, id, stage) {
+    const scale = Math.max(1, Number(stage) || 1);
+    const kind = id === 9 ? 'boss' : id === 5 || id === 7 ? 'tank' : 'normal';
+    const base = catalog.enemies[kind];
+    const stats = encounters[id];
+    const hp = Math.round(stats.hp * scale);
+    return {
+      ...base,
+      id: 'ch2-enemy-' + id,
+      attr: id === 1 || id >= 8 ? 'mirage' : 'metal',
+      reference: 9 * scale,
+      hp,
+      maxHp: hp,
+      attack: Math.round(stats.attack * scale),
+      defense: Math.round(stats.defense * scale),
+      speed: Math.round(base.speed * scale),
+      shield: { hits: 0, factor: 1 }
+    };
+  }
+
+  const api = { enemy };
+  if (typeof module !== 'undefined') module.exports = api;
+  else root.GoimonChapter2Battle = api;
+})(typeof window !== 'undefined' ? window : globalThis);
