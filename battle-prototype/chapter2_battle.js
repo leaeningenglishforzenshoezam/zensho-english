@@ -7,11 +7,11 @@
     2: { hp: 130, defense: 22, attack: 8.1 },
     3: { hp: 140, defense: 24, attack: 8.1 },
     4: { hp: 145, defense: 20, attack: 8.1 },
-    5: { hp: 210, defense: 32, attack: 11 },
+    5: { hp: 210, defense: 34, attack: 11 },
     6: { hp: 155, defense: 22, attack: 8.1 },
-    7: { hp: 185, defense: 28, attack: 11 },
+    7: { hp: 185, defense: 30, attack: 11 },
     8: { hp: 175, defense: 24, attack: 9 },
-    9: { hp: 320, defense: 36, attack: 14 }
+    9: { hp: 320, defense: 38, attack: 14 }
   };
 
   function enemy(catalog, id, stage) {
