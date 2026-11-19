@@ -1,0 +1,52 @@
+@import url("./chapter2.css");
+:root{--ink:#f1efe5;--muted:#ccc8ba;--gold:#e8cb8c;--panel:#282c28}
+body.chapter3{background:#161c1b;color:var(--ink)}
+.chapter3 .stage{display:flex;align-items:end;justify-content:start;min-height:170px;height:clamp(170px,27vh,300px);
+ background:linear-gradient(140deg,#263d37,#2a3131 51%,#584637);border:1px solid #625b49;padding:22px}
+.chapter3 .stage[data-background="storage_room"]{background:linear-gradient(145deg,#333939,#242829)}
+.chapter3 .stage[data-background="cottage_dining"],.chapter3 .stage[data-background="cottage_storage"]{background:linear-gradient(145deg,#5b4233,#262c28)}
+.chapter3 .stage[data-background="toshaka_gate"],.chapter3 .stage[data-background="toshaka_guard"]{background:linear-gradient(145deg,#3a4e4a,#695338)}
+.chapter3 .stage .stage-label{position:relative;z-index:1;font-size:1.1rem;letter-spacing:.08em;font-weight:650;text-shadow:0 1px 5px #0007}
+.chapter3 .stage::after{display:none}
+.chapter3 .choice-title{font-weight:700;font-size:1.06rem;margin:0 0 15px}
+.chapter3 .narration-text{letter-spacing:.015em;line-height:2}
+.chapter3 .actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+.chapter3 .decision-options{display:grid;grid-template-columns:1fr;gap:11px}
+.chapter3 .decision-option{min-height:66px;text-align:left;display:flex;gap:13px;align-items:center;background:#263d34;padding:13px;border-color:#78927a}
+.chapter3 .decision-option .choice-letter{color:var(--gold);font-weight:bold;font-size:1rem;min-width:22px}
+.chapter3 .decision-option strong{display:block;font-size:1.04rem}
+.chapter3 .decision-option small{display:block;color:#d4e1d5;margin-top:2px;font-size:.9rem}
+.chapter3 .decision-option:hover{background:#315044}
+.chapter3 .quest-setup-overview{display:grid;grid-template-columns:minmax(180px,1fr) minmax(250px,2fr);gap:12px;align-items:start}
+.chapter3 .quest-skill-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px}
+.chapter3 .quest-setup-loadout{padding:10px;background:#1a322a;border-radius:12px}
+.chapter3 .quest-setup-loadout select{margin:4px 0}
+.chapter3 .quest-setup-card .quest-setup-picker select{max-width:100%}
+.chapter3 .hud{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chapter3 .battle .stage{height:clamp(115px,19vh,200px);min-height:115px}
+.chapter3 .quest-battle-hint{font-size:.86rem;color:var(--gold);line-height:1.7}
+.chapter3 .story-progress{font-size:.82rem;color:var(--muted);margin:12px 0 5px}
+@media(max-width:680px){.chapter3 .quest-setup-overview{grid-template-columns:1fr}.chapter3 .quest-skill-grid{grid-template-columns:1fr 1fr}.chapter3 .hud{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.chapter3 .quest-skill-grid{grid-template-columns:1fr}.chapter3 .decision-option{padding:10px}}
+
+/* Art layers: chapter assets appear automatically as soon as their PNGs exist. */
+.chapter3 .stage{background-position:center center;background-size:cover;background-repeat:no-repeat}
+.chapter3 .stage .stage-label{z-index:9;background:#14231dc9;padding:5px 12px;border-radius:8px;pointer-events:none}
+.chapter3 .stage .character{position:absolute;display:block;bottom:0;object-fit:contain;object-position:bottom center;pointer-events:none}
+.chapter3 .stage .chapter3-partner{left:1%;width:31%;height:55%;z-index:5}
+.chapter3 .stage .ch3-cast-0{right:28%;width:33%;height:80%;z-index:4}
+.chapter3 .stage .ch3-cast-1{right:3%;width:42%;height:68%;z-index:3}
+.chapter3 .stage .ch3-cast-2{right:0;width:28%;height:75%;z-index:2}
+.chapter3 .stage .ch3-cast[src*="ch3_robber_group"]{right:2%;width:67%;height:84%}
+.chapter3 .stage .ch3-cast[src*="ch3_injured_goimon"]{right:0;width:23%;height:40%}
+.chapter3 .stage .ch3-cast[src*="ch3_guard"]{right:0;width:27%;height:83%}
+.chapter3 .stage.art-ready .stage-label{font-size:.86rem}
+.chapter3 .stage[data-background="woodpile_path"]{background-color:#293e33}
+.chapter3 .stage[data-background="yard_window"]{background-color:#3e4038}
+.chapter3 .stage[data-background="locked_window"]{background-color:#333b38}
+@media(max-width:600px){
+ .chapter3 .stage .chapter3-partner{width:30%;height:47%}
+ .chapter3 .stage .ch3-cast-0{right:25%;width:37%;height:72%}
+ .chapter3 .stage .ch3-cast-1{right:2%;width:43%;height:64%}
+ .chapter3 .stage .stage-label{font-size:.75rem;padding:4px 7px}
+}
