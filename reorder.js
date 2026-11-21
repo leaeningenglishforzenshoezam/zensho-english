@@ -101,7 +101,7 @@ const grammarTagListEmpty = $("grammarTagListEmpty");
   })();
 
   const GRAMMAR_DICT = (window.GRAMMAR_CARD_DICT && typeof window.GRAMMAR_CARD_DICT === "object")
-    ? window.GRAMMAR_CARD_DICT
+    ? (lv === "2" ? { ...window.GRAMMAR_CARD_DICT, ...window.REORDER_2KYU_GRAMMAR } : window.GRAMMAR_CARD_DICT)
     : {};
 
   function safeParse(key) {
