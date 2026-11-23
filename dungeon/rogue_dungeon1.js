@@ -895,13 +895,15 @@
     if(kind==='shop'){openShop();return;}
     if(kind==='event'){showChoice('event');return;}
     // Teach single-target tactics first; introduce synergistic pairs as the run advances.
-    const mixedEligible=state.act>=2&&(state.act===3||state.stage>=4);
+    const returnVisit=state.dungeon===1 && statsFor(1).clears>=1;
+    const pairsAllowed=state.dungeon!==1 || returnVisit || state.act>2 || (state.act===2 && state.stage>=4);
+    const mixedEligible=pairsAllowed&&state.act>=2&&(state.act===3||state.stage>=4);
     const mixedChance=state.act===3?(state.stage>=5?(kind==='elite'?.70:.25):(kind==='elite'?.38:.12)):(kind==='elite'?.45:.12);
     const mixed=mixedEligible&&kind!=='boss'&&Math.random()<mixedChance;
     const normalPool=state.act===1&&state.stage<2?normalMonsters.slice(0,5):normalMonsters;
     const first=random(normalPool);
     const second=random(normalPool.filter(e=>e.name!==first.name));
-    const normalPair=state.stage>=2&&Math.random()<(state.act===1?.55:state.act===2?.70:.80);
+    const normalPair=pairsAllowed&&state.stage>=2&&Math.random()<(state.act===1?.55:state.act===2?.70:.80);
     const supportKinds=['support','conductor'];
     const lone=normalPair?first:supportKinds.includes(first.kind)?random(normalPool.filter(e=>!supportKinds.includes(e.kind))):first;
     const mixedMinions=normalMonsters.filter(e=>['support','sentinel','conductor','counter','inventory'].includes(e.kind));
@@ -917,7 +919,8 @@
       // ACT3 normal foes, including the normal half of mixed encounters, need an extra step up.
       // Elite and boss stats are intentionally unchanged by this normal-only adjustment.
       const act3Normal=state.act===3&&normalMonsters.some(m=>m.name===e.name);
-      return {...e,hp:act3Normal?Math.round(hp*1.18):hp,attack:act3Normal?Math.round(attack*1.12):attack};
+      const encounterHp=act3Normal?Math.round(hp*1.18):hp;
+      return {...e,hp:returnVisit?Math.round(encounterHp*1.05):encounterHp,attack:act3Normal?Math.round(attack*1.12):attack};
     });
     startBattle();
     if(state.dungeon===1&&kind==='boss'&&state.act===3)showFinalBossOmen();
