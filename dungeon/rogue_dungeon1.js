@@ -30,8 +30,12 @@
   const runStats=readJson(RUN_STATS_KEY,{});
   const journalSeen=new Set(readJson(JOURNAL_SEEN_KEY,[]));
   const LEGACY_ENEMY_NAMES={'IF分岐狐':'イフキツネ','VLOOKUP天狗':'ルックアップテング','SUMカッパ':'サムガッパ','RANDBETWEENクイーン':'ランビトクイーン'};
-  const savedBestiary=readJson(BESTIARY_KEY,[]);
-  const seenEnemyKinds=new Set((Array.isArray(savedBestiary)?savedBestiary:[]).map(name=>LEGACY_ENEMY_NAMES[name]||name));
+  function readBestiary(key){
+    const names=readJson(key,[]);
+    return new Set((Array.isArray(names)?names:[]).map(name=>LEGACY_ENEMY_NAMES[name]||name));
+  }
+  const bestiaryKey=dungeon=>dungeon===1?BESTIARY_KEY:BESTIARY_KEY+'_'+dungeon;
+  const discoveries={1:readBestiary(bestiaryKey(1)),2:readBestiary(bestiaryKey(2))};
   const savedSetup=readJson(SETUP_KEY,{});
   function statsFor(dungeon){return runStats[dungeon]||{attempts:0,clears:0,bestDepth:0};}
   function renderRunStats(){const s=statsFor(state.dungeon);$('dungeonAttempts').textContent=s.attempts||0;$('dungeonClears').textContent=s.clears||0;const p=s.bestDepth||0;$('dungeonBest').textContent=p?`ACT ${Math.ceil(p/9)} · ${((p-1)%9)+1}/9`:'―';renderJournalSummary();}
@@ -586,6 +590,7 @@
     const sceneArt=$('dungeonSceneArt'),departureArt=d.departureArt||d.art;
     sceneArt.style?.setProperty?.('--dungeon-image',departureArt?`url("${departureArt}")`:'none');sceneArt.classList?.toggle?.('has-art',!!departureArt);
     renderRunStats();
+    renderBestiarySummary();
   }
   let companions=[];
   function refreshCompanions(){
@@ -710,8 +715,9 @@
   };
   const bestiaryRoster=[...normalMonsters,...eliteMonsters,...Object.values(bossMonsters)];
   let inspectedEnemy=null;
-  function renderBestiarySummary(){if($('bestiarySummary'))$('bestiarySummary').textContent=`${seenEnemyKinds.size}/${bestiaryRoster.length}`;if($('bestiaryTotal'))$('bestiaryTotal').textContent=`${seenEnemyKinds.size} / ${bestiaryRoster.length}`;}
+  function renderBestiarySummary(){const seenEnemyKinds=discoveries[state.dungeon];if($('bestiarySummary'))$('bestiarySummary').textContent=`${seenEnemyKinds.size}/${bestiaryRoster.length}`;if($('bestiaryTotal'))$('bestiaryTotal').textContent=`${seenEnemyKinds.size} / ${bestiaryRoster.length}`;}
   function showBestiary(openDetail=false){
+    const seenEnemyKinds=discoveries[state.dungeon];
     const roster=bestiaryRoster,revealed=roster.filter(e=>seenEnemyKinds.has(e.name));
     if(!inspectedEnemy||!seenEnemyKinds.has(inspectedEnemy))inspectedEnemy=revealed[0]?.name||null;
     const list=$('bestiaryList'),previousScroll=list.scrollTop;
@@ -903,20 +909,21 @@
     {id:'cargo-gate',number:'04',title:'開いた貨物搬入口',condition:'百貨店を2回クリアする',unlocked:s=>(s.clears||0)>=2,
       image:DEPARTMENT_ART+'act2.jpg',leadLines:['二度目の金庫で手に入れた鍵は、非常シャッターの鍵ではなかった。','「旧駅貨物搬入口」の札がついている。'],lines:['地下倉庫へ戻り、錆びた鉄扉を開けた。','奥から聞こえてきたのは、列車の汽笛と誰かの声。','「お忘れ物のお引き取りですね」','扉の先は、ダンジョン2「帰らずの終着駅」へ続く。']}
   ];
-  function journalUnlocked(){const stats=statsFor(1);return JOURNAL.filter(entry=>entry.unlocked(stats));}
-  function renderJournalSummary(){const unlocked=journalUnlocked();const total=JOURNAL.length;
+  const dungeonJournal=()=>state.dungeon===1?JOURNAL:[];
+  function journalUnlocked(){const stats=statsFor(state.dungeon);return dungeonJournal().filter(entry=>entry.unlocked(stats));}
+  function renderJournalSummary(){const unlocked=journalUnlocked();const total=dungeonJournal().length;
     const summary=$('journalSummary');if(summary)summary.textContent=`${unlocked.length}/${total}`;
     const open=$('journalOpen');if(open){const unread=unlocked.some(entry=>!journalSeen.has(entry.id));open.classList?.toggle?.('has-unread',unread);open.setAttribute?.('aria-label',unread?'夜の記録：新しい物語があります':'夜の記録');}
   }
-  function showJournal(){const unlocked=journalUnlocked(),stats=statsFor(1);
-    $('journalCount').textContent=`${unlocked.length} / ${JOURNAL.length}`;
-    $('journalEntries').innerHTML=JOURNAL.map(entry=>{const ready=entry.unlocked(stats),newItem=ready&&!journalSeen.has(entry.id);
+  function showJournal(){const unlocked=journalUnlocked(),stats=statsFor(state.dungeon);
+    $('journalCount').textContent=`${unlocked.length} / ${dungeonJournal().length}`;
+    $('journalEntries').innerHTML=dungeonJournal().map(entry=>{const ready=entry.unlocked(stats),newItem=ready&&!journalSeen.has(entry.id);
       return `<button type="button" class="journal-entry ${ready?'unlocked':'locked'} ${newItem?'unread':''}" data-journal="${entry.id}" ${ready?'':'disabled'}><span class="journal-entry-number">${entry.number}</span><span class="journal-entry-main"><strong>${escapeHtml(ready?entry.title:'？？？？？？')}</strong><small>${escapeHtml(ready?'記録を読む':entry.condition)}</small></span><span class="journal-entry-badge">${newItem?'NEW':ready?'読む':'LOCK'}</span></button>`;
-    }).join('');
+    }).join('')||'<p>このダンジョンには、まだ夜の記録がありません。</p>';
     $('journalEntries').querySelectorAll('[data-journal]').forEach(btn=>btn.onclick=()=>openJournalEntry(btn.dataset.journal));
     $('journalOverlay').hidden=false;
   }
-  function openJournalEntry(id){const entry=JOURNAL.find(item=>item.id===id&&item.unlocked(statsFor(1)));if(!entry)return;
+  function openJournalEntry(id){const entry=dungeonJournal().find(item=>item.id===id&&item.unlocked(statsFor(state.dungeon)));if(!entry)return;
     journalSeen.add(id);storeJson(JOURNAL_SEEN_KEY,[...journalSeen]);renderJournalSummary();
     $('journalOverlay').hidden=true;
     playSfx('journal');
@@ -1094,8 +1101,9 @@
     state.wordQueue=shuffled(questionBank().words.slice(...state.encounterWordRange));
     state.selected=0;state.deck=shuffled([...Array(state.basicAttack).fill('Attack'),...Array(state.basicGuard).fill('Guard'),...state.owned.map(name=>state.artifactActUpgrades?.includes(baseName(name))&&!name.endsWith('+')?name+'+':name)]);
     state.used=[];state.hand=[];state.turn=1;state.carryOver=0;state.block=0;state.guardPriceCut=0;state.ap=3;state.apTotal=3;state.buff=1;state.nextPlus=0;state.commandUsed=false;state.turnDamage=0;state.turnGuardGained=0;
+    const seenEnemyKinds=discoveries[state.dungeon];
     for(const enemy of state.enemies){if(bestiaryRoster.some(m=>m.kind===enemy.kind&&m.name===enemy.name))seenEnemyKinds.add(enemy.name);}
-    storeJson(BESTIARY_KEY,[...seenEnemyKinds]);renderBestiarySummary();
+    storeJson(bestiaryKey(state.dungeon),[...seenEnemyKinds]);renderBestiarySummary();
     state.sealed=[];state.growUses=0;state.discardedTurn=0;state.recoveredTurn=0;state.correctFormats=[];state.turnUsedNames=[];state.replayUsed=false;state.freeReplayCard=null;state.chainApGained=0;state.momentumActive=false;state.momentumDrawn=0;state.reserveAp=0;state.reserveUsed=false;state.cardSelection=null;$('cardPickModal').hidden=true;
     state.artifactAttacks=0;state.artifactCardUses=0;state.artifactDraws=0;state.artifactCorrectStreak=0;state.artifactUniqueCards=[];state.artifactCompound=0;state.artifactNextGuard=0;
     state.artifactTurnUses=new Set();state.artifactBattleUses=new Set();state.typeTurnUses=new Set();state.typeBattleUses=new Set();state.typeCorrectNames=new Set();state.shieldPierce=0;
