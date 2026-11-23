@@ -957,12 +957,13 @@
       openQuestion(state.hand.length-1);
     });
   }
+  const BOSS_SERIOUS_TURN=15;
   const bossLines={
-    hodaka:{opening:'へい、一丁！',half:'いい汗かいてきたな！',serious:'ここからは強火だ！',special:'麺がのびる前に食らいな！'},
-    riki:{opening:'全力で来い！',half:'ナイスバッティング！',serious:'延長戦だ。ギア上げるぞ！',special:'赤ペン一本、真剣勝負！'},
-    mika:{opening:'では、商談を始めます。',half:'その一手、買いましょう。',serious:'ここからは私が仕切ります。',special:'これにて、決算。'}
+    hodaka:{opening:'へい、一丁！',lowHp:'いい汗かいてきたな！',serious:'ここからは強火だ！',special:'麺がのびる前に食らいな！'},
+    riki:{opening:'全力で来い！',lowHp:'ナイスバッティング！',serious:'延長戦だ。ギア上げるぞ！',special:'赤ペン一本、真剣勝負！'},
+    mika:{opening:'では、商談を始めます。',lowHp:'その一手、買いましょう。',serious:'ここからは私が仕切ります。',special:'これにて、決算。'}
   };
-  const speechLabels={opening:'開戦',half:'HP半分',serious:'本気',special:'特殊技'};
+  const speechLabels={opening:'開戦',lowHp:'HP残り1/3以下',serious:'本気',special:'特殊技'};
   function showBossLine(box,boss,cue){
     const key=boss.bossId+'-'+cue;
     if(box.dataset.line!==key){box.dataset.line=key;box.innerHTML=`<small>${escapeHtml(boss.name)} · ${speechLabels[cue]}</small><strong>${bossLines[boss.bossId][cue]}</strong>`;}
@@ -973,10 +974,10 @@
     if(!boss){box.hidden=true;return;}
     let cue;
     if(state.turn===1&&!boss.openingSpoken){boss.openingSpoken=true;cue='opening';}
-    if(state.turn>=10&&!boss.seriousSpoken){boss.seriousSpoken=true;cue='serious';}
-    if(!cue&&boss.hp<=boss.maxHp/2&&!boss.halfSpoken){boss.halfSpoken=true;cue='half';}
+    if(state.turn>=BOSS_SERIOUS_TURN&&!boss.seriousTurn15Spoken){boss.seriousTurn15Spoken=true;cue='serious';}
+    if(!cue&&boss.hp*3<=boss.maxHp&&!boss.lowHpSpoken){boss.lowHpSpoken=true;cue='lowHp';}
     if(cue){boss.speechTurn=state.turn;boss.speechCue=cue;}
-    if(boss.speechTurn===state.turn&&boss.speechCue)showBossLine(box,boss,boss.speechCue);
+    if(boss.speechTurn===state.turn&&speechLabels[boss.speechCue]&&(boss.speechCue!=='serious'||state.turn>=BOSS_SERIOUS_TURN))showBossLine(box,boss,boss.speechCue);
     else box.hidden=true;
   }
   function startBattle(retry=false){if(!retry){state.battleWrongQuestions=[];state.battleReviewUsed=false;state.battleReviewRevived=false;state.lastBattleArtifact=null;state.eliteArtifactOffer=null;}
@@ -1033,7 +1034,7 @@
     if(e.kind==='exchange'){const trade=a+6;return t%3===2?{attack:trade,selfDamage:trade,shield:6,label:`♠ 等価交換 ${trade}・自身HP−${trade}・防御＋6`}:{attack:a,label:`⚔ 攻撃 ${a}`};}
     if(e.kind==='taxer')return t%3===0?{attack:a+9,label:`⚠ 徴収攻撃 ${a+9}`}:{attack:a,label:`⚔ 攻撃 ${a}`};
     if(e.kind==='boss'){
-      const phase2=t>=10,phaseText=phase2?'【本気】':'';
+      const phase2=t>=BOSS_SERIOUS_TURN,phaseText=phase2?'【本気】':'';
       const cycle=(t-1)%4;
       const thirdStrike=phase2?18:15;
       if(e.bossId==='hodaka'){
