@@ -80,16 +80,29 @@
     }).join('');
   }
   function showBadges(){renderBadges();$('badgeOverlay').hidden=false;}
-  const ACT_RANGES=[[0,180],[180,360],[360,550]];
-  const words = (window.WORDS_2KYU || []).filter(x => x.en && x.ja);
-  const accents = (window.ACCENT_2KYU || []).filter(x => x.en && x.stress && x.sylRaw);
-  const accentSyllables=x=>x.sylRaw.replace(/[ˈˌ]/g,'').split('-').filter(Boolean);
-  const accentChoices=accents.filter(x=>accentSyllables(x).length>=2&&x.stress<=accentSyllables(x).length);
-  const q9s = (window.SENTENCE_FIXED_2KYU || []).filter(x => x.en && x.answer && x.choices?.length >= 3);
-  const q11s = (window.GOIMON_G2_Q11_SET1 || []).filter(x => x.stem && x.answer && x.distractors?.length >= 2);
-  const q12s = (window.REORDER_2KYU || []).filter(x => x.stemBefore && x.stemAfter && x.chunks?.length === 4 && x.answer?.length === 4 && x.answer.every(id => x.chunks.some(c => c.id === id)));
-  const wordNumber=new Map(words.map((w,i)=>[w.en.toLowerCase(),i+1]));
-  const wordMeaning=new Map(words.map(w=>[w.en.toLowerCase(),w.ja]));
+  const banks=new Map();
+  function questionBank(){
+    const grade=state.examGrade;
+    if(banks.has(grade))return banks.get(grade);
+    const suffix=grade+'KYU';
+    const words=(window['WORDS_'+suffix]||[]).filter(x=>x.en&&x.ja);
+    const accentChoices=(window['ACCENT_'+suffix]||[]).filter(x=>{
+      const count=x.sylRaw?.replace(/[ˈˌ]/g,'').split('-').filter(Boolean).length;
+      return x.en&&count>=2&&x.stress>=1&&x.stress<=count;
+    });
+    const q9s=(window['SENTENCE_FIXED_'+suffix]||[]).filter(x=>x.en&&x.answer&&x.choices?.length>=3);
+    const paraphrases=grade===1?(window.PARAPHRASE_DATA_1KYU||[]).map(x=>({
+      stem:x.a+'\n'+x.b,answer:x.answer,distractors:x.choices.filter(v=>v!==x.answer),
+      ja:x.ja,explanation:x.pointNote, notes:Object.fromEntries(x.choices.map((v,i)=>[v,x.choiceJa[i]]))
+    })):window.GOIMON_G2_Q11_SET1||[];
+    const q11s=paraphrases.filter(x=>x.stem&&x.answer&&x.distractors?.length>=2);
+    const q12s=(window['REORDER_'+suffix]||[]).filter(x=>typeof x.stemBefore==='string'&&typeof x.stemAfter==='string'&&x.chunks?.length===4&&x.answer?.length===4&&x.answer.every(id=>x.chunks.some(c=>c.id===id)));
+    const wordNumber=new Map(words.map((w,i)=>[w.en.toLowerCase(),i+1]));
+    const wordMeaning=new Map(words.map(w=>[w.en.toLowerCase(),w.ja]));
+    const bank={words,accentChoices,q9s,q11s,q12s,wordNumber,wordMeaning};
+    banks.set(grade,bank);
+    return bank;
+  }
   const inEncounter=(number)=>Number.isInteger(number)&&number>state.encounterWordRange[0]&&number<=state.encounterWordRange[1];
   const random = (arr) => arr[Math.floor(Math.random() * arr.length)];
   const shuffled = (input) => {
@@ -344,7 +357,7 @@
     {kind:'exchange',name:'等価交換ジョーカー',hp:114,attack:10,icon:'🃏'},
     {kind:'taxer',name:'悪徳税理士',hp:110,attack:9,icon:'📜'}
   ];
-  const state = {phase:'intro',loadout:0,companionId:savedSetup.companionId||null,selectedCarrySkills:Array.isArray(savedSetup.skills)?savedSetup.skills:null,hp:START_HP,maxHp:START_HP,ap:3,apTotal:3,block:0,guardPriceCut:0,carry:0,carryOver:0,buff:1,nextPlus:0,turn:1,
+  const state = {phase:'intro',examGrade:savedSetup.examGrade===1?1:2,loadout:0,companionId:savedSetup.companionId||null,selectedCarrySkills:Array.isArray(savedSetup.skills)?savedSetup.skills:null,hp:START_HP,maxHp:START_HP,ap:3,apTotal:3,block:0,guardPriceCut:0,carry:0,carryOver:0,buff:1,nextPlus:0,turn:1,
     fight:0,hand:[],deck:[],used:[],owned:[],enemies:[],selected:0,questions:0,correct:0,commandUsed:false,
     notice:'',pending:null,question:null,choiceMode:null,campNext:false,postChoice:null,route:[],routeEdges:[],routePath:[],stage:0,currentEncounter:null,
     coins:0,artifacts:[],artifactTurnUses:new Set(),artifactBattleUses:new Set(),shopStock:[],basicAttack:5,basicGuard:3,upgradeFromEvent:false,removeOrigin:'shop',
@@ -358,16 +371,23 @@
   const TYPE_BOOST_EFFECTS={nagomi:'防御カード正解でHP＋4（1ターン1回）',hirameki:'毎戦闘最初の攻撃SKILLのAP−2',tsumugi:'1ターンに異なる2種類を正解すると防御＋8',yomitoki:'大問9正解で次の攻撃が防御8無視',shirabe:'単語正解で次の攻撃＋5',hibiki:'アクセント正解で次の攻撃＋6',kotonoha:'大問11正解で防御＋9'};
   const SPECIAL_BOOSTS={maxHp:{name:'MAX HP UP',icon:'♡',effect:'最大HP＋15・HP＋15'},purify:{name:'DECK PURIFY',icon:'↶',effect:'通常攻撃と通常防御を1枚ずつ削除'}};
   const maxHp=()=>state.maxHp;
-  const actWordLabel=()=>`No.${ACT_RANGES[state.act-1][0]+1}〜${ACT_RANGES[state.act-1][1]}`;
+  function actWordRange(act){
+    const count=questionBank().words.length;
+    // Preserve the original 180 / 180 / 190 distribution for the 550-word bank.
+    const bounds=[0,Math.round(count*180/550),Math.round(count*360/550),count];
+    return bounds.slice(act-1,act+1);
+  }
+  const actWordLabel=()=>{const [from,to]=actWordRange(state.act);return `No.${from+1}〜${to}`;};
   const wordRangeForFight=(act,completed,isBoss)=>{
-    const [from,to]=ACT_RANGES[act-1];
-    if(isBoss)return [from+150,to];
-    if(completed>=5)return [from,from+150]; // Optional extra fight: review previous words.
-    return [from+completed*30,from+(completed+1)*30];
+    const [from,to]=actWordRange(act);
+    const size=Math.round((to-from)/(act===3?190:180)*30);
+    if(isBoss)return [from+5*size,to];
+    if(completed>=5)return [from,from+5*size];
+    return [from+completed*size,from+(completed+1)*size];
   };
   function saveCheckpoint(){
     if(state.phase==='intro'||state.choiceMode==='complete')return;
-    const keys=['phase','dungeon','act','actFight','stage','route','routeEdges','routePath','currentEncounter','encounterWordRange','wordQueue','loadout','companionId','selectedCarrySkills','type','hp','maxHp','owned','coins','artifacts','basicAttack','basicGuard','typeBoost','specialBoosts','questions','correct','fight','seenWords','wrongWords','ap','apTotal','block','guardPriceCut','carry','carryOver','buff','nextPlus','turn','hand','deck','used','enemies','selected','commandUsed','shieldPierce','shopStock','shopRemoveIndex','removeOrigin','choiceMode','choiceOffer','eliteArtifactOffer','eventHistory','choiceEvent','choiceSpecialOptions','specialSkillOffer','upgradeFromEvent','battleWrongQuestions','runWrongQuestions','battleReviewUsed','battleReviewRevived','turnDamage','turnGuardGained','lastBattleArtifact','sealed','growUses','discardedTurn','recoveredTurn','correctFormats','turnUsedNames','replayUsed','freeReplayCard','freeRetrievedCard','chainApGained','momentumActive','momentumDrawn','reserveAp','reserveUsed','artifactAttacks','artifactCardUses','artifactDraws','artifactCorrectStreak','artifactUniqueCards','artifactNextGuard','artifactCompound','artifactDiscountUsed','artifactFreeShopUsed','artifactActUpgrades'];
+    const keys=['phase','examGrade','dungeon','act','actFight','stage','route','routeEdges','routePath','currentEncounter','encounterWordRange','wordQueue','loadout','companionId','selectedCarrySkills','type','hp','maxHp','owned','coins','artifacts','basicAttack','basicGuard','typeBoost','specialBoosts','questions','correct','fight','seenWords','wrongWords','ap','apTotal','block','guardPriceCut','carry','carryOver','buff','nextPlus','turn','hand','deck','used','enemies','selected','commandUsed','shieldPierce','shopStock','shopRemoveIndex','removeOrigin','choiceMode','choiceOffer','eliteArtifactOffer','eventHistory','choiceEvent','choiceSpecialOptions','specialSkillOffer','upgradeFromEvent','battleWrongQuestions','runWrongQuestions','battleReviewUsed','battleReviewRevived','turnDamage','turnGuardGained','lastBattleArtifact','sealed','growUses','discardedTurn','recoveredTurn','correctFormats','turnUsedNames','replayUsed','freeReplayCard','freeRetrievedCard','chainApGained','momentumActive','momentumDrawn','reserveAp','reserveUsed','artifactAttacks','artifactCardUses','artifactDraws','artifactCorrectStreak','artifactUniqueCards','artifactNextGuard','artifactCompound','artifactDiscountUsed','artifactFreeShopUsed','artifactActUpgrades'];
     const data=Object.fromEntries(keys.map(k=>[k,state[k]]));
     for(const key of ['artifactTurnUses','artifactBattleUses','typeTurnUses','typeBattleUses','typeCorrectNames'])data[key]=[...state[key]];
     data.version=2;
@@ -388,6 +408,7 @@
     }
     data.companionId=pet.id;data.type=pet.type;
     state.companionId=pet.id;
+    data.examGrade=data.examGrade===1?1:2;state.examGrade=data.examGrade;
     if(data.version!==2){const keys=['act','loadout','type','hp','maxHp','owned','coins','artifacts','basicAttack','basicGuard','typeBoost','specialBoosts','questions','correct','fight','seenWords','wrongWords'];
       for(const key of keys)if(data[key]!==undefined)state[key]=data[key];startAct();return;}
     for(const [key,value] of Object.entries(data)){if(key==='version'||key==='phase')continue;state[key]=value;}
@@ -503,12 +524,13 @@
       <span class="cost">${cost}</span><span class="rank">${s.rank}</span><span class="glyph">${s.icon}</span><strong>${escapeHtml(s.label)}</strong>
       <span class="effect" title="${escapeHtml(effects(s))}">${escapeHtml(briefEffect(s))}</span><span class="format">✦ ${choice&&buildFamily(name)?buildFamily(name)+' · ':''}${state.dungeon===2&&s.format==='word'?'日→英 / 音声':FMT[s.format]}</span></button>`;};
   function renderDungeonPicker(){
+    $('examGrade').value=String(state.examGrade);
     const checkpoint=readCheckpoint();
     $('resumeBtn').hidden=!checkpoint;
     if(checkpoint){
       const title=(DUNGEONS[checkpoint.dungeon]||DUNGEONS[1]).title;
       const area=Number.isInteger(checkpoint.stage)?' · エリア '+(checkpoint.stage+1):'';
-      $('resumeBtn').textContent=title+'を再開（ACT '+checkpoint.act+area+'）';
+      $('resumeBtn').textContent=title+'を再開（'+(checkpoint.examGrade===1?1:2)+'級 · ACT '+checkpoint.act+area+'）';
     }
     const pageCount=Math.ceil(Math.max(4,...Object.keys(DUNGEONS).map(Number))/DUNGEON_PAGE_SIZE);
     dungeonMapPage=Math.min(dungeonMapPage,pageCount-1);
@@ -560,7 +582,7 @@
   const selectedCompanion=()=>companions.find(c=>c.id===state.companionId)||companions[0];
   const selectedCarry=()=>state.selectedCarrySkills??LOADOUTS[state.loadout].cards;
   const carryNames=()=>[...new Set(selectedCarry())].filter(id=>carryChoices().includes(id)).slice(0,3);
-  function saveSetup(){storeJson(SETUP_KEY,{companionId:state.companionId,skills:state.selectedCarrySkills,dungeon:state.dungeon});}
+  function saveSetup(){storeJson(SETUP_KEY,{examGrade:state.examGrade,companionId:state.companionId,skills:state.selectedCarrySkills,dungeon:state.dungeon});}
   function companionArt(c,small=false){return c.image?`<img src="${escapeHtml(c.image)}" alt="" loading="lazy">`:`<span class="goimon-sigil ${small?'small':''}" aria-hidden="true">${escapeHtml(c.sigil||'✧')}</span>`;}
   function renderSelectedCompanion(){
     const c=selectedCompanion();
@@ -821,7 +843,7 @@
   const reachableLane=lane=>state.stage===0||state.routeEdges[state.stage-1].some(([from,to])=>from===state.routePath[state.stage-1]&&to===lane);
   function showRoute(){setScreen('route');
     $('routeActLabel').textContent=`YOUR PATH / ACT ${state.act} / 3`;
-    $('routeWordRange').textContent=`${state.dungeon===2?'日→英・音声':'英→日'} · 単語 ${actWordLabel()}　｜　⚔ 通常戦　☠ 強敵　？ 未知　✚ 休憩　✦ 宝箱　▣ SHOP`;
+    $('routeWordRange').textContent=`${state.examGrade}級 · ${state.dungeon===2?'日→英・音声':'英→日'} · 単語 ${actWordLabel()}　｜　⚔ 通常戦　☠ 強敵　？ 未知　✚ 休憩　✦ 宝箱　▣ SHOP`;
     const pos=(i,lane)=>({x:50+100*i,y:45+75*lane});const lines=[];
     for(let i=0;i<8;i++)for(const [lane,next] of state.routeEdges[i]){const a=pos(i,lane),b=pos(i+1,next);lines.push(`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" class="${i<state.stage&&state.routePath[i]===lane&&state.routePath[i+1]===next?'traveled':''}"/>`);}
     $('routeMap').innerHTML=`<svg class="route-lines" viewBox="0 0 900 240" preserveAspectRatio="none" aria-hidden="true">${lines.join('')}</svg>`+state.route.flatMap((col,i)=>col.map((kind,lane)=>{if(!kind)return '';const p=pos(i,lane),active=i===state.stage&&reachableLane(lane),picked=state.routePath[i]===lane&&i<state.stage;
@@ -935,7 +957,7 @@
     selectedHandIndex=-1;
     state.enemies=state.currentEncounter.enemies.map((e,i)=>({...e,id:i,maxHp:e.hp,shield:0,canceled:false,weak:0}));
     state.encounterWordRange=state.currentEncounter.wordRange;
-    state.wordQueue=shuffled(words.slice(...state.encounterWordRange));
+    state.wordQueue=shuffled(questionBank().words.slice(...state.encounterWordRange));
     state.selected=0;state.deck=shuffled([...Array(state.basicAttack).fill('Attack'),...Array(state.basicGuard).fill('Guard'),...state.owned.map(name=>state.artifactActUpgrades?.includes(baseName(name))&&!name.endsWith('+')?name+'+':name)]);
     state.used=[];state.hand=[];state.turn=1;state.carryOver=0;state.block=0;state.guardPriceCut=0;state.ap=3;state.apTotal=3;state.buff=1;state.nextPlus=0;state.commandUsed=false;state.turnDamage=0;state.turnGuardGained=0;
     for(const enemy of state.enemies){if([...normalMonsters,...eliteMonsters].some(m=>m.kind===enemy.kind&&m.name===enemy.name))seenEnemyKinds.add(enemy.name);}
@@ -1083,13 +1105,15 @@
     fx.textContent=message;fx.className='battle-fx show '+(kind==='enemy'||kind==='attack'?'hit':kind==='guard'?'guard':'miss');
     fxTimer=setTimeout(()=>{stage.classList.remove('hero-strike','enemy-strike','hero-hurt','enemy-hurt','hero-guard');fx.className='battle-fx';},850);
   }
-  function makeQuestion(format){if(format==='word'||format==='audio'||format==='jaen'){
+  function makeQuestion(format){
+    const {words,accentChoices,q9s,q11s,q12s,wordMeaning,wordNumber}=questionBank();
+    if(format==='word'||format==='audio'||format==='jaen'){
     const pool=words.slice(...state.encounterWordRange);
     if(!state.wordQueue.length)state.wordQueue=shuffled(pool);
     const x=state.wordQueue.pop()||random(words);
     const incorrect=shuffled(pool.filter(w=>w.en!==x.en&&w.ja!==x.ja)).filter((w,i,a)=>a.findIndex(y=>format==='jaen'?y.en===w.en:y.ja===w.ja)===i).slice(0,3);
     const optionNotes=Object.fromEntries([x,...incorrect].map(w=>format==='jaen'?[w.en,w.ja]:[w.ja,w.en]));
-    return {format,stem:format==='audio'?'英語を聞いて、意味を選ぼう':format==='jaen'?`「${x.ja}」に当てはまる英語は？`:`「${x.en}」の意味は？`,answer:format==='jaen'?x.en:x.ja,options:shuffled([format==='jaen'?x.en:x.ja,...incorrect.map(w=>format==='jaen'?w.en:w.ja)]),optionNotes,speak:x.en,wordIndex:words.indexOf(x),explanation:`${x.en}：${x.ja}${x.pos?`（${x.pos}）`:''}`};}
+    return {format,stem:format==='audio'?'英語を聞いて、意味を選ぼう':format==='jaen'?`「${x.ja}」に当てはまる英語は？`:`「${x.en}」の意味は？`,answer:format==='jaen'?x.en:x.ja,options:shuffled([format==='jaen'?x.en:x.ja,...incorrect.map(w=>format==='jaen'?w.en:w.ja)]),optionNotes,speak:x.en,wordIndex:wordNumber.get(x.en.toLowerCase())-1,explanation:`${x.en}：${x.ja}${x.pos?`（${x.pos}）`:''}`};}
     if(format==='accent'){const available=accentChoices.filter(x=>inEncounter(x.no));const x=random(available.length?available:accentChoices),plain=x.sylRaw.replace(/ˈ/g,'').replace(/ˌ/g,'');
       const syllables=plain.split('-').filter(Boolean);const max=Math.max(syllables.length,x.stress);
       return {format,stem:`${x.en}\n${plain}\n最も強く読む音節は？`,answer:`第${x.stress}音節`,options:Array.from({length:max},(_,i)=>`第${i+1}音節`),speak:x.en,explanation:`${x.en}（${x.ja}）\n強勢：${x.sylRaw}。第${x.stress}音節を強く発音します。${x.note?'\n'+x.note:''}`};}
@@ -1100,7 +1124,7 @@
       const explanation=`完成英文：${x.completed||[x.stemBefore,...ordered,x.stemAfter].join(' ')}\n日本語訳：${x.ja||'（訳データなし）'}${x.note?'\nポイント：'+x.note:''}${x.grammarFocus?.length?'\n解説：'+x.grammarFocus.join(' / '):''}`;
       return {format,stem:`${x.stemBefore} ＿＿＿＿ ${x.stemAfter}`,answer:x.answer.join('|'),options:[],chunks:shuffled(x.chunks.map(c=>({...c}))),explanation};
     }
-    const x=random(q11s),options=shuffled([...new Set([x.answer,...x.distractors])]);return {format,stem:x.stem,answer:x.answer,options,optionNotes:Object.fromEntries(options.map(v=>[v,wordMeaning.get(v.toLowerCase())||''])),explanation:`日本語訳：${x.ja||'（訳データなし）'}${x.explanation?'\n解説：'+x.explanation:''}${x.comparison?'\n比較：'+x.comparison:''}`};
+    const x=random(q11s),options=shuffled([...new Set([x.answer,...x.distractors])]);return {format,stem:x.stem,answer:x.answer,options,optionNotes:Object.fromEntries(options.map(v=>[v,x.notes?.[v]||wordMeaning.get(v.toLowerCase())||''])),explanation:`日本語訳：${x.ja||'（訳データなし）'}${x.explanation?'\n解説：'+x.explanation:''}${x.comparison?'\n比較：'+x.comparison:''}`};
   }
   function renderOrderChoices(containerId,q,onSubmit){
     const box=$(containerId);box.classList.add('order-grid');box.innerHTML='';
@@ -1121,7 +1145,7 @@
     if(cost>state.ap||(baseName(name)==='Command'&&state.commandUsed)||(s.replay&&state.replayUsed)||(s.reserveAp&&state.reserveUsed))return;
     const format=state.dungeon===2&&s.format==='word'?(Math.random()<.5?'jaen':'audio'):s.format;
     state.pending={name,index,targetId:chosenTarget()?.id,cost};state.freeReplayCard=null;state.question=makeQuestion(format);
-    const q=state.question;$('questionModal').hidden=false;$('questionModal').classList.remove('answered','answered-correct','answered-wrong');$('closeQuestion').hidden=false;$('questionTitle').textContent='英語でSKILLを発動';$('questionType').textContent=FMT[format];$('questionSkill').textContent=`${s.label} · ${cost}AP · ${effects(s)}`;
+    const q=state.question;$('questionModal').hidden=false;$('questionModal').classList.remove('answered','answered-correct','answered-wrong');$('closeQuestion').hidden=false;$('questionTitle').textContent='英語でSKILLを発動';$('questionType').textContent=state.examGrade+'級 · '+FMT[format];$('questionSkill').textContent=`${s.label} · ${cost}AP · ${effects(s)}`;
     $('questionStem').textContent=q.stem;$('questionResult').textContent='';$('questionResult').className='question-result';$('questionExplanation').hidden=true;$('questionExplanation').textContent='';$('continueQuestion').hidden=true;
     $('listenBtn').hidden=format!=='audio';$('answers').innerHTML='';
     $('answers').classList.remove('order-grid');
@@ -1134,7 +1158,7 @@
   function openBossChallenge(){
     const boss=alive().find(e=>!e.canceled&&intent(e).quizFormat),move=boss&&intent(boss);
     if(!move)return;
-    if(!(move.quizFormat==='q11'?q11s:q12s).length){flashNotice('特殊技の問題データがないため攻撃を回避');endTurn(true);return;}
+    if(!(move.quizFormat==='q11'?questionBank().q11s:questionBank().q12s).length){flashNotice('特殊技の問題データがないため攻撃を回避');endTurn(true);return;}
     const title={hodaka:'ラーメンアタック',riki:'赤ペン指導',mika:'最終決済'}[boss.bossId]||'ボスの特殊技';
     state.pending={bossChallenge:true,resolved:false,format:move.quizFormat,total:move.quizCount||1,completed:0,missed:false,title,damage:move.quizAttack||0,apTax:move.apTax||0};
     renderBossChallengeQuestion();
@@ -1145,7 +1169,7 @@
     const q=state.question;
     $('questionModal').hidden=false;$('questionModal').classList.remove('answered','answered-correct','answered-wrong');
     $('closeQuestion').hidden=true;$('questionTitle').textContent=`${p.title}を回避せよ！`;
-    $('questionType').textContent=`ボス特殊技 · ${p.format==='q11'?'大問11':'大問12'} · ${p.completed+1}/${p.total}問`;
+    $('questionType').textContent=`${state.examGrade}級 · ボス特殊技 · ${p.format==='q11'?'大問11':'大問12'} · ${p.completed+1}/${p.total}問`;
     $('questionSkill').textContent=`${p.total}問すべて正解で回避 · 失敗時${p.damage}ダメージ${p.apTax?'＋次ターンAP−1':''}（防御で軽減可） · AP消費なし`;
     $('questionStem').textContent=q.stem;$('questionResult').textContent='';$('questionResult').className='question-result';
     $('questionExplanation').hidden=true;$('questionExplanation').textContent='';$('continueQuestion').hidden=true;
@@ -1766,6 +1790,7 @@
     if(state.choiceMode==='upgrade'){if(!state.owned.some(x=>!x.endsWith('+'))){state.hp=Math.min(state.maxHp,state.hp+25);advance();return;}if(state.upgradeFromEvent){advance();return;}showChoice('camp');return;}
     if(['reward','eliteReward','treasure','event'].includes(state.choiceMode))advance();}
   function closeDungeonMap(){$('dungeonMap').hidden=true;}
+  $('examGrade').onchange=e=>{if(state.phase==='intro'){state.examGrade=e.target.value==='1'?1:2;saveSetup();}};
   $('dungeonMapOpen').onclick=()=>{dungeonMapPage=Math.floor((state.dungeon-1)/DUNGEON_PAGE_SIZE);renderDungeonPicker();$('dungeonMap').hidden=false;};
   $('dungeonMapClose').onclick=closeDungeonMap;
   $('dungeonMapPrev').onclick=()=>{dungeonMapPage=Math.max(0,dungeonMapPage-1);renderDungeonPicker();};

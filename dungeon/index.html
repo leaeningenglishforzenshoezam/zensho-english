@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#102532">
-  <title>GOIMON DUNGEON | 2級ローグライク</title>
+  <title>GOIMON DUNGEON | 1級・2級ローグライク</title>
   <link rel="stylesheet" href="rogue_dungeon1.css">
   <link rel="stylesheet" href="duel.css">
   <link rel="stylesheet" href="route.css">
@@ -56,6 +56,7 @@
       </div>
       <div class="loadout-select">
         <div class="departure-head"><div><span class="eyebrow">DEPARTURE</span><h2>出撃準備</h2></div><button type="button" id="dungeonMapOpen" class="dungeon-map-open"><span aria-hidden="true">▦</span> 迷宮を変更</button></div>
+        <label class="departure-section-head" for="examGrade"><strong>出題する級</strong><select class="departure-edit" id="examGrade"><option value="1">1級</option><option value="2" selected>2級</option></select></label>
         <div class="departure-tools">
           <button type="button" id="bestiaryOpen" class="departure-tool"><span>◈</span><span class="departure-tool-name">図鑑</span><b id="bestiarySummary">0/17</b></button>
           <button type="button" id="badgeOpen" class="departure-tool"><span>✦</span><span class="departure-tool-name">バッジ</span><b id="badgeSummary">0/18</b></button>
@@ -301,6 +302,11 @@
       <div id="cardPickOptions" class="card-pick-options"></div>
     </div>
   </div>
+  <script src="../words_1kyu.js"></script>
+  <script src="../accent_1kyu.js"></script>
+  <script src="../sentence_fixed_1kyu.js"></script>
+  <script src="../paraphrase_data_1kyu.js"></script>
+  <script src="../reorder_1kyu.js"></script>
   <script src="words_2kyu.js"></script>
   <script src="accent_2kyu.js"></script>
   <script src="sentence_fixed_2kyu.js"></script>
