@@ -1096,6 +1096,7 @@
     const background=DUNGEONS[state.dungeon].battleArt?.[state.act-1]||'';
     const arena=$('combatStage').closest?.('.arena');
     if(arena){arena.classList.toggle('dungeon-illustrated',!!background);
+      arena.classList.toggle('boss-encounter',state.currentEncounter.nodeType==='boss');
       arena.style.setProperty('--battle-scene',background?`url("${background}")`:'none');}
     $('floorLabel').textContent=`エリア ${state.stage+1} / 9 · 単語 No.${state.encounterWordRange[0]+1}〜${state.encounterWordRange[1]} · ターン ${state.turn}`;
     $('floorPips').innerHTML=state.route.map((_,i)=>`<span class="${i<state.stage?'done':i===state.stage?'current':''}">${i===8?'★':i+1}</span>`).join('');

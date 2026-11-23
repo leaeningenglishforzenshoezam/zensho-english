@@ -169,3 +169,31 @@
   #battle .combat-stage .enemy-intent .intent-kicker{display:none}
   #battle .hand-heading .turn-ap{height:24px;min-width:61px;padding:1px 5px;font-size:11px}
 }
+
+/* Speech overlays the arena so a new line cannot shrink either fighter. */
+#bossSpeech:not([hidden]){
+  position:absolute;z-index:4;top:5px;left:40%;transform:translateX(-50%);
+  max-width:28%;margin:0;padding:.3rem .55rem;overflow-wrap:anywhere;
+}
+@media (orientation:landscape){
+  #battle .boss-encounter .combat-stage .hero-image{
+    width:100%;height:78%;max-height:calc(100% - 35px);
+  }
+  #battle .boss-encounter .combat-stage .enemy-line.enemy-count-1 .enemy{
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.78fr);
+    grid-template-rows:minmax(0,1fr);align-items:center;
+    width:83%;max-width:83%;flex:0 0 83%;margin-left:auto;
+    gap:clamp(4px,1vw,14px);
+  }
+  #battle .boss-encounter .combat-stage .enemy-line.enemy-count-1 .enemy-portrait{
+    grid-area:1 / 1;align-self:end;width:100%;height:94%;max-height:100%;
+  }
+  #battle .boss-encounter .combat-stage .enemy-vitals{
+    grid-area:1 / 2;width:100%;margin:0;
+  }
+}
+@media (orientation:landscape) and (max-height:650px){
+  #bossSpeech:not([hidden]){max-width:23%;font-size:12px;line-height:1.2}
+  #bossSpeech small{font-size:10px}
+  #bossSpeech strong{font-size:13px}
+}
