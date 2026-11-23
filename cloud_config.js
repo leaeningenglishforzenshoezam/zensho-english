@@ -1,5 +1,6 @@
 // Public configuration only. Never put a client secret here.
-window.GOIMON_CLOUD_CONFIG={googleClientId:'860663516644-f7u8dqa2bdfemr0pnmcoi6j8v5oktslr.apps.googleusercontent.com',apiBase:'https://goimon-cloud-api-staging.one-consistent.workers.dev'};
+// Re-enable only after the login flow has been reviewed. Saved accounts remain intact.
+window.GOIMON_CLOUD_CONFIG={googleClientId:'860663516644-f7u8dqa2bdfemr0pnmcoi6j8v5oktslr.apps.googleusercontent.com',apiBase:'https://goimon-cloud-api-staging.one-consistent.workers.dev',loginEnabled:false};
 // Enable the connected release only after the actual API advertises all routes.
 window.GoimonReleaseReady=(async()=>{
  const c=window.GOIMON_CLOUD_CONFIG;c.missionsEnabled=false;c.economyServerEnabled=false;c.tutorialGiftsEnabled=false;

@@ -1,6 +1,11 @@
 (() => {
   'use strict';
   const P=GOIMONProfiles,S=GOIMONCloudSchema,cfg=GOIMON_CLOUD_CONFIG,$=id=>document.getElementById(id);
+  const loginPaused=cfg.loginEnabled===false;
+  $('login-available').hidden=loginPaused;
+  $('login-paused').hidden=!loginPaused;
+  $('login-steps').hidden=loginPaused;
+  if(loginPaused){$('account-headline').textContent='学習記録は、この端末に。';$('account-lead').textContent='Googleログインは一時停止中です。学習・育成・ダンジョン・ガチャは引き続き利用できます。';}
   let token=null,userId=null,busy=false,conflict=null,epoch=0,details=null,profileRevision=0,profileReady=false,editing=false;
   let rescue=null;
   const AUTH_KEY='goimon_cloud_session_v1';
@@ -148,14 +153,17 @@
     catch{message('この端末からログアウトしました。通信できなかったためサーバー側の失効は未確認です。');}
     finally{busy=false;render();}
   };
-  window.goimonGoogleLogin=credential=>run(async()=>{
+  window.goimonGoogleLogin=credential=>{
+    if(loginPaused){message('Googleログインは一時停止中です。ゲストとして学習できます。');return;}
+    return run(async()=>{
     const previous=token;const e=++epoch;forget();
     const session=await request('POST',undefined,credential,'session');validateSession(session);if(e!==epoch)return;
     P.activate(session.userId);const persisted=remember(session);
     if(previous)try{await request('DELETE',undefined,previous,'session');}catch{}
     message(persisted?'ログインしました。同じタブでは画面を移動してもログインが続きます。':'ログインしました。この画面のみで利用できます。');
     fillProfile();await loadProfile();
-  });
+    });
+  };
   async function restoreSession(){
     const saved=savedSession();if(!saved)return;
     try{validateSession(saved);}catch(error){forget();throw error;}
@@ -171,6 +179,11 @@
   window.addEventListener('storage',event=>{if(event.key===ACTIVE_KEY && userId && event.newValue!==userId){epoch++;forget();render();message('別のタブで学習先が変わりました。Googleで再ログインしてください。');}});
   rescue=window.GOIMONRescue?.attach({account:()=>userId,assertAccount,request,apply,run,download,message,refresh:fillProfile});
   render();
+  if(loginPaused){
+    if(savedSession())run(restoreSession);
+    else message(localStorage.getItem(ACTIVE_KEY)?'ログイン機能は一時停止中です。以前のアカウント記録は残っています。ゲストに戻る場合は「ログアウト」を選んでください。':'ログイン機能は一時停止中です。学習記録はこの端末に保存されます。');
+    return;
+  }
   if(!cfg.googleClientId||!/^https:\/\//.test(cfg.apiBase)){message('検証用の設定待ちです。GoogleクライアントIDとWorker URLを設定してください。ゲスト学習は利用できます。');return;}
   const sdk=document.createElement('script');sdk.src='https://accounts.google.com/gsi/client';sdk.async=true;
   sdk.onload=()=>{google.accounts.id.initialize({client_id:cfg.googleClientId,callback:r=>window.goimonGoogleLogin(r.credential),auto_select:false});google.accounts.id.renderButton($('google-button'),{theme:'outline',size:'large',locale:'ja'});};

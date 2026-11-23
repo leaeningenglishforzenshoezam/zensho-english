@@ -12,10 +12,10 @@
 <script src="adventure-profile.js" defer></script></head>
 <body class="account-page"><main>
 <nav><a href="index.html">← 学習に戻る</a><span class="brand">GOIMON</span></nav>
-<header><span class="eyebrow">MY ACCOUNT</span><h1>学びの続きを、<br>どの端末でも。</h1><p>学習の記録も、育てたゴイモンも。<br>Googleアカウントで、大切な続きを保存できます。</p></header>
-<ol class="steps" aria-label="ご利用の流れ"><li>1 ログイン</li><li>2 プロフィール</li><li>3 保存・学習</li></ol>
+<header><span class="eyebrow">MY ACCOUNT</span><h1 id="account-headline">学びの続きを、<br>どの端末でも。</h1><p id="account-lead">学習の記録も、育てたゴイモンも。<br>Googleアカウントで、大切な続きを保存できます。</p></header>
+<ol class="steps" id="login-steps" aria-label="ご利用の流れ"><li>1 ログイン</li><li>2 プロフィール</li><li>3 保存・学習</li></ol>
 <p id="status" role="status" aria-live="polite">準備中</p>
-<section class="card" id="login-panel"><span class="eyebrow">STEP 1</span><h2>Googleでログイン</h2><p>初めての方も、登録済みの方もこちらから。</p><p class="hint">ログイン前に<a href="privacy.html">プライバシーポリシー</a>をご確認ください。</p><div id="google-button"></div><p class="hint">ログインなしでも、これまでどおり学習できます。</p></section>
+<section class="card" id="login-panel"><div id="login-available"><span class="eyebrow">STEP 1</span><h2>Googleでログイン</h2><p>初めての方も、登録済みの方もこちらから。</p><p class="hint">ログイン前に<a href="privacy.html">プライバシーポリシー</a>をご確認ください。</p><div id="google-button"></div><p class="hint">ログインなしでも、これまでどおり学習できます。</p></div><div id="login-paused" hidden><span class="eyebrow">TEMPORARILY PAUSED</span><h2>Googleログインは一時停止中です</h2><p>英語学習・ゴイモン育成・ダンジョン・ガチャはログインなしで続けられます。学習記録はこの端末に保存されます。</p><p class="hint">以前のアカウントとクラウド上の記録は削除していません。ログイン再開後に利用できます。</p><a class="action" href="index.html">ログインせずに学習する →</a></div></section>
 <div class="account-line"><span id="account">ログインしていません</span><button id="logout" class="text-button">ログアウトしてゲストに戻る</button></div>
 <p id="profile" class="hint"></p><button id="resume" hidden>ログイン状態を再確認</button>
 <section id="registration" class="card" hidden><span class="eyebrow">YOUR PROFILE</span><h2 id="registration-title">あなたのことを教えてください</h2><p>学年や目標に合った学習案内に役立てるための情報です。登録後も変更できます。</p>
