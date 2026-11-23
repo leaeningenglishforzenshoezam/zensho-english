@@ -61,7 +61,7 @@
   function writeBadges(){try{localStorage.setItem(BADGE_SAVE_KEY,JSON.stringify(badgeProgress));}catch(e){}renderBadgeSummary();}
   function awardBadge(id){if(!BADGES.some(b=>b.id===id)||badgeProgress.earned.includes(id))return;badgeProgress.earned.push(id);badgeProgress.shards+=5;writeBadges();}
   function recordCorrectAnswer(){badgeProgress.totalCorrect++;for(const b of BADGES)if(b.target&&badgeProgress.totalCorrect>=b.target)awardBadge(b.id);writeBadges();}
-  const stage2Unlocked=()=>badgeProgress.earned.includes('firstClear');
+  const stage2Unlocked=()=>(statsFor(1).clears||0)>=2;
   function renderBadgeSummary(){if(!$('badgeSummary'))return;$('badgeSummary').textContent=`${badgeProgress.earned.length} / ${BADGES.length}`;if($('badgeStarSummary'))$('badgeStarSummary').textContent=`✦ ${badgeProgress.shards}`;
     if($('helpBadges'))$('helpBadges').textContent=`獲得 ${badgeProgress.earned.length}/${BADGES.length}個 ・ 星のかけら ${badgeProgress.shards}個`;
     renderDungeonPicker();}
@@ -557,7 +557,7 @@
       const d=DUNGEONS[stage],ready=!!d&&(stage===1||stage2Unlocked());
       const active=stage===state.dungeon&&ready,number=String(stage).padStart(2,'0');
       const status=!d?'COMING SOON':!ready?'LOCKED':(statsFor(stage).clears||0)>0?'CLEARED':'OPEN';
-      const statusLabel=status==='LOCKED'?'STAGE 01クリアで解放':status==='COMING SOON'?'COMING SOON':status;
+      const statusLabel=status==='LOCKED'?`百貨店を2回クリアで解放（${statsFor(1).clears||0}/2）`:status==='COMING SOON'?'COMING SOON':status;
       const artStyle=d?.art?` style="--dungeon-image:url('${escapeHtml(d.art)}')"`:'';
       return `<button type="button" class="dungeon-map-card stage-${stage} ${active?'selected':''} ${!ready?'locked':''}" data-dungeon="${stage}" aria-pressed="${active}" aria-label="${d?escapeHtml(d.title):'未公開のダンジョン'} ${statusLabel}" ${!ready?'disabled':''}>
         <span class="map-card-art ${d?.art?'has-art':''}"${artStyle}><span class="map-card-gate" aria-hidden="true"></span><span class="map-card-art-note" aria-hidden="true">ARTWORK ${number}</span><span class="map-card-index">${number}</span></span>
@@ -805,10 +805,11 @@
     ],button:'決戦へ進む'}]);
   }
   function showDawnSequence(){const d=DUNGEONS[1];
+    const clears=statsFor(1).clears;
     playStory([
       {moment:'vault',image:d.clearVaultArt||d.battleArt[2],eyebrow:'THE FINAL VAULT',title:'最後の鍵が外れた',lines:['金庫から、まばゆい光があふれる。','その奥で、誰もいないレジが一度だけ鳴った。'],button:'次へ',tapToAdvance:true},
       {moment:'dawn',image:d.dawnArt||d.art,eyebrow:'THE CLOCK STARTS',title:'時計が動き始めた',lines:['真夜中の百貨店に、朝が訪れる。'],button:'次へ',tapToAdvance:true},
-      {moment:'complete',image:d.dawnArt||d.art,eyebrow:'DUNGEON CLEAR',title:'夜明けの百貨店',lines:['3つのACTを踏破した！'],button:'結果を見る',companion:true}
+      {moment:'complete',image:d.dawnArt||d.art,eyebrow:'DUNGEON CLEAR',title:'夜明けの百貨店',lines:clears===1?['外へ出ると、相棒の足もとにレシートが落ちていた。','日付は明日。裏には女社長の字で「今夜と同じ時刻に、もう一度」。','百貨店をあと1回クリアすると、次のダンジョンが開く。']:clears===2?['レジの音に、金庫の奥からもうひとつの音が応えた。','ダンジョン2「こだまの迷宮」が解放された！']:['3つのACTを踏破した！'],button:'結果を見る',companion:true,tapToAdvance:true}
     ]);
   }
   const JOURNAL=[
@@ -894,13 +895,15 @@
     if(kind==='shop'){openShop();return;}
     if(kind==='event'){showChoice('event');return;}
     // Teach single-target tactics first; introduce synergistic pairs as the run advances.
-    const mixedEligible=state.act>=2&&(state.act===3||state.stage>=4);
+    const returnVisit=state.dungeon===1 && statsFor(1).clears>=1;
+    const pairsAllowed=state.dungeon!==1 || returnVisit || state.act>2 || (state.act===2 && state.stage>=4);
+    const mixedEligible=pairsAllowed&&state.act>=2&&(state.act===3||state.stage>=4);
     const mixedChance=state.act===3?(state.stage>=5?(kind==='elite'?.70:.25):(kind==='elite'?.38:.12)):(kind==='elite'?.45:.12);
     const mixed=mixedEligible&&kind!=='boss'&&Math.random()<mixedChance;
     const normalPool=state.act===1&&state.stage<2?normalMonsters.slice(0,5):normalMonsters;
     const first=random(normalPool);
     const second=random(normalPool.filter(e=>e.name!==first.name));
-    const normalPair=state.stage>=2&&Math.random()<(state.act===1?.55:state.act===2?.70:.80);
+    const normalPair=pairsAllowed&&state.stage>=2&&Math.random()<(state.act===1?.55:state.act===2?.70:.80);
     const supportKinds=['support','conductor'];
     const lone=normalPair?first:supportKinds.includes(first.kind)?random(normalPool.filter(e=>!supportKinds.includes(e.kind))):first;
     const mixedMinions=normalMonsters.filter(e=>['support','sentinel','conductor','counter','inventory'].includes(e.kind));
@@ -916,7 +919,8 @@
       // ACT3 normal foes, including the normal half of mixed encounters, need an extra step up.
       // Elite and boss stats are intentionally unchanged by this normal-only adjustment.
       const act3Normal=state.act===3&&normalMonsters.some(m=>m.name===e.name);
-      return {...e,hp:act3Normal?Math.round(hp*1.18):hp,attack:act3Normal?Math.round(attack*1.12):attack};
+      const encounterHp=act3Normal?Math.round(hp*1.18):hp;
+      return {...e,hp:returnVisit?Math.round(encounterHp*1.05):encounterHp,attack:act3Normal?Math.round(attack*1.12):attack};
     });
     startBattle();
     if(state.dungeon===1&&kind==='boss'&&state.act===3)showFinalBossOmen();
@@ -1756,7 +1760,7 @@
       $('choiceEyebrow').textContent='DUNGEON CLEAR';$('choiceTitle').textContent=state.dungeon===1?'夜明けの百貨店':`${DUNGEONS[state.dungeon].title} 制覇！`;
       $('choiceDescription').textContent=`ACT 3 / 3 踏破 · ${state.fight}戦 · ${state.correct}/${state.questions}問正解`;
       $('choiceCards').innerHTML=`${state.dungeon===1?'<div class="clear-sunrise-art" role="img" aria-label="真夜中の百貨店に朝が訪れる"></div>':''}<div class="clear-stats"><div><small>冒険の記録</small><strong>${state.correct} / ${state.questions}</strong><span>正解 / 出題</span></div><div><small>残りHP</small><strong>${state.hp} / ${state.maxHp}</strong><span>3 ACT CLEAR</span></div><div><small>クリア報酬</small><strong>✦ 50</strong><span>星のかけら（試遊版・未付与）</span></div></div><p class="clear-word-record">学んだ単語 ${new Set(state.seenWords).size}語 · 誤答 ${new Set(state.wrongWords).size}語</p>`;
-      $('skipChoice').textContent='編成を変えて再挑戦';
+      $('skipChoice').textContent=state.dungeon===1&&statsFor(1).clears===1?'もう一度、百貨店へ（出撃準備）':'ダンジョンホームへ';
     }
     const reviewAvailable=['reward','eliteReward','special','defeat','complete'].includes(mode)&&!state.battleReviewUsed&&(state.battleWrongQuestions||[]).length>0;
     $('reviewWrongBtn').hidden=!reviewAvailable;
