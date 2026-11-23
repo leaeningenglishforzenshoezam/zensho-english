@@ -14,14 +14,14 @@
   const RUN_STATS_KEY='goimon_dungeon_records_v1';
   const BESTIARY_KEY='goimon_dungeon_bestiary_v1';
   const SETUP_KEY='goimon_dungeon_departure_v1';
-  const INTRO_STORY_KEY='goimon_dungeon01_prologue_seen_v1';
-  const RETURN_STORY_KEY='goimon_dungeon01_return_after_clear_seen_v1';
+  const INTRO_STORY_KEY='goimon_dungeon01_prologue_seen_v2';
+  const RETURN_STORY_KEY='goimon_dungeon01_return_after_clear_seen_v2';
   const JOURNAL_SEEN_KEY='goimon_dungeon_journal_seen_v1';
   const DEPARTMENT_ART='images/dungeons/night-department-';
   // `art` is the destination thumbnail; `departureArt` is the departure scene.
   const DUNGEONS={
     1:{title:'真夜中の百貨店',lead:'英語 → 日本語',art:DEPARTMENT_ART+'exterior.jpg',departureArt:DEPARTMENT_ART+'entrance.jpg',battleArt:[DEPARTMENT_ART+'act1.jpg',DEPARTMENT_ART+'act2.jpg',DEPARTMENT_ART+'act3.jpg'],clearVaultArt:DEPARTMENT_ART+'vault-open.jpg',dawnArt:DEPARTMENT_ART+'dawn.jpg'},
-    2:{title:'こだまの迷宮',lead:'日本語 → 英語・音声',art:''}
+    2:{title:'帰らずの終着駅',lead:'日本語 → 英語・音声',art:''}
   };
   const DUNGEON_PAGE_SIZE=4;
   let dungeonMapPage=0;
@@ -745,7 +745,7 @@
       $('storyEyebrow').textContent=frame.eyebrow||'GOIMON DUNGEON';
       $('storyTitle').textContent=frame.title;
       $('storyText').innerHTML=frame.lines.map(line=>`<p>${escapeHtml(line)}</p>`).join('');
-      $('storyContinue').textContent=frame.button||'スキップ';
+      $('storyContinue').textContent=frame.button||(run.index===frames.length-1?'閉じる':'次へ');
       const pet=$('storyCompanion'),companion=selectedCompanion();
       pet.hidden=!frame.companion||!companion?.image;
       if(!pet.hidden){pet.src=companion.image;pet.alt=`${companion.name}と夜明け`;}
@@ -761,66 +761,130 @@
     paint();
   }
   function showFirstNight(){
-    playStory([{moment:'prologue',image:DUNGEONS[1].departureArt,eyebrow:'THE FIRST NIGHT',title:'真夜中の百貨店',lines:[
-      '午前0時。閉店したはずの百貨店に、明かりがともる。',
-      '店内には、奇妙なモンスターたち。',
-      '誰もいない受付から「おかえりなさいませ」と声がした。ここへ来るのは初めてなのに。',
-      '最上階の金庫を開ければ、この夜は終わるという。'
-    ],button:'冒険を始める'}],()=>{try{localStorage.setItem(INTRO_STORY_KEY,'1');}catch(e){}});
+    const d=DUNGEONS[1];
+    playStory([
+      {moment:'prologue',image:d.art,eyebrow:'THE FIRST NIGHT',title:'真夜中の百貨店',lines:[
+        '午前0時。閉店したはずの百貨店に、ぽつりと明かりがともった。',
+        'ショーウィンドウの奥から、小さな声がする。「……たすけて」'
+      ],button:'次へ',tapToAdvance:true},
+      {moment:'prologue',image:d.departureArt,eyebrow:'THE FIRST NIGHT',title:'閉じたシャッター',lines:[
+        '足を踏み入れた途端、背後のシャッターが大きな音を立てて閉まる。',
+        '館内放送が告げた。「非常シャッターの鍵は、最上階の管理室にございます」',
+        '相棒と顔を見合わせ、明かりの残る売り場へ進んだ。'
+      ],button:'冒険を始める',tapToAdvance:true}
+    ],()=>{try{localStorage.setItem(INTRO_STORY_KEY,'1');}catch(e){}});
   }
   function showReturnNight(){
-    const lines=
-      ['たしかに朝を迎えた。最後の金庫を開け、百貨店を出たはずだった。',
-        'それなのに、入口の大時計はまた午前0時を指している。',
-        '受付の来店記録には、もう「お帰りなさい」と書かれていた。'];
-    playStory([{moment:'prologue',image:DUNGEONS[1].departureArt,eyebrow:'THE SAME NIGHT',title:'終わったはずの夜',lines,button:'百貨店へ入る'}],()=>{
+    const d=DUNGEONS[1];
+    playStory([
+      {moment:'prologue',image:d.dawnArt,eyebrow:'THE SECOND NIGHT',title:'お忘れ物引換票',lines:[
+        '一度は朝を迎え、百貨店から脱出した。',
+        'けれど、拾った「お忘れ物引換票」には、引取予定「翌日 午前0時」とある。',
+        '引取場所は、どこにも書かれていない。'
+      ],button:'次へ',tapToAdvance:true},
+      {moment:'prologue',image:d.departureArt,eyebrow:'THE SECOND NIGHT',title:'もう一度、午前0時へ',lines:[
+        '翌日の午前0時。百貨店にはまた明かりがついていた。',
+        '今度は出口を探すだけでは終われない。引換票が指す「忘れ物」の正体を確かめよう。'
+      ],button:'百貨店へ入る',tapToAdvance:true}
+    ],()=>{
       try{localStorage.setItem(RETURN_STORY_KEY,'1');}catch(e){}
     });
   }
   function showActInterlude(act){
-    const revisiting=(statsFor(1).clears||0)>0;
-    const companionName=selectedCompanion().name;
+    const secondVisit=(statsFor(1).clears||0)===1;
     const frame=act===1?
-      {moment:'act-clear',image:DUNGEONS[1].battleArt[0],eyebrow:'ACT 1 CLEAR',title:'眠らない売り場',lines:[
-        '店内の明かりが、次々と灯った。',
-        revisiting?`館内放送が、今夜の相棒「${companionName}」の名前を告げた。誰も登録していないはずなのに。`:'館内放送が「おかえりなさいませ」と繰り返す。返事をする客は、ほかにいない。'
-      ],button:'次へ'}:
-      {moment:'act-clear',image:DUNGEONS[1].battleArt[1],eyebrow:'ACT 2 CLEAR',title:'地下の秘密倉庫',lines:[
-        '重い扉が開く。最上階への道が現れた。',
-        '散らばった帳簿には「23:59」の打刻が何行も並んでいる。',
-        revisiting?'新しいページには、今夜の入店時刻がすでに記されていた。':'最後の「退店確認」欄だけが、何度も貼り直されていた。'
-      ],button:'次へ'};
+      {moment:'act-clear',image:DUNGEONS[1].battleArt[0],eyebrow:'ACT 1 CLEAR',title:'眠らない売り場',lines:secondVisit?[
+        'ラーメン魔人HODAKAが、古い地図を指さした。',
+        '「昔、この百貨店の下に駅があったそうだ。郷土資料館の地図で見たんだよ」',
+        '館内には、その駅へ続く道が残っているのだろうか。'
+      ]:[
+        'ラーメン魔人HODAKAが、道をあけた。',
+        '「シャッターの非常鍵なら、最上階の管理室にあるはずだよ」',
+        '売り場の明かりが、地下倉庫への階段を照らす。'
+      ],button:'次へ',tapToAdvance:true}:
+      {moment:'act-clear',image:DUNGEONS[1].battleArt[1],eyebrow:'ACT 2 CLEAR',title:'地下の秘密倉庫',lines:secondVisit?[
+        '熱血簿記RIKIを退けると、積まれた荷物の下から古い見取り図が現れた。',
+        '「旧駅貨物通路」――地下倉庫の奥へ、一本の線が伸びている。',
+        '図面の端には「封鎖鍵：最上階管理室」と記されていた。'
+      ]:[
+        '熱血簿記RIKIが、奥の扉の前から退いた。',
+        '「行くなら最後まで行け！ 非常鍵は上の管理室だ！」',
+        '地下倉庫の奥には、開かない大きな鉄扉がある。今は先を急ごう。'
+      ],button:'次へ',tapToAdvance:true};
     playStory([frame]);
   }
   function showFinalBossOmen(){
-    const revisiting=(statsFor(1).clears||0)>0;
-    playStory([{moment:'boss-omen',image:DUNGEONS[1].battleArt[2],eyebrow:'ACT 3 · THE FINAL VAULT',title:'覚えている女社長',lines:revisiting?[
-      '最上階の金庫室。女社長MIKAは、こちらが名乗る前に微笑んだ。',
-      '「前は、あと少しで夜明けでしたのに」',
-      '前に来た覚えはない。その言葉だけが、妙にはっきり耳に残る。'
+    const secondVisit=(statsFor(1).clears||0)===1;
+    playStory([{moment:'boss-omen',image:DUNGEONS[1].battleArt[2],eyebrow:'ACT 3 · THE FINAL VAULT',title:'最上階の管理室',lines:secondVisit?[
+      '女社長MIKAは、こちらの手にある引換票を見て、わずかに表情を変えた。',
+      '「また、お会いしましたね。……あちらへ行くおつもりですか」',
+      '「でしたら、ここで止めなければなりません」'
     ]:[
       '金庫室の扉は、触れる前にひとりでに開いた。',
-      '女社長MIKAが、待ちわびたように微笑む。',
-      '「おかえりなさい。今夜こそ、無事にお帰りになれるといいですね」'
-    ],button:'決戦へ進む'}]);
+      '女社長MIKAが、静かに頭を下げる。',
+      '「お待ちしておりました。どうしても、とおっしゃるなら……決算を始めましょう」'
+    ],button:'決戦へ進む',tapToAdvance:true}]);
   }
   function showDawnSequence(){const d=DUNGEONS[1];
     const clears=statsFor(1).clears;
-    playStory([
-      {moment:'vault',image:d.clearVaultArt||d.battleArt[2],eyebrow:'THE FINAL VAULT',title:'最後の鍵が外れた',lines:['金庫から、まばゆい光があふれる。','その奥で、誰もいないレジが一度だけ鳴った。'],button:'次へ',tapToAdvance:true},
-      {moment:'dawn',image:d.dawnArt||d.art,eyebrow:'THE CLOCK STARTS',title:'時計が動き始めた',lines:['真夜中の百貨店に、朝が訪れる。'],button:'次へ',tapToAdvance:true},
-      {moment:'complete',image:d.dawnArt||d.art,eyebrow:'DUNGEON CLEAR',title:'夜明けの百貨店',lines:clears===1?['外へ出ると、相棒の足もとにレシートが落ちていた。','日付は明日。裏には女社長の字で「今夜と同じ時刻に、もう一度」。','百貨店をあと1回クリアすると、次のダンジョンが開く。']:clears===2?['レジの音に、金庫の奥からもうひとつの音が応えた。','ダンジョン2「こだまの迷宮」が解放された！']:['3つのACTを踏破した！'],button:'結果を見る',companion:true,tapToAdvance:true}
-    ]);
+    const vault=d.clearVaultArt||d.battleArt[2];
+    if(clears===1){
+      playStory([
+        {moment:'vault',image:vault,eyebrow:'THE FINAL VAULT',title:'非常シャッターの鍵',lines:[
+          '女社長MIKAが膝をつく。「……お忘れ物には、お気をつけて」',
+          '開いた金庫には、非常シャッターの鍵が一本。これで外へ出られる。'
+        ],button:'次へ',tapToAdvance:true},
+        {moment:'dawn',image:d.dawnArt||d.art,eyebrow:'THE FIRST DAWN',title:'朝が来た',lines:[
+          'シャッターを開けると、外は本物の朝だった。',
+          '相棒と無事に脱出した――そのはずなのに、背後でレジの音が鳴る。'
+        ],button:'次へ',tapToAdvance:true},
+        {moment:'vault',image:vault,eyebrow:'LOST PROPERTY',title:'お忘れ物引換票',lines:[
+          '足もとに、一枚の紙が落ちている。',
+          '「お忘れ物引換票／お預かり品：1点」',
+          '「引取予定：翌日 午前0時／引取場所：記載なし」',
+          '「またのご来店をお待ちしております」'
+        ],button:'次へ',tapToAdvance:true},
+        {moment:'complete',image:d.dawnArt||d.art,eyebrow:'DUNGEON 1 · FIRST CLEAR',title:'終わらなかった夜',lines:[
+          '引換票を手に入れた。もう一度百貨店をクリアすれば、忘れ物の手がかりを追える。',
+          'ダンジョン2の解放まで、あと1回クリア。'
+        ],button:'結果を見る',companion:true,tapToAdvance:true}
+      ]);
+    }else if(clears===2){
+      playStory([
+        {moment:'vault',image:vault,eyebrow:'THE SECOND VAULT',title:'もう一本の鍵',lines:[
+          '金庫の奥で、古びた鍵が見つかった。札には「旧駅貨物搬入口」。',
+          '女社長MIKAが小さく言う。「気をつけて。あそこには、帰れないお客様がいます」'
+        ],button:'次へ',tapToAdvance:true},
+        {moment:'act-clear',image:d.battleArt[1],eyebrow:'BACK TO THE BASEMENT',title:'地下倉庫へ引き返す',lines:[
+          '最上階の管理室を出て、地下倉庫へ戻った。',
+          '見取り図の示す場所には、錆びた貨物用の鉄扉がある。'
+        ],button:'次へ',tapToAdvance:true},
+        {moment:'vault',image:d.battleArt[1],eyebrow:'OLD STATION GATE',title:'封鎖された搬入口',lines:[
+          '鍵を差し込むと、長い間動かなかった扉が開いた。',
+          '暗闇の向こうで、列車の汽笛が響く。',
+          '「お忘れ物のお引き取りですね。……ずいぶん、お待ちしておりました」'
+        ],button:'次へ',tapToAdvance:true},
+        {moment:'complete',image:d.departureArt,eyebrow:'DUNGEON 2 UNLOCKED',title:'帰らずの終着駅',lines:[
+          'ダンジョン2への入口が開いた！',
+          '次はダンジョン選択画面から向かえる。百貨店の異変の答えは、その先にある。'
+        ],button:'結果を見る',companion:true,tapToAdvance:true}
+      ]);
+    }else{
+      playStory([{moment:'complete',image:d.dawnArt||d.art,eyebrow:'DUNGEON CLEAR',title:'百貨店・追想挑戦',lines:[
+        '真夜中の百貨店を再び踏破した。',
+        '引換票と貨物搬入口の鍵は、すでに手に入れている。'
+      ],button:'結果を見る',companion:true,tapToAdvance:true}]);
+    }
   }
   const JOURNAL=[
-    {id:'receipt',number:'01',title:'返品不可のレシート',condition:'この百貨店に3回挑戦する',unlocked:s=>(s.attempts||0)>=3,
-      image:DEPARTMENT_ART+'entrance.jpg',leadLines:['誰もいないレジが、ひとりでに紙を吐き出した。','購入時刻は、まだ来ていない明日の午前0時。'],lines:['品名「帰宅」。数量「1」。','購入者の欄には、今夜連れてきたゴイモンの名前。','いちばん下にだけ、赤い文字で「返品不可／受渡未了」。']},
-    {id:'ledger',number:'02',title:'帰れなかった従業員',condition:'ACT 2のボスを1度倒す',unlocked:s=>(s.act2Bosses||0)>=1,
-      image:DEPARTMENT_ART+'act2.jpg',leadLines:['地下倉庫の帳簿は、どのページも計算が合っていた。','ただ一列だけ、数字ではなく人の名前が並んでいる。'],lines:['それは閉店前、この店で働いていた従業員の名簿。','全員の退勤時刻は「23:59」。','「帰宅した人数：0」の数字だけが、何年経っても変わらない。']},
-    {id:'morning',number:'03',title:'夜明けの集合写真',condition:'初めて3 ACTをクリアする',unlocked:s=>(s.clears||0)>=1,
-      image:DEPARTMENT_ART+'dawn.jpg',leadLines:['朝が来た。扉は開き、止まっていた時計も動き出す。','それでも相棒は、誰もいない展示室を見つめていた。'],lines:['壁には、今夜の冒険を写した古い集合写真がある。','写真の自分は、まだ着たことのない服を着ていた。','背後に立つ店員だけは、すべての写真に同じ顔で写っている。']},
-    {id:'invitation',number:'04',title:'三人目のお客様',condition:'異なる2体のゴイモンでクリアする',unlocked:s=>(s.clearedCompanions||[]).length>=2,
-      image:DEPARTMENT_ART+'vault-open.jpg',leadLines:['別のゴイモンと金庫を開けた瞬間、奥で古いレジが鳴った。','店内には、もう誰もいないはずだった。'],lines:['レシートには「次の行き先：こだまの迷宮」。','その下に「ご来店人数：3名様」。','自分とゴイモンを数え直したとき、すぐ後ろで足音がひとつ止まった。']}
+    {id:'claim-ticket',number:'01',title:'お忘れ物引換票',condition:'百貨店を1回クリアする',unlocked:s=>(s.clears||0)>=1,
+      image:DEPARTMENT_ART+'dawn.jpg',leadLines:['最初の脱出後、誰もいないレジの音が聞こえた。','足もとに落ちていたのは、見覚えのない引換票だった。'],lines:['お忘れ物引換票／お預かり品：1点','引取予定：翌日 午前0時','引取場所：記載なし','またのご来店をお待ちしております。']},
+    {id:'emergency-key',number:'02',title:'非常シャッターの鍵',condition:'百貨店を1回クリアする',unlocked:s=>(s.clears||0)>=1,
+      image:DEPARTMENT_ART+'vault-open.jpg',leadLines:['女社長MIKAの金庫に、非常シャッターの鍵が保管されていた。','鍵を回すとシャッターは開き、本物の朝を迎えられた。'],lines:['初めて持ち帰れたのは、引換票だけ。','金庫の奥には、ほかにも鍵を掛けた場所があるらしい。']},
+    {id:'old-station-map',number:'03',title:'旧駅貨物通路の見取り図',condition:'百貨店を2回クリアする',unlocked:s=>(s.clears||0)>=2,
+      image:DEPARTMENT_ART+'act2.jpg',leadLines:['二度目の調査で、地下倉庫から古い見取り図を発見した。','「旧駅貨物通路」の文字が、埃の下から浮かび上がる。'],lines:['地下倉庫の奥には、使われていない貨物搬入口がある。','図面の注記は「封鎖鍵：最上階管理室」。','百貨店の地下に、かつて駅があったのだ。']},
+    {id:'cargo-gate',number:'04',title:'開いた貨物搬入口',condition:'百貨店を2回クリアする',unlocked:s=>(s.clears||0)>=2,
+      image:DEPARTMENT_ART+'act2.jpg',leadLines:['二度目の金庫で手に入れた鍵は、非常シャッターの鍵ではなかった。','「旧駅貨物搬入口」の札がついている。'],lines:['地下倉庫へ戻り、錆びた鉄扉を開けた。','奥から聞こえてきたのは、列車の汽笛と誰かの声。','「お忘れ物のお引き取りですね」','扉の先は、ダンジョン2「帰らずの終着駅」へ続く。']}
   ];
   function journalUnlocked(){const stats=statsFor(1);return JOURNAL.filter(entry=>entry.unlocked(stats));}
   function renderJournalSummary(){const unlocked=journalUnlocked();const total=JOURNAL.length;
@@ -840,11 +904,11 @@
     $('journalOverlay').hidden=true;
     playSfx('journal');
     playStory([{moment:'record-intro',image:entry.image,eyebrow:`MIDNIGHT RECORD ${entry.number}`,title:'閉店後に残されたもの',lines:entry.leadLines,button:'次へ',tapToAdvance:true},
-      {moment:'record',image:entry.image,eyebrow:`MIDNIGHT RECORD ${entry.number}`,title:entry.title,lines:entry.lines,button:'記録を閉じる'}]);
+      {moment:'record',image:entry.image,eyebrow:`MIDNIGHT RECORD ${entry.number}`,title:entry.title,lines:entry.lines,button:'記録を閉じる',tapToAdvance:true}]);
   }
   function showLatestJournalIfNew(){const unread=journalUnlocked().filter(entry=>!journalSeen.has(entry.id));if(unread.length)openJournalEntry(unread[unread.length-1].id);}
-  $('storyContinue').onclick=()=>{const run=activeStory;if(run?.frames[run.index]?.tapToAdvance)run.advance();else endStory();};
-  $('storyOverlay').onclick=e=>{if(e.target===$('storyOverlay')&&!activeStory?.frames[activeStory.index]?.tapToAdvance)endStory();};
+  $('storyContinue').onclick=()=>activeStory?.advance();
+  $('storyOverlay').onclick=()=>{};
   const NODE={battle:['⚔','通常戦'],elite:['☠','強敵'],event:['？','未知'],rest:['✚','休憩'],treasure:['✦','宝箱'],shop:['▣','SHOP'],boss:['🐉','ボス']};
   function makeRoute(){
     // Every complete path has 6 or 7 battles including the boss, regardless of lane.
@@ -895,7 +959,7 @@
     if(kind==='shop'){openShop();return;}
     if(kind==='event'){showChoice('event');return;}
     // Teach single-target tactics first; introduce synergistic pairs as the run advances.
-    const returnVisit=state.dungeon===1 && statsFor(1).clears>=1;
+    const returnVisit=state.dungeon===1 && (statsFor(1).clears||0)===1;
     const pairsAllowed=state.dungeon!==1 || returnVisit || state.act>2 || (state.act===2 && state.stage>=4);
     const mixedEligible=pairsAllowed&&state.act>=2&&(state.act===3||state.stage>=4);
     const mixedChance=state.act===3?(state.stage>=5?(kind==='elite'?.70:.25):(kind==='elite'?.38:.12)):(kind==='elite'?.45:.12);
@@ -933,7 +997,7 @@
     state.basicAttack=5;state.basicGuard=3;state.seenWords=[];state.wrongWords=[];state.battleWrongQuestions=[];state.runWrongQuestions=[];state.artifactTurnUses=new Set();state.artifactBattleUses=new Set();state.artifactDiscountUsed=false;state.artifactFreeShopUsed=false;startAct();
     if(state.dungeon===1){
       if(!statsFor(1).clears&&localStorage.getItem(INTRO_STORY_KEY)!=='1')showFirstNight();
-      else if(statsFor(1).clears>0&&localStorage.getItem(RETURN_STORY_KEY)!=='1')showReturnNight();
+      else if(statsFor(1).clears===1&&localStorage.getItem(RETURN_STORY_KEY)!=='1')showReturnNight();
     }}
   function draw(n){for(let i=0;i<n&&state.hand.length<MAX_HAND;i++){if(!state.deck.length){state.deck=shuffled(state.used.splice(0));}if(!state.deck.length)break;state.hand.push(state.deck.pop());
       if(state.phase==='battle'&&!state.battleOpeningDraw){state.artifactDraws++;if(hasArtifact('CashFlow')&&state.artifactDraws>=2&&!state.artifactTurnUses.has('CashFlow')){state.block+=3;state.artifactTurnUses.add('CashFlow');}}}}
