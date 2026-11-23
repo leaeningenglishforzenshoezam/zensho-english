@@ -51,7 +51,7 @@ export async function handleMissionDraft(request,env){
   const payload=await body(request,path==='/api/v1/missions/learning/sync'?920000:['/api/v1/economy/import/stage','/api/v1/economy/import/auto'].includes(path)?300000:4096),isIdiom=path.includes('/idioms/'),isExam=path.includes('/exam/'),challenge=path.split('/')[4];
   if(path==='/api/v1/economy/import/stage'){exact(payload,['version','assets','backup']);return reply(await stageLegacyImport(env.DB,userId,payload));}
   if(path==='/api/v1/economy/loadouts/save')return reply(await saveLoadout(env.DB,userId,payload));
-  if(path==='/api/v1/economy/bonus/claim'){exact(payload,['kind','date','expectedRevision']);return reply(await claimBonus(env.DB,userId,payload));}
+  if(path==='/api/v1/economy/bonus/claim'){exact(payload,payload.kind==='dungeon'?['kind','date','expectedRevision','outcome','wins']:['kind','date','expectedRevision']);return reply(await claimBonus(env.DB,userId,payload));}
   if(path==='/api/v1/economy/gift/tutorial-gear/claim'){exact(payload,['expectedRevision']);return reply(await claimTutorialGearGift(env.DB,userId,payload));}
   if(path==='/api/v1/economy/gift/claim'){exact(payload,['expectedRevision']);return reply(await claimFirstAidGift(env.DB,userId,payload));}
   if(path==='/api/v1/economy/loadouts/import'){exact(payload,[]);return reply(await importLegacyLoadouts(env.DB,userId));}

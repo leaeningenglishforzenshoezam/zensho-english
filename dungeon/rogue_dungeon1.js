@@ -387,7 +387,7 @@
   };
   function saveCheckpoint(){
     if(state.phase==='intro'||state.choiceMode==='complete')return;
-    const keys=['phase','examGrade','dungeon','act','actFight','stage','route','routeEdges','routePath','currentEncounter','encounterWordRange','wordQueue','loadout','companionId','selectedCarrySkills','type','hp','maxHp','owned','coins','artifacts','basicAttack','basicGuard','typeBoost','specialBoosts','questions','correct','fight','seenWords','wrongWords','ap','apTotal','block','guardPriceCut','carry','carryOver','buff','nextPlus','turn','hand','deck','used','enemies','selected','commandUsed','shieldPierce','shopStock','shopRemoveIndex','removeOrigin','choiceMode','choiceOffer','eliteArtifactOffer','eventHistory','choiceEvent','choiceSpecialOptions','specialSkillOffer','upgradeFromEvent','battleWrongQuestions','runWrongQuestions','battleReviewUsed','battleReviewRevived','turnDamage','turnGuardGained','lastBattleArtifact','sealed','growUses','discardedTurn','recoveredTurn','correctFormats','turnUsedNames','replayUsed','freeReplayCard','freeRetrievedCard','chainApGained','momentumActive','momentumDrawn','reserveAp','reserveUsed','artifactAttacks','artifactCardUses','artifactDraws','artifactCorrectStreak','artifactUniqueCards','artifactNextGuard','artifactCompound','artifactDiscountUsed','artifactFreeShopUsed','artifactActUpgrades'];
+    const keys=['missionOwner','missionRecorded','phase','examGrade','dungeon','act','actFight','stage','route','routeEdges','routePath','currentEncounter','encounterWordRange','wordQueue','loadout','companionId','selectedCarrySkills','type','hp','maxHp','owned','coins','artifacts','basicAttack','basicGuard','typeBoost','specialBoosts','questions','correct','fight','seenWords','wrongWords','ap','apTotal','block','guardPriceCut','carry','carryOver','buff','nextPlus','turn','hand','deck','used','enemies','selected','commandUsed','shieldPierce','shopStock','shopRemoveIndex','removeOrigin','choiceMode','choiceOffer','eliteArtifactOffer','eventHistory','choiceEvent','choiceSpecialOptions','specialSkillOffer','upgradeFromEvent','battleWrongQuestions','runWrongQuestions','battleReviewUsed','battleReviewRevived','turnDamage','turnGuardGained','lastBattleArtifact','sealed','growUses','discardedTurn','recoveredTurn','correctFormats','turnUsedNames','replayUsed','freeReplayCard','freeRetrievedCard','chainApGained','momentumActive','momentumDrawn','reserveAp','reserveUsed','artifactAttacks','artifactCardUses','artifactDraws','artifactCorrectStreak','artifactUniqueCards','artifactNextGuard','artifactCompound','artifactDiscountUsed','artifactFreeShopUsed','artifactActUpgrades'];
     const data=Object.fromEntries(keys.map(k=>[k,state[k]]));
     for(const key of ['artifactTurnUses','artifactBattleUses','typeTurnUses','typeBattleUses','typeCorrectNames'])data[key]=[...state[key]];
     data.version=2;
@@ -399,6 +399,7 @@
     const old=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');return old&&[2,3].includes(old.act)&&Array.isArray(old.owned)?old:null;}catch(e){return null;}}
   function clearCheckpoint(){try{localStorage.removeItem(RUN_SAVE_KEY);localStorage.removeItem(SAVE_KEY);}catch(e){}$('resumeBtn').hidden=true;}
   function resumeCheckpoint(){const data=readCheckpoint();if(!data)return;
+    state.missionOwner=data.missionOwner??GoimonDungeonMission.owner();state.missionRecorded=!!data.missionRecorded;
     refreshCompanions();
     const pet=companions.find(c=>c.id===data.companionId)||selectedCompanion();
     if(!pet){renderSelectedCompanion();return;}
@@ -902,7 +903,7 @@
     if(state.dungeon===1&&kind==='boss'&&state.act===3)showFinalBossOmen();
   }
   function startAct(){state.stage=0;state.actFight=0;const map=makeRoute();state.route=map.route;state.routeEdges=map.edges;state.routePath=[];showRoute();}
-  function start(){refreshCarryInventory();renderLoadouts();refreshCompanions();renderSelectedCompanion();if(!selectedCompanion())return;if(state.dungeon===2&&!stage2Unlocked())return;playSfx('confirm');clearCheckpoint();state.hp=START_HP;state.maxHp=START_HP;state.act=1;state.type=selectedCompanion().type;state.typeBoost=false;state.specialBoosts=[];
+  function start(){refreshCarryInventory();renderLoadouts();refreshCompanions();renderSelectedCompanion();if(!selectedCompanion())return;if(state.dungeon===2&&!stage2Unlocked())return;playSfx('confirm');clearCheckpoint();state.missionOwner=GoimonDungeonMission.owner();state.missionRecorded=false;state.hp=START_HP;state.maxHp=START_HP;state.act=1;state.type=selectedCompanion().type;state.typeBoost=false;state.specialBoosts=[];
     state.owned=[...carryNames()];state.specialSkillOffer=null;state.choiceSpecialOptions=null;state.questions=0;state.correct=0;state.fight=0;state.coins=0;state.artifacts=[];state.artifactActUpgrades=[];
     state.eventHistory=[];state.choiceEvent=null;
     recordRun('start');
@@ -1379,7 +1380,7 @@
     state.carryOver=Math.min(state.carry||0,Math.max(0,state.block-total));state.used.push(...state.hand.splice(0));
     // At most two junk cards are added in a turn. Correct answers exhaust them; wrong answers recycle through USED.
     for(let j=0;j<Math.min(2,junkAdded);j++)state.deck.splice(Math.floor(Math.random()*(state.deck.length+1)),0,'BadStock');
-    if(state.hp<=0){playSfx('defeat');showChoice('defeat');return;}
+    if(state.hp<=0){GoimonDungeonMission.recordDefeat(state);playSfx('defeat');showChoice('defeat');return;}
     if(!alive().length){winBattle();return;}
     const bonusAp=Math.min(state.ap,state.reserveAp);const reserveGuard=hasArtifact('ReserveVault')?Math.min(2,state.ap)*2:0;state.turn++;state.apTotal=3+bonusAp;state.ap=Math.max(1,state.apTotal-nextApTax);state.reserveAp=0;state.reserveUsed=false;state.block=state.carryOver+reserveGuard+state.artifactNextGuard;state.guardPriceCut=nextGuardPriceCut;state.artifactNextGuard=0;state.carry=0;state.buff=1;state.nextPlus=0;state.shieldPierce=0;state.commandUsed=false;state.discardedTurn=0;state.recoveredTurn=0;state.correctFormats=[];state.turnUsedNames=[];state.replayUsed=false;state.chainApGained=0;state.momentumActive=false;state.momentumDrawn=0;state.turnDamage=0;state.turnGuardGained=0;state.artifactTurnUses.clear();state.typeTurnUses.clear();state.typeCorrectNames.clear();state.artifactAttacks=0;state.artifactCardUses=0;state.artifactDraws=0;state.artifactCorrectStreak=0;state.artifactUniqueCards=[];state.artifactCompound=0;state.freeRetrievedCard=null;
     state.battleOpeningDraw=true;draw(5);state.battleOpeningDraw=false;renderBattle();flashNotice(bossEvaded?'全問正解！ 特殊技を完全回避':junkAdded?`不良在庫＋${Math.min(2,junkAdded)}枚`:taken?`HP −${taken}`:total?'防御成功':'敵が行動した');showBattleFx(total>0?'enemy':'guard',bossEvaded?'✦ PERFECT DODGE!':taken?`💥 ${taken} ダメージ！`:total>0?'🛡 BLOCK!':'✦ 敵が行動した');if(total>0)playSfx(taken>0?'hurt':'guard');}

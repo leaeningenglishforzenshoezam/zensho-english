@@ -20,7 +20,7 @@ function claimTutorialGear(){return transaction('1',s=>{
  return item;
 });}
 function welcome(level){return transaction(level,s=>grant(s,'welcome',10));}
-function claimMissions(level){return transaction(level,s=>{const status=GoimonDailyMissions.getStatus(level);let total=0;for(const m of status.missions)if(m.available&&m.completed&&Number.isSafeInteger(m.rewardStars)&&m.rewardStars>0)total+=grant(s,'lv'+level+':mission:'+status.date+':'+m.slot,m.rewardStars);return total;});}
+function claimMissions(level){return transaction(level,s=>{const status=GoimonDailyMissions.getStatus(level);let total=window.GoimonDungeonMission?.result(status.date)?grant(s,'dungeon:'+status.date,2):0;for(const m of status.missions)if(m.available&&m.completed&&Number.isSafeInteger(m.rewardStars)&&m.rewardStars>0)total+=grant(s,'lv'+level+':mission:'+status.date+':'+m.slot,m.rewardStars);return total;});}
 function loginDay(){return new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
 function loginStatus(){const date=loginDay(),id='login:'+date;return {date,loggedIn:account!=='guest',claimed:['1','2'].some(level=>!!read(level).shop.claims[id])};}
 function claimLogin(level){return import('./daily-bonus.mjs').then(module=>module.claim(window));}

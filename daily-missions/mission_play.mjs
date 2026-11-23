@@ -164,6 +164,14 @@ function renderDashboard(){
    b.onclick=()=>{$('kind').value=value;showGoal();$('start').click();};
   }
  }
+ const dungeonResult=dailyState&&GoimonDungeonMission.result(dailyState.date);
+ GoimonDungeonMission.card($('missionCards'),{completed:!!(dailyState?.dungeonClaimed||dungeonResult),claimed:dailyState?.dungeonClaimed,claim:()=>run(async()=>{
+  const wallet=await flow.client.request('economy');
+  await flow.client.request('economy/bonus/claim',{kind:'dungeon',...dungeonResult,expectedRevision:wallet.revision});
+  const updated=await flow.client.request('economy');
+  $('balance').textContent='星のかけら：'+updated.state.shards+'個';
+  await refreshDashboard();
+ })});
  $('refreshMissions').disabled=!flow||working;
  $('basicBonus').hidden=$('missionLevel').value!=='1';
  $('basicBonus').textContent=`基本3ミッションを達成すると、さらに${rules.allBasicBonusStars}個。`;
@@ -175,9 +183,9 @@ async function refreshDashboard(){
  try{
   const state=await flow.client.request('missions/status?level='+level);
   if(generation!==statusGeneration||$('missionLevel').value!==level)return;
-  dailyState=state;const done=state.missions.filter(m=>m.completed).length;
-  $('dailySummary').textContent=`${state.date} · ${done} / ${state.missions.length} 達成`;
-  $('dailyProgress').max=state.missions.length;$('dailyProgress').value=done;$('dailyProgress').hidden=false;
+  dailyState=state;const done=state.missions.filter(m=>m.completed).length+Number(!!(state.dungeonClaimed||GoimonDungeonMission.result(state.date)));
+  $('dailySummary').textContent=`${state.date} · ${done} / ${state.missions.length+1} 達成`;
+  $('dailyProgress').max=state.missions.length+1;$('dailyProgress').value=done;$('dailyProgress').hidden=false;
  }catch{if(generation!==statusGeneration)return;$('dailySummary').textContent='達成状況を取得できません。「更新」で再確認できます。';}
  if(generation===statusGeneration)renderDashboard();
 }
