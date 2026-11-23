@@ -1013,22 +1013,23 @@
     if(e.kind==='boss'){
       const phase2=e.hp<=e.maxHp/2,phaseText=phase2?'【本気】':'';
       const cycle=(t-1)%4;
+      const thirdStrike=phase2?18:15;
       if(e.bossId==='hodaka'){
         if(cycle===0){const strike=Math.round((a+(phase2?3:0))*.8);return {attack:strike,label:`🍜 ${phaseText}麺打ち ${strike}`};}
         if(cycle===1)return {attack:7+(phase2?3:0),shield:10+(phase2?4:0),label:`♨ ${phaseText}湯気の壁：防御＋${10+(phase2?4:0)}・攻撃${7+(phase2?3:0)}`};
-        if(cycle===2)return {attack:a+10+(phase2?4:0),label:`🔥 ${phaseText}熱湯スープ ${a+10+(phase2?4:0)}`};
+        if(cycle===2)return {attack:thirdStrike,label:`🔥 ${phaseText}熱湯スープ ${thirdStrike}`};
         return {quizFormat:'q12',quizCount:1,quizAttack:30,label:`🍜 ${phaseText}ラーメンアタック：大問12正解で回避／失敗30ダメージ`};
       }
       if(e.bossId==='riki'){
         if(cycle===0){const strike=Math.round((a+(phase2?4:0))*.8);return {attack:strike,label:`📘 ${phaseText}確認テスト ${strike}`};}
         if(cycle===1)return {attack:10+(phase2?4:0),shield:14+(phase2?6:0),label:`📒 ${phaseText}仕訳指導：防御＋${14+(phase2?6:0)}・攻撃${10+(phase2?4:0)}`};
-        if(cycle===2)return {attack:a+11+(phase2?5:0),label:`🔥 ${phaseText}熱血追試 ${a+11+(phase2?5:0)}`};
+        if(cycle===2)return {attack:thirdStrike,label:`🔥 ${phaseText}熱血追試 ${thirdStrike}`};
         return {quizFormat:'q11',quizCount:2,quizAttack:9+(phase2?4:0),apTax:1,label:`🖍 ${phaseText}赤ペン指導：大問11を2問とも正解で回避／失敗時攻撃${9+(phase2?4:0)}・次AP−1`};
       }
       if(e.bossId==='mika'){
         if(cycle===0){const strike=Math.round((a+(phase2?5:0))*.8);return {attack:strike,label:`💼 ${phaseText}業績命令 ${strike}`};}
         if(cycle===1)return {heal:12+(phase2?4:0),shield:20+(phase2?6:0),label:`💎 ${phaseText}資本増強：HP＋${12+(phase2?4:0)}・防御＋${20+(phase2?6:0)}`};
-        if(cycle===2)return {attack:a+8+(phase2?5:0),junk:phase2?2:1,label:`📉 ${phaseText}不採算処理：攻撃${a+8+(phase2?5:0)}・不良在庫＋${phase2?2:1}枚`};
+        if(cycle===2)return {attack:thirdStrike,junk:phase2?2:1,label:`📉 ${phaseText}不採算処理：攻撃${thirdStrike}・不良在庫＋${phase2?2:1}枚`};
         return {quizFormat:'q12',quizCount:3,quizAttack:a+15+(phase2?6:0),label:`👑 ${phaseText}最終決済：大問12を3問すべて正解で回避／失敗${a+15+(phase2?6:0)}ダメージ`};
       }
       return {attack:a,label:`⚔ 攻撃 ${a}`};
