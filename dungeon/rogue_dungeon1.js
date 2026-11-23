@@ -117,12 +117,12 @@
     FirstAid:{label:'First Aid',ap:1,format:'audio',heal:3,icon:'✚',type:'heal',rank:'N',plus:{heal:5}},
     Burst:{label:'Burst',ap:1,format:'word',dmg:15,icon:'✦',type:'attack',rank:'N',plus:{dmg:20}},
     Scream:{label:'Scream',ap:2,format:'accent',dmg:14,range:3,icon:'◈',type:'attack',rank:'R',plus:{dmg:19}},
-    Encourage:{label:'Encourage',ap:2,format:'word',heal:13,block:5,icon:'☘',type:'heal',rank:'N',plus:{heal:19,block:7}},
+    Encourage:{label:'Encourage',ap:2,format:'word',heal:8,block:5,icon:'☘',type:'heal',rank:'N',plus:{heal:12,block:7}},
     Remind:{label:'Remind',ap:1,format:'word',retrieve:1,icon:'↶',type:'tactic',rank:'N',plus:{block:5}},
-    Aid:{label:'Aid',ap:1,format:'word',heal:7,icon:'✚',type:'heal',rank:'N',plus:{heal:10}},
+    Aid:{label:'Aid',ap:1,format:'word',heal:5,icon:'✚',type:'heal',rank:'N',plus:{heal:7}},
     Pronounce:{label:'Pronounce',ap:1,format:'accent',dmg:10,block:3,icon:'✧',type:'attack',rank:'N',plus:{dmg:14,block:4}},
     Rhythm:{label:'Rhythm',ap:1,format:'accent',buff:2,icon:'♫',type:'tactic',rank:'N',plus:{draw:1}},
-    Comfort:{label:'Comfort',ap:1,format:'word',heal:5,block:4,icon:'♡',type:'heal',rank:'N',plus:{heal:8,block:6}},
+    Comfort:{label:'Comfort',ap:1,format:'word',heal:3,block:4,icon:'♡',type:'heal',rank:'N',plus:{heal:5,block:6}},
     Whisper:{label:'Whisper',ap:1,format:'word',dmg:8,draw:1,icon:'❖',type:'attack',rank:'N',plus:{dmg:12}},
     Flash:{label:'Flash',ap:1,format:'accent',dmg:18,icon:'✺',type:'attack',rank:'N',plus:{dmg:24}},
     Angle:{label:'Angle',ap:1,format:'accent',dmg:12,weaken:3,icon:'⌁',type:'attack',rank:'R',plus:{dmg:16,weaken:5}},
@@ -130,9 +130,9 @@
     Press:{label:'Press',ap:1,format:'word',dmg:8,nextPlus:5,icon:'✹',type:'attack',rank:'N',plus:{dmg:12,nextPlus:7}},
     Slice:{label:'Slice',ap:1,format:'accent',dmg:12,pierce:true,icon:'⚔',type:'attack',rank:'N',plus:{dmg:17}},
     Lock:{label:'Lock',ap:1,format:'accent',block:5,weaken:5,icon:'⌑',type:'guard',rank:'N',plus:{block:8,weaken:8}},
-    Repair:{label:'Repair',ap:2,format:'word',heal:15,block:12,icon:'✚',type:'heal',rank:'R',plus:{heal:20,block:16}},
+    Repair:{label:'Repair',ap:2,format:'word',heal:8,block:12,icon:'✚',type:'heal',rank:'R',plus:{heal:11,block:16}},
     Shock:{label:'Shock',ap:2,format:'q9',dmg:26,icon:'ϟ',type:'attack',rank:'R',plus:{dmg:36}},
-    Cure:{label:'Cure',ap:2,format:'q11',heal:21,block:5,icon:'✚',type:'heal',rank:'R',plus:{heal:30,block:7}},
+    Cure:{label:'Cure',ap:2,format:'q11',heal:13,block:5,icon:'✚',type:'heal',rank:'R',plus:{heal:18,block:7}},
     Command:{label:'Command',ap:0,format:'q9',buff:2,icon:'✷',type:'tactic',rank:'R',plus:{block:5}},
     Surround:{label:'Surround',ap:2,format:'q9',dmg:14,range:2,icon:'☄',type:'attack',rank:'R',plus:{dmg:20}},
     Disturb:{label:'Disturb',ap:2,format:'q9',cancel:true,icon:'⊘',type:'tactic',rank:'R',plus:{draw:1}},
@@ -203,7 +203,7 @@
     // 12 extra Q12-only cards. The new pool rewards card cycling, defense and finishers.
     ,NightMarket:{label:'Night Market',ap:1,format:'q12',dmg:12,scaleUsed:1,icon:'☾',type:'attack',rank:'N',plus:{dmg:16,scaleUsed:2}}
     ,StockReserve:{label:'Stock Reserve',ap:1,format:'q12',block:10,carry:6,icon:'▦',type:'guard',rank:'N',plus:{block:14,carry:9}}
-    ,Cashback:{label:'Cashback',ap:1,format:'q12',heal:8,draw:1,icon:'↶',type:'heal',rank:'R',plus:{heal:12,draw:1}}
+    ,Cashback:{label:'Cashback',ap:1,format:'q12',heal:4,draw:1,icon:'↶',type:'heal',rank:'R',plus:{heal:6,draw:1}}
     ,MarginCall:{label:'Margin Call',ap:2,format:'q12',dmg:17,consumeBlock:14,icon:'⇄',type:'attack',rank:'R',plus:{dmg:23,consumeBlock:18}}
     ,QuickAudit:{label:'Quick Audit',ap:1,format:'q12',block:7,retrieve:1,icon:'▤',type:'tactic',rank:'R',plus:{block:11,retrieve:1}}
     ,LastMinute:{label:'Last Minute',ap:2,format:'q12',dmg:24,lowHpBonus:12,icon:'ϟ',type:'attack',rank:'SR',plus:{dmg:32,lowHpBonus:18}}
