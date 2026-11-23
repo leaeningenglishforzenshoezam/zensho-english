@@ -592,7 +592,7 @@
     }catch{ /* An unreadable inventory offers no carry-in cards. */ }
   }
   refreshCarryInventory();
-  const carryChoices=()=>availableSkills().filter(id=>ownedSkillIds.has(id));
+  const carryChoices=()=>[...availableSkills(),...(state.dungeon===1?['Spark','Shelter']:[])].filter(id=>ownedSkillIds.has(id));
   const selectedCompanion=()=>companions.find(c=>c.id===state.companionId)||companions[0];
   const selectedCarry=()=>state.selectedCarrySkills??LOADOUTS[state.loadout].cards;
   const carryNames=()=>[...new Set(selectedCarry())].filter(id=>carryChoices().includes(id)).slice(0,3);
