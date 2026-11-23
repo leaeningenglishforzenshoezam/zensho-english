@@ -754,19 +754,17 @@
       '最上階の金庫を開ければ、この夜は終わるという。'
     ],button:'冒険を始める'}],()=>{try{localStorage.setItem(INTRO_STORY_KEY,'1');}catch(e){}});
   }
-  function showReturnNight(afterClear){
-    const lines=afterClear?
+  function showReturnNight(){
+    const lines=
       ['たしかに朝を迎えた。最後の金庫を開け、百貨店を出たはずだった。',
         'それなのに、入口の大時計はまた午前0時を指している。',
-        '受付の来店記録には、もう「お帰りなさい」と書かれていた。']:
-      ['入口の名簿には、今日の日付で「2度目のご来店」と印刷されていた。',
-        '受付は無人だ。誰が最初の来店を覚えているのだろう。'];
-    playStory([{moment:'prologue',image:DUNGEONS[1].departureArt,eyebrow:'THE SAME NIGHT',title:afterClear?'終わったはずの夜':'二度目の来店',lines,button:'百貨店へ入る'}],()=>{
-      if(afterClear)try{localStorage.setItem(RETURN_STORY_KEY,'1');}catch(e){}
+        '受付の来店記録には、もう「お帰りなさい」と書かれていた。'];
+    playStory([{moment:'prologue',image:DUNGEONS[1].departureArt,eyebrow:'THE SAME NIGHT',title:'終わったはずの夜',lines,button:'百貨店へ入る'}],()=>{
+      try{localStorage.setItem(RETURN_STORY_KEY,'1');}catch(e){}
     });
   }
   function showActInterlude(act){
-    const revisiting=(statsFor(1).attempts||0)>1;
+    const revisiting=(statsFor(1).clears||0)>0;
     const companionName=selectedCompanion().name;
     const frame=act===1?
       {moment:'act-clear',image:DUNGEONS[1].battleArt[0],eyebrow:'ACT 1 CLEAR',title:'眠らない売り場',lines:[
@@ -781,7 +779,7 @@
     playStory([frame]);
   }
   function showFinalBossOmen(){
-    const revisiting=(statsFor(1).attempts||0)>1;
+    const revisiting=(statsFor(1).clears||0)>0;
     playStory([{moment:'boss-omen',image:DUNGEONS[1].battleArt[2],eyebrow:'ACT 3 · THE FINAL VAULT',title:'覚えている女社長',lines:revisiting?[
       '最上階の金庫室。女社長MIKAは、こちらが名乗る前に微笑んだ。',
       '「前は、あと少しで夜明けでしたのに」',
@@ -916,9 +914,8 @@
     recordRun('start');
     state.basicAttack=5;state.basicGuard=3;state.seenWords=[];state.wrongWords=[];state.battleWrongQuestions=[];state.runWrongQuestions=[];state.artifactTurnUses=new Set();state.artifactBattleUses=new Set();state.artifactDiscountUsed=false;state.artifactFreeShopUsed=false;startAct();
     if(state.dungeon===1){
-      if(localStorage.getItem(INTRO_STORY_KEY)!=='1')showFirstNight();
-      else if(statsFor(1).clears>0&&localStorage.getItem(RETURN_STORY_KEY)!=='1')showReturnNight(true);
-      else if(statsFor(1).attempts===2)showReturnNight(false);
+      if(!statsFor(1).clears&&localStorage.getItem(INTRO_STORY_KEY)!=='1')showFirstNight();
+      else if(statsFor(1).clears>0&&localStorage.getItem(RETURN_STORY_KEY)!=='1')showReturnNight();
     }}
   function draw(n){for(let i=0;i<n&&state.hand.length<MAX_HAND;i++){if(!state.deck.length){state.deck=shuffled(state.used.splice(0));}if(!state.deck.length)break;state.hand.push(state.deck.pop());
       if(state.phase==='battle'&&!state.battleOpeningDraw){state.artifactDraws++;if(hasArtifact('CashFlow')&&state.artifactDraws>=2&&!state.artifactTurnUses.has('CashFlow')){state.block+=3;state.artifactTurnUses.add('CashFlow');}}}}
