@@ -315,7 +315,7 @@
     [{kind:'charger',name:'雷角のけもの',hp:68,attack:10,icon:'⚡'}],
     [{kind:'attacker',name:'石ころファング',hp:42,attack:7,icon:'🐺'},{kind:'tank',name:'岩甲のまもり手',hp:50,attack:7,icon:'🪨'}]
   ];
-  // Each ACT has one named boss. Artwork is intentionally supplied by the SVG fallback until PNGs arrive.
+  // Each ACT has one named boss.
   // Encounter scaling adds 16 HP and 1 attack at the boss floor, plus 9 HP / 1 attack per ACT after the first.
   const bossMonsters={
     1:{kind:'boss',bossId:'hodaka',name:'ラーメン魔人HODAKA',hp:147,attack:12,icon:'🍜'},
@@ -654,6 +654,9 @@
   // In-world profiles are distinct from combat advice: the monster book is
   // also a collection of characters, not just a list of enemy mechanics.
   const ENEMY_PROFILES={
+    'ラーメン魔人HODAKA':'丼から立ちのぼる湯気を壁にして、麺を振るう。得意技はラーメンアタック。',
+    '熱血簿記RIKI':'仕訳帳を手に、真夜中まで追試を続ける熱血教師。必殺の赤ペン指導では、言い換え問題を2問続けて出す。',
+    '女社長MIKA':'最上階の金庫室で、決裁印を手に待つ百貨店の社長。最終決済では語句整序を3問突きつける。',
     'そろばん小僧':'使い込まれたそろばんに魂が宿った、ちょっと生意気な計算妖怪。珠をはじく音が聞こえたら、今日も誰かの帳簿を勝手に検算している。',
     '仕訳じじい':'何百年も帳簿をつけ続ける、経理の世界の古参妖怪。借方と貸方がぴたりと合う瞬間だけ、こわばった顔が満足そうにゆるむ。',
     '減価償却ゾンビ':'長く働きすぎて、すっかりくたびれた元経理担当。服も体もボロボロなのに、電卓だけは決して手放さない。',
@@ -672,14 +675,15 @@
     '等価交換ジョーカー':'赤いハートと青い盾を天秤のように扱う道化師。何かを得るには何かを差し出すという独自のルールで、危険な取引を持ちかける。',
     '悪徳税理士':'口のうまさと計算の速さを自慢する、うさんくさい税理士の妖怪。立派な電卓と重そうな金貨袋を見せびらかし、怪しい話を持ちかける。'
   };
+  const bestiaryRoster=[...normalMonsters,...eliteMonsters,...Object.values(bossMonsters)];
   let inspectedEnemy=null;
-  function renderBestiarySummary(){if($('bestiarySummary'))$('bestiarySummary').textContent=`${seenEnemyKinds.size}/17`;if($('bestiaryTotal'))$('bestiaryTotal').textContent=`${seenEnemyKinds.size} / 17`;}
+  function renderBestiarySummary(){if($('bestiarySummary'))$('bestiarySummary').textContent=`${seenEnemyKinds.size}/${bestiaryRoster.length}`;if($('bestiaryTotal'))$('bestiaryTotal').textContent=`${seenEnemyKinds.size} / ${bestiaryRoster.length}`;}
   function showBestiary(openDetail=false){
-    const roster=[...normalMonsters,...eliteMonsters],revealed=roster.filter(e=>seenEnemyKinds.has(e.name));
+    const roster=bestiaryRoster,revealed=roster.filter(e=>seenEnemyKinds.has(e.name));
     if(!inspectedEnemy||!seenEnemyKinds.has(inspectedEnemy))inspectedEnemy=revealed[0]?.name||null;
     const list=$('bestiaryList'),previousScroll=list.scrollTop;
     list.innerHTML=roster.map((e,i)=>{const met=seenEnemyKinds.has(e.name),elite=i>=normalMonsters.length;
-      const heading=i===0?'<div class="bestiary-group-heading"><span>通常モンスター</span><small>11種</small></div>':i===normalMonsters.length?'<div class="bestiary-group-heading"><span>強敵モンスター</span><small>6種</small></div>':'';
+      const heading=i===0?'<div class="bestiary-group-heading"><span>通常モンスター</span><small>11種</small></div>':i===normalMonsters.length?'<div class="bestiary-group-heading"><span>強敵モンスター</span><small>6種</small></div>':i===normalMonsters.length+eliteMonsters.length?'<div class="bestiary-group-heading"><span>ボス</span><small>3種</small></div>':'';
       const art=met?(window.enemyArt?window.enemyArt(e.kind,e.name):escapeHtml(e.icon)):'<span class="bestiary-question-mark">?</span>';
       return `${heading}<button type="button" class="bestiary-entry ${met?'met':'unknown'} ${elite?'elite':''} ${inspectedEnemy===e.name?'active':''}" aria-pressed="${met&&inspectedEnemy===e.name}" ${met?`data-bestiary="${escapeHtml(e.name)}"`:'disabled'}><span class="bestiary-thumb">${art}</span><span class="bestiary-entry-copy"><small>No.${String(i+1).padStart(2,'0')} · ${met?escapeHtml(ENEMY_ROLES[e.kind]):'未発見'}</small><strong>${met?escapeHtml(e.name):'？？？'}</strong></span><span class="bestiary-entry-chevron" aria-hidden="true">${met?'›':'·'}</span></button>`;
     }).join('');
@@ -689,7 +693,7 @@
     if(!e){$('bestiaryDetail').innerHTML='<div class="bestiary-locked"><span>◇</span><strong>まだ出会っていない</strong><p>探索でモンスターに出会うと図鑑に記録されます。</p></div>';}
     else{const [pattern,tip]=ENEMY_GUIDE[e.kind]||['行動パターンを確認','敵のNEXTを見てカードを選ぼう。'];
       const number=roster.indexOf(e)+1,elite=number>normalMonsters.length;
-      $('bestiaryDetail').innerHTML=`<button type="button" class="bestiary-back">〈 モンスター一覧に戻る</button><div class="bestiary-identity"><span class="bestiary-category">No.${String(number).padStart(2,'0')} · ${elite?'ELITE':'MONSTER'} · ${escapeHtml(ENEMY_ROLES[e.kind])}</span><h3>${escapeHtml(e.name)}</h3></div><div class="bestiary-profile"><div class="bestiary-portrait" role="img" aria-label="${escapeHtml(e.name)}の姿">${window.enemyArt?window.enemyArt(e.kind,e.name):escapeHtml(e.icon)}</div><section class="bestiary-lore"><h4>どんなモンスター？</h4><p>${escapeHtml(ENEMY_PROFILES[e.name]||'商業の世界からやってきた、不思議なモンスター。')}</p></section></div><div class="bestiary-guides"><section class="bestiary-guide-card"><span>行動パターン</span><p>${escapeHtml(pattern)}</p></section><section class="bestiary-guide-card tip"><span>攻略のコツ</span><p>${escapeHtml(tip)}</p></section></div>`;
+      $('bestiaryDetail').innerHTML=`<button type="button" class="bestiary-back">〈 モンスター一覧に戻る</button><div class="bestiary-identity"><span class="bestiary-category">No.${String(number).padStart(2,'0')} · ${e.kind==='boss'?'BOSS':elite?'ELITE':'MONSTER'} · ${escapeHtml(ENEMY_ROLES[e.kind])}</span><h3>${escapeHtml(e.name)}</h3></div><div class="bestiary-profile"><div class="bestiary-portrait" role="img" aria-label="${escapeHtml(e.name)}の姿">${window.enemyArt?window.enemyArt(e.kind,e.name):escapeHtml(e.icon)}</div><section class="bestiary-lore"><h4>どんなモンスター？</h4><p>${escapeHtml(ENEMY_PROFILES[e.name]||'商業の世界からやってきた、不思議なモンスター。')}</p></section></div><div class="bestiary-guides"><section class="bestiary-guide-card"><span>行動パターン</span><p>${escapeHtml(pattern)}</p></section><section class="bestiary-guide-card tip"><span>攻略のコツ</span><p>${escapeHtml(tip)}</p></section></div>`;
       $('bestiaryDetail').querySelector('.bestiary-back').onclick=()=>{$('bestiaryOverlay').querySelector('.bestiary-dialog').classList.remove('show-detail');};
     }
     $('bestiaryOverlay').querySelector('.bestiary-dialog').classList.toggle('show-detail',openDetail);
@@ -960,7 +964,7 @@
     state.wordQueue=shuffled(questionBank().words.slice(...state.encounterWordRange));
     state.selected=0;state.deck=shuffled([...Array(state.basicAttack).fill('Attack'),...Array(state.basicGuard).fill('Guard'),...state.owned.map(name=>state.artifactActUpgrades?.includes(baseName(name))&&!name.endsWith('+')?name+'+':name)]);
     state.used=[];state.hand=[];state.turn=1;state.carryOver=0;state.block=0;state.guardPriceCut=0;state.ap=3;state.apTotal=3;state.buff=1;state.nextPlus=0;state.commandUsed=false;state.turnDamage=0;state.turnGuardGained=0;
-    for(const enemy of state.enemies){if([...normalMonsters,...eliteMonsters].some(m=>m.kind===enemy.kind&&m.name===enemy.name))seenEnemyKinds.add(enemy.name);}
+    for(const enemy of state.enemies){if(bestiaryRoster.some(m=>m.kind===enemy.kind&&m.name===enemy.name))seenEnemyKinds.add(enemy.name);}
     storeJson(BESTIARY_KEY,[...seenEnemyKinds]);renderBestiarySummary();
     state.sealed=[];state.growUses=0;state.discardedTurn=0;state.recoveredTurn=0;state.correctFormats=[];state.turnUsedNames=[];state.replayUsed=false;state.freeReplayCard=null;state.freeRetrievedCard=null;state.chainApGained=0;state.momentumActive=false;state.momentumDrawn=0;state.reserveAp=0;state.reserveUsed=false;state.cardSelection=null;$('cardPickModal').hidden=true;
     state.artifactAttacks=0;state.artifactCardUses=0;state.artifactDraws=0;state.artifactCorrectStreak=0;state.artifactUniqueCards=[];state.artifactCompound=0;state.artifactNextGuard=0;

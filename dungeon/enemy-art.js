@@ -3,6 +3,9 @@
   // Character images are keyed by displayed name, not AI role: multiple enemies
   // can share a combat role without sharing the same portrait.
   const characterArt={
+    '女社長MIKA':'images/enemies/mika.webp',
+    '熱血簿記RIKI':'images/enemies/riki.webp',
+    'ラーメン魔人HODAKA':'images/enemies/hodaka.webp',
     'そろばん小僧':'images/enemies/abacus-kid.png',
     '仕訳じじい':'images/enemies/journal-grandpa.png',
     '減価償却ゾンビ':'images/enemies/depreciation-zombie.png',
