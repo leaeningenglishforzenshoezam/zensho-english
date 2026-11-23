@@ -114,7 +114,7 @@
   const skills = {
     Attack: { label:'通常攻撃',ap:1,format:'word',dmg:10,icon:'⚔',type:'attack',rank:'BASIC' },
     Guard: { label:'通常防御',ap:1,format:'word',block:5,icon:'⬡',type:'guard',rank:'BASIC' },
-    FirstAid:{label:'First Aid',ap:2,format:'audio',healPct:13,icon:'✚',type:'heal',rank:'N',plus:{healPct:19}},
+    FirstAid:{label:'First Aid',ap:1,format:'audio',heal:3,icon:'✚',type:'heal',rank:'N',plus:{heal:5}},
     Burst:{label:'Burst',ap:1,format:'word',dmg:15,icon:'✦',type:'attack',rank:'N',plus:{dmg:20}},
     Scream:{label:'Scream',ap:2,format:'accent',dmg:14,range:3,icon:'◈',type:'attack',rank:'R',plus:{dmg:19}},
     Encourage:{label:'Encourage',ap:2,format:'word',heal:13,block:5,icon:'☘',type:'heal',rank:'N',plus:{heal:19,block:7}},
