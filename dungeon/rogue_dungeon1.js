@@ -532,18 +532,34 @@
     sceneArt.style?.setProperty?.('--dungeon-image',departureArt?`url("${departureArt}")`:'none');sceneArt.classList?.toggle?.('has-art',!!departureArt);
     renderRunStats();
   }
-  const importedProfile=window.GOIMON_DUNGEON_PROFILE;
   let companions=[];
   function refreshCompanions(){
     companions=window.readDungeonCompanions?.()||[];
   }
   refreshCompanions();
-  const trialSkillIds=['Burst','Flash','Shade','Lock','Rhythm','Grow','Counter','Chain','Replay','Command','Shock','FirstAid'];
-  const profileSkillIds=Array.isArray(importedProfile?.skills)?importedProfile.skills.filter(s=>typeof s==='string'&&skills[baseName(s)]&&!['Attack','Guard','BadStock'].includes(baseName(s))):trialSkillIds;
-  const carryChoices=profileSkillIds.filter((s,i)=>profileSkillIds.findIndex(x=>baseName(x)===baseName(s))===i);
+  let ownedSkillIds=new Set();
+  let skillInventoryReady=false;
+  function refreshCarryInventory(){
+    ownedSkillIds.clear();
+    skillInventoryReady=false;
+    const profiles=window.GOIMONProfiles;
+    if(!profiles||profiles.currentAccount()!==profiles.account)return;
+    try{
+      const storage=window.GOIMONStorage;
+      const level=storage.getItem('zensho_level_v1')==='2'?'2':'1';
+      const inventory=window.GoimonItemStore.readState(storage,level);
+      const ownedNames=new Set(window.GoimonBattleCatalog.skills
+        .filter(item=>inventory.owned.skills[item.id]>0)
+        .map(item=>item.name.split('／')[0]));
+      ownedSkillIds=new Set(Object.keys(skills).filter(id=>ownedNames.has(skills[id].label)));
+      skillInventoryReady=true;
+    }catch{ /* An unreadable inventory offers no carry-in cards. */ }
+  }
+  refreshCarryInventory();
+  const carryChoices=()=>availableSkills().filter(id=>ownedSkillIds.has(id));
   const selectedCompanion=()=>companions.find(c=>c.id===state.companionId)||companions[0];
   const selectedCarry=()=>state.selectedCarrySkills??LOADOUTS[state.loadout].cards;
-  const carryNames=()=>selectedCarry().filter(id=>carryChoices.includes(id)).slice(0,3);
+  const carryNames=()=>[...new Set(selectedCarry())].filter(id=>carryChoices().includes(id)).slice(0,3);
   function saveSetup(){storeJson(SETUP_KEY,{companionId:state.companionId,skills:state.selectedCarrySkills,dungeon:state.dungeon});}
   function companionArt(c,small=false){return c.image?`<img src="${escapeHtml(c.image)}" alt="" loading="lazy">`:`<span class="goimon-sigil ${small?'small':''}" aria-hidden="true">${escapeHtml(c.sigil||'✧')}</span>`;}
   function renderSelectedCompanion(){
@@ -590,10 +606,10 @@
   }
   function renderSkillPool(){
     const selected=carryNames();$('skillSelectedCount').textContent=`${selected.length} / 3`;
-    $('carryPool').innerHTML=carryChoices.map(id=>{const s=getSkill(id),active=selected.includes(id);return `<button type="button" data-carry="${escapeHtml(id)}" class="carry-option ${active?'chosen':''}" aria-pressed="${active}"><span class="carry-icon">${s.icon}</span><span><strong>${escapeHtml(s.label)} <em class="carry-ap">${s.ap} AP</em></strong><small>${escapeHtml(effects(s))}</small><span class="carry-format">${escapeHtml(FMT[s.format])} · ${s.rank}</span></span><span class="choice-tick">${active?'✓':'＋'}</span></button>`;}).join('')||'<p>持ち込めるSKILLはまだありません。</p>';
+    $('carryPool').innerHTML=carryChoices().map(id=>{const s=getSkill(id),active=selected.includes(id);return `<button type="button" data-carry="${escapeHtml(id)}" class="carry-option ${active?'chosen':''}" aria-pressed="${active}"><span class="carry-icon">${s.icon}</span><span><strong>${escapeHtml(s.label)} <em class="carry-ap">${s.ap} AP</em></strong><small>${escapeHtml(effects(s))}</small><span class="carry-format">${escapeHtml(FMT[s.format])} · ${s.rank}</span></span><span class="choice-tick">${active?'✓':'＋'}</span></button>`;}).join('')||'<p>持ち込めるSKILLはまだありません。</p>';
     $('carryPool').querySelectorAll('[data-carry]').forEach(b=>b.onclick=()=>{const id=b.dataset.carry,now=carryNames();if(now.includes(id))state.selectedCarrySkills=now.filter(x=>x!==id);else if(now.length<3)state.selectedCarrySkills=[...now,id];renderSkillPool();renderLoadouts();saveSetup();});
   }
-  function openSkills(){renderSkillPool();$('skillSourceNote').textContent=Array.isArray(importedProfile?.skills)?'所持SKILLから最大3種類を編成できます。':'試遊用SKILLです。本番では普段の学習で獲得したSKILLから選びます。';$('skillOverlay').hidden=false;}
+  function openSkills(){refreshCarryInventory();renderLoadouts();renderSkillPool();$('skillSourceNote').textContent=skillInventoryReady?'所持しているSKILLのうち、このダンジョンに対応するものを3種類まで選べます。':'所持品を読み込めませんでした。本体の「技・装備」で所持品を確認してから開き直してください。';$('skillOverlay').hidden=false;}
   const ENEMY_GUIDE={
     attacker:['通常攻撃が中心','攻撃予告を確認して、防御か速攻を選ぼう。'],
     conductor:['仲間の攻撃を強化','複数戦なら指揮役を先に倒すと被害を抑えやすい。'],
@@ -860,7 +876,7 @@
     if(state.dungeon===1&&kind==='boss'&&state.act===3)showFinalBossOmen();
   }
   function startAct(){state.stage=0;state.actFight=0;const map=makeRoute();state.route=map.route;state.routeEdges=map.edges;state.routePath=[];showRoute();}
-  function start(){refreshCompanions();renderSelectedCompanion();if(!selectedCompanion())return;if(state.dungeon===2&&!stage2Unlocked())return;playSfx('confirm');clearCheckpoint();state.hp=START_HP;state.maxHp=START_HP;state.act=1;state.type=selectedCompanion().type;state.typeBoost=false;state.specialBoosts=[];
+  function start(){refreshCarryInventory();renderLoadouts();refreshCompanions();renderSelectedCompanion();if(!selectedCompanion())return;if(state.dungeon===2&&!stage2Unlocked())return;playSfx('confirm');clearCheckpoint();state.hp=START_HP;state.maxHp=START_HP;state.act=1;state.type=selectedCompanion().type;state.typeBoost=false;state.specialBoosts=[];
     state.owned=[...carryNames()];state.specialSkillOffer=null;state.choiceSpecialOptions=null;state.questions=0;state.correct=0;state.fight=0;state.coins=0;state.artifacts=[];state.artifactActUpgrades=[];
     state.eventHistory=[];state.choiceEvent=null;
     recordRun('start');
@@ -1757,7 +1773,7 @@
   $('dungeonMap').onclick=e=>{if(e.target===$('dungeonMap'))closeDungeonMap();};
   $('dungeonPicker').onclick=e=>{const b=e.target.closest?.('[data-dungeon]');if(!b||b.disabled)return;
     const picked=Number(b.dataset.dungeon);if(!DUNGEONS[picked]||(picked===2&&!stage2Unlocked()))return;
-    state.dungeon=picked;saveSetup();renderDungeonPicker();closeDungeonMap();};
+    state.dungeon=picked;saveSetup();renderDungeonPicker();renderLoadouts();closeDungeonMap();};
   $('companionPickOpen').onclick=openCompanions;$('signatureDetailOpen').onclick=showSignature;$('skillPickOpen').onclick=openSkills;
   $('bestiaryOpen').onclick=()=>showBestiary();$('usedPoolOpen').onclick=showUsed;
   $('journalOpen').onclick=showJournal;
@@ -1810,7 +1826,7 @@
   document.addEventListener?.('keydown',e=>{if(e.key==='Escape'){if(!$('dungeonMap').hidden)closeDungeonMap();else if(!$('helpOverlay').hidden)closeHelp();}});
   $('closeQuestion').onclick=closeQuestion;$('continueQuestion').onclick=()=>state.pending?.bossChallenge?finishBossChallenge():finishQuestion();
   $('listenBtn').onclick=()=>{if(state.question?.speak)speak(state.question.speak);};
-  window.addEventListener('pageshow',()=>{if(state.phase==='intro'){refreshCompanions();renderSelectedCompanion();}});
+  window.addEventListener('pageshow',()=>{if(state.phase==='intro'){refreshCompanions();refreshCarryInventory();renderSelectedCompanion();renderLoadouts();if(!$('skillOverlay').hidden)openSkills();}});
   renderSelectedCompanion();renderBestiarySummary();
   renderLoadouts();renderDungeonPicker();renderBadgeSummary();$('resumeBtn').hidden=!readCheckpoint();
 })();
