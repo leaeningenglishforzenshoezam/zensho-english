@@ -957,6 +957,28 @@
       openQuestion(state.hand.length-1);
     });
   }
+  const bossLines={
+    hodaka:{opening:'へい、一丁！',half:'いい汗かいてきたな！',serious:'ここからは強火だ！',special:'麺がのびる前に食らいな！'},
+    riki:{opening:'全力で来い！',half:'ナイスバッティング！',serious:'延長戦だ。ギア上げるぞ！',special:'赤ペン一本、真剣勝負！'},
+    mika:{opening:'では、商談を始めます。',half:'その一手、買いましょう。',serious:'ここからは私が仕切ります。',special:'これにて、決算。'}
+  };
+  const speechLabels={opening:'開戦',half:'HP半分',serious:'本気',special:'特殊技'};
+  function showBossLine(box,boss,cue){
+    const key=boss.bossId+'-'+cue;
+    if(box.dataset.line!==key){box.dataset.line=key;box.innerHTML=`<small>${escapeHtml(boss.name)} · ${speechLabels[cue]}</small><strong>${bossLines[boss.bossId][cue]}</strong>`;}
+    box.hidden=false;
+  }
+  function renderBossSpeech(){
+    const box=$('bossSpeech'),boss=alive().find(e=>bossLines[e.bossId]);
+    if(!boss){box.hidden=true;return;}
+    let cue;
+    if(state.turn===1&&!boss.openingSpoken){boss.openingSpoken=true;cue='opening';}
+    if(state.turn>=10&&!boss.seriousSpoken){boss.seriousSpoken=true;cue='serious';}
+    if(!cue&&boss.hp<=boss.maxHp/2&&!boss.halfSpoken){boss.halfSpoken=true;cue='half';}
+    if(cue){boss.speechTurn=state.turn;boss.speechCue=cue;}
+    if(boss.speechTurn===state.turn&&boss.speechCue)showBossLine(box,boss,boss.speechCue);
+    else box.hidden=true;
+  }
   function startBattle(retry=false){if(!retry){state.battleWrongQuestions=[];state.battleReviewUsed=false;state.battleReviewRevived=false;state.lastBattleArtifact=null;state.eliteArtifactOffer=null;}
     selectedHandIndex=-1;
     state.enemies=state.currentEncounter.enemies.map((e,i)=>({...e,id:i,maxHp:e.hp,shield:0,canceled:false,weak:0}));
@@ -1011,7 +1033,7 @@
     if(e.kind==='exchange'){const trade=a+6;return t%3===2?{attack:trade,selfDamage:trade,shield:6,label:`♠ 等価交換 ${trade}・自身HP−${trade}・防御＋6`}:{attack:a,label:`⚔ 攻撃 ${a}`};}
     if(e.kind==='taxer')return t%3===0?{attack:a+9,label:`⚠ 徴収攻撃 ${a+9}`}:{attack:a,label:`⚔ 攻撃 ${a}`};
     if(e.kind==='boss'){
-      const phase2=e.hp<=e.maxHp/2,phaseText=phase2?'【本気】':'';
+      const phase2=t>=10,phaseText=phase2?'【本気】':'';
       const cycle=(t-1)%4;
       const thirdStrike=phase2?18:15;
       if(e.bossId==='hodaka'){
@@ -1060,6 +1082,7 @@
     preview.hidden=false;
   }
   function renderBattle(){if(state.phase!=='battle')return;
+    renderBossSpeech();
     $('battleActLabel').textContent=`ACT ${state.act} / 3`;
     $('battleDungeonName').textContent=DUNGEONS[state.dungeon].title;
     const background=DUNGEONS[state.dungeon].battleArt?.[state.act-1]||'';
@@ -1150,7 +1173,7 @@
     if(cost>state.ap||(baseName(name)==='Command'&&state.commandUsed)||(s.replay&&state.replayUsed)||(s.reserveAp&&state.reserveUsed))return;
     const format=state.dungeon===2&&s.format==='word'?(Math.random()<.5?'jaen':'audio'):s.format;
     state.pending={name,index,targetId:chosenTarget()?.id,cost};state.freeReplayCard=null;state.question=makeQuestion(format);
-    const q=state.question;$('questionModal').hidden=false;$('questionModal').classList.remove('answered','answered-correct','answered-wrong');$('closeQuestion').hidden=false;$('questionTitle').textContent='英語でSKILLを発動';$('questionType').textContent=state.examGrade+'級 · '+FMT[format];$('questionSkill').textContent=`${s.label} · ${cost}AP · ${effects(s)}`;
+    const q=state.question;$('bossQuizSpeech').hidden=true;$('questionModal').hidden=false;$('questionModal').classList.remove('answered','answered-correct','answered-wrong');$('closeQuestion').hidden=false;$('questionTitle').textContent='英語でSKILLを発動';$('questionType').textContent=state.examGrade+'級 · '+FMT[format];$('questionSkill').textContent=`${s.label} · ${cost}AP · ${effects(s)}`;
     $('questionStem').textContent=q.stem;$('questionResult').textContent='';$('questionResult').className='question-result';$('questionExplanation').hidden=true;$('questionExplanation').textContent='';$('continueQuestion').hidden=true;
     $('listenBtn').hidden=format!=='audio';$('answers').innerHTML='';
     $('answers').classList.remove('order-grid');
@@ -1166,6 +1189,7 @@
     if(!(move.quizFormat==='q11'?questionBank().q11s:questionBank().q12s).length){flashNotice('特殊技の問題データがないため攻撃を回避');endTurn(true);return;}
     const title={hodaka:'ラーメンアタック',riki:'赤ペン指導',mika:'最終決済'}[boss.bossId]||'ボスの特殊技';
     state.pending={bossChallenge:true,resolved:false,format:move.quizFormat,total:move.quizCount||1,completed:0,missed:false,title,damage:move.quizAttack||0,apTax:move.apTax||0};
+    showBossLine($('bossQuizSpeech'),boss,'special');
     renderBossChallengeQuestion();
   }
   function renderBossChallengeQuestion(){

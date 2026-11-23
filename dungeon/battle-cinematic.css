@@ -196,3 +196,34 @@
   #battle .combat-stage .enemy-intent{min-height:17px;padding:1px 3px;font-size:9px}
 }
 @media (prefers-reduced-motion:reduce){#battle .card-hand:not(.stacked) .skill-card:active{transform:none}}
+
+.boss-speech:not([hidden]) {
+  display: block;
+  position: relative;
+  width: fit-content;
+  max-width: 95%;
+  box-sizing: border-box;
+  margin: .3rem .6rem .65rem auto;
+  padding: .45rem .85rem;
+  border: 2px solid #503726;
+  border-radius: .95rem .95rem .25rem .95rem;
+  background: #fff5de;
+  color: #36281f;
+  line-height: 1.35;
+  pointer-events: none;
+}
+.boss-speech::after {
+  content: "";
+  position: absolute;
+  right: 1rem;
+  bottom: -.38rem;
+  width: .55rem;
+  height: .55rem;
+  background: inherit;
+  border: solid #503726;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.boss-speech small, .boss-speech strong { display: block; }
+.boss-speech small { color: #79502f; font-size: .7rem; }
+.boss-speech strong { font-size: 1rem; }
