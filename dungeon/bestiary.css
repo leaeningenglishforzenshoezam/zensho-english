@@ -1,0 +1,143 @@
+/* MONSTER BOOK: collection first, character profile second. */
+#bestiaryOverlay .bestiary-dialog{
+  width:min(910px,100%);
+  height:min(735px,calc(100dvh - 24px));
+  max-height:calc(100dvh - 24px);
+  gap:12px;
+}
+#bestiaryOverlay .hub-dialog-head{align-items:center}
+#bestiaryOverlay .hub-dialog-head .eyebrow{color:#b27d47;letter-spacing:.16em;font-size:12px}
+#bestiaryOverlay .hub-dialog-head h2{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;font-size:clamp(21px,2.4vw,29px)}
+#bestiaryOverlay .hub-dialog-head h2 span{font-size:14px;color:#9f733e;font-weight:850;white-space:nowrap}
+#bestiaryOverlay .hub-dialog-head button{width:42px;height:42px;font-size:26px}
+#bestiaryOverlay .bestiary-layout{
+  display:grid;grid-template-columns:minmax(240px,.78fr) minmax(0,1.22fr);
+  grid-template-rows:minmax(0,1fr);gap:13px;flex:1;min-height:0;overflow:hidden;
+}
+#bestiaryOverlay .bestiary-list{
+  display:flex;flex-direction:column;gap:7px;min-width:0;min-height:0;
+  padding:0 6px 10px 0;overflow-y:auto;overscroll-behavior:contain;
+}
+#bestiaryOverlay .bestiary-group-heading{
+  position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;
+  margin-top:4px;padding:9px 9px 7px;background:#f0ebdc;border-bottom:1px solid #d3d5c9;
+  color:#54716b;font-size:13px;font-weight:900;letter-spacing:.04em;
+}
+#bestiaryOverlay .bestiary-group-heading small{font-size:12px;font-weight:750;color:#a07c4e}
+#bestiaryOverlay .bestiary-entry{
+  display:flex;align-items:center;gap:10px;width:100%;min-height:69px;
+  padding:7px 10px;border:1.5px solid #d6ddd3;border-radius:12px;
+  color:#234b55;background:#fffdf7;text-align:left;box-shadow:0 2px 0 #183c4110;
+}
+#bestiaryOverlay .bestiary-entry.active{
+  border-color:#c5934f;background:#fff0d2;box-shadow:inset 4px 0 #dba359;
+}
+#bestiaryOverlay .bestiary-entry.elite.met:not(.active){border-color:#d9bc93}
+#bestiaryOverlay .bestiary-entry.unknown{
+  background:#eceee9;border-color:#e0e5db;color:#81958d;opacity:1;
+}
+#bestiaryOverlay .bestiary-entry:focus-visible{outline:3px solid #d49a53;outline-offset:2px}
+#bestiaryOverlay .bestiary-thumb{
+  display:flex;align-items:center;justify-content:center;flex:0 0 51px;
+  width:51px;height:54px;padding:3px;overflow:hidden;
+  border-radius:9px;background:radial-gradient(circle at 50% 30%,#f4eddb,#e2e7da);
+}
+#bestiaryOverlay .bestiary-entry.unknown .bestiary-thumb{background:#dfe5df}
+#bestiaryOverlay .bestiary-thumb .enemy-sprite,
+#bestiaryOverlay .bestiary-thumb .enemy-art-image{
+  display:block;position:static;width:100%;height:100%;max-width:100%;max-height:100%;
+  object-fit:contain;transform:none;filter:none;
+}
+#bestiaryOverlay .bestiary-question-mark{color:#a6b4ab;font-size:28px;font-weight:700}
+#bestiaryOverlay .bestiary-entry-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}
+#bestiaryOverlay .bestiary-entry-copy small{font-size:12px;line-height:1.2;font-weight:800;color:#a77d4f}
+#bestiaryOverlay .bestiary-entry.unknown .bestiary-entry-copy small{color:#a3aea6}
+#bestiaryOverlay .bestiary-entry-copy strong{
+  display:block;font-size:15px;line-height:1.3;font-weight:900;
+  white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;
+}
+#bestiaryOverlay .bestiary-entry-chevron{flex:none;font-size:22px;color:#9f8d6b;font-weight:800}
+
+#bestiaryOverlay .bestiary-detail{
+  display:block;min-width:0;min-height:0;overflow:auto;overscroll-behavior:contain;
+  padding:19px;border:1.5px solid #d3dccc;border-radius:15px;
+  background:#fffef8;color:#264b54;text-align:left;
+}
+#bestiaryOverlay .bestiary-back{
+  display:none;align-items:center;gap:7px;margin:0 0 15px;padding:9px 14px;
+  background:#e9f1eb;border:1px solid #c6d6ce;border-radius:9px;
+  color:#275360;font-size:15px;font-weight:900;
+}
+#bestiaryOverlay .bestiary-identity{margin-bottom:14px}
+#bestiaryOverlay .bestiary-category{
+  display:inline-flex;align-items:center;padding:5px 10px;background:#e7eee8;
+  border-radius:100px;color:#557b72;font-size:12px;font-weight:950;letter-spacing:.07em;
+}
+#bestiaryOverlay .bestiary-identity h3{
+  margin:9px 0 0;font-size:clamp(23px,2.7vw,31px);line-height:1.28;
+  font-weight:1000;color:#183f4d;overflow-wrap:anywhere;
+}
+#bestiaryOverlay .bestiary-profile{
+  display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:15px;align-items:stretch;
+}
+#bestiaryOverlay .bestiary-portrait{
+  display:flex;justify-content:center;align-items:center;min-width:0;
+  width:100%;height:215px;padding:10px;margin:0;overflow:hidden;
+  border-radius:14px;background:radial-gradient(circle at 50% 37%,#f6eddc,#e7ece3);
+  border:1px solid #dce5d9;
+}
+#bestiaryOverlay .bestiary-portrait .enemy-art-image,
+#bestiaryOverlay .bestiary-portrait .enemy-sprite{
+  display:block;position:static;width:auto;height:auto;max-width:100%;max-height:100%;
+  object-fit:contain;transform:none;filter:none;
+}
+#bestiaryOverlay .bestiary-lore{
+  display:flex;flex-direction:column;justify-content:center;min-width:0;
+  padding:15px;border-radius:13px;background:#f4f3e9;
+}
+#bestiaryOverlay .bestiary-lore h4{margin:0 0 8px;color:#a27440;font-size:15px;font-weight:950}
+#bestiaryOverlay .bestiary-lore p{margin:0;color:#35565b;font-size:15px;line-height:1.75;overflow-wrap:anywhere}
+#bestiaryOverlay .bestiary-guides{display:grid;gap:10px;margin-top:16px}
+#bestiaryOverlay .bestiary-guide-card{
+  padding:13px 15px;border-radius:12px;background:#e9f2ee;border:1px solid #cce0d7;
+}
+#bestiaryOverlay .bestiary-guide-card.tip{background:#fff2dc;border-color:#e8cc99}
+#bestiaryOverlay .bestiary-guide-card span{display:block;margin-bottom:6px;color:#31736e;font-size:14px;font-weight:1000}
+#bestiaryOverlay .bestiary-guide-card.tip span{color:#a3692d}
+#bestiaryOverlay .bestiary-guide-card p{margin:0;color:#35565b;font-size:15px;line-height:1.6}
+#bestiaryOverlay .bestiary-locked{height:100%;min-height:240px;padding:20px;text-align:center}
+#bestiaryOverlay .bestiary-locked p{font-size:14px;line-height:1.6}
+
+@media (max-width:700px) and (orientation:portrait){
+  #bestiaryOverlay{padding:8px}
+  #bestiaryOverlay .bestiary-dialog{
+    width:100%;height:calc(100dvh - 16px);max-height:calc(100dvh - 16px);
+    padding:16px 13px;gap:12px;border-radius:17px;
+  }
+  #bestiaryOverlay .hub-dialog-head h2{font-size:23px;line-height:1.24}
+  #bestiaryOverlay .hub-dialog-head button{width:42px;height:42px;font-size:26px}
+  #bestiaryOverlay .bestiary-layout{display:block;flex:1;min-height:0;overflow:hidden}
+  #bestiaryOverlay .bestiary-list{
+    display:flex;flex-direction:column;height:100%;padding:0 3px 20px 0;gap:8px;
+  }
+  #bestiaryOverlay .bestiary-entry{min-height:76px;padding:9px 12px;gap:12px}
+  #bestiaryOverlay .bestiary-thumb{flex-basis:57px;width:57px;height:58px}
+  #bestiaryOverlay .bestiary-entry-copy strong{font-size:16px}
+  #bestiaryOverlay .bestiary-detail{display:block;height:100%;padding:13px;overflow-y:auto}
+  #bestiaryOverlay .bestiary-dialog:not(.show-detail) .bestiary-detail{display:none}
+  #bestiaryOverlay .bestiary-dialog.show-detail .bestiary-list{display:none}
+  #bestiaryOverlay .bestiary-back{display:inline-flex}
+  #bestiaryOverlay .bestiary-identity h3{font-size:26px}
+  #bestiaryOverlay .bestiary-profile{grid-template-columns:minmax(0,1fr);gap:12px}
+  #bestiaryOverlay .bestiary-portrait{height:clamp(150px,27dvh,230px);padding:12px}
+  #bestiaryOverlay .bestiary-lore{padding:15px}
+  #bestiaryOverlay .bestiary-lore p{font-size:16px;line-height:1.7}
+  #bestiaryOverlay .bestiary-guide-card p{font-size:15px}
+}
+@media (max-width:700px) and (orientation:landscape){
+  #bestiaryOverlay .bestiary-dialog{height:calc(100dvh - 14px);max-height:calc(100dvh - 14px);gap:7px;padding:10px 12px}
+  #bestiaryOverlay .bestiary-layout{grid-template-columns:minmax(175px,.75fr) minmax(0,1.25fr);grid-template-rows:minmax(0,1fr)}
+  #bestiaryOverlay .bestiary-profile{grid-template-columns:120px minmax(0,1fr)}
+  #bestiaryOverlay .bestiary-portrait{height:145px}
+  #bestiaryOverlay .bestiary-lore p{font-size:14px;line-height:1.45}
+}

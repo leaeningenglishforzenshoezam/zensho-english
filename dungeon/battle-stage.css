@@ -1,0 +1,333 @@
+/* Final combat composition. One arena, two readable sides, five cards in one row. */
+#battle{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr) minmax(178px,220px);
+  gap:9px;
+  min-width:0;
+  height:max(620px,calc(100dvh - 110px));
+}
+#battle .act-strip{
+  min-width:0;margin:0;align-items:center;flex-direction:row;gap:10px;
+}
+#battle .act-strip>div:first-child{min-width:0}
+#battle .act-strip h1{margin:0;display:flex;align-items:baseline;gap:11px;min-width:0}
+#battle .floor-label{
+  display:inline;min-width:0;margin:0;color:#b8d1ce;
+  font-size:clamp(10px,1.2vw,14px);font-weight:700;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+#battle .battle-grid{display:block;min-height:0;min-width:0}
+#battle .tactics-pane{display:none}
+#battle .arena{
+  position:relative;display:flex;min-height:0;height:100%;width:100%;
+  overflow:hidden;padding:12px 17px;border-radius:18px;
+  background:
+    radial-gradient(ellipse at 30% 95%,#4384723b,transparent 48%),
+    radial-gradient(ellipse at 78% 88%,#d5a46a26,transparent 45%),
+    linear-gradient(180deg,#183e4d,#113341);
+  border:1px solid #6e999573;
+  box-shadow:inset 0 1px 0 #ffffff16;
+}
+#battle .arena:before{
+  content:"";position:absolute;pointer-events:none;inset:auto 5% 3% 5%;height:22%;
+  background:radial-gradient(ellipse at center,#092c36a6,transparent 70%);
+}
+#battle .arena:after{display:none}
+#battle .combat-stage{
+  width:100%;height:100%;min-height:0;min-width:0;flex:1;
+  display:grid;grid-template-columns:minmax(0,0.9fr) minmax(0,1.35fr);
+  gap:clamp(10px,2.5vw,40px);align-items:center;padding:0;
+  overflow:hidden;
+}
+#battle .combat-stage .duel-mark{display:none}
+#battle .combat-stage .hero-status{
+  position:relative;grid-column:1;grid-row:1;justify-self:center;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;width:min(100%,260px);min-width:0;min-height:0;max-height:100%;
+  border:0;background:none;padding:0;overflow:visible;
+}
+#battle .combat-stage .hero-status:before{
+  content:"";position:absolute;z-index:0;pointer-events:none;
+  top:22%;width:76%;height:49%;border-radius:50%;
+  background:radial-gradient(ellipse,#84c9ac29,transparent 70%);
+}
+#battle .combat-stage .hero-image{
+  position:relative;z-index:1;flex:none;
+  width:clamp(112px,17vw,205px);height:clamp(112px,17vw,205px);
+  max-width:100%;object-fit:contain;
+  filter:drop-shadow(0 9px 7px #041d2775);
+}
+#battle .combat-stage .hero-info{width:min(100%,224px);max-width:none;flex:none;min-width:0;text-align:center}
+#battle .combat-stage .hero-info strong{display:none}
+#battle .combat-stage .hp-track{height:9px;margin:3px auto 4px;max-width:100%;border:1px solid #97baa66a;background:#294e55}
+#battle .combat-stage .hero-info>span{display:block;font-size:clamp(12px,1.2vw,16px);line-height:1.2;color:#e7fff2;font-weight:900}
+#battle .combat-stage .ap-box{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  min-width:0;min-height:0;margin:0;border:0;padding:0;
+}
+#battle .combat-stage .ap-box span{display:none}
+#battle .combat-stage .ap-box strong{font-size:clamp(13px,1.4vw,18px);line-height:1.2;color:#ffc47c;letter-spacing:2px}
+#battle .combat-stage .ap-box small{display:block;font-size:12px;font-weight:900;color:#d6e6dc;white-space:nowrap}
+
+#battle .combat-stage .enemy-line{
+  grid-column:2;grid-row:1;display:flex;align-items:center;justify-content:center;
+  flex-wrap:nowrap;gap:clamp(8px,2vw,25px);width:100%;height:100%;
+  max-width:none;max-height:100%;min-width:0;min-height:0;overflow:visible;
+}
+#battle .combat-stage .enemy{
+  position:relative;display:flex;flex-direction:column;align-items:stretch;
+  justify-content:center;gap:4px;flex:0 1 220px;
+  width:min(220px,49%);max-width:49%;min-width:0;min-height:0;max-height:100%;
+  overflow:visible;margin:0;padding:5px;border-radius:16px;
+  border:1px solid transparent;background:transparent;color:#eefaf7;
+  text-align:center;transition:border-color .15s,background .15s;
+  touch-action:manipulation;
+}
+#battle .combat-stage .enemy-line.enemy-count-1 .enemy{
+  flex:0 1 440px;width:min(440px,100%);max-width:100%;
+  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
+  grid-template-rows:auto 8px auto auto auto;gap:6px 12px;align-items:center;
+}
+#battle .combat-stage .enemy-line.enemy-count-1 .enemy-portrait{grid-column:1;grid-row:1 / 6}
+#battle .combat-stage .enemy-line.enemy-count-1 .enemy-title{grid-column:2;grid-row:1;text-align:left}
+#battle .combat-stage .enemy-line.enemy-count-1 .enemy-hp{grid-column:2;grid-row:2}
+#battle .combat-stage .enemy-line.enemy-count-1 .enemy-values{grid-column:2;grid-row:3;text-align:left}
+#battle .combat-stage .enemy-line.enemy-count-1 .enemy-intent{grid-column:2;grid-row:4}
+#battle .combat-stage .enemy-line.enemy-count-1 .enemy-future-intent{grid-column:2;grid-row:5}
+#battle .combat-stage .enemy.selected{
+  border-color:#e5b77e8f;background:#ffffff08;
+  box-shadow:inset 0 0 0 1px #f4c28a26;
+}
+#battle .combat-stage .enemy:focus-visible{outline:3px solid #ffd48f;outline-offset:2px}
+#battle .combat-stage .enemy-portrait{
+  flex:none;display:grid;place-items:center;isolation:isolate;
+  width:clamp(108px,15vw,191px);height:clamp(108px,15vw,191px);
+  max-width:100%;margin:0 auto;border:1px solid #e8dbb578;border-radius:18px;
+  background:#f8f4e9;overflow:hidden;box-shadow:0 7px 12px #041b276b;
+  filter:none;
+}
+#battle .combat-stage .enemy-line.enemy-count-2 .enemy-portrait{width:clamp(100px,13vw,175px);height:clamp(100px,13vw,175px)}
+#battle .combat-stage .enemy-line.enemy-count-1 .enemy-portrait{width:clamp(130px,16vw,205px);height:clamp(130px,16vw,205px)}
+#battle .combat-stage .enemy-portrait .enemy-sprite,
+#battle .combat-stage .enemy-portrait .enemy-art-image{
+  display:block;width:100%;height:100%;object-fit:contain;object-position:center;
+  border-radius:0;box-shadow:none;filter:none;
+}
+/* White-background JPEGs share the same parchment behind transparent sprites. */
+#battle .combat-stage .enemy-portrait .enemy-art-image.opaque{
+  background:transparent;border-radius:0;box-shadow:none;mix-blend-mode:multiply;
+}
+#battle .combat-stage .enemy.selected .enemy-portrait{
+  outline:0;border:2px solid #ffd084;background:#f8f4e9;
+  box-shadow:0 0 0 3px #edb56a55,0 8px 15px #041b2788;
+}
+#battle .combat-stage .enemy.selected .enemy-sprite,
+#battle .combat-stage .enemy.selected .enemy-art-image{filter:none}
+#battle .combat-stage .enemy-title{
+  display:block;flex:none;min-width:0;margin:0;
+  color:#f6f9f0;font-size:clamp(12px,1.35vw,17px);font-weight:900;
+  line-height:1.2;text-align:center;white-space:normal;overflow-wrap:anywhere;
+  overflow:visible;text-overflow:clip;text-shadow:0 1px 3px #0017;
+}
+#battle .combat-stage .enemy-role{display:none}
+#battle .combat-stage .enemy-hp{flex:none;width:100%;height:8px;margin:0;border:0;border-radius:99px;background:#375665;overflow:hidden}
+#battle .combat-stage .enemy-values{flex:none;margin:0;color:#e5f4ec;font-size:clamp(11px,1.15vw,14px);font-weight:900;line-height:1.15}
+#battle .combat-stage .enemy-intent{
+  flex:none;display:flex;align-items:center;justify-content:center;
+  width:100%;max-width:100%;height:auto;min-height:27px;margin:0;
+  padding:4px 5px;border:1px solid #8cb0ab7d;border-radius:8px;
+  background:#0b2938e3;color:#fff2d8;font-size:clamp(11px,1.1vw,14px);
+  font-weight:900;line-height:1.2;white-space:normal;overflow:visible;
+  overflow-wrap:anywhere;text-align:center;-webkit-line-clamp:unset;line-clamp:unset;
+}
+#battle .combat-stage .enemy-future-intent{font-size:11px;line-height:1.2;color:#d5e8e1;overflow-wrap:anywhere}
+#battle .battle-notice{
+  position:absolute;z-index:5;top:8px;left:50%;right:auto;bottom:auto;
+  width:max-content;max-width:min(75%,560px);min-height:0;margin:0;
+  transform:translateX(-50%);pointer-events:none;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;
+  font-size:12px;line-height:1.35;
+}
+#battle .battle-notice:empty{display:none}
+
+#battle .hand-area{
+  position:relative;isolation:isolate;display:flex;flex-direction:column;
+  min-height:0;height:100%;width:100%;margin:0;padding:7px 12px 10px;
+  border:1px solid #5e918e70;border-radius:16px;
+  background:#102d3ad9;overflow:visible;
+}
+#battle .hand-heading{
+  flex:none;width:100%;min-height:35px;height:35px;margin:0;
+  display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:10px;
+}
+#battle .hand-heading .eyebrow,#battle .hand-heading p{display:none}
+#battle .hand-heading h2{margin:0;color:#f1fff6;font-size:16px;line-height:1.2;white-space:nowrap}
+#battle .hand-heading h2 span{font-size:12px;color:#b3d1d0}
+#battle .hand-heading .end-turn-btn{
+  flex:none;min-width:116px;width:auto;min-height:34px;height:34px;margin:0;
+  padding:5px 14px;border:0;border-radius:9px;background:#f6b776;
+  color:#173843;font-size:13px;font-weight:950;box-shadow:0 2px 0 #b37744;
+  touch-action:manipulation;
+}
+#battle .card-hand:not(.stacked){
+  flex:1;display:grid;grid-template-columns:repeat(var(--hand-columns,5),minmax(0,1fr));
+  grid-template-rows:minmax(0,1fr);align-items:stretch;justify-content:center;
+  width:100%;max-width:1040px;height:auto;min-height:0;margin:0 auto;
+  gap:clamp(5px,.9vw,12px);padding:3px 3px 2px;overflow:hidden;
+}
+#battle .card-hand:not(.stacked) .skill-card{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:100%;max-width:215px;min-width:0;min-height:0;height:100%;
+  margin:0;justify-self:center;gap:3px;padding:5px 7px 4px;
+  border-radius:11px;overflow:hidden;
+}
+#battle .card-hand .skill-card .cost{
+  top:4px;left:4px;width:26px;height:26px;z-index:2;
+  border:0;box-shadow:none;font-size:13px;
+}
+#battle .card-hand .skill-card .rank,#battle .card-hand .skill-card .format{display:none}
+#battle .card-hand:not(.stacked) .skill-card .glyph{
+  flex:none;display:grid;place-items:center;width:100%;
+  height:clamp(23px,4.8dvh,42px);min-height:0;margin:0;
+  font-size:clamp(21px,4.5dvh,34px);line-height:1;
+}
+#battle .card-hand .skill-card strong{
+  flex:none;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;
+  min-height:0;max-height:2.5em;margin:0;overflow:hidden;
+  color:#203b48;font-size:clamp(11px,1.35vw,17px);font-weight:900;
+  line-height:1.2;text-align:center;white-space:normal;overflow-wrap:anywhere;
+}
+#battle .card-hand .skill-card .effect{
+  flex:none;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;
+  min-height:0;max-height:2.45em;margin:0;overflow:hidden;
+  color:#536a72;font-size:clamp(10px,1.15vw,14px);font-weight:800;
+  line-height:1.2;text-align:center;white-space:normal;overflow-wrap:anywhere;
+}
+#battle .card-hand.stacked{max-width:1040px;width:100%;height:auto;min-height:0;flex:1;margin:0 auto}
+#battle .card-hand.stacked .skill-card{max-height:100%}
+#battle .card-hand .skill-card:focus-visible{outline:3px solid #ffdb96;outline-offset:1px}
+
+/* A phone's visible landscape viewport is the playfield: nothing scrolls or clips. */
+@media (orientation:landscape) and (max-height:650px){
+  html:has(#battle:not([hidden])),body:has(#battle:not([hidden])){height:100%;overflow:hidden}
+  .game-shell:has(#battle:not([hidden])){
+    display:flex;flex-direction:column;height:100dvh;min-height:0;max-width:none;
+    padding:3px max(6px,env(safe-area-inset-right)) 5px max(6px,env(safe-area-inset-left));
+    overflow:hidden;
+  }
+  .game-shell:has(#battle:not([hidden])) .topbar{
+    flex:none;height:27px;min-height:27px;margin:0 0 2px;gap:8px;
+  }
+  .game-shell:has(#battle:not([hidden])) .topbar .brand{font-size:14px}
+  #battle{
+    flex:1;min-width:0;min-height:0;height:auto;
+    grid-template-columns:minmax(0,1fr);
+    grid-template-rows:23px minmax(0,1fr) minmax(112px,42%);
+    gap:4px;
+  }
+  #battle .act-strip{height:23px;min-height:0;align-items:center;gap:7px;overflow:hidden}
+  #battle .act-strip>div:first-child{display:flex;align-items:center;gap:8px;min-width:0}
+  #battle .act-strip .eyebrow{display:none}
+  #battle .act-strip h1{display:flex;align-items:baseline;gap:8px;min-width:0;margin:0;font-size:clamp(13px,1.7vw,17px);white-space:nowrap}
+  #battle .floor-label{display:inline;font-size:clamp(10px,1.25vw,12px);max-width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #battle .floor-pips{display:none}
+  #battle .battle-grid{grid-column:1;grid-row:2;width:100%;min-height:0;overflow:hidden}
+  #battle .arena{height:100%;min-height:0;padding:4px 7px;border-radius:12px;overflow:hidden}
+  #battle .combat-stage{
+    height:100%;min-height:0;grid-template-columns:minmax(0,.87fr) minmax(0,1.4fr);
+    gap:clamp(6px,2vw,28px);padding:1px 3px;overflow:hidden;
+  }
+  #battle .combat-stage .hero-status{width:100%;max-width:180px;gap:1px;overflow:visible}
+  #battle .combat-stage .hero-image{
+    width:clamp(58px,calc(55dvh - 105px),139px);
+    height:clamp(58px,calc(55dvh - 105px),139px);
+  }
+  #battle .combat-stage .hero-info{width:min(100%,178px)}
+  #battle .combat-stage .hp-track{height:7px;margin:2px auto 2px}
+  #battle .combat-stage .hero-info>span{font-size:clamp(10px,1.4vw,13px);line-height:1.12}
+  #battle .combat-stage .ap-box{gap:6px;margin:1px 0 0}
+  #battle .combat-stage .ap-box strong{font-size:clamp(12px,1.5vw,15px);letter-spacing:1px;line-height:1.15}
+  #battle .combat-stage .ap-box small{display:block;font-size:10px;line-height:1.15}
+  #battle .combat-stage .enemy-line{min-height:0;max-height:100%;gap:clamp(5px,1.3vw,13px);overflow:visible}
+  #battle .combat-stage .enemy{
+    flex:0 1 190px;width:min(190px,49%);max-width:49%;
+    max-height:100%;min-height:0;padding:2px 3px;gap:2px;border-radius:10px;overflow:visible;
+  }
+  #battle .combat-stage .enemy-line.enemy-count-1 .enemy{
+    flex:0 1 400px;width:min(400px,100%);max-width:100%;
+    grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+    grid-template-rows:auto 6px auto auto auto;gap:3px clamp(5px,1.2vw,12px);
+  }
+  #battle .combat-stage .enemy-portrait,
+  #battle .combat-stage .enemy-line.enemy-count-2 .enemy-portrait{
+    width:clamp(55px,calc(50dvh - 105px),120px);
+    height:clamp(55px,calc(50dvh - 105px),120px);
+    max-width:100%;border-radius:11px;
+  }
+  #battle .combat-stage .enemy-line.enemy-count-1 .enemy-portrait{
+    width:clamp(86px,calc(75dvh - 140px),152px);
+    height:clamp(86px,calc(75dvh - 140px),152px);
+  }
+  #battle .combat-stage .enemy-line.enemy-count-2 .enemy:has(.enemy-future-intent) .enemy-portrait{
+    width:clamp(45px,calc(50dvh - 120px),105px);
+    height:clamp(45px,calc(50dvh - 120px),105px);
+  }
+  #battle .combat-stage .enemy-title{
+    font-size:clamp(10px,1.45vw,13px);line-height:1.12;
+    white-space:normal;overflow-wrap:anywhere;
+  }
+  #battle .combat-stage .enemy-hp{height:6px;margin:1px 0 0}
+  #battle .combat-stage .enemy-values{font-size:clamp(9px,1.24vw,11px);line-height:1.1}
+  #battle .combat-stage .enemy-intent{
+    min-height:22px;padding:2px 3px;border-radius:6px;
+    font-size:clamp(9px,1.25vw,11px);line-height:1.15;
+    white-space:normal;overflow:visible;max-height:none;
+  }
+  #battle .combat-stage .enemy-future-intent{font-size:9px;line-height:1.1}
+  #battle .battle-notice{top:3px;font-size:10px;padding:1px 7px;max-width:65%}
+  #battle .hand-area{
+    grid-column:1;grid-row:3;min-width:0;min-height:0;height:100%;
+    padding:4px 8px 6px;border-radius:12px;overflow:visible;
+  }
+  #battle .hand-heading{height:30px;min-height:30px;gap:6px}
+  #battle .hand-heading h2{font-size:13px;line-height:1}
+  #battle .hand-heading h2 span{font-size:11px}
+  #battle .hand-heading .end-turn-btn{min-width:101px;height:30px;min-height:30px;padding:4px 9px;font-size:12px;border-radius:8px}
+  #battle .card-hand:not(.stacked){
+    height:auto;min-height:0;flex:1;
+    grid-template-columns:repeat(var(--hand-columns,5),minmax(0,1fr));
+    grid-template-rows:minmax(0,1fr);gap:clamp(4px,.9vw,9px);
+    padding:2px 2px 2px;overflow:hidden;
+  }
+  #battle .card-hand:not(.stacked) .skill-card{
+    min-height:0;height:100%;max-width:none;min-width:0;
+    padding:3px 5px 3px;gap:2px;overflow:hidden;
+  }
+  #battle .card-hand .skill-card .cost{top:3px;left:3px;width:22px;height:22px;font-size:11px}
+  #battle .card-hand:not(.stacked) .skill-card .glyph{
+    height:clamp(17px,4.8dvh,28px);font-size:clamp(17px,4.3dvh,25px);margin:0;
+  }
+  #battle .card-hand .skill-card strong{font-size:clamp(10px,1.5vw,13px);line-height:1.15;max-height:2.3em}
+  #battle .card-hand .skill-card .effect{font-size:clamp(9px,1.35vw,12px);line-height:1.12;max-height:2.24em}
+  #battle .card-hand.stacked{height:auto;flex:1;max-width:100%;padding:2px 3px}
+  #battle .card-hand.stacked .skill-card{min-height:0;height:100%}
+}
+
+@media (orientation:landscape) and (max-height:340px){
+  #battle{grid-template-rows:20px minmax(0,1fr) minmax(107px,44%);gap:3px}
+  #battle .act-strip{height:20px}
+  #battle .arena{padding:2px 5px}
+  #battle .combat-stage .enemy-portrait,
+  #battle .combat-stage .enemy-line.enemy-count-2 .enemy-portrait{width:49px;height:49px}
+  #battle .combat-stage .enemy-line.enemy-count-1 .enemy-portrait{width:75px;height:75px}
+  #battle .combat-stage .hero-image{width:58px;height:58px}
+  #battle .combat-stage .enemy-title{font-size:10px;line-height:1.05}
+  #battle .combat-stage .enemy-intent{min-height:18px;font-size:9px;padding:1px 2px}
+  #battle .hand-heading{height:25px;min-height:25px}
+  #battle .hand-heading .end-turn-btn{height:25px;min-height:25px}
+  #battle .card-hand:not(.stacked) .skill-card .glyph{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  #battle .combat-stage .enemy,#battle .combat-stage .hero-image{transition:none}
+}

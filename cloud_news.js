@@ -45,7 +45,10 @@
  function render(){
   if(list){const open=new Set([...list.querySelectorAll('details[open]')].map(e=>e.dataset.id));list.replaceChildren();
    for(const x of items){const detail=document.createElement('details');detail.dataset.id=x.id;detail.open=open.has(x.id);const summary=document.createElement('summary'),meta=document.createElement('span'),date=document.createElement('time'),label=document.createElement('span'),title=document.createElement('strong'),body=document.createElement('p');
-    meta.className='news-meta';date.dateTime=x.updatedAt;date.textContent=new Date(x.updatedAt).toLocaleDateString('ja-JP')+(x.updatedAt!==x.publishedAt?' 更新':'');label.className='news-new';label.textContent='未読';title.textContent=x.title;body.textContent=x.body;meta.append(date,label);summary.append(meta,title);detail.append(summary,body);if(x.id===firstAidNewsId)giftControls(detail);detail.addEventListener('toggle',()=>{if(detail.open)mark(x.id);});list.append(detail);
+    meta.className='news-meta';date.dateTime=x.updatedAt;date.textContent=new Date(x.updatedAt).toLocaleDateString('ja-JP')+(x.updatedAt!==x.publishedAt?' 更新':'');label.className='news-new';label.textContent='未読';title.textContent=x.title;body.textContent=x.body;meta.append(date,label);summary.append(meta,title);detail.append(summary,body);if(x.id==='dungeon-open-20261123'){
+     const entry=document.createElement('a');entry.href='dungeon/';entry.textContent='ダンジョンで遊ぶ';detail.append(entry);
+    }
+    if(x.id===firstAidNewsId)giftControls(detail);detail.addEventListener('toggle',()=>{if(detail.open)mark(x.id);});list.append(detail);
    }
   }paint();
  }

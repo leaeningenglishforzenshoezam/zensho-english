@@ -1,0 +1,215 @@
+/* GOIMON DUNGEON — destination-focused departure screen and compact collections. */
+#intro.intro-panel{
+  position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
+  grid-template-rows:minmax(0,1fr);gap:0;align-items:stretch;padding:0;min-height:0;
+  overflow:hidden;border:1px solid #b7a77d;border-radius:21px;
+  background:#122e3c;box-shadow:0 22px 65px #03151ec7;
+}
+#intro.intro-panel::before{display:none}
+#intro .dungeon-scene{
+  min-width:0;min-height:0;position:relative;display:flex;flex-direction:column;justify-content:space-between;align-items:center;
+  overflow:hidden;padding:clamp(20px,2.6vw,33px) clamp(16px,2.2vw,28px) 10px;
+  background:radial-gradient(ellipse at 50% 48%,#3f696b 0,#244953 35%,#0e2635 77%),linear-gradient(125deg,#1e3f47,#101f32);
+  border-right:1px solid #d8b47780;
+}
+#intro .dungeon-scene::before{
+  content:"";position:absolute;inset:13% 11% 0;pointer-events:none;
+  border:clamp(13px,2vw,25px) solid #173947;border-bottom:0;border-radius:50% 50% 0 0 / 34% 34% 0 0;
+  box-shadow:inset 0 0 0 2px #9d9e7e4f,0 0 0 2px #6785833a,0 0 60px #0219248c;
+}
+#intro .dungeon-scene::after{
+  content:"";position:absolute;bottom:-27%;left:-17%;width:134%;height:60%;pointer-events:none;
+  transform:perspective(230px) rotateX(56deg);
+  background:repeating-linear-gradient(90deg,transparent 0 54px,#d7be7e20 55px 57px),repeating-linear-gradient(0deg,transparent 0 30px,#d7be7e1d 31px 33px);
+  border-top:1px solid #aab3a058;
+}
+#intro .intro-copy{position:relative;z-index:2;grid-column:auto;grid-row:auto;align-self:stretch;text-align:center;max-width:none;padding:0;color:#f7f0d6}
+#intro .intro-copy .eyebrow{display:inline-block;color:#e9b974;font-size:clamp(9px,.93vw,12px);letter-spacing:.22em}
+#intro .intro-copy h1{color:#fff4da;font-size:clamp(27px,3vw,43px);font-weight:1000;letter-spacing:.11em;margin:5px 0 2px;text-shadow:0 4px 22px #091d28}
+#intro .intro-copy p{color:#aed4cf;font-size:clamp(11px,1.1vw,14px);margin:0;font-weight:800;letter-spacing:.14em}
+#intro .dungeon-records{display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:5px;max-width:380px;margin:clamp(9px,2vh,20px) auto 0}
+#intro .dungeon-records>div{min-width:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;padding:6px 4px;border:1px solid #b9d5c04d;border-radius:9px;background:#0a2636a8;box-shadow:inset 0 1px #ffffff11}
+#intro .dungeon-records span{color:#abd0c9;font-size:clamp(9px,.9vw,12px);font-weight:800;letter-spacing:.06em}
+#intro .dungeon-records strong{color:#f5ce88;font-weight:1000;font-size:clamp(15px,1.6vw,22px);white-space:nowrap}
+#intro .dungeon-records>div:last-child strong{font-size:clamp(10px,1.06vw,14px)}
+#intro .intro-pet{position:relative;z-index:2;display:grid;place-items:center;grid-column:auto;grid-row:auto;flex:1 1 auto;min-height:0;min-width:0;align-self:stretch;justify-self:stretch;top:auto;right:auto;width:auto;height:auto;margin:3px auto 8px;background:none;opacity:1;pointer-events:none}
+#intro .intro-pet img{display:block;object-fit:contain;width:100%;height:100%;max-height:clamp(130px,43dvh,300px);filter:drop-shadow(0 11px 7px #031c25ad) drop-shadow(0 0 22px #f9c77652)}
+#intro .intro-pet.without-art::before{content:attr(data-sigil);display:grid;place-items:center;width:clamp(105px,20dvh,170px);height:clamp(105px,20dvh,170px);border-radius:50%;background:radial-gradient(circle,#f1dbac42,#1a455f90 72%);border:2px solid #e5c17b9c;color:#f8d594;font-size:clamp(60px,10dvh,110px);text-shadow:0 4px 20px #031b29}
+#intro .dungeon-floor-engraving{position:absolute;bottom:9px;z-index:2;font-size:clamp(9px,1vw,12px);letter-spacing:.35em;font-weight:900;color:#d9c89f76;pointer-events:none}
+#intro .loadout-select{grid-column:auto;grid-row:auto;align-self:stretch;justify-self:stretch;position:relative;z-index:3;display:flex;flex-direction:column;justify-content:space-between;gap:clamp(6px,1.2vh,12px);width:100%;max-width:none;min-height:0;max-height:none;margin:0;padding:clamp(14px,2.5vw,29px);overflow:hidden;background:linear-gradient(155deg,#faf5e9,#f1ebda);border:0;border-radius:0;box-shadow:none;color:#1b4050}
+#intro .departure-head{display:flex;align-items:baseline;gap:9px}
+#intro .departure-head .eyebrow{font-size:9px;color:#a9763c}
+#intro .loadout-select .departure-head h2{font-size:clamp(19px,2vw,27px);font-weight:1000;letter-spacing:.06em;margin:0;color:#1b3e4b}
+#intro .dungeon-picker{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0}
+#intro .dungeon-picker button{display:flex;min-width:0;flex-direction:column;align-items:start;justify-content:center;gap:2px;min-height:64px;padding:9px 11px;border:1.5px solid #d2d7c9;border-radius:11px;color:#2b4a54;background:#fffdf5;text-align:left;box-shadow:0 2px 0 #304c4b0b}
+#intro .dungeon-picker button[aria-pressed="true"]{border-color:#cc9a56;background:#f9ecca;box-shadow:inset 3px 0 #d99b4f}
+#intro .dungeon-picker button:disabled{opacity:.65;background:#eae9df}
+#intro .dungeon-picker button small{font-size:9px;color:#ab7940;letter-spacing:.14em;font-weight:900}
+#intro .dungeon-picker button strong{font-size:clamp(12px,1.1vw,15px);line-height:1.13;white-space:nowrap}
+#intro .dungeon-picker button span{font-size:clamp(10px,.88vw,12px);line-height:1.2;color:#56716e;white-space:normal}
+#intro .departure-tools{display:flex;align-items:center;gap:7px;flex-wrap:nowrap;min-width:0}
+#intro .departure-tool{display:flex;align-items:center;justify-content:space-between;gap:7px;flex:1 1 0;min-width:0;padding:7px 10px;border:1px solid #d5d9cb;border-radius:10px;background:#fffaf0;color:#355b61;font-size:clamp(10px,1vw,13px);font-weight:900;white-space:nowrap}
+#intro .departure-tool>span{color:#b27c42}
+#intro .departure-tool b{color:#ad7540;font-size:clamp(10px,1vw,13px)}
+#intro .departure-shards{font-size:12px;color:#a16d35;white-space:nowrap;font-weight:900}
+#intro .departure-section-head{display:flex;align-items:center;justify-content:space-between;gap:9px;margin:0}
+#intro .departure-section-head>strong{font-size:clamp(11px,1.05vw,14px);letter-spacing:.07em;font-weight:1000;color:#3b5960}
+#intro .departure-edit{border:0;background:transparent;padding:2px 7px;font-size:clamp(11px,.95vw,13px);color:#ab753a;font-weight:900;text-decoration:underline;text-decoration-color:#c3a37b;text-underline-offset:3px}
+#intro .selected-companion{display:flex;align-items:center;gap:10px;min-height:64px;padding:7px 10px;border:1px solid #cfd8cd;border-radius:12px;background:#fffdf7;box-shadow:0 1px 0 #8ba39928}
+#intro .companion-small-art{display:grid;place-items:center;flex:0 0 clamp(48px,5.1vw,66px);height:clamp(46px,5vw,64px);border-radius:10px;background:radial-gradient(circle at 50% 30%,#e7ecd9,#b6cfc2);overflow:hidden}
+#intro .companion-small-art img,.roster-art img{width:100%;height:100%;object-fit:contain}
+#intro .companion-main{display:flex;flex-direction:column;min-width:0;flex:1;gap:2px}
+#intro .companion-main>strong{font-size:clamp(13px,1.2vw,17px);color:#234752;line-height:1.2}
+#intro .companion-main>small{font-size:clamp(10px,.93vw,12px);color:#667e7a}
+#intro .signature-line{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;margin-top:2px}
+#intro .signature-line span{font-size:clamp(10px,.95vw,13px);font-weight:900;color:#ab7842;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#intro .signature-line button{flex:none;border:1px solid #c8b9a0;border-radius:6px;background:#f3e5ca;color:#7d5435;font-size:10px;font-weight:1000;padding:3px 7px}
+#intro .carry-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0}
+#intro .carry-slot{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;min-height:56px;padding:7px 5px;border:1px dashed #b3c4bb;border-radius:10px;color:#67817e;background:#f8f9f0;font-weight:900;font-size:11px;text-align:left}
+#intro .carry-slot.filled{border:1px solid #d5b78b;background:#fff9e9;color:#284c58}
+#intro .carry-slot span:not(.carry-glyph):not(.carry-plus){display:flex;flex-direction:column;min-width:0}
+#intro .carry-slot strong{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(10px,1vw,13px)}
+#intro .carry-slot small{display:block;font-size:clamp(9px,.8vw,11px);color:#71847e;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#intro .carry-glyph{font-size:clamp(16px,1.5vw,22px);color:#ae7946;flex:none}
+#intro .carry-plus{font-size:19px;font-weight:400;color:#9bac9c}
+#intro .intro-actions{display:flex;gap:8px;flex:none;position:static;margin:0;padding:0;border:0;background:none;box-shadow:none}
+#intro .intro-actions .primary-btn,#intro .intro-actions .resume-btn{flex:1 1 auto;display:grid;place-items:center;min-height:47px;min-width:0;padding:9px 14px;margin:0;border:0;border-radius:10px;font-size:clamp(13px,1.17vw,16px);font-weight:1000;white-space:nowrap}
+#intro .intro-actions .primary-btn{background:linear-gradient(#f5c47d,#e8a45b);color:#223e4b;box-shadow:0 3px 0 #b67e48}
+#intro .intro-actions .resume-btn{background:#245668;color:#f9f1dd;box-shadow:0 3px 0 #163945}
+.goimon-sigil{display:grid;place-items:center;width:100%;height:100%;font-size:30px;color:#ba8a44}
+.goimon-sigil.small{font-size:25px}
+
+/* Accessible, bounded overlays. Scrolling happens inside each overlay, not off-screen. */
+.hub-overlay{position:fixed;inset:0;z-index:220;display:grid;place-items:center;padding:clamp(8px,2vw,20px);background:#061e2cdd;backdrop-filter:blur(7px)}
+.hub-dialog{display:flex;flex-direction:column;gap:13px;width:min(700px,100%);max-height:calc(100dvh - 24px);min-height:0;overflow:hidden;padding:clamp(14px,2.5vw,25px);border:1px solid #e3c285;border-radius:19px;background:linear-gradient(145deg,#fffaf0,#eee9db);box-shadow:0 20px 85px #03151bbd;color:#234754}
+.hub-dialog-narrow{width:min(490px,100%)}
+.hub-dialog-head{display:flex;align-items:start;justify-content:space-between;gap:12px;flex:none}
+.hub-dialog-head h2{font-size:clamp(18px,2.5vw,27px);margin:2px 0 0;color:#183f4d;line-height:1.15}
+.hub-dialog-head h2 span{font-size:.6em;color:#b58247}
+.hub-dialog-head button{flex:none;display:grid;place-items:center;width:36px;height:36px;border:1px solid #c8d5ce;border-radius:10px;background:#fff;color:#31515e;font-size:25px;line-height:1}
+.companion-roster,.carry-pool{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;overflow:auto;min-height:0;overscroll-behavior:contain}
+.companion-choice,.carry-option{display:flex;align-items:center;gap:9px;width:100%;min-width:0;min-height:67px;padding:8px 10px;border:1.5px solid #cad6cb;border-radius:12px;background:#fffdf6;color:#1b4752;text-align:left}
+.companion-choice.chosen,.carry-option.chosen{border-color:#d79b54;background:#fff0d2;box-shadow:inset 3px 0 #d7a160}
+.companion-choice>span:nth-child(2),.carry-option>span:nth-child(2){display:flex;flex:1;flex-direction:column;gap:3px;min-width:0}
+.companion-choice strong,.carry-option strong{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.companion-choice small,.carry-option small{font-size:11px;line-height:1.3;color:#65817c}
+.roster-art{display:grid;place-items:center;width:55px;height:55px;flex:none;border-radius:10px;background:linear-gradient(#e8efdc,#c0d2c5);overflow:hidden}
+.carry-icon{display:grid;place-items:center;flex:none;width:35px;height:35px;border-radius:8px;background:#e3eee6;color:#a16c3e;font-size:22px}
+.choice-tick{font-weight:900;color:#b58143;font-size:19px;flex:none}
+.hub-data-note{margin:0;color:#6d837f;font-size:11px;line-height:1.45;flex:none}
+.signature-explanation{font-size:clamp(14px,1.4vw,18px);line-height:1.7;margin:0;padding:15px;border:1px solid #d7dbc8;border-radius:11px;background:#fffdf7;color:#2e5059}
+.hub-confirm{flex:none;align-self:end;background:#275a66;color:#fff8e5;border:0;border-radius:9px;padding:10px 25px;font-weight:900}
+.bestiary-dialog{width:min(850px,100%)}
+.bestiary-layout{display:grid;grid-template-columns:minmax(180px,.72fr) minmax(0,1fr);gap:12px;min-height:0;flex:1}
+.bestiary-list{display:flex;flex-direction:column;gap:5px;min-height:0;overflow:auto;padding-right:4px;overscroll-behavior:contain}
+.bestiary-entry{display:flex;align-items:center;gap:10px;min-width:0;min-height:39px;padding:6px 10px;border:1px solid #d3dcd2;border-radius:8px;background:#fffdf6;text-align:left;color:#2a5260;font-size:12px;font-weight:850}
+.bestiary-entry>span:nth-child(2){flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bestiary-entry.unknown{color:#a3b2ac;background:#e9ece5}
+.bestiary-entry.active{background:#ffebc9;border-color:#cda268}
+.monster-number{font-size:10px;letter-spacing:.1em;color:#b48a56}
+.bestiary-detail{min-height:0;overflow:auto;padding:12px 15px;border:1px solid #d6ddcf;border-radius:13px;background:#fffdf7;text-align:center}
+.bestiary-portrait{height:clamp(105px,24dvh,235px);display:grid;place-items:center;margin:0 auto 5px}
+.bestiary-portrait .enemy-art-image,.bestiary-portrait .enemy-sprite{width:100%;height:100%;max-width:260px;object-fit:contain}
+.bestiary-detail h3{font-size:clamp(16px,2vw,23px);margin:5px 0 13px;color:#1b4654}
+.monster-guidance{text-align:left;display:grid;gap:3px}
+.monster-guidance small{font-size:10px;color:#b27d41;font-weight:1000;letter-spacing:.08em}
+.monster-guidance p{font-size:13px;color:#3c5d61;line-height:1.55;margin:0 0 10px}
+.bestiary-locked{display:grid;place-items:center;align-content:center;height:100%;min-height:160px;color:#869e9b}
+.bestiary-locked span{font-size:48px}.bestiary-locked strong{font-size:17px}.bestiary-locked p{font-size:12px}
+.used-dialog{width:min(570px,100%)}
+.used-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:8px;overflow:auto;min-height:60px}
+.used-card{border:1px solid #cedbd3;border-radius:10px;background:#fffdf7;overflow:hidden}
+.used-card.attack{border-left:4px solid #df9b65}.used-card.guard{border-left:4px solid #77b9b3}.used-card.tactic{border-left:4px solid #a59bbd}.used-card.heal{border-left:4px solid #8fc79c}
+.used-card summary{display:flex;align-items:center;gap:8px;padding:8px;cursor:pointer;list-style:none}
+.used-card summary::-webkit-details-marker{display:none}
+.used-card summary>span:nth-child(2){display:flex;flex:1;flex-direction:column;min-width:0}
+.used-card strong{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.used-card small{font-size:10px;color:#6a817a}
+.used-card b{color:#a87743;font-size:12px}
+.used-ap{display:grid;place-items:center;flex:none;width:26px;height:26px;border-radius:50%;background:#265768;color:white;font-size:13px;font-weight:900}
+.used-card p{padding:0 10px 10px;margin:0;color:#4d6868;font-size:12px;line-height:1.4}
+.used-empty{grid-column:1/-1;padding:25px;text-align:center;color:#778d89}
+.hand-title-line{display:flex;align-items:center;gap:10px;min-width:0}
+.used-pool-open{padding:5px 10px;margin:0;border:1px solid #88aab0;border-radius:8px;background:#254b5b;color:#d2eee8;font-size:clamp(10px,1vw,13px);font-weight:900;white-space:nowrap}
+.used-pool-open b{color:#f9c880}
+#battle .hero-info .hero-debuff{display:block;color:#ffe3a6;background:#5f4541c9;border-radius:4px;padding:2px 3px;margin-top:3px;font-size:10px;white-space:nowrap}
+#battle .hero-status.without-art::after{content:attr(data-sigil);order:2;display:grid;place-items:center;width:clamp(100px,22dvh,200px);height:clamp(100px,22dvh,200px);margin:0 auto;border:2px solid #f5d38c94;border-radius:50%;background:radial-gradient(circle,#416778,#153143);font-size:clamp(60px,12dvh,120px);color:#fbe1a6;text-shadow:0 4px 20px #031c25}
+
+@media(orientation:landscape) and (max-height:650px) and (pointer:coarse){
+  #intro.intro-panel{height:calc(100dvh - 36px);grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr);grid-template-rows:minmax(0,1fr);gap:0;padding:0;border-radius:12px;overflow:hidden}
+  #intro .dungeon-scene{padding:10px 8px 4px}
+  #intro .intro-copy{grid-column:auto;grid-row:auto;align-self:stretch}
+  #intro .intro-copy .eyebrow{display:inline-block;font-size:8px}
+  #intro .intro-copy h1{font-size:clamp(20px,3vw,29px);margin:2px 0 2px}
+  #intro .intro-copy p{font-size:10px;line-height:1.1}
+  #intro .dungeon-records{margin:6px auto 0;gap:4px}
+  #intro .dungeon-records>div{padding:3px 2px;border-radius:6px}
+  #intro .dungeon-records span{font-size:9px}
+  #intro .dungeon-records strong{font-size:15px}
+  #intro .dungeon-records>div:last-child strong{font-size:10px}
+  #intro .intro-pet{display:grid;grid-column:auto;grid-row:auto;width:100%;height:auto;min-height:0;margin:0 auto 5px}
+  #intro .intro-pet img{max-height:clamp(85px,36dvh,220px)}
+  #intro .dungeon-floor-engraving{bottom:4px;font-size:8px}
+  #intro .loadout-select{grid-column:auto;grid-row:auto;display:flex;justify-content:space-between;gap:3px;padding:7px 10px;max-height:100%;overflow:hidden;border-radius:0}
+  #intro .loadout-select .departure-head h2{font-size:15px;margin:0}
+  #intro .departure-head .eyebrow{font-size:8px}
+  #intro .dungeon-picker{gap:5px}
+  #intro .dungeon-picker button{min-height:35px;padding:4px 7px;gap:0;border-radius:7px}
+  #intro .dungeon-picker button small{font-size:7px}
+  #intro .dungeon-picker button strong{font-size:11px}
+  #intro .dungeon-picker button span{font-size:9px;line-height:1.1}
+  #intro .departure-tools{gap:5px}
+  #intro .departure-tool{padding:4px 6px;font-size:10px;gap:3px;border-radius:7px}
+  #intro .departure-tool b{font-size:10px}
+  #intro .departure-shards{font-size:10px}
+  #intro .departure-section-head>strong{font-size:10px}
+  #intro .departure-edit{font-size:10px;padding:1px 5px}
+  #intro .selected-companion{min-height:44px;gap:6px;padding:3px 6px;border-radius:8px}
+  #intro .companion-small-art{flex-basis:38px;height:38px;border-radius:6px}
+  #intro .companion-main{gap:0}
+  #intro .companion-main>strong{font-size:11px}
+  #intro .companion-main>small{font-size:9px}
+  #intro .signature-line{margin:0}
+  #intro .signature-line span{font-size:9px}
+  #intro .signature-line button{font-size:8px;padding:1px 4px}
+  #intro .carry-slots{gap:5px}
+  #intro .carry-slot{min-height:35px;gap:4px;padding:3px 5px;border-radius:7px;font-size:9px}
+  #intro .carry-slot strong{font-size:10px}
+  #intro .carry-slot small{font-size:8px}
+  #intro .carry-glyph{font-size:15px}
+  #intro .intro-actions{margin:0;gap:5px}
+  #intro .intro-actions .primary-btn,#intro .intro-actions .resume-btn{min-height:33px;padding:5px 9px;font-size:12px;box-shadow:0 2px 0 #a87540}
+  .hub-dialog{max-height:calc(100dvh - 12px);padding:11px;gap:8px;border-radius:12px}
+  .hub-dialog-head h2{font-size:19px}.hub-dialog-head button{width:28px;height:28px;font-size:19px}
+  .companion-choice,.carry-option{min-height:49px;padding:4px 7px;gap:6px}
+  .roster-art{width:37px;height:37px}.companion-choice strong,.carry-option strong{font-size:11px}.companion-choice small,.carry-option small{font-size:10px}
+  .bestiary-portrait{height:clamp(90px,27dvh,150px)}
+  .bestiary-entry{min-height:29px;padding:3px 7px;font-size:11px}
+  .monster-guidance p{font-size:11px;margin-bottom:6px}
+  .hand-title-line{gap:6px}.used-pool-open{font-size:10px;padding:3px 7px}
+}
+@media(orientation:landscape) and (max-height:360px) and (pointer:coarse){
+  #intro .dungeon-scene{padding:5px 7px 1px}
+  #intro .intro-copy h1{font-size:19px}
+  #intro .dungeon-records{margin-top:3px}
+  #intro .intro-pet img{max-height:30dvh}
+  #intro .loadout-select{padding:4px 8px;gap:1px}
+  #intro .selected-companion{min-height:36px}.companion-small-art{height:30px}
+  #intro .carry-slot{min-height:29px}
+  #intro .intro-actions .primary-btn,#intro .intro-actions .resume-btn{min-height:28px;font-size:11px;padding:4px 7px}
+}
+@media(max-width:700px) and (orientation:portrait){
+  #intro.intro-panel{height:auto;min-height:0;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto;overflow:visible}
+  #intro .dungeon-scene{min-height:280px;max-height:390px;border-right:0;border-bottom:1px solid #d8b47780;padding:18px 15px 3px}
+  #intro .intro-copy{grid-column:auto;grid-row:auto}
+  #intro .intro-pet{grid-column:auto;grid-row:auto;width:100%;height:auto;margin:4px auto}
+  #intro .intro-pet img{height:130px}
+  #intro .loadout-select{grid-column:auto;grid-row:auto;gap:9px;padding:18px;max-height:none;overflow:visible}
+  #intro .dungeon-picker button{min-height:55px}
+  .hub-dialog{max-height:calc(100dvh - 24px)}
+  .companion-roster,.carry-pool{grid-template-columns:1fr}
+  .bestiary-layout{grid-template-columns:1fr;grid-template-rows:minmax(100px,34%) minmax(0,1fr)}
+  .bestiary-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start}
+  .bestiary-detail{padding:9px}
+  .used-list{grid-template-columns:1fr}
+}

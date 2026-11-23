@@ -1,0 +1,62 @@
+/* Shared versus stage and combat readability. */
+.combat-stage{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);align-items:end;gap:8px;flex:1;min-height:0;width:100%}
+.combat-stage .hero-status{flex-direction:column;align-items:center;justify-content:end;background:transparent;border:0;padding:0;box-shadow:none;min-height:0;gap:5px;min-width:0}
+.combat-stage .hero-image{width:clamp(70px,10vw,124px);height:clamp(70px,10vw,124px);object-fit:contain;filter:drop-shadow(0 6px 2px #314b4040)}
+.combat-stage .hero-info{flex:none;text-align:center;width:100%;max-width:230px}
+.combat-stage .hero-info strong{display:block}
+.combat-stage .ap-box{border:0;padding:0;min-width:0}
+.duel-mark{align-self:center;justify-self:center;color:#b78041;font-size:26px;text-shadow:0 2px #fff5}
+.combat-stage .enemy-line{min-width:0;min-height:0;align-items:end;flex-wrap:nowrap;justify-content:center;gap:8px;width:100%;overflow:visible}
+.combat-stage .enemy{width:min(170px,48%);max-width:100%;min-width:0}
+.battle-fx{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:3;pointer-events:none;font-size:clamp(17px,3vw,28px);font-weight:1000;text-shadow:0 2px 4px #0009;color:white}
+.battle-fx.show{display:flex;animation:fx-pop .85s ease-out both}
+.battle-fx.hit{color:#fff0bc}.battle-fx.guard{color:#d3fff5}.battle-fx.miss{color:#f9e0d9}
+.combat-stage.hero-strike .hero-image{animation:hero-strike .45s ease-out}
+.combat-stage.enemy-strike .enemy-portrait{animation:enemy-strike .45s ease-out}
+.combat-stage.hero-hurt .hero-image{animation:unit-hurt .5s ease-out}
+.combat-stage.enemy-hurt .enemy.selected .enemy-portrait{animation:unit-hurt .5s ease-out}
+.combat-stage.hero-guard .hero-image{animation:guard-flash .5s ease-out}
+@keyframes hero-strike{0%,100%{transform:translateX(0)}45%{transform:translateX(22px) scale(1.08)}}
+@keyframes enemy-strike{0%,100%{transform:translateX(0)}45%{transform:translateX(-18px) scale(1.07)}}
+@keyframes unit-hurt{0%,100%{filter:none;transform:translateX(0)}25%,65%{filter:brightness(1.65) sepia(.7);transform:translateX(-5px)}45%{transform:translateX(5px)}}
+@keyframes guard-flash{45%{filter:drop-shadow(0 0 12px #41d5ee) brightness(1.25)}}
+@keyframes fx-pop{0%{opacity:0;transform:translateY(12px) scale(.7)}24%{opacity:1;transform:translateY(-5px) scale(1.1)}80%{opacity:1}100%{opacity:0;transform:translateY(-20px)}}
+
+/* The full-width duel uses the upper half; four cards remain in the lower row. */
+@media (orientation:landscape) and (max-height:650px) and (pointer:coarse){
+  #battle{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:24px minmax(0,1fr) minmax(115px,37%);gap:4px}
+  .act-strip{grid-column:1;grid-row:1}
+  .battle-grid{grid-column:1;grid-row:2;grid-template-columns:minmax(0,1fr) minmax(125px,21%);grid-template-rows:minmax(0,1fr);gap:5px}
+  .arena{display:flex;flex-direction:column;gap:2px;min-height:0;padding:3px 8px 5px}
+  .combat-stage{grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr);gap:5px;align-items:center}
+  .combat-stage .hero-status{min-height:0;height:auto;display:flex;flex-direction:column;align-items:center;gap:0;overflow:visible;padding:0}
+  .combat-stage .hero-image{height:clamp(38px,12vh,60px);width:clamp(38px,12vh,60px)}
+  .combat-stage .hero-info strong{font-size:11px;line-height:1.2}
+  .combat-stage .hero-info>span{font-size:10px;white-space:nowrap}
+  .combat-stage .hp-track{max-width:145px;margin:2px auto;height:7px}
+  .combat-stage .ap-box{display:flex;gap:5px;align-items:center;justify-content:center}
+  .combat-stage .ap-box span{font-size:9px}.combat-stage .ap-box strong{font-size:11px;white-space:nowrap}.combat-stage .ap-box small{font-size:9px}
+  .duel-mark{font-size:19px}
+  .combat-stage .enemy-line{min-height:0;flex:initial;overflow:visible;gap:5px}
+  .combat-stage .enemy{width:min(120px,48%);max-width:48%;flex:0 1 120px;overflow:visible}
+  .combat-stage .enemy-portrait{height:clamp(37px,12vh,60px);width:clamp(37px,12vh,60px);font-size:clamp(22px,7vh,33px)}
+  .combat-stage .enemy-title{font-size:10px;margin:2px 0 1px;line-height:1.2}
+  .combat-stage .enemy-values{font-size:9px;margin:1px 0;white-space:nowrap}
+  .combat-stage .enemy-intent{font-size:10px;max-width:100%;white-space:normal;line-height:1.15;margin:1px 0;padding:1px 2px}
+  .battle-notice{font-size:11px;line-height:1.2;min-height:13px;max-height:28px;overflow:hidden}
+  .tactics-pane{height:100%;min-height:0;display:flex;flex-direction:column;gap:5px;padding:6px}
+  .tactics-pane .pane-title{display:block;font-size:11px;margin:0}
+  .tactics-pane .intent-list{flex:1;min-height:0;overflow:hidden;max-height:none;padding:4px}
+  .tactics-pane .intent-row{font-size:10px;line-height:1.25;margin-bottom:3px}
+  .tactics-pane .intent-row strong{display:block;font-size:10px}
+  .end-turn-btn{width:100%;flex:none;margin:0;min-width:0;padding:7px 3px;font-size:11px}
+  .hand-area{grid-column:1;grid-row:3;min-height:0;height:100%;padding:5px 9px;overflow:hidden}
+  .hand-heading{height:18px;min-height:18px}.hand-heading h2{font-size:12px}
+  .card-hand{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:minmax(0,1fr);gap:8px;min-height:0;height:auto;padding:3px 4px 1px;flex:1}
+  .card-hand .skill-card{height:100%;width:100%;min-height:0;padding:3px 5px;gap:1px;overflow:hidden}
+  .card-hand .skill-card .glyph{height:clamp(19px,5.5vh,29px);min-height:0;font-size:clamp(15px,4vh,22px);margin:1px 0}
+  .card-hand .skill-card strong{font-size:clamp(10px,1.5vw,13px);line-height:1.15;white-space:normal;min-height:0;overflow-wrap:anywhere}
+  .card-hand .skill-card .effect{font-size:clamp(10px,1.35vw,12px);line-height:1.1;margin:1px 0;min-height:0;overflow-wrap:anywhere}
+  .card-hand .skill-card .format{font-size:9px;padding-top:1px}
+  .card-hand .skill-card .cost{height:23px;width:23px;font-size:11px}
+}

@@ -1,0 +1,83 @@
+.route-screen{flex:1;min-height:0;background:linear-gradient(160deg,#f7f1df,#dfe9dc);border:4px solid #d7b67b;border-radius:24px;padding:22px;display:flex;flex-direction:column;gap:16px;color:#244451;overflow:hidden;box-shadow:0 15px 35px #081c2733}
+.route-head{text-align:center;flex:none}
+.route-head h2{font-size:clamp(22px,3vw,36px);margin:3px 0 6px;color:#1d4d5d}
+.route-head p{font-size:13px;margin:0;color:#546e70}
+.route-map{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;flex:1;min-height:0;align-items:stretch}
+.route-floor{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;min-width:0;border-radius:16px;background:#fff8e7;border:2px solid #dfd6c1;padding:9px 3px;position:relative}
+.route-floor:not(:last-child):after{content:'◆';position:absolute;right:-12px;top:49%;z-index:1;font-size:13px;color:#b8935d}
+.route-floor.active{border-color:#df9551;background:#fff0d2;box-shadow:inset 0 0 0 2px #fff7e6}
+.route-floor.passed{opacity:.62}
+.route-step{font-size:clamp(11px,1.5vw,15px);font-weight:1000;color:#3c6770;white-space:nowrap}
+.route-nodes{display:flex;flex-direction:column;gap:6px;justify-content:center;align-items:center;min-height:0}
+.route-node{display:grid;place-items:center;width:clamp(30px,4.6vw,54px);height:clamp(30px,4.6vw,54px);border:2px solid #b9c6bf;background:#f4f7f0;border-radius:50%;font-size:clamp(17px,2.2vw,27px);opacity:.7}
+.route-node.available{background:#fffdf7;border-color:#dca266;opacity:1;box-shadow:0 3px 0 #decaab}
+.route-node.picked{background:#def2e6;border-color:#66ab89;opacity:1}
+.route-rest{font-size:10px;color:#3f9b79;font-weight:900;white-space:nowrap}
+.route-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;flex:none;max-width:900px;width:100%;margin:0 auto}
+.route-option{min-width:0;min-height:108px;display:flex;align-items:center;text-align:left;gap:15px;padding:13px 18px;border:3px solid #ddb579;border-radius:16px;color:#26434a;background:#fffdf5;box-shadow:0 5px 0 #b99d71}
+.route-option:hover{background:#fff0cf;border-color:#df9853;transform:translateY(-2px)}
+.route-option:focus-visible{outline-offset:4px}
+.route-icon{font-size:35px;flex:none;color:#b97930}
+.route-copy{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0}
+.route-copy strong{font-size:20px}.route-copy small{font-size:12px;line-height:1.4;color:#526c6e}
+.route-enter{background:#2f6670;color:#fff;border-radius:30px;font-size:12px;font-weight:900;padding:7px 11px;white-space:nowrap}
+@media (orientation:landscape) and (max-height:650px) and (pointer:coarse){
+  #routeScreen{height:calc(100dvh - 37px);flex:1;padding:6px 12px;border-radius:12px;border-width:2px;gap:6px}
+  .route-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .route-head .eyebrow{display:none}.route-head h2{font-size:16px;margin:0;white-space:nowrap}.route-head p{font-size:11px;text-align:right}
+  .route-map{gap:4px}.route-floor{padding:4px 1px;border-width:1px;border-radius:9px;gap:3px}
+  .route-floor:not(:last-child):after{right:-7px;font-size:9px}
+  .route-step{font-size:10px}.route-nodes{gap:3px}.route-node{width:clamp(24px,7vh,34px);height:clamp(24px,7vh,34px);font-size:16px;border-width:1px}
+  .route-rest{font-size:9px}.route-options{gap:8px}.route-option{min-height:64px;padding:5px 8px;gap:7px;border-width:2px;border-radius:9px;box-shadow:0 2px 0 #b99d71}
+  .route-icon{font-size:21px}.route-copy{gap:1px}.route-copy strong{font-size:14px}.route-copy small{font-size:10px;line-height:1.2}.route-enter{font-size:10px;padding:4px 6px}
+  /* Card labels use fixed rows: no element can push another label out of place. */
+  .card-hand .skill-card{display:grid;grid-template-rows:22px minmax(0,1fr) minmax(0,1fr);align-items:center;justify-items:center;gap:1px;padding:3px 5px;min-height:0}
+  .card-hand .skill-card .rank,.card-hand .skill-card .format{display:none}
+  .card-hand .skill-card .glyph{grid-row:1;margin:0;height:21px;min-height:0;font-size:18px;line-height:1}
+  .card-hand .skill-card strong{grid-row:2;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;min-height:0;max-height:100%;line-height:1.1;text-align:center;font-size:clamp(11px,1.8vw,14px);white-space:normal}
+  .card-hand .skill-card .effect{grid-row:3;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;max-height:100%;min-height:0;margin:0;font-size:clamp(10px,1.5vw,12px);line-height:1.1;text-align:center;overflow-wrap:anywhere}
+  .combat-stage .enemy-intent{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical}
+  .tactics-pane .pane-title,.tactics-pane .intent-list{display:none}
+  .tactics-pane{justify-content:center;gap:5px}
+  .tactics-pane:before{content:'敵の行動は頭上に表示';font-size:10px;color:#56716e;font-weight:800;text-align:center;line-height:1.2}
+  .battle-notice{white-space:nowrap;text-overflow:ellipsis;overflow:hidden;max-width:100%}
+}
+@media (orientation:landscape) and (max-height:380px) and (pointer:coarse){
+  .route-head p{display:none}.route-option{min-height:54px}.route-copy small{font-size:9px}
+  .combat-stage .hero-info strong{display:none}
+  .tactics-pane:before{display:none}
+  .card-hand .skill-card{grid-template-rows:19px minmax(0,1fr) minmax(0,1fr)}
+  .card-hand .skill-card .glyph{height:19px;font-size:16px}
+}
+
+/* Branching map: only icons and paths are shown; encounters remain unknown. */
+.route-map{position:relative;display:block;flex:1;min-height:170px;border:2px solid #d8c29b;border-radius:18px;background:radial-gradient(ellipse at center,#fcf8e9,#e7eadb);overflow:hidden}
+.route-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.route-lines line{stroke:#b7b5a8;stroke-width:2;stroke-dasharray:5 5;opacity:.75}
+.route-lines line.traveled{stroke:#499c86;stroke-width:5;stroke-dasharray:none;opacity:1}
+.route-map .route-node{position:absolute;transform:translate(-50%,-50%);border-radius:50%;width:clamp(31px,4vw,49px);height:clamp(31px,4vw,49px);background:#fff9e9;border:3px solid #c2b998;display:grid;place-items:center;color:#244e59;box-shadow:0 3px 0 #c3b393;font-size:clamp(16px,2vw,25px);z-index:2;cursor:default;opacity:.9}
+.route-map .route-node:disabled{opacity:.76}
+.route-map .route-node.faded{opacity:.25}
+.route-map .route-node.picked{background:#d1f0e3;border-color:#45987f;opacity:1}
+.route-map .route-node.available{background:#fff6d2;border-color:#e2a14d;box-shadow:0 0 0 4px #f3bd5870,0 4px 0 #d3944e;cursor:pointer;animation:route-pulse 2s ease-in-out infinite}
+.route-map .route-node.available:hover{background:#ffd993;transform:translate(-50%,-50%) scale(1.07)}
+.route-options{display:flex;justify-content:space-between;align-items:center;gap:14px;max-width:none;min-height:37px;padding:7px 12px;background:#ffffffbd;border-radius:12px;font-size:13px;color:#496d70}
+.route-options strong{font-size:15px;color:#285363;white-space:nowrap}
+@keyframes route-pulse{50%{box-shadow:0 0 0 7px #f3bd5840,0 4px 0 #d3944e}}
+@media (orientation:landscape) and (max-height:650px) and (pointer:coarse){
+  .route-map{min-height:0;border-radius:10px}.route-map .route-node{width:clamp(34px,10vh,42px);height:clamp(34px,10vh,42px);border-width:2px;font-size:18px}
+  .route-options{min-height:25px;padding:3px 7px;border-radius:7px;gap:8px;font-size:10px}
+  .route-options strong{font-size:11px}.route-options span{font-size:10px}
+}
+
+#routeOptions{box-sizing:border-box}
+.route-lanes,.restart-actions{display:flex;gap:6px}
+.route-lanes button,.restart-actions button{min-height:44px;padding:5px 12px;border:1px solid #9ab7ad;border-radius:9px;background:#fffcf3;color:#234d54;font:inherit;font-size:14px;font-weight:bold}
+.route-lanes button:focus-visible,.restart-actions button:focus-visible{outline:3px solid #237675;outline-offset:2px}
+#restartDialog{box-sizing:border-box;width:min(380px,92vw);max-height:90dvh;padding:20px;border:2px solid #c1a16b;border-radius:16px;background:#fffaf0;color:#254b50}
+#restartDialog::backdrop{background:#102c38bd}
+#restartDialog h2{margin:0;font-size:20px}
+#restartDialog p{margin:12px 0 18px}
+#restartConfirm{background:#315d61;color:white}
+@media(max-width:520px){#routeOptions{flex-wrap:wrap}.route-lanes{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){.route-map .route-node.available{animation:none}}

@@ -1,0 +1,94 @@
+/* Keep the action reachable on compact landscape screens; only the question content scrolls. */
+#questionModal .question-panel,#reviewModal .question-panel{
+  display:flex;flex-direction:column;overflow:hidden;
+  max-height:calc(100dvh - 16px);height:auto;min-height:0;
+  width:min(740px,calc(100vw - 24px));padding:12px 16px;
+}
+#questionModal .question-head,#reviewModal .question-head{flex:none}
+#questionModal .question-scroll,#reviewModal .question-scroll{
+  flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  padding:0 3px 4px;scrollbar-width:thin;
+}
+#questionModal #continueQuestion,#reviewModal #reviewNext{
+  flex:none;align-self:stretch;display:block;margin:8px 0 0;
+  min-height:44px;padding:8px 14px;font-size:clamp(14px,2.4vw,17px);
+  position:relative;z-index:1;
+}
+#questionModal #continueQuestion[hidden],#reviewModal #reviewNext[hidden]{display:none}
+#questionModal .answer-grid,#reviewModal .answer-grid{margin-top:10px;gap:7px}
+.answer-grid.order-grid{display:flex;flex-direction:column;gap:7px}
+.order-selected{min-height:38px;padding:8px 12px;border:1px solid #a6c6bf;border-radius:10px;background:#e9f4ef;font-weight:800;color:#1b4a55;line-height:1.35}
+.order-choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.order-choices .answer-btn{text-align:center;min-height:40px;padding:7px 4px;overflow-wrap:anywhere}
+.order-choices .answer-btn:disabled{opacity:.4}
+.order-controls{display:flex;gap:8px;justify-content:flex-end}
+.order-controls button{border:0;border-radius:9px;min-height:36px;padding:7px 12px;font-weight:850;cursor:pointer}
+.order-undo{background:#e9e9e4;color:#365662}
+.order-submit{background:#e69a56;color:#172f3a}
+.order-submit:disabled{opacity:.45;cursor:default}
+.card-pick-panel{max-height:calc(100dvh - 16px);overflow:hidden;display:flex;flex-direction:column;gap:8px}
+.card-pick-panel h2{font-size:clamp(16px,2vw,23px);margin:0}
+.card-pick-panel p{font-size:14px;color:#51717a;margin:0}
+.card-pick-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;min-height:0;overflow-y:auto}
+.card-pick-options button{border:1px solid #adc9c1;background:#fff;border-radius:12px;padding:10px;text-align:left;color:#214a56;display:flex;flex-direction:column;gap:4px;min-width:0}
+.card-pick-options button strong{font-size:16px}.card-pick-options button small{font-size:12px;color:#667e83}
+#reviewModal .question-stem{white-space:pre-wrap}
+#reviewModal .question-explanation{margin-bottom:3px}
+.review-reward{display:block;margin:10px auto 12px;padding:12px 16px;min-height:46px;
+  border:1px solid #8dc4ae;border-radius:13px;background:#e1f4e9;
+  color:#20594f;font-weight:850;font-size:clamp(14px,2vw,17px);cursor:pointer;
+}
+.review-reward[hidden]{display:none}
+.dungeon-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:7px 0 8px}
+.dungeon-picker button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px;border:1.5px solid #a6bdbc;border-radius:13px;background:#fffdf6;color:#214855;text-align:left;min-width:0}
+.dungeon-picker button[aria-pressed="true"]{background:#e4f3ee;border-color:#3c988a;box-shadow:inset 0 0 0 1px #3c988a}
+.dungeon-picker button:disabled{opacity:.64;background:#e9e9e5;border-color:#b6c1bc;box-shadow:none;cursor:not-allowed}
+.dungeon-picker button small{font-size:11px;letter-spacing:.1em;color:#b07942;font-weight:900}
+.dungeon-picker button strong{font-size:clamp(14px,1.6vw,18px);line-height:1.3}
+.dungeon-picker button span{font-size:clamp(12px,1.35vw,14px);color:#52717a}
+.badge-open{border:1px solid #d8b778;border-radius:12px;background:#f9ebd0;color:#624f32;font-size:14px;font-weight:850;padding:8px 12px;cursor:pointer}
+#badgeOpen{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-bottom:9px}
+.badge-stars{margin-left:auto;color:#88602d;font-size:12px}
+.badge-panel{width:min(760px,96vw);overflow:hidden;display:flex;flex-direction:column}
+.badge-panel .help-head{flex:none}
+.badge-overview{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.badge-overview>div{background:#e9f2eb;border:1px solid #b7d1c0;border-radius:12px;padding:9px 13px;display:flex;flex-direction:column;gap:1px}
+.badge-overview span{font-size:12px;color:#54746e;font-weight:700}
+.badge-overview strong{font-size:clamp(15px,2vw,20px);color:#1b5054}
+.badge-filters{display:flex;gap:6px;overflow-x:auto;flex:none;padding:0 0 10px;scrollbar-width:thin}
+.badge-filters button{border:1px solid #b9c8c1;border-radius:999px;padding:7px 12px;color:#31565b;background:#f5f5ec;font-size:12px;white-space:nowrap;font-weight:800}
+.badge-filters button[aria-pressed="true"]{background:#23596a;border-color:#23596a;color:#fff}
+.badge-grid{display:flex;flex-direction:column;gap:17px;overflow:auto;min-height:0;padding:1px 4px 10px}
+.badge-group-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;color:#245461}
+.badge-group-head strong{font-size:14px;letter-spacing:.045em}
+.badge-group-head span{font-size:12px;color:#68827d;font-weight:800}
+.badge-group-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.badge-item{display:flex;align-items:center;gap:9px;background:#fdf8ee;border:1px solid #d9dfd4;border-radius:12px;padding:10px;min-width:0}
+.badge-item.earned{background:#eef7ec;border-color:#8bbda3}
+.badge-item.locked .badge-icon{filter:grayscale(1);opacity:.55}
+.badge-item.locked .badge-value{color:#9c8757}
+.badge-icon{font-size:27px;flex:none;width:36px;text-align:center}
+.badge-item .badge-copy{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.badge-item strong{font-size:14px;line-height:1.25}
+.badge-item small{font-size:12px;color:#557078;line-height:1.3}
+.badge-value{font-size:12px;color:#377960;font-weight:850;white-space:nowrap}
+.badge-progress{font-size:12px;color:#386878;font-weight:800}
+.badge-footnote{font-size:12px;color:#65797a;margin:10px 0 0}
+@media (orientation:landscape) and (max-height:650px){
+  #questionModal .question-panel,#reviewModal .question-panel{max-height:calc(100dvh - 8px);padding:6px 12px}
+  #questionModal .question-head,#reviewModal .question-head{min-height:28px}
+  #questionModal #continueQuestion,#reviewModal #reviewNext{min-height:38px;margin-top:4px;padding:5px 12px}
+  #questionModal .question-scroll h2,#reviewModal .question-scroll h2{margin:2px 0 4px}
+  #questionModal .question-stem,#reviewModal .question-stem{margin:4px 0 7px;min-height:0}
+  #questionModal .answer-btn,#reviewModal .answer-btn{min-height:34px;padding:5px 9px}
+  .badge-panel{max-height:calc(100dvh - 12px);padding:8px 12px}
+  .badge-grid{gap:9px}
+  .badge-item{padding:5px 8px}
+  .badge-icon{font-size:21px;width:26px}
+  .badge-overview{margin-bottom:5px}
+  .badge-overview>div{padding:5px 9px}
+  .badge-filters{padding-bottom:5px}
+  .badge-filters button{padding:5px 9px}
+  .dungeon-picker button{padding:6px 9px}
+}
+@media(max-width:520px) and (orientation:portrait){.badge-group-grid{grid-template-columns:1fr}.badge-stars{font-size:11px}}

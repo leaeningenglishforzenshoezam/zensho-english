@@ -1,0 +1,55 @@
+/* Up to nine cards; six through nine are fanned into a compact, tappable stack. */
+#battle .hand-area{position:relative;overflow:visible;isolation:isolate}
+#battle .card-hand{isolation:isolate}
+#battle .card-hand.stacked{
+  display:flex;flex-flow:row nowrap;align-items:stretch;justify-content:center;
+  gap:8px;overflow-x:auto;overflow-y:hidden;justify-content:safe center;padding:3px 6px 4px;min-width:0;
+}
+#battle .card-hand.stacked .skill-card{
+  flex:0 0 clamp(96px,13%,144px);width:auto;min-width:0;max-width:none;
+  margin:0;position:relative;z-index:1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:4px 5px;overflow:hidden;min-height:0;height:100%;
+  box-shadow:-2px 2px 4px #071c2770;
+  transition:transform .16s ease,box-shadow .16s ease;
+}
+#battle .card-hand.stacked .skill-card:first-child{margin-left:0}
+#battle .card-hand.stacked .skill-card:nth-child(2){z-index:2}
+#battle .card-hand.stacked .skill-card:nth-child(3){z-index:3}
+#battle .card-hand.stacked .skill-card:nth-child(4){z-index:4}
+#battle .card-hand.stacked .skill-card:nth-child(5){z-index:5}
+#battle .card-hand.stacked .skill-card:nth-child(6){z-index:6}
+#battle .card-hand.stacked .skill-card:nth-child(7){z-index:7}
+#battle .card-hand.stacked .skill-card:nth-child(8){z-index:8}
+#battle .card-hand.stacked .skill-card:nth-child(9){z-index:9}
+#battle .card-hand .skill-card.hand-selected,
+#battle .card-hand.stacked .skill-card.hand-selected{
+  z-index:20;transform:none;
+  border-color:#ffe09a;box-shadow:0 0 0 2px #ffe09a,0 6px 15px #001a26a6;
+  opacity:1;
+}
+#battle .card-hand.stacked .skill-card .glyph{display:none}
+#battle .card-hand.stacked .skill-card strong{font-size:clamp(10px,1.6vw,14px);line-height:1.15;white-space:normal;overflow-wrap:anywhere}
+#battle .card-hand.stacked .skill-card .effect{font-size:clamp(9px,1.3vw,12px);line-height:1.12;overflow:hidden;overflow-wrap:anywhere}
+#battle .card-hand.stacked .skill-card .cost{z-index:1}
+#battle .card-hand .skill-card.unplayable{opacity:.65}
+#battle .hand-card-preview{
+  position:absolute;z-index:40;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);
+  width:min(94%,620px);max-width:calc(100vw - 24px);min-height:45px;
+  background:#fffdf5;color:#244651;border:2px solid #e6c587;border-radius:12px;
+  display:flex;align-items:center;gap:10px;padding:6px 8px 6px 13px;
+  box-shadow:0 8px 22px #041f2b8a;
+}
+#battle .hand-card-preview[hidden]{display:none}
+#battle .hand-card-preview-copy{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+#battle .hand-card-preview-copy strong{font-size:13px;white-space:nowrap}
+#battle .hand-card-preview-copy span{font-size:11px;line-height:1.22;max-height:2.5em;overflow:hidden;overflow-wrap:anywhere}
+#battle .hand-preview-use{flex:none;min-width:102px;min-height:34px;padding:6px 10px;border:0;border-radius:9px;background:#efaa5e;color:#173744;font-size:12px;font-weight:900}
+#battle .hand-preview-use:disabled{background:#e0e5e1;color:#61777a}
+#battle .hand-preview-close{flex:none;width:44px;height:44px;border:0;background:transparent;color:#426671;font-size:20px;font-weight:700}
+@media (orientation:landscape) and (max-height:450px){
+  #battle .hand-card-preview{min-height:38px;padding:4px 7px}
+  #battle .hand-card-preview-copy span{font-size:10px;max-height:2.35em}
+  #battle .hand-preview-use{min-height:29px;font-size:11px}
+}
+@media (prefers-reduced-motion:reduce){#battle .card-hand.stacked .skill-card{transition:none}}

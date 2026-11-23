@@ -1,0 +1,178 @@
+/* Reward and upgrade screens share a scrollable body and an always-reachable action rail. */
+#choiceScreen{
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  height:min(770px,calc(100dvh - 105px));
+  min-height:0;
+  max-height:calc(100dvh - 105px);
+  overflow:hidden;
+  gap:0;
+}
+#choiceScreen .choice-illustration{flex:none}
+#choiceScreen>.eyebrow,#choiceScreen>h2,#choiceScreen>p{flex:none}
+#choiceScreen .choice-cards{
+  box-sizing:border-box;
+  flex:1 1 auto;
+  min-height:0;
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  align-content:flex-start;
+  margin-bottom:0;
+  padding:8px 7px 10px;
+  scrollbar-width:thin;
+}
+#choiceScreen .choice-footer{
+  position:relative;
+  z-index:1;
+  flex:none;
+  width:100%;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  margin-top:auto;
+  padding:12px max(3px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(3px,env(safe-area-inset-left));
+  background:#fcf6e9;
+  border-top:1px solid #e1d3b9;
+}
+#choiceScreen .choice-footer button{
+  margin:0;
+  min-height:42px;
+  max-width:100%;
+  line-height:1.25;
+  cursor:pointer;
+}
+#choiceScreen .choice-footer .review-reward{width:auto;flex:0 1 auto}
+#choiceScreen .confirm-upgrade{
+  background:#eea560;
+  color:#163845;
+  border:1px solid #d18b4b;
+  box-shadow:0 3px 0 #bd7c43;
+  border-radius:12px;
+  padding:10px 18px;
+  font-weight:900;
+}
+#choiceScreen .confirm-upgrade:focus-visible{outline:3px solid #2e7886;outline-offset:3px}
+
+/* Reward cards preview first. Acquisition is a separate, deliberate confirmation. */
+#choiceScreen .reward-preview{box-sizing:border-box;flex:none;width:100%;max-height:154px;overflow:auto;
+  border:2px solid #c8ab73;border-radius:13px;background:linear-gradient(125deg,#fff9ea,#f5e9d2);
+  color:#284c52;text-align:left;padding:10px 13px;box-shadow:inset 4px 0 #d99a4e}
+#choiceScreen .reward-preview[hidden],#choiceScreen .confirm-reward[hidden]{display:none!important}
+.reward-preview-head{display:flex;align-items:center;flex-wrap:wrap;gap:5px 12px}
+.reward-preview-head span{font-size:11px;color:#9b753d;font-weight:900;letter-spacing:.1em}
+.reward-preview-head strong{font-size:18px;font-weight:1000;flex:1;min-width:90px}
+.reward-preview-head b{font-size:13px;color:#b06c32;border:1px solid #e1bb84;background:#fff6e7;border-radius:7px;padding:2px 8px}
+#choiceScreen .reward-preview p{font-size:14px;line-height:1.4;font-weight:800;margin:5px 0 2px;overflow-wrap:anywhere}
+#choiceScreen .reward-preview small{font-size:12px;font-weight:700;color:#6c7773}
+#choiceScreen .confirm-reward{background:#efa955;color:#153641;border:1px solid #c77d37;box-shadow:0 3px 0 #ac6e36;border-radius:12px;padding:10px 18px;font-weight:1000}
+#choiceScreen .confirm-reward:disabled{background:#a8b6b3;color:#eef4ee;box-shadow:none;cursor:not-allowed}
+#choiceScreen .confirm-reward:focus-visible{outline:3px solid #367d85;outline-offset:3px}
+#choiceScreen.reward-scene .choice-cards>.skill-card.reward-selected,
+#choiceScreen.reward-scene .choice-cards>.special-choice.reward-selected{border-color:#c17a38;outline:3px solid #ffd18d;outline-offset:-2px;box-shadow:0 3px 0 #ad7337,0 0 0 3px #ffe0a3;transform:translateY(-2px)}
+
+/* Upgrade: list of actual owned copies, then a readable before/after comparison. */
+#choiceScreen.upgrade-scene .choice-cards{display:block;padding:6px 2px 8px}
+.upgrade-layout{display:grid;grid-template-columns:minmax(225px,.85fr) minmax(0,1.35fr);gap:14px;width:100%;height:100%;min-height:0;text-align:left}
+.upgrade-list-panel,.upgrade-preview{box-sizing:border-box;min-width:0;min-height:0;border:1px solid #d2d6c7;border-radius:15px;background:#fffcf4;overflow:hidden}
+.upgrade-list-panel{display:flex;flex-direction:column}
+.upgrade-list-heading{flex:none;padding:10px 12px;font-size:14px;font-weight:900;color:#36575c;border-bottom:1px solid #d9dccd;display:flex;justify-content:space-between;gap:10px}
+.upgrade-list-heading span{color:#748784}
+.upgrade-list{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:7px;display:flex;flex-direction:column;gap:6px;scrollbar-width:thin}
+.upgrade-item{flex:none;display:flex;align-items:center;gap:9px;text-align:left;width:100%;min-width:0;padding:8px 9px;background:#fff;border:2px solid #d2dfd8;border-radius:11px;color:#23434f;cursor:pointer}
+.upgrade-item.selected{background:#eff6ef;border-color:#d48a4b;box-shadow:inset 4px 0 #d48a4b}
+.upgrade-item:focus-visible{outline:3px solid #2e7886;outline-offset:1px}
+.upgrade-item-icon{flex:none;display:grid;place-items:center;width:33px;height:33px;border-radius:9px;font-size:23px;background:#f7e9d8;color:#a26336}
+.upgrade-item-icon.guard{background:#dfedef;color:#326d78}
+.upgrade-item-icon.heal{background:#e2f0e7;color:#358363}
+.upgrade-item-icon.tactic{background:#ebe5f5;color:#69528c}
+.upgrade-item-copy{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.upgrade-item-copy strong{font-size:15px;font-weight:900;line-height:1.2}
+.upgrade-item-copy small{font-size:12px;font-weight:700;color:#617b7b;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.upgrade-item-meta{flex:none;text-align:right;color:#496671;display:flex;flex-direction:column;align-items:flex-end;font-size:12px}
+.upgrade-item-meta small{color:#a36b37;font-weight:800}
+.upgrade-preview{overflow-y:auto;overscroll-behavior:contain;padding:11px 13px;scrollbar-width:thin}
+.upgrade-preview-heading{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.upgrade-preview-icon{display:grid;place-items:center;flex:none;width:37px;height:37px;border-radius:10px;font-size:26px;color:#9b693e;background:#f6ead5}
+.upgrade-preview-heading small{font-size:12px;font-weight:850;color:#997447}
+.upgrade-preview-heading h3{margin:2px 0 0;font-size:18px;line-height:1.2;color:#1f4552}
+.upgrade-preview-heading h3 span{color:#c07f3d}
+.upgrade-compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.upgrade-compare-card{display:flex;flex-direction:column;gap:6px;border:1px solid #d4d6d2;border-radius:12px;background:#f5f4f0;padding:10px;min-width:0}
+.upgrade-compare-card.upgraded{background:#edf5e9;border:2px solid #9ac5a3;padding:9px}
+.upgrade-state-label{font-size:12px;color:#59757a;font-weight:900}
+.upgrade-compare-card.upgraded .upgrade-state-label{color:#34774f}
+.upgrade-compare-card strong{font-size:15px;color:#244956}
+.upgrade-compare-card p{margin:0;flex:1;font-size:14px;font-weight:750;color:#29464c;line-height:1.45;overflow-wrap:anywhere}
+.upgrade-compare-card small{font-size:12px;color:#6f8280;border-top:1px solid #d4ddd4;padding-top:5px;line-height:1.3}
+.upgrade-hint{margin:8px 0 0;font-size:12px;line-height:1.3;color:#78817b}
+.upgrade-empty{margin:auto;font-size:16px;font-weight:800;color:#536f70;text-align:center;padding:20px}
+.growth-display{display:inline-flex;align-items:center;white-space:nowrap;border:1px solid #a6c6a0;background:#e9f5e4;color:#2e6f50;border-radius:9px;padding:5px 9px;font-size:14px;font-weight:900}
+
+@media (max-width:640px) and (orientation:portrait){
+  #choiceScreen{height:calc(100dvh - 82px);max-height:calc(100dvh - 82px);margin:10px auto;padding:13px 11px 9px}
+  #choiceScreen .choice-illustration{display:none}
+  #choiceScreen>h2{font-size:clamp(20px,5vw,28px)}
+  #choiceScreen .choice-footer{padding-top:9px;gap:7px}
+  #choiceScreen .choice-footer button{min-height:43px;flex:1 1 100%}
+  #choiceScreen.upgrade-scene .choice-footer button{flex:1 1 auto}
+  .upgrade-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(120px,40%) minmax(0,1fr);gap:8px}
+  .upgrade-list-heading{padding:7px 10px}
+  .upgrade-item{padding:6px 8px}
+  .upgrade-preview{padding:9px}
+  .upgrade-compare-card{padding:8px}
+  .upgrade-compare-card.upgraded{padding:7px}
+  #choiceScreen .reward-preview{max-height:160px;padding:8px 10px}
+  .reward-preview-head strong{font-size:16px}
+  #choiceScreen .reward-preview p{font-size:13px}
+}
+@media (orientation:landscape) and (max-height:650px) and (pointer:coarse){
+  #choiceScreen{height:calc(var(--visible-height,100dvh) - 41px);max-height:calc(var(--visible-height,100dvh) - 41px);padding:7px 11px 4px;margin:0}
+  #choiceScreen .choice-cards{padding:4px 5px 8px}
+  #choiceScreen .choice-footer{gap:8px;padding:5px max(5px,env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) max(5px,env(safe-area-inset-left))}
+  #choiceScreen .choice-footer button{min-height:36px;padding:5px 12px;font-size:13px}
+  #choiceScreen .choice-footer .review-reward{padding:5px 12px}
+  #choiceScreen .choice-cards:not(:has(.upgrade-layout)){flex-wrap:wrap;align-content:flex-start;justify-content:center}
+  #choiceScreen .choice-cards:not(:has(.upgrade-layout))>.skill-card{flex:0 1 168px;max-width:calc(50% - 10px)}
+  #choiceScreen .reward-preview{max-height:98px;padding:5px 10px}
+  .reward-preview-head strong{font-size:14px}
+  #choiceScreen .reward-preview p{font-size:12px;line-height:1.2;margin:2px 0 0}
+  #choiceScreen .reward-preview small{font-size:10px}
+  #choiceScreen.upgrade-scene .choice-cards{padding:3px}
+  .upgrade-layout{grid-template-columns:minmax(210px,.82fr) minmax(0,1.3fr);gap:8px}
+  .upgrade-list-heading{padding:5px 9px;font-size:12px}
+  .upgrade-list{padding:5px;gap:4px}
+  .upgrade-item{padding:4px 7px;gap:6px}
+  .upgrade-item-icon{width:25px;height:25px;font-size:19px}
+  .upgrade-item-copy strong{font-size:13px}
+  .upgrade-item-copy small{font-size:11px}
+  .upgrade-preview{padding:7px 10px}
+  .upgrade-preview-heading{margin-bottom:5px;gap:7px}
+  .upgrade-preview-icon{height:28px;width:28px;font-size:20px}
+  .upgrade-preview-heading h3{font-size:15px}
+  .upgrade-preview-heading small{font-size:11px}
+  .upgrade-compare{gap:6px}
+  .upgrade-compare-card{padding:6px 8px;gap:3px}
+  .upgrade-compare-card.upgraded{padding:5px 7px}
+  .upgrade-compare-card p{font-size:12px;line-height:1.3}
+  .upgrade-compare-card strong{font-size:13px}
+  .upgrade-compare-card small,.upgrade-hint{font-size:11px}
+  .upgrade-hint{margin-top:5px}
+}
+@media (prefers-reduced-motion:reduce){.upgrade-item{transition:none}}
+
+/* Give the effect the card list's space while the player inspects an offer. */
+#choiceScreen.reward-scene:has(#rewardPreview:not([hidden])) #choiceCards,
+#choiceScreen.reward-scene:has(#rewardPreview:not([hidden])) :is(#skipChoice,#reviewWrongBtn){display:none}
+#choiceScreen.reward-scene #rewardPreview{flex:1 1 auto;min-height:0;max-height:none;max-width:620px;padding:12px 16px;margin:6px auto}
+#choiceScreen.reward-scene #rewardPreviewEffect{font-size:16px;line-height:1.55;margin:8px 0}
+#choiceScreen.reward-scene #rewardPreviewFormat{font-size:14px}
+#rewardPreviewClose{flex:none;width:44px;height:44px;border:1px solid #c4b28a;border-radius:10px;background:#fffaf0;color:#284c52;font-size:24px;cursor:pointer}
+#choiceScreen.reward-scene #choiceCards{align-items:start;gap:10px}
+#choiceScreen.reward-scene #choiceCards>.skill-card{min-height:112px}

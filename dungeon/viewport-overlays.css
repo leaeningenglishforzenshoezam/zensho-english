@@ -1,0 +1,35 @@
+/* Modal geometry follows the actually visible viewport, including iOS landscape browser chrome. */
+#helpOverlay,#deckOverlay,#badgeOverlay,#artifactOverlay,#questionModal,#reviewModal,#cardPickModal{
+  inset:auto;
+  position:fixed;
+  top:var(--visible-top,0px);
+  left:var(--visible-left,0px);
+  width:var(--visible-width,100%);
+  height:var(--visible-height,100dvh);
+  max-width:100%;
+  min-width:0;
+  padding:8px max(8px,env(safe-area-inset-right)) 8px max(8px,env(safe-area-inset-left));
+  overflow:hidden;
+}
+#helpOverlay>*,#deckOverlay>*,#badgeOverlay>*,#artifactOverlay>*,
+#questionModal>*,#reviewModal>*,#cardPickModal>*{
+  box-sizing:border-box;
+  min-width:0;
+  width:min(100%,var(--panel-max,740px));
+  max-width:100%;
+  max-height:100%;
+}
+#deckOverlay{--panel-max:770px}
+#helpOverlay{--panel-max:490px}
+#badgeOverlay{--panel-max:760px}
+#artifactOverlay{--panel-max:650px}
+#questionModal,#reviewModal{--panel-max:740px}
+#cardPickModal{--panel-max:660px}
+#questionModal .answer-grid,#reviewModal .answer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+#questionModal .answer-btn,#reviewModal .answer-btn{min-width:0;overflow-wrap:anywhere}
+@media(max-width:580px){#questionModal .answer-grid,#reviewModal .answer-grid{grid-template-columns:1fr}}
+@media(orientation:landscape) and (max-height:480px){
+  #questionModal .question-panel,#reviewModal .question-panel{padding:6px 10px}
+  #deckOverlay .deck-panel{padding:7px 10px}
+  #deckOverlay .deck-entries{min-height:0}
+}

@@ -1,0 +1,47 @@
+/* The deck list owns scrolling; the header and close button always stay visible. */
+#deckOverlay{box-sizing:border-box;min-height:0;align-items:stretch;justify-content:center}
+#deckOverlay .deck-panel{box-sizing:border-box;width:min(770px,100%);height:min(100%,700px);max-height:100%;min-height:0;min-width:0;margin:auto;padding:clamp(8px,1.4vh,18px) clamp(9px,2vw,21px);overflow:hidden}
+#deckOverlay .deck-panel-head{position:relative;z-index:1}
+#deckOverlay .deck-panel-head button{flex:none;min-width:38px;min-height:38px}
+#deckOverlay .deck-entries{flex:1 1 0;min-height:72px;min-width:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable;grid-auto-rows:max-content}
+#deckOverlay .deck-hint{flex:none;margin-top:5px}
+#deckOverlay .deck-entry{min-width:0}
+#deckOverlay .deck-entry-detail{overflow-wrap:anywhere}
+.menu-run-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 13px}
+.menu-run-actions button{display:flex;align-items:center;gap:8px;min-width:0;padding:11px 9px;border:1px solid #b9d0c6;border-radius:12px;background:#f4f8f0;text-align:left;color:#254c51}
+.menu-run-actions button>span:first-child{display:grid;flex:0 0 31px;place-items:center;height:31px;border-radius:9px;background:#dcebe5;font-size:17px;font-weight:900}
+.menu-run-actions button strong,.menu-run-actions button small{display:block}
+.menu-run-actions button strong{font-size:13px}.menu-run-actions button small{font-size:10px;line-height:1.3;color:#637c7c}
+.menu-run-actions #abandonRunBtn{background:#fff5ed;border-color:#e2c5b7;color:#854d42}
+.menu-run-actions #abandonRunBtn>span:first-child{background:#f4ded6}
+#runExitOverlay{z-index:41;box-sizing:border-box;top:var(--visible-top,0px);left:var(--visible-left,0px);width:var(--visible-width,100%);height:var(--visible-height,100dvh);padding:8px max(8px,env(safe-area-inset-right)) 8px max(8px,env(safe-area-inset-left));overflow:hidden}
+.run-exit-card{box-sizing:border-box;max-width:520px;width:100%;min-height:0;max-height:100%;overflow-y:auto;margin:auto;padding:clamp(16px,3vw,26px);background:#faf7ed;border:2px solid #e1c18d;border-radius:20px;color:#264b53;box-shadow:0 20px 70px #001922b3}
+.run-exit-card .eyebrow{font-size:12px;color:#b08b53;font-weight:900;letter-spacing:.2em}
+.run-exit-card h2{margin:6px 0 15px;font-size:clamp(20px,4vw,28px)}
+.run-exit-question{margin:0 0 14px;font-weight:900;font-size:clamp(17px,3.2vw,22px);line-height:1.55}
+.run-exit-count{display:inline-flex;padding:9px 14px;background:#e5f0e8;color:#2b6867;font-weight:900;border-radius:999px}
+.run-exit-detail{margin:13px 0;color:#617b7c;line-height:1.6;font-size:13px}
+.run-exit-buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.run-exit-buttons button{border-radius:10px;border:1px solid #b8cfc7;min-height:44px;padding:10px 7px;color:#254751;background:#fff;font-size:13px;font-weight:900}
+.run-exit-buttons .run-exit-yes{background:#e2ae67;border-color:#d9a15d;color:#203f46}
+.run-exit-buttons .run-exit-cancel{grid-column:1/-1;background:transparent}
+#reviewModal #reviewExitSkip{margin-left:auto;min-height:34px;min-width:34px;border:1px solid #d8ded8;border-radius:50%;background:#fff;color:#375e60}
+@media(max-width:580px){
+  #deckOverlay .deck-entries{grid-template-columns:1fr}
+  #deckOverlay .deck-overview>div{padding:5px 3px}
+  #deckOverlay .deck-types{margin:5px 0}
+  #deckOverlay .deck-panel-head{margin-bottom:5px}
+  #deckOverlay .deck-entry summary{min-height:43px}
+  #deckOverlay .deck-hint{font-size:10px}
+}
+@media(orientation:landscape) and (max-height:450px){
+  #deckOverlay .deck-panel{padding:5px 9px}
+  #deckOverlay .deck-panel-head{margin-bottom:2px}
+  #deckOverlay .deck-panel-head h2{font-size:18px}
+  #deckOverlay .deck-overview strong{font-size:17px}
+  #deckOverlay .deck-overview>div{padding:3px}
+  #deckOverlay .deck-type-count{padding:3px}
+  #deckOverlay .deck-types{margin:3px 0}
+  #deckOverlay .deck-filter{margin-bottom:3px}
+  #deckOverlay .deck-filter button{padding:3px 8px}
+}

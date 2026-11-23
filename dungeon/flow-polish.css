@@ -1,0 +1,48 @@
+/* Shared interaction rhythm: concise information, clear primary action, restrained feedback. */
+#questionModal .question-panel,#reviewModal .question-panel{border-radius:16px;border-color:#bfd4c8;background:#fffdf7;box-shadow:0 18px 50px #041b2885}
+#questionModal .question-head,#reviewModal .question-head{color:#9b744b;letter-spacing:.04em;font-size:12px}
+#questionModal .question-skill{background:#e9f2ed;color:#315d62;border-radius:8px;padding:5px 9px;font-weight:800;line-height:1.3;margin:5px 0}
+#questionModal #questionTitle{font-size:13px;letter-spacing:.01em;font-weight:750;color:#69827e;margin:3px 0}
+#questionModal .question-stem,#reviewModal .question-stem{font-weight:850;line-height:1.35;margin:5px 0 10px}
+#questionModal .answer-grid,#reviewModal .answer-grid{gap:8px;margin-top:8px}
+#questionModal .answer-btn,#reviewModal .answer-btn{background:#fff;border:1.5px solid #d2dfd8;color:#214852;border-radius:10px;min-height:51px;padding:9px 12px;transition:background .14s,border-color .14s,transform .14s}
+#questionModal .answer-btn:active:not(:disabled),#reviewModal .answer-btn:active:not(:disabled){transform:scale(.985)}
+#questionModal .answer-btn.correct,#reviewModal .answer-btn.correct{background:#e1f3e8;border-color:#4baf80}
+#questionModal .answer-btn.wrong,#reviewModal .answer-btn.wrong{background:#fbe8e2;border-color:#d77e72}
+#questionModal .question-result:not(:empty),#reviewModal .question-result:not(:empty){border-radius:10px;padding:7px 11px;margin:8px 0 5px;font-size:15px;line-height:1.3}
+#questionModal .question-result.ok,#reviewModal .question-result.ok{background:#dff3e8;color:#18694b}
+#questionModal .question-result.ng,#reviewModal .question-result.ng{background:#fbeae5;color:#9a5047}
+#questionModal .question-explanation,#reviewModal .question-explanation{margin:5px 0;background:#edf6f1;padding:9px 12px;font-size:13px;line-height:1.5;border-left:3px solid #50a487}
+#questionModal #continueQuestion,#reviewModal #reviewNext{background:#eea560;color:#173743;border:0;border-radius:11px;box-shadow:0 3px 0 #b9773e;justify-content:center;text-align:center;touch-action:manipulation}
+#questionModal.answered .question-panel{border-color:#a4cabc}
+#questionModal.answered-wrong .question-panel{border-color:#d9a69a}
+#battle .battle-notice:not(:empty){animation:ui-notice-in .25s ease-out}
+#battle .enemy-intent{white-space:normal;overflow-wrap:anywhere}
+#battle .hand-heading .end-turn-btn{min-height:42px;touch-action:manipulation}
+#routeScreen .route-map .route-node.available:focus-visible{outline:3px solid #194d5c;outline-offset:4px}
+#routeScreen .route-map .route-node.available:active{animation:none;background:#ffd993;transform:translate(-50%,-50%) scale(.94)}
+#choiceScreen .choice-cards>*{animation:ui-reward-in .24s ease-out both}
+#choiceScreen .choice-cards>*:nth-child(2){animation-delay:.045s}
+#choiceScreen .choice-cards>*:nth-child(3){animation-delay:.09s}
+#choiceScreen .choice-cards>*:active{transform:translateY(2px) scale(.985)}
+#choiceScreen .choice-action{border-color:#c7d5cb;background:#fffef9;box-shadow:0 3px 0 #c9d2c6}
+#choiceScreen .choice-action:focus-visible,#choiceScreen .special-choice:focus-visible{outline:3px solid #d68e46;outline-offset:3px}
+@keyframes ui-notice-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ui-reward-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(orientation:landscape) and (max-height:650px) and (pointer:coarse){
+  #questionModal .question-panel,#reviewModal .question-panel{padding:6px 11px}
+  #questionModal .question-stem,#reviewModal .question-stem{font-size:clamp(15px,2.15vw,19px);margin:3px 0 5px}
+  #questionModal .question-skill{font-size:11px;padding:3px 7px;margin:3px 0}
+  #questionModal #questionTitle{display:none}
+  #questionModal .answer-btn,#reviewModal .answer-btn{min-height:38px;padding:5px 9px;font-size:clamp(12px,1.8vw,15px)}
+  #questionModal .question-explanation,#reviewModal .question-explanation{font-size:12px;padding:6px 9px;line-height:1.3}
+  #questionModal #continueQuestion,#reviewModal #reviewNext{min-height:42px;margin-top:5px}
+  #battle .tactics-pane:before{display:none}
+  #battle .tactics-pane{padding:3px 8px}
+  #battle .hand-heading .end-turn-btn{min-height:34px}
+  #choiceScreen{padding:10px 12px;gap:7px}
+  #choiceScreen .choice-illustration{display:none}
+  #choiceScreen .choice-action{min-height:80px;padding:8px 11px}
+  #routeScreen .route-map .route-node.available{min-width:38px;min-height:38px}
+}
+@media(prefers-reduced-motion:reduce){#choiceScreen .choice-cards>*,#battle .battle-notice:not(:empty){animation:none}#questionModal .answer-btn,#reviewModal .answer-btn{transition:none}}

@@ -1,0 +1,134 @@
+/* 真夜中の百貨店 — story scenes, imported scenery, and compact clear summary. */
+#intro .dungeon-scene[data-dungeon="1"]::before,
+#intro .dungeon-scene[data-dungeon="1"]::after{display:none}
+#intro .dungeon-scene[data-dungeon="1"] .dungeon-scene-art{
+  background-image:linear-gradient(180deg,#081e29c9 0%,#0a25363b 42%,#071d2c85 100%),var(--dungeon-image);
+  background-position:center 52%;background-size:cover;
+}
+#intro .dungeon-scene[data-dungeon="1"] .intro-copy h1{text-shadow:0 3px 16px #001925,0 0 12px #001925}
+.map-card-art.has-art{
+  background-image:linear-gradient(180deg,#08212b25 0%,#071d2a14 38%,#071d2a80 100%),var(--dungeon-image);
+  background-position:center 52%;background-size:cover;
+}
+#battle .arena.dungeon-illustrated{
+  background-image:linear-gradient(180deg,#04182680 0%,#09273221 30%,#07202e36 76%,#07182470 100%),var(--battle-scene);
+  background-color:#172f3d;background-size:100% 100%,cover;
+  background-repeat:no-repeat;background-position:center,center 69%;
+}
+#battle .arena.dungeon-illustrated::before{
+  content:"";position:absolute;inset:0;z-index:0;display:block;opacity:1;
+  background:linear-gradient(90deg,#05253455 0%,transparent 42%,#081e2a25 100%);
+  -webkit-mask-image:none;mask-image:none;
+}
+#battle .arena.dungeon-illustrated::after{display:none}
+#battle .arena.dungeon-illustrated .combat-stage{z-index:2}
+
+.story-overlay{position:fixed;inset:0;z-index:390;display:grid;place-items:center;padding:8px;
+  background:#03121ded;backdrop-filter:blur(9px)}
+.story-overlay[hidden],.story-companion[hidden]{display:none!important}
+.story-scene{position:relative;isolation:isolate;width:min(1100px,100%);height:min(650px,calc(100dvh - 16px));min-height:0;
+  border:1px solid #d7b781a8;border-radius:18px;overflow:hidden;
+  box-shadow:0 20px 90px #000c;background:#132d3d;color:#fff7e8;}
+.story-art{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(90deg,#071925ed 0%,#071c2ac4 31%,#0c2b3b27 75%),var(--story-image);
+  background-size:100% 100%,cover;background-position:center,center 55%;background-repeat:no-repeat;
+  animation:story-enter 1.2s ease-out both;}
+.story-light{position:absolute;z-index:1;inset:0;pointer-events:none;opacity:0}
+.story-content{position:absolute;z-index:3;top:50%;left:clamp(20px,5vw,64px);max-width:min(59%,590px);
+  transform:translateY(-50%);display:flex;flex-direction:column;align-items:start;gap:clamp(6px,1.4dvh,16px);
+  text-shadow:0 2px 9px #001824,0 1px 2px #001824}
+.story-eyebrow{font-size:clamp(10px,1.15vw,16px);font-weight:900;letter-spacing:.23em;color:#edc47f}
+.story-content h2{font-size:clamp(24px,4.1vw,55px);font-weight:1000;line-height:1.16;margin:0;letter-spacing:.05em;color:#fff3d9}
+.story-text{display:flex;flex-direction:column;gap:8px;font-size:clamp(12px,1.3vw,19px);line-height:1.5;font-weight:750;color:#f1e9d8}
+.story-text p{margin:0}
+.story-continue{position:absolute;z-index:5;right:clamp(13px,4vw,54px);bottom:clamp(12px,4dvh,42px);
+  min-width:clamp(122px,14vw,190px);min-height:43px;padding:9px 17px;border:1px solid #ffda9e;border-radius:10px;
+  color:#173442;background:#f6bc73;font-size:clamp(13px,1.25vw,17px);font-weight:1000;
+  box-shadow:0 4px 0 #945c30;touch-action:manipulation;cursor:pointer}
+.story-continue:focus-visible{outline:3px solid #fff2c8;outline-offset:4px}
+.story-companion{position:absolute;z-index:2;right:clamp(26px,12%,165px);bottom:2%;height:68%;width:32%;object-fit:contain;object-position:center bottom;
+  filter:drop-shadow(0 10px 8px #051826) drop-shadow(0 0 20px #f8d0957b);
+  animation:story-pet-rise .65s ease-out both;pointer-events:none}
+.story-overlay[data-moment="prologue"] .story-content{max-width:min(62%,630px)}
+.story-overlay[data-moment="act-clear"] .story-content{top:49%;max-width:73%}
+.story-overlay[data-moment="act-clear"] .story-light{opacity:1;background:radial-gradient(ellipse at 62% 48%,#f5cd7d37,transparent 65%);animation:story-warm 1.3s ease-out both}
+.story-overlay[data-moment="vault"] .story-light{opacity:1;
+  background:radial-gradient(ellipse at 50% 43%,#fff9daea,#f9c779a8 18%,#f0a24640 35%,transparent 65%);
+  animation:story-vault-glow 1.65s ease-out both}
+.story-overlay[data-moment="dawn"] .story-art,
+.story-overlay[data-moment="complete"] .story-art{
+  background-image:linear-gradient(90deg,#243243c4 0%,#403b4770 34%,#f0b76508 100%),var(--story-image);
+  filter:saturate(1.08)}
+.story-overlay[data-moment="dawn"] .story-light,
+.story-overlay[data-moment="complete"] .story-light{
+  opacity:1;background:linear-gradient(180deg,#ffe7ae55,#efa34d26 55%,#f3a14b12);mix-blend-mode:screen}
+.story-overlay[data-moment="complete"] .story-content{top:34%;max-width:64%}
+.story-overlay[data-moment="complete"] .story-content h2{font-size:clamp(30px,4.7vw,64px)}
+.story-overlay[data-moment="complete"] .story-text{color:#fff4d7}
+
+#choiceScreen.complete-scene{margin:10px auto;min-height:0;padding:clamp(12px,2dvh,24px);max-width:1000px;
+  border-color:#e5bb81;background:linear-gradient(160deg,#faf4e7,#e9e2d0)}
+#choiceScreen.complete-scene .eyebrow{color:#98642f}
+#choiceScreen.complete-scene h2{font-size:clamp(22px,3vw,36px);margin:5px 0}
+#choiceScreen.complete-scene>p{margin:0 auto 9px;font-size:clamp(12px,1.2vw,16px)}
+#choiceScreen.complete-scene .choice-cards{display:flex;flex-direction:column;align-items:stretch;gap:10px;margin:0 auto 10px;width:min(850px,100%)}
+.clear-sunrise-art{width:100%;height:clamp(78px,22dvh,205px);border-radius:13px;border:1px solid #c5ab80;
+  background-image:linear-gradient(180deg,#f3cc8b05,#dda75a20),url('images/dungeons/night-department-dawn.jpg');
+  background-position:center 49%;background-size:cover;box-shadow:inset 0 0 32px #f9c47b80}
+.clear-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
+.clear-stats>div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  padding:9px 6px;border:1px solid #d8c49e;border-radius:11px;background:#fff8e9;min-width:0}
+.clear-stats small{font-size:clamp(10px,.9vw,12px);color:#826a50;font-weight:800}
+.clear-stats strong{font-size:clamp(18px,2.45vw,30px);color:#224956;line-height:1.1;font-weight:1000}
+.clear-stats span{font-size:clamp(9px,.8vw,12px);line-height:1.2;color:#657977;text-align:center}
+.clear-word-record{margin:0;color:#587474;font-size:clamp(10px,1vw,13px);font-weight:800}
+#choiceScreen.complete-scene #skipChoice{margin-top:6px}
+
+@media (orientation:landscape) and (max-height:600px){
+  .story-scene{border-radius:12px}
+  .story-content{left:clamp(15px,3.4vw,38px);max-width:64%;gap:5px}
+  .story-content h2{font-size:clamp(20px,3.8vw,36px)}
+  .story-text{font-size:clamp(11px,1.45vw,15px);line-height:1.35;gap:4px}
+  .story-eyebrow{font-size:10px}
+  .story-continue{min-height:32px;padding:6px 12px;bottom:10px;right:14px;min-width:116px}
+  .story-overlay[data-moment="complete"] .story-content{top:32%}
+  #choiceScreen.complete-scene{padding:9px 13px;margin:4px auto}
+  #choiceScreen.complete-scene h2{font-size:20px;margin:3px 0}
+  #choiceScreen.complete-scene>p{margin:0 auto 6px}
+  #choiceScreen.complete-scene .choice-cards{gap:5px;margin-bottom:5px}
+  .clear-sunrise-art{height:clamp(63px,18dvh,95px)}
+  .clear-stats>div{padding:5px 3px}
+}
+@media (max-width:540px) and (orientation:portrait){
+  .story-scene{height:calc(100dvh - 12px)}
+  .story-content{top:29%;left:18px;right:18px;max-width:none;transform:none}
+  .story-content h2{font-size:30px}
+  .story-text{font-size:15px}
+  .story-continue{left:18px;right:18px;bottom:18px}
+  .story-overlay[data-moment="complete"] .story-content{top:16%;max-width:none}
+  .story-companion{right:18%;bottom:12%;height:44%;width:64%}
+}
+@keyframes story-enter{from{opacity:.35;transform:scale(1.035)}to{opacity:1;transform:scale(1)}}
+@keyframes story-vault-glow{from{opacity:.02;transform:scale(.65)}60%{opacity:.83}to{opacity:1;transform:scale(1.4)}}
+@keyframes story-warm{from{opacity:0}to{opacity:1}}
+@keyframes story-pet-rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){.story-art,.story-light,.story-companion{animation:none!important}}
+
+/* The midnight records should feel like clues from a place that remembers the player. */
+.story-overlay[data-moment="record-intro"],
+.story-overlay[data-moment="record"]{background:#030a12f5}
+.story-overlay[data-moment="record-intro"] .story-scene,
+.story-overlay[data-moment="record"] .story-scene{border-color:#7f4542;box-shadow:0 24px 90px #000e,0 0 42px #641e264d}
+.story-overlay[data-moment="record-intro"] .story-art,
+.story-overlay[data-moment="record"] .story-art{background-image:linear-gradient(100deg,#050d18f9 0%,#121320e8 48%,#1d1018a0 100%),var(--story-image);filter:saturate(.58) contrast(1.2)}
+.story-overlay[data-moment="record-intro"] .story-light,
+.story-overlay[data-moment="record"] .story-light{opacity:1;background:radial-gradient(ellipse at 83% 38%,#9a273117,transparent 56%),linear-gradient(180deg,transparent 72%,#10090ed4)}
+.story-overlay[data-moment="record-intro"] .story-eyebrow,
+.story-overlay[data-moment="record"] .story-eyebrow{color:#d79285}
+.story-overlay[data-moment="record-intro"] .story-content h2,
+.story-overlay[data-moment="record"] .story-content h2{color:#f1d9cd}
+.story-overlay[data-moment="record-intro"] .story-text,
+.story-overlay[data-moment="record"] .story-text{color:#e4d3c9}
+.story-overlay[data-moment="record"] .story-text p:last-child{color:#ffb9a8;text-shadow:0 0 14px #c5364666}
+.story-overlay[data-moment="record-intro"] .story-continue,
+.story-overlay[data-moment="record"] .story-continue{background:#ddd0bf;border-color:#b78b80;box-shadow:0 3px 0 #65463e;color:#312a31}

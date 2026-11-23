@@ -1,0 +1,95 @@
+/* The battle keeps its two-sided layout, but must never hide playable content. */
+.question-explanation{margin:10px 0 12px;padding:11px 14px;background:#edf6f1;border-left:4px solid #4e9d83;border-radius:8px;color:#244f55;font-size:14px;line-height:1.6;white-space:pre-line;overflow-wrap:anywhere;text-align:left}
+.question-panel{overflow-y:auto;overscroll-behavior:contain;max-height:calc(100dvh - 14px)}
+.question-result{max-height:none;overflow:visible;white-space:normal}
+.question-panel #continueQuestion{min-height:40px;justify-content:center}
+@media (orientation:landscape) and (max-height:650px) and (pointer:coarse){
+  html,body{height:100%;overflow:hidden}
+  .game-shell{height:100dvh;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+  #battle{flex:none;min-height:max(315px,calc(100dvh - 39px));height:auto;grid-template-rows:27px minmax(0,1fr)}
+  .battle-grid,.arena,.hand-area{min-height:0}
+  .arena{grid-template-rows:minmax(0,1fr) auto;overflow:hidden;padding:5px 6px;gap:3px}
+  .combat-stage{min-height:0;overflow:hidden;align-items:center;padding:3px 2px}
+  .combat-stage .hero-status{align-self:center;max-height:100%;min-height:0;overflow:hidden}
+  .combat-stage .hero-image{height:clamp(28px,10dvh,50px);width:clamp(28px,10dvh,50px)}
+  .combat-stage .enemy-line{align-self:center;align-items:center;max-height:100%;min-height:0;overflow:visible}
+  .combat-stage .enemy{display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:1px;min-width:0;max-height:100%;overflow:hidden}
+  .combat-stage .enemy-portrait{flex:none;width:clamp(30px,10dvh,49px);height:clamp(30px,10dvh,49px);font-size:clamp(19px,6dvh,29px)}
+  .combat-stage .enemy-title{margin:1px 0 0;line-height:1.1;font-size:11px;max-width:100%}
+  .combat-stage .enemy-role{font-size:9px;line-height:1.1;padding:1px 3px;align-self:center;max-width:100%}
+  .combat-stage .enemy-hp{flex:none;height:6px}
+  .combat-stage .enemy-values{margin:0;font-size:10px;line-height:1.1}
+  .combat-stage .enemy-intent{margin:0;padding:1px 3px;font-size:10px;line-height:1.15;flex:none}
+  .battle-notice{min-height:17px;line-height:1.35;max-height:none;white-space:normal;overflow:hidden;overflow-wrap:anywhere;font-size:11px}
+  .tactics-pane{min-height:47px}
+  .card-hand{overflow:hidden}
+  .card-hand .skill-card{overflow:hidden}
+  .question-panel{max-height:calc(100dvh - 8px);overflow-y:auto;padding:7px 12px}
+  .question-panel .question-stem{max-height:none;overflow:visible;font-size:clamp(15px,2vw,19px);line-height:1.4}
+  .question-panel .answer-btn{min-height:36px}
+  .question-panel .question-result{margin:5px 0;max-height:none;overflow:visible}
+  .question-explanation{font-size:12px;line-height:1.4;margin:5px 0 7px;padding:6px 10px}
+}
+@media (orientation:landscape) and (max-height:350px) and (pointer:coarse){
+  #battle{min-height:330px}
+  .combat-stage .enemy-portrait{width:30px;height:30px;font-size:20px}
+  .combat-stage .hero-image{width:28px;height:28px}
+  .hand-area{min-height:0}
+}
+
+/* Progressive disclosure: information belongs in the menu, characters on stage. */
+.menu-toggle{border:1px solid #8eada8;color:#f0f8ed;border-radius:11px;background:#1d4858;padding:7px 12px;font-weight:900;font-size:13px;white-space:nowrap;cursor:pointer}
+.menu-toggle span{font-size:12px}
+.help-overlay{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:#0b2530cf;padding:12px}
+.help-panel{width:min(570px,95vw);max-height:90dvh;overflow:auto;color:#274852;background:#fff9eb;border:3px solid #d6b179;border-radius:18px;padding:18px;box-shadow:0 20px 55px #0005}
+.help-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.help-head h2{margin:0;font-size:20px}.help-head button{background:#244d5c;color:white;border:0;border-radius:9px;font-size:24px;width:38px;height:38px}
+.help-panel details{padding:11px 4px;border-top:1px solid #d8cdb5}.help-panel summary{cursor:pointer;font-weight:900;font-size:15px}.help-panel p,.help-panel #helpStats{margin:9px 0 0;font-size:14px;line-height:1.7}
+.topbar .menu-toggle{margin-left:auto}.topbar:has(.run-resources:not([hidden])) .menu-toggle{margin-left:0}
+@media (orientation:landscape) and (max-height:650px) and (pointer:coarse){
+  .topbar .brand{font-size:13px}.topbar .brand small{display:none}
+  .topbar .prototype-pill,.topbar .back-link{display:none}
+  .topbar .menu-toggle{margin-left:auto;padding:3px 9px;font-size:16px;height:26px}
+  .topbar .menu-toggle span{display:none}
+  #battle{min-height:max(352px,calc(100dvh - 36px));grid-template-columns:minmax(0,1fr);grid-template-rows:26px minmax(170px,1fr) minmax(130px,40%);gap:4px}
+  .act-strip{grid-column:1;grid-row:1}.act-strip h1{font-size:15px}.floor-pips{display:none}
+  .floor-label{font-size:11px;letter-spacing:0}
+  .battle-grid{grid-column:1;grid-row:2;display:grid;grid-template-columns:minmax(0,1fr) 100px;grid-template-rows:minmax(0,1fr);gap:5px}
+  .arena{display:grid;grid-template-rows:minmax(0,1fr) auto;min-height:0;height:100%;padding:4px 7px;gap:0}
+  .combat-stage{grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr);gap:7px;overflow:visible;padding:2px}
+  .combat-stage .hero-status{overflow:visible}
+  .combat-stage .hero-image{width:clamp(65px,21dvh,102px);height:clamp(65px,21dvh,102px)}
+  .combat-stage .hero-info strong{display:none}
+  .combat-stage .hero-info>span{font-size:11px}
+  .combat-stage .hp-track{height:8px;margin:3px auto}
+  .combat-stage .ap-box{gap:5px;margin-top:2px}.combat-stage .ap-box span{display:none}.combat-stage .ap-box strong{font-size:13px}.combat-stage .ap-box small{font-size:10px}
+  .combat-stage .enemy-line{align-items:center;overflow:visible;gap:10px}
+  .combat-stage .enemy{gap:2px;overflow:visible;max-width:48%;flex:0 1 150px}
+  .combat-stage .enemy-portrait{width:clamp(60px,19dvh,90px);height:clamp(60px,19dvh,90px);font-size:clamp(36px,12dvh,55px)}
+  .combat-stage .enemy-title{font-size:12px;line-height:1.1;margin:1px 0}
+  .combat-stage .enemy-role{display:none}
+  .combat-stage .enemy-hp{height:8px}
+  .combat-stage .enemy-values{font-size:10px}
+  .combat-stage .enemy-intent{max-width:100%;font-size:10px;line-height:1.2;margin:0;padding:2px 4px}
+  .duel-mark{font-size:22px}
+  .battle-notice{white-space:nowrap;text-overflow:ellipsis;min-height:16px;font-size:11px;line-height:1.3}
+  .tactics-pane{display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-height:0;padding:4px;border-width:2px;background:#e8eadf}
+  .tactics-pane:before,.tactics-pane .pane-title,.tactics-pane .intent-list,.tactics-pane .stat-line{display:none!important}
+  .end-turn-btn{width:100%;height:55px;min-width:0;flex:0 0 auto;margin:0;padding:6px 3px;font-size:13px;line-height:1.3;border-radius:11px}
+  .hand-area{grid-column:1;grid-row:3;padding:4px 9px 6px;min-height:0;display:flex;flex-direction:column;height:100%}
+  .hand-heading{height:20px;min-height:20px}.hand-heading h2{font-size:13px}.hand-heading p{display:none}
+  .card-hand{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:minmax(0,1fr);gap:8px;flex:1;height:auto;min-height:0;overflow:hidden}
+  .card-hand .skill-card{height:100%;min-height:0;padding:4px 5px;display:grid;grid-template-rows:24px minmax(0,1fr) minmax(0,1fr);gap:3px}
+  .card-hand .skill-card .glyph{height:24px;min-height:0;margin:0;font-size:20px}
+  .card-hand .skill-card strong{min-height:0;white-space:normal;font-size:clamp(12px,1.7vw,15px);line-height:1.12}
+  .card-hand .skill-card .effect{font-size:clamp(11px,1.5vw,13px);line-height:1.14;margin:0;min-height:0}
+  .card-hand .skill-card .format,.card-hand .skill-card .rank{display:none}
+  .help-panel{max-height:calc(100dvh - 12px);padding:10px 14px}
+  .help-panel details{padding:6px 2px}.help-panel summary{font-size:13px}.help-panel p,.help-panel #helpStats{font-size:12px;line-height:1.5}
+}
+@media (orientation:landscape) and (max-height:390px) and (pointer:coarse){
+  #battle{min-height:max(345px,calc(100dvh - 35px))}
+  .combat-stage .hero-image{width:clamp(57px,19dvh,77px);height:clamp(57px,19dvh,77px)}
+  .combat-stage .enemy-portrait{width:clamp(53px,18dvh,74px);height:clamp(53px,18dvh,74px);font-size:clamp(30px,10dvh,43px)}
+  .combat-stage .enemy-title{font-size:11px}
+}

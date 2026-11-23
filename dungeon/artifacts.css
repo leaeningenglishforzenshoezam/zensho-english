@@ -1,0 +1,107 @@
+.run-resources{display:flex;align-items:center;gap:12px;margin-left:auto;color:#f9e7c6;font-size:12px;font-weight:900;white-space:nowrap}
+.run-resources button{border:1px solid #95b5b7;border-radius:20px;background:#1b4655;color:#fff4d2;padding:5px 10px;font-weight:900}
+.run-resources span{color:#ffcd77}.run-resources b{font-size:14px;margin-left:3px}
+.topbar:has(.run-resources:not([hidden])) .back-link{margin-left:0}
+.artifact-overlay{position:fixed;inset:0;z-index:12;background:#061b2bc9;display:grid;place-items:center;padding:12px}
+.artifact-panel{width:min(650px,95vw);max-height:90dvh;overflow:auto;background:#fff8e8;border:3px solid #dda762;border-radius:18px;padding:17px;color:#264550}
+.artifact-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.artifact-panel h2{margin:0 0 10px}.artifact-panel-head button{background:#26566a;color:white;border:0;border-radius:9px;padding:8px 13px}
+.artifact-entry{display:flex;align-items:center;gap:10px;padding:9px;border:1px solid #d9ccb5;border-radius:10px;margin-bottom:7px;background:#fff}
+.artifact-entry .artifact-symbol{font-size:24px;width:36px;text-align:center}
+.artifact-entry strong{display:block;font-size:13px}.artifact-entry small{font-size:11px;color:#587076}
+.artifact-empty{padding:20px;text-align:center;color:#6b8081}
+.artifact-choice{width:174px;min-height:160px;display:flex;flex-direction:column;gap:9px;align-items:center;text-align:center;justify-content:center;padding:12px;border:3px solid #c6a36d;border-radius:14px;background:#fff9eb;color:#2b4e5b;box-shadow:0 5px 0 #baa077}
+.artifact-choice .artifact-symbol{font-size:35px}.artifact-choice strong{font-size:17px}.artifact-choice small{font-size:12px;line-height:1.35;color:#5e7276}
+/* The original 256px transparent artifact art replaces text glyphs throughout the run. */
+.artifact-image{display:block;flex:none;object-fit:contain;max-width:100%;filter:drop-shadow(0 2px 2px #25374728)}
+.artifact-entry .artifact-image{width:48px;height:48px}
+.artifact-choice .artifact-image{width:64px;height:64px}
+.shop-item .artifact-image{width:46px;height:46px}
+/* Elite victories offer one artifact alongside three cards, all visible at once. */
+#choiceScreen .choice-cards.elite-offers{flex-wrap:nowrap;align-items:stretch;gap:clamp(5px,1vw,14px)}
+#choiceScreen .choice-cards.elite-offers>.skill-card,
+#choiceScreen .choice-cards.elite-offers>.artifact-choice{
+  flex:1 1 0;width:0;min-width:0;max-width:186px;min-height:180px;
+}
+#choiceScreen .choice-cards.elite-offers>.artifact-choice{gap:7px;padding:10px 6px;border-color:#d5a85a;background:linear-gradient(#fff5d9,#f4e3bd)}
+#choiceScreen .choice-cards.elite-offers>.artifact-choice strong{font-size:clamp(11px,1.15vw,15px);overflow-wrap:anywhere}
+#choiceScreen .choice-cards.elite-offers>.artifact-choice small{
+  font-size:clamp(10px,1vw,12px);line-height:1.3;overflow:hidden;
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;
+}
+.shop-item{width:190px;min-height:135px;display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;padding:12px;border:2px solid #c6b48e;border-radius:13px;background:#fffefa;color:#254c5a;text-align:center}
+.shop-item strong{font-size:15px}.shop-item small{font-size:11px;line-height:1.4;color:#5d7374}.shop-item b{font-size:13px;color:#a6742d}
+.shop-item.sold{opacity:.48}
+@media (orientation:landscape) and (max-height:650px) and (pointer:coarse){
+  .run-resources{gap:5px;font-size:10px}.run-resources button{padding:3px 6px;font-size:10px}.run-resources b{font-size:11px}
+  .artifact-panel{padding:9px;max-height:90dvh}.artifact-panel h2{font-size:16px}
+  .artifact-choice{width:min(25vw,160px);min-height:108px;height:116px;padding:6px;gap:4px}
+  .artifact-choice .artifact-symbol{font-size:21px}.artifact-choice strong{font-size:12px}.artifact-choice small{font-size:10px;line-height:1.2}
+  .artifact-entry .artifact-image{width:36px;height:36px}
+  .artifact-choice .artifact-image{width:34px;height:34px}
+  .shop-item .artifact-image{width:31px;height:31px}
+  #choiceScreen .choice-cards.elite-offers>.skill-card,
+  #choiceScreen .choice-cards.elite-offers>.artifact-choice{height:116px;min-height:0;max-width:none}
+  #choiceScreen .choice-cards.elite-offers>.artifact-choice{padding:5px 3px;gap:2px}
+  #choiceScreen .choice-cards.elite-offers>.artifact-choice .artifact-symbol{font-size:22px}
+  #choiceScreen .choice-cards.elite-offers>.artifact-choice .artifact-image{width:34px;height:34px}
+  #choiceScreen .choice-cards.elite-offers>.artifact-choice strong{font-size:11px;line-height:1.1}
+  #choiceScreen .choice-cards.elite-offers>.artifact-choice small{font-size:9px;line-height:1.1;-webkit-line-clamp:3}
+  .shop-item{width:min(18vw,160px);min-height:108px;height:115px;padding:5px;gap:3px}
+  .shop-item strong{font-size:12px}.shop-item small{font-size:10px;line-height:1.15}.shop-item b{font-size:11px}
+  .choice-cards:has(.shop-item){flex-wrap:nowrap;gap:5px}
+}
+@media (orientation:landscape) and (max-height:390px) and (pointer:coarse){
+  .topbar .back-link{display:none}
+  .shop-item{height:99px;min-height:99px}
+  #choiceScreen .choice-cards.elite-offers>.skill-card,
+  #choiceScreen .choice-cards.elite-offers>.artifact-choice{height:104px}
+}
+@media (orientation:landscape) and (max-height:650px) and (pointer:coarse){
+  .card-hand:has(.skill-card:nth-child(5)){grid-template-columns:repeat(5,minmax(0,1fr))}
+  .card-hand:has(.skill-card:nth-child(6)){grid-template-columns:repeat(6,minmax(0,1fr))}
+  .card-hand:has(.skill-card:nth-child(7)){grid-template-columns:repeat(7,minmax(0,1fr))}
+  .card-hand:has(.skill-card:nth-child(6)) .skill-card{grid-template-rows:minmax(0,1fr) minmax(0,1fr);padding:4px 2px}
+  .card-hand:has(.skill-card:nth-child(6)) .glyph{display:none}
+  .card-hand:has(.skill-card:nth-child(6)) .skill-card strong{grid-row:1;font-size:11px}
+  .card-hand:has(.skill-card:nth-child(6)) .skill-card .effect{grid-row:2;font-size:10px}
+}
+.enemy-role{display:inline-block;color:#365d57;background:#e7f2de;border:1px solid #a7c5a5;border-radius:999px;padding:2px 7px;font-size:10px;font-weight:900;line-height:1.2;max-width:100%;white-space:normal}
+@media (max-height:520px) and (orientation:landscape){.enemy-role{font-size:9px;padding:1px 4px;line-height:1.1}.combat-stage .enemy-line:has(.enemy:nth-child(2)) .enemy{max-width:48%;flex-basis:120px}}
+.type-select-label{display:block;color:#dbe9db;font-size:13px;font-weight:800;margin:12px 0 4px}
+.type-select{display:block;width:min(320px,100%);border:2px solid #87a9a0;border-radius:10px;background:#f6f3e6;color:#234955;padding:9px 12px;font-size:16px;font-weight:800}
+.resume-btn{margin-top:9px;display:block;border:1px solid #e9c97c;border-radius:12px;color:#ffe4a0;background:#265264;padding:12px 20px;font-size:14px;font-weight:900}
+.special-choice{width:min(200px,29vw);min-height:170px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;text-align:center;background:#fff7e8;border:3px solid #bd9e64;border-radius:14px;padding:12px;color:#2c5162;box-shadow:0 5px 0 #b9a17c}
+.special-choice .special-icon{font-size:32px}.special-choice strong{font-size:16px}.special-choice small{font-size:12px;line-height:1.35}.special-choice .special-label{font-size:10px;font-weight:1000;letter-spacing:.08em;color:#94672d}
+.special-choice.type{border-color:#69a18b}.special-choice.skill{border-color:#9383c1}.special-choice.boost{border-color:#d4a361}
+@media (orientation:landscape) and (max-height:650px) and (pointer:coarse){.type-select-label{font-size:11px;margin:6px 0 2px}.type-select{padding:4px 6px;font-size:13px}.resume-btn{padding:6px 10px}.special-choice{width:min(27vw,170px);min-height:110px;height:116px;padding:6px;gap:3px}.special-choice .special-icon{font-size:21px}.special-choice strong{font-size:12px}.special-choice small{font-size:10px;line-height:1.2}}
+
+/* The deployment screen is setup UI, not a locked battle viewport. Never clip its CTA. */
+.intro-actions{display:flex;flex-wrap:wrap;align-items:stretch;gap:9px;margin-top:14px}
+.intro-actions .primary-btn{justify-content:center;min-height:44px;flex:1 1 180px}
+.intro-actions .resume-btn{margin:0;flex:1 1 180px}
+@media (max-width:900px) and (orientation:portrait) and (pointer:coarse){
+  body:has(#intro:not([hidden])) .rotate-hint{display:none}
+  body:has(#intro:not([hidden])){height:auto;overflow-y:auto}
+  #intro{height:auto;min-height:0;overflow:visible}
+  #intro .intro-copy p{line-height:1.5}
+  #intro .intro-rules{margin:12px 0}
+  #intro .loadout-grid{gap:7px;margin:10px 0}
+  #intro .loadout-option{min-height:60px}
+  #intro .type-select-label{color:#39575b}
+  #intro .intro-actions{position:sticky;bottom:0;z-index:3;background:#fffcf2;padding:10px 0 2px;border-top:1px solid #e0d4ba}
+}
+@media (orientation:landscape) and (max-height:650px) and (pointer:coarse){
+  #intro{overflow-y:auto;align-items:stretch}
+  #intro .intro-copy{align-self:center}
+  #intro .loadout-select{display:flex;flex-direction:column;min-height:0;max-height:100%;overflow-y:auto;overscroll-behavior:contain;padding:8px 10px}
+  #intro .loadout-grid{flex:none;gap:3px;margin:4px 0}
+  #intro .loadout-option{min-height:0;padding:4px 8px;gap:0}
+  #intro .loadout-option small{line-height:1.1}
+  #intro .loadout-select h2{font-size:14px}
+  #intro .loadout-select p{font-size:10px;line-height:1.2;margin:3px 0}
+  #intro .type-select-label{color:#39575b;margin:4px 0 2px}
+  #intro .type-select{font-size:13px;padding:4px 8px;flex:none}
+  #intro .intro-actions{position:sticky;bottom:-8px;z-index:5;flex:none;gap:5px;margin-top:6px;padding:5px 0 8px;background:#fffcf2;box-shadow:0 -7px 14px #fffcf2}
+  #intro .intro-actions .primary-btn,#intro .intro-actions .resume-btn{min-height:34px;padding:6px 10px;font-size:12px;flex-basis:130px}
+}
