@@ -154,6 +154,8 @@
     Sequence:{label:'Sequence',ap:2,format:'q12',dmg:30,icon:'✦',type:'attack',rank:'R',plus:{dmg:39}},
     Rebuild:{label:'Rebuild',ap:2,format:'q12',heal:13,block:8,icon:'✚',type:'heal',rank:'N',plus:{heal:19,block:11}},
     Symphony:{label:'Symphony',ap:2,format:'q12',dmg:22,range:3,icon:'☄',type:'attack',rank:'R',plus:{dmg:29}},
+    SavingsPlan:{label:'Savings Plan',ap:1,format:'accent',block:6,seedAtBlock:8,icon:'✿',type:'guard',rank:'N',plus:{block:9}},
+    ReturnSlip:{label:'Return Slip',ap:1,format:'jaen',block:6,recoveryBlock:6,icon:'↶',type:'guard',rank:'N',plus:{block:9}},
     Spark:{label:'Spark',ap:1,format:'accent',dmg:15,icon:'ϟ',type:'attack',rank:'N',plus:{dmg:20}},
     Shelter:{label:'Shelter',ap:1,format:'accent',block:8,icon:'⬡',type:'guard',rank:'N',plus:{block:13}},
     Tempo:{label:'Tempo',ap:1,format:'accent',draw:2,discard:1,icon:'↝',type:'tactic',rank:'N',plus:{draw:3}},
@@ -216,8 +218,8 @@
   const COMMON_SKILLS=['Attack','Guard','FirstAid','Burst','Aid','Comfort','Flash','Shock','Cure','Protect','Echo','Shade'];
   const BUILD_FAMILIES={
     REFLECT:['Counter','GuardShift','Pattern','Protect','Fortress','Absolute','Lock','Shelter','Shade'],
-    RECYCLE:['Replay','Remind','Extend','Whisper','Pulse','Link','Archive','Recast'],
-    EVOLUTION:['Grow','Harvest','Press','Rhythm','Command','Spark','Overgrowth','Seed'],
+    RECYCLE:['ReturnSlip','Replay','Remind','Extend','Whisper','Pulse','Link','Archive','Recast'],
+    EVOLUTION:['SavingsPlan','Grow','Harvest','Press','Rhythm','Command','Spark','Overgrowth','Seed'],
     CHAIN:['Chain','Sweep','Momentum','Burst','Command','Reserve','Ignition','Finisher'],
     RESONANCE:['Resonance','ResonantField','Finale','Harmony','Crescendo','Chorus'],
     DISCARD:['Select','Trigger','Pretend','Tempo','Melody','Afterimage'],
@@ -245,7 +247,7 @@
     return pool[pool.length-1];
   };
   const STAGE_SKILLS={
-    1:['Scream','Encourage','Remind','Pronounce','Rhythm','Whisper','Angle','Press','Slice','Lock','Repair','Command','Surround','Disturb','Extend','Absolute','Pattern','Spark','Shelter','Counter','GuardShift','Replay','Grow','Harvest','Archive','Overgrowth','Recast','Chain','Seed','Sweep','Momentum','Reserve','Ignition','Finisher','Clearance','LedgerCut','TwinGuard','NightShift','Overtime','Teamwork','NightMarket','StockReserve','Cashback','MarginCall','QuickAudit','LastMinute'],
+    1:['Scream','Encourage','Remind','Pronounce','Rhythm','Whisper','Angle','Press','Slice','Lock','Repair','Command','Surround','Disturb','Extend','Absolute','Pattern','SavingsPlan','ReturnSlip','Counter','GuardShift','Replay','Grow','Harvest','Archive','Overgrowth','Recast','Chain','Seed','Sweep','Momentum','Reserve','Ignition','Finisher','Clearance','LedgerCut','TwinGuard','NightShift','Overtime','Teamwork','NightMarket','StockReserve','Cashback','MarginCall','QuickAudit','LastMinute'],
     2:['Pretend','Disappear','Broadcast','Melody','Pulse','Resonance','Harmony','Crescendo','Assemble','Link','Sequence','Rebuild','Symphony','Tempo','Chorus','Insight','Resolve','Reform','Fortress','Select','Trigger','Sacrifice','Focus','Finale','ResonantField','Purify','Afterimage','Index','AfterHours','SafeExit','OpenBook','Closeout','LastCall','BalanceSheet','Reorder','BulkSale','PriceMatch','ChainReaction','FinalInvoice']
   };
   const availableSkills=()=>[...COMMON_SKILLS,...STAGE_SKILLS[state.dungeon]||[]];
@@ -450,6 +452,8 @@
   const effects = s => {const out=[];
     if(s.dmg)out.push(`${s.range>=3?'全体':s.range===2?'2体':''}${s.dmg}ダメージ${s.pierce?'（防御無視）':''}`);
     if(s.block)out.push(`防御 ${s.block}`);if(s.heal)out.push(`回復 ${s.heal}`);if(s.healPct)out.push(`最大HPの${s.healPct}%回復`);
+    if(s.seedAtBlock)out.push(`使用前の防御${s.seedAtBlock}以上で芽＋1`);
+    if(s.recoveryBlock)out.push(`このターンにUSED回収済みなら防御＋${s.recoveryBlock}`);
     if(s.cancel)out.push('敵の次の攻撃を0');if(s.weaken)out.push(`敵攻撃 −${s.weaken}`);
     if(s.buff)out.push('次の攻撃 ×2');if(s.nextPlus)out.push(`次の攻撃 +${s.nextPlus}`);
     if(s.draw)out.push(`${s.draw}枚ドロー`);if(s.discard)out.push(`${s.discard}枚捨てる`);
@@ -479,6 +483,8 @@
     if(s.heal)parts.push(`回復${s.heal}`);
     if(s.healPct)parts.push(`HP${s.healPct}%回復`);
     if(s.block)parts.push(`防御${s.block}`);
+    if(s.seedAtBlock)parts.push(`使用前の防御${s.seedAtBlock}以上で芽＋1`);
+    if(s.recoveryBlock)parts.push(`このターンにUSED回収済みなら防御＋${s.recoveryBlock}`);
     if(s.cancel)parts.push('攻撃を封じる');
     if(s.weaken)parts.push(`敵攻撃−${s.weaken}`);
     if(s.buff)parts.push('次の攻撃×2');
@@ -1349,7 +1355,11 @@
       if(firstAttackBonus)state.artifactBattleUses.add('FirstAttack');
       if(hasArtifact('CompoundInterest'))state.artifactCompound=Math.min(8,state.artifactCompound+2);
       state.buff=1;state.nextPlus=0;state.shieldPierce=0;}
-    if(s.block)state.block+=Math.max(0,s.block-(state.guardPriceCut||0));
+    if(s.seedAtBlock&&state.block>=s.seedAtBlock)state.growUses++;
+    if(s.block){
+      const recoveryBonus=state.recoveredTurn>0?(s.recoveryBlock||0):0;
+      state.block+=Math.max(0,s.block+recoveryBonus-(state.guardPriceCut||0));
+    }
     if(s.bonusBlock&&state.correctFormats.length>=s.formatCount)state.block+=s.bonusBlock;
     if(s.bonusBlockPerEnemy)state.block+=candidates.length*s.bonusBlockPerEnemy;
     if(s.drawIfGuard&&state.block>=s.drawIfGuard)draw(1);
