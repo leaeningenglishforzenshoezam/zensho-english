@@ -1,5 +1,5 @@
 /* Both fighters stand on the same floor, with compact HP placed above the art. */
-#battle .combat-stage{align-items:end}
+#battle .combat-stage{align-items:end;grid-template-rows:minmax(0,1fr)}
 #battle .combat-stage .hero-status{
   display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
   align-self:stretch;justify-self:center;max-width:310px;width:100%;height:100%;
@@ -86,6 +86,12 @@
 #battle .combat-stage .enemy-line.enemy-count-2 .enemy-portrait{
   width:min(100%,286px);height:clamp(130px,38dvh,290px);
   max-height:calc(100% - 68px);
+}
+/* Fit the sprite to the remaining space below the vitals. A large PNG in
+   an automatic grid track can otherwise extend below its portrait on short screens. */
+#battle .combat-stage .enemy-portrait > .enemy-sprite{
+  position:absolute;inset:0;width:100%;height:100%;
+  min-width:0;min-height:0;object-fit:contain;object-position:center bottom;
 }
 #battle .combat-stage .enemy-intent{
   position:relative;z-index:3;flex:none;right:auto;bottom:auto;
