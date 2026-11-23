@@ -750,6 +750,12 @@
       if(frame.duration&&run.index<frames.length-1){run.timer=setTimeout(()=>{run.index++;paint();},frame.duration);}
       else if(frame.duration){run.timer=setTimeout(endStory,frame.duration);}
     };
+    run.advance=()=>{
+      if(activeStory!==run)return;
+      if(run.timer){clearTimeout(run.timer);run.timer=null;}
+      if(run.index<frames.length-1){run.index++;paint();}
+      else endStory();
+    };
     paint();
   }
   function showFirstNight(){
@@ -798,8 +804,8 @@
   }
   function showDawnSequence(){const d=DUNGEONS[1];
     playStory([
-      {moment:'vault',image:d.clearVaultArt||d.battleArt[2],eyebrow:'THE FINAL VAULT',title:'最後の鍵が外れた',lines:['金庫から、まばゆい光があふれる。','その奥で、誰もいないレジが一度だけ鳴った。'],button:'結果を見る',duration:2300},
-      {moment:'dawn',image:d.dawnArt||d.art,eyebrow:'THE CLOCK STARTS',title:'時計が動き始めた',lines:['真夜中の百貨店に、朝が訪れる。'],button:'結果を見る',duration:1600},
+      {moment:'vault',image:d.clearVaultArt||d.battleArt[2],eyebrow:'THE FINAL VAULT',title:'最後の鍵が外れた',lines:['金庫から、まばゆい光があふれる。','その奥で、誰もいないレジが一度だけ鳴った。'],button:'次へ',tapToAdvance:true},
+      {moment:'dawn',image:d.dawnArt||d.art,eyebrow:'THE CLOCK STARTS',title:'時計が動き始めた',lines:['真夜中の百貨店に、朝が訪れる。'],button:'次へ',tapToAdvance:true},
       {moment:'complete',image:d.dawnArt||d.art,eyebrow:'DUNGEON CLEAR',title:'夜明けの百貨店',lines:['3つのACTを踏破した！'],button:'結果を見る',companion:true}
     ]);
   }
@@ -830,12 +836,12 @@
     journalSeen.add(id);storeJson(JOURNAL_SEEN_KEY,[...journalSeen]);renderJournalSummary();
     $('journalOverlay').hidden=true;
     playSfx('journal');
-    playStory([{moment:'record-intro',image:entry.image,eyebrow:`MIDNIGHT RECORD ${entry.number}`,title:'閉店後に残されたもの',lines:entry.leadLines,duration:1800},
+    playStory([{moment:'record-intro',image:entry.image,eyebrow:`MIDNIGHT RECORD ${entry.number}`,title:'閉店後に残されたもの',lines:entry.leadLines,button:'次へ',tapToAdvance:true},
       {moment:'record',image:entry.image,eyebrow:`MIDNIGHT RECORD ${entry.number}`,title:entry.title,lines:entry.lines,button:'記録を閉じる'}]);
   }
   function showLatestJournalIfNew(){const unread=journalUnlocked().filter(entry=>!journalSeen.has(entry.id));if(unread.length)openJournalEntry(unread[unread.length-1].id);}
-  $('storyContinue').onclick=endStory;
-  $('storyOverlay').onclick=e=>{if(e.target===$('storyOverlay'))endStory();};
+  $('storyContinue').onclick=()=>{const run=activeStory;if(run?.frames[run.index]?.tapToAdvance)run.advance();else endStory();};
+  $('storyOverlay').onclick=e=>{if(e.target===$('storyOverlay')&&!activeStory?.frames[activeStory.index]?.tapToAdvance)endStory();};
   const NODE={battle:['⚔','通常戦'],elite:['☠','強敵'],event:['？','未知'],rest:['✚','休憩'],treasure:['✦','宝箱'],shop:['▣','SHOP'],boss:['🐉','ボス']};
   function makeRoute(){
     // Every complete path has 6 or 7 battles including the boss, regardless of lane.
