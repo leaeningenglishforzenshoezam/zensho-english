@@ -59,16 +59,16 @@
   function readBadges(){try{const raw=JSON.parse(localStorage.getItem(BADGE_SAVE_KEY)||'null');return {earned:Array.isArray(raw?.earned)?raw.earned:[],shards:Number.isFinite(raw?.shards)?raw.shards:0,totalCorrect:Number.isFinite(raw?.totalCorrect)?raw.totalCorrect:0};}catch(e){return {earned:[],shards:0,totalCorrect:0};}}
   const badgeProgress=readBadges();
   function writeBadges(){try{localStorage.setItem(BADGE_SAVE_KEY,JSON.stringify(badgeProgress));}catch(e){}renderBadgeSummary();}
-  function awardBadge(id){if(!BADGES.some(b=>b.id===id)||badgeProgress.earned.includes(id))return;badgeProgress.earned.push(id);badgeProgress.shards+=5;writeBadges();}
+  function awardBadge(id){if(!BADGES.some(b=>b.id===id)||badgeProgress.earned.includes(id))return;badgeProgress.earned.push(id);badgeProgress.shards+=5;writeBadges();syncBadgeRewards();}
   function recordCorrectAnswer(){badgeProgress.totalCorrect++;for(const b of BADGES)if(b.target&&badgeProgress.totalCorrect>=b.target)awardBadge(b.id);writeBadges();}
   const stage2Unlocked=()=>badgeProgress.earned.includes('firstClear');
   function renderBadgeSummary(){if(!$('badgeSummary'))return;$('badgeSummary').textContent=`${badgeProgress.earned.length} / ${BADGES.length}`;if($('badgeStarSummary'))$('badgeStarSummary').textContent=`✦ ${badgeProgress.shards}`;
-    if($('helpBadges'))$('helpBadges').textContent=`獲得 ${badgeProgress.earned.length}/${BADGES.length}個 ・ 星のかけら ${badgeProgress.shards}個`;
+    if($('helpBadges'))$('helpBadges').textContent=`獲得 ${badgeProgress.earned.length}/${BADGES.length}個 ・ バッジ報酬累計 ✦ ${badgeProgress.shards}`;
     renderDungeonPicker();}
   const BADGE_GROUPS={common:'共通',stage1:'STAGE 01',stage2:'STAGE 02',tactics:'戦術'};
   let badgeFilter='all';
   function renderBadges(){
-    $('badgeTotal').textContent=`${badgeProgress.earned.length} / ${BADGES.length} 達成 · 星のかけら ${badgeProgress.shards}`;
+    $('badgeTotal').textContent=`${badgeProgress.earned.length} / ${BADGES.length} 達成 · 報酬累計 ✦ ${badgeProgress.shards}`;
     $('badgeLifetime').textContent=`累計 ${badgeProgress.totalCorrect}問正解`;
     $('badgeFilters').querySelectorAll('[data-badge-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.badgeFilter===badgeFilter)));
     const groups=Object.entries(BADGE_GROUPS).filter(([group])=>badgeFilter==='all'||badgeFilter===group);
@@ -80,6 +80,23 @@
     }).join('');
   }
   function showBadges(){renderBadges();$('badgeOverlay').hidden=false;}
+  let badgeRewardsBusy=false,badgeRewardsSynced=-1;
+  async function syncBadgeRewards(){
+    if(badgeRewardsBusy||badgeRewardsSynced===badgeProgress.earned.length)return;
+    badgeRewardsBusy=true;
+    const notice=$('badgeRewardStatus');
+    if(notice)notice.textContent='ガチャ共通のほしのかけらに反映しています…';
+    try{
+      const rewards=await import('./shard-rewards.mjs');
+      do{
+        const count=badgeProgress.earned.length;
+        const amount=await rewards.claimEarnedBadges(window,badgeProgress.earned);
+        badgeRewardsSynced=count;
+        if(notice)notice.textContent=amount>0?`ガチャ共通の残高に ✦ ${amount} を追加しました。`:'バッジ報酬はガチャ共通の残高に反映済みです。';
+      }while(badgeRewardsSynced!==badgeProgress.earned.length);
+    }catch(error){if(notice)notice.textContent='報酬の反映を保留しています。再度この画面を開くと再試行します。';console.warn('ダンジョンのバッジ報酬を反映できませんでした。',error);}
+    finally{badgeRewardsBusy=false;}
+  }
   const banks=new Map();
   function questionBank(){
     const grade=state.examGrade;
@@ -1930,4 +1947,7 @@
   window.addEventListener('pageshow',()=>{if(state.phase==='intro'){refreshCompanions();refreshCarryInventory();renderSelectedCompanion();renderLoadouts();if(!$('skillOverlay').hidden)openSkills();}});
   renderSelectedCompanion();renderBestiarySummary();
   renderLoadouts();renderDungeonPicker();renderBadgeSummary();$('resumeBtn').hidden=!readCheckpoint();
+  syncBadgeRewards();
+  window.addEventListener('focus',syncBadgeRewards);
+  window.addEventListener('goimon-storage-ready',syncBadgeRewards);
 })();
