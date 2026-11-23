@@ -344,7 +344,7 @@
     {kind:'exchange',name:'等価交換ジョーカー',hp:114,attack:10,icon:'🃏'},
     {kind:'taxer',name:'悪徳税理士',hp:110,attack:9,icon:'📜'}
   ];
-  const state = {phase:'intro',loadout:0,companionId:savedSetup.companionId||'trial-nagomi',selectedCarrySkills:Array.isArray(savedSetup.skills)?savedSetup.skills:null,hp:START_HP,maxHp:START_HP,ap:3,apTotal:3,block:0,guardPriceCut:0,carry:0,carryOver:0,buff:1,nextPlus:0,turn:1,
+  const state = {phase:'intro',loadout:0,companionId:savedSetup.companionId||null,selectedCarrySkills:Array.isArray(savedSetup.skills)?savedSetup.skills:null,hp:START_HP,maxHp:START_HP,ap:3,apTotal:3,block:0,guardPriceCut:0,carry:0,carryOver:0,buff:1,nextPlus:0,turn:1,
     fight:0,hand:[],deck:[],used:[],owned:[],enemies:[],selected:0,questions:0,correct:0,commandUsed:false,
     notice:'',pending:null,question:null,choiceMode:null,campNext:false,postChoice:null,route:[],routeEdges:[],routePath:[],stage:0,currentEncounter:null,
     coins:0,artifacts:[],artifactTurnUses:new Set(),artifactBattleUses:new Set(),shopStock:[],basicAttack:5,basicGuard:3,upgradeFromEvent:false,removeOrigin:'shop',
@@ -379,6 +379,15 @@
     const old=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');return old&&[2,3].includes(old.act)&&Array.isArray(old.owned)?old:null;}catch(e){return null;}}
   function clearCheckpoint(){try{localStorage.removeItem(RUN_SAVE_KEY);localStorage.removeItem(SAVE_KEY);}catch(e){}$('resumeBtn').hidden=true;}
   function resumeCheckpoint(){const data=readCheckpoint();if(!data)return;
+    refreshCompanions();
+    const pet=companions.find(c=>c.id===data.companionId)||selectedCompanion();
+    if(!pet){renderSelectedCompanion();return;}
+    if(data.type!==pet.type){
+      data.choiceSpecialOptions=null;
+      if(!TYPE_EFFECTS[pet.type])data.typeBoost=false;
+    }
+    data.companionId=pet.id;data.type=pet.type;
+    state.companionId=pet.id;
     if(data.version!==2){const keys=['act','loadout','type','hp','maxHp','owned','coins','artifacts','basicAttack','basicGuard','typeBoost','specialBoosts','questions','correct','fight','seenWords','wrongWords'];
       for(const key of keys)if(data[key]!==undefined)state[key]=data[key];startAct();return;}
     for(const [key,value] of Object.entries(data)){if(key==='version'||key==='phase')continue;state[key]=value;}
@@ -523,42 +532,48 @@
     sceneArt.style?.setProperty?.('--dungeon-image',departureArt?`url("${departureArt}")`:'none');sceneArt.classList?.toggle?.('has-art',!!departureArt);
     renderRunStats();
   }
-  // The standalone playtest uses clearly labelled samples. The main GOIMON app can
-  // provide the actual player's raised companions and learned skill IDs before load.
-  const trialCompanions=[
-    {id:'trial-nagomi',name:'ラミナス',type:'nagomi',form:'成長体',image:'images/goimon/nagomi_growth.png',sigil:'✦'},
-    {id:'trial-hirameki',name:'ひらめきゴイモン',type:'hirameki',form:'試遊用',sigil:'ϟ'},
-    {id:'trial-tsumugi',name:'つむぎゴイモン',type:'tsumugi',form:'試遊用',sigil:'♧'},
-    {id:'trial-yomitoki',name:'よみときゴイモン',type:'yomitoki',form:'試遊用',sigil:'⌕'},
-    {id:'trial-shirabe',name:'しらべゴイモン',type:'shirabe',form:'試遊用',sigil:'◈'},
-    {id:'trial-hibiki',name:'ひびきゴイモン',type:'hibiki',form:'試遊用',sigil:'♫'},
-    {id:'trial-kotonoha',name:'ことのはゴイモン',type:'kotonoha',form:'試遊用',sigil:'✎'}
-  ];
   const importedProfile=window.GOIMON_DUNGEON_PROFILE;
-  const externalCompanions=Array.isArray(importedProfile?.companions)?importedProfile.companions.filter(c=>c&&typeof c.id==='string'&&typeof c.name==='string'&&TYPE_LABELS[c.type]):[];
-  const companions=externalCompanions.length?externalCompanions:trialCompanions;
+  let companions=[];
+  function refreshCompanions(){
+    companions=window.readDungeonCompanions?.()||[];
+  }
+  refreshCompanions();
   const trialSkillIds=['Burst','Flash','Shade','Lock','Rhythm','Grow','Counter','Chain','Replay','Command','Shock','FirstAid'];
   const profileSkillIds=Array.isArray(importedProfile?.skills)?importedProfile.skills.filter(s=>typeof s==='string'&&skills[baseName(s)]&&!['Attack','Guard','BadStock'].includes(baseName(s))):trialSkillIds;
   const carryChoices=profileSkillIds.filter((s,i)=>profileSkillIds.findIndex(x=>baseName(x)===baseName(s))===i);
-  const isTrialProfile=!externalCompanions.length;
   const selectedCompanion=()=>companions.find(c=>c.id===state.companionId)||companions[0];
   const selectedCarry=()=>state.selectedCarrySkills??LOADOUTS[state.loadout].cards;
   const carryNames=()=>selectedCarry().filter(id=>carryChoices.includes(id)).slice(0,3);
   function saveSetup(){storeJson(SETUP_KEY,{companionId:state.companionId,skills:state.selectedCarrySkills,dungeon:state.dungeon});}
   function companionArt(c,small=false){return c.image?`<img src="${escapeHtml(c.image)}" alt="" loading="lazy">`:`<span class="goimon-sigil ${small?'small':''}" aria-hidden="true">${escapeHtml(c.sigil||'✧')}</span>`;}
   function renderSelectedCompanion(){
-    const c=selectedCompanion();state.companionId=c.id;
+    const c=selectedCompanion();
+    state.companionId=c?.id||null;
+    $('startBtn').disabled=!c;
+    $('resumeBtn').disabled=!c;
+    $('companionPickOpen').disabled=!c;
+    $('signatureDetailOpen').disabled=!TYPE_EFFECTS[c?.type];
+    if(!c){
+      $('companionSmallArt').innerHTML='';
+      $('companionName').textContent='出撃できるゴイモンがいません';
+      $('companionForm').textContent='ホームで育成を始めてください。';
+      $('signatureName').textContent='';
+      $('introCompanionImage').hidden=true;
+      $('battleCompanionImage').hidden=true;
+      return;
+    }
     $('companionSmallArt').innerHTML=companionArt(c,true);
-    $('companionName').textContent=c.name;$('companionForm').textContent=`${TYPE_LABELS[c.type]} · ${c.form||'成長体'}`;
-    $('signatureName').textContent=c.signatureSkill?.name||`${TYPE_LABELS[c.type]}の固有特性`;
+    $('companionName').textContent=c.name;$('companionForm').textContent=`${TYPE_LABELS[c.type]||c.species} · ${c.form||'成長体'}`;
+    $('signatureName').textContent=TYPE_EFFECTS[c.type]?`${TYPE_LABELS[c.type]}の固有特性`:'ダンジョン固有特性なし';
     const introImg=$('introCompanionImage'),battleImg=$('battleCompanionImage');
     for(const img of [introImg,battleImg]){if(c.image){img.src=c.image;img.hidden=false;}else{img.hidden=true;}}
     const stage=$('heroUnit');stage?.setAttribute?.('data-companion-type',c.type);stage?.setAttribute?.('data-sigil',c.image?'':c.sigil||'✧');stage?.classList?.toggle?.('without-art',!c.image);
     const pet=$('intro').querySelector?.('.intro-pet');if(pet){pet.setAttribute('data-sigil',c.image?'':c.sigil||'✧');pet.classList.toggle('without-art',!c.image);}
   }
   function openCompanions(){
-    $('companionRoster').innerHTML=companions.map(c=>`<button type="button" class="companion-choice ${c.id===state.companionId?'chosen':''}" data-companion="${escapeHtml(c.id)}" aria-pressed="${c.id===state.companionId}"><span class="roster-art">${companionArt(c,true)}</span><span><strong>${escapeHtml(c.name)}</strong><small>${escapeHtml(TYPE_LABELS[c.type])} · ${escapeHtml(c.signatureSkill?.name||TYPE_LABELS[c.type]+'の固有SKILL')}</small></span><span class="choice-tick">${c.id===state.companionId?'✓':'›'}</span></button>`).join('');
-    $('companionSourceNote').textContent=isTrialProfile?'試遊用のゴイモンです。本番では育成済みのゴイモンから選択できます。':'育成済みのゴイモン';
+    refreshCompanions();renderSelectedCompanion();
+    $('companionRoster').innerHTML=companions.map(c=>`<button type="button" class="companion-choice ${c.id===state.companionId?'chosen':''}" data-companion="${escapeHtml(c.id)}" aria-pressed="${c.id===state.companionId}"><span class="roster-art">${companionArt(c,true)}</span><span><strong>${escapeHtml(c.name)}</strong><small>${escapeHtml(c.form)} · ${escapeHtml(TYPE_LABELS[c.type]||c.species)}</small></span><span class="choice-tick">${c.id===state.companionId?'✓':'›'}</span></button>`).join('');
+    $('companionSourceNote').textContent='育成中・保存箱のゴイモン（1級・2級）';
     $('companionRoster').querySelectorAll('[data-companion]').forEach(b=>b.onclick=()=>{state.companionId=b.dataset.companion;renderSelectedCompanion();saveSetup();$('companionOverlay').hidden=true;});
     $('companionOverlay').hidden=false;
   }
@@ -674,7 +689,7 @@
       $('storyText').innerHTML=frame.lines.map(line=>`<p>${escapeHtml(line)}</p>`).join('');
       $('storyContinue').textContent=frame.button||'スキップ';
       const pet=$('storyCompanion'),companion=selectedCompanion();
-      pet.hidden=!frame.companion||!companion.image;
+      pet.hidden=!frame.companion||!companion?.image;
       if(!pet.hidden){pet.src=companion.image;pet.alt=`${companion.name}と夜明け`;}
       if(frame.duration&&run.index<frames.length-1){run.timer=setTimeout(()=>{run.index++;paint();},frame.duration);}
       else if(frame.duration){run.timer=setTimeout(endStory,frame.duration);}
@@ -845,7 +860,7 @@
     if(state.dungeon===1&&kind==='boss'&&state.act===3)showFinalBossOmen();
   }
   function startAct(){state.stage=0;state.actFight=0;const map=makeRoute();state.route=map.route;state.routeEdges=map.edges;state.routePath=[];showRoute();}
-  function start(){if(state.dungeon===2&&!stage2Unlocked())return;playSfx('confirm');clearCheckpoint();state.hp=START_HP;state.maxHp=START_HP;state.act=1;state.type=selectedCompanion().type;state.typeBoost=false;state.specialBoosts=[];
+  function start(){refreshCompanions();renderSelectedCompanion();if(!selectedCompanion())return;if(state.dungeon===2&&!stage2Unlocked())return;playSfx('confirm');clearCheckpoint();state.hp=START_HP;state.maxHp=START_HP;state.act=1;state.type=selectedCompanion().type;state.typeBoost=false;state.specialBoosts=[];
     state.owned=[...carryNames()];state.specialSkillOffer=null;state.choiceSpecialOptions=null;state.questions=0;state.correct=0;state.fight=0;state.coins=0;state.artifacts=[];state.artifactActUpgrades=[];
     state.eventHistory=[];state.choiceEvent=null;
     recordRun('start');
@@ -1534,7 +1549,7 @@
       $('choiceEyebrow').textContent=`ACT ${state.act} BOSS DEFEATED`;$('choiceTitle').textContent=`${bossMonsters[state.act].name} を撃破！`;
       $('choiceDescription').textContent=`3つの特別報酬から1つ選択。${state.lastBattleArtifact?'ARTIFACT「'+artifacts[state.lastBattleArtifact].name+'」を獲得。':''}`;
       const options=state.choiceSpecialOptions||[{id:'skill',label:'SPECIAL SKILL',title:skill?skills[skill].label:'SKILL',detail:skill?effects(skills[skill]):'候補なし',icon:'✦',className:'skill',disabled:!skill},
-        !state.typeBoost?{id:'type',label:'TYPE BOOST',title:`${TYPE_LABELS[state.type]}の特性強化`,detail:TYPE_BOOST_EFFECTS[state.type],icon:'◈',className:'type'}:{id:alternate||boost,label:'SPECIAL BOOST',title:SPECIAL_BOOSTS[alternate||boost]?.name||'強化済み',detail:SPECIAL_BOOSTS[alternate||boost]?.effect||'候補なし',icon:'✧',className:'boost',disabled:!(alternate||boost)},
+        !state.typeBoost&&TYPE_EFFECTS[state.type]?{id:'type',label:'TYPE BOOST',title:`${TYPE_LABELS[state.type]}の特性強化`,detail:TYPE_BOOST_EFFECTS[state.type],icon:'◈',className:'type'}:{id:alternate||boost,label:'SPECIAL BOOST',title:SPECIAL_BOOSTS[alternate||boost]?.name||'強化済み',detail:SPECIAL_BOOSTS[alternate||boost]?.effect||'候補なし',icon:'✧',className:'boost',disabled:!(alternate||boost)},
         {id:boost,label:'SPECIAL BOOST',title:SPECIAL_BOOSTS[boost]?.name||'強化済み',detail:SPECIAL_BOOSTS[boost]?.effect||'候補なし',icon:'✧',className:'boost',disabled:!boost}];
       state.choiceSpecialOptions=options;
       if(!state.specialSkillOffer)state.specialSkillOffer=skill;
@@ -1795,6 +1810,7 @@
   document.addEventListener?.('keydown',e=>{if(e.key==='Escape'){if(!$('dungeonMap').hidden)closeDungeonMap();else if(!$('helpOverlay').hidden)closeHelp();}});
   $('closeQuestion').onclick=closeQuestion;$('continueQuestion').onclick=()=>state.pending?.bossChallenge?finishBossChallenge():finishQuestion();
   $('listenBtn').onclick=()=>{if(state.question?.speak)speak(state.question.speak);};
+  window.addEventListener('pageshow',()=>{if(state.phase==='intro'){refreshCompanions();renderSelectedCompanion();}});
   renderSelectedCompanion();renderBestiarySummary();
   renderLoadouts();renderDungeonPicker();renderBadgeSummary();$('resumeBtn').hidden=!readCheckpoint();
 })();
