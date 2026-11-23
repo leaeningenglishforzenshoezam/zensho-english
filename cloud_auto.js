@@ -14,7 +14,7 @@
  const labels={saved:'クラウド保存済み',pending:'端末に保存済み · 自動保存待ち',saving:'クラウドに保存中…',waiting:'端末に保存済み · 通信待ち',auth:'端末保存のみ · 再ログインしてください',conflict:'別端末の記録を確認してください',error:'自動保存を停止 · 保存画面で確認',blocked:'別の学習タブを閉じて再読み込み',guest:'この端末に保存'};
  function render(){const s=session(),active=localStorage.getItem(activeKey);let k=kind;
   if(!active)k='guest';else if(!s)k='auth';else if(!isCloud&&active!==id)k='auth';
-  account.textContent=s?'● ログイン中'+(s.displayName?' · '+s.displayName:''):'○ '+(active?'再ログイン':'ゲスト · Googleでログイン');
+  account.textContent=s?'● ログイン中'+(s.displayName?' · '+s.displayName:''):'○ '+(active?(cfg.loginEnabled===false?'以前のアカウント · 保存の確認':'再ログイン'):(cfg.loginEnabled===false?'ゲスト · 端末保存':'ゲスト · Googleでログイン'));
   status.textContent=isCloud&&s?'自動保存を設定・確認':labels[k]||labels.pending;
   if(k==='conflict'||k==='error'){account.textContent+=' · 保存を確認';}
   bar.dataset.state=k;
