@@ -804,8 +804,8 @@
   }
   function showDawnSequence(){const d=DUNGEONS[1];
     playStory([
-      {moment:'vault',image:d.clearVaultArt||d.battleArt[2],eyebrow:'THE FINAL VAULT',title:'最後の鍵が外れた',lines:['金庫から、まばゆい光があふれる。','その奥で、誰もいないレジが一度だけ鳴った。'],button:'結果を見る',duration:2300},
-      {moment:'dawn',image:d.dawnArt||d.art,eyebrow:'THE CLOCK STARTS',title:'時計が動き始めた',lines:['真夜中の百貨店に、朝が訪れる。'],button:'結果を見る',duration:1600},
+      {moment:'vault',image:d.clearVaultArt||d.battleArt[2],eyebrow:'THE FINAL VAULT',title:'最後の鍵が外れた',lines:['金庫から、まばゆい光があふれる。','その奥で、誰もいないレジが一度だけ鳴った。'],button:'次へ',tapToAdvance:true},
+      {moment:'dawn',image:d.dawnArt||d.art,eyebrow:'THE CLOCK STARTS',title:'時計が動き始めた',lines:['真夜中の百貨店に、朝が訪れる。'],button:'次へ',tapToAdvance:true},
       {moment:'complete',image:d.dawnArt||d.art,eyebrow:'DUNGEON CLEAR',title:'夜明けの百貨店',lines:['3つのACTを踏破した！'],button:'結果を見る',companion:true}
     ]);
   }
