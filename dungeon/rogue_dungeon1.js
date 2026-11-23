@@ -387,7 +387,7 @@
   };
   function saveCheckpoint(){
     if(state.phase==='intro'||state.choiceMode==='complete')return;
-    const keys=['missionOwner','missionRecorded','phase','examGrade','dungeon','act','actFight','stage','route','routeEdges','routePath','currentEncounter','encounterWordRange','wordQueue','loadout','companionId','selectedCarrySkills','type','hp','maxHp','owned','coins','artifacts','basicAttack','basicGuard','typeBoost','specialBoosts','questions','correct','fight','seenWords','wrongWords','ap','apTotal','block','guardPriceCut','carry','carryOver','buff','nextPlus','turn','hand','deck','used','enemies','selected','commandUsed','shieldPierce','shopStock','shopRemoveIndex','removeOrigin','choiceMode','choiceOffer','eliteArtifactOffer','eventHistory','choiceEvent','choiceSpecialOptions','specialSkillOffer','upgradeFromEvent','battleWrongQuestions','runWrongQuestions','battleReviewUsed','battleReviewRevived','turnDamage','turnGuardGained','lastBattleArtifact','sealed','growUses','discardedTurn','recoveredTurn','correctFormats','turnUsedNames','replayUsed','freeReplayCard','freeRetrievedCard','chainApGained','momentumActive','momentumDrawn','reserveAp','reserveUsed','artifactAttacks','artifactCardUses','artifactDraws','artifactCorrectStreak','artifactUniqueCards','artifactNextGuard','artifactCompound','artifactDiscountUsed','artifactFreeShopUsed','artifactActUpgrades'];
+    const keys=['battleStartHp','missionOwner','missionRecorded','phase','examGrade','dungeon','act','actFight','stage','route','routeEdges','routePath','currentEncounter','encounterWordRange','wordQueue','loadout','companionId','selectedCarrySkills','type','hp','maxHp','owned','coins','artifacts','basicAttack','basicGuard','typeBoost','specialBoosts','questions','correct','fight','seenWords','wrongWords','ap','apTotal','block','guardPriceCut','carry','carryOver','buff','nextPlus','turn','hand','deck','used','enemies','selected','commandUsed','shieldPierce','shopStock','shopRemoveIndex','removeOrigin','choiceMode','choiceOffer','eliteArtifactOffer','eventHistory','choiceEvent','choiceSpecialOptions','specialSkillOffer','upgradeFromEvent','battleWrongQuestions','runWrongQuestions','battleReviewUsed','battleReviewRevived','turnDamage','turnGuardGained','lastBattleArtifact','sealed','growUses','discardedTurn','recoveredTurn','correctFormats','turnUsedNames','replayUsed','freeReplayCard','freeRetrievedCard','chainApGained','momentumActive','momentumDrawn','reserveAp','reserveUsed','artifactAttacks','artifactCardUses','artifactDraws','artifactCorrectStreak','artifactUniqueCards','artifactNextGuard','artifactCompound','artifactDiscountUsed','artifactFreeShopUsed','artifactActUpgrades'];
     const data=Object.fromEntries(keys.map(k=>[k,state[k]]));
     for(const key of ['artifactTurnUses','artifactBattleUses','typeTurnUses','typeBattleUses','typeCorrectNames'])data[key]=[...state[key]];
     data.version=2;
@@ -399,6 +399,7 @@
     const old=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');return old&&[2,3].includes(old.act)&&Array.isArray(old.owned)?old:null;}catch(e){return null;}}
   function clearCheckpoint(){try{localStorage.removeItem(RUN_SAVE_KEY);localStorage.removeItem(SAVE_KEY);}catch(e){}$('resumeBtn').hidden=true;}
   function resumeCheckpoint(){const data=readCheckpoint();if(!data)return;
+    state.battleStartHp=data.battleStartHp??0;
     state.missionOwner=data.missionOwner??GoimonDungeonMission.owner();state.missionRecorded=!!data.missionRecorded;
     refreshCompanions();
     const pet=companions.find(c=>c.id===data.companionId)||selectedCompanion();
@@ -987,6 +988,7 @@
     if(boss.speechTurn===state.turn&&speechLabels[boss.speechCue]&&(boss.speechCue!=='serious'||state.turn>=BOSS_SERIOUS_TURN))showBossLine(box,boss,boss.speechCue);
     else box.hidden=true;
   }
+  const retryHp=()=>Math.min(state.maxHp,(state.battleStartHp||0)+10);
   function startBattle(retry=false){if(!retry){state.battleWrongQuestions=[];state.battleReviewUsed=false;state.battleReviewRevived=false;state.lastBattleArtifact=null;state.eliteArtifactOffer=null;}
     selectedHandIndex=-1;
     state.enemies=state.currentEncounter.enemies.map((e,i)=>({...e,id:i,maxHp:e.hp,shield:0,canceled:false,weak:0}));
@@ -1000,7 +1002,10 @@
     state.artifactAttacks=0;state.artifactCardUses=0;state.artifactDraws=0;state.artifactCorrectStreak=0;state.artifactUniqueCards=[];state.artifactCompound=0;state.artifactNextGuard=0;
     state.artifactTurnUses=new Set();state.artifactBattleUses=new Set();state.typeTurnUses=new Set();state.typeBattleUses=new Set();state.typeCorrectNames=new Set();state.shieldPierce=0;
     if(hasArtifact('IronShield'))state.block+=5;
-    if(hasArtifact('VitalDrop'))state.hp=Math.min(state.maxHp,state.hp+3);
+    if(!retry){
+      if(hasArtifact('VitalDrop'))state.hp=Math.min(state.maxHp,state.hp+3);
+      state.battleStartHp=state.hp;
+    }
     state.notice='';state.phase='battle';state.battleOpeningDraw=true;draw(5+(hasArtifact('LuckyHand')?1:0)+(hasArtifact('ForecastAI')?2:0));state.battleOpeningDraw=false;state.artifactDraws=0;setScreen('battle');renderBattle();}
   function intent(e,turn=state.turn){
     const result=baseIntent(e,turn);
@@ -1734,7 +1739,7 @@
     }
     const reviewAvailable=['reward','eliteReward','special','defeat','complete'].includes(mode)&&!state.battleReviewUsed&&(state.battleWrongQuestions||[]).length>0;
     $('reviewWrongBtn').hidden=!reviewAvailable;
-    if(reviewAvailable){$('reviewWrongBtn').textContent=mode==='defeat'?'✚ 間違えた問題を復習して HP10で再挑戦':`✚ 間違えた問題を復習して HP＋10（${state.battleWrongQuestions.length}問）`;}
+    if(reviewAvailable){$('reviewWrongBtn').textContent=mode==='defeat'?`✚ 間違えた問題を復習して HP${retryHp()}で再挑戦`:`✚ 間違えた問題を復習して HP＋10（${state.battleWrongQuestions.length}問）`;}
     saveCheckpoint();
   }
   function beginWrongReview(){
@@ -1782,7 +1787,7 @@
     if(exitReviewQuestions){exitReviewQuestions=null;finishRunExit();return;}
     state.battleReviewUsed=true;
     if(state.choiceMode==='defeat'){
-      state.hp=Math.min(state.maxHp,10);state.battleReviewRevived=true;startBattle(true);
+      state.hp=retryHp();state.battleReviewRevived=true;startBattle(true);
     }else{
       state.hp=Math.min(state.maxHp,state.hp+10);showChoice(state.choiceMode);
     }
