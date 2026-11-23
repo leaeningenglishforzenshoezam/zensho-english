@@ -90,7 +90,7 @@
       const count=x.sylRaw?.replace(/[ˈˌ]/g,'').split('-').filter(Boolean).length;
       return x.en&&count>=2&&x.stress>=1&&x.stress<=count;
     });
-    const q9s=(window['SENTENCE_FIXED_'+suffix]||[]).filter(x=>x.en&&x.answer&&x.choices?.length>=3);
+    const q9s=(window['SENTENCE_FIXED_'+suffix]||[]).filter(x=>x.en&&x.answer&&x.choices?.length===4&&new Set(x.choices).size===4);
     const paraphrases=grade===1?(window.PARAPHRASE_DATA_1KYU||[]).map(x=>({
       stem:x.a+'\n'+x.b,answer:x.answer,distractors:x.choices.filter(v=>v!==x.answer),
       ja:x.ja,explanation:x.pointNote, notes:Object.fromEntries(x.choices.map((v,i)=>[v,x.choiceJa[i]]))
@@ -419,6 +419,12 @@
     for(const key of ['artifactTurnUses','artifactBattleUses','typeTurnUses','typeBattleUses','typeCorrectNames'])state[key]=new Set(data[key]||[]);
     state.sealed=state.sealed||[];state.correctFormats=state.correctFormats||[];state.turnUsedNames=state.turnUsedNames||[];state.growUses=state.growUses||0;state.discardedTurn=state.discardedTurn||0;state.recoveredTurn=state.recoveredTurn||0;state.replayUsed=!!state.replayUsed;state.chainApGained=state.chainApGained||0;state.momentumActive=!!state.momentumActive;state.momentumDrawn=state.momentumDrawn||0;state.reserveAp=state.reserveAp||0;state.reserveUsed=!!state.reserveUsed;state.cardSelection=null;
     state.runWrongQuestions=Array.isArray(data.runWrongQuestions)?data.runWrongQuestions:[...(data.battleWrongQuestions||[])];
+    for(const q of [...(state.battleWrongQuestions||[]),...state.runWrongQuestions]){
+      if(q.format!=='q9'||q.options?.length===4)continue;
+      const {q9s,wordMeaning}=questionBank();
+      const row=q9s.find(x=>x.en===q.stem&&x.answer===q.answer);
+      if(row)Object.assign(q,sentenceQuestion(row,wordMeaning));
+    }
     state.eventHistory=Array.isArray(data.eventHistory)?data.eventHistory:(data.choiceEvent?[data.choiceEvent]:[]);
     state.removeOrigin=data.removeOrigin||(data.currentEncounter?.nodeType==='rest'?'camp':'shop');
     state.guardPriceCut=state.guardPriceCut||0;
@@ -1135,6 +1141,15 @@
     fx.textContent=message;fx.className='battle-fx show '+(kind==='enemy'||kind==='attack'?'hit':kind==='guard'?'guard':'miss');
     fxTimer=setTimeout(()=>{stage.classList.remove('hero-strike','enemy-strike','hero-hurt','enemy-hurt','hero-guard');fx.className='battle-fx';},850);
   }
+  function sentenceQuestion(row,wordMeaning){
+    // The vocabulary headword may differ from the inflected answer in the sentence.
+    const headword=row.answer.toLowerCase();
+    const answer=row.choices.find(choice=>choice.toLowerCase()===headword)||row.choices[0];
+    const options=shuffled(row.choices);
+    const optionNotes=Object.fromEntries(options.map(choice=>[choice,wordMeaning.get(choice.toLowerCase())||(choice===answer&&wordMeaning.get(headword))||'']));
+    return {format:'q9',stem:row.en,answer,options,optionNotes,
+      explanation:`日本語訳：${row.ja||'（訳データなし）'}${row.note?'\nポイント：'+row.note:''}`};
+  }
   function makeQuestion(format){
     const {words,accentChoices,q9s,q11s,q12s,wordMeaning,wordNumber}=questionBank();
     if(format==='word'||format==='audio'||format==='jaen'){
@@ -1147,7 +1162,10 @@
     if(format==='accent'){const available=accentChoices.filter(x=>inEncounter(x.no));const x=random(available.length?available:accentChoices),plain=x.sylRaw.replace(/ˈ/g,'').replace(/ˌ/g,'');
       const syllables=plain.split('-').filter(Boolean);const max=Math.max(syllables.length,x.stress);
       return {format,stem:`${x.en}\n${plain}\n最も強く読む音節は？`,answer:`第${x.stress}音節`,options:Array.from({length:max},(_,i)=>`第${i+1}音節`),speak:x.en,explanation:`${x.en}（${x.ja}）\n強勢：${x.sylRaw}。第${x.stress}音節を強く発音します。${x.note?'\n'+x.note:''}`};}
-    if(format==='q9'){const available=q9s.filter(x=>inEncounter(wordNumber.get(x.answer.toLowerCase())));const x=random(available.length?available:q9s);const options=shuffled([...new Set([x.answer,...x.choices])]);return {format,stem:x.en,answer:x.answer,options,optionNotes:Object.fromEntries(options.map(v=>[v,wordMeaning.get(v.toLowerCase())||''])),explanation:`日本語訳：${x.ja||'（訳データなし）'}${x.note?'\nポイント：'+x.note:''}`};}
+    if(format==='q9'){
+      const available=q9s.filter(x=>inEncounter(wordNumber.get(x.answer.toLowerCase())));
+      return sentenceQuestion(random(available.length?available:q9s),wordMeaning);
+    }
     if(format==='q12'){
       const x=random(q12s);
       const ordered=x.answer.map(id=>x.chunks.find(c=>c.id===id).text);
