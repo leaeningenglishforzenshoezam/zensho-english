@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
-import {createOfflineDb} from './offline-db.js';import {autoImportLegacy} from '../src/economy_import.js';import {claimBonus,readBonusStatus} from '../src/economy_bonus.js';import {readEconomy} from '../src/economy_repository.js';
+import {createOfflineDb} from './offline-db.js';import {autoImportLegacy} from '../src/economy_import.js';import {claimBonus,claimDungeonBadge,readBonusStatus} from '../src/economy_bonus.js';import {readEconomy} from '../src/economy_repository.js';
 import release from '../src/mission_release.js';import {createSession} from '../src/session.js';
 const now=Date.parse('2026-11-01T23:59:59+09:00');
 async function setup(claims={}){const h=await createOfflineDb();const sql=await readFile(new URL('../migrations/0009_economy_legacy_imports.sql',import.meta.url),'utf8');for(const s of sql.match(/CREATE TABLE[\s\S]*?;/g))await h.db.prepare(s).run();await autoImportLegacy(h.db,'local-test',{version:1,assets:{version:1,shards:30,owned:{gear:{},skills:{}}},backup:JSON.stringify({schemaVersion:2,shop:{claims}})});return h;}
@@ -24,6 +24,30 @@ test('legacy bonus claims suppress grants; missing migration and damaged records
  }finally{h.close();}
  const broken=await setup(null);try{await assert.rejects(claimBonus(broken.db,'local-test',{kind:'welcome',date:'2026-11-01',expectedRevision:1},now),/legacy_claims_invalid/);assert.equal((await readEconomy(broken.db,'local-test')).state.shards,30);}finally{broken.close();}
 });
+test('dungeon badge rewards add to the gacha wallet once per badge and reject forged amounts',async()=>{
+ const h=await setup();try{
+  const badge={kind:'badge',badgeId:'firstWin',expectedRevision:1};
+  const results=await Promise.all([claimDungeonBadge(h.db,'local-test',badge),claimDungeonBadge(h.db,'local-test',badge)]);
+  assert.equal(results.filter(r=>!r.replayed).length,1);
+  assert.equal((await readEconomy(h.db,'local-test')).state.shards,35);
+  assert.equal((await claimDungeonBadge(h.db,'local-test',badge)).replayed,true);
+  await assert.rejects(claimDungeonBadge(h.db,'local-test',{...badge,badgeId:'unknown'}),/invalid_bonus/);
+  await assert.rejects(claimDungeonBadge(h.db,'local-test',{...badge,shards:1000}),/invalid_bonus/);
+  await assert.rejects(claimDungeonBadge(h.db,'local-test',{...badge,badgeId:'correct20'}),/revision_conflict/);
+  assert.equal((await claimDungeonBadge(h.db,'local-test',{...badge,badgeId:'correct20',expectedRevision:2})).result.shards,5);
+  assert.equal((await readEconomy(h.db,'local-test')).state.shards,40);
+ }finally{h.close();}
+});
+test('migrated local dungeon badge rewards cannot be collected again on the server',async()=>{
+ const h=await setup({'dungeon:badge:firstWin':true});try{
+  const first=await claimDungeonBadge(h.db,'local-test',{kind:'badge',badgeId:'firstWin',expectedRevision:1});
+  assert.equal(first.result.shards,0);
+  assert.equal(first.result.legacyClaimed,true);
+  assert.equal((await readEconomy(h.db,'local-test')).state.shards,30);
+  assert.equal((await claimDungeonBadge(h.db,'local-test',{kind:'badge',badgeId:'correct100',expectedRevision:2})).result.shards,5);
+  await assert.rejects(claimDungeonBadge(h.db,'other',{kind:'badge',badgeId:'firstWin',expectedRevision:0}),/migration_required/);
+ }finally{h.close();}
+});
 test('bonus endpoint requires explicit gate, origin, session, and rejects client grant amounts',async()=>{
  const h=await setup();try{
   const session=await createSession(h.db,'local-test'),limiter={limit:async()=>({success:true})};
@@ -33,5 +57,7 @@ test('bonus endpoint requires explicit gate, origin, session, and rejects client
   const status=await(await call()).json();assert.equal(typeof status.date,'string');
   assert.equal((await call({kind:'welcome',date:status.date,expectedRevision:1,shards:999})).status,400);
   assert.equal((await call({kind:'welcome',date:status.date,expectedRevision:1})).status,200);
+  assert.equal((await call({kind:'badge',badgeId:'firstWin',expectedRevision:2})).status,200);
+  assert.equal((await call({kind:'badge',badgeId:'firstWin',expectedRevision:2,shards:999})).status,400);
  }finally{h.close();}
 });
