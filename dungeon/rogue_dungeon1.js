@@ -240,10 +240,12 @@
     if(skills[name].type!=='attack'&&supporting>=2)return 1;
     return 3;
   };
+  // Dungeon 1 keeps a small synergy bonus while leaving other builds competitive.
+  const cardRewardWeight=name=>state.dungeon===1?1+(rewardWeight(name)-1)*0.1:rewardWeight(name);
   const weightedReward=pool=>{
-    const total=pool.reduce((sum,name)=>sum+rewardWeight(name),0);
+    const total=pool.reduce((sum,name)=>sum+cardRewardWeight(name),0);
     let roll=Math.random()*total;
-    for(const name of pool){roll-=rewardWeight(name);if(roll<0)return name;}
+    for(const name of pool){roll-=cardRewardWeight(name);if(roll<0)return name;}
     return pool[pool.length-1];
   };
   const STAGE_SKILLS={
