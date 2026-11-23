@@ -56,7 +56,7 @@
       </div>
       <div class="loadout-select">
         <div class="departure-head"><div><span class="eyebrow">DEPARTURE</span><h2>出撃準備</h2></div><button type="button" id="dungeonMapOpen" class="dungeon-map-open"><span aria-hidden="true">▦</span> 迷宮を変更</button></div>
-        <div class="departure-tools"><a class="departure-tool" href="../index.html">ホームに戻る</a>
+        <div class="departure-tools">
           <button type="button" id="bestiaryOpen" class="departure-tool"><span>◈</span><span class="departure-tool-name">図鑑</span><b id="bestiarySummary">0/17</b></button>
           <button type="button" id="badgeOpen" class="departure-tool"><span>✦</span><span class="departure-tool-name">バッジ</span><b id="badgeSummary">0/18</b></button>
           <button type="button" id="journalOpen" class="departure-tool journal-tool"><span>⌁</span><span class="departure-tool-name">夜の記録</span><b id="journalSummary">0/4</b></button>
@@ -194,6 +194,7 @@
   <div class="help-overlay" id="helpOverlay" hidden>
     <section class="help-panel" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
       <div class="help-head"><div><span class="eyebrow">GOIMON GUIDE</span><h2 id="helpTitle">メニュー</h2></div><button id="closeHelp" type="button" aria-label="メニューを閉じる">×</button></div>
+      <a id="dungeonHomeLink" class="menu-deck-open" href="../index.html"><span class="menu-deck-icon" aria-hidden="true">⌂</span><strong>ホームに戻る</strong><span class="menu-deck-arrow" aria-hidden="true">›</span></a>
       <button class="menu-deck-open" id="deckMenuOpen" type="button"><span class="menu-deck-icon">▤</span><span><strong>DECK</strong><small>カード構成を確認</small></span><span class="menu-deck-arrow">›</span></button>
       <div class="menu-bgm"><button type="button" id="bgmToggle" aria-pressed="true">♪ BGM ON</button><label for="bgmVolume">音量 <output id="bgmVolumeValue">25%</output></label><input id="bgmVolume" type="range" min="0" max="100" value="25" step="5" aria-label="BGMの音量"></div>
       <div class="menu-bgm menu-sfx"><button type="button" id="sfxToggle" aria-pressed="true">♬ SE ON</button><label for="sfxVolume">効果音 <output id="sfxVolumeValue">55%</output></label><input id="sfxVolume" type="range" min="0" max="100" value="55" step="5" aria-label="効果音の音量"></div>
