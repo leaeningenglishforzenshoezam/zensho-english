@@ -1361,24 +1361,27 @@
   }
   function heroStatuses(){
     const items=[];
-    if(state.block>0)items.push({icon:`🛡${state.block}`,label:`防御 ${state.block}`,description:'敵の攻撃ダメージを防御値の分だけ軽減します。'});
-    if(state.buff>1)items.push({icon:`⚔×${state.buff}`,label:`攻撃 ×${state.buff}`,description:'次に使用する攻撃SKILLの威力が倍になります。'});
-    if(state.nextPlus>0)items.push({icon:`⚔+${state.nextPlus}`,label:`次の攻撃 ＋${state.nextPlus}`,description:'次の攻撃SKILLに追加ダメージが加わります。'});
-    if(state.shieldPierce>0)items.push({icon:`◉${state.shieldPierce}`,label:`防御貫通 ${state.shieldPierce}`,description:'次の攻撃で敵の防御値をこの数値まで無視します。'});
-    if(state.guardPriceCut>0)items.push({icon:`▼${state.guardPriceCut}`,label:`防御カード −${state.guardPriceCut}`,description:'防御カード1枚で得られる防御値が、このターン中は表示量だけ減少します。',negative:true});
+    if(state.block>0)items.push({icon:`🛡️${state.block}`,label:`防御 ${state.block}`,description:'敵の攻撃ダメージを防御値の分だけ軽減します。'});
+    if(state.buff>1)items.push({icon:`🗡️×${state.buff}`,label:`攻撃 ×${state.buff}`,description:'次に使用する攻撃SKILLの威力が倍になります。'});
+    if(state.nextPlus>0)items.push({icon:`🗡️+${state.nextPlus}`,label:`次の攻撃 ＋${state.nextPlus}`,description:'次の攻撃SKILLに追加ダメージが加わります。'});
+    if(state.shieldPierce>0)items.push({icon:`🎯${state.shieldPierce}`,label:`防御貫通 ${state.shieldPierce}`,description:'次の攻撃で敵の防御値をこの数値まで無視します。'});
+    if(state.guardPriceCut>0)items.push({icon:`🛡️−${state.guardPriceCut}`,label:`防御カード −${state.guardPriceCut}`,description:'防御カード1枚で得られる防御値が、このターン中は表示量だけ減少します。',negative:true});
     if(state.growUses>0)items.push({icon:`🌱${state.growUses}`,label:`芽 ${state.growUses}`,description:'成長効果が残っています。'});
     return items;
   }
   function enemyStatuses(e){
     const items=[];
-    if(e.shield>0)items.push({icon:`🛡${e.shield}`,label:`防御 ${e.shield}`,description:'攻撃を受けると防御値から先に減ります。'});
-    if(e.thorns>0)items.push({icon:`↩${e.thorns}`,label:`反撃 ${e.thorns}`,description:`この敵を攻撃してHPが残ると、攻撃ごとにこちらが${e.thorns}ダメージを受けます。`});
-    if(e.weak>0)items.push({icon:`▼${e.weak}`,label:`攻撃弱体 −${e.weak}`,description:'この敵の次の攻撃ダメージが、攻撃1回ごとに表示量だけ減少します。',negative:true});
-    if(e.canceled)items.push({icon:'⊘',label:'行動封じ',description:'この敵の次の行動は無効化されています。',negative:true});
-    if(e.interest>0)items.push({icon:`⌛${e.interest}`,label:`延滞利息 ${e.interest}`,description:'利息攻撃の威力が増加しています。'});
-    if(e.allyBoost>0)items.push({icon:`↗${e.allyBoost}`,label:`味方強化 ${e.allyBoost}`,description:'この敵の支援効果が蓄積しています。'});
-    if(state.enemies.some(x=>x!==e&&x.hp>0&&x.kind==='conductor'))items.push({icon:'♫+4',label:'指揮強化',description:'指揮役が生存しているため、敵の攻撃力が上昇しています。'});
-    if(state.enemies.some(x=>x!==e&&x.hp>0&&x.kind==='d2_auction'&&x.allyBoost))items.push({icon:'↗+2',label:'競売の支援',description:'競売役の支援により、攻撃力が2上昇しています。'});
+    if(e.shield>0)items.push({icon:`🛡️${e.shield}`,label:`防御 ${e.shield}`,description:'攻撃を受けると防御値から先に減ります。'});
+    if(e.thorns>0)items.push({icon:`💥${e.thorns}`,label:`反撃 ${e.thorns}`,description:`この敵を攻撃してHPが残ると、攻撃ごとにこちらが${e.thorns}ダメージを受けます。`});
+    if(e.weak>0)items.push({icon:`🗡️−${e.weak}`,label:`攻撃弱体 −${e.weak}`,description:'この敵の次の攻撃ダメージが、攻撃1回ごとに表示量だけ減少します。',negative:true});
+    if(e.canceled)items.push({icon:'🚫',label:'行動封じ',description:'この敵の次の行動は無効化されています。',negative:true});
+    if(e.interest>0)items.push({icon:`⏳${e.interest}`,label:`延滞利息 ${e.interest}`,description:'利息攻撃の威力が増加しています。'});
+    if(e.allyBoost>0)items.push({icon:`📣+${e.allyBoost}`,label:`競売の号令：味方攻撃＋${e.allyBoost}`,description:'競売役が生存する間、ほかの敵の攻撃力を上げます（重複なし）。'});
+    if(e.kind==='conductor')items.push({icon:'📣+4',label:'指揮の号令：味方攻撃＋4',description:'この敵が生存する間、ほかの敵の攻撃力が4上がります。'});
+    if(e.kind==='d2_speaker')items.push({icon:'📣+3',label:'拡声支援：味方攻撃＋3',description:'この敵が生存する間、ほかの敵の攻撃力が3上がります。'});
+    if(state.enemies.some(x=>x!==e&&x.hp>0&&x.kind==='conductor'))items.push({icon:'🗡️+4',label:'指揮強化：攻撃＋4',description:'指揮役が生存しているため、この敵の攻撃力が4上がっています。'});
+    if(state.enemies.some(x=>x!==e&&x.hp>0&&x.kind==='d2_speaker'))items.push({icon:'🗡️+3',label:'拡声強化：攻撃＋3',description:'スピーカー役が生存しているため、この敵の攻撃力が3上がっています。'});
+    if(state.enemies.some(x=>x!==e&&x.hp>0&&x.kind==='d2_auction'&&x.allyBoost))items.push({icon:'🗡️+2',label:'競売の支援：攻撃＋2',description:'競売役の号令により、この敵の攻撃力が2上がっています。'});
     return items;
   }
   function statusButtons(statuses,owner,id){
