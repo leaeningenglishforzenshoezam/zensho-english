@@ -572,8 +572,7 @@ window.REORDER_2KYU = [
       "do_you_think_insertion"
     ],
     "grammarFocus": [
-      "Which team が will win の主語です。",
-      "その間に意見を尋ねる do you think を挟みます。"
+      "まず Which team will win? を作ります。Which team が勝つ側で、その後ろに do you think を挟みます。"
     ],
     "note": "疑問詞＋do you think"
   },
@@ -618,24 +617,24 @@ window.REORDER_2KYU = [
   },
   {
     "id": "R2_PASTLIKE_017",
-    "stemBefore": "I am sorry",
-    "stemAfter": "outside in the rain.",
+    "stemBefore": "I am sorry to have",
+    "stemAfter": "the rain.",
     "chunks": [
       {
         "id": "c1",
-        "text": "to"
-      },
-      {
-        "id": "c2",
-        "text": "have"
-      },
-      {
-        "id": "c3",
         "text": "kept"
       },
       {
-        "id": "c4",
+        "id": "c2",
         "text": "you"
+      },
+      {
+        "id": "c3",
+        "text": "outside"
+      },
+      {
+        "id": "c4",
+        "text": "in"
       }
     ],
     "answer": [
@@ -650,7 +649,7 @@ window.REORDER_2KYU = [
       "perfect_inf"
     ],
     "grammarFocus": [
-      "今謝っている時点より前に待たせたので、to have に過去分詞 kept を続けます。"
+      "謝っているのは今、待たせたのはそれより前です。to have＋過去分詞（kept）で、その時間の違いを表します。"
     ],
     "note": "be sorry to have＋過去分詞"
   },
@@ -1197,7 +1196,7 @@ window.REORDER_2KYU = [
   {
     "id": "R2_PASTLIKE_032",
     "stemBefore": "On the crowded bus, Yuki",
-    "stemAfter": "from her bag.",
+    "stemAfter": "her bag.",
     "chunks": [
       {
         "id": "c1",
@@ -1213,7 +1212,7 @@ window.REORDER_2KYU = [
       },
       {
         "id": "c4",
-        "text": "stolen"
+        "text": "stolen from"
       }
     ],
     "answer": [
@@ -1228,7 +1227,7 @@ window.REORDER_2KYU = [
       "verb_object_pp"
     ],
     "grammarFocus": [
-      "盗まれた物 her wallet を had の後ろに置き、被害を過去分詞 stolen で示します。"
+      "her wallet が盗まれた物です。had＋物＋過去分詞で、ここでは本人が被害を受けたことを表します。"
     ],
     "note": "have＋物＋過去分詞"
   },
@@ -1576,8 +1575,7 @@ window.REORDER_2KYU = [
       "quantity_form"
     ],
     "grammarFocus": [
-      "not を all の前に置いて部分否定にします。",
-      "all of の後ろは the rooms です。"
+      "not all は「すべてが～というわけではない」。一部の部屋は見学できないという意味です。"
     ],
     "note": "not all of"
   },
@@ -2200,24 +2198,24 @@ window.REORDER_2KYU = [
   },
   {
     "id": "R2_PASTLIKE_058",
-    "stemBefore": "I'm sorry",
-    "stemAfter": "the wrong address yesterday.",
+    "stemBefore": "I'm sorry to have",
+    "stemAfter": "yesterday.",
     "chunks": [
       {
         "id": "c1",
-        "text": "to"
-      },
-      {
-        "id": "c2",
-        "text": "have"
-      },
-      {
-        "id": "c3",
         "text": "given"
       },
       {
-        "id": "c4",
+        "id": "c2",
         "text": "you"
+      },
+      {
+        "id": "c3",
+        "text": "the wrong"
+      },
+      {
+        "id": "c4",
+        "text": "address"
       }
     ],
     "answer": [
@@ -2232,8 +2230,7 @@ window.REORDER_2KYU = [
       "perfect_inf"
     ],
     "grammarFocus": [
-      "謝るより先に「伝えた」ので to have given。",
-      "受け取った人 you は given の直後です。"
+      "given you the wrong address は「あなたに間違った住所を伝えた」。伝えたのは昨日なので to have given とします。"
     ],
     "note": "be sorry to have＋過去分詞"
   },
@@ -2663,24 +2660,24 @@ window.REORDER_2KYU = [
   },
   {
     "id": "R2_PASTLIKE_070",
-    "stemBefore": "Someone must",
+    "stemBefore": "Someone",
     "stemAfter": "last night.",
     "chunks": [
       {
         "id": "c1",
-        "text": "have"
+        "text": "must"
       },
       {
         "id": "c2",
-        "text": "left"
+        "text": "have"
       },
       {
         "id": "c3",
-        "text": "the tap"
+        "text": "left"
       },
       {
         "id": "c4",
-        "text": "on"
+        "text": "the tap on"
       }
     ],
     "answer": [
@@ -2695,8 +2692,7 @@ window.REORDER_2KYU = [
       "modal_perfect"
     ],
     "grammarFocus": [
-      "過去の推量なので must have left。",
-      "続く the tap と on が「水が出たまま」の状態を表します。"
+      "must have＋過去分詞は「きっと～した」。left the tap on は、水を出したままにしたという意味です。"
     ],
     "note": "must have＋過去分詞"
   },
@@ -3004,8 +3000,7 @@ window.REORDER_2KYU = [
       "noun_clause"
     ],
     "grammarFocus": [
-      "who 自身が「見つけた人」を表す主語なので、その直後に found が続きます。",
-      "the missing は外にある ticket を説明します。"
+      "who 自身が「見つけた人」なので、who の直後に動詞 found が来ます。I found the ticket. の I を who に置き換えて考えます。"
     ],
     "note": "主語の who を使う間接疑問"
   },
@@ -3275,8 +3270,7 @@ window.REORDER_2KYU = [
       "do_you_think_insertion"
     ],
     "grammarFocus": [
-      "Which platform は use の目的語です。",
-      "do you think の後ろには we should use が続きます。"
+      "もとの文は We should use this platform. です。尋ねたい目的語を Which platform として前に出し、do you think の後ろは we should use と続けます。"
     ],
     "note": "疑問詞＋do you think"
   },
@@ -3736,8 +3730,7 @@ window.REORDER_2KYU = [
       "infinitive_expression"
     ],
     "grammarFocus": [
-      "little time が「ほとんど時間がない」という意味です。",
-      "何をする時間かを to check で説明します。"
+      "little time は「時間がほとんどない」。a little time にすると「少しは時間がある」と意味が変わります。"
     ],
     "note": "little time to do"
   },

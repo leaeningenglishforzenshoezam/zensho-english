@@ -16,9 +16,9 @@ const pet=id=>({id,type:'nagomi',stage:'egg',stats:{chie:0,kotoba:0,onkan:0,bunm
 test('grade 2 sentences match existing content, deduplicate only identical questions, and use displayed inflected answers',async()=>{
  const c={window:{}};vm.runInNewContext(await readFile(new URL('../../sentence_fixed_2kyu.js',import.meta.url),'utf8'),c);
  const original=c.window.SENTENCE_FIXED_2KYU;
- assert.equal(original.length,549);assert.equal(bank.length,548);
+ assert.equal(original.length,548);assert.equal(new Set(original.map(q=>q.id)).size,original.length);assert.equal(bank.length,548);
  for(const row of bank){const originals=original.filter(q=>q.id===row.id);assert(originals.length);
-  for(const q of originals){assert.equal(row.en,q.en);assert.equal(row.ja,q.ja);assert.deepEqual(row.choices,Array.from(q.choices));assert.equal(row.lemma,q.answer);assert.equal(row.answer,q.choices.find(x=>x.toLowerCase()===q.answer.toLowerCase())||q.choices[0]);}
+  for(const q of originals){assert.equal(row.en,q.en);assert.equal(row.ja,q.ja);assert.deepEqual(row.choices,Array.from(q.choices));assert.equal(row.lemma,q.lemma||q.answer);assert.equal(row.answer,q.choices.find(x=>x.toLowerCase()===q.answer.toLowerCase()));}
  }
  assert.equal(missionOptions('2').length,4);
  assert.deepEqual(missionSettings('2','exam:sentence2'),{slot:'exam',body:{level:'2',category:'sentence',variant:'standard'}});

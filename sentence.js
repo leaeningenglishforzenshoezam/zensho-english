@@ -506,12 +506,14 @@ function normalizeFixedQuestions(rawList) {
   return (rawList || [])
     .map(q => {
       const answerNorm = norm(q.answer);
-      const wordIdx = wordIndexMap.get(answerNorm);
+      const lemma = norm(q.lemma || q.answer);
+      const wordIdx = wordIndexMap.get(lemma);
       const block = getBlockByWordIndex(wordIdx);
 
       return {
         id: String(q.id || ""),
         answer: answerNorm,
+        lemma,
         en: String(q.en || ""),
         ja: String(q.ja || q.hint || ""),
         note: String(q.note || ""),
@@ -1550,7 +1552,7 @@ const isCorrect = !isUnknown && (norm(choice) === correctChoiceNorm);
   markCorrectButtonGreen(correctChoiceNorm);
 
   addAutoWeak(current.id);
-  pushWeakToEnJa(current.answer, 1);
+  pushWeakToEnJa(current.lemma, 1);
 
   updateWeakInfo();
   renderWeakManagement();
