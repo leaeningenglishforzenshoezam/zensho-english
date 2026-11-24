@@ -24,7 +24,7 @@ const {chromium}=require('playwright');
     await page.route('**/dungeon/rogue_dungeon1.js',async route=>{
       const source=fs.readFileSync(path.join(root,'dungeon/rogue_dungeon1.js'),'utf8');
       const instrumented=source.replace('  function startBattle(retry=false)',
-        '  window.__d2test={state,stationMonsters,stationElites,stationBossMonsters,startBattle,baseIntent,intent,renderBattle,answerBossChallenge,showChoice};\n  function startBattle(retry=false)');
+        '  window.__d2test={state,stationMonsters,stationElites,stationBossMonsters,startBattle,baseIntent,intent,renderBattle,answerBossChallenge,showChoice,makeRoute};\n  function startBattle(retry=false)');
       await route.fulfill({status:200,contentType:'application/javascript',body:instrumented});
     });
     await page.goto('http://localhost:8898/dungeon/index.html');
@@ -117,6 +117,9 @@ const {chromium}=require('playwright');
     await page.evaluate(()=>{
       const t=window.__d2test;
       t.state.artifacts=['InnovationPlan'];t.state.owned=['Burst'];
+      const map=t.makeRoute();
+      t.state.route=map.route;t.state.routeEdges=map.edges;
+      t.state.routePath=[1,1];t.state.stage=2;
       t.state.choiceOffer=['Shock'];t.state.eliteArtifactOffer=null;
       t.showChoice('eliteReward');
     });
