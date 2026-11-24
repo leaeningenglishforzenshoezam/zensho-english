@@ -1,4 +1,5 @@
-/* Current battle effects live immediately beside each HP number. */
+/* Keep HP and intent on fixed rows. Effects float beside the sprites and do not
+   participate in the arena's flex/grid height calculation. */
 #battle .combat-stage .hero-hp-line,
 #battle .combat-stage .enemy-hp-line{
   display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
@@ -8,6 +9,22 @@
 }
 #battle .combat-stage .enemy-hp-line{color:#edf3ed}
 #battle .combat-stage .battle-status-badges{display:inline-flex;flex-wrap:wrap;gap:3px;justify-content:center}
+#battle .combat-stage .hero-info,#battle .combat-stage .enemy-vitals{overflow:visible}
+#battle .combat-stage .hero-side-status,
+#battle .combat-stage .enemy-side-status{
+  position:absolute;z-index:9;left:calc(100% + 5px);top:calc(100% + 7px);
+  display:flex;flex-direction:column;flex-wrap:nowrap;align-items:flex-start;
+  justify-content:flex-start;gap:4px;width:max-content;max-width:75px;
+  pointer-events:none;
+}
+#battle .combat-stage .hero-side-status:empty,
+#battle .combat-stage .enemy-side-status:empty{display:none}
+#battle .combat-stage .hero-side-status .battle-status-mark,
+#battle .combat-stage .enemy-side-status .battle-status-mark{pointer-events:auto}
+#battle .combat-stage .hero-side-status{top:calc(100% + 9px)}
+#battle .boss-encounter .combat-stage .enemy-side-status{
+  left:auto;right:calc(100% + 4px);top:54%;transform:translateY(-30%);
+}
 #battle .combat-stage .battle-status-mark{
   display:inline-flex;align-items:center;justify-content:center;
   min-width:26px;min-height:26px;padding:2px 3px;
@@ -36,4 +53,10 @@
 @media (max-width:680px){
   #battle .combat-stage .battle-status-mark{min-width:25px;min-height:25px;font-size:11px}
   #battle .combat-stage .hero-hp-line,#battle .combat-stage .enemy-hp-line{gap:2px 4px;font-size:10px}
+}
+@media (orientation:landscape) and (max-height:340px){
+  #battle .combat-stage .hero-side-status,
+  #battle .combat-stage .enemy-side-status{gap:2px;left:calc(100% + 3px);top:calc(100% + 3px)}
+  #battle .combat-stage .battle-status-mark{min-height:23px;min-width:23px;padding:1px 2px;font-size:10px}
+  #battle .boss-encounter .combat-stage .enemy-side-status{left:auto;right:calc(100% + 3px);top:54%}
 }

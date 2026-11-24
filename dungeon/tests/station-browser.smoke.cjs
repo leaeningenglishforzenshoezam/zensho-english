@@ -61,6 +61,9 @@ const {chromium}=require('playwright');
       if(kind==='stationMonsters'){
         const shieldBadge=page.locator('.enemy .battle-status-mark').first();
         assert.equal(await shieldBadge.isVisible(),true,'enemy defense shown next to HP');
+        assert.equal(await page.locator('.enemy-hp-line .battle-status-mark').count(),0,'status icons do not create an HP row');
+        const rail=await page.locator('.enemy-side-status').evaluate(el=>({position:getComputedStyle(el).position,direction:getComputedStyle(el).flexDirection,buttons:el.querySelectorAll('button').length}));
+        assert.deepEqual(rail,{position:'absolute',direction:'column',buttons:1},'icons float vertically outside the portrait layout');
         await shieldBadge.click();
         assert.match(await page.locator('#battleStatusTitle').textContent(),/防御 8/);
         await page.click('#battleStatusClose');
