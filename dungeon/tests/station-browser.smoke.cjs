@@ -19,7 +19,7 @@ const {chromium}=require('playwright');
     await page.addInitScript(()=>{
       localStorage.setItem('goimon_dungeon_records_v1',JSON.stringify({1:{clears:2}}));
       localStorage.setItem('goimon_dungeon_departure_v1',JSON.stringify({dungeon:2}));
-      window.readDungeonCompanions=()=>[{id:'test',name:'テスト相棒',type:'nagomi',form:'成長体',image:'',sigil:'✧'}];
+      window.readDungeonCompanions=()=>[{id:'test',name:'テスト相棒',type:'nagomi',form:'成長体',image:'images/goimon/nagomi_growth.png',sigil:'✧'}];
     });
     await page.route('**/dungeon/rogue_dungeon1.js',async route=>{
       const source=fs.readFileSync(path.join(root,'dungeon/rogue_dungeon1.js'),'utf8');
@@ -48,6 +48,7 @@ const {chromium}=require('playwright');
       assert.equal(await portrait.count(),1,'dedicated Dungeon 2 image is displayed');
       await portrait.evaluate(img=>img.decode());
       assert.equal(await portrait.evaluate(img=>img.complete&&img.naturalWidth===1254),true,'sprite loads at 1254px');
+      await page.locator('#battleFx.show').waitFor({state:'hidden'});
       const screenDir=process.env.GOIMON_D2_SCREENSHOT_DIR;
       if(screenDir){fs.mkdirSync(screenDir,{recursive:true});await page.screenshot({path:path.join(screenDir,kind==='stationMonsters'?'normal-battle.png':'elite-battle.png'),fullPage:true});}
       await page.click('#endTurnBtn');
