@@ -1259,8 +1259,8 @@
   }
   function sentenceQuestion(row,wordMeaning){
     // The vocabulary headword may differ from the inflected answer in the sentence.
-    const headword=row.answer.toLowerCase();
-    const answer=row.choices.find(choice=>choice.toLowerCase()===headword)||row.choices[0];
+    const headword=(row.lemma||row.answer).toLowerCase();
+    const answer=row.choices.find(choice=>choice.toLowerCase()===row.answer.toLowerCase())||row.choices[0];
     const options=shuffled(row.choices);
     const optionNotes=Object.fromEntries(options.map(choice=>[choice,wordMeaning.get(choice.toLowerCase())||(choice===answer&&wordMeaning.get(headword))||'']));
     return {format:'q9',stem:row.en,answer,options,optionNotes,
@@ -1279,7 +1279,7 @@
       const syllables=plain.split('-').filter(Boolean);const max=Math.max(syllables.length,x.stress);
       return {format,stem:`${x.en}\n${plain}\n最も強く読む音節は？`,answer:`第${x.stress}音節`,options:Array.from({length:max},(_,i)=>`第${i+1}音節`),speak:x.en,explanation:`${x.en}（${x.ja}）\n強勢：${x.sylRaw}。第${x.stress}音節を強く発音します。${x.note?'\n'+x.note:''}`};}
     if(format==='q9'){
-      const available=q9s.filter(x=>inEncounter(wordNumber.get(x.answer.toLowerCase())));
+      const available=q9s.filter(x=>inEncounter(wordNumber.get((x.lemma||x.answer).toLowerCase())));
       return sentenceQuestion(random(available.length?available:q9s),wordMeaning);
     }
     if(format==='q12'){
