@@ -1,0 +1,62 @@
+/* Keep HP and intent on fixed rows. Effects float beside the sprites and do not
+   participate in the arena's flex/grid height calculation. */
+#battle .combat-stage .hero-hp-line,
+#battle .combat-stage .enemy-hp-line{
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
+  gap:3px 5px;width:100%;min-width:0;
+  color:#e9fff2;font-weight:800;line-height:1.2;
+  font-size:clamp(10px,1.12vw,13px);
+}
+#battle .combat-stage .enemy-hp-line{color:#edf3ed}
+#battle .combat-stage .battle-status-badges{display:inline-flex;flex-wrap:wrap;gap:3px;justify-content:center}
+#battle .combat-stage .hero-info,#battle .combat-stage .enemy-vitals{overflow:visible}
+#battle .combat-stage .hero-side-status,
+#battle .combat-stage .enemy-side-status{
+  position:absolute;z-index:9;left:calc(100% + 5px);top:calc(100% + 7px);
+  display:flex;flex-direction:column;flex-wrap:nowrap;align-items:flex-start;
+  justify-content:flex-start;gap:4px;width:max-content;max-width:75px;
+  pointer-events:none;
+}
+#battle .combat-stage .hero-side-status:empty,
+#battle .combat-stage .enemy-side-status:empty{display:none}
+#battle .combat-stage .hero-side-status .battle-status-mark,
+#battle .combat-stage .enemy-side-status .battle-status-mark{pointer-events:auto}
+#battle .combat-stage .hero-side-status{top:calc(100% + 9px)}
+#battle .boss-encounter .combat-stage .enemy-side-status{
+  left:auto;right:calc(100% + 4px);top:54%;transform:translateY(-30%);
+}
+#battle .combat-stage .battle-status-mark{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:26px;min-height:26px;padding:2px 3px;
+  border:1px solid #b9dbdbbd;border-radius:7px;
+  background:#123845e8;color:#f9f6e9;cursor:pointer;
+  font-size:clamp(10px,1vw,13px);font-weight:800;line-height:1.1;font-family:inherit;
+  box-shadow:0 1px 4px #031b2c77;
+}
+#battle .combat-stage .battle-status-mark.negative{background:#57323dec;border-color:#ffa09cbd}
+#battle .combat-stage .battle-status-mark:focus-visible{outline:3px solid #ffdb85;outline-offset:2px}
+#battle .combat-stage .battle-status-popover{
+  position:absolute;z-index:50;right:clamp(4px,2vw,20px);top:8px;
+  width:min(310px,calc(100% - 16px));padding:13px 38px 12px 14px;
+  border:1px solid #e9c992;border-radius:12px;
+  background:#102d3bf5;color:#fff8e9;box-shadow:0 7px 24px #031925b9;
+  text-align:left;line-height:1.4;
+}
+#battle .combat-stage .battle-status-popover[hidden]{display:none}
+#battle .combat-stage .battle-status-popover strong{display:block;font-size:14px}
+#battle .combat-stage .battle-status-popover p{margin:5px 0 0;font-size:12px;white-space:pre-wrap}
+#battle .combat-stage .battle-status-popover>button{
+  position:absolute;right:7px;top:6px;min-width:30px;min-height:30px;
+  border:1px solid #c7d8d1;border-radius:7px;background:#214654;
+  color:white;font-size:18px;cursor:pointer;
+}
+@media (max-width:680px){
+  #battle .combat-stage .battle-status-mark{min-width:25px;min-height:25px;font-size:11px}
+  #battle .combat-stage .hero-hp-line,#battle .combat-stage .enemy-hp-line{gap:2px 4px;font-size:10px}
+}
+@media (orientation:landscape) and (max-height:340px){
+  #battle .combat-stage .hero-side-status,
+  #battle .combat-stage .enemy-side-status{gap:2px;left:calc(100% + 3px);top:calc(100% + 3px)}
+  #battle .combat-stage .battle-status-mark{min-height:23px;min-width:23px;padding:1px 2px;font-size:10px}
+  #battle .boss-encounter .combat-stage .enemy-side-status{left:auto;right:calc(100% + 3px);top:54%}
+}

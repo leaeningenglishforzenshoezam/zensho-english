@@ -1,0 +1,38 @@
+name: Dungeon 2 station battle checks
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/dungeon2-battle-checks.yml'
+      - 'dungeon/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  station-battle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax and regression tests
+        run: |
+          node --check dungeon/enemy-art.js
+          node --check dungeon/rogue_dungeon1.js
+          node --test dungeon/tests/*.test.cjs
+      - name: Install browser for screenshot smoke test
+        run: |
+          npm install --no-save --no-package-lock playwright
+          npx playwright install --with-deps chromium
+      - name: Render Dungeon 2 normal and elite battles
+        env:
+          GOIMON_D2_SCREENSHOT_DIR: ${{ runner.temp }}/dungeon2-battle-screenshots
+        run: node dungeon/tests/station-browser.smoke.cjs
+      - name: Upload visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dungeon2-battle-screenshots
+          path: ${{ runner.temp }}/dungeon2-battle-screenshots/
+          if-no-files-found: ignore
