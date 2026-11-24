@@ -24,7 +24,7 @@ const {chromium}=require('playwright');
     await page.route('**/dungeon/rogue_dungeon1.js',async route=>{
       const source=fs.readFileSync(path.join(root,'dungeon/rogue_dungeon1.js'),'utf8');
       const instrumented=source.replace('  function startBattle(retry=false)',
-        '  window.__d2test={state,stationMonsters,stationElites,startBattle,baseIntent,intent};\n  function startBattle(retry=false)');
+        '  window.__d2test={state,stationMonsters,stationElites,stationBossMonsters,startBattle,baseIntent,intent};\n  function startBattle(retry=false)');
       await route.fulfill({status:200,contentType:'application/javascript',body:instrumented});
     });
     await page.goto('http://localhost:8898/dungeon/index.html');
@@ -59,7 +59,31 @@ const {chromium}=require('playwright');
       if(kind==='stationMonsters')assert.equal(state.shield,8,'改札ノッペラ blocks on the first turn');
       else assert.equal(state.hp,80,'泥酔サラリーマン opens with two 5-damage hits');
     }
+    // Each station ACT must render its own boss, distinct portrait, dialogue and intent.
+    const bossNames=['LOST & FOUND NAKAJIMA','冷酷検札官REI','忘却車掌YOSHI'];
+    for(const act of [1,2,3]){
+      const name=await page.evaluate(act=>{
+        const t=window.__d2test;
+        t.state.dungeon=2;
+        t.state.act=act;
+        t.state.stage=8;
+        t.state.currentEncounter={nodeType:'boss',wordRange:[0,30],enemies:[t.stationBossMonsters[act]]};
+        t.startBattle();
+        return document.querySelector('.enemy-title')?.textContent;
+      },act);
+      assert.equal(name,bossNames[act-1]);
+      assert.equal(await page.locator('#battle').isVisible(),true);
+      assert.equal(await page.locator('#bossSpeech').isVisible(),true,'boss opening line is visible');
+      assert.equal(await page.locator('.enemy-portrait svg.enemy-sprite').count(),1,'boss has a distinct temporary portrait');
+      assert.equal(await page.locator('.enemy-intent .intent-action').count(),1);
+      await page.locator('#battleFx.show').waitFor({state:'hidden'});
+      const screenDir=process.env.GOIMON_D2_SCREENSHOT_DIR;
+      if(screenDir){fs.mkdirSync(screenDir,{recursive:true});await page.screenshot({path:path.join(screenDir,`boss-act${act}.png`),fullPage:true});}
+      await page.click('#endTurnBtn');
+      const turn=await page.evaluate(()=>window.__d2test.state.turn);
+      assert.equal(turn,2,`${bossNames[act-1]} executes its opening action`);
+    }
     assert.deepEqual(errors,[]);
-    console.log('Dungeon 2 browser battle: actual enemy cards and HP rendered, no uncaught errors');
+    console.log('Dungeon 2 browser battle: 14 enemies and all 3 ACT bosses rendered without errors');
   }finally{await browser?.close();server.kill();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

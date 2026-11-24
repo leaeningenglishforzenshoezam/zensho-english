@@ -347,6 +347,13 @@
     2:{kind:'boss',bossId:'riki',name:'熱血簿記RIKI',hp:180,attack:14,icon:'📒'},
     3:{kind:'boss',bossId:'mika',name:'女社長MIKA',hp:220,attack:17,icon:'👑'}
   };
+  // A separate boss roster ensures the station never reuses the department-store bosses.
+  const stationBossMonsters={
+    1:{kind:'boss',bossId:'nakajima',name:'LOST & FOUND NAKAJIMA',hp:165,attack:12,icon:'🧳'},
+    2:{kind:'boss',bossId:'rei',name:'冷酷検札官REI',hp:175,attack:13,icon:'🎫'},
+    3:{kind:'boss',bossId:'yoshi',name:'忘却車掌YOSHI',hp:238,attack:16,icon:'🚂'}
+  };
+  const bossForAct=()=>state.dungeon===2?stationBossMonsters[state.act]:bossMonsters[state.act];
   const ENEMY_ROLES={attacker:'突撃',tank:'鉄壁',support:'回復',charger:'蓄力',sentinel:'守護',conductor:'指揮',counter:'反応',inflator:'増幅',breaker:'取締',disruptor:'妨害',trickster:'変則',variable:'変化',swarm:'連打',leech:'吸収',inventory:'在庫',sapper:'防御値下げ',exchange:'等価交換',taxer:'徴収',boss:'ボス'};
   Object.assign(ENEMY_ROLES,{d2_gate:'改札',d2_stock:'在庫',d2_slip:'連撃',d2_change:'釣銭',d2_settle:'精算',d2_delivery:'守護',d2_speaker:'拡声',d2_clock:'蓄力',d2_drunk:'変則',d2_interest:'利息',d2_guillotine:'切断',d2_auction:'競売',d2_kiosk:'終売',d2_bump:'反射'});
   const encounterPool = [
@@ -729,6 +736,11 @@
     d2_kiosk:['防御と不良在庫の追加','カードが汚れる前に防御を削りたい。'],
     d2_bump:['防御と一時的な反射を使う','反射の予告後は攻撃カードの枚数に注意。']
   });
+  const BOSS_GUIDE={
+    nakajima:['防御で準備してから、忘れ物たちが一斉に歌う','「合唱の準備」の次は3連撃。予告ターンで防御と手札を整えよう。'],
+    rei:['素早い連続攻撃と、加速後の大技','「加速準備」の次は強攻撃。連撃の合計ダメージにも注意。'],
+    yoshi:['丁寧な接客から一転、HP半分以下で激昂する','「発車ベル」「最終案内」の次が大技。怒り始めると攻撃が増える。']
+  };
   // In-world profiles are distinct from combat advice: the monster book is
   // also a collection of characters, not just a list of enemy mechanics.
   const ENEMY_PROFILES={
@@ -769,7 +781,12 @@
     '終売キオスク':'シャッターの下りた売店に宿る怪物。売れ残りを押しつけながら身を守る。',
     'ぶつかりおばさん':'混雑したホームを突き進む謎の乗客。ぶつかった相手の攻撃を跳ね返す。'
   });
-  const bestiaryRoster=()=>state.dungeon===2?[...stationMonsters,...stationElites,...Object.values(bossMonsters)]:[...normalMonsters,...eliteMonsters,...Object.values(bossMonsters)];
+  Object.assign(ENEMY_PROFILES,{
+    'LOST & FOUND NAKAJIMA':'地下駅の忘れ物取扱所を管理する、笑顔の絶えない男。傘や財布だけでなく、持ち主が忘れた記憶まで預かっている。取扱所に響く美しい合唱は、忘れ物に宿った声によるもの。どんな客にも「大切に保管しております」と微笑むが、彼が忘れ物を返したという記録は一件もない。',
+    '冷酷検札官REI':'終電改札の規則を守る、恐ろしく俊敏な男性検札官。張りのある声で乗車券を求め、規則に反した乗客を見つけると、長いホームを一瞬で駆け抜けて追い詰める。立ち止まることを極端に嫌う彼自身も、走ることをやめられないのかもしれない。',
+    '忘却車掌YOSHI':'行き先のない列車を走らせ続ける老車掌。海外で過ごした経験があり、ときおり流暢な英語で車内放送を行う。料理と酒を愛し、乗客へのもてなしにもこだわる。仕事を「かんぺち」に仕上げたいが短気で、予定が狂うと「じゃかあしい！」と怒鳴る。乗客を無事に送り届ける使命は決して忘れない。ただ一つ、彼が忘れてしまったことがある。この列車の終着駅だ。'
+  });
+  const bestiaryRoster=()=>state.dungeon===2?[...stationMonsters,...stationElites,...Object.values(stationBossMonsters)]:[...normalMonsters,...eliteMonsters,...Object.values(bossMonsters)];
   let inspectedEnemy=null;
   function renderBestiarySummary(){const roster=bestiaryRoster(),seenEnemyKinds=discoveries[state.dungeon],seen=roster.filter(e=>seenEnemyKinds.has(e.name)).length;if($('bestiarySummary'))$('bestiarySummary').textContent=`${seen}/${roster.length}`;if($('bestiaryTotal'))$('bestiaryTotal').textContent=`${seen} / ${roster.length}`;}
   function showBestiary(openDetail=false){
@@ -788,7 +805,7 @@
     list.querySelectorAll('[data-bestiary]').forEach(b=>b.onclick=()=>{inspectedEnemy=b.dataset.bestiary;showBestiary(true);});
     const e=roster.find(m=>m.name===inspectedEnemy);
     if(!e){$('bestiaryDetail').innerHTML='<div class="bestiary-locked"><span>◇</span><strong>まだ出会っていない</strong><p>探索でモンスターに出会うと図鑑に記録されます。</p></div>';}
-    else{const [pattern,tip]=ENEMY_GUIDE[e.kind]||['行動パターンを確認','敵のNEXTを見てカードを選ぼう。'];
+    else{const [pattern,tip]=(e.bossId&&BOSS_GUIDE[e.bossId])||ENEMY_GUIDE[e.kind]||['行動パターンを確認','敵のNEXTを見てカードを選ぼう。'];
       const number=roster.indexOf(e)+1,elite=number>normalCount;
       $('bestiaryDetail').innerHTML=`<button type="button" class="bestiary-back">〈 モンスター一覧に戻る</button><div class="bestiary-identity"><span class="bestiary-category">No.${String(number).padStart(2,'0')} · ${e.kind==='boss'?'BOSS':elite?'ELITE':'MONSTER'} · ${escapeHtml(ENEMY_ROLES[e.kind])}</span><h3>${escapeHtml(e.name)}</h3></div><div class="bestiary-profile"><div class="bestiary-portrait" role="img" aria-label="${escapeHtml(e.name)}の姿">${window.enemyArt?window.enemyArt(e.kind,e.name):escapeHtml(e.icon)}</div><section class="bestiary-lore"><h4>どんなモンスター？</h4><p>${escapeHtml(ENEMY_PROFILES[e.name]||'商業の世界からやってきた、不思議なモンスター。')}</p></section></div><div class="bestiary-guides"><section class="bestiary-guide-card"><span>行動パターン</span><p>${escapeHtml(pattern)}</p></section><section class="bestiary-guide-card tip"><span>攻略のコツ</span><p>${escapeHtml(tip)}</p></section></div>`;
       $('bestiaryDetail').querySelector('.bestiary-back').onclick=()=>{$('bestiaryOverlay').querySelector('.bestiary-dialog').classList.remove('show-detail');};
@@ -1050,7 +1067,7 @@
       const partners=stationMonsters.filter(e=>!stationForbiddenPairs.has(`${elite.name}|${e.name}`));
       const partner=random(partners);
       const mixed=kind==='elite'&&elitePair;
-      const template=kind==='boss'?[bossMonsters[state.act]]:kind==='elite'?(mixed?[elite,partner]:[elite]):normalPair?[first,second]:[first];
+      const template=kind==='boss'?[bossForAct()]:kind==='elite'?(mixed?[elite,partner]:[elite]):normalPair?[first,second]:[first];
       state.currentEncounter.wordRange=wordRangeForFight(state.act,state.actFight,kind==='boss');
       state.currentEncounter.enemies=template.map((e,i)=>{
         const hp=Math.round((e.hp+state.stage*2+(state.act-1)*9)*(mixed?(i===0?.78:.85):normalPair&&kind==='battle'?.82:1));
@@ -1076,7 +1093,7 @@
     const hardMix=(a,b)=>(a.kind==='exchange'&&b.kind==='support')||(a.kind==='inflator'&&['support','sentinel','counter'].includes(b.kind))||(a.kind==='sapper'&&b.kind==='counter');
     const pairCandidates=eliteMonsters.flatMap(a=>mixedMinions.map(b=>({a,b}))).filter(({a,b})=>state.act===3&&state.stage>=5||!hardMix(a,b));
     const {a:elitePartner,b:normalPartner}=random(pairCandidates);
-    const template=kind==='boss'?{enemies:[bossMonsters[state.act]]}:mixed?{enemies:[elitePartner,normalPartner]}:kind==='elite'?{enemies:[random(eliteMonsters)]}:{enemies:normalPair?[first,second]:[lone]};
+    const template=kind==='boss'?{enemies:[bossForAct()]}:mixed?{enemies:[elitePartner,normalPartner]}:kind==='elite'?{enemies:[random(eliteMonsters)]}:{enemies:normalPair?[first,second]:[lone]};
     state.currentEncounter.wordRange=wordRangeForFight(state.act,state.actFight,kind==='boss');
     const actStrength=state.act-1;
     state.currentEncounter.enemies=template.enemies.map((e,i)=>{
@@ -1152,7 +1169,10 @@
   const bossLines={
     hodaka:{opening:'へい、一丁！',lowHp:'いい汗かいてきたな！',serious:'ここからは強火だ！',special:'麺がのびる前に食らいな！'},
     riki:{opening:'全力で来い！',lowHp:'ナイスバッティング！',serious:'延長戦だ。ギア上げるぞ！',special:'赤ペン一本、真剣勝負！'},
-    mika:{opening:'では、商談を始めます。',lowHp:'その一手、買いましょう。',serious:'ここからは私が仕切ります。',special:'これにて、決算。'}
+    mika:{opening:'では、商談を始めます。',lowHp:'その一手、買いましょう。',serious:'ここからは私が仕切ります。',special:'これにて、決算。'},
+    nakajima:{opening:'いらっしゃいませ！ お忘れ物ですね？',lowHp:'……あれ？ 私の声は、どれでしたっけ？',serious:'みなさん、声を揃えましょう！',special:'素敵でしょう？ みんな、帰りたくないそうですよ。'},
+    rei:{opening:'はい！ 乗車券！ すぐに提示してください！',lowHp:'まだまだ！ その程度か！',serious:'ここから一気にいくぞ！',special:'止まらない！ 逃がさない！'},
+    yoshi:{opening:'よう来たのう。まあ、ゆっくりしていきなさい。',lowHp:'もうええ！ わしが全部やったる！',serious:'じゃかあしい！ わしを怒らせたな！',special:'ご安心を。必ず、終点までお連れします。'}
   };
   const speechLabels={opening:'開戦',lowHp:'HP残り1/3以下',serious:'本気',special:'特殊技'};
   function showBossLine(box,boss,cue){
@@ -1165,10 +1185,15 @@
     if(!boss){box.hidden=true;return;}
     let cue;
     if(state.turn===1&&!boss.openingSpoken){boss.openingSpoken=true;cue='opening';}
-    if(state.turn>=BOSS_SERIOUS_TURN&&!boss.seriousTurn15Spoken){boss.seriousTurn15Spoken=true;cue='serious';}
+    const stationPhase=boss.bossId==='nakajima'||boss.bossId==='rei'||boss.bossId==='yoshi';
+    const serious=stationPhase?boss.hp*2<=boss.maxHp:state.turn>=BOSS_SERIOUS_TURN;
+    if(serious&&!boss.seriousTurn15Spoken){boss.seriousTurn15Spoken=true;cue='serious';}
     if(!cue&&boss.hp*3<=boss.maxHp&&!boss.lowHpSpoken){boss.lowHpSpoken=true;cue='lowHp';}
+    if(!cue&&((boss.bossId==='nakajima'&&(state.turn-1)%6===2)||
+      (boss.bossId==='rei'&&(state.turn-1)%5===2)||
+      (boss.bossId==='yoshi'&&(state.turn-1)%6===3)))cue='special';
     if(cue){boss.speechTurn=state.turn;boss.speechCue=cue;}
-    if(boss.speechTurn===state.turn&&speechLabels[boss.speechCue]&&(boss.speechCue!=='serious'||state.turn>=BOSS_SERIOUS_TURN))showBossLine(box,boss,boss.speechCue);
+    if(boss.speechTurn===state.turn&&speechLabels[boss.speechCue]&&(boss.speechCue!=='serious'||serious))showBossLine(box,boss,boss.speechCue);
     else box.hidden=true;
   }
   const retryHp=()=>Math.min(state.maxHp,(state.battleStartHp||0)+10);
@@ -1257,6 +1282,33 @@
     if(e.kind==='exchange'){const trade=a+6;return t%3===2?{attack:trade,selfDamage:trade,shield:6,label:`♠ 等価交換 ${trade}・自身HP−${trade}・防御＋6`}:{attack:a,label:`⚔ 攻撃 ${a}`};}
     if(e.kind==='taxer')return t%3===0?{attack:a+9,label:`⚠ 徴収攻撃 ${a+9}`}:{attack:a,label:`⚔ 攻撃 ${a}`};
     if(e.kind==='boss'){
+      const stationPhase2=e.hp*2<=e.maxHp;
+      if(e.bossId==='nakajima'){
+        const cycle=(t-1)%6;
+        if(cycle===0)return {shield:18,label:'🧳 笑顔の受付：防御＋18'};
+        if(cycle===1)return {attack:a,label:`🎫 忘れ物のお呼び出し ${a}`};
+        if(cycle===2)return {shield:12,label:'♫ 合唱の準備：防御＋12（次ターン3連撃）'};
+        if(cycle===3){const hits=stationPhase2?[12,12,13]:[10,10,11];return {multiHit:hits,label:`♫ 忘却の大合唱 ${hits[0]}×2＋${hits[2]}（3連撃）`};}
+        if(cycle===4)return {shield:12,label:'▣ 保管棚の整理：防御＋12'};
+        return {attack:a+5+(stationPhase2?3:0),label:`🔒 お返しできません ${a+5+(stationPhase2?3:0)}`};
+      }
+      if(e.bossId==='rei'){
+        const cycle=(t-1)%5;
+        if(cycle===0){const hit=8+(stationPhase2?2:0);return {multiHit:[hit,hit],label:`🎫 切符拝見！ ${hit}×2`};}
+        if(cycle===1){const hit=7+(stationPhase2?2:0);return {multiHit:[hit,hit,hit],label:`⚡ 急行検札 ${hit}×3`};}
+        if(cycle===2)return {shield:9,label:'⇧ 加速準備：防御＋9（次ターン強攻撃）'};
+        if(cycle===3)return {attack:a+11+(stationPhase2?3:0),label:`🚆 ノンストップ特急 ${a+11+(stationPhase2?3:0)}`};
+        return {attack:a-4,shield:6,label:`⬡ 姿勢を立て直す：攻撃${a-4}・防御＋6`};
+      }
+      if(e.bossId==='yoshi'){
+        const cycle=(t-1)%6;
+        if(cycle===0)return stationPhase2?{multiHit:[a-6,a-6],label:`🚂 急停車 ${a-6}×2`}:{shield:16,label:'☕ お席へどうぞ：防御＋16'};
+        if(cycle===1)return {attack:a+(stationPhase2?3:-2),label:`🍱 車内販売 ${a+(stationPhase2?3:-2)}`};
+        if(cycle===2)return stationPhase2?{heal:6,shield:6,label:'🍶 おもてなし：HP＋6・防御＋6'}:{heal:12,label:'🍶 おもてなし：HP＋12'};
+        if(cycle===3)return {shield:stationPhase2?4:9,label:stationPhase2?'🔔 最終案内：防御＋4（次ターン大技）':'🔔 発車ベル：防御＋9（次ターン大技）'};
+        if(cycle===4)return {attack:a+(stationPhase2?19:14),label:`🚂 ${stationPhase2?'終着なき列車':'定刻出発'} ${a+(stationPhase2?19:14)}`};
+        return stationPhase2?{multiHit:[a-3,a-3],label:`🚂 急停車 ${a-3}×2`}:{attack:a+3,label:`🚃 車両点検 ${a+3}`};
+      }
       const phase2=t>=BOSS_SERIOUS_TURN,phaseText=phase2?'【本気】':'';
       const cycle=(t-1)%4;
       const thirdStrike=phase2?18:15;
@@ -1862,7 +1914,7 @@
       const skill=state.specialSkillOffer||random(eligible.filter(x=>skills[x].rank===preferredRank))||random(eligible.filter(x=>skills[x].rank===(preferredRank==='SR'?'R':'SR')));
       const boost=random(Object.keys(SPECIAL_BOOSTS).filter(id=>!state.specialBoosts.includes(id)));
       const alternate=random(Object.keys(SPECIAL_BOOSTS).filter(id=>id!==boost&&!state.specialBoosts.includes(id)));
-      $('choiceEyebrow').textContent=`ACT ${state.act} BOSS DEFEATED`;$('choiceTitle').textContent=`${bossMonsters[state.act].name} を撃破！`;
+      $('choiceEyebrow').textContent=`ACT ${state.act} BOSS DEFEATED`;$('choiceTitle').textContent=`${bossForAct().name} を撃破！`;
       $('choiceDescription').textContent=`3つの特別報酬から1つ選択。${state.lastBattleArtifact?'ARTIFACT「'+artifacts[state.lastBattleArtifact].name+'」を獲得。':''}`;
       const options=state.choiceSpecialOptions||[{id:'skill',label:'SPECIAL SKILL',title:skill?skills[skill].label:'SKILL',detail:skill?effects(skills[skill]):'候補なし',icon:'✦',className:'skill',disabled:!skill},
         !state.typeBoost&&TYPE_EFFECTS[state.type]?{id:'type',label:'TYPE BOOST',title:`${TYPE_LABELS[state.type]}の特性強化`,detail:TYPE_BOOST_EFFECTS[state.type],icon:'◈',className:'type'}:{id:alternate||boost,label:'SPECIAL BOOST',title:SPECIAL_BOOSTS[alternate||boost]?.name||'強化済み',detail:SPECIAL_BOOSTS[alternate||boost]?.effect||'候補なし',icon:'✧',className:'boost',disabled:!(alternate||boost)},
