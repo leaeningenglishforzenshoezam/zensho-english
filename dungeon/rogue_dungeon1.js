@@ -120,7 +120,9 @@
     const q12s=(window['REORDER_'+suffix]||[]).filter(x=>typeof x.stemBefore==='string'&&typeof x.stemAfter==='string'&&x.chunks?.length===4&&x.answer?.length===4&&x.answer.every(id=>x.chunks.some(c=>c.id===id)));
     const wordNumber=new Map(words.map((w,i)=>[w.en.toLowerCase(),i+1]));
     const wordMeaning=new Map(words.map(w=>[w.en.toLowerCase(),w.ja]));
-    const bank={words,accentChoices,q9s,q11s,q12s,wordNumber,wordMeaning};
+    // Listening Part 3 uses the same Grade 1 question set for both exam levels.
+    const q3s=window.LISTENING_TYPE3_1KYU||[];
+    const bank={words,accentChoices,q3s:q3s.filter(x=>x.script&&x.choices?.length===4&&x.choices.some(c=>c.id===x.answerId)),q9s,q11s,q12s,wordNumber,wordMeaning};
     banks.set(grade,bank);
     return bank;
   }
@@ -278,7 +280,7 @@
   const maxCopies=name=>skills[name]?.rank==='SR'?2:skills[name]?.rank==='R'?3:4;
   const ownedCount=name=>state.owned.filter(x=>baseName(x)===name).length;
   const canAddSkill=name=>!!skills[name]&&ownedCount(name)<maxCopies(name);
-  const FMT = {word:'単語 英→日',jaen:'単語 日→英',audio:'音声→意味',accent:'アクセント',q9:'大問9',q11:'大問11',q12:'大問12 · 語句整序'};
+  const FMT = {word:'単語 英→日',jaen:'単語 日→英',audio:'音声→意味',accent:'アクセント',q3:'大問3 · リスニング',q9:'大問9',q11:'大問11',q12:'大問12 · 語句整序'};
   const LOADOUTS = [
     {label:'はじめて編成',desc:'通常攻撃と防御だけ。報酬で強くなる。',cards:[]},
     {label:'攻撃・連携編成',desc:'Command / Shock / Rhythm',cards:['Command','Shock','Rhythm']},
@@ -314,7 +316,7 @@
     MonopolyCrown:{name:'Monopoly Crown',rank:'SR',icon:'♛',effect:'各戦闘の最初の攻撃ダメージが2倍'},
     InfiniteWarehouse:{name:'Infinite Warehouse',rank:'SR',icon:'🏭',effect:'カード消滅時に1枚ドロー・防御＋5（毎ターン1回）'},
     MasterAbacus:{name:'Master Abacus',rank:'SR',icon:'🏅',effect:'1ターンに5枚使用するとAP＋3（毎ターン1回）'},
-    InnovationPlan:{name:'Innovation Plan',rank:'SR',icon:'💡',effect:'ACT開始時にSKILL1種類をそのACT中だけ＋に強化'},
+    InnovationPlan:{name:'Innovation Plan',rank:'SR',icon:'💡',effect:'強敵撃破後、報酬候補に「手持ちSKILL1枚を＋強化」を追加（この挑戦中ずっと有効）'},
     FinalBalanceSheet:{name:'Final Balance Sheet',rank:'SR',icon:'📒',effect:'防御10以上で戦闘勝利すると最大HP＋6'}
   };
   function artifactPicture(id){
@@ -416,7 +418,7 @@
   const state = {phase:'intro',examGrade:savedSetup.examGrade===1?1:2,loadout:0,companionId:savedSetup.companionId||null,selectedCarrySkills:Array.isArray(savedSetup.skills)?savedSetup.skills:null,hp:START_HP,maxHp:START_HP,ap:3,apTotal:3,block:0,guardPriceCut:0,carry:0,carryOver:0,buff:1,nextPlus:0,turn:1,
     fight:0,hand:[],deck:[],used:[],owned:[],enemies:[],selected:0,questions:0,correct:0,commandUsed:false,
     notice:'',pending:null,question:null,choiceMode:null,campNext:false,postChoice:null,route:[],routeEdges:[],routePath:[],stage:0,currentEncounter:null,
-    coins:0,artifacts:[],artifactTurnUses:new Set(),artifactBattleUses:new Set(),shopStock:[],basicAttack:5,basicGuard:3,upgradeFromEvent:false,removeOrigin:'shop',
+    coins:0,artifacts:[],artifactTurnUses:new Set(),artifactBattleUses:new Set(),shopStock:[],basicAttack:5,basicGuard:3,upgradeFromEvent:false,upgradeSource:null,removeOrigin:'shop',
     act:1,actFight:0,type:'nagomi',typeBoost:false,typeTurnUses:new Set(),typeBattleUses:new Set(),typeCorrectNames:new Set(),shieldPierce:0,
     dungeon:savedSetup.dungeon===2&&stage2Unlocked()?2:1,specialBoosts:[],wordQueue:[],encounterWordRange:[0,30],seenWords:[],wrongWords:[],choiceOffer:null,eliteArtifactOffer:null,choiceEvent:null,choiceSpecialOptions:null,
     battleWrongQuestions:[],runWrongQuestions:[],battleReviewUsed:false,battleReviewRevived:false,reviewIndex:0,turnDamage:0,turnGuardGained:0,lastBattleArtifact:null,
@@ -443,7 +445,7 @@
   };
   function saveCheckpoint(){
     if(state.phase==='intro'||state.choiceMode==='complete')return;
-    const keys=['battleStartHp','missionOwner','missionRecorded','phase','examGrade','dungeon','act','actFight','stage','route','routeEdges','routePath','currentEncounter','encounterWordRange','wordQueue','loadout','companionId','selectedCarrySkills','type','hp','maxHp','owned','coins','artifacts','basicAttack','basicGuard','typeBoost','specialBoosts','questions','correct','fight','seenWords','wrongWords','ap','apTotal','block','guardPriceCut','carry','carryOver','buff','nextPlus','turn','hand','deck','used','enemies','selected','commandUsed','shieldPierce','shopStock','shopRemoveIndex','removeOrigin','choiceMode','choiceOffer','eliteArtifactOffer','eventHistory','choiceEvent','choiceSpecialOptions','specialSkillOffer','upgradeFromEvent','battleWrongQuestions','runWrongQuestions','battleReviewUsed','battleReviewRevived','turnDamage','turnGuardGained','lastBattleArtifact','sealed','growUses','discardedTurn','recoveredTurn','correctFormats','turnUsedNames','replayUsed','freeReplayCard','chainApGained','momentumActive','momentumDrawn','reserveAp','reserveUsed','artifactAttacks','artifactCardUses','artifactDraws','artifactCorrectStreak','artifactUniqueCards','artifactNextGuard','artifactCompound','artifactDiscountUsed','artifactFreeShopUsed','artifactActUpgrades'];
+    const keys=['battleStartHp','missionOwner','missionRecorded','phase','examGrade','dungeon','act','actFight','stage','route','routeEdges','routePath','currentEncounter','encounterWordRange','wordQueue','loadout','companionId','selectedCarrySkills','type','hp','maxHp','owned','coins','artifacts','basicAttack','basicGuard','typeBoost','specialBoosts','questions','correct','fight','seenWords','wrongWords','ap','apTotal','block','guardPriceCut','carry','carryOver','buff','nextPlus','turn','hand','deck','used','enemies','selected','commandUsed','shieldPierce','shopStock','shopRemoveIndex','removeOrigin','choiceMode','choiceOffer','eliteArtifactOffer','eventHistory','choiceEvent','choiceSpecialOptions','specialSkillOffer','upgradeFromEvent','upgradeSource','battleWrongQuestions','runWrongQuestions','battleReviewUsed','battleReviewRevived','turnDamage','turnGuardGained','lastBattleArtifact','sealed','growUses','discardedTurn','recoveredTurn','correctFormats','turnUsedNames','replayUsed','freeReplayCard','chainApGained','momentumActive','momentumDrawn','reserveAp','reserveUsed','artifactAttacks','artifactCardUses','artifactDraws','artifactCorrectStreak','artifactUniqueCards','artifactNextGuard','artifactCompound','artifactDiscountUsed','artifactFreeShopUsed','artifactActUpgrades'];
     const data=Object.fromEntries(keys.map(k=>[k,state[k]]));
     for(const key of ['artifactTurnUses','artifactBattleUses','typeTurnUses','typeBattleUses','typeCorrectNames'])data[key]=[...state[key]];
     data.version=2;
@@ -1202,7 +1204,7 @@
     state.enemies=state.currentEncounter.enemies.map((e,i)=>({...e,id:i,maxHp:e.hp,shield:0,canceled:false,weak:0}));
     state.encounterWordRange=state.currentEncounter.wordRange;
     state.wordQueue=shuffled(questionBank().words.slice(...state.encounterWordRange));
-    state.selected=0;state.deck=shuffled([...Array(state.basicAttack).fill('Attack'),...Array(state.basicGuard).fill('Guard'),...state.owned.map(name=>state.artifactActUpgrades?.includes(baseName(name))&&!name.endsWith('+')?name+'+':name)]);
+    state.selected=0;state.deck=shuffled([...Array(state.basicAttack).fill('Attack'),...Array(state.basicGuard).fill('Guard'),...state.owned]);
     state.used=[];state.hand=[];state.turn=1;state.carryOver=0;state.block=0;state.guardPriceCut=0;state.ap=3;state.apTotal=3;state.buff=1;state.nextPlus=0;state.commandUsed=false;state.turnDamage=0;state.turnGuardGained=0;
     const seenEnemyKinds=discoveries[state.dungeon];
     for(const enemy of state.enemies){if(bestiaryRoster().some(m=>m.kind===enemy.kind&&m.name===enemy.name))seenEnemyKinds.add(enemy.name);}
@@ -1287,8 +1289,8 @@
         const cycle=(t-1)%6;
         if(cycle===0)return {shield:18,label:'🧳 笑顔の受付：防御＋18'};
         if(cycle===1)return {attack:a,label:`🎫 忘れ物のお呼び出し ${a}`};
-        if(cycle===2)return {shield:12,label:'♫ 合唱の準備：防御＋12（次ターン3連撃）'};
-        if(cycle===3){const hits=stationPhase2?[12,12,13]:[10,10,11];return {multiHit:hits,label:`♫ 忘却の大合唱 ${hits[0]}×2＋${hits[2]}（3連撃）`};}
+        if(cycle===2)return {shield:12,label:'♫ 合唱の準備：防御＋12（次ターン大問3で回避）'};
+        if(cycle===3){const damage=stationPhase2?40:34;return {quizFormats:['q3'],quizAttack:damage,label:`♫ 忘却の大合唱：大問3を1問正解で回避／失敗${damage}ダメージ`};}
         if(cycle===4)return {shield:12,label:'▣ 保管棚の整理：防御＋12'};
         return {attack:a+5+(stationPhase2?3:0),label:`🔒 お返しできません ${a+5+(stationPhase2?3:0)}`};
       }
@@ -1296,8 +1298,8 @@
         const cycle=(t-1)%5;
         if(cycle===0){const hit=8+(stationPhase2?2:0);return {multiHit:[hit,hit],label:`🎫 切符拝見！ ${hit}×2`};}
         if(cycle===1){const hit=7+(stationPhase2?2:0);return {multiHit:[hit,hit,hit],label:`⚡ 急行検札 ${hit}×3`};}
-        if(cycle===2)return {shield:9,label:'⇧ 加速準備：防御＋9（次ターン強攻撃）'};
-        if(cycle===3)return {attack:a+11+(stationPhase2?3:0),label:`🚆 ノンストップ特急 ${a+11+(stationPhase2?3:0)}`};
+        if(cycle===2)return {shield:9,label:'⇧ 加速準備：防御＋9（次ターン大問11で回避）'};
+        if(cycle===3){const damage=a+11+(stationPhase2?3:0);return {quizFormats:['q11','q11'],quizAttack:damage,label:`🚆 ノンストップ特急：大問11を2問正解で回避／失敗${damage}ダメージ`};}
         return {attack:a-4,shield:6,label:`⬡ 姿勢を立て直す：攻撃${a-4}・防御＋6`};
       }
       if(e.bossId==='yoshi'){
@@ -1306,7 +1308,7 @@
         if(cycle===1)return {attack:a+(stationPhase2?3:-2),label:`🍱 車内販売 ${a+(stationPhase2?3:-2)}`};
         if(cycle===2)return stationPhase2?{heal:6,shield:6,label:'🍶 おもてなし：HP＋6・防御＋6'}:{heal:12,label:'🍶 おもてなし：HP＋12'};
         if(cycle===3)return {shield:stationPhase2?4:9,label:stationPhase2?'🔔 最終案内：防御＋4（次ターン大技）':'🔔 発車ベル：防御＋9（次ターン大技）'};
-        if(cycle===4)return {attack:a+(stationPhase2?19:14),label:`🚂 ${stationPhase2?'終着なき列車':'定刻出発'} ${a+(stationPhase2?19:14)}`};
+        if(cycle===4){const damage=a+(stationPhase2?19:14);return {quizFormats:['q9','q11','q12'],quizAttack:damage,label:`🚂 ${stationPhase2?'終着なき列車':'定刻出発'}：大問9・11・12を各1問正解で回避／失敗${damage}ダメージ`};}
         return stationPhase2?{multiHit:[a-3,a-3],label:`🚂 急停車 ${a-3}×2`}:{attack:a+3,label:`🚃 車両点検 ${a+3}`};
       }
       const phase2=t>=BOSS_SERIOUS_TURN,phaseText=phase2?'【本気】':'';
@@ -1357,6 +1359,40 @@
     $('handPreviewClose').onclick=()=>{selectedHandIndex=-1;renderBattle();};
     preview.hidden=false;
   }
+  function heroStatuses(){
+    const items=[];
+    if(state.block>0)items.push({icon:`🛡${state.block}`,label:`防御 ${state.block}`,description:'敵の攻撃ダメージを防御値の分だけ軽減します。'});
+    if(state.buff>1)items.push({icon:`⚔×${state.buff}`,label:`攻撃 ×${state.buff}`,description:'次に使用する攻撃SKILLの威力が倍になります。'});
+    if(state.nextPlus>0)items.push({icon:`⚔+${state.nextPlus}`,label:`次の攻撃 ＋${state.nextPlus}`,description:'次の攻撃SKILLに追加ダメージが加わります。'});
+    if(state.shieldPierce>0)items.push({icon:`◉${state.shieldPierce}`,label:`防御貫通 ${state.shieldPierce}`,description:'次の攻撃で敵の防御値をこの数値まで無視します。'});
+    if(state.guardPriceCut>0)items.push({icon:`▼${state.guardPriceCut}`,label:`防御カード −${state.guardPriceCut}`,description:'防御カード1枚で得られる防御値が、このターン中は表示量だけ減少します。',negative:true});
+    if(state.growUses>0)items.push({icon:`🌱${state.growUses}`,label:`芽 ${state.growUses}`,description:'成長効果が残っています。'});
+    return items;
+  }
+  function enemyStatuses(e){
+    const items=[];
+    if(e.shield>0)items.push({icon:`🛡${e.shield}`,label:`防御 ${e.shield}`,description:'攻撃を受けると防御値から先に減ります。'});
+    if(e.thorns>0)items.push({icon:`↩${e.thorns}`,label:`反撃 ${e.thorns}`,description:`この敵を攻撃してHPが残ると、攻撃ごとにこちらが${e.thorns}ダメージを受けます。`});
+    if(e.weak>0)items.push({icon:`▼${e.weak}`,label:`攻撃弱体 −${e.weak}`,description:'この敵の次の攻撃ダメージが、攻撃1回ごとに表示量だけ減少します。',negative:true});
+    if(e.canceled)items.push({icon:'⊘',label:'行動封じ',description:'この敵の次の行動は無効化されています。',negative:true});
+    if(e.interest>0)items.push({icon:`⌛${e.interest}`,label:`延滞利息 ${e.interest}`,description:'利息攻撃の威力が増加しています。'});
+    if(e.allyBoost>0)items.push({icon:`↗${e.allyBoost}`,label:`味方強化 ${e.allyBoost}`,description:'この敵の支援効果が蓄積しています。'});
+    if(state.enemies.some(x=>x!==e&&x.hp>0&&x.kind==='conductor'))items.push({icon:'♫+4',label:'指揮強化',description:'指揮役が生存しているため、敵の攻撃力が上昇しています。'});
+    if(state.enemies.some(x=>x!==e&&x.hp>0&&x.kind==='d2_auction'&&x.allyBoost))items.push({icon:'↗+2',label:'競売の支援',description:'競売役の支援により、攻撃力が2上昇しています。'});
+    return items;
+  }
+  function statusButtons(statuses,owner,id){
+    return statuses.map((x,i)=>`<button type="button" class="battle-status-mark${x.negative?' negative':''}" data-status-owner="${owner}" data-status-id="${id}" data-status-index="${i}" aria-label="${escapeHtml(x.label)}：詳細を表示" title="${escapeHtml(x.label)}">${escapeHtml(x.icon)}</button>`).join('');
+  }
+  function wireStatusButtons(){
+    document.querySelectorAll('[data-status-owner]').forEach(button=>button.onclick=event=>{
+      event.stopPropagation();
+      const statuses=button.dataset.statusOwner==='hero'?heroStatuses():enemyStatuses(state.enemies.find(e=>e.id===Number(button.dataset.statusId))||{});
+      const status=statuses[Number(button.dataset.statusIndex)];if(!status)return;
+      $('battleStatusTitle').textContent=status.label;$('battleStatusDescription').textContent=status.description;
+      $('battleStatusPopover').hidden=false;
+    });
+  }
   function renderBattle(){if(state.phase!=='battle')return;
     renderBossSpeech();
     $('battleActLabel').textContent=`ACT ${state.act} / 3`;
@@ -1369,14 +1405,20 @@
     $('floorLabel').textContent=`エリア ${state.stage+1} / 9 · 単語 No.${state.encounterWordRange[0]+1}〜${state.encounterWordRange[1]} · ターン ${state.turn}`;
     $('floorPips').innerHTML=state.route.map((_,i)=>`<span class="${i<state.stage?'done':i===state.stage?'current':''}">${i===8?'★':i+1}</span>`).join('');
     $('enemyLine').className=`enemy-line enemy-count-${alive().length}`;
-    $('enemyLine').innerHTML=alive().map(e=>`<button type="button" class="enemy ${chosenTarget()?.id===e.id?'selected':''}" data-enemy="${e.id}" aria-pressed="${chosenTarget()?.id===e.id}" aria-label="攻撃対象に${escapeHtml(e.name)}を選ぶ">
-      <div class="enemy-vitals"><div class="enemy-title">${escapeHtml(e.name)}</div><div class="enemy-hp"><i style="width:${100*e.hp/e.maxHp}%"></i></div><div class="enemy-values">HP ${e.hp} / ${e.maxHp} ${e.shield?' · 防御'+e.shield:''}</div>
+    $('enemyLine').innerHTML=alive().map(e=>`<div class="enemy ${chosenTarget()?.id===e.id?'selected':''}">
+      <div class="enemy-vitals"><div class="enemy-title">${escapeHtml(e.name)}</div><div class="enemy-hp"><i style="width:${100*e.hp/e.maxHp}%"></i></div><div class="enemy-values"><div class="enemy-hp-line"><span>HP ${e.hp} / ${e.maxHp}</span><span class="battle-status-badges">${statusButtons(enemyStatuses(e),'enemy',e.id)}</span></div></div>
       <div class="enemy-intent"><span class="intent-kicker">NEXT</span><span class="intent-action">${escapeHtml(e.canceled?'⊘ 攻撃封じ':intent(e).label)}</span></div>${hasArtifact('MarketReport')?`<div class="enemy-future-intent">その次：${escapeHtml(intent(e,state.turn+1).label)}</div>`:''}</div>
-      <div class="enemy-portrait">${window.enemyArt?window.enemyArt(e.kind,e.name):escapeHtml(e.icon)}${chosenTarget()?.id===e.id&&alive().length>1?'<span class="target-marker" aria-hidden="true">TARGET</span>':''}</div><div class="enemy-role">${ENEMY_ROLES[e.kind]||'敵'}${state.enemies.some(x=>x.hp>0&&x!==e&&x.kind==='conductor')?' · 指揮強化中':''}</div></button>`).join('');
+      <button type="button" class="enemy-portrait" data-enemy="${e.id}" aria-pressed="${chosenTarget()?.id===e.id}" aria-label="攻撃対象に${escapeHtml(e.name)}を選ぶ">${window.enemyArt?window.enemyArt(e.kind,e.name):escapeHtml(e.icon)}${chosenTarget()?.id===e.id&&alive().length>1?'<span class="target-marker" aria-hidden="true">TARGET</span>':''}</button><div class="enemy-role">${ENEMY_ROLES[e.kind]||'敵'}${state.enemies.some(x=>x.hp>0&&x!==e&&x.kind==='conductor')?' · 指揮強化中':''}</div></div>`).join('');
     $('enemyLine').querySelectorAll('[data-enemy]').forEach(b=>b.onclick=()=>{state.selected=Number(b.dataset.enemy);playSfx('select');renderBattle();});
+    $('enemyLine').querySelectorAll('.enemy').forEach((unit,index)=>unit.onclick=event=>{
+      if(event.target.closest('button'))return;
+      state.selected=alive()[index].id;playSfx('select');renderBattle();
+    });
     $('intentList').innerHTML=alive().map(e=>`<div class="intent-row"><b>${escapeHtml(e.name)}</b><strong>${escapeHtml(e.canceled?'⊘ 攻撃封じ':intent(e).label)}${hasArtifact('MarketReport')?`<small>次ターン：${escapeHtml(intent(e,state.turn+1).label)}</small>`:''}</strong></div>`).join('');
-    $('heroHpFill').style.width=`${Math.max(0,100*state.hp/state.maxHp)}%`;$('heroHpText').textContent=`HP ${state.hp} / ${state.maxHp}${state.block?' · 防御 '+state.block:''}`;
-    $('heroDebuff').hidden=!(state.guardPriceCut>0);$('heroDebuff').textContent=state.guardPriceCut>0?`▼ 防御カード −${state.guardPriceCut}/枚`:'';
+    $('heroHpFill').style.width=`${Math.max(0,100*state.hp/state.maxHp)}%`;$('heroHpText').textContent=`HP ${state.hp} / ${state.maxHp}`;
+    $('heroStatusBadges').innerHTML=statusButtons(heroStatuses(),'hero','0');
+    $('heroDebuff').hidden=true;
+    $('battleStatusPopover').hidden=true;wireStatusButtons();
     $('apDisplay').textContent=`AP ${state.ap}/${Math.max(state.ap,Number(state.apTotal)||3)}`;
     $('growthDisplay').hidden=state.growUses<=0;
     $('growthDisplay').textContent=`🌱 芽 ${state.growUses}`;
@@ -1419,8 +1461,8 @@
     return {format:'q9',stem:row.en,answer,options,optionNotes,
       explanation:`日本語訳：${row.ja||'（訳データなし）'}${row.note?'\nポイント：'+row.note:''}`};
   }
-  function makeQuestion(format){
-    const {words,accentChoices,q9s,q11s,q12s,wordMeaning,wordNumber}=questionBank();
+  function makeQuestion(format,excludeStems=[]){
+    const {words,accentChoices,q3s,q9s,q11s,q12s,wordMeaning,wordNumber}=questionBank();
     if(format==='word'||format==='audio'||format==='jaen'){
     const pool=words.slice(...state.encounterWordRange);
     if(!state.wordQueue.length)state.wordQueue=shuffled(pool);
@@ -1431,6 +1473,12 @@
     if(format==='accent'){const available=accentChoices.filter(x=>inEncounter(x.no));const x=random(available.length?available:accentChoices),plain=x.sylRaw.replace(/ˈ/g,'').replace(/ˌ/g,'');
       const syllables=plain.split('-').filter(Boolean);const max=Math.max(syllables.length,x.stress);
       return {format,stem:`${x.en}\n${plain}\n最も強く読む音節は？`,answer:`第${x.stress}音節`,options:Array.from({length:max},(_,i)=>`第${i+1}音節`),speak:x.en,explanation:`${x.en}（${x.ja}）\n強勢：${x.sylRaw}。第${x.stress}音節を強く発音します。${x.note?'\n'+x.note:''}`};}
+    if(format==='q3'){
+      const x=random(q3s),options=shuffled(x.choices.map(c=>c.text));
+      return {format,stem:'音声を聞いて、最も適切な応答を選ぼう。',answer:x.choices.find(c=>c.id===x.answerId).text,options,
+        optionNotes:Object.fromEntries(x.choices.map(c=>[c.text,c.ja])),speak:x.script,
+        explanation:`放送：${x.script}\n日本語訳：${x.scriptJa||'（訳データなし）'}\n${x.explanation||''}`};
+    }
     if(format==='q9'){
       const available=q9s.filter(x=>inEncounter(wordNumber.get(x.answer.toLowerCase())));
       return sentenceQuestion(random(available.length?available:q9s),wordMeaning);
@@ -1441,7 +1489,7 @@
       const explanation=`完成英文：${x.completed||[x.stemBefore,...ordered,x.stemAfter].join(' ')}\n日本語訳：${x.ja||'（訳データなし）'}${x.note?'\nポイント：'+x.note:''}${x.grammarFocus?.length?'\n解説：'+x.grammarFocus.join(' / '):''}`;
       return {format,stem:`${x.stemBefore} ＿＿＿＿ ${x.stemAfter}`,answer:x.answer.join('|'),options:[],chunks:shuffled(x.chunks.map(c=>({...c}))),explanation};
     }
-    const x=random(q11s),options=shuffled([...new Set([x.answer,...x.distractors])]);return {format,stem:x.stem,answer:x.answer,options,optionNotes:Object.fromEntries(options.map(v=>[v,x.notes?.[v]||wordMeaning.get(v.toLowerCase())||''])),explanation:`日本語訳：${x.ja||'（訳データなし）'}${x.explanation?'\n解説：'+x.explanation:''}${x.comparison?'\n比較：'+x.comparison:''}`};
+    const fresh=q11s.filter(x=>!excludeStems.includes(x.stem)),x=random(fresh.length?fresh:q11s),options=shuffled([...new Set([x.answer,...x.distractors])]);return {format,stem:x.stem,answer:x.answer,options,optionNotes:Object.fromEntries(options.map(v=>[v,x.notes?.[v]||wordMeaning.get(v.toLowerCase())||''])),explanation:`日本語訳：${x.ja||'（訳データなし）'}${x.explanation?'\n解説：'+x.explanation:''}${x.comparison?'\n比較：'+x.comparison:''}`};
   }
   function renderOrderChoices(containerId,q,onSubmit){
     const box=$(containerId);box.classList.add('order-grid');box.innerHTML='';
@@ -1472,28 +1520,32 @@
   }
   // Boss quizzes interrupt the enemy phase. All required answers must be correct to avoid the move.
   // No skill cards/AP are spent; wrong answers are recorded like ordinary learning questions.
+  const bossChallengeFormats=move=>move?.quizFormats|| (move?.quizFormat?Array(move.quizCount||1).fill(move.quizFormat):[]);
   function openBossChallenge(){
-    const boss=alive().find(e=>!e.canceled&&intent(e).quizFormat),move=boss&&intent(boss);
+    const boss=alive().find(e=>!e.canceled&&bossChallengeFormats(intent(e)).length),move=boss&&intent(boss);
     if(!move)return;
-    if(!(move.quizFormat==='q11'?questionBank().q11s:questionBank().q12s).length){flashNotice('特殊技の問題データがないため攻撃を回避');endTurn(true);return;}
-    const title={hodaka:'ラーメンアタック',riki:'赤ペン指導',mika:'最終決済'}[boss.bossId]||'ボスの特殊技';
-    state.pending={bossChallenge:true,resolved:false,format:move.quizFormat,total:move.quizCount||1,completed:0,missed:false,title,damage:move.quizAttack||0,apTax:move.apTax||0};
+    const formats=bossChallengeFormats(move),bank=questionBank();
+    if(formats.some(format=>!(bank[format+'s']||[]).length)){flashNotice('特殊技の問題データがないため攻撃を回避');endTurn(true);return;}
+    const title={hodaka:'ラーメンアタック',riki:'赤ペン指導',mika:'最終決済',nakajima:'忘却の大合唱',rei:'ノンストップ特急',yoshi:'終着なき列車'}[boss.bossId]||'ボスの特殊技';
+    state.pending={bossChallenge:true,resolved:false,formats,total:formats.length,completed:0,missed:false,title,damage:move.quizAttack||0,apTax:move.apTax||0,seenStems:[]};
     showBossLine($('bossQuizSpeech'),boss,'special');
     renderBossChallengeQuestion();
   }
   function renderBossChallengeQuestion(){
     const p=state.pending;if(!p?.bossChallenge)return;
-    p.resolved=false;state.question=makeQuestion(p.format);
+    p.resolved=false;p.format=p.formats[p.completed];state.question=makeQuestion(p.format,p.seenStems);
     const q=state.question;
+    p.seenStems.push(q.stem);
     $('questionModal').hidden=false;$('questionModal').classList.remove('answered','answered-correct','answered-wrong');
     $('closeQuestion').hidden=true;$('questionTitle').textContent=`${p.title}を回避せよ！`;
-    $('questionType').textContent=`${state.examGrade}級 · ボス特殊技 · ${p.format==='q11'?'大問11':'大問12'} · ${p.completed+1}/${p.total}問`;
+    $('questionType').textContent=`${p.format==='q3'?'1級問題':state.examGrade+'級'} · ボス特殊技 · ${FMT[p.format]} · ${p.completed+1}/${p.total}問`;
     $('questionSkill').textContent=`${p.total}問すべて正解で回避 · 失敗時${p.damage}ダメージ${p.apTax?'＋次ターンAP−1':''}（防御で軽減可） · AP消費なし`;
     $('questionStem').textContent=q.stem;$('questionResult').textContent='';$('questionResult').className='question-result';
     $('questionExplanation').hidden=true;$('questionExplanation').textContent='';$('continueQuestion').hidden=true;
-    $('listenBtn').hidden=true;$('answers').innerHTML='';$('answers').classList.remove('order-grid');
+    $('listenBtn').hidden=p.format!=='q3';$('answers').innerHTML='';$('answers').classList.remove('order-grid');
     if(p.format==='q12')renderOrderChoices('answers',q,answerBossChallenge);
     else q.options.forEach((value,i)=>{const b=document.createElement('button');b.type='button';b.className='answer-btn';b.textContent=`${i+1}. ${value}`;b.onclick=()=>answerBossChallenge(value);$('answers').appendChild(b);});
+    if(p.format==='q3')speak(q.speak);
   }
   function answerBossChallenge(value){
     const p=state.pending,q=state.question;if(!p?.bossChallenge||p.resolved||!q)return;
@@ -1642,7 +1694,7 @@
     else if(s.discard)discardHand(s.discard,s.draw||0);
   }
   function endTurn(bossAnswer){if(state.phase!=='battle'||state.pending||state.cardSelection)return;
-    if(alive().some(e=>!e.canceled&&intent(e).quizFormat)&&typeof bossAnswer!=='boolean'){openBossChallenge();return;}
+    if(alive().some(e=>!e.canceled&&bossChallengeFormats(intent(e)).length)&&typeof bossAnswer!=='boolean'){openBossChallenge();return;}
     selectedHandIndex=-1;$('handCardPreview').hidden=true;
     const repeatedCard=state.turnUsedNames.length>new Set(state.turnUsedNames).size;
     state.enemies.forEach(e=>{if(e.kind==='d2_bump')e.thorns=0;});
@@ -1650,7 +1702,7 @@
       const it=intent(e);
       if(e.canceled){actions.push(`${e.name}：行動封じ`);e.canceled=false;e.weak=0;continue;}
       actions.push(`${e.name}：${it.label}`);
-      if(it.quizFormat&&bossAnswer===true){bossEvaded=true;e.weak=0;continue;}
+      if(bossChallengeFormats(it).length&&bossAnswer===true){bossEvaded=true;e.weak=0;continue;}
       if(it.shield)e.shield+=it.shield;
       if(it.thorns)e.thorns=it.thorns;
       if(it.interest)e.interest=Math.min(5,(e.interest||0)+it.interest);
@@ -1927,11 +1979,8 @@
     } else if(mode==='actReady'){
       $('choiceEyebrow').textContent='ACT CHECKPOINT';$('choiceTitle').textContent=`ACT ${state.act} に進もう！`;
       $('choiceDescription').textContent=`ここで中断可能。HP ${state.hp}/${maxHp()}、SKILL ${state.owned.length}種類、ARTIFACT ${state.artifacts.length}個、COIN ${state.coins}。このブラウザに再開データを保存しました。`;
-      const innovationChoices=hasArtifact('InnovationPlan')?[...new Set(state.owned.map(baseName))].filter(name=>skills[name]?.plus&&!state.owned.includes(name+'+')):[];
-      $('choiceCards').innerHTML=innovationChoices.length?`<div class="choice-action"><strong>Innovation Plan</strong><small>このACTで＋に強化するSKILLを選ぼう</small></div>${innovationChoices.map(name=>`<button type="button" class="choice-action ${state.artifactActUpgrades.includes(name)?'selected':''}" data-innovation="${escapeHtml(name)}"><strong>${escapeHtml(skills[name].label)}＋</strong><small>${escapeHtml(briefEffect(getSkill(name+'+')))}</small></button>`).join('')}`:`<div class="choice-action"><strong>次の単語範囲</strong><small>${actWordLabel()}</small></div>`;
-      $('choiceCards').querySelectorAll('[data-innovation]').forEach(button=>button.onclick=()=>{state.artifactActUpgrades=[button.dataset.innovation];showChoice('actReady');});
+      $('choiceCards').innerHTML=`<div class="choice-action"><strong>次の単語範囲</strong><small>${actWordLabel()}</small></div>`;
       $('skipChoice').textContent=`ACT ${state.act} を始める`;
-      $('skipChoice').hidden=innovationChoices.length>0&&!state.artifactActUpgrades.length;
     } else if(mode==='treasure'){
       $('choiceEyebrow').textContent='TREASURE';$('choiceTitle').textContent='ARTIFACTを発見！';
       $('choiceDescription').textContent='探索中ずっと有効。3つのARTIFACTから1つ選ぼう。';
@@ -1956,10 +2005,12 @@
     } else if(mode==='reward'||mode==='eliteReward'){
       $('choiceEyebrow').textContent=mode==='bossReward'?'BOSS DEFEATED':'BATTLE CLEARED';
       $('choiceTitle').textContent=mode==='bossReward'?'番人を倒した！':mode==='treasure'?'宝箱を発見！':mode==='eliteReward'?'強敵を撃破！':'戦闘勝利！';
-      $('choiceDescription').textContent=mode==='eliteReward'?'ARTIFACTまたはSKILLを1つ選択。SKILLは効果を確認して決定 · COIN＋25':'SKILLを選択 → 効果を確認 → 獲得を決定 · COIN＋12';
+      const canInnovate=mode==='eliteReward'&&hasArtifact('InnovationPlan')&&state.owned.some(name=>!name.endsWith('+')&&skills[name]?.plus);
+      $('choiceDescription').textContent=mode==='eliteReward'?`${canInnovate?'ARTIFACT・SKILL・SKILL＋強化から':'ARTIFACTまたはSKILLから'}1つ選択。SKILLは効果を確認して決定 · COIN＋25`:'SKILLを選択 → 効果を確認 → 獲得を決定 · COIN＋12';
       state.choiceOffer=state.choiceOffer||rewardOptions(mode);
       const artifactId=mode==='eliteReward'?state.eliteArtifactOffer:null;
-      $('choiceCards').innerHTML=(artifactId?`<button class="artifact-choice elite-artifact" type="button" data-elite-artifact="${artifactId}">${artifactPicture(artifactId)}<strong>${artifacts[artifactId].name} · ${artifacts[artifactId].rank}</strong><small>${artifacts[artifactId].effect}</small></button>`:'')+state.choiceOffer.map(x=>cardHtml(x,0,true)).join('');
+      $('choiceCards').innerHTML=(canInnovate?'<button class="choice-action innovation-reward" type="button" id="innovationReward"><span class="innovation-reward-icon">💡 SR ARTIFACT</span><strong>Innovation Plan · SKILL＋</strong><small>手持ちのSKILL1枚を、この挑戦中ずっと＋に強化する。通常報酬との選択です。</small></button>':'')+(artifactId?`<button class="artifact-choice elite-artifact" type="button" data-elite-artifact="${artifactId}">${artifactPicture(artifactId)}<strong>${artifacts[artifactId].name} · ${artifacts[artifactId].rank}</strong><small>${artifacts[artifactId].effect}</small></button>`:'')+state.choiceOffer.map(x=>cardHtml(x,0,true)).join('');
+      if(canInnovate)$('innovationReward').onclick=()=>{state.upgradeSource='innovation';showChoice('upgrade');};
       $('choiceCards').querySelectorAll('[data-elite-artifact]').forEach(b=>b.onclick=()=>eliteArtifactPicked(b.dataset.eliteArtifact));
       $('choiceCards').querySelectorAll('[data-reward]').forEach(b=>b.onclick=()=>selectRewardSkill(b.dataset.reward));
       $('skipChoice').textContent='獲得せずに進む';
@@ -1975,7 +2026,7 @@
       } else if(event==='spring'){
         $('choiceTitle').textContent='夜更けの休憩室';$('choiceDescription').textContent='静かな休憩室。回復するか、力を磨くか。';
         $('choiceCards').innerHTML='<button type="button" class="choice-action" id="eventRisk">✦<strong>技を磨く</strong><small>SKILLを1枚強化</small></button><button type="button" class="choice-action" id="eventSafe">♡<strong>泉で休む</strong><small>HP＋18</small></button>';
-        $('eventRisk').onclick=()=>{state.upgradeFromEvent=true;showChoice('upgrade');};
+        $('eventRisk').onclick=()=>{state.upgradeFromEvent=true;state.upgradeSource='event';showChoice('upgrade');};
         $('eventSafe').onclick=()=>{state.hp=Math.min(state.maxHp,state.hp+18);advance();};
       } else {
         $('choiceTitle').textContent='旅の商人';$('choiceDescription').textContent='道端にSKILLを扱う商人がいる。HPと引き換えにカードを見せてくれる。';
@@ -1988,17 +2039,17 @@
       $('choiceEyebrow').textContent='REST SITE';$('choiceTitle').textContent='静かな回復所';
       $('choiceDescription').textContent='次の戦いに備えて、1つ選ぼう。';
       $('choiceCards').innerHTML='<button type="button" class="choice-action" id="campHeal">✚<strong>HP +25</strong><small>回復する</small></button><button type="button" class="choice-action" id="campUpgrade">✦<strong>SKILL+</strong><small>1枚強化</small></button><button type="button" class="choice-action" id="campRemove" '+(state.basicAttack+state.basicGuard===0?'disabled':'')+'>↶<strong>デッキ整理</strong><small>基本カードを1枚削除</small></button>';
-      $('campHeal').onclick=()=>{state.hp=Math.min(state.maxHp,state.hp+25);advance();};$('campUpgrade').onclick=()=>{state.upgradeFromEvent=false;showChoice('upgrade');};$('campRemove').onclick=()=>{state.removeOrigin='camp';showChoice('removeCard');};$('skipChoice').hidden=true;
+      $('campHeal').onclick=()=>{state.hp=Math.min(state.maxHp,state.hp+25);advance();};$('campUpgrade').onclick=()=>{state.upgradeFromEvent=false;state.upgradeSource='camp';showChoice('upgrade');};$('campRemove').onclick=()=>{state.removeOrigin='camp';showChoice('removeCard');};$('skipChoice').hidden=true;
     } else if(mode==='upgrade'){
       $('choiceEyebrow').textContent='UPGRADE';$('choiceTitle').textContent='どのSKILLを強化する？';
-      $('choiceDescription').textContent='SKILLを選んで強化前後を比較。確定するまでは変更されません。';
-      const choices=state.owned.map((name,index)=>({name,index})).filter(({name})=>!name.endsWith('+'));
+      $('choiceDescription').textContent=`${state.upgradeSource==='innovation'?'💡 Innovation Plan：強敵撃破の報酬として、この挑戦中ずっと1枚を＋に強化します。':'SKILLを選んで強化前後を比較。'}確定するまでは変更されません。`;
+      const choices=state.owned.map((name,index)=>({name,index})).filter(({name})=>!name.endsWith('+')&&skills[name]?.plus);
       const groups=new Map();
       choices.forEach(({name,index})=>{if(!groups.has(name))groups.set(name,{name,index,count:0});groups.get(name).count++;});
       $('choiceCards').innerHTML=choices.length?`<div class="upgrade-layout"><div class="upgrade-list-panel"><div class="upgrade-list-heading">強化できるSKILL <span>${choices.length}枚</span></div><div class="upgrade-list">${[...groups.values()].map(({name,index,count})=>{const s=getSkill(name);return `<button type="button" class="upgrade-item" data-upgrade-index="${index}" aria-pressed="false"><span class="upgrade-item-icon ${s.type}">${escapeHtml(s.icon)}</span><span class="upgrade-item-copy"><strong>${escapeHtml(s.label)}</strong><small>${escapeHtml(briefEffect(s))}</small></span><span class="upgrade-item-meta"><b>${s.ap} AP</b>${count>1?`<small>×${count}</small>`:''}</span></button>`;}).join('')}</div></div><section class="upgrade-preview" id="upgradePreview" aria-live="polite"></section></div>`:'<div class="upgrade-empty">すべてのSKILLを強化済みです。代わりにHPを25回復できます。</div>';
       $('choiceCards').querySelectorAll('[data-upgrade-index]').forEach(button=>button.onclick=()=>selectUpgrade(Number(button.dataset.upgradeIndex)));
       if(choices.length)selectUpgrade(choices[0].index,true);
-      $('skipChoice').textContent=choices.length?(state.upgradeFromEvent?'強化せず進む':'回復所へ戻る'):'HPを25回復して進む';
+      $('skipChoice').textContent=state.upgradeSource==='innovation'?'報酬一覧へ戻る':choices.length?(state.upgradeFromEvent?'強化せず進む':'回復所へ戻る'):'HPを25回復して進む';
     } else if(mode==='defeat'){
       $('choiceEyebrow').textContent='RUN ENDED';$('choiceTitle').textContent='挑戦はここまで';
       $('choiceDescription').textContent=`ACT${state.act}・エリア${state.stage+1}で敗北。${state.questions}問に挑戦し、${state.correct}問正解しました。次はルートを変えてみよう。`;
@@ -2115,7 +2166,11 @@
     if(state.choiceMode==='actReady'){startAct();return;}
     if(state.choiceMode==='removeCard'){showChoice(state.removeOrigin==='camp'?'camp':'shop');return;}
     if(state.choiceMode==='shop'){advance();return;}
-    if(state.choiceMode==='upgrade'){if(!state.owned.some(x=>!x.endsWith('+'))){state.hp=Math.min(state.maxHp,state.hp+25);advance();return;}if(state.upgradeFromEvent){advance();return;}showChoice('camp');return;}
+    if(state.choiceMode==='upgrade'){
+      if(state.upgradeSource==='innovation'){state.upgradeSource=null;showChoice('eliteReward');return;}
+      if(!state.owned.some(x=>!x.endsWith('+')&&skills[x]?.plus)){state.hp=Math.min(state.maxHp,state.hp+25);advance();return;}
+      if(state.upgradeFromEvent){advance();return;}showChoice('camp');return;
+    }
     if(['reward','eliteReward','treasure','event'].includes(state.choiceMode))advance();}
   function closeDungeonMap(){$('dungeonMap').hidden=true;}
   $('examGrade').onchange=e=>{if(state.phase==='intro'){state.examGrade=e.target.value==='1'?1:2;saveSetup();}};
@@ -2179,6 +2234,7 @@
   document.addEventListener?.('keydown',e=>{if(e.key==='Escape'){if(!$('dungeonMap').hidden)closeDungeonMap();else if(!$('helpOverlay').hidden)closeHelp();}});
   $('closeQuestion').onclick=closeQuestion;$('continueQuestion').onclick=()=>state.pending?.bossChallenge?finishBossChallenge():finishQuestion();
   $('listenBtn').onclick=()=>{if(state.question?.speak)speak(state.question.speak);};
+  $('battleStatusClose').onclick=()=>{$('battleStatusPopover').hidden=true;};
   window.addEventListener('pageshow',()=>{if(state.phase==='intro'){refreshCompanions();refreshCarryInventory();renderSelectedCompanion();renderLoadouts();if(!$('skillOverlay').hidden)openSkills();}});
   renderSelectedCompanion();renderBestiarySummary();
   renderLoadouts();renderDungeonPicker();renderBadgeSummary();$('resumeBtn').hidden=!readCheckpoint();

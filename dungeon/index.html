@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="bestiary.css">
   <link rel="stylesheet" href="run-menu.css">
   <link rel="stylesheet" href="departure-guide.css">
+  <link rel="stylesheet" href="battle-status-badges.css">
 </head>
 <body>
   <main class="game-shell" id="app">
@@ -104,12 +105,13 @@
           <div id="bossSpeech" class="boss-speech" role="status" hidden></div>
           <div class="combat-stage" id="combatStage">
             <div class="hero-status" id="heroUnit">
-              <div class="hero-info"><strong>相棒ゴイモン</strong><div class="hp-track"><div id="heroHpFill"></div></div><span id="heroHpText">HP 90 / 90</span><span class="hero-debuff" id="heroDebuff" hidden></span></div>
+              <div class="hero-info"><strong>相棒ゴイモン</strong><div class="hp-track"><div id="heroHpFill"></div></div><div class="hero-hp-line"><span id="heroHpText">HP 90 / 90</span><span id="heroStatusBadges" class="battle-status-badges"></span></div><span class="hero-debuff" id="heroDebuff" hidden></span></div>
               <img class="hero-image" id="battleCompanionImage" src="images/goimon/nagomi_growth.png" alt="相棒">
             </div>
             <div class="duel-mark" aria-hidden="true">⚔</div>
             <div class="enemy-line" id="enemyLine"></div>
             <div class="battle-fx" id="battleFx" aria-hidden="true"></div>
+            <div id="battleStatusPopover" class="battle-status-popover" role="dialog" aria-label="状態効果の詳細" hidden><button type="button" id="battleStatusClose" aria-label="閉じる">×</button><strong id="battleStatusTitle"></strong><p id="battleStatusDescription"></p></div>
           </div>
           <div class="battle-notice" id="battleNotice" role="status" aria-live="polite"></div>
         </div>
@@ -310,6 +312,7 @@
   <script src="../sentence_fixed_1kyu.js"></script>
   <script src="../paraphrase_data_1kyu.js"></script>
   <script src="../reorder_1kyu.js"></script>
+  <script src="../listening_type3_1kyu.js"></script>
   <script src="words_2kyu.js"></script>
   <script src="accent_2kyu.js"></script>
   <script src="sentence_fixed_2kyu.js"></script>

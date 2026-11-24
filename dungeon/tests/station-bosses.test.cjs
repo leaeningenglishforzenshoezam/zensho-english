@@ -45,25 +45,28 @@ function move(foe, turn) {
 
 const nakajima = enemy(1);
 assert.equal(move(nakajima, 1).shield, 18);
-assert.match(move(nakajima, 3).label, /次ターン3連撃/);
-assert.deepEqual(Array.from(move(nakajima, 4).multiHit), [10, 10, 11]);
-assert.deepEqual(Array.from(move(enemy(1, 0.49), 4).multiHit), [12, 12, 13]);
+assert.match(move(nakajima, 3).label, /次ターン大問3で回避/);
+assert.deepEqual(Array.from(move(nakajima, 4).quizFormats), ['q3']);
+assert.equal(move(nakajima, 4).quizAttack, 34);
+assert.equal(move(enemy(1, 0.49), 4).quizAttack, 40);
 
 const rei = enemy(2);
 assert.deepEqual(Array.from(move(rei, 1).multiHit), [8, 8]);
 assert.deepEqual(Array.from(move(rei, 2).multiHit), [7, 7, 7]);
-assert.match(move(rei, 3).label, /次ターン強攻撃/);
-assert.equal(move(rei, 4).attack, rei.attack + 11);
-assert.equal(move(enemy(2, 0.49), 4).attack, rei.attack + 14);
+assert.match(move(rei, 3).label, /次ターン大問11で回避/);
+assert.deepEqual(Array.from(move(rei, 4).quizFormats), ['q11','q11']);
+assert.equal(move(rei, 4).quizAttack, rei.attack + 11);
+assert.equal(move(enemy(2, 0.49), 4).quizAttack, rei.attack + 14);
 
 const yoshi = enemy(3);
 assert.equal(move(yoshi, 1).shield, 16);
 assert.equal(move(yoshi, 3).heal, 12);
 assert.match(move(yoshi, 4).label, /次ターン大技/);
-assert.equal(move(yoshi, 5).attack, yoshi.attack + 14);
+assert.deepEqual(Array.from(move(yoshi, 5).quizFormats), ['q9','q11','q12']);
+assert.equal(move(yoshi, 5).quizAttack, yoshi.attack + 14);
 assert.deepEqual(Array.from(move(enemy(3, 0.49), 1).multiHit), [10, 10]);
 assert.equal(move(enemy(3, 0.49), 3).heal, 6);
-assert.equal(move(enemy(3, 0.49), 5).attack, yoshi.attack + 19);
+assert.equal(move(enemy(3, 0.49), 5).quizAttack, yoshi.attack + 19);
 
 // Lore, guide and dialogue are separate for the two dungeon rosters.
 assert.match(source, /const BOSS_GUIDE=\{/);

@@ -24,7 +24,7 @@ const {chromium}=require('playwright');
     await page.route('**/dungeon/rogue_dungeon1.js',async route=>{
       const source=fs.readFileSync(path.join(root,'dungeon/rogue_dungeon1.js'),'utf8');
       const instrumented=source.replace('  function startBattle(retry=false)',
-        '  window.__d2test={state,stationMonsters,stationElites,stationBossMonsters,startBattle,baseIntent,intent};\n  function startBattle(retry=false)');
+        '  window.__d2test={state,stationMonsters,stationElites,stationBossMonsters,startBattle,baseIntent,intent,renderBattle,answerBossChallenge,showChoice};\n  function startBattle(retry=false)');
       await route.fulfill({status:200,contentType:'application/javascript',body:instrumented});
     });
     await page.goto('http://localhost:8898/dungeon/index.html');
@@ -58,6 +58,14 @@ const {chromium}=require('playwright');
       const state=await page.evaluate(()=>({hp:window.__d2test.state.hp,shield:window.__d2test.state.enemies[0].shield}));
       if(kind==='stationMonsters')assert.equal(state.shield,8,'改札ノッペラ blocks on the first turn');
       else assert.equal(state.hp,80,'泥酔サラリーマン opens with two 5-damage hits');
+      if(kind==='stationMonsters'){
+        const shieldBadge=page.locator('.enemy .battle-status-mark').first();
+        assert.equal(await shieldBadge.isVisible(),true,'enemy defense shown next to HP');
+        await shieldBadge.click();
+        assert.match(await page.locator('#battleStatusTitle').textContent(),/防御 8/);
+        await page.click('#battleStatusClose');
+        assert.equal(await page.locator('#battleStatusPopover').isHidden(),true);
+      }
     }
     // Each station ACT must render its own boss, distinct portrait, dialogue and intent.
     const bossNames=['LOST & FOUND NAKAJIMA','冷酷検札官REI','忘却車掌YOSHI'];
@@ -82,7 +90,44 @@ const {chromium}=require('playwright');
       await page.click('#endTurnBtn');
       const turn=await page.evaluate(()=>window.__d2test.state.turn);
       assert.equal(turn,2,`${bossNames[act-1]} executes its opening action`);
+      const formats={1:['q3'],2:['q11','q11'],3:['q9','q11','q12']}[act];
+      await page.evaluate(act=>{
+        const t=window.__d2test;
+        t.state.turn={1:4,2:4,3:5}[act];
+        t.state.examGrade=2;
+        t.renderBattle();
+      },act);
+      await page.click('#endTurnBtn');
+      for(let i=0;i<formats.length;i++){
+        const current=await page.evaluate(()=>({format:window.__d2test.state.question?.format,grade:window.__d2test.state.examGrade}));
+        assert.equal(current.format,formats[i],`${bossNames[act-1]} challenge ${i+1}`);
+        assert.equal(current.grade,2,'Grade 2 mode also uses the Grade 1 listening set');
+        assert.equal(await page.locator('#questionModal').isVisible(),true);
+        if(current.format==='q3'){
+          assert.equal(await page.locator('#listenBtn').isVisible(),true);
+          assert.match(await page.locator('#questionType').textContent(),/1級問題/);
+          assert.equal(await page.locator('#answers .answer-btn').count(),4);
+        }
+        await page.evaluate(()=>window.__d2test.answerBossChallenge(window.__d2test.state.question.answer));
+        await page.click('#continueQuestion');
+      }
+      assert.equal(await page.locator('#questionModal').isHidden(),true);
+      assert.equal(await page.evaluate(()=>window.__d2test.state.turn),{1:5,2:5,3:6}[act]);
     }
+    await page.evaluate(()=>{
+      const t=window.__d2test;
+      t.state.artifacts=['InnovationPlan'];t.state.owned=['Burst'];
+      t.state.choiceOffer=['Shock'];t.state.eliteArtifactOffer=null;
+      t.showChoice('eliteReward');
+    });
+    assert.equal(await page.locator('#innovationReward').isVisible(),true);
+    await page.click('#innovationReward');
+    assert.equal(await page.locator('.upgrade-item').count(),1);
+    await page.click('#skipChoice');
+    assert.equal(await page.locator('#innovationReward').isVisible(),true,'Innovation Plan can return to reward selection');
+    await page.click('#innovationReward');
+    await page.click('#confirmUpgradeBtn');
+    assert.deepEqual(await page.evaluate(()=>window.__d2test.state.owned),['Burst+'],'upgrade is permanent for this run');
     assert.deepEqual(errors,[]);
     console.log('Dungeon 2 browser battle: 14 enemies and all 3 ACT bosses rendered without errors');
   }finally{await browser?.close();server.kill();}
