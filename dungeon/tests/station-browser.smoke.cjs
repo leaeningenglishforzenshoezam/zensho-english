@@ -19,8 +19,8 @@ const {chromium}=require('playwright');
     await page.addInitScript(()=>{
       localStorage.setItem('goimon_dungeon_records_v1',JSON.stringify({1:{clears:2}}));
       localStorage.setItem('goimon_dungeon_departure_v1',JSON.stringify({dungeon:2}));
-      window.readDungeonCompanions=()=>[{id:'test',name:'テスト相棒',type:'nagomi',form:'成長体',image:'images/goimon/nagomi_growth.png',sigil:'✧'}];
     });
+    await page.route('**/dungeon/owned-companions.js',route=>route.fulfill({status:200,contentType:'application/javascript',body:"window.readDungeonCompanions=()=>[{id:'test',name:'テスト相棒',type:'nagomi',form:'成長体',image:'images/goimon/nagomi_growth.png',sigil:'✧'}];"}));
     await page.route('**/dungeon/rogue_dungeon1.js',async route=>{
       const source=fs.readFileSync(path.join(root,'dungeon/rogue_dungeon1.js'),'utf8');
       const instrumented=source.replace('  function startBattle(retry=false)',
@@ -44,6 +44,9 @@ const {chromium}=require('playwright');
       assert.ok((await page.locator('#battleDungeonName').textContent()).includes('帰らずの終着駅'));
       assert.ok((await page.locator('.enemy-values').first().textContent()).includes(kind==='stationMonsters'?'50 / 50':'110 / 110'));
       assert.equal(await page.locator('.enemy-intent .intent-action').count(),1);
+      const companion=page.locator('#battleCompanionImage');
+      await companion.evaluate(img=>img.decode());
+      assert.equal(await companion.isVisible(),true,'GOIMON companion appears alongside the enemy');
       const portrait=page.locator('.enemy-art-image');
       assert.equal(await portrait.count(),1,'dedicated Dungeon 2 image is displayed');
       await portrait.evaluate(img=>img.decode());
