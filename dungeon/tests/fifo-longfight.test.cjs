@@ -40,11 +40,11 @@ assert.equal(state.recoveredTurn, 2);
 assert.equal(run("skills.Command.ap"), 0);
 assert.equal(run("skills.Command.plus.block"), 5);
 
-// Existing + cards and unupgradable basic/junk cards are not changed.
+// Existing + cards and junk remain unchanged; basic attack/guard can now become +.
 state.hand = [];
 state.used = ['Shock+', 'Attack', 'Guard', 'BadStock'];
 run('takeUsed(4)');
-assert.deepEqual(state.hand, ['Shock+', 'Attack', 'Guard', 'BadStock']);
+assert.deepEqual(state.hand, ['Shock+', 'Attack+', 'Guard+', 'BadStock']);
 
 // Replay still costs AP0 but gains FIFO's + upgrade.
 state.hand = [];
