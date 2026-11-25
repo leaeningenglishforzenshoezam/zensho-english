@@ -439,9 +439,11 @@
   const wordRangeForFight=(act,completed,isBoss)=>{
     const [from,to]=actWordRange(act);
     const size=Math.round((to-from)/(act===3?190:180)*30);
-    if(isBoss)return [from+5*size,to];
+    // Neighboring fights share about half their vocabulary; all ranges stay inside this ACT.
+    const overlap=Math.round(size/2);
+    if(isBoss)return [Math.max(from,from+5*size-overlap),to];
     if(completed>=5)return [from,from+5*size];
-    return [from+completed*size,from+(completed+1)*size];
+    return [Math.max(from,from+completed*size-overlap),Math.min(to,from+(completed+1)*size+overlap)];
   };
   function saveCheckpoint(){
     if(state.phase==='intro'||state.choiceMode==='complete')return;
@@ -1464,12 +1466,28 @@
     return {format:'q9',stem:row.en,answer,options,optionNotes,
       explanation:`日本語訳：${row.ja||'（訳データなし）'}${row.note?'\nポイント：'+row.note:''}`};
   }
+  function drawEncounterWord(words,wordNumber){
+    const pool=words.slice(...state.encounterWordRange);
+    if(!state.wordQueue.length)state.wordQueue=shuffled(pool);
+    const seen=new Set(state.seenWords);
+    const unseen=[],review=[];
+    state.wordQueue.forEach((word,i)=>{
+      const index=wordNumber.get(word.en.toLowerCase())-1;
+      (seen.has(index)?review:unseen).push(i);
+    });
+    // Prefer vocabulary not yet asked in this run (70%), while keeping 30% for review.
+    // Fall back to whichever group still has words; avoid repeats until the queue empties.
+    const preferred=Math.random()<.7?unseen:review;
+    const candidates=preferred.length?preferred:preferred===unseen?review:unseen;
+    if(!candidates.length)return random(pool)||random(words);
+    const queueIndex=candidates[Math.floor(Math.random()*candidates.length)];
+    return state.wordQueue.splice(queueIndex,1)[0];
+  }
   function makeQuestion(format,excludeStems=[]){
     const {words,accentChoices,q3s,q9s,q11s,q12s,wordMeaning,wordNumber}=questionBank();
     if(format==='word'||format==='audio'||format==='jaen'){
     const pool=words.slice(...state.encounterWordRange);
-    if(!state.wordQueue.length)state.wordQueue=shuffled(pool);
-    const x=state.wordQueue.pop()||random(words);
+    const x=drawEncounterWord(words,wordNumber);
     const incorrect=shuffled(pool.filter(w=>w.en!==x.en&&w.ja!==x.ja)).filter((w,i,a)=>a.findIndex(y=>format==='jaen'?y.en===w.en:y.ja===w.ja)===i).slice(0,3);
     const optionNotes=Object.fromEntries([x,...incorrect].map(w=>format==='jaen'?[w.en,w.ja]:[w.ja,w.en]));
     return {format,stem:format==='audio'?'英語を聞いて、意味を選ぼう':format==='jaen'?`「${x.ja}」に当てはまる英語は？`:`「${x.en}」の意味は？`,answer:format==='jaen'?x.en:x.ja,options:shuffled([format==='jaen'?x.en:x.ja,...incorrect.map(w=>format==='jaen'?w.en:w.ja)]),optionNotes,speak:x.en,wordIndex:wordNumber.get(x.en.toLowerCase())-1,explanation:`${x.en}：${x.ja}${x.pos?`（${x.pos}）`:''}`};}
