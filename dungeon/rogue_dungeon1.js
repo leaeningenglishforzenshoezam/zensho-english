@@ -133,36 +133,36 @@
   };
   const escapeHtml = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const skills = {
-    Attack: { label:'通常攻撃',ap:1,format:'word',dmg:10,icon:'⚔',type:'attack',rank:'BASIC' },
-    Guard: { label:'通常防御',ap:1,format:'word',block:5,icon:'⬡',type:'guard',rank:'BASIC' },
+    Attack: { label:'通常攻撃',ap:1,format:'word',dmg:10,icon:'⚔',type:'attack',rank:'BASIC',plus:{dmg:14} },
+    Guard: { label:'通常防御',ap:1,format:'word',block:5,icon:'⬡',type:'guard',rank:'BASIC',plus:{block:8} },
     FirstAid:{label:'First Aid',ap:1,format:'audio',heal:3,icon:'✚',type:'heal',rank:'N',plus:{heal:5}},
     Burst:{label:'Burst',ap:1,format:'word',dmg:15,icon:'✦',type:'attack',rank:'N',plus:{dmg:20}},
     Scream:{label:'Scream',ap:2,format:'accent',dmg:14,range:3,icon:'◈',type:'attack',rank:'R',plus:{dmg:19}},
-    Encourage:{label:'Encourage',ap:2,format:'word',heal:11,block:5,icon:'☘',type:'heal',rank:'N',plus:{heal:16,block:7}},
-    Remind:{label:'Remind',ap:1,format:'word',retrieve:1,icon:'↶',type:'tactic',rank:'N',plus:{block:5}},
+    Encourage:{label:'Encourage',ap:1,format:'word',block:5,encourageHeal:3,encourageLimit:2,icon:'☘',type:'guard',rank:'N',plus:{block:7,encourageHeal:4}},
+    Remind:{label:'Remind',ap:1,format:'word',retrieve:1,icon:'↶',type:'tactic',rank:'N',plus:{ap:0}},
     Aid:{label:'Aid',ap:1,format:'word',heal:6,icon:'✚',type:'heal',rank:'N',plus:{heal:9}},
     Pronounce:{label:'Pronounce',ap:1,format:'accent',dmg:10,block:3,icon:'✧',type:'attack',rank:'N',plus:{dmg:14,block:4}},
     Rhythm:{label:'Rhythm',ap:1,format:'accent',buff:2,icon:'♫',type:'tactic',rank:'N',plus:{draw:1}},
     Comfort:{label:'Comfort',ap:1,format:'word',heal:4,block:4,icon:'♡',type:'heal',rank:'N',plus:{heal:7,block:6}},
     Whisper:{label:'Whisper',ap:1,format:'word',dmg:8,draw:1,icon:'❖',type:'attack',rank:'N',plus:{dmg:12}},
-    Flash:{label:'Flash',ap:1,format:'accent',dmg:18,icon:'✺',type:'attack',rank:'N',plus:{dmg:24}},
+    Flash:{label:'Flash',ap:1,format:'accent',dmg:15,icon:'✺',type:'attack',rank:'N',plus:{dmg:20}},
     Angle:{label:'Angle',ap:1,format:'accent',dmg:12,weaken:3,icon:'⌁',type:'attack',rank:'R',plus:{dmg:16,weaken:5}},
     Shade:{label:'Shade',ap:1,format:'accent',block:8,icon:'⬡',type:'guard',rank:'N',plus:{block:13}},
     Press:{label:'Press',ap:1,format:'word',dmg:8,nextPlus:5,icon:'✹',type:'attack',rank:'N',plus:{dmg:12,nextPlus:7}},
     Slice:{label:'Slice',ap:1,format:'accent',dmg:12,pierce:true,icon:'⚔',type:'attack',rank:'N',plus:{dmg:17}},
     Lock:{label:'Lock',ap:1,format:'accent',block:5,weaken:5,icon:'⌑',type:'guard',rank:'N',plus:{block:8,weaken:8}},
-    Repair:{label:'Repair',ap:2,format:'word',heal:12,block:12,icon:'✚',type:'heal',rank:'R',plus:{heal:16,block:16}},
-    Shock:{label:'Shock',ap:2,format:'q9',dmg:26,icon:'ϟ',type:'attack',rank:'R',plus:{dmg:36}},
-    Cure:{label:'Cure',ap:2,format:'q11',heal:17,block:5,icon:'✚',type:'heal',rank:'R',plus:{heal:24,block:7}},
+    Repair:{label:'Repair',ap:2,format:'word',heal:8,block:8,icon:'✚',type:'heal',rank:'R',plus:{ap:1}},
+    Shock:{label:'Shock',ap:2,format:'q9',dmg:16,nextAttackApCut:1,icon:'ϟ',type:'attack',rank:'R',plus:{ap:1}},
+    Cure:{label:'Cure',ap:2,format:'q11',heal:9,block:5,icon:'✚',type:'heal',rank:'R',plus:{heal:12,block:8}},
     Command:{label:'Command',ap:0,format:'q9',buff:2,icon:'✷',type:'tactic',rank:'R',plus:{block:5}},
-    Surround:{label:'Surround',ap:2,format:'q9',dmg:14,range:2,icon:'☄',type:'attack',rank:'R',plus:{dmg:20}},
-    Disturb:{label:'Disturb',ap:2,format:'q9',cancel:true,icon:'⊘',type:'tactic',rank:'R',plus:{draw:1}},
+    Surround:{label:'Surround',ap:2,format:'q9',dmg:14,range:2,icon:'☄',type:'attack',rank:'R',plus:{ap:1}},
+    Disturb:{label:'Disturb',ap:2,format:'q9',cancel:true,icon:'⊘',type:'tactic',rank:'R',plus:{ap:1}},
     Pretend:{label:'Pretend',ap:1,format:'q11',draw:2,discard:1,icon:'↝',type:'tactic',rank:'N',plus:{draw:3}},
     Protect:{label:'Protect',ap:2,format:'q11',block:22,icon:'⬡',type:'guard',rank:'R',plus:{block:30}},
-    Extend:{label:'Extend',ap:1,format:'q11',retrieve:2,icon:'↶',type:'tactic',rank:'R',plus:{block:5}},
+    Extend:{label:'Extend',ap:1,format:'q11',retrieve:2,icon:'↶',type:'tactic',rank:'R',plus:{gainAp:1}},
     Disappear:{label:'Disappear',ap:2,format:'q11',dmg:18,cancel:true,icon:'☾',type:'tactic',rank:'SR',plus:{dmg:27}},
     Broadcast:{label:'Broadcast',ap:3,format:'q9',dmg:25,range:3,icon:'☄',type:'attack',rank:'R',plus:{dmg:33}},
-    Absolute:{label:'Absolute',ap:2,format:'q11',block:18,carry:5,icon:'◈',type:'guard',rank:'SR',plus:{block:26,carry:8}},
+    Absolute:{label:'Absolute',ap:2,format:'q11',block:18,carry:5,icon:'◈',type:'guard',rank:'SR',plus:{carryAll:true}},
     Echo:{label:'Echo',ap:1,format:'audio',dmg:15,icon:'♫',type:'attack',rank:'N',plus:{dmg:20}},
     Melody:{label:'Melody',ap:1,format:'audio',block:8,icon:'♪',type:'guard',rank:'N',plus:{block:13}},
     Pulse:{label:'Pulse',ap:1,format:'audio',dmg:8,draw:1,icon:'◉',type:'attack',rank:'N',plus:{dmg:12}},
@@ -170,7 +170,7 @@
     Harmony:{label:'Harmony',ap:2,format:'audio',heal:12,block:5,icon:'♡',type:'heal',rank:'N',plus:{heal:19,block:7}},
     Crescendo:{label:'Crescendo',ap:3,format:'audio',dmg:25,range:3,icon:'✺',type:'attack',rank:'R',plus:{dmg:33}},
     Assemble:{label:'Assemble',ap:1,format:'q12',dmg:18,icon:'⚔',type:'attack',rank:'N',plus:{dmg:24}},
-    Pattern:{label:'Pattern',ap:1,format:'q12',block:12,icon:'⬡',type:'guard',rank:'N',plus:{block:17}},
+    Pattern:{label:'Pattern',ap:1,format:'q12',block:6,nextGuardBlock:8,icon:'⬡',type:'guard',rank:'N',plus:{block:8,nextGuardBlock:10}},
     Link:{label:'Link',ap:1,format:'q12',dmg:10,draw:1,icon:'❖',type:'attack',rank:'N',plus:{dmg:15}},
     Sequence:{label:'Sequence',ap:2,format:'q12',dmg:30,icon:'✦',type:'attack',rank:'R',plus:{dmg:39}},
     Rebuild:{label:'Rebuild',ap:2,format:'q12',heal:13,block:8,icon:'✚',type:'heal',rank:'N',plus:{heal:19,block:11}},
@@ -186,10 +186,10 @@
     Reform:{label:'Reform',ap:2,format:'q11',dmg:27,icon:'⚔',type:'attack',rank:'R',plus:{dmg:36}},
     Fortress:{label:'Fortress',ap:2,format:'q11',block:25,icon:'◈',type:'guard',rank:'R',plus:{block:34}},
     Counter:{label:'Counter',ap:1,format:'word',blockStrike:1.2,pierce:true,icon:'⚔',type:'attack',rank:'N',plus:{blockStrike:1.5}},
-    GuardShift:{label:'Guard Shift',ap:2,format:'accent',block:18,carry:10,icon:'◈',type:'guard',rank:'SR',plus:{block:24,carry:13}},
+    GuardShift:{label:'Guard Shift',ap:1,format:'accent',block:10,attackGuardCap:20,icon:'◈',type:'guard',rank:'SR',plus:{block:15,attackGuardCap:25}},
     Replay:{label:'Replay',ap:1,format:'q9',replay:1,icon:'↻',type:'tactic',rank:'R',plus:{block:5}},
     Grow:{label:'Grow',ap:1,format:'word',dmg:6,grow:3,icon:'✿',type:'attack',rank:'N',plus:{dmg:8,grow:4}},
-    Harvest:{label:'Harvest',ap:2,format:'q11',dmg:12,scaleGrow:5,icon:'✺',type:'attack',rank:'R',plus:{dmg:17,scaleGrow:6}},
+    Harvest:{label:'Harvest',ap:2,format:'q11',dmg:12,scaleGrow:5,icon:'✺',type:'attack',rank:'R',plus:{ap:1}},
     Select:{label:'Select',ap:1,format:'jaen',discardChoose:1,draw:2,icon:'↝',type:'tactic',rank:'N',plus:{draw:3}},
     Trigger:{label:'Trigger',ap:1,format:'audio',dmg:12,scaleDiscard:10,icon:'✹',type:'attack',rank:'SR',plus:{dmg:17,scaleDiscard:12}},
     Sacrifice:{label:'Sacrifice',ap:1,format:'jaen',sealChoose:1,block:12,icon:'✧',type:'guard',rank:'N',plus:{block:16}},
@@ -197,23 +197,23 @@
     Finale:{label:'Finale',ap:2,format:'q12',dmg:12,formatCount:3,bonusDmg:18,icon:'☄',type:'attack',rank:'SR',plus:{dmg:18,bonusDmg:22}},
     ResonantField:{label:'Resonant Field',ap:1,format:'accent',block:8,formatCount:2,bonusBlock:6,icon:'♫',type:'guard',rank:'N',plus:{block:11,bonusBlock:8}},
     Purify:{label:'Purify',ap:1,format:'q12',sealChoose:1,heal:7,icon:'✚',type:'heal',rank:'R',plus:{heal:11}},
-    Archive:{label:'Archive',ap:2,format:'q11',retrieve:2,draw:1,icon:'↻',type:'tactic',rank:'SR',plus:{block:6,draw:2}},
-    Overgrowth:{label:'Overgrowth',ap:2,format:'q12',dmg:20,scaleGrow:8,icon:'✿',type:'attack',rank:'SR',plus:{dmg:27,scaleGrow:10}},
+    Archive:{label:'Archive',ap:2,format:'q11',retrieve:2,icon:'↻',type:'tactic',rank:'SR',plus:{retrievedApCut:1}},
+    Overgrowth:{label:'Overgrowth',ap:2,format:'q12',dmg:20,scaleGrow:8,icon:'✿',type:'attack',rank:'SR',plus:{scaleGrow:10}},
     Recast:{label:'Recast',ap:1,format:'q9',dmg:12,scaleRetrieve:8,icon:'↻',type:'attack',rank:'R',plus:{dmg:16,scaleRetrieve:10}},
     Afterimage:{label:'Afterimage',ap:1,format:'jaen',dmg:12,scaleDiscard:8,icon:'✹',type:'attack',rank:'R',plus:{dmg:16,scaleDiscard:10}}
-    ,Chain:{label:'Chain',ap:1,format:'accent',dmg:12,killAp:1,chainAp:1,icon:'⚔',type:'attack',rank:'N',plus:{dmg:17}}
+    ,Chain:{label:'Chain',ap:1,format:'accent',dmg:10,killAp:1,chainAp:1,icon:'⚔',type:'attack',rank:'N',plus:{dmg:15}}
     ,Seed:{label:'Seed',ap:1,format:'word',block:6,growGain:2,icon:'✿',type:'guard',rank:'R',plus:{block:10}}
-    ,Sweep:{label:'Sweep',ap:2,format:'q9',dmg:14,killSplash:8,icon:'☄',type:'attack',rank:'R',plus:{dmg:19,killSplash:11}}
-    ,Momentum:{label:'Momentum',ap:1,format:'q12',killDraw:1,icon:'✦',type:'tactic',rank:'SR',plus:{block:6}}
-    ,Reserve:{label:'Reserve',ap:0,format:'q11',reserveAp:2,icon:'◷',type:'tactic',rank:'R',plus:{reserveAp:3}}
+    ,Sweep:{label:'Sweep',ap:2,format:'q9',dmg:15,range:3,sweepKillAp:1,icon:'☄',type:'attack',rank:'R',plus:{dmg:20,sweepKillAp:2}}
+    ,Momentum:{label:'Momentum',ap:1,format:'q12',momentum:1,icon:'✦',type:'tactic',rank:'SR',plus:{draw:1}}
+    ,Reserve:{label:'Reserve',ap:0,format:'q11',reserveAp:2,icon:'◷',type:'tactic',rank:'R',plus:{gainAp:1}}
     ,Ignition:{label:'Ignition',ap:1,format:'q9',dmg:8,nextPlus:12,icon:'ϟ',type:'attack',rank:'R',plus:{dmg:12,nextPlus:16}}
     ,Finisher:{label:'Finisher',ap:2,format:'q12',dmg:24,executeHalf:16,icon:'⚔',type:'attack',rank:'SR',plus:{dmg:30,executeHalf:20}}
     // New tactical choices: trade safety for damage, reward diverse plays, or reward patient defense.
-    ,Clearance:{label:'Clearance',ap:2,format:'word',dmg:13,consumeBlock:12,icon:'⇄',type:'attack',rank:'R',plus:{dmg:19,consumeBlock:16}}
-    ,LedgerCut:{label:'Ledger Cut',ap:1,format:'q11',dmg:7,scaleUsed:2,icon:'▤',type:'attack',rank:'N',plus:{dmg:10,scaleUsed:3}}
+    ,Clearance:{label:'Clearance',ap:2,format:'word',dmg:13,scaleBlock:1,icon:'⇄',type:'attack',rank:'R',plus:{ap:1}}
+    ,LedgerCut:{label:'Ledger Cut',ap:1,format:'q11',dmg:7,scaleUsed:1,icon:'▤',type:'attack',rank:'N',plus:{scaleUsed:2}}
     ,TwinGuard:{label:'Twin Guard',ap:1,format:'word',block:5,bonusBlockPerEnemy:4,icon:'⬡',type:'guard',rank:'N',plus:{block:7,bonusBlockPerEnemy:5}}
-    ,NightShift:{label:'Night Shift',ap:1,format:'accent',block:7,drawIfGuard:12,icon:'◷',type:'guard',rank:'R',plus:{block:10,drawIfGuard:12}}
-    ,Overtime:{label:'Overtime',ap:2,format:'q12',dmg:18,lowHpBonus:13,icon:'ϟ',type:'attack',rank:'R',plus:{dmg:24,lowHpBonus:17}}
+    ,NightShift:{label:'Night Shift',ap:1,format:'accent',block:5,perPriorAttackBlock:3,icon:'◷',type:'guard',rank:'R',plus:{block:7,perPriorAttackBlock:4}}
+    ,Overtime:{label:'Overtime',ap:2,format:'q12',dmg:10,scaleTurn:2,icon:'ϟ',type:'attack',rank:'R',plus:{ap:1}}
     ,Teamwork:{label:'Teamwork',ap:1,format:'q9',dmg:6,scaleUnique:4,icon:'✣',type:'attack',rank:'N',plus:{dmg:8,scaleUnique:5}}
     ,Index:{label:'Index',ap:1,format:'jaen',dmg:7,scaleUnique:3,icon:'⌗',type:'attack',rank:'N',plus:{dmg:10,scaleUnique:4}}
     ,AfterHours:{label:'After Hours',ap:2,format:'audio',dmg:17,lowHpBonus:15,icon:'☾',type:'attack',rank:'R',plus:{dmg:22,lowHpBonus:19}}
@@ -225,9 +225,9 @@
     ,NightMarket:{label:'Night Market',ap:1,format:'q12',dmg:12,scaleUsed:1,icon:'☾',type:'attack',rank:'N',plus:{dmg:16,scaleUsed:2}}
     ,StockReserve:{label:'Stock Reserve',ap:1,format:'q12',block:10,carry:6,icon:'▦',type:'guard',rank:'N',plus:{block:14,carry:9}}
     ,Cashback:{label:'Cashback',ap:1,format:'q12',heal:6,draw:1,icon:'↶',type:'heal',rank:'R',plus:{heal:9,draw:1}}
-    ,MarginCall:{label:'Margin Call',ap:2,format:'q12',dmg:17,consumeBlock:14,icon:'⇄',type:'attack',rank:'R',plus:{dmg:23,consumeBlock:18}}
-    ,QuickAudit:{label:'Quick Audit',ap:1,format:'q12',block:7,retrieve:1,icon:'▤',type:'tactic',rank:'R',plus:{block:11,retrieve:1}}
-    ,LastMinute:{label:'Last Minute',ap:2,format:'q12',dmg:24,lowHpBonus:12,icon:'ϟ',type:'attack',rank:'SR',plus:{dmg:32,lowHpBonus:18}}
+    ,MarginCall:{label:'Margin Call',ap:1,format:'q12',exchangeBlockAp:4,icon:'⇄',type:'tactic',rank:'R',plus:{exchangeBlockAp:3}}
+    ,QuickAudit:{label:'Quick Audit',ap:1,format:'q12',tutor:1,icon:'▤',type:'tactic',rank:'R',plus:{block:5}}
+    ,LastMinute:{label:'Last Minute',ap:2,format:'q12',dmg:20,perPriorAttackDmg:8,icon:'ϟ',type:'attack',rank:'SR',plus:{ap:1}}
     ,BalanceSheet:{label:'Balance Sheet',ap:2,format:'q12',block:20,healIfGuard:20,icon:'▣',type:'guard',rank:'N',plus:{block:27,healIfGuard:20}}
     ,Reorder:{label:'Reorder',ap:1,format:'q12',draw:2,discard:1,icon:'↝',type:'tactic',rank:'N',plus:{draw:3}}
     ,BulkSale:{label:'Bulk Sale',ap:2,format:'q12',dmg:15,range:2,bonusDmg:8,formatCount:2,icon:'☄',type:'attack',rank:'R',plus:{dmg:20,bonusDmg:11}}
@@ -383,13 +383,14 @@
     {kind:'taxer',name:'悪徳税理士',hp:110,attack:9,icon:'📜'}
   ];
   const state = {phase:'intro',examGrade:savedSetup.examGrade===1?1:2,loadout:0,companionId:savedSetup.companionId||null,selectedCarrySkills:Array.isArray(savedSetup.skills)?savedSetup.skills:null,hp:START_HP,maxHp:START_HP,ap:3,apTotal:3,block:0,guardPriceCut:0,carry:0,carryOver:0,buff:1,nextPlus:0,turn:1,
-    fight:0,hand:[],deck:[],used:[],owned:[],enemies:[],selected:0,questions:0,correct:0,commandUsed:false,
+    fight:0,hand:[],handDiscounts:[],deck:[],used:[],owned:[],enemies:[],selected:0,questions:0,correct:0,commandUsed:false,
     notice:'',pending:null,question:null,choiceMode:null,campNext:false,postChoice:null,route:[],routeEdges:[],routePath:[],stage:0,currentEncounter:null,
     coins:0,artifacts:[],artifactTurnUses:new Set(),artifactBattleUses:new Set(),shopStock:[],basicAttack:5,basicGuard:3,upgradeFromEvent:false,removeOrigin:'shop',
     act:1,actFight:0,type:'nagomi',typeBoost:false,typeTurnUses:new Set(),typeBattleUses:new Set(),typeCorrectNames:new Set(),shieldPierce:0,
     dungeon:savedSetup.dungeon===2&&stage2Unlocked()?2:1,specialBoosts:[],wordQueue:[],encounterWordRange:[0,30],seenWords:[],wrongWords:[],choiceOffer:null,eliteArtifactOffer:null,choiceEvent:null,choiceSpecialOptions:null,
     battleWrongQuestions:[],runWrongQuestions:[],battleReviewUsed:false,battleReviewRevived:false,reviewIndex:0,turnDamage:0,turnGuardGained:0,lastBattleArtifact:null,
-    sealed:[],growUses:0,discardedTurn:0,recoveredTurn:0,correctFormats:[],turnUsedNames:[],replayUsed:false,freeReplayCard:null,cardSelection:null,chainApGained:0,momentumActive:false,momentumDrawn:0,reserveAp:0,reserveUsed:false,
+    sealed:[],growUses:0,discardedTurn:0,recoveredTurn:0,correctFormats:[],turnUsedNames:[],replayUsed:false,freeReplayCard:null,cardSelection:null,chainApGained:0,momentumActive:false,momentumAttackCount:0,reserveAp:0,reserveUsed:false,
+    carryAll:false,encourageHeal:0,encourageCount:0,nextGuardBlock:0,attackGuardCap:0,nextAttackApCut:0,marginCallUsed:false,attackSkillCount:0,
     artifactAttacks:0,artifactCardUses:0,artifactDraws:0,artifactCorrectStreak:0,artifactUniqueCards:[],artifactNextGuard:0,artifactCompound:0,artifactDiscountUsed:false,artifactFreeShopUsed:false,artifactActUpgrades:[]};
   const TYPE_LABELS={nagomi:'なごみ',hirameki:'ひらめき',tsumugi:'つむぎ',yomitoki:'よみとき',shirabe:'しらべ',hibiki:'ひびき',kotonoha:'ことのは'};
   const TYPE_EFFECTS={nagomi:'防御カード正解でHP＋2（1ターン1回）',hirameki:'毎戦闘最初の攻撃SKILLのAP−1',tsumugi:'1ターンに異なる2種類を正解すると防御＋5',yomitoki:'大問9正解で次の攻撃が防御5無視',shirabe:'単語正解で次の攻撃＋3',hibiki:'アクセント正解で次の攻撃＋4',kotonoha:'大問11正解で防御＋6'};
@@ -412,7 +413,7 @@
   };
   function saveCheckpoint(){
     if(state.phase==='intro'||state.choiceMode==='complete')return;
-    const keys=['battleStartHp','missionOwner','missionRecorded','phase','examGrade','dungeon','act','actFight','stage','route','routeEdges','routePath','currentEncounter','encounterWordRange','wordQueue','loadout','companionId','selectedCarrySkills','type','hp','maxHp','owned','coins','artifacts','basicAttack','basicGuard','typeBoost','specialBoosts','questions','correct','fight','seenWords','wrongWords','ap','apTotal','block','guardPriceCut','carry','carryOver','buff','nextPlus','turn','hand','deck','used','enemies','selected','commandUsed','shieldPierce','shopStock','shopRemoveIndex','removeOrigin','choiceMode','choiceOffer','eliteArtifactOffer','eventHistory','choiceEvent','choiceSpecialOptions','specialSkillOffer','upgradeFromEvent','battleWrongQuestions','runWrongQuestions','battleReviewUsed','battleReviewRevived','turnDamage','turnGuardGained','lastBattleArtifact','sealed','growUses','discardedTurn','recoveredTurn','correctFormats','turnUsedNames','replayUsed','freeReplayCard','chainApGained','momentumActive','momentumDrawn','reserveAp','reserveUsed','artifactAttacks','artifactCardUses','artifactDraws','artifactCorrectStreak','artifactUniqueCards','artifactNextGuard','artifactCompound','artifactDiscountUsed','artifactFreeShopUsed','artifactActUpgrades'];
+    const keys=['battleStartHp','missionOwner','missionRecorded','phase','examGrade','dungeon','act','actFight','stage','route','routeEdges','routePath','currentEncounter','encounterWordRange','wordQueue','loadout','companionId','selectedCarrySkills','type','hp','maxHp','owned','coins','artifacts','basicAttack','basicGuard','typeBoost','specialBoosts','questions','correct','fight','seenWords','wrongWords','ap','apTotal','block','guardPriceCut','carry','carryOver','carryAll','buff','nextPlus','turn','hand','handDiscounts','deck','used','enemies','selected','commandUsed','shieldPierce','shopStock','shopRemoveIndex','removeOrigin','choiceMode','choiceOffer','eliteArtifactOffer','eventHistory','choiceEvent','choiceSpecialOptions','specialSkillOffer','upgradeFromEvent','battleWrongQuestions','runWrongQuestions','battleReviewUsed','battleReviewRevived','turnDamage','turnGuardGained','lastBattleArtifact','sealed','growUses','discardedTurn','recoveredTurn','correctFormats','turnUsedNames','replayUsed','freeReplayCard','chainApGained','momentumActive','momentumAttackCount','reserveAp','reserveUsed','encourageHeal','encourageCount','nextGuardBlock','attackGuardCap','nextAttackApCut','marginCallUsed','attackSkillCount','artifactAttacks','artifactCardUses','artifactDraws','artifactCorrectStreak','artifactUniqueCards','artifactNextGuard','artifactCompound','artifactDiscountUsed','artifactFreeShopUsed','artifactActUpgrades'];
     const data=Object.fromEntries(keys.map(k=>[k,state[k]]));
     for(const key of ['artifactTurnUses','artifactBattleUses','typeTurnUses','typeBattleUses','typeCorrectNames'])data[key]=[...state[key]];
     data.version=2;
@@ -443,7 +444,10 @@
       if(Array.isArray(group))group.forEach(enemy=>{if(LEGACY_ENEMY_NAMES[enemy.name])enemy.name=LEGACY_ENEMY_NAMES[enemy.name];});
     }
     for(const key of ['artifactTurnUses','artifactBattleUses','typeTurnUses','typeBattleUses','typeCorrectNames'])state[key]=new Set(data[key]||[]);
-    state.sealed=state.sealed||[];state.correctFormats=state.correctFormats||[];state.turnUsedNames=state.turnUsedNames||[];state.growUses=state.growUses||0;state.discardedTurn=state.discardedTurn||0;state.recoveredTurn=state.recoveredTurn||0;state.replayUsed=!!state.replayUsed;state.chainApGained=state.chainApGained||0;state.momentumActive=!!state.momentumActive;state.momentumDrawn=state.momentumDrawn||0;state.reserveAp=state.reserveAp||0;state.reserveUsed=!!state.reserveUsed;state.cardSelection=null;
+    state.sealed=state.sealed||[];state.correctFormats=state.correctFormats||[];state.turnUsedNames=state.turnUsedNames||[];state.growUses=state.growUses||0;state.discardedTurn=state.discardedTurn||0;state.recoveredTurn=state.recoveredTurn||0;state.replayUsed=!!state.replayUsed;state.chainApGained=state.chainApGained||0;state.momentumActive=!!state.momentumActive;state.momentumAttackCount=state.momentumAttackCount||0;state.reserveAp=state.reserveAp||0;state.reserveUsed=!!state.reserveUsed;state.cardSelection=null;
+    state.handDiscounts=Array.isArray(data.handDiscounts)&&data.handDiscounts.length===state.hand.length?data.handDiscounts:state.hand.map(()=>0);
+    for(const key of ['encourageHeal','encourageCount','nextGuardBlock','attackGuardCap','nextAttackApCut','attackSkillCount'])state[key]=state[key]||0;
+    state.carryAll=!!state.carryAll;state.marginCallUsed=!!state.marginCallUsed;
     state.runWrongQuestions=Array.isArray(data.runWrongQuestions)?data.runWrongQuestions:[...(data.battleWrongQuestions||[])];
     for(const q of [...(state.battleWrongQuestions||[]),...state.runWrongQuestions]){
       if(q.format!=='q9'||q.options?.length===4)continue;
@@ -470,7 +474,9 @@
   function acquireArtifact(id){if(!artifacts[id]||hasArtifact(id))return;state.artifacts.push(id);if(state.artifacts.length>=10)awardBadge('collector');renderResources();}
   const baseName = name => name.endsWith('+') ? name.slice(0,-1) : name;
   const getSkill = name => {const raw = skills[baseName(name)];return name.endsWith('+') ? {...raw,...raw.plus,label:raw.label+'+'} : raw;};
-  const cardCost=(name,s)=>Math.max(0,state.type==='hirameki'&&s.type==='attack'&&!['Attack','Guard'].includes(baseName(name))&&!state.typeBattleUses.has('hirameki')?s.ap-(state.typeBoost?2:1):s.ap);
+  const cardCost=(name,s,index=-1)=>Math.max(0,s.ap
+    -(state.type==='hirameki'&&s.type==='attack'&&!['Attack','Guard'].includes(baseName(name))&&!state.typeBattleUses.has('hirameki')?(state.typeBoost?2:1):0)
+    -(s.type==='attack'?state.nextAttackApCut:0)-(state.handDiscounts[index]||0));
   function onCardExhausted(){if(hasArtifact('InfiniteWarehouse')&&!state.artifactTurnUses.has('InfiniteWarehouse')){state.artifactTurnUses.add('InfiniteWarehouse');state.block+=5;draw(1);}}
   const effects = s => {const out=[];
     if(s.dmg)out.push(`${s.range>=3?'全体':s.range===2?'2体':''}${s.dmg}ダメージ${s.pierce?'（防御無視）':''}`);
@@ -480,10 +486,20 @@
     if(s.cancel)out.push('敵の次の攻撃を0');if(s.weaken)out.push(`敵攻撃 −${s.weaken}`);
     if(s.buff)out.push('次の攻撃 ×2');if(s.nextPlus)out.push(`次の攻撃 +${s.nextPlus}`);
     if(s.draw)out.push(`${s.draw}枚ドロー`);if(s.discard)out.push(`${s.discard}枚捨てる`);
-    if(s.retrieve)out.push(`USEDから${s.retrieve}枚回収`);if(s.carry)out.push(`防御${s.carry}持ち越し`);
+    if(s.retrieve)out.push(`USEDから${s.retrieve}枚回収${s.retrievedApCut?`・回収したカードの次の使用AP−${s.retrievedApCut}`:''}`);
+    if(s.carryAll)out.push('敵の攻撃後、残った防御をすべて次ターンに持ち越し');else if(s.carry)out.push(`防御${s.carry}持ち越し`);
     if(s.replay)out.push('USEDから1枚AP0で再使用');if(s.blockStrike)out.push(`現在の防御×${s.blockStrike}ダメージ${s.pierce?'（防御無視）':''}`);
     if(s.grow)out.push(`芽カウント×${s.grow}ダメージ追加・使用後に芽＋1`);if(s.scaleGrow)out.push(`芽カウント×${s.scaleGrow}ダメージ追加`);
-    if(s.growGain)out.push(`芽カウント＋${s.growGain}（この戦闘中）`);if(s.killAp)out.push('撃破時AP＋1（ターン1回）');if(s.chainAp)out.push('このターン2回目以降の攻撃でもAP＋1（撃破時と共通でターン1回）');if(s.killSplash)out.push(`撃破時、残りの敵全員に${s.killSplash}ダメージ`);if(s.killDraw)out.push('このターン、撃破時に1枚ドロー（最大2枚）');
+    if(s.growGain)out.push(`芽カウント＋${s.growGain}（この戦闘中）`);if(s.killAp)out.push('撃破時AP＋1（ターン1回）');if(s.chainAp)out.push('このターン2回目以降の攻撃でもAP＋1（撃破時と共通でターン1回）');if(s.killSplash)out.push(`撃破時、残りの敵全員に${s.killSplash}ダメージ`);
+    if(s.sweepKillAp)out.push(`このSKILLで1体以上撃破するとAP＋${s.sweepKillAp}（使用1回につき1回）`);
+    if(s.momentum)out.push('このターン、発動後に攻撃SKILLを2回正解するごとにAP＋1（2・4・6回目…）');
+    if(s.encourageHeal)out.push(`このターン、以降の大問12のSKILLに正解するたびHP＋${s.encourageHeal}（最大${s.encourageLimit}回）`);
+    if(s.nextGuardBlock)out.push(`このターン、次の防御SKILLの防御＋${s.nextGuardBlock}`);
+    if(s.attackGuardCap)out.push(`このターン、次の攻撃SKILLで与えたHPダメージの50％を防御に変換（最大${s.attackGuardCap}）`);
+    if(s.nextAttackApCut)out.push(`このターン、次の攻撃SKILLのAP−${s.nextAttackApCut}`);
+    if(s.gainAp)out.push(`AP＋${s.gainAp}`);
+    if(s.tutor)out.push('山札からSKILLを1枚選んで手札へ（そのカードの次の使用AP−1）');
+    if(s.exchangeBlockAp)out.push(`防御${s.exchangeBlockAp}につきAP＋1に変換（上限なし・ターン1回）`);
     if(s.reserveAp)out.push(`ターン終了時の残APを最大${s.reserveAp}、次ターンに持ち越す（ターン1回）`);
     if(s.executeHalf)out.push(`HP半分以下の敵への攻撃＋${s.executeHalf}ダメージ`);
     if(s.exhaustOnCorrect)out.push('正解で消滅（不正解ならUSEDへ）');
@@ -492,6 +508,10 @@
     if(s.bonusBlock)out.push(`異なる${s.formatCount}形式正解で防御＋${s.bonusBlock}`);
     if(s.scaleUnique)out.push(`このターン使った異なるSKILL数（最大5）×${s.scaleUnique}ダメージ追加`);
     if(s.scaleUsed)out.push(`USEDの枚数（最大10）×${s.scaleUsed}ダメージ追加`);
+    if(s.scaleBlock)out.push('現在の防御値と同じダメージを追加（防御は減らない）');
+    if(s.scaleTurn)out.push(`経過ターン数×${s.scaleTurn}ダメージ追加（1ターン目は追加なし）`);
+    if(s.perPriorAttackDmg)out.push(`このターン先に正解した攻撃SKILL数（最大3）×${s.perPriorAttackDmg}ダメージ追加`);
+    if(s.perPriorAttackBlock)out.push(`このターン先に正解した攻撃SKILL数（最大3）×${s.perPriorAttackBlock}防御追加`);
     if(s.consumeBlock)out.push(`自分の防御を最大${s.consumeBlock}消費し、その2倍をダメージに追加`);
     if(s.lowHpBonus)out.push(`自分のHPが半分以下なら＋${s.lowHpBonus}ダメージ`);
     if(s.bonusBlockPerEnemy)out.push(`生存する敵1体につき防御＋${s.bonusBlockPerEnemy}`);
@@ -513,12 +533,18 @@
     if(s.buff)parts.push('次の攻撃×2');
     if(s.nextPlus)parts.push(`次攻撃+${s.nextPlus}`);
     if(s.draw)parts.push(`${s.draw}枚引く`);
-    if(s.retrieve)parts.push(`USED${s.retrieve}枚回収`);
+    if(s.retrieve)parts.push(`USED${s.retrieve}枚回収${s.retrievedApCut?'・回収カードAP−1':''}`);
     if(s.discard)parts.push(`${s.discard}枚捨てる`);
-    if(s.carry)parts.push(`防御${s.carry}持越`);
+    if(s.carryAll)parts.push('残防御を全て持越');else if(s.carry)parts.push(`防御${s.carry}持越`);
     if(s.replay)parts.push('USED1枚をAP0で再使用');if(s.blockStrike)parts.push(`防御×${s.blockStrike}攻撃${s.pierce?'・貫通':''}`);
     if(s.grow)parts.push(`芽×${s.grow}追加・使用後芽+1`);if(s.scaleGrow)parts.push(`芽×${s.scaleGrow}追加`);
-    if(s.growGain)parts.push(`芽+${s.growGain}`);if(s.killAp)parts.push('撃破でAP+1');if(s.chainAp)parts.push('連続攻撃でもAP+1');if(s.killSplash)parts.push(`撃破で全体${s.killSplash}追加`);if(s.killDraw)parts.push('撃破でドロー');
+    if(s.growGain)parts.push(`芽+${s.growGain}`);if(s.killAp)parts.push('撃破でAP+1');if(s.chainAp)parts.push('連続攻撃でもAP+1');if(s.killSplash)parts.push(`撃破で全体${s.killSplash}追加`);
+    if(s.sweepKillAp)parts.push(`撃破でAP+${s.sweepKillAp}`);if(s.momentum)parts.push('以降の攻撃2回ごとAP+1');
+    if(s.encourageHeal)parts.push(`以降の整序正解でHP+${s.encourageHeal}（2回まで）`);
+    if(s.nextGuardBlock)parts.push(`次の防御+${s.nextGuardBlock}`);
+    if(s.attackGuardCap)parts.push(`次の攻撃で防御変換（上限${s.attackGuardCap}）`);
+    if(s.nextAttackApCut)parts.push('次の攻撃AP−1');if(s.gainAp)parts.push(`AP+${s.gainAp}`);
+    if(s.tutor)parts.push('山札から1枚選択・AP−1');if(s.exchangeBlockAp)parts.push(`防御${s.exchangeBlockAp}ごとAP+1`);
     if(s.reserveAp)parts.push(`残AP最大${s.reserveAp}持ち越し`);
     if(s.executeHalf)parts.push(`HP半分以下に＋${s.executeHalf}`);
     if(s.exhaustOnCorrect)parts.push('正解で消滅');
@@ -526,6 +552,9 @@
     if(s.sealChoose)parts.push('手札1枚SEAL');if(s.bonusDmg)parts.push(`${s.formatCount}形式で+${s.bonusDmg}ダメ`);if(s.bonusBlock)parts.push(`${s.formatCount}形式で防御+${s.bonusBlock}`);
     if(s.scaleUnique)parts.push(`異なるSKILL×${s.scaleUnique}追加`);
     if(s.scaleUsed)parts.push(`USED×${s.scaleUsed}追加`);
+    if(s.scaleBlock)parts.push('現在防御分を追加ダメ');if(s.scaleTurn)parts.push(`経過ターン×${s.scaleTurn}追加`);
+    if(s.perPriorAttackDmg)parts.push(`先行攻撃×${s.perPriorAttackDmg}ダメ（最大3）`);
+    if(s.perPriorAttackBlock)parts.push(`先行攻撃×${s.perPriorAttackBlock}防御（最大3）`);
     if(s.consumeBlock)parts.push(`防御を攻撃に変換（最大${s.consumeBlock}）`);
     if(s.lowHpBonus)parts.push(`HP半分以下で+${s.lowHpBonus}`);
     if(s.bonusBlockPerEnemy)parts.push(`敵1体につき防御+${s.bonusBlockPerEnemy}`);
@@ -535,6 +564,14 @@
   };
   let deckFilter='all';
   const DECK_TYPES={attack:'攻撃',guard:'防御',heal:'回復',tactic:'補助'};
+  const basicCount=id=>state[id==='Attack'?'basicAttack':'basicGuard']+state.owned.filter(name=>name===id+'+').length;
+  function removeBasicCard(id,upgraded=false){
+    const key=id==='Attack'?'basicAttack':'basicGuard';
+    if(upgraded){const index=state.owned.indexOf(id+'+');if(index>=0){state.owned.splice(index,1);return true;}}
+    if(state[key]>0){state[key]--;return true;}
+    const index=state.owned.indexOf(id+'+');if(index>=0){state.owned.splice(index,1);return true;}
+    return false;
+  }
   function deckInventory(){
     const preparing=state.phase==='intro';
     const cards=[...Array(preparing?5:state.basicAttack).fill('Attack'),...Array(preparing?3:state.basicGuard).fill('Guard'),...(preparing?LOADOUTS[state.loadout].cards:state.owned)];
@@ -556,7 +593,7 @@
     $('deckHint').textContent=preparing?'出撃後に獲得したSKILLもここで確認できます。':'カードをタップすると効果と問題形式を確認できます。';
   }
   function showDeck(){deckFilter='all';renderDeck();$('deckOverlay').hidden=false;}
-  const cardHtml = (name,idx,choice=false) => {const s=getSkill(name),cost=choice?s.ap:state.freeReplayCard===name?0:cardCost(name,s);const canPlay=choice || (cost<=state.ap && !(baseName(name)==='Command'&&state.commandUsed) && !(s.replay&&state.replayUsed) && !(s.reserveAp&&state.reserveUsed));
+  const cardHtml = (name,idx,choice=false) => {const s=getSkill(name),cost=choice?s.ap:state.freeReplayCard===name?0:cardCost(name,s,idx);const canPlay=choice || (cost<=state.ap && !(baseName(name)==='Command'&&state.commandUsed) && !(s.replay&&state.replayUsed) && !(s.reserveAp&&state.reserveUsed) && !(s.exchangeBlockAp&&state.marginCallUsed));
     return `<button type="button" class="skill-card ${s.type} ${s.rank==='R'||s.rank==='SR'?'rare':''} ${!canPlay?'unplayable':''} ${!choice&&idx===selectedHandIndex?'hand-selected':''}" data-${choice?'reward':'card'}="${choice?escapeHtml(name):idx}" ${choice&&!canPlay?'disabled':''} data-playable="${canPlay}" aria-pressed="${!choice&&idx===selectedHandIndex}" aria-label="${escapeHtml(s.label)}、${cost}AP、${escapeHtml(effects(s))}">
       <span class="cost">${cost}</span><span class="rank">${s.rank}</span><span class="glyph">${s.icon}</span><strong>${escapeHtml(s.label)}</strong>
       <span class="effect" title="${escapeHtml(effects(s))}">${escapeHtml(briefEffect(s))}</span><span class="format">✦ ${choice&&buildFamily(name)?buildFamily(name)+' · ':''}${state.dungeon===2&&s.format==='word'?'日→英 / 音声':FMT[s.format]}</span></button>`;};
@@ -1023,7 +1060,7 @@
       if(!statsFor(1).clears&&localStorage.getItem(INTRO_STORY_KEY)!=='1')showFirstNight();
       else if(statsFor(1).clears===1&&localStorage.getItem(RETURN_STORY_KEY)!=='1')showReturnNight();
     }}
-  function draw(n){for(let i=0;i<n&&state.hand.length<MAX_HAND;i++){if(!state.deck.length){state.deck=shuffled(state.used.splice(0));}if(!state.deck.length)break;state.hand.push(state.deck.pop());
+  function draw(n){for(let i=0;i<n&&state.hand.length<MAX_HAND;i++){if(!state.deck.length){state.deck=shuffled(state.used.splice(0));}if(!state.deck.length)break;state.hand.push(state.deck.pop());state.handDiscounts.push(0);
       if(state.phase==='battle'&&!state.battleOpeningDraw){state.artifactDraws++;if(hasArtifact('CashFlow')&&state.artifactDraws>=2&&!state.artifactTurnUses.has('CashFlow')){state.block+=3;state.artifactTurnUses.add('CashFlow');}}}}
   function pickCard(title,detail,candidates,choose,skip){
     if(!candidates.length){skip?.();return;}
@@ -1040,14 +1077,14 @@
   // Upgraded cards stay upgraded while cycling through this battle's hand/USED/deck.
   // The next battle is rebuilt from state.owned, so FIFO never permanently upgrades a SKILL.
   const fifoUpgrade=card=>hasArtifact('FIFOBox')&&!card.endsWith('+')&&skills[baseName(card)]?.plus?card+'+':card;
-  function takeUsed(count){
-    const candidates=usedChoices().filter(x=>!['Remind','Extend','Replay'].includes(baseName(x.name)));
+  function takeUsed(count,apCut=0){
+    const candidates=usedChoices().filter(x=>!['Remind','Extend','Replay',...(apCut?['Archive']:[])].includes(baseName(x.name)));
     if(!count||!candidates.length)return;
     pickCard('USEDから回収',hasArtifact('FIFOBox')?'FIFO Box：強化可能なSKILLは、この戦闘中＋に強化':'回収するカードを選ぼう',candidates,(name,index)=>{
       const currentIndex=state.used[index]===name?index:state.used.indexOf(name);
       if(currentIndex<0)return;
-      if(state.hand.length<MAX_HAND){const card=state.used.splice(currentIndex,1)[0];state.hand.push(fifoUpgrade(card));state.recoveredTurn++;}
-      if(count>1&&state.hand.length<MAX_HAND)takeUsed(count-1);
+      if(state.hand.length<MAX_HAND){const card=state.used.splice(currentIndex,1)[0];state.hand.push(fifoUpgrade(card));(state.handDiscounts||=[]).push(apCut);state.recoveredTurn++;}
+      if(count>1&&state.hand.length<MAX_HAND)takeUsed(count-1,apCut);
     });
   }
   function discardHand(count,drawAfter=0,seal=false){
@@ -1055,7 +1092,7 @@
     pickCard(seal?'SEALするカード':'捨てるカード',seal?'この戦闘では戻りません':'選んだカードをUSEDに送ります',handChoices(),(name,index)=>{
       const currentIndex=state.hand[index]===name?index:state.hand.indexOf(name);
       if(currentIndex<0){if(drawAfter)draw(drawAfter);return;}
-      const removed=state.hand.splice(currentIndex,1)[0];if(seal){state.sealed.push(removed);onCardExhausted();}else{state.used.push(removed);state.discardedTurn++;}
+      const removed=state.hand.splice(currentIndex,1)[0];state.handDiscounts.splice(currentIndex,1);if(seal){state.sealed.push(removed);onCardExhausted();}else{state.used.push(removed);state.discardedTurn++;}
       if(count>1)discardHand(count-1,drawAfter,seal);else if(drawAfter)draw(drawAfter);
     },()=>{if(drawAfter)draw(drawAfter);});
   }
@@ -1066,7 +1103,7 @@
       if(state.hand.length>=MAX_HAND)return;
       const currentIndex=state.used[index]===name?index:state.used.indexOf(name);
       if(currentIndex<0)return;
-      const card=fifoUpgrade(state.used.splice(currentIndex,1)[0]);state.hand.push(card);state.freeReplayCard=card;state.replayUsed=true;
+      const card=fifoUpgrade(state.used.splice(currentIndex,1)[0]);state.hand.push(card);(state.handDiscounts||=[]).push(0);state.freeReplayCard=card;state.replayUsed=true;
       openQuestion(state.hand.length-1);
     });
   }
@@ -1100,11 +1137,12 @@
     state.encounterWordRange=state.currentEncounter.wordRange;
     state.wordQueue=shuffled(questionBank().words.slice(...state.encounterWordRange));
     state.selected=0;state.deck=shuffled([...Array(state.basicAttack).fill('Attack'),...Array(state.basicGuard).fill('Guard'),...state.owned.map(name=>state.artifactActUpgrades?.includes(baseName(name))&&!name.endsWith('+')?name+'+':name)]);
-    state.used=[];state.hand=[];state.turn=1;state.carryOver=0;state.block=0;state.guardPriceCut=0;state.ap=3;state.apTotal=3;state.buff=1;state.nextPlus=0;state.commandUsed=false;state.turnDamage=0;state.turnGuardGained=0;
+    state.used=[];state.hand=[];state.handDiscounts=[];state.turn=1;state.carryOver=0;state.carryAll=false;state.block=0;state.guardPriceCut=0;state.ap=3;state.apTotal=3;state.buff=1;state.nextPlus=0;state.commandUsed=false;state.turnDamage=0;state.turnGuardGained=0;
     const seenEnemyKinds=discoveries[state.dungeon];
     for(const enemy of state.enemies){if(bestiaryRoster.some(m=>m.kind===enemy.kind&&m.name===enemy.name))seenEnemyKinds.add(enemy.name);}
     storeJson(bestiaryKey(state.dungeon),[...seenEnemyKinds]);renderBestiarySummary();
-    state.sealed=[];state.growUses=0;state.discardedTurn=0;state.recoveredTurn=0;state.correctFormats=[];state.turnUsedNames=[];state.replayUsed=false;state.freeReplayCard=null;state.chainApGained=0;state.momentumActive=false;state.momentumDrawn=0;state.reserveAp=0;state.reserveUsed=false;state.cardSelection=null;$('cardPickModal').hidden=true;
+    state.sealed=[];state.growUses=0;state.discardedTurn=0;state.recoveredTurn=0;state.correctFormats=[];state.turnUsedNames=[];state.replayUsed=false;state.freeReplayCard=null;state.chainApGained=0;state.momentumActive=false;state.momentumAttackCount=0;state.reserveAp=0;state.reserveUsed=false;state.cardSelection=null;$('cardPickModal').hidden=true;
+    state.encourageHeal=0;state.encourageCount=0;state.nextGuardBlock=0;state.attackGuardCap=0;state.nextAttackApCut=0;state.marginCallUsed=false;state.attackSkillCount=0;
     state.artifactAttacks=0;state.artifactCardUses=0;state.artifactDraws=0;state.artifactCorrectStreak=0;state.artifactUniqueCards=[];state.artifactCompound=0;state.artifactNextGuard=0;
     state.artifactTurnUses=new Set();state.artifactBattleUses=new Set();state.typeTurnUses=new Set();state.typeBattleUses=new Set();state.typeCorrectNames=new Set();state.shieldPierce=0;
     if(hasArtifact('IronShield'))state.block+=5;
@@ -1194,8 +1232,8 @@
   function renderHandPreview(){
     const preview=$('handCardPreview'),name=state.hand[selectedHandIndex];
     if(!name){preview.hidden=true;return;}
-    const skill=getSkill(name),cost=state.freeReplayCard===name?0:cardCost(name,skill);
-    const usable=cost<=state.ap&&!(baseName(name)==='Command'&&state.commandUsed)&&!(skill.replay&&state.replayUsed)&&!(skill.reserveAp&&state.reserveUsed);
+    const skill=getSkill(name),cost=state.freeReplayCard===name?0:cardCost(name,skill,selectedHandIndex);
+    const usable=cost<=state.ap&&!(baseName(name)==='Command'&&state.commandUsed)&&!(skill.replay&&state.replayUsed)&&!(skill.reserveAp&&state.reserveUsed)&&!(skill.exchangeBlockAp&&state.marginCallUsed);
     $('handPreviewName').textContent=`${skill.label} · ${cost}AP`;
     $('handPreviewEffect').textContent=`${effects(skill)} · ${FMT[skill.format]||''}`;
     $('handPreviewUse').disabled=!usable;
@@ -1305,10 +1343,10 @@
     const submit=document.createElement('button');submit.type='button';submit.className='order-submit';submit.textContent='この順番で回答';submit.onclick=()=>onSubmit(chosen.join('|'));
     controls.append(undo,submit);box.append(sequence,choices,controls);refresh();
   }
-  function openQuestion(index){if(state.pending||state.cardSelection||state.phase!=='battle')return;const name=state.hand[index];if(!name)return;const s=getSkill(name),isFreeReplay=state.freeReplayCard===name,cost=isFreeReplay?0:cardCost(name,s);
-    if(cost>state.ap||(baseName(name)==='Command'&&state.commandUsed)||(s.replay&&state.replayUsed)||(s.reserveAp&&state.reserveUsed))return;
+  function openQuestion(index){if(state.pending||state.cardSelection||state.phase!=='battle')return;const name=state.hand[index];if(!name)return;const s=getSkill(name),isFreeReplay=state.freeReplayCard===name,cost=isFreeReplay?0:cardCost(name,s,index);
+    if(cost>state.ap||(baseName(name)==='Command'&&state.commandUsed)||(s.replay&&state.replayUsed)||(s.reserveAp&&state.reserveUsed)||(s.exchangeBlockAp&&state.marginCallUsed))return;
     const format=state.dungeon===2&&s.format==='word'?(Math.random()<.5?'jaen':'audio'):s.format;
-    state.pending={name,index,targetId:chosenTarget()?.id,cost};state.freeReplayCard=null;state.question=makeQuestion(format);
+    state.pending={name,index,targetId:chosenTarget()?.id,cost,usesAttackDiscount:s.type==='attack'&&state.nextAttackApCut>0};state.freeReplayCard=null;state.question=makeQuestion(format);
     const q=state.question;$('bossQuizSpeech').hidden=true;$('questionModal').hidden=false;$('questionModal').classList.remove('answered','answered-correct','answered-wrong');$('closeQuestion').hidden=false;$('questionTitle').textContent='英語でSKILLを発動';$('questionType').textContent=state.examGrade+'級 · '+FMT[format];$('questionSkill').textContent=`${s.label} · ${cost}AP · ${effects(s)}`;
     $('questionStem').textContent=q.stem;$('questionResult').textContent='';$('questionResult').className='question-result';$('questionExplanation').hidden=true;$('questionExplanation').textContent='';$('continueQuestion').hidden=true;
     $('listenBtn').hidden=format!=='audio';$('answers').innerHTML='';
@@ -1388,16 +1426,19 @@
     $('questionModal').classList.add('answered',correct?'answered-correct':'answered-wrong');
   }
   function closeQuestion(){if(state.pending?.resolved||state.pending?.bossChallenge)return;state.pending=null;state.question=null;$('questionModal').hidden=true;}
-  function finishQuestion(){const p=state.pending;if(!p?.resolved)return;const name=state.hand.splice(p.index,1)[0];const s=getSkill(name);
+  function finishQuestion(){const p=state.pending;if(!p?.resolved)return;const name=state.hand.splice(p.index,1)[0];state.handDiscounts.splice(p.index,1);const s=getSkill(name);
     selectedHandIndex=-1;
     state.ap-=p.cost;state.used.push(name);if(baseName(name)==='Command')state.commandUsed=true;
+    if(p.usesAttackDiscount)state.nextAttackApCut=0;
     if(state.type==='hirameki'&&s.type==='attack'&&baseName(name)!=='Attack')state.typeBattleUses.add('hirameki');
     // A resolved question is correct iff the result element has the success class.
     const success=$('questionResult').classList.contains('ok');
     const hpBefore=state.enemies.reduce((sum,e)=>sum+e.hp,0),heroBefore=state.hp,blockBefore=state.block;
     const triggered=[];state.breakMessage='';
     state.artifactCardUses++;state.artifactCorrectStreak=success?state.artifactCorrectStreak+1:0;
-    if(success){state.turnUsedNames.push(baseName(name));if(!state.correctFormats.includes(state.question.format))state.correctFormats.push(state.question.format);applyCard(s,name,p.targetId);if(s.exhaustOnCorrect){const idx=state.used.lastIndexOf(name);if(idx>=0){state.sealed.push(...state.used.splice(idx,1));onCardExhausted();}}triggered.push(...applyAnswerArtifacts(s),...applyTypeBoost(s,name));}else if(s.dmg){state.buff=1;state.nextPlus=0;}
+    if(success){state.turnUsedNames.push(baseName(name));if(!state.correctFormats.includes(state.question.format))state.correctFormats.push(state.question.format);applyCard(s,name,p.targetId);
+      if(state.question.format==='q12'&&state.encourageHeal&&state.encourageCount<2){state.hp=Math.min(state.maxHp,state.hp+state.encourageHeal);state.encourageCount++;}
+      if(s.exhaustOnCorrect){const idx=state.used.lastIndexOf(name);if(idx>=0){state.sealed.push(...state.used.splice(idx,1));onCardExhausted();}}triggered.push(...applyAnswerArtifacts(s),...applyTypeBoost(s,name));}else if(s.dmg){state.buff=1;state.nextPlus=0;}
     if(success&&hasArtifact('TaxDeduction')&&baseName(name)==='BadStock'){state.hp=Math.min(maxHp(),state.hp+3);}
     if(hasArtifact('InventoryManager')&&state.artifactCardUses>=4&&!state.artifactTurnUses.has('InventoryManager')){state.artifactTurnUses.add('InventoryManager');draw(1);}
     if(hasArtifact('MasterAbacus')&&state.artifactCardUses>=5&&!state.artifactTurnUses.has('MasterAbacus')){state.artifactTurnUses.add('MasterAbacus');state.ap+=3;state.apTotal+=3;}
@@ -1440,21 +1481,25 @@
   }
   function applyCard(s,name,targetId){const candidates=alive();const target=state.enemies.find(e=>e.id===targetId&&e.hp>0)||candidates[0];
     const spentBlock=s.consumeBlock?Math.min(state.block,s.consumeBlock):0;
-    const strike=(s.dmg||0)+(s.blockStrike?Math.min(36,Math.floor(state.block*s.blockStrike)):0)+(s.scaleGrow?state.growUses*s.scaleGrow:0)+(s.scaleDiscard?state.discardedTurn*s.scaleDiscard:0)+(s.scaleRetrieve?state.recoveredTurn*s.scaleRetrieve:0)+(s.bonusDmg&&state.correctFormats.length>=s.formatCount?s.bonusDmg:0)+(s.grow?state.growUses*s.grow:0)+(s.scaleUnique?Math.min(5,new Set(state.turnUsedNames).size)*s.scaleUnique:0)+(s.scaleUsed?Math.min(10,state.used.length)*s.scaleUsed:0)+spentBlock*2+(s.lowHpBonus&&state.hp<=state.maxHp/2?s.lowHpBonus:0);
+    const priorAttacks=Math.min(3,state.attackSkillCount||0);
+    const strike=(s.dmg||0)+(s.blockStrike?Math.min(36,Math.floor(state.block*s.blockStrike)):0)+(s.scaleGrow?state.growUses*s.scaleGrow:0)+(s.scaleDiscard?state.discardedTurn*s.scaleDiscard:0)+(s.scaleRetrieve?state.recoveredTurn*s.scaleRetrieve:0)+(s.bonusDmg&&state.correctFormats.length>=s.formatCount?s.bonusDmg:0)+(s.grow?state.growUses*s.grow:0)+(s.scaleUnique?Math.min(5,new Set(state.turnUsedNames).size)*s.scaleUnique:0)+(s.scaleUsed?Math.min(10,state.used.length)*s.scaleUsed:0)+(s.scaleBlock?state.block*s.scaleBlock:0)+(s.scaleTurn?(state.turn-1)*s.scaleTurn:0)+(s.perPriorAttackDmg?priorAttacks*s.perPriorAttackDmg:0)+spentBlock*2+(s.lowHpBonus&&state.hp<=state.maxHp/2?s.lowHpBonus:0);
     if(spentBlock)state.block-=spentBlock;
     if(strike){const victims=s.range>=3?candidates:s.range===2?[target,...candidates.filter(x=>x!==target)].slice(0,2):[target];
       const firstAttackBonus=!state.artifactBattleUses.has('FirstAttack')?(hasArtifact('PowerFang')?4:0):0;
       const firstAttackMultiplier=!state.artifactBattleUses.has('MonopolyCrown')&&hasArtifact('MonopolyCrown')?2:1;
       const raw=((strike+state.nextPlus+(state.artifactCompound||0))*state.buff+firstAttackBonus)*firstAttackMultiplier;
       if(firstAttackMultiplier>1)state.artifactBattleUses.add('MonopolyCrown');
-      const defeated=[];
-      victims.forEach(e=>{let amount=raw+(s.executeHalf&&e.hp<=e.maxHp/2?s.executeHalf:0);if(!s.pierce){const bypass=Math.min(e.shield,state.shieldPierce);const absorbed=Math.min(Math.max(0,e.shield-bypass),amount);e.shield-=absorbed;amount-=absorbed;}e.hp=Math.max(0,e.hp-amount);if(e.hp===0)defeated.push(e);});
+      const defeated=[];let hpDamage=0;
+      victims.forEach(e=>{const beforeHp=e.hp;let amount=raw+(s.executeHalf&&e.hp<=e.maxHp/2?s.executeHalf:0);if(!s.pierce){const bypass=Math.min(e.shield,state.shieldPierce);const absorbed=Math.min(Math.max(0,e.shield-bypass),amount);e.shield-=absorbed;amount-=absorbed;}e.hp=Math.max(0,e.hp-amount);hpDamage+=beforeHp-e.hp;if(e.hp===0)defeated.push(e);});
       if(defeated.length){
         if(s.killAp&&!state.chainApGained){state.ap+=1;state.apTotal+=1;state.chainApGained=1;}
         if(s.killSplash){for(const e of alive()){const absorbed=Math.min(e.shield,s.killSplash);e.shield-=absorbed;e.hp=Math.max(0,e.hp-(s.killSplash-absorbed));}}
-        if(state.momentumActive&&state.momentumDrawn<2){const count=Math.min(defeated.length,2-state.momentumDrawn);draw(count);state.momentumDrawn+=count;}
+        if(s.sweepKillAp){state.ap+=s.sweepKillAp;state.apTotal+=s.sweepKillAp;}
       }
       if(s.chainAp&&state.artifactAttacks>=1&&!state.chainApGained){state.ap+=s.chainAp;state.apTotal+=s.chainAp;state.chainApGained=1;}
+      if(s.type==='attack'&&state.momentumActive){state.momentumAttackCount++;if(state.momentumAttackCount%2===0){state.ap++;state.apTotal++;}}
+      if(s.type==='attack'&&state.attackGuardCap){state.block+=Math.min(state.attackGuardCap,Math.floor(hpDamage/2));state.attackGuardCap=0;}
+      if(s.type==='attack')state.attackSkillCount++;
       state.artifactAttacks=(state.artifactAttacks||0)+1;
       if(defeated.some(e=>e.kind==='conductor')&&alive().length)state.breakMessage='指揮を断った！ 味方強化が消滅';
       else if(defeated.some(e=>e.kind==='sentinel')&&alive().length)state.breakMessage='守護を突破！ 味方への防御支援が消滅';
@@ -1465,7 +1510,9 @@
     if(s.seedAtBlock&&state.block>=s.seedAtBlock)state.growUses++;
     if(s.block){
       const recoveryBonus=state.recoveredTurn>0?(s.recoveryBlock||0):0;
-      state.block+=Math.max(0,s.block+recoveryBonus-(state.guardPriceCut||0));
+      const guardBonus=s.type==='guard'?state.nextGuardBlock:0;
+      state.block+=Math.max(0,s.block+recoveryBonus+guardBonus+(s.perPriorAttackBlock?priorAttacks*s.perPriorAttackBlock:0)-(state.guardPriceCut||0));
+      if(s.type==='guard')state.nextGuardBlock=0;
     }
     if(s.bonusBlock&&state.correctFormats.length>=s.formatCount)state.block+=s.bonusBlock;
     if(s.bonusBlockPerEnemy)state.block+=candidates.length*s.bonusBlockPerEnemy;
@@ -1473,7 +1520,13 @@
     if(s.healIfGuard&&state.block>=s.healIfGuard)state.hp=Math.min(state.maxHp,state.hp+5);
     if(s.grow)state.growUses++;
     if(s.growGain)state.growUses+=s.growGain;
-    if(s.killDraw)state.momentumActive=true;
+    if(s.momentum){state.momentumActive=true;state.momentumAttackCount=0;}
+    if(s.encourageHeal){state.encourageHeal=s.encourageHeal;state.encourageCount=0;}
+    if(s.nextGuardBlock)state.nextGuardBlock=s.nextGuardBlock;
+    if(s.attackGuardCap)state.attackGuardCap=s.attackGuardCap;
+    if(s.nextAttackApCut)state.nextAttackApCut=s.nextAttackApCut;
+    if(s.gainAp){state.ap+=s.gainAp;state.apTotal+=s.gainAp;}
+    if(s.exchangeBlockAp&&!state.marginCallUsed){const gained=Math.floor(state.block/s.exchangeBlockAp);state.block-=gained*s.exchangeBlockAp;state.ap+=gained;state.apTotal+=gained;state.marginCallUsed=true;}
     if(s.reserveAp){state.reserveAp=s.reserveAp;state.reserveUsed=true;}
     if(s.heal)state.hp=Math.min(state.maxHp,state.hp+s.heal);
     if(s.healPct)state.hp=Math.min(state.maxHp,state.hp+Math.round(state.maxHp*s.healPct/100));
@@ -1481,8 +1534,13 @@
     if(s.weaken&&target&&target.hp>0)target.weak+=s.weaken;
     if(s.buff)state.buff=2;if(s.nextPlus)state.nextPlus+=s.nextPlus;
     if(s.carry)state.carry=Math.max(state.carry,s.carry);
+    if(s.carryAll)state.carryAll=true;
     if(s.draw&&!s.discardChoose&&!s.sealChoose&&!s.discard)draw(s.draw);
-    if(s.retrieve)takeUsed(s.retrieve);
+    if(s.retrieve)takeUsed(s.retrieve,s.retrievedApCut||0);
+    if(s.tutor&&state.hand.length<MAX_HAND)pickCard('山札からSKILLを選ぶ','選んだカードは、このターン次の使用AP−1',state.deck.map((card,index)=>({name:card,index})),(card,index)=>{
+      const actual=state.deck[index]===card?index:state.deck.indexOf(card);
+      if(actual>=0&&state.hand.length<MAX_HAND){state.hand.push(state.deck.splice(actual,1)[0]);state.handDiscounts.push(1);}
+    });
     if(s.replay)replayUsed();
     if(s.discardChoose)discardHand(s.discardChoose,s.draw||0);
     else if(s.sealChoose)discardHand(s.sealChoose,s.draw||0,true);
@@ -1515,12 +1573,12 @@
     state.hp=Math.max(0,state.hp-taken);
     if(hasArtifact('BadDebtReserve')&&state.hp>0&&state.hp<=maxHp()/2&&!state.artifactBattleUses.has('BadDebtReserve')){state.artifactNextGuard+=15;state.artifactBattleUses.add('BadDebtReserve');}
     if(taken>0)for(const {enemy,amount} of lifeStealers)enemy.hp=Math.min(enemy.maxHp,enemy.hp+amount);
-    state.carryOver=Math.min(state.carry||0,Math.max(0,state.block-total));state.used.push(...state.hand.splice(0));
+    state.carryOver=state.carryAll?Math.max(0,state.block-total):Math.min(state.carry||0,Math.max(0,state.block-total));state.used.push(...state.hand.splice(0));state.handDiscounts=[];
     // At most two junk cards are added in a turn. Correct answers exhaust them; wrong answers recycle through USED.
     for(let j=0;j<Math.min(2,junkAdded);j++)state.deck.splice(Math.floor(Math.random()*(state.deck.length+1)),0,'BadStock');
     if(state.hp<=0){GoimonDungeonMission.recordDefeat(state);playSfx('defeat');showChoice('defeat');return;}
     if(!alive().length){winBattle();return;}
-    const bonusAp=Math.min(state.ap,state.reserveAp);const reserveGuard=hasArtifact('ReserveVault')?Math.min(2,state.ap)*2:0;state.turn++;state.apTotal=3+bonusAp;state.ap=Math.max(1,state.apTotal-nextApTax);state.reserveAp=0;state.reserveUsed=false;state.block=state.carryOver+reserveGuard+state.artifactNextGuard;state.guardPriceCut=nextGuardPriceCut;state.artifactNextGuard=0;state.carry=0;state.buff=1;state.nextPlus=0;state.shieldPierce=0;state.commandUsed=false;state.discardedTurn=0;state.recoveredTurn=0;state.correctFormats=[];state.turnUsedNames=[];state.replayUsed=false;state.chainApGained=0;state.momentumActive=false;state.momentumDrawn=0;state.turnDamage=0;state.turnGuardGained=0;state.artifactTurnUses.clear();state.typeTurnUses.clear();state.typeCorrectNames.clear();state.artifactAttacks=0;state.artifactCardUses=0;state.artifactDraws=0;state.artifactCorrectStreak=0;state.artifactUniqueCards=[];state.artifactCompound=0;
+    const bonusAp=Math.min(state.ap,state.reserveAp);const reserveGuard=hasArtifact('ReserveVault')?Math.min(2,state.ap)*2:0;state.turn++;state.apTotal=3+bonusAp;state.ap=Math.max(1,state.apTotal-nextApTax);state.reserveAp=0;state.reserveUsed=false;state.block=state.carryOver+reserveGuard+state.artifactNextGuard;state.guardPriceCut=nextGuardPriceCut;state.artifactNextGuard=0;state.carry=0;state.carryAll=false;state.buff=1;state.nextPlus=0;state.shieldPierce=0;state.commandUsed=false;state.discardedTurn=0;state.recoveredTurn=0;state.correctFormats=[];state.turnUsedNames=[];state.replayUsed=false;state.chainApGained=0;state.momentumActive=false;state.momentumAttackCount=0;state.encourageHeal=0;state.encourageCount=0;state.nextGuardBlock=0;state.attackGuardCap=0;state.nextAttackApCut=0;state.marginCallUsed=false;state.attackSkillCount=0;state.turnDamage=0;state.turnGuardGained=0;state.artifactTurnUses.clear();state.typeTurnUses.clear();state.typeCorrectNames.clear();state.artifactAttacks=0;state.artifactCardUses=0;state.artifactDraws=0;state.artifactCorrectStreak=0;state.artifactUniqueCards=[];state.artifactCompound=0;
     state.battleOpeningDraw=true;draw(5);state.battleOpeningDraw=false;renderBattle();flashNotice(bossEvaded?'全問正解！ 特殊技を完全回避':junkAdded?`不良在庫＋${Math.min(2,junkAdded)}枚`:taken?`HP −${taken}`:total?'防御成功':'敵が行動した');showBattleFx(total>0?'enemy':'guard',bossEvaded?'✦ PERFECT DODGE!':taken?`💥 ${taken} ダメージ！`:total>0?'🛡 BLOCK!':'✦ 敵が行動した');if(total>0)playSfx(taken>0?'hurt':'guard');}
   // Rarity is rolled separately for each of the three offered cards.
   function rewardRank(mode,roll){
@@ -1598,10 +1656,11 @@
     state.coins+=state.currentEncounter.nodeType==='elite'?25:12;
     showChoice(state.currentEncounter.nodeType==='elite'?'eliteReward':'reward');}
   function selectUpgrade(index,silent=false){
-    if(state.choiceMode!=='upgrade'||!Number.isInteger(index)||!state.owned[index]||state.owned[index].endsWith('+'))return;
+    const basicName=index===-1?'Attack':index===-2?'Guard':null;
+    if(state.choiceMode!=='upgrade'||!Number.isInteger(index)||!(basicName?state[basicName==='Attack'?'basicAttack':'basicGuard']>0:state.owned[index]&&!state.owned[index].endsWith('+')))return;
     if(!silent)playSfx('select');
     upgradeSelectionIndex=index;
-    const name=state.owned[index],before=getSkill(name),after=getSkill(name+'+');
+    const name=basicName||state.owned[index],before=getSkill(name),after=getSkill(name+'+');
     $('choiceCards').querySelectorAll('[data-upgrade-index]').forEach(button=>{
       const selected=Number(button.dataset.upgradeIndex)===index;
       button.classList.toggle('selected',selected);
@@ -1617,9 +1676,11 @@
   function confirmUpgrade(){
     if(state.choiceMode!=='upgrade'||upgradeSelectionIndex===null)return;
     const index=upgradeSelectionIndex;
-    if(!state.owned[index]||state.owned[index].endsWith('+'))return;
+    const basicName=index===-1?'Attack':index===-2?'Guard':null;
+    if(!(basicName?state[basicName==='Attack'?'basicAttack':'basicGuard']>0:state.owned[index]&&!state.owned[index].endsWith('+')))return;
     playSfx('confirm');
-    state.owned[index]+='+';
+    if(basicName){state[basicName==='Attack'?'basicAttack':'basicGuard']--;state.owned.push(basicName+'+');}
+    else state.owned[index]+='+';
     upgradeSelectionIndex=null;
     advance();
   }
@@ -1725,7 +1786,7 @@
   function storeEventLimit(option){
     if(state.coins+(option.coins||0)<0)return 'COIN不足';
     if(state.hp+(option.hp||0)<=0)return 'HP不足';
-    if(option.card&&!state[option.card])return '対象カードなし';
+    if(option.card&&!basicCount(option.card==='basicAttack'?'Attack':'Guard'))return '対象カードなし';
     return '';
   }
   function renderStoreEvent(id){
@@ -1742,7 +1803,7 @@
         state.coins+=option.coins||0;
         state.maxHp+=option.maxHp||0;
         state.hp=Math.min(state.maxHp,state.hp+(option.hp||0));
-        if(option.card)state[option.card]--;
+        if(option.card)removeBasicCard(option.card==='basicAttack'?'Attack':'Guard');
         playSfx('confirm');
         advance();
       };
@@ -1787,10 +1848,11 @@
       const atCamp=state.removeOrigin==='camp';
       $('choiceEyebrow').textContent='DECK EDIT';$('choiceTitle').textContent='削除するカードを選ぼう';
       $('choiceDescription').textContent=atCamp?'基本カードを1枚削除して、デッキを整えよう。':'COINは削除確定時に消費します。';
-      $('choiceCards').innerHTML=[['Attack',state.basicAttack],['Guard',state.basicGuard]].filter(([,count])=>count>0).map(([id,count])=>`<button class="choice-action" data-remove="${id}"><strong>${skills[id].label}</strong><small>現在 ${count}枚 → 1枚削除</small></button>`).join('');
+      const removeChoices=[['Attack',state.basicAttack],['Attack+',state.owned.filter(x=>x==='Attack+').length],['Guard',state.basicGuard],['Guard+',state.owned.filter(x=>x==='Guard+').length]];
+      $('choiceCards').innerHTML=removeChoices.filter(([,count])=>count>0).map(([id,count])=>`<button class="choice-action" data-remove="${id}"><strong>${getSkill(id).label}</strong><small>現在 ${count}枚 → 1枚削除</small></button>`).join('');
       $('choiceCards').querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{
         if(!atCamp){const item=state.shopStock[state.shopRemoveIndex];if(!item||item.sold||state.coins<shopPrice(item))return;state.coins-=shopPrice(item);item.sold=true;if(hasArtifact('PowerLeaf'))state.artifactDiscountUsed=true;}
-        if(b.dataset.remove==='Attack')state.basicAttack--;else state.basicGuard--;
+        removeBasicCard(baseName(b.dataset.remove),b.dataset.remove.endsWith('+'));
         if(atCamp){state.removeOrigin='shop';advance();}else showChoice('shop');
       });
       $('skipChoice').textContent=atCamp?'回復所へ戻る':'購入をやめる';
@@ -1828,15 +1890,15 @@
     } else if(mode==='camp'){
       $('choiceEyebrow').textContent='REST SITE';$('choiceTitle').textContent='静かな回復所';
       $('choiceDescription').textContent='次の戦いに備えて、1つ選ぼう。';
-      $('choiceCards').innerHTML='<button type="button" class="choice-action" id="campHeal">✚<strong>HP +25</strong><small>回復する</small></button><button type="button" class="choice-action" id="campUpgrade">✦<strong>SKILL+</strong><small>1枚強化</small></button><button type="button" class="choice-action" id="campRemove" '+(state.basicAttack+state.basicGuard===0?'disabled':'')+'>↶<strong>デッキ整理</strong><small>基本カードを1枚削除</small></button>';
+      $('choiceCards').innerHTML='<button type="button" class="choice-action" id="campHeal">✚<strong>HP +25</strong><small>回復する</small></button><button type="button" class="choice-action" id="campUpgrade">✦<strong>SKILL+</strong><small>1枚強化</small></button><button type="button" class="choice-action" id="campRemove" '+(basicCount('Attack')+basicCount('Guard')===0?'disabled':'')+'>↶<strong>デッキ整理</strong><small>基本カードを1枚削除</small></button>';
       $('campHeal').onclick=()=>{state.hp=Math.min(state.maxHp,state.hp+25);advance();};$('campUpgrade').onclick=()=>{state.upgradeFromEvent=false;showChoice('upgrade');};$('campRemove').onclick=()=>{state.removeOrigin='camp';showChoice('removeCard');};$('skipChoice').hidden=true;
     } else if(mode==='upgrade'){
       $('choiceEyebrow').textContent='UPGRADE';$('choiceTitle').textContent='どのSKILLを強化する？';
       $('choiceDescription').textContent='SKILLを選んで強化前後を比較。確定するまでは変更されません。';
-      const choices=state.owned.map((name,index)=>({name,index})).filter(({name})=>!name.endsWith('+'));
+      const choices=[...(state.basicAttack>0?[{name:'Attack',index:-1,count:state.basicAttack}]:[]),...(state.basicGuard>0?[{name:'Guard',index:-2,count:state.basicGuard}]:[]),...state.owned.map((name,index)=>({name,index,count:1})).filter(({name})=>!name.endsWith('+'))];
       const groups=new Map();
-      choices.forEach(({name,index})=>{if(!groups.has(name))groups.set(name,{name,index,count:0});groups.get(name).count++;});
-      $('choiceCards').innerHTML=choices.length?`<div class="upgrade-layout"><div class="upgrade-list-panel"><div class="upgrade-list-heading">強化できるSKILL <span>${choices.length}枚</span></div><div class="upgrade-list">${[...groups.values()].map(({name,index,count})=>{const s=getSkill(name);return `<button type="button" class="upgrade-item" data-upgrade-index="${index}" aria-pressed="false"><span class="upgrade-item-icon ${s.type}">${escapeHtml(s.icon)}</span><span class="upgrade-item-copy"><strong>${escapeHtml(s.label)}</strong><small>${escapeHtml(briefEffect(s))}</small></span><span class="upgrade-item-meta"><b>${s.ap} AP</b>${count>1?`<small>×${count}</small>`:''}</span></button>`;}).join('')}</div></div><section class="upgrade-preview" id="upgradePreview" aria-live="polite"></section></div>`:'<div class="upgrade-empty">すべてのSKILLを強化済みです。代わりにHPを25回復できます。</div>';
+      choices.forEach(({name,index,count})=>{if(!groups.has(name))groups.set(name,{name,index,count:0});groups.get(name).count+=count;});
+      $('choiceCards').innerHTML=choices.length?`<div class="upgrade-layout"><div class="upgrade-list-panel"><div class="upgrade-list-heading">強化できるSKILL <span>${[...groups.values()].reduce((sum,item)=>sum+item.count,0)}枚</span></div><div class="upgrade-list">${[...groups.values()].map(({name,index,count})=>{const s=getSkill(name);return `<button type="button" class="upgrade-item" data-upgrade-index="${index}" aria-pressed="false"><span class="upgrade-item-icon ${s.type}">${escapeHtml(s.icon)}</span><span class="upgrade-item-copy"><strong>${escapeHtml(s.label)}</strong><small>${escapeHtml(briefEffect(s))}</small></span><span class="upgrade-item-meta"><b>${s.ap} AP</b>${count>1?`<small>×${count}</small>`:''}</span></button>`;}).join('')}</div></div><section class="upgrade-preview" id="upgradePreview" aria-live="polite"></section></div>`:'<div class="upgrade-empty">すべてのSKILLを強化済みです。代わりにHPを25回復できます。</div>';
       $('choiceCards').querySelectorAll('[data-upgrade-index]').forEach(button=>button.onclick=()=>selectUpgrade(Number(button.dataset.upgradeIndex)));
       if(choices.length)selectUpgrade(choices[0].index,true);
       $('skipChoice').textContent=choices.length?(state.upgradeFromEvent?'強化せず進む':'回復所へ戻る'):'HPを25回復して進む';
@@ -1944,7 +2006,7 @@
     else if(SPECIAL_BOOSTS[id]&&!state.specialBoosts.includes(id)){
       state.specialBoosts.push(id);
       if(id==='maxHp'){state.maxHp+=15;state.hp=Math.min(maxHp(),state.hp+15);}
-      if(id==='purify'){state.basicAttack=Math.max(0,state.basicAttack-1);state.basicGuard=Math.max(0,state.basicGuard-1);}
+      if(id==='purify'){removeBasicCard('Attack');removeBasicCard('Guard');}
     }else return;
     state.specialSkillOffer=null;state.choiceSpecialOptions=null;
     state.act++;state.artifactActUpgrades=[];saveCheckpoint();showChoice('actReady');
@@ -1956,7 +2018,7 @@
     if(state.choiceMode==='actReady'){startAct();return;}
     if(state.choiceMode==='removeCard'){showChoice(state.removeOrigin==='camp'?'camp':'shop');return;}
     if(state.choiceMode==='shop'){advance();return;}
-    if(state.choiceMode==='upgrade'){if(!state.owned.some(x=>!x.endsWith('+'))){state.hp=Math.min(state.maxHp,state.hp+25);advance();return;}if(state.upgradeFromEvent){advance();return;}showChoice('camp');return;}
+    if(state.choiceMode==='upgrade'){if(!state.basicAttack&&!state.basicGuard&&!state.owned.some(x=>!x.endsWith('+'))){state.hp=Math.min(state.maxHp,state.hp+25);advance();return;}if(state.upgradeFromEvent){advance();return;}showChoice('camp');return;}
     if(['reward','eliteReward','treasure','event'].includes(state.choiceMode))advance();}
   function closeDungeonMap(){$('dungeonMap').hidden=true;}
   $('examGrade').onchange=e=>{if(state.phase==='intro'){state.examGrade=e.target.value==='1'?1:2;saveSetup();}};

@@ -32,6 +32,7 @@ const context = vm.createContext({
   INTRO_STORY_KEY: 'intro', RETURN_STORY_KEY: 'return',
   localStorage: {setItem: (key, value) => savedFlags.set(key, value)},
   JOURNAL: [journal], JOURNAL_SEEN_KEY: 'seen', journalSeen: new Set(),
+  dungeonJournal: () => [journal], state: {dungeon: 1},
   statsFor: () => ({clears: clearCount}), journalUnlocked: () => [journal],
   storeJson() {}, renderJournalSummary() {}, playSfx() {},
   selectedCompanion: () => ({name: '相棒'}),
