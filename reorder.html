@@ -844,17 +844,22 @@
 .grammarModeButton[aria-pressed="true"] small{color:#276d64}
 .grammarModeButton:focus-visible,.grammarFilterChip:focus-visible,.grammarCategoryButton:focus-visible{outline:3px solid #efb246;outline-offset:2px}
 .grammarFilterBody{margin-top:12px;padding-top:13px;border-top:1px solid #d8e7e3}
-.grammarFilterBody[hidden],.grammarFilterTools[hidden],.grammarCategoryTabs[hidden],.grammarPickerActions button[hidden]{display:none!important}
+.grammarFilterBody[hidden],.grammarFilterTools[hidden],.grammarCategoryTabs[hidden],.grammarLessonHint[hidden],.grammarPickerActions button[hidden]{display:none!important}
 .grammarPickerHead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .grammarPickerHead strong{font-size:16px}
+.grammarLessonHint{margin:7px 0 0;color:#506b6c;font-size:13px;line-height:1.5}
 .grammarFilterTools{display:flex;align-items:center;gap:8px;margin:12px 0}
 .grammarFilterTools input{width:100%;min-width:0;box-sizing:border-box;padding:11px 12px;border:1px solid #cbd9e2;border-radius:9px;background:white;font-size:15px}
 .grammarPickerActions{display:flex;gap:6px;flex-wrap:wrap}
 .grammarPickerActions button{margin:0;padding:8px 12px;font-size:13px}
 .grammarPickerActions button:disabled{opacity:.55;cursor:default}
 .grammarCategoryTabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:11px 0 13px}
-.grammarCategoryButton{margin:0;min-height:46px;padding:7px 5px;border:1px solid #d5e2de;border-radius:9px;background:white;color:#38545a;font-size:14px;line-height:1.35;font-weight:800}
+.grammarCategoryButton{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;margin:0;min-height:79px;padding:10px;border:1px solid #d5e2de;border-radius:9px;background:white;color:#38545a;text-align:left;font-size:14px;line-height:1.3;font-weight:800}
 .grammarCategoryButton[aria-pressed="true"]{background:#206f67;border-color:#206f67;color:#fff}
+.grammarStepNumber{font-size:11px;letter-spacing:.05em;color:#578078}
+.grammarStepName{font-size:14px;font-weight:900}
+.grammarStepMeta{font-size:12px;font-weight:600;color:#667984}
+.grammarCategoryButton[aria-pressed="true"] .grammarStepNumber,.grammarCategoryButton[aria-pressed="true"] .grammarStepMeta{color:#d1f0e8}
 .grammarFilterTags{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .grammarFilterChip{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:56px;margin:0;padding:10px 12px;border:1.5px solid #d7e1e6;border-radius:10px;background:#fff;color:#273d53;text-align:left}
 .grammarFilterChip[aria-pressed="true"]{background:#e5f3ec;border-color:#21806b;color:#174e44}
@@ -880,7 +885,7 @@
 .quizSubActions button{margin:0;padding:8px 5px;font-size:11px;font-weight:700}
 
 @media(max-width:620px){
-  .grammarCategoryTabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .grammarCategoryTabs{grid-template-columns:repeat(2,minmax(0,1fr))}
   .grammarFilterTags{grid-template-columns:1fr}
   .grammarModeButton{padding:10px 8px;min-height:78px}
   .grammarModeButton strong{font-size:14px}
@@ -998,10 +1003,12 @@
       <div class="grammarPickerHead">
         <strong id="grammarPickerHeading">練習したい文法を選ぶ</strong>
         <div class="grammarPickerActions">
+          <button id="grammarFilterSelectStep" type="button">このSTEPを全部選ぶ</button>
           <button id="grammarFilterSelectWeak" type="button" hidden>苦手をすべて選択</button>
           <button id="grammarFilterClear" type="button">選択解除</button>
         </div>
       </div>
+      <div class="grammarLessonHint" id="grammarLessonHint">STEP 1から順に学べます。好きな単元を複数選んでもOKです。</div>
       <div class="grammarFilterTools" id="grammarFilterTools">
         <input id="grammarFilterSearch" type="search" placeholder="文法名を検索（例：関係詞、倒置）" aria-label="文法名を検索">
       </div>

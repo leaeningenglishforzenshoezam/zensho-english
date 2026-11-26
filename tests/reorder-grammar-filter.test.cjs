@@ -27,9 +27,28 @@ for (const [level, questions, dictionary] of [
     for (const entry of summaries) {
       assert.ok(dictionary[entry.tag]?.label, `${level}: ${entry.tag} has no label`);
       assert.notEqual(entry.group, 'other', `${level}: ${entry.tag} has no category`);
+      assert.ok(filter.UNIT_BY_TAG.has(entry.tag), `${level}: ${entry.tag} has no learning unit`);
       assert.ok(entry.questionCount > 0);
       assert.equal(entry.attempts, 0);
     }
+  });
+
+  test(`${level}: 7STEPの統合単元は問題を漏らさず重複なく抽出する`, () => {
+    const units = filter.collectUnits(questions, dictionary, {}, {}, {});
+    assert.ok(units.length >= 15 && units.length <= 21);
+    assert.equal(new Set(units.map(unit => unit.id)).size, units.length);
+    const indexes = questions.map((_, i) => i);
+    for (const unit of units) {
+      const actual = filter.filterIndexes(questions, indexes, unit.tags);
+      assert.equal(actual.length, unit.questionCount);
+      assert.equal(actual.length, new Set(actual).size);
+      assert.ok(unit.questionCount > 0);
+      assert.deepEqual(filter.tagsForUnits([unit.id]), filter.UNITS.find(item => item.id === unit.id).tags);
+    }
+    const selected = filter.tagsForUnits(units.slice(0, 2).map(unit => unit.id));
+    assert.deepEqual(filter.filterIndexes(questions, indexes, selected), indexes.filter(i =>
+      filter.questionTags(questions[i]).some(tag => selected.includes(tag))));
+    assert.ok(questions.every(question => filter.questionTags(question).length), '未分類の問題を残さない');
   });
 
   test(`${level}: 複数タグは OR で絞り込み、問題の重複なし`, () => {
@@ -43,6 +62,34 @@ for (const [level, questions, dictionary] of [
     assert.deepEqual(filter.filterIndexes(questions, indexes, ['does-not-exist']), []);
   });
 }
+
+test('7STEPの順序と否定倒置の位置が正しい', () => {
+  assert.deepEqual(filter.STEPS.map(step => step.id), [
+    'sentence', 'verbals', 'clauses', 'comparison', 'connectors', 'negative', 'idioms'
+  ]);
+  assert.equal(filter.UNIT_BY_TAG.get('negative_inversion'), 'negative_inversion');
+  const target = data.REORDER_1KYU.find(q => q.id === 'R1_PASTLIKE_042');
+  assert.deepEqual([...target.grammarTags], ['negative_inversion']);
+});
+
+test('統合単元の苦手表示は細かなタグだけに基づく', () => {
+  const questions = [
+    { id: 'a', grammarTags: ['verb_object_do'] },
+    { id: 'b', grammarTags: ['verb_object_pp'] },
+    { id: 'c', grammarTags: ['formal_object_it'] }
+  ];
+  const dict = {
+    verb_object_do: { label: '原形不定詞' },
+    verb_object_pp: { label: '過去分詞' },
+    formal_object_it: { label: '形式目的語 it' }
+  };
+  const units = filter.collectUnits(questions, dict, { b: 1 }, {}, {});
+  const svoc = units.find(unit => unit.id === 'sentence_svoc');
+  assert.equal(svoc.questionCount, 2);
+  assert.deepEqual(svoc.weakTags, ['verb_object_pp']);
+  assert.deepEqual(svoc.weakLabels, ['過去分詞']);
+  assert.equal(units.find(unit => unit.id === 'sentence_it').weak, false);
+});
 
 test('タグ別の正誤記録は複数タグの両方に一度ずつ記録する', () => {
   const once = filter.recordAttempt({}, ['relative', 'inversion', 'relative'], false);
@@ -81,7 +128,7 @@ test('文法タグ選択UIの要素とスクリプト読込順が一致してい
   for (const id of [
     'grammarStudyPicker', 'grammarFilterDetails', 'grammarFilterCount',
     'grammarFilterSearch', 'grammarCategoryTabs', 'grammarFilterAll',
-    'grammarFilterSelectWeak', 'grammarFilterClear', 'grammarFilterTags',
+    'grammarFilterSelectWeak', 'grammarFilterSelectStep', 'grammarFilterClear', 'grammarFilterTags',
     'grammarFilterStatus', 'grammarFilterSelected', 'grammarSelectedProblemCount'
   ]) {
     assert.match(html, new RegExp(`id="${id}"`), `${id} is missing`);
