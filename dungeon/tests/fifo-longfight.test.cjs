@@ -74,15 +74,23 @@ assert.equal(run('intent(state.enemies[0], 6).attack'), 10);
 assert.equal(run('intent(state.enemies[0], 7).attack'), 11);
 assert.equal(run('intent(state.enemies[0], 14).attack'), 18);
 assert.equal(run('intent(state.enemies[0], 25).attack'), 18);
-assert.equal(run('intent(state.enemies[0], 14).label'), '⚔ ATTACK 18');
+assert.equal(run('intent(state.enemies[0], 14).label'), '⚔ STRIKE 18');
 assert.equal(run("intent(state.enemies[0], 14).label.includes('長期戦')"), false);
+
+assert.equal(run("intent({kind:'tank',attack:8,hp:10}, 1).label"), '⬡ GUARD +11');
+vm.runInContext(section('  const effects =', '  const basicCount='), context);
+assert.equal(run("effects(skills.Guard)"), 'BLOCK 5');
+assert.equal(run("briefEffect(skills.Guard)"), 'BLOCK +5');
+assert.equal(run("effects(skills.Attack)"), '10 DMG');
+assert.equal(run("DECK_TYPES.attack"), 'STRIKE');
+assert.equal(run("DECK_TYPES.guard"), 'GUARD');
 
 // Composite boss actions keep shield/HP numbers intact and update only the attack damage.
 state.enemies = [{kind: 'boss', bossId: 'hodaka', attack: 10, hp: 100, maxHp: 100, id: 1}];
 const bossMove = run('intent(state.enemies[0], 14)');
 assert.equal(bossMove.attack, 15);
 assert.equal(bossMove.shield, 10);
-assert.match(bossMove.label, /BLOCK \+10・ATTACK 15/);
+assert.match(bossMove.label, /GUARD \+10・STRIKE 15/);
 const bossQuiz = run('intent(state.enemies[0], 8)');
 assert.equal(bossQuiz.quizAttack, 30);
 assert.equal(bossQuiz.attack, undefined);
