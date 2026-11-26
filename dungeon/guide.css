@@ -1,0 +1,22 @@
+*{box-sizing:border-box}body{margin:0;background:#112b36;color:#193946;font:16px/1.65 system-ui,sans-serif}main{max-width:660px;margin:auto;padding:16px 14px 28px}header,nav,footer,.caption{display:flex;justify-content:space-between;align-items:center;gap:10px}main>header{color:#f4eee1;border-bottom:1px solid #46606a;padding:0 2px 12px}header strong{letter-spacing:.08em}header span{font-size:.875rem}nav{margin:14px 0;color:#fff;font-size:.875rem;justify-content:flex-end}button,select{font:inherit;color:inherit;cursor:pointer}select,footer button,dialog button{min-height:44px;border-radius:10px;padding:6px 15px;border:1px solid #b6c7c2;background:white}select{color:#193946;max-width:82%}article{border-radius:18px;overflow:hidden;background:#fffcf5}.copy{padding:18px clamp(16px,4vw,30px) 6px}small{font-weight:700;color:#8b5428}h1{font-size:clamp(1.35rem,4vw,1.85rem);line-height:1.35;margin:4px 0 10px}p{margin:0}ul{padding:0;margin:12px 0 6px;list-style:none}li{padding-left:14px;position:relative;margin:4px 0}li:before{content:'';position:absolute;left:0;top:.72em;width:5px;height:5px;border-radius:50%;background:#398477}aside{margin:4px clamp(16px,4vw,30px) 14px;padding:10px;border:1px solid #ccd6cb;border-radius:12px;background:#edf1e8}#zoom{display:block;width:100%;padding:0;border:0;background:transparent}.view{display:block;position:relative;overflow:hidden;height:clamp(96px,18vh,145px);border-radius:6px;background:#193540}iframe{position:absolute;border:0;transform-origin:top left;pointer-events:none}.caption{margin-top:5px;text-align:left;font-size:.875rem}.caption b{color:#275e55}#switches{display:flex;gap:4px}#switches:not(:empty){margin-bottom:6px}#switches button{border:0;border-radius:6px;padding:8px 12px;min-height:44px;background:transparent;font-size:.875rem}#switches [aria-pressed=true]{background:#285a56;color:white}footer{border-top:1px solid #d6ded3;padding:10px clamp(16px,4vw,30px)}footer button{min-width:84px}#next{background:#f5af65;border-color:#c48749;font-weight:700}button:disabled{opacity:.4;cursor:default}dialog{width:min(96vw,1050px);border:0;border-radius:12px;padding:10px;background:#fdfaf2}dialog::backdrop{background:#061922df}dialog header{margin-bottom:8px}#large{height:min(72dvh,660px);overflow:auto}#large iframe{pointer-events:none}:focus-visible{outline:3px solid #c3641a;outline-offset:2px}@media(max-height:490px) and (min-width:640px){main{max-width:960px}article{display:grid;grid-template-columns:1.1fr 1fr}aside{align-self:center;margin:14px}footer{grid-column:1/-1}.view{height:120px}}
+
+/* The page controls belong to the card, outside its scrolling reading area. */
+main{width:min(100%,1120px);max-width:none;height:100vh;height:100svh;max-height:900px;display:flex;flex-direction:column;padding:10px clamp(6px,1.6vw,20px) max(8px,env(safe-area-inset-bottom))}
+main>header,nav{flex:none}nav{margin:6px 0}article{display:flex;flex-direction:column;flex:1;min-height:0}
+.content{display:flex;flex:1;flex-direction:column;min-height:0;overflow:auto;overscroll-behavior:contain}
+.copy{padding:14px clamp(12px,2vw,26px) 4px}
+aside{margin:4px 0 0;padding:0;border:0;border-radius:0;background:transparent}
+#thumb{width:100%;height:clamp(190px,35svh,375px);border-radius:0}
+#switches,.caption{padding:0 clamp(12px,2vw,26px)}
+.caption{min-height:44px;margin:0}
+#switches:not(:empty){margin-bottom:4px}
+footer{flex:none;padding:8px 14px}footer button{width:7.5rem}
+@media(min-width:760px),(orientation:landscape) and (min-width:570px){
+ .content{display:grid;grid-template-columns:minmax(0,0.82fr) minmax(0,1.4fr);align-items:center}
+ aside{margin:0;padding:8px 8px 8px 0;align-self:center}
+ #thumb{height:clamp(175px,47svh,430px);border-radius:8px}
+ .copy{align-self:start;padding-top:clamp(14px,5vh,40px)}
+}
+@media(max-height:500px){main{padding-top:4px}main>header{display:none}nav{margin:0 0 4px}footer{padding-block:4px}.copy{padding-top:7px}aside{align-self:start}.content{align-items:start}}
+.view img{display:block;width:100%;height:100%;object-fit:contain}
+.content>*{min-width:0}

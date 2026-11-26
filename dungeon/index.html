@@ -28,7 +28,14 @@
   <link rel="stylesheet" href="bestiary.css">
   <link rel="stylesheet" href="run-menu.css">
   <link rel="stylesheet" href="departure-guide.css">
-</head>
+<style>
+#helpOverlay:has(#guidePanel:not([hidden])){align-items:center;justify-content:center;overflow:hidden}
+#helpOverlay .help-panel[hidden],#guidePanel[hidden]{display:none!important}
+#guidePanel{box-sizing:border-box;margin:auto;width:min(1040px,100%);height:min(860px,100%);min-height:0;max-height:100%;display:flex;flex-direction:column;border-radius:16px;overflow:hidden;background:#102b36}
+#guidePanel header{display:flex;justify-content:space-between;padding:4px 10px;gap:8px}
+#guidePanel button{min-height:44px;padding:5px 12px;color:#fff;background:#214754;border:0;border-radius:8px;font-size:16px}
+#guideFrame{width:100%;min-height:0;flex:1;border:0}
+</style><link rel="stylesheet" href="terms.css"></head>
 <body>
   <main class="game-shell" id="app">
     <header class="topbar">
@@ -116,18 +123,18 @@
         <aside class="tactics-pane">
           <div class="pane-title"><span>✦</span> 戦術ノート</div>
           <div class="intent-list" id="intentList"></div>
-          <div class="stat-line"><span>ドロー</span><b id="drawCount">0</b></div>
+          <div class="stat-line"><span>DRAW PILE</span><b id="drawCount">0</b></div>
           <div class="stat-line"><span>USED</span><b id="usedCount">0</b></div>
           <div class="stat-line"><span>正解数</span><b id="correctCount">0</b></div>
           <div class="stat-line"><span>回答数</span><b id="questionCount">0</b></div>
         </aside>
       </div>
       <section class="hand-area">
-        <div class="hand-heading"><div class="hand-title-line"><span class="eyebrow">YOUR HAND</span><h2>手札 <span id="handCount">5枚</span></h2><button class="used-pool-open" id="usedPoolOpen" type="button">USED <b id="usedPoolCount">0</b></button></div><div class="hand-actions"><output class="growth-display" id="growthDisplay" aria-label="この戦闘の芽カウント" hidden>🌱 芽 0</output><output class="turn-ap" id="apDisplay" aria-label="残りの行動力">AP 3/3</output><button class="end-turn-btn" id="endTurnBtn" type="button">ターン終了</button></div></div>
+        <div class="hand-heading"><div class="hand-title-line"><h2>HAND <span id="handCount">5</span></h2><button class="used-pool-open" id="usedPoolOpen" type="button">USED <b id="usedPoolCount">0</b></button></div><div class="hand-actions"><output class="growth-display" id="growthDisplay" aria-label="この戦闘の芽カウント" hidden>🌱 SPROUT 0</output><output class="turn-ap" id="apDisplay" aria-label="残りの行動力">AP 3/3</output><button class="end-turn-btn" id="endTurnBtn" type="button">END TURN</button></div></div>
         <div class="card-hand" id="hand" aria-label="使用できる手札"></div>
         <div class="hand-card-preview" id="handCardPreview" hidden aria-live="polite">
           <div class="hand-card-preview-copy"><strong id="handPreviewName"></strong><span id="handPreviewEffect"></span></div>
-          <button type="button" id="handPreviewUse" class="hand-preview-use">使う</button>
+          <button type="button" id="handPreviewUse" class="hand-preview-use">USE</button>
           <button type="button" id="handPreviewClose" class="hand-preview-close" aria-label="カードの説明を閉じる">×</button>
         </div>
       </section>
@@ -136,7 +143,7 @@
     <section id="choiceScreen" class="choice-screen" hidden>
       <div class="choice-illustration">✦</div>
       <span class="eyebrow" id="choiceEyebrow">BATTLE CLEARED</span>
-      <h2 id="choiceTitle">戦闘勝利！</h2>
+      <h2 id="choiceTitle">VICTORY</h2>
       <p id="choiceDescription"></p>
       <div class="choice-cards" id="choiceCards"></div>
       <section id="rewardPreview" class="reward-preview" aria-live="polite" hidden>
@@ -146,7 +153,7 @@
       </section>
       <div class="choice-footer" id="choiceFooter">
         <button class="primary-btn confirm-upgrade" id="confirmUpgradeBtn" type="button" hidden>このSKILLを強化する</button>
-        <button class="primary-btn confirm-reward" id="confirmRewardBtn" type="button" hidden disabled>このSKILLを獲得する</button>
+        <button class="primary-btn confirm-reward" id="confirmRewardBtn" type="button" hidden disabled>TAKE SKILL</button>
         <button class="review-reward" id="reviewWrongBtn" type="button" hidden>✚ 間違えた問題を復習して HP＋10</button>
         <button class="secondary-btn" id="skipChoice" type="button">カードを増やさず進む</button>
       </div>
@@ -198,18 +205,18 @@
       <div class="help-head"><div><span class="eyebrow">GOIMON GUIDE</span><h2 id="helpTitle">メニュー</h2></div><button id="closeHelp" type="button" aria-label="メニューを閉じる">×</button></div>
       <a id="dungeonHomeLink" class="menu-deck-open" href="../index.html"><span class="menu-deck-icon" aria-hidden="true">⌂</span><strong>ホームに戻る</strong><span class="menu-deck-arrow" aria-hidden="true">›</span></a>
       <button class="menu-deck-open" id="deckMenuOpen" type="button"><span class="menu-deck-icon">▤</span><span><strong>DECK</strong><small>カード構成を確認</small></span><span class="menu-deck-arrow">›</span></button>
+      <button class="menu-deck-open" id="guideOpen" type="button"><span class="menu-deck-icon" aria-hidden="true">?</span><span><strong>HOW TO PLAY</strong><small>画像でわかる、冒険とカードの使い方</small></span><span aria-hidden="true">›</span></button>
       <div class="menu-bgm"><button type="button" id="bgmToggle" aria-pressed="true">♪ BGM ON</button><label for="bgmVolume">音量 <output id="bgmVolumeValue">25%</output></label><input id="bgmVolume" type="range" min="0" max="100" value="25" step="5" aria-label="BGMの音量"></div>
       <div class="menu-bgm menu-sfx"><button type="button" id="sfxToggle" aria-pressed="true">♬ SE ON</button><label for="sfxVolume">効果音 <output id="sfxVolumeValue">55%</output></label><input id="sfxVolume" type="range" min="0" max="100" value="55" step="5" aria-label="効果音の音量"></div>
       <div class="menu-run-actions" id="menuRunActions" hidden>
         <button type="button" id="pauseRunBtn"><span aria-hidden="true">Ⅱ</span><span><strong>中断する</strong><small>進行を保存して出発画面へ</small></span></button>
         <button type="button" id="abandonRunBtn"><span aria-hidden="true">×</span><span><strong>あきらめる</strong><small>今回の挑戦を終了する</small></span></button>
       </div>
-      <details><summary><span class="menu-icon">01</span><span>戦闘の基本<small>カード → 問題 → 効果</small></span></summary><div class="help-explain"><ol><li><strong>カードをタップ</strong>して、使うSKILLを選ぶ。</li><li><strong>英語の問題に正解</strong>すると、攻撃・防御などが発動。</li><li>APを使い切るか、<strong>ターン終了</strong>で敵の番へ。</li></ol><p>基本は毎ターン AP 3、手札5枚。APの数字は残り／最大です。</p></div></details>
-      <details><summary><span class="menu-icon">02</span><span>SKILLの見方<small>AP・問題形式・レアリティ</small></span></summary><div class="help-explain"><div class="help-glossary"><div><b>AP</b><span>カード左上の数字。使うと減ります。</span></div><div><b>N / R / SR</b><span>カードのレアリティ。RやSRほど特殊な効果が多めです。</span></div><div><b>USED</b><span>使い終えたカード。山札が尽きると再び山札になります。</span></div><div><b>SEAL</b><span>戦闘が終わるまでカードを取り除きます。</span></div></div><p>カードを選ぶと詳しい効果を確認できます。問題を解く前なら取り消せます。新しい大問12カードには、防御の消費や連携で強くなるものもあります。</p></div></details>
-      <details><summary><span class="menu-icon">03</span><span>敵の読み方<small>HP・次の行動・攻撃対象</small></span></summary><div class="help-explain"><p><strong>NEXT</strong>は敵がターン終了後に行う予定の行動です。攻撃・防御・妨害を見てカードを選びましょう。</p><p>複数の敵がいる時は、攻撃したい敵をタップして対象を指定できます。守護や指揮をする敵を先に倒すのも有効です。</p></div></details>
-      <details><summary><span class="menu-icon">04</span><span>挑戦・復習・周回<small>中断・総復習・夜の記録</small></span></summary><div class="help-explain"><p><strong>中断</strong>は進行を保存し、<strong>あきらめる</strong>は挑戦を終了します。どちらも、その挑戦で間違えた問題をまとめて復習できます。</p><p>冒険を繰り返して条件を達成すると、出撃準備の「夜の記録」で百貨店のストーリーが解放されます。</p><div class="help-record" id="helpStats"></div></div></details>
-      <details><summary><span class="menu-icon">05</span><span>バッジ<small>挑戦中に達成できる目標</small></span></summary><div class="help-explain"><div id="helpBadges"></div><button type="button" class="badge-open" id="badgeMenuOpen">バッジ一覧を見る</button></div></details>
+      <details><summary>BATTLE TERMS <small>カード・戦闘用語</small></summary><div class="help-explain"><div class="help-glossary"><div><b>DECK</b><span>今回のカード全体。</span></div><div><b>DRAW PILE</b><span>山札。</span></div><div><b>HAND</b><span>今使える手札。</span></div><div><b>BLOCK</b><span>受けるダメージを減らす防御値。</span></div><div><b>DMG</b><span>ダメージ。</span></div><div><b>HEAL</b><span>HPを回復。</span></div><div><b>PIERCE</b><span>敵の防御を無視。</span></div><div><b>REUSE</b><span>USEDのカードをその場で再使用。</span></div><div><b>CARRY OVER</b><span>防御やAPを持ち越す。</span></div><div><b>AP</b><span>カードを使うためのポイント。必要な数はカードの左上にあります。</span></div><div><b>NEXT</b><span>ターン終了後の敵の行動。複数いるときは攻撃したい敵をタップできます。</span></div><div><b>DRAW</b><span>山札からカードを引いて手札に加えること。「2枚ドロー」なら、手札に空きがある分だけ最大2枚引けます。</span></div><div><b>DISCARD</b><span>手札のカードを、効果を使わずにUSEDへ送ること。SELECTで1枚捨ててから同じターンにTRIGGERを使うと、追加ダメージが入ります。</span></div><div><b>USED</b><span>使い終えたカード。山札が尽きると、混ぜて再び引きます。</span></div><div><b>RETRIEVE</b><span>USEDにある対象カードを選び、手札に戻すこと。REMINDで1枚戻すと、そのターンの「回収枚数」が1増えます。REPLAYの「再使用」は、選んだカードをその場でAP0でもう一度使う効果で、回収枚数には含まれません。</span></div><div><b>SPROUT</b><span>戦闘中にためる数。SEEDで芽を2増やすと、通常のHARVESTは「芽×5」で追加ダメージが10増えます。芽は使っても減らず、次の戦闘で0に戻ります。</span></div><div><b>SEAL</b><span>その戦闘が終わるまで使えなくなったカード。</span></div><div><b>N / R / SR</b><span>カードのレアリティを表します。</span></div></div></div></details>
+      <details><summary><span>挑戦・復習・周回<small>中断・総復習・夜の記録</small></span></summary><div class="help-explain"><p><strong>中断</strong>は進行を保存し、<strong>あきらめる</strong>は挑戦を終了します。どちらも、その挑戦で間違えた問題をまとめて復習できます。</p><p>冒険を繰り返して条件を達成すると、出撃準備の「夜の記録」で百貨店のストーリーが解放されます。</p><div class="help-record" id="helpStats"></div></div></details>
+      <details><summary><span>バッジ<small>挑戦中に達成できる目標</small></span></summary><div class="help-explain"><div id="helpBadges"></div><button type="button" class="badge-open" id="badgeMenuOpen">バッジ一覧を見る</button></div></details>
     </section>
+    <section id="guidePanel" hidden role="dialog" aria-modal="true" aria-label="ダンジョンの遊び方"><header><button id="guideBack">‹ ダンジョンメニューに戻る</button><button id="guideClose" aria-label="遊び方を閉じてゲームに戻る">×</button></header><iframe id="guideFrame" title="遊び方・全6ページ"></iframe></section>
   </div>
 
   <div class="help-overlay" id="runExitOverlay" hidden>
@@ -328,5 +335,5 @@
   <script src="../goimon-items/store.js"></script>
   <script src="owned-companions.js"></script>
   <script src="../daily-missions/dungeon_mission.js"></script><script src="rogue_dungeon1.js"></script>
-</body>
+<script src="terms.js"></script></body>
 </html>
