@@ -485,7 +485,7 @@
   const effects = s => {const out=[];
     if(s.dmg)out.push(`${s.range>=3?'全体':s.range===2?'2体':''}${s.dmg}ダメージ${s.pierce?'（防御無視）':''}`);
     if(s.block)out.push(`防御 ${s.block}`);if(s.heal)out.push(`回復 ${s.heal}`);if(s.healPct)out.push(`最大HPの${s.healPct}%回復`);
-    if(s.seedAtBlock)out.push(`使用前の防御${s.seedAtBlock}以上で芽＋1`);
+    if(s.seedAtBlock)out.push(`使用前の防御${s.seedAtBlock}以上でSPROUT＋1`);
     if(s.recoveryBlock)out.push(`このターンにUSED回収済みなら防御＋${s.recoveryBlock}`);
     if(s.cancel)out.push('敵の次の攻撃を0');if(s.weaken)out.push(`敵攻撃 −${s.weaken}`);
     if(s.buff)out.push('次の攻撃 ×2');if(s.nextPlus)out.push(`次の攻撃 +${s.nextPlus}`);
@@ -493,8 +493,8 @@
     if(s.retrieve)out.push(`USEDから${s.retrieve}枚回収${s.retrievedApCut?`・回収したカードの次の使用AP−${s.retrievedApCut}`:''}`);
     if(s.carryAll)out.push('敵の攻撃後、残った防御をすべて次ターンに持ち越し');else if(s.carry)out.push(`防御${s.carry}持ち越し`);
     if(s.replay)out.push('USEDから1枚AP0で再使用');if(s.blockStrike)out.push(`現在の防御×${s.blockStrike}ダメージ${s.pierce?'（防御無視）':''}`);
-    if(s.grow)out.push(`芽カウント×${s.grow}ダメージ追加・使用後に芽＋1`);if(s.scaleGrow)out.push(`芽カウント×${s.scaleGrow}ダメージ追加`);
-    if(s.growGain)out.push(`芽カウント＋${s.growGain}（この戦闘中）`);if(s.killAp)out.push('撃破時AP＋1（ターン1回）');if(s.chainAp)out.push('このターン2回目以降の攻撃でもAP＋1（撃破時と共通でターン1回）');if(s.killSplash)out.push(`撃破時、残りの敵全員に${s.killSplash}ダメージ`);
+    if(s.grow)out.push(`SPROUT×${s.grow}ダメージ追加・使用後にSPROUT＋1`);if(s.scaleGrow)out.push(`SPROUT×${s.scaleGrow}ダメージ追加`);
+    if(s.growGain)out.push(`SPROUT＋${s.growGain}（この戦闘中）`);if(s.killAp)out.push('撃破時AP＋1（ターン1回）');if(s.chainAp)out.push('このターン2回目以降の攻撃でもAP＋1（撃破時と共通でターン1回）');if(s.killSplash)out.push(`撃破時、残りの敵全員に${s.killSplash}ダメージ`);
     if(s.sweepKillAp)out.push(`このSKILLで1体以上撃破するとAP＋${s.sweepKillAp}（使用1回につき1回）`);
     if(s.momentum)out.push('このターン、発動後に攻撃SKILLを2回正解するごとにAP＋1（2・4・6回目…）');
     if(s.encourageHeal)out.push(`このターン、以降の大問12のSKILLに正解するたびHP＋${s.encourageHeal}（最大${s.encourageLimit}回）`);
