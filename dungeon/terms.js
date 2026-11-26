@@ -7,7 +7,7 @@
  for(const pair of pairs.split('|')){const [word,meaning]=pair.split('=');terms[word]=meaning}
  const pattern=new RegExp('(?<![A-Za-z])('+Object.keys(terms).sort((a,b)=>b.length-a.length).join('|')+')(?![A-Za-z])','g');
  const scope='#battle,#choiceScreen,#helpOverlay,#usedOverlay,#artifactOverlay,#companionOverlay,#deckOverlay,#intro,#skillOverlay,#runResources,#questionSkill,#questionType,#cardPickModal,.copy';
- const excluded='#deckFilters,#endTurnBtn,script,style,select,option,dialog,[data-word],#questionStem,#answers,#questionExplanation';
+ const excluded='#usedPoolOpen,#deckFilters,#endTurnBtn,script,style,select,option,dialog,[data-word],#questionStem,#answers,#questionExplanation';
  const dialog=document.createElement('dialog');dialog.className='translation';dialog.setAttribute('aria-label','用語の日本語訳');
  dialog.innerHTML='<strong></strong><p></p><button type="button">閉じる</button> <button type="button" hidden></button>';document.body.append(dialog);
  const [close,act]=dialog.querySelectorAll('button');close.onclick=()=>dialog.close();
