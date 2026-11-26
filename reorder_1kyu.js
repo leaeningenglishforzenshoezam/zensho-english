@@ -876,7 +876,7 @@ window.REORDER_1KYU = [
     answer: ["c1", "c2", "c3", "c4"],
     completed: "No sooner had we sat down than the bell rang.",
     ja: "私たちが座るやいなや、ベルが鳴りました。",
-    ggrammarTags: ["negative_inversion"],//否定の倒置
+    grammarTags: ["negative_inversion"],//否定語句による倒置
   grammarFocus: [
     "No sooner は準否定語句なので、文頭に出ると後ろが疑問文の形になります。",
     "元の文はwe had no sooner sat down than the bell rang. という形になりますが、No sooner が前に出るので、had we sat down という疑問文の語順になります。",

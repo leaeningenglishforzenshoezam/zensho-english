@@ -1856,6 +1856,51 @@ being_pp: {
       ]
     }
   ]
+},
+
+one_of_the_superlative: {
+  label: "one of + 最上級",
+  summary: "one of the + 最上級 + 複数名詞で『最も〜な…の一つ』を表す。",
+  sections: [{ heading: "並べ替えのポイント", lines: [
+    "one of の後ろには、複数の候補を示す複数名詞が続きます。",
+    "one of the most valuable items：最も価値のある品の一つ"
+  ] }]
+},
+
+negative_having: {
+  label: "動名詞の否定（not + ～ing）",
+  summary: "動名詞を否定するときは、その直前に not を置く。",
+  sections: [{ heading: "並べ替えのポイント", lines: [
+    "not having time は『時間がないこと』を意味します。",
+    "前置詞の後ろには動名詞を置けるため、complain of not having ... という形を作れます。"
+  ] }]
+},
+
+may_well_do: {
+  label: "may well + 動詞原形",
+  summary: "may well do で『〜するのももっともだ』という意味を表す。",
+  sections: [{ heading: "並べ替えのポイント", lines: [
+    "may + well + 動詞原形の順番をひとかたまりで覚えます。",
+    "She may well complain ...：彼女が不満を言うのももっともです。"
+  ] }]
+},
+
+take_advantage_of: {
+  label: "take advantage of",
+  summary: "take advantage of + 名詞で『〜を活用する』を表す。",
+  sections: [{ heading: "並べ替えのポイント", lines: [
+    "take / advantage / of をこの語順でまとめます。",
+    "of の後ろには、活用する対象となる名詞句が続きます。"
+  ] }]
+},
+
+object_to_doing: {
+  label: "object to + ～ing",
+  summary: "object to ～ing で『〜することに反対する』を表す。",
+  sections: [{ heading: "並べ替えのポイント", lines: [
+    "この to は前置詞なので、後ろは動詞の原形ではなく動名詞になります。",
+    "object to being treated ... は『扱われることに反対する』という受け身の動名詞の形です。"
+  ] }]
 }
 
 };
