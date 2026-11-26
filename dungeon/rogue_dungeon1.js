@@ -472,6 +472,10 @@
     $('artifactInventory').innerHTML=inventory+(state.typeBoost?`<div class="artifact-entry"><span class="artifact-symbol">◈</span><div><strong>TYPE BOOST：${TYPE_LABELS[state.type]}</strong><small>${TYPE_BOOST_EFFECTS[state.type]}</small></div></div>`:'');
   }
   function acquireArtifact(id){if(!artifacts[id]||hasArtifact(id))return;state.artifacts.push(id);if(state.artifacts.length>=10)awardBadge('collector');renderResources();}
+  const originalSkillLabels = new Map(Object.entries(skills).map(([id,skill])=>[id,skill.label]));
+  for (const [id,skill] of Object.entries(skills)) {
+    skill.label = ({Attack:'STRIKE',Guard:'GUARD'})[id] || (skill.label==='不良在庫'?'JUNK':skill.label.toUpperCase());
+  }
   const baseName = name => name.endsWith('+') ? name.slice(0,-1) : name;
   const getSkill = name => {const raw = skills[baseName(name)];return name.endsWith('+') ? {...raw,...raw.plus,label:raw.label+'+'} : raw;};
   const cardCost=(name,s,index=-1)=>Math.max(0,s.ap
@@ -522,45 +526,49 @@
   // Hand cards intentionally use short labels. The question panel shows the full effect.
   const briefEffect = s => {
     const parts=[];
-    if(s.dmg)parts.push(`${s.range>=3?'全体':s.range===2?'2体':''}${s.dmg}ダメ${s.pierce?'・貫通':''}`);
-    if(s.heal)parts.push(`回復${s.heal}`);
-    if(s.healPct)parts.push(`HP${s.healPct}%回復`);
-    if(s.block)parts.push(`防御${s.block}`);
-    if(s.seedAtBlock)parts.push(`使用前の防御${s.seedAtBlock}以上で芽＋1`);
-    if(s.recoveryBlock)parts.push(`このターンにUSED回収済みなら防御＋${s.recoveryBlock}`);
-    if(s.cancel)parts.push('攻撃を封じる');
-    if(s.weaken)parts.push(`敵攻撃−${s.weaken}`);
-    if(s.buff)parts.push('次の攻撃×2');
-    if(s.nextPlus)parts.push(`次攻撃+${s.nextPlus}`);
-    if(s.draw)parts.push(`${s.draw}枚引く`);
-    if(s.retrieve)parts.push(`USED${s.retrieve}枚回収${s.retrievedApCut?'・回収カードAP−1':''}`);
-    if(s.discard)parts.push(`${s.discard}枚捨てる`);
-    if(s.carryAll)parts.push('残防御を全て持越');else if(s.carry)parts.push(`防御${s.carry}持越`);
-    if(s.replay)parts.push('USED1枚をAP0で再使用');if(s.blockStrike)parts.push(`防御×${s.blockStrike}攻撃${s.pierce?'・貫通':''}`);
-    if(s.grow)parts.push(`芽×${s.grow}追加・使用後芽+1`);if(s.scaleGrow)parts.push(`芽×${s.scaleGrow}追加`);
-    if(s.growGain)parts.push(`芽+${s.growGain}`);if(s.killAp)parts.push('撃破でAP+1');if(s.chainAp)parts.push('連続攻撃でもAP+1');if(s.killSplash)parts.push(`撃破で全体${s.killSplash}追加`);
-    if(s.sweepKillAp)parts.push(`撃破でAP+${s.sweepKillAp}`);if(s.momentum)parts.push('以降の攻撃2回ごとAP+1');
-    if(s.encourageHeal)parts.push(`以降の整序正解でHP+${s.encourageHeal}（2回まで）`);
-    if(s.nextGuardBlock)parts.push(`次の防御+${s.nextGuardBlock}`);
-    if(s.attackGuardCap)parts.push(`次の攻撃で防御変換（上限${s.attackGuardCap}）`);
-    if(s.nextAttackApCut)parts.push('次の攻撃AP−1');if(s.gainAp)parts.push(`AP+${s.gainAp}`);
-    if(s.tutor)parts.push('山札から1枚選択・AP−1');if(s.exchangeBlockAp)parts.push(`防御${s.exchangeBlockAp}ごとAP+1`);
-    if(s.reserveAp)parts.push(`残AP最大${s.reserveAp}持ち越し`);
-    if(s.executeHalf)parts.push(`HP半分以下に＋${s.executeHalf}`);
-    if(s.exhaustOnCorrect)parts.push('正解で消滅');
-    if(s.discardChoose)parts.push('手札1枚破棄');if(s.scaleDiscard)parts.push(`破棄枚数×${s.scaleDiscard}追加`);if(s.scaleRetrieve)parts.push(`回収枚数×${s.scaleRetrieve}追加`);
-    if(s.sealChoose)parts.push('手札1枚SEAL');if(s.bonusDmg)parts.push(`${s.formatCount}形式で+${s.bonusDmg}ダメ`);if(s.bonusBlock)parts.push(`${s.formatCount}形式で防御+${s.bonusBlock}`);
-    if(s.scaleUnique)parts.push(`異なるSKILL×${s.scaleUnique}追加`);
-    if(s.scaleUsed)parts.push(`USED×${s.scaleUsed}追加`);
-    if(s.scaleBlock)parts.push('現在防御分を追加ダメ');if(s.scaleTurn)parts.push(`経過ターン×${s.scaleTurn}追加`);
-    if(s.perPriorAttackDmg)parts.push(`先行攻撃×${s.perPriorAttackDmg}ダメ（最大3）`);
-    if(s.perPriorAttackBlock)parts.push(`先行攻撃×${s.perPriorAttackBlock}防御（最大3）`);
-    if(s.consumeBlock)parts.push(`防御を攻撃に変換（最大${s.consumeBlock}）`);
-    if(s.lowHpBonus)parts.push(`HP半分以下で+${s.lowHpBonus}`);
-    if(s.bonusBlockPerEnemy)parts.push(`敵1体につき防御+${s.bonusBlockPerEnemy}`);
-    if(s.drawIfGuard)parts.push(`防御${s.drawIfGuard}以上で1枚引く`);
-    if(s.healIfGuard)parts.push(`防御${s.healIfGuard}以上で回復5`);
-    return parts.join('・');
+    if(s.dmg)parts.push(`${s.range>=3?'ALL ':s.range===2?'2 TARGET ':''}${s.dmg} DMG${s.pierce?' · PIERCE':''}`);
+    if(s.heal)parts.push(`HEAL ${s.heal}`);
+    if(s.healPct)parts.push(`HEAL ${s.healPct}% HP`);
+    if(s.block)parts.push(`BLOCK +${s.block}`);
+    if(s.seedAtBlock)parts.push(`BLOCK ≥${s.seedAtBlock}: SPROUT +1`);
+    if(s.recoveryBlock)parts.push(`IF RETRIEVE: BLOCK +${s.recoveryBlock}`);
+    if(s.cancel)parts.push('CANCEL ATTACK');
+    if(s.weaken)parts.push(`ENEMY ATTACK −${s.weaken}`);
+    if(s.buff)parts.push('NEXT ATTACK ×2');
+    if(s.nextPlus)parts.push(`NEXT ATTACK +${s.nextPlus}`);
+    if(s.draw)parts.push(`DRAW ${s.draw}`);
+    if(s.retrieve)parts.push(`RETRIEVE ${s.retrieve}${s.retrievedApCut ? " · AP −"+s.retrievedApCut : ""}`);
+    if(s.discard)parts.push(`DISCARD ${s.discard}`);
+    if(s.carryAll)parts.push("CARRY OVER: ALL BLOCK");else if(s.carry)parts.push(`CARRY OVER: BLOCK ≤${s.carry}`);
+    if(s.replay)parts.push('REUSE 1 · 0 AP');if(s.blockStrike)parts.push(`BLOCK ×${s.blockStrike} DMG${s.pierce?' · PIERCE':''}`);
+    if(s.grow)parts.push(`+ SPROUT ×${s.grow} · SPROUT +1`);if(s.scaleGrow)parts.push(`+ SPROUT ×${s.scaleGrow}`);
+    if(s.growGain)parts.push(`SPROUT +${s.growGain}`);if(s.killAp)parts.push('KO: AP +1');if(s.chainAp)parts.push('2ND ATTACK: AP +1');if(s.killSplash)parts.push(`KO: ALL ${s.killSplash} DMG`);if(s.killDraw)parts.push('KO: DRAW 1');
+    if(s.reserveAp)parts.push(`CARRY OVER: AP ≤${s.reserveAp}`);
+    if(s.executeHalf)parts.push(`ENEMY HP ≤50%: +${s.executeHalf}`);
+    if(s.exhaustOnCorrect)parts.push('CORRECT: SEAL');
+    if(s.discardChoose)parts.push('DISCARD 1');if(s.scaleDiscard)parts.push(`+ DISCARD ×${s.scaleDiscard}`);if(s.scaleRetrieve)parts.push(`+ RETRIEVE ×${s.scaleRetrieve}`);
+    if(s.sealChoose)parts.push('SEAL 1');if(s.bonusDmg)parts.push(`${s.formatCount} FORMAT: +${s.bonusDmg} DMG`);if(s.bonusBlock)parts.push(`${s.formatCount} FORMAT: BLOCK +${s.bonusBlock}`);
+    if(s.scaleUnique)parts.push(`UNIQUE SKILL ×${s.scaleUnique}`);
+    if(s.scaleUsed)parts.push(`USED×${s.scaleUsed}`);
+    if(s.consumeBlock)parts.push(`BLOCK ≤${s.consumeBlock} ×2 DMG`);
+    if(s.lowHpBonus)parts.push(`SELF HP ≤50%: +${s.lowHpBonus}`);
+    if(s.bonusBlockPerEnemy)parts.push(`PER ENEMY: BLOCK +${s.bonusBlockPerEnemy}`);
+    if(s.drawIfGuard)parts.push(`BLOCK ≥${s.drawIfGuard}: DRAW 1`);
+    if(s.healIfGuard)parts.push(`BLOCK ≥${s.healIfGuard}: HEAL 5`);
+    if(s.sweepKillAp)parts.push(`KO: AP +${s.sweepKillAp}`);
+    if(s.momentum)parts.push('PER 2 ATTACK: AP +1');
+    if(s.encourageHeal)parts.push(`REORDER CORRECT: HEAL ${s.encourageHeal} (MAX ${s.encourageLimit})`);
+    if(s.nextGuardBlock)parts.push(`NEXT GUARD: BLOCK +${s.nextGuardBlock}`);
+    if(s.attackGuardCap)parts.push(`NEXT ATTACK: 50% DMG → BLOCK (MAX ${s.attackGuardCap})`);
+    if(s.nextAttackApCut)parts.push(`NEXT ATTACK: AP −${s.nextAttackApCut}`);
+    if(s.gainAp)parts.push(`AP +${s.gainAp}`);
+    if(s.tutor)parts.push('SELECT 1 FROM DRAW PILE · AP −1');
+    if(s.exchangeBlockAp)parts.push(`PER ${s.exchangeBlockAp} BLOCK → AP +1`);
+    if(s.scaleBlock)parts.push('+ BLOCK DMG');
+    if(s.scaleTurn)parts.push(`+ (TURN − 1) ×${s.scaleTurn} DMG`);
+    if(s.perPriorAttackDmg)parts.push(`PER PRIOR ATTACK: +${s.perPriorAttackDmg} DMG (MAX 3)`);
+    if(s.perPriorAttackBlock)parts.push(`PER PRIOR ATTACK: BLOCK +${s.perPriorAttackBlock} (MAX 3)`);
+    return parts.join(' · ');
   };
   let deckFilter='all';
   const DECK_TYPES={attack:'攻撃',guard:'防御',heal:'回復',tactic:'補助'};
@@ -648,7 +656,7 @@
       const ownedNames=new Set(window.GoimonBattleCatalog.skills
         .filter(item=>inventory.owned.skills[item.id]>0)
         .map(item=>item.name.split('／')[0]));
-      ownedSkillIds=new Set(Object.keys(skills).filter(id=>ownedNames.has(skills[id].label)));
+      ownedSkillIds=new Set(Object.keys(skills).filter(id=>ownedNames.has(originalSkillLabels.get(id))));
       skillInventoryReady=true;
     }catch{ /* An unreadable inventory offers no carry-in cards. */ }
   }
@@ -1003,7 +1011,7 @@
       if(!kind||!reachableLane(lane))return '';
       return `<button type="button" data-lane="${lane}">${lanes[lane]} · ${NODE[kind][1]}</button>`;
     }).join('');
-    $('routeOptions').innerHTML=`<strong>エリア ${state.stage+1} / 9</strong><div class="route-lanes" role="group" aria-label="進める道">${choices}</div>`;
+    $('routeOptions').innerHTML=`<strong>AREA ${state.stage+1} / 9</strong><div class="route-lanes" role="group" aria-label="進める道">${choices}</div>`;
     for(const container of [$('routeMap'),$('routeOptions')]){
       container.querySelectorAll('button[data-lane]:not(:disabled)').forEach(button=>{
         button.onclick=()=>chooseRoute(Number(button.dataset.lane));
@@ -1151,6 +1159,9 @@
       state.battleStartHp=state.hp;
     }
     state.notice='';state.phase='battle';state.battleOpeningDraw=true;draw(5+(hasArtifact('LuckyHand')?1:0)+(hasArtifact('ForecastAI')?2:0));state.battleOpeningDraw=false;state.artifactDraws=0;setScreen('battle');renderBattle();}
+  function shortIntent(label){
+    return label.replace(/攻撃\s*(\d+)/g,'$1 DMG').replace(/防御[＋+]\s*(\d+)/g,'BLOCK +$1').replace(/回復[＋+]?\s*(\d+)/g,'HEAL $1');
+  }
   function intent(e,turn=state.turn){
     const result=baseIntent(e,turn);
     // Long fights should demand more than repeatedly playing guard/heal cards.
@@ -1237,7 +1248,7 @@
     $('handPreviewName').textContent=`${skill.label} · ${cost}AP`;
     $('handPreviewEffect').textContent=`${effects(skill)} · ${FMT[skill.format]||''}`;
     $('handPreviewUse').disabled=!usable;
-    $('handPreviewUse').textContent=usable?'このカードを使う':'AP不足・使用不可';
+    $('handPreviewUse').textContent=usable?'USE':'AP不足・使用不可';
     $('handPreviewUse').onclick=()=>{const index=selectedHandIndex;selectedHandIndex=-1;preview.hidden=true;openQuestion(index);};
     $('handPreviewClose').onclick=()=>{selectedHandIndex=-1;renderBattle();};
     preview.hidden=false;
@@ -1251,22 +1262,22 @@
     if(arena){arena.classList.toggle('dungeon-illustrated',!!background);
       arena.classList.toggle('boss-encounter',state.currentEncounter.nodeType==='boss');
       arena.style.setProperty('--battle-scene',background?`url("${background}")`:'none');}
-    $('floorLabel').textContent=`エリア ${state.stage+1} / 9 · 単語 No.${state.encounterWordRange[0]+1}〜${state.encounterWordRange[1]} · ターン ${state.turn}`;
+    $('floorLabel').textContent=`AREA ${state.stage+1} / 9 · 単語 No.${state.encounterWordRange[0]+1}〜${state.encounterWordRange[1]} · TURN ${state.turn}`;
     $('floorPips').innerHTML=state.route.map((_,i)=>`<span class="${i<state.stage?'done':i===state.stage?'current':''}">${i===8?'★':i+1}</span>`).join('');
     $('enemyLine').className=`enemy-line enemy-count-${alive().length}`;
     $('enemyLine').innerHTML=alive().map(e=>`<button type="button" class="enemy ${chosenTarget()?.id===e.id?'selected':''}" data-enemy="${e.id}" aria-pressed="${chosenTarget()?.id===e.id}" aria-label="攻撃対象に${escapeHtml(e.name)}を選ぶ">
-      <div class="enemy-vitals"><div class="enemy-title">${escapeHtml(e.name)}</div><div class="enemy-hp"><i style="width:${100*e.hp/e.maxHp}%"></i></div><div class="enemy-values">HP ${e.hp} / ${e.maxHp} ${e.shield?' · 防御'+e.shield:''}</div>
-      <div class="enemy-intent"><span class="intent-kicker">NEXT</span><span class="intent-action">${escapeHtml(e.canceled?'⊘ 攻撃封じ':intent(e).label)}</span></div>${hasArtifact('MarketReport')?`<div class="enemy-future-intent">その次：${escapeHtml(intent(e,state.turn+1).label)}</div>`:''}</div>
+      <div class="enemy-vitals"><div class="enemy-title">${escapeHtml(e.name)}</div><div class="enemy-hp"><i style="width:${100*e.hp/e.maxHp}%"></i></div><div class="enemy-values">HP ${e.hp} / ${e.maxHp} ${e.shield?' · BLOCK '+e.shield:''}</div>
+      <div class="enemy-intent"><span class="intent-kicker">NEXT</span><span class="intent-action">${escapeHtml(e.canceled?'CANCEL ATTACK':shortIntent(intent(e).label))}</span></div>${hasArtifact('MarketReport')?`<div class="enemy-future-intent">その次：${escapeHtml(shortIntent(intent(e,state.turn+1).label))}</div>`:''}</div>
       <div class="enemy-portrait">${window.enemyArt?window.enemyArt(e.kind,e.name):escapeHtml(e.icon)}${chosenTarget()?.id===e.id&&alive().length>1?'<span class="target-marker" aria-hidden="true">TARGET</span>':''}</div><div class="enemy-role">${ENEMY_ROLES[e.kind]||'敵'}${state.enemies.some(x=>x.hp>0&&x!==e&&x.kind==='conductor')?' · 指揮強化中':''}</div></button>`).join('');
     $('enemyLine').querySelectorAll('[data-enemy]').forEach(b=>b.onclick=()=>{state.selected=Number(b.dataset.enemy);playSfx('select');renderBattle();});
-    $('intentList').innerHTML=alive().map(e=>`<div class="intent-row"><b>${escapeHtml(e.name)}</b><strong>${escapeHtml(e.canceled?'⊘ 攻撃封じ':intent(e).label)}${hasArtifact('MarketReport')?`<small>次ターン：${escapeHtml(intent(e,state.turn+1).label)}</small>`:''}</strong></div>`).join('');
-    $('heroHpFill').style.width=`${Math.max(0,100*state.hp/state.maxHp)}%`;$('heroHpText').textContent=`HP ${state.hp} / ${state.maxHp}${state.block?' · 防御 '+state.block:''}`;
+    $('intentList').innerHTML=alive().map(e=>`<div class="intent-row"><b>${escapeHtml(e.name)}</b><strong>${escapeHtml(e.canceled?'CANCEL ATTACK':shortIntent(intent(e).label))}${hasArtifact('MarketReport')?`<small>次ターン：${escapeHtml(shortIntent(intent(e,state.turn+1).label))}</small>`:''}</strong></div>`).join('');
+    $('heroHpFill').style.width=`${Math.max(0,100*state.hp/state.maxHp)}%`;$('heroHpText').textContent=`HP ${state.hp} / ${state.maxHp}${state.block?' · BLOCK '+state.block:''}`;
     $('heroDebuff').hidden=!(state.guardPriceCut>0);$('heroDebuff').textContent=state.guardPriceCut>0?`▼ 防御カード −${state.guardPriceCut}/枚`:'';
     $('apDisplay').textContent=`AP ${state.ap}/${Math.max(state.ap,Number(state.apTotal)||3)}`;
     $('growthDisplay').hidden=state.growUses<=0;
-    $('growthDisplay').textContent=`🌱 芽 ${state.growUses}`;
+    $('growthDisplay').textContent=`🌱 SPROUT ${state.growUses}`;
     $('drawCount').textContent=state.deck.length;$('usedCount').textContent=state.used.length;$('usedPoolCount').textContent=state.used.length;$('correctCount').textContent=state.correct;$('questionCount').textContent=state.questions;
-    $('handCount').textContent=`${state.hand.length}枚`;$('battleNotice').textContent=state.notice;
+    $('handCount').textContent=`${state.hand.length}`;$('battleNotice').textContent=state.notice;
     if(selectedHandIndex>=state.hand.length)selectedHandIndex=-1;
     $('hand').className=state.hand.length>=6?'card-hand stacked':'card-hand';
     $('hand').style.setProperty('--hand-columns',Math.max(1,Math.min(5,state.hand.length)));
@@ -1697,7 +1708,7 @@
     $('rewardPreview').hidden=false;
     $('rewardPreviewClose').focus?.();
     $('confirmRewardBtn').hidden=false;$('confirmRewardBtn').disabled=false;
-    $('confirmRewardBtn').textContent='このSKILLを獲得する';
+    $('confirmRewardBtn').textContent='TAKE SKILL';
     $('choiceCards').querySelectorAll('[data-reward]').forEach(btn=>{const active=btn.dataset.reward===name;btn.setAttribute('aria-pressed',String(active));btn.classList?.toggle?.('reward-selected',active);});
     $('choiceCards').querySelectorAll('[data-elite-artifact]').forEach(btn=>btn.classList?.remove?.('reward-selected'));
   }
@@ -1858,7 +1869,7 @@
       $('skipChoice').textContent=atCamp?'回復所へ戻る':'購入をやめる';
     } else if(mode==='reward'||mode==='eliteReward'){
       $('choiceEyebrow').textContent=mode==='bossReward'?'BOSS DEFEATED':'BATTLE CLEARED';
-      $('choiceTitle').textContent=mode==='bossReward'?'番人を倒した！':mode==='treasure'?'宝箱を発見！':mode==='eliteReward'?'強敵を撃破！':'戦闘勝利！';
+      $('choiceTitle').textContent=mode==='bossReward'?'番人を倒した！':mode==='treasure'?'宝箱を発見！':mode==='eliteReward'?'強敵を撃破！':'VICTORY';
       $('choiceDescription').textContent=mode==='eliteReward'?'ARTIFACTまたはSKILLを1つ選択。SKILLは効果を確認して決定 · COIN＋25':'SKILLを選択 → 効果を確認 → 獲得を決定 · COIN＋12';
       state.choiceOffer=state.choiceOffer||rewardOptions(mode);
       const artifactId=mode==='eliteReward'?state.eliteArtifactOffer:null;
@@ -2066,7 +2077,35 @@
   $('artifactButton').onclick=()=>{renderResources();$('artifactOverlay').hidden=false;};
   $('closeArtifacts').onclick=()=>{$('artifactOverlay').hidden=true;};
   $('artifactOverlay').onclick=e=>{if(e.target===$('artifactOverlay'))$('artifactOverlay').hidden=true;};
-  function closeHelp(){$('helpOverlay').hidden=true;$('menuToggle').setAttribute('aria-expanded','false');}
+  const guidePages = new Map();
+  const menuPanel = $('helpOverlay').querySelector('.help-panel');
+  function leaveGuide(){
+    if ($('guidePanel').hidden) return;
+    const last = Number($('guideFrame').contentWindow.location.hash.slice(1));
+    if (last >= 1 && last <= 6) guidePages.set(state.phase,last);
+    $('guidePanel').hidden=true;
+    menuPanel.hidden=false;
+    $('guideOpen').focus();
+  }
+  function closeHelp(){
+    leaveGuide();
+    $('helpOverlay').hidden=true;
+    $('menuToggle').setAttribute('aria-expanded','false');
+    $('menuToggle').focus();
+  }
+  $('guideOpen').onclick=()=>{
+    const page=guidePages.get(state.phase) || (state.phase==='battle' ? 4 : 1);
+    $('guideFrame').src='guide.html#'+page;
+    menuPanel.hidden=true;
+    $('guidePanel').hidden=false;
+    $('guideBack').focus();
+  };
+  $('guideBack').onclick=leaveGuide;
+  $('guideClose').onclick=closeHelp;
+  window.addEventListener('message',e=>{
+    if(e.origin!==location.origin || e.source!==$('guideFrame').contentWindow || $('guidePanel').hidden)return;
+    if(e.data==='guide-menu')leaveGuide();
+  });
   $('menuToggle').onclick=()=>{
     if(!$('helpOverlay').hidden){closeHelp();return;}
     $('menuRunActions').hidden=!['route','battle','choice'].includes(state.phase)||state.choiceMode==='complete';
@@ -2079,7 +2118,7 @@
   $('deckFilters').querySelectorAll('[data-deck-filter]').forEach(button=>button.onclick=()=>{deckFilter=button.dataset.deckFilter;renderDeck();});
   $('closeHelp').onclick=closeHelp;
   $('helpOverlay').onclick=e=>{if(e.target===$('helpOverlay'))closeHelp();};
-  document.addEventListener?.('keydown',e=>{if(e.key==='Escape'){if(!$('dungeonMap').hidden)closeDungeonMap();else if(!$('helpOverlay').hidden)closeHelp();}});
+  document.addEventListener?.('keydown',e=>{if(e.key==='Escape'){if(!$('dungeonMap').hidden)closeDungeonMap();else if(!$('guidePanel').hidden)leaveGuide();else if(!$('helpOverlay').hidden)closeHelp();}});
   $('closeQuestion').onclick=closeQuestion;$('continueQuestion').onclick=()=>state.pending?.bossChallenge?finishBossChallenge():finishQuestion();
   $('listenBtn').onclick=()=>{if(state.question?.speak)speak(state.question.speak);};
   window.addEventListener('pageshow',()=>{if(state.phase==='intro'){refreshCompanions();refreshCarryInventory();renderSelectedCompanion();renderLoadouts();if(!$('skillOverlay').hidden)openSkills();}});

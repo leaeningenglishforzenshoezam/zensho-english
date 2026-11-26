@@ -1,0 +1,4 @@
+[data-word]{text-decoration:underline dotted;text-underline-offset:.16em;cursor:help}
+[data-word]:focus-visible{outline:2px solid #c48237}
+dialog.translation{position:fixed;inset:0;margin:auto;width:min(90vw,380px);height:fit-content;box-sizing:border-box;padding:20px;color:#173b43;background:#fffaf0;border:2px solid #b3986f;border-radius:16px;font:16px/1.6 system-ui;text-align:left}
+dialog.translation:not([open]){display:none}dialog.translation::backdrop{background:#102b36aa}dialog.translation strong{font-size:1.2em}dialog.translation p{margin:7px 0 15px}dialog.translation button{min-height:44px;padding:6px 12px;border-radius:8px;border:1px solid #bccac4;background:white;color:#18434a}
