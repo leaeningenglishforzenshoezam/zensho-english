@@ -315,17 +315,24 @@
     InfiniteWarehouse:{name:'Infinite Warehouse',rank:'SR',icon:'🏭',effect:'カード消滅時に1枚ドロー・BLOCK＋5（毎ターン1回）'},
     MasterAbacus:{name:'Master Abacus',rank:'SR',icon:'🏅',effect:'1ターンに5枚使用するとAP＋3（毎ターン1回）'},
     InnovationPlan:{name:'Innovation Plan',rank:'SR',icon:'💡',effect:'ACT開始時にSKILL1種類をそのACT中だけ＋に強化'},
-    FinalBalanceSheet:{name:'Final Balance Sheet',rank:'SR',icon:'📒',effect:'BLOCK10以上で戦闘勝利すると最大HP＋6'}
+    FinalBalanceSheet:{name:'Final Balance Sheet',rank:'SR',icon:'📒',effect:'BLOCK10以上で戦闘勝利すると最大HP＋6'},
+    // D1-exclusive items are obtained only from their corresponding ? events.
+    LostChildTicket:{name:'迷子札の半券',rank:'R',icon:'🎫',eventOnly:true,file:'GOIMON_Lost_Child_Ticket_256.png',effect:'各戦闘で最初のSKILL誤答を、次ターンの再挑戦用に山札へ戻す（APは返らない）'},
+    CrackedMirror:{name:'ひび割れた姿見',rank:'R',icon:'🪞',eventOnly:true,file:'GOIMON_Cracked_Mirror_256.png',effect:'攻撃を初めて完全防御したとき、攻撃した敵へ6ダメージ（各戦闘1回）'},
+    NoReturnStamp:{name:'返品不可の朱印',rank:'R',icon:'🔏',eventOnly:true,file:'GOIMON_No_Return_Stamp_256.png',effect:'各戦闘で敵が最初に得る防御を8減らす'},
+    SecurityBell:{name:'防犯ゲートの鈴',rank:'R',icon:'🔔',eventOnly:true,file:'GOIMON_Security_Bell_256.png',effect:'敵のHP回復量を半減（1回あたり最大8減少）'},
+    VanishingFloorMap:{name:'消えたフロア案内図',rank:'R',icon:'🗺',eventOnly:true,file:'GOIMON_Vanishing_Floor_Map_256.png',effect:'各ACT1回、未訪問の非戦闘マスを別の種類へランダム変更'},
+    FinalSettlementSeal:{name:'最後の精算印',rank:'SR',icon:'♥',eventOnly:true,file:'GOIMON_Final_Settlement_Seal_256.png',effect:'敗北するダメージを一度だけHP1で耐える（挑戦中1回）'}
   };
   function artifactPicture(id){
     const item=artifacts[id];if(!item)return '';
-    const file=id==='FIFOBox'?'GOIMON_FIFO_Box_v2_256.png':`GOIMON_${item.name.replace(/\s+/g,'_')}_256.png`;
+    const file=item.file||(id==='FIFOBox'?'GOIMON_FIFO_Box_v2_256.png':`GOIMON_${item.name.replace(/\s+/g,'_')}_256.png`);
     return `<img class="artifact-symbol artifact-image" src="images/artifacts/${file}" width="64" height="64" alt="" decoding="async">`;
   }
   const artifactRanks={treasure:[65,30,5],elite:[50,45,5],boss:[0,80,20],shop:[50,40,10],event:[50,40,10]};
   const artifactPrice=id=>({N:40,R:75,SR:120})[artifacts[id]?.rank]||60;
   function artifactRoll(source,exclude=[]){
-    const available=Object.keys(artifacts).filter(id=>!hasArtifact(id)&&!exclude.includes(id));
+    const available=Object.keys(artifacts).filter(id=>!artifacts[id].eventOnly&&!hasArtifact(id)&&!exclude.includes(id));
     if(!available.length)return null;
     const weights=artifactRanks[source]||artifactRanks.treasure;const roll=Math.random()*100;
     const rank=roll<weights[0]?'N':roll<weights[0]+weights[1]?'R':'SR';
@@ -391,7 +398,7 @@
     battleWrongQuestions:[],runWrongQuestions:[],battleReviewUsed:false,battleReviewRevived:false,reviewIndex:0,turnDamage:0,turnGuardGained:0,lastBattleArtifact:null,
     sealed:[],growUses:0,discardedTurn:0,recoveredTurn:0,correctFormats:[],turnUsedNames:[],replayUsed:false,freeReplayCard:null,cardSelection:null,chainApGained:0,momentumActive:false,momentumAttackCount:0,reserveAp:0,reserveUsed:false,
     carryAll:false,encourageHeal:0,encourageCount:0,nextGuardBlock:0,attackGuardCap:0,nextAttackApCut:0,marginCallUsed:false,attackSkillCount:0,
-    artifactAttacks:0,artifactCardUses:0,artifactDraws:0,artifactCorrectStreak:0,artifactUniqueCards:[],artifactNextGuard:0,artifactCompound:0,artifactDiscountUsed:false,artifactFreeShopUsed:false,artifactActUpgrades:[]};
+    artifactAttacks:0,artifactCardUses:0,artifactDraws:0,artifactCorrectStreak:0,artifactUniqueCards:[],artifactNextGuard:0,artifactCompound:0,artifactDiscountUsed:false,artifactFreeShopUsed:false,artifactActUpgrades:[],artifactMapUsedActs:[],mapEditMode:false,delayedRetryCard:null,finalSettlementUsed:false};
   const TYPE_LABELS={nagomi:'なごみ',hirameki:'ひらめき',tsumugi:'つむぎ',yomitoki:'よみとき',shirabe:'しらべ',hibiki:'ひびき',kotonoha:'ことのは'};
   const TYPE_EFFECTS={nagomi:'GUARDカード正解でHP＋2（1ターン1回）',hirameki:'毎戦闘最初のSTRIKE SKILLのAP−1',tsumugi:'1ターンに異なる2種類を正解するとBLOCK＋5',yomitoki:'大問9正解で次のSTRIKEはBLOCKを5無視',shirabe:'単語正解で次のSTRIKE＋3',hibiki:'アクセント正解で次のSTRIKE＋4',kotonoha:'大問11正解でBLOCK＋6'};
   const TYPE_BOOST_EFFECTS={nagomi:'GUARDカード正解でHP＋4（1ターン1回）',hirameki:'毎戦闘最初のSTRIKE SKILLのAP−2',tsumugi:'1ターンに異なる2種類を正解するとBLOCK＋8',yomitoki:'大問9正解で次のSTRIKEはBLOCKを8無視',shirabe:'単語正解で次のSTRIKE＋5',hibiki:'アクセント正解で次のSTRIKE＋6',kotonoha:'大問11正解でBLOCK＋9'};
@@ -413,7 +420,7 @@
   };
   function saveCheckpoint(){
     if(state.phase==='intro'||state.choiceMode==='complete')return;
-    const keys=['battleStartHp','missionOwner','missionRecorded','phase','examGrade','dungeon','act','actFight','stage','route','routeEdges','routePath','currentEncounter','encounterWordRange','wordQueue','loadout','companionId','selectedCarrySkills','type','hp','maxHp','owned','coins','artifacts','basicAttack','basicGuard','typeBoost','specialBoosts','questions','correct','fight','seenWords','wrongWords','ap','apTotal','block','guardPriceCut','carry','carryOver','carryAll','buff','nextPlus','turn','hand','handDiscounts','deck','used','enemies','selected','commandUsed','shieldPierce','shopStock','shopRemoveIndex','removeOrigin','choiceMode','choiceOffer','eliteArtifactOffer','eventHistory','choiceEvent','choiceSpecialOptions','specialSkillOffer','upgradeFromEvent','battleWrongQuestions','runWrongQuestions','battleReviewUsed','battleReviewRevived','turnDamage','turnGuardGained','lastBattleArtifact','sealed','growUses','discardedTurn','recoveredTurn','correctFormats','turnUsedNames','replayUsed','freeReplayCard','chainApGained','momentumActive','momentumAttackCount','reserveAp','reserveUsed','encourageHeal','encourageCount','nextGuardBlock','attackGuardCap','nextAttackApCut','marginCallUsed','attackSkillCount','artifactAttacks','artifactCardUses','artifactDraws','artifactCorrectStreak','artifactUniqueCards','artifactNextGuard','artifactCompound','artifactDiscountUsed','artifactFreeShopUsed','artifactActUpgrades'];
+    const keys=['battleStartHp','missionOwner','missionRecorded','phase','examGrade','dungeon','act','actFight','stage','route','routeEdges','routePath','currentEncounter','encounterWordRange','wordQueue','loadout','companionId','selectedCarrySkills','type','hp','maxHp','owned','coins','artifacts','basicAttack','basicGuard','typeBoost','specialBoosts','questions','correct','fight','seenWords','wrongWords','ap','apTotal','block','guardPriceCut','carry','carryOver','carryAll','buff','nextPlus','turn','hand','handDiscounts','deck','used','enemies','selected','commandUsed','shieldPierce','shopStock','shopRemoveIndex','removeOrigin','choiceMode','choiceOffer','eliteArtifactOffer','eventHistory','choiceEvent','choiceSpecialOptions','specialSkillOffer','upgradeFromEvent','battleWrongQuestions','runWrongQuestions','battleReviewUsed','battleReviewRevived','turnDamage','turnGuardGained','lastBattleArtifact','sealed','growUses','discardedTurn','recoveredTurn','correctFormats','turnUsedNames','replayUsed','freeReplayCard','chainApGained','momentumActive','momentumAttackCount','reserveAp','reserveUsed','encourageHeal','encourageCount','nextGuardBlock','attackGuardCap','nextAttackApCut','marginCallUsed','attackSkillCount','artifactAttacks','artifactCardUses','artifactDraws','artifactCorrectStreak','artifactUniqueCards','artifactNextGuard','artifactCompound','artifactDiscountUsed','artifactFreeShopUsed','artifactActUpgrades','artifactMapUsedActs','delayedRetryCard','finalSettlementUsed'];
     const data=Object.fromEntries(keys.map(k=>[k,state[k]]));
     for(const key of ['artifactTurnUses','artifactBattleUses','typeTurnUses','typeBattleUses','typeCorrectNames'])data[key]=[...state[key]];
     data.version=2;
@@ -460,7 +467,7 @@
     state.guardPriceCut=state.guardPriceCut||0;
     state.apTotal=Math.max(3,state.ap,Number(state.apTotal)||0);
     for(const key of ['artifactAttacks','artifactCardUses','artifactDraws','artifactCorrectStreak','artifactNextGuard','artifactCompound'])state[key]=state[key]||0;
-    state.artifactUniqueCards=state.artifactUniqueCards||[];state.artifactActUpgrades=state.artifactActUpgrades||[];state.artifactDiscountUsed=!!state.artifactDiscountUsed;state.artifactFreeShopUsed=!!state.artifactFreeShopUsed;
+    state.artifactUniqueCards=state.artifactUniqueCards||[];state.artifactActUpgrades=state.artifactActUpgrades||[];state.artifactMapUsedActs=state.artifactMapUsedActs||[];state.mapEditMode=false;state.delayedRetryCard=state.delayedRetryCard||null;state.finalSettlementUsed=!!state.finalSettlementUsed;state.artifactDiscountUsed=!!state.artifactDiscountUsed;state.artifactFreeShopUsed=!!state.artifactFreeShopUsed;
     state.dungeon=state.dungeon===2?2:1;renderDungeonPicker();renderSelectedCompanion();renderLoadouts();state.pending=null;state.question=null;state.notice='';$('questionModal').hidden=true;$('reviewModal').hidden=true;
     if(data.phase==='battle'){setScreen('battle');renderBattle();}
     else if(data.phase==='choice')showChoice(data.choiceMode);
@@ -468,7 +475,7 @@
   const hasArtifact=id=>state.artifacts.includes(id);
   function renderResources(){
     $('coinCount').textContent=state.coins;$('artifactCount').textContent=state.artifacts.length;
-    const inventory=state.artifacts.length?state.artifacts.filter(id=>artifacts[id]).map(id=>`<div class="artifact-entry">${artifactPicture(id)}<div><strong>${artifacts[id].name} · ${artifacts[id].rank}</strong><small>${artifacts[id].effect}</small></div></div>`).join(''):'<div class="artifact-empty">ARTIFACTはまだありません。</div>';
+    const inventory=state.artifacts.length?state.artifacts.filter(id=>artifacts[id]).map(id=>`<div class="artifact-entry">${artifactPicture(id)}<div><strong>${artifacts[id].name} · ${artifacts[id].rank}${id==='FinalSettlementSeal'&&state.finalSettlementUsed?'（使用済み）':''}</strong><small>${artifacts[id].effect}</small></div></div>`).join(''):'<div class="artifact-empty">ARTIFACTはまだありません。</div>';
     $('artifactInventory').innerHTML=inventory+(state.typeBoost?`<div class="artifact-entry"><span class="artifact-symbol">◈</span><div><strong>TYPE BOOST：${TYPE_LABELS[state.type]}</strong><small>${TYPE_BOOST_EFFECTS[state.type]}</small></div></div>`:'');
   }
   function acquireArtifact(id){if(!artifacts[id]||hasArtifact(id))return;state.artifacts.push(id);if(state.artifacts.length>=10)awardBadge('collector');renderResources();}
@@ -999,22 +1006,34 @@
     return {route,edges};
   }
   const reachableLane=lane=>state.stage===0||state.routeEdges[state.stage-1].some(([from,to])=>from===state.routePath[state.stage-1]&&to===lane);
+  const mapCanEdit=(stage,lane)=>state.phase==='route'&&stage>=state.stage&&stage<8&&['event','rest','treasure','shop'].includes(state.route[stage]?.[lane]);
+  function rerollRouteNode(stage,lane){
+    if(!state.mapEditMode||!hasArtifact('VanishingFloorMap')||state.artifactMapUsedActs.includes(state.act)||!mapCanEdit(stage,lane))return;
+    const previous=state.route[stage][lane];
+    const pool=['event','rest','treasure',...(stage>=5?['shop']:[])].filter(kind=>kind!==previous);
+    state.route[stage][lane]=random(pool);
+    state.artifactMapUsedActs.push(state.act);state.mapEditMode=false;
+    playSfx('artifact');showRoute();flashNotice(`${artifacts.VanishingFloorMap.name}：${NODE[previous][1]} → ${NODE[state.route[stage][lane]][1]}`);
+  }
   function showRoute(){setScreen('route');
     $('routeActLabel').textContent=`YOUR PATH / ACT ${state.act} / 3`;
     $('routeWordRange').textContent=`${state.examGrade}級 · ${state.dungeon===2?'日→英・音声':'英→日'} · 単語 ${actWordLabel()}　｜　⚔ 通常戦　☠ 強敵　？ 未知　✚ 休憩　✦ 宝箱　▣ SHOP`;
     const pos=(i,lane)=>({x:50+100*i,y:45+75*lane});const lines=[];
     for(let i=0;i<8;i++)for(const [lane,next] of state.routeEdges[i]){const a=pos(i,lane),b=pos(i+1,next);lines.push(`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" class="${i<state.stage&&state.routePath[i]===lane&&state.routePath[i+1]===next?'traveled':''}"/>`);}
-    $('routeMap').innerHTML=`<svg class="route-lines" viewBox="0 0 900 240" preserveAspectRatio="none" aria-hidden="true">${lines.join('')}</svg>`+state.route.flatMap((col,i)=>col.map((kind,lane)=>{if(!kind)return '';const p=pos(i,lane),active=i===state.stage&&reachableLane(lane),picked=state.routePath[i]===lane&&i<state.stage;
-      return `<button class="route-node ${active?'available':''} ${picked?'picked':''} ${i<state.stage&&!picked?'faded':''}" type="button" style="left:${p.x/9}%;top:${p.y/2.4}%" data-stage="${i}" data-lane="${lane}" ${active?'':'disabled'} aria-label="${i+1}段目 ${NODE[kind][1]}${active?'へ進む':''}"><span>${NODE[kind][0]}</span></button>`;})).join('');
+    $('routeMap').innerHTML=`<svg class="route-lines" viewBox="0 0 900 240" preserveAspectRatio="none" aria-hidden="true">${lines.join('')}</svg>`+state.route.flatMap((col,i)=>col.map((kind,lane)=>{if(!kind)return '';const p=pos(i,lane),active=!state.mapEditMode&&i===state.stage&&reachableLane(lane),target=state.mapEditMode&&mapCanEdit(i,lane),picked=state.routePath[i]===lane&&i<state.stage;
+      return `<button class="route-node ${active?'available':''} ${target?'map-edit-target':''} ${picked?'picked':''} ${i<state.stage&&!picked?'faded':''}" type="button" style="left:${p.x/9}%;top:${p.y/2.4}%" data-stage="${i}" data-lane="${lane}" ${active||target?'':'disabled'} aria-label="${i+1}段目 ${NODE[kind][1]}${target?'を変更':active?'へ進む':''}"><span>${NODE[kind][0]}</span></button>`;})).join('');
     const lanes=['上段','中段','下段'];
     const choices=state.route[state.stage].map((kind,lane)=>{
       if(!kind||!reachableLane(lane))return '';
       return `<button type="button" data-lane="${lane}">${lanes[lane]} · ${NODE[kind][1]}</button>`;
     }).join('');
-    $('routeOptions').innerHTML=`<strong>AREA ${state.stage+1} / 9</strong><div class="route-lanes" role="group" aria-label="進める道">${choices}</div>`;
+    const canUseMap=hasArtifact('VanishingFloorMap')&&!state.artifactMapUsedActs.includes(state.act)&&state.route.some((col,i)=>col.some((_,lane)=>mapCanEdit(i,lane)));
+    $('routeOptions').innerHTML=state.mapEditMode?`<strong>🗺 変更する「？」・休憩・宝箱・SHOPをマップから選ぼう</strong><div class="route-lanes"><button type="button" id="cancelMapEdit">変更をやめる</button></div>`:`<strong>AREA ${state.stage+1} / 9</strong><div class="route-lanes" role="group" aria-label="進める道">${choices}${canUseMap?'<button type="button" id="useFloorMap">🗺 案内図を使う · ACT1回</button>':''}</div>`;
+    if(state.mapEditMode)$('cancelMapEdit').onclick=()=>{state.mapEditMode=false;showRoute();};
+    else if(canUseMap)$('useFloorMap').onclick=()=>{state.mapEditMode=true;showRoute();};
     for(const container of [$('routeMap'),$('routeOptions')]){
       container.querySelectorAll('button[data-lane]:not(:disabled)').forEach(button=>{
-        button.onclick=()=>chooseRoute(Number(button.dataset.lane));
+        button.onclick=()=>state.mapEditMode?rerollRouteNode(Number(button.dataset.stage),Number(button.dataset.lane)):chooseRoute(Number(button.dataset.lane));
       });
     }
     saveCheckpoint();
@@ -1058,9 +1077,9 @@
     startBattle();
     if(state.dungeon===1&&kind==='boss'&&state.act===3)showFinalBossOmen();
   }
-  function startAct(){state.stage=0;state.actFight=0;const map=makeRoute();state.route=map.route;state.routeEdges=map.edges;state.routePath=[];showRoute();}
+  function startAct(){state.stage=0;state.actFight=0;state.mapEditMode=false;const map=makeRoute();state.route=map.route;state.routeEdges=map.edges;state.routePath=[];showRoute();}
   function start(){refreshCarryInventory();renderLoadouts();refreshCompanions();renderSelectedCompanion();if(!selectedCompanion())return;if(state.dungeon===2&&!stage2Unlocked())return;playSfx('confirm');clearCheckpoint();state.missionOwner=GoimonDungeonMission.owner();state.missionRecorded=false;state.hp=START_HP;state.maxHp=START_HP;state.act=1;state.type=selectedCompanion().type;state.typeBoost=false;state.specialBoosts=[];
-    state.owned=[...carryNames()];state.specialSkillOffer=null;state.choiceSpecialOptions=null;state.questions=0;state.correct=0;state.fight=0;state.coins=0;state.artifacts=[];state.artifactActUpgrades=[];
+    state.owned=[...carryNames()];state.specialSkillOffer=null;state.choiceSpecialOptions=null;state.questions=0;state.correct=0;state.fight=0;state.coins=0;state.artifacts=[];state.artifactActUpgrades=[];state.artifactMapUsedActs=[];state.mapEditMode=false;state.delayedRetryCard=null;state.finalSettlementUsed=false;
     state.eventHistory=[];state.choiceEvent=null;
     recordRun('start');
     state.basicAttack=5;state.basicGuard=3;state.seenWords=[];state.wrongWords=[];state.battleWrongQuestions=[];state.runWrongQuestions=[];state.artifactTurnUses=new Set();state.artifactBattleUses=new Set();state.artifactDiscountUsed=false;state.artifactFreeShopUsed=false;startAct();
@@ -1145,7 +1164,7 @@
     state.encounterWordRange=state.currentEncounter.wordRange;
     state.wordQueue=shuffled(questionBank().words.slice(...state.encounterWordRange));
     state.selected=0;state.deck=shuffled([...Array(state.basicAttack).fill('Attack'),...Array(state.basicGuard).fill('Guard'),...state.owned.map(name=>state.artifactActUpgrades?.includes(baseName(name))&&!name.endsWith('+')?name+'+':name)]);
-    state.used=[];state.hand=[];state.handDiscounts=[];state.turn=1;state.carryOver=0;state.carryAll=false;state.block=0;state.guardPriceCut=0;state.ap=3;state.apTotal=3;state.buff=1;state.nextPlus=0;state.commandUsed=false;state.turnDamage=0;state.turnGuardGained=0;
+    state.used=[];state.hand=[];state.delayedRetryCard=null;state.handDiscounts=[];state.turn=1;state.carryOver=0;state.carryAll=false;state.block=0;state.guardPriceCut=0;state.ap=3;state.apTotal=3;state.buff=1;state.nextPlus=0;state.commandUsed=false;state.turnDamage=0;state.turnGuardGained=0;
     const seenEnemyKinds=discoveries[state.dungeon];
     for(const enemy of state.enemies){if(bestiaryRoster.some(m=>m.kind===enemy.kind&&m.name===enemy.name))seenEnemyKinds.add(enemy.name);}
     storeJson(bestiaryKey(state.dungeon),[...seenEnemyKinds]);renderBestiarySummary();
@@ -1441,6 +1460,16 @@
     if(state.type==='hirameki'&&s.type==='attack'&&baseName(name)!=='Attack')state.typeBattleUses.add('hirameki');
     // A resolved question is correct iff the result element has the success class.
     const success=$('questionResult').classList.contains('ok');
+    let retryTicket=false;
+    if(!success&&hasArtifact('LostChildTicket')&&!state.artifactBattleUses.has('LostChildTicket')&&!['Attack','Guard','BadStock'].includes(baseName(name))){
+      const usedIndex=state.used.lastIndexOf(name);
+      if(usedIndex>=0){
+        state.used.splice(usedIndex,1);
+        state.delayedRetryCard=name;
+        state.artifactBattleUses.add('LostChildTicket');
+        retryTicket=true;
+      }
+    }
     const hpBefore=state.enemies.reduce((sum,e)=>sum+e.hp,0),heroBefore=state.hp,blockBefore=state.block;
     const triggered=[];state.breakMessage='';
     state.artifactCardUses++;state.artifactCorrectStreak=success?state.artifactCorrectStreak+1:0;
@@ -1456,7 +1485,7 @@
     const dealt=hpBefore-state.enemies.reduce((sum,e)=>sum+e.hp,0);
     if(success){state.turnDamage=(state.turnDamage||0)+Math.max(0,dealt);state.turnGuardGained=(state.turnGuardGained||0)+Math.max(0,state.block-blockBefore);
       if(state.turnDamage>=50)awardBadge('burst30');if(state.turnGuardGained>=30)awardBadge('guard15');}
-    const actionNotice=success?`${s.label}：${dealt?`${dealt} DMG`:state.block>blockBefore?`BLOCK＋${state.block-blockBefore}`:state.hp>heroBefore?`HP＋${state.hp-heroBefore}`:'発動'}${triggered.length?' · '+triggered.join(' / '):''}${state.breakMessage?' ・ '+state.breakMessage:''}`:`${s.label}：不発`;
+    const actionNotice=success?`${s.label}：${dealt?`${dealt} DMG`:state.block>blockBefore?`BLOCK＋${state.block-blockBefore}`:state.hp>heroBefore?`HP＋${state.hp-heroBefore}`:'発動'}${triggered.length?' · '+triggered.join(' / '):''}${state.breakMessage?' ・ '+state.breakMessage:''}`:`${s.label}：不発${retryTicket?' · 迷子札：次ターン再挑戦':''}`;
     state.pending=null;state.question=null;$('questionModal').hidden=true;
     if(!alive().length){winBattle();return;}
     if(success)playSfx(dealt?'attack':s.type==='guard'?'guard':s.type==='heal'||state.hp>heroBefore?'heal':'confirm');
@@ -1554,40 +1583,64 @@
     else if(s.sealChoose)discardHand(s.sealChoose,s.draw||0,true);
     else if(s.discard)discardHand(s.discard,s.draw||0);
   }
+  function giveEnemyShield(enemy,amount){
+    if(!enemy||amount<=0)return;
+    let gained=amount;
+    if(hasArtifact('NoReturnStamp')&&!state.artifactBattleUses.has('NoReturnStamp')){
+      gained=Math.max(0,amount-8);
+      state.artifactBattleUses.add('NoReturnStamp');
+    }
+    enemy.shield+=gained;
+  }
+  function giveEnemyHealing(enemy,amount){
+    if(!enemy||amount<=0)return;
+    const reduction=hasArtifact('SecurityBell')?Math.min(8,Math.ceil(amount/2)):0;
+    enemy.hp=Math.min(enemy.maxHp,enemy.hp+Math.max(0,amount-reduction));
+  }
   function endTurn(bossAnswer){if(state.phase!=='battle'||state.pending||state.cardSelection)return;
     if(alive().some(e=>!e.canceled&&intent(e).quizFormat)&&typeof bossAnswer!=='boolean'){openBossChallenge();return;}
     selectedHandIndex=-1;$('handCardPreview').hidden=true;
     const repeatedCard=state.turnUsedNames.length>new Set(state.turnUsedNames).size;
-    let total=0,junkAdded=0,nextGuardPriceCut=0,nextApTax=0,bossEvaded=false;const lifeStealers=[];const actions=[];for(const e of alive()){
+    let total=0,junkAdded=0,nextGuardPriceCut=0,nextApTax=0,bossEvaded=false;const lifeStealers=[],attackers=[];const actions=[];for(const e of alive()){
       const it=intent(e);
       if(e.canceled){actions.push(`${e.name}：行動封じ`);e.canceled=false;e.weak=0;continue;}
       actions.push(`${e.name}：${it.label}`);
       if(it.quizFormat&&bossAnswer===true){bossEvaded=true;e.weak=0;continue;}
-      if(it.shield)e.shield+=it.shield;
-      if(it.guardAlly){const ally=alive().find(x=>x.id!==e.id);if(ally)ally.shield+=it.guardAlly;else e.shield+=it.guardAlly;}
-      if(it.heal){const ally=alive().slice().sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0];if(ally)ally.hp=Math.min(ally.maxHp,ally.hp+it.heal);}
+      if(it.shield)giveEnemyShield(e,it.shield);
+      if(it.guardAlly){const ally=alive().find(x=>x.id!==e.id);giveEnemyShield(ally||e,it.guardAlly);}
+      if(it.heal){const ally=alive().slice().sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0];giveEnemyHealing(ally,it.heal);}
       if(it.junk)junkAdded+=it.junk;
       if(it.guardPriceCut)nextGuardPriceCut=Math.max(nextGuardPriceCut,it.guardPriceCut);
       if(it.apTax)nextApTax=Math.max(nextApTax,it.apTax);
       if(it.lifeSteal)lifeStealers.push({enemy:e,amount:it.lifeSteal});
       if(it.pierceBlock)state.block=Math.max(0,state.block-it.pierceBlock);
+      const beforeAttack=total;
       if(it.repeatStrike&&repeatedCard)total+=Math.max(0,it.repeatStrike-e.weak);
       if(it.quizAttack&&bossAnswer===false)total+=Math.max(0,it.quizAttack-e.weak);
       if(it.attack)total+=Math.max(0,it.attack-e.weak);
+      if(total>beforeAttack)attackers.push(e);
       if(it.selfDamage)e.hp=Math.max(0,e.hp-it.selfDamage);
       e.weak=0;}
     let taken=Math.max(0,total-state.block);
     if(taken&&hasArtifact('StoneCharm')&&!state.artifactBattleUses.has('StoneCharm')){taken=Math.max(0,taken-10);state.artifactBattleUses.add('StoneCharm');}
-    state.hp=Math.max(0,state.hp-taken);
+    if(total>0&&state.block>=total&&hasArtifact('CrackedMirror')&&!state.artifactBattleUses.has('CrackedMirror')&&attackers.length){
+      const target=attackers[0];target.hp=Math.max(0,target.hp-6);
+      state.artifactBattleUses.add('CrackedMirror');
+    }
+    let sealActivated=false;
+    if(taken>=state.hp&&hasArtifact('FinalSettlementSeal')&&!state.finalSettlementUsed){
+      state.hp=1;state.finalSettlementUsed=true;sealActivated=true;renderResources();
+    }else state.hp=Math.max(0,state.hp-taken);
     if(hasArtifact('BadDebtReserve')&&state.hp>0&&state.hp<=maxHp()/2&&!state.artifactBattleUses.has('BadDebtReserve')){state.artifactNextGuard+=15;state.artifactBattleUses.add('BadDebtReserve');}
-    if(taken>0)for(const {enemy,amount} of lifeStealers)enemy.hp=Math.min(enemy.maxHp,enemy.hp+amount);
+    if(taken>0)for(const {enemy,amount} of lifeStealers)giveEnemyHealing(enemy,amount);
     state.carryOver=state.carryAll?Math.max(0,state.block-total):Math.min(state.carry||0,Math.max(0,state.block-total));state.used.push(...state.hand.splice(0));state.handDiscounts=[];
+    if(state.delayedRetryCard){state.deck.push(state.delayedRetryCard);state.delayedRetryCard=null;}
     // At most two junk cards are added in a turn. Correct answers exhaust them; wrong answers recycle through USED.
     for(let j=0;j<Math.min(2,junkAdded);j++)state.deck.splice(Math.floor(Math.random()*(state.deck.length+1)),0,'BadStock');
     if(state.hp<=0){GoimonDungeonMission.recordDefeat(state);playSfx('defeat');showChoice('defeat');return;}
     if(!alive().length){winBattle();return;}
     const bonusAp=Math.min(state.ap,state.reserveAp);const reserveGuard=hasArtifact('ReserveVault')?Math.min(2,state.ap)*2:0;state.turn++;state.apTotal=3+bonusAp;state.ap=Math.max(1,state.apTotal-nextApTax);state.reserveAp=0;state.reserveUsed=false;state.block=state.carryOver+reserveGuard+state.artifactNextGuard;state.guardPriceCut=nextGuardPriceCut;state.artifactNextGuard=0;state.carry=0;state.carryAll=false;state.buff=1;state.nextPlus=0;state.shieldPierce=0;state.commandUsed=false;state.discardedTurn=0;state.recoveredTurn=0;state.correctFormats=[];state.turnUsedNames=[];state.replayUsed=false;state.chainApGained=0;state.momentumActive=false;state.momentumAttackCount=0;state.encourageHeal=0;state.encourageCount=0;state.nextGuardBlock=0;state.attackGuardCap=0;state.nextAttackApCut=0;state.marginCallUsed=false;state.attackSkillCount=0;state.turnDamage=0;state.turnGuardGained=0;state.artifactTurnUses.clear();state.typeTurnUses.clear();state.typeCorrectNames.clear();state.artifactAttacks=0;state.artifactCardUses=0;state.artifactDraws=0;state.artifactCorrectStreak=0;state.artifactUniqueCards=[];state.artifactCompound=0;
-    state.battleOpeningDraw=true;draw(5);state.battleOpeningDraw=false;renderBattle();flashNotice(bossEvaded?'全問正解！ 特殊技を完全回避':junkAdded?`不良在庫＋${Math.min(2,junkAdded)}枚`:taken?`HP −${taken}`:total?'GUARD成功':'敵が行動した');showBattleFx(total>0?'enemy':'guard',bossEvaded?'✦ PERFECT DODGE!':taken?`💥 ${taken} DMG！`:total>0?'🛡 BLOCK!':'✦ 敵が行動した');if(total>0)playSfx(taken>0?'hurt':'guard');}
+    state.battleOpeningDraw=true;draw(5);state.battleOpeningDraw=false;renderBattle();flashNotice(sealActivated?'最後の精算印：HP1で踏みとどまった！':bossEvaded?'全問正解！ 特殊技を完全回避':junkAdded?`不良在庫＋${Math.min(2,junkAdded)}枚`:taken?`HP −${taken}`:total?'GUARD成功':'敵が行動した');showBattleFx(total>0?'enemy':'guard',sealActivated?'✦ FINAL SETTLEMENT!':bossEvaded?'✦ PERFECT DODGE!':taken?`💥 ${taken} DMG！`:total>0?'🛡 BLOCK!':'✦ 敵が行動した');if(total>0)playSfx(taken>0?'hurt':'guard');}
   // Rarity is rolled separately for each of the three offered cards.
   function rewardRank(mode,roll){
     if(mode==='eliteReward')return roll<.95?'R':'SR';
@@ -1747,7 +1800,7 @@
   const storeEvents={
     register:{
       title:'釣り銭の合わないレジ',
-      scene:'誰もいないレジが開いた。レシートには、まだ触れていないあなたの指の本数が印字されている。',
+      scene:'客のいないレジが開き、昨日と同じ時刻のレシートが印刷される。釣り銭の数字だけが毎回違う。',
       choices:[
         {label:'奥の硬貨まで拾う',effect:'HP−7 ／ COIN＋22',hp:-7,coins:22},
         {label:'受け皿の硬貨だけ拾う',effect:'COIN＋6',coins:6}
@@ -1771,16 +1824,48 @@
     },
     exchange:{
       title:'返品専用カウンター',
-      scene:'「お帰りのお客様は、一品お返しください」。窓口の札には、入館前に撮られたはずのない二人の後ろ姿。',
+      scene:'「お帰りのお客様は、一品お返しください」。カウンターの奥では、閉店のはずのない日付を何度も書き直している。',
       choices:[
-        {label:'STRIKEを返品する',effect:'STRIKE −1枚 ／ COIN＋10',card:'basicAttack',coins:10},
-        {label:'GUARDを返品する',effect:'GUARD −1枚 ／ COIN＋10',card:'basicGuard',coins:10}
+        {label:'通常攻撃を返品する',effect:'基本の攻撃カード−1枚 ／ COIN＋10',card:'basicAttack',coins:10},
+        {label:'通常防御を返品する',effect:'基本の防御カード−1枚 ／ COIN＋10',card:'basicGuard',coins:10}
+      ]
+    },
+    clock:{
+      title:'止まった大時計',
+      scene:()=>statsFor(1).clears>=1?'昨日も午前0時だった。止まった秒針に触れると、一瞬だけ昨日の自分の足音が聞こえる。':'大時計は午前0時を指したまま。針を動かしても、目を離すと元の位置に戻っている。',
+      choices:[
+        {label:'針を戻して別の可能性を探す',effect:'別の「？」イベントを引き直す',action:'reroll'},
+        {label:'時計のそばで休む',effect:'HP＋12',hp:12}
+      ]
+    },
+    broadcast:{
+      title:'途切れる館内放送',
+      scene:()=>statsFor(1).clears>=1?'「営業を続行してください」ザザッ……昨日、MIKAが話したときと同じ雑音だ。「……上へ。お願い……」':'「本日もご来店ありがとうございます」ザザッ……「……たすけて」。放送はすぐにいつもの接客案内へ戻った。',
+      choices:[
+        {label:'放送に従って保管棚を探す',effect:'RランクのSKILLを1枚受け取る',action:'skill'},
+        {label:'相棒と耳を澄ませる',effect:'HP＋10',hp:10}
+      ]
+    },
+    sale:{
+      title:'終わらない閉店セール',
+      scene:'「閉店特価・60% OFF！」の札が並ぶ。何年も前に閉まった売り場には、今でも特別な品が届き続けている。',
+      discountArtifacts:true
+    },
+    passage:{
+      title:'従業員専用通路',onlyReturn:true,
+      scene:'昨日は閉まっていた扉が、わずかに開いている。奥の古い案内板には「百貨店前駅・貨物口」。だが、その先は錆びた鍵で閉ざされていた。',
+      choices:[
+        {label:'古い整備道具でSKILLを磨く',effect:'SKILLを1枚＋強化',action:'upgrade'},
+        {label:'残された備品を回収する',effect:'COIN＋14',coins:14}
       ]
     }
   };
   function drawMapEvent(){
-    const pool=['altar','spring','merchant'];
-    if(state.dungeon===1)pool.push(...Object.keys(storeEvents));
+    // The first visit features seven distinct department-store events.
+    // The employee passage is an additional second-visit story event.
+    const pool=state.dungeon===1
+      ? Object.keys(storeEvents).filter(id=>!storeEvents[id].onlyReturn||statsFor(1).clears>=1)
+      : ['altar','spring','merchant'];
     let remaining=pool.filter(id=>!state.eventHistory?.includes(id));
     if(!remaining.length){
       const previous=state.eventHistory.at(-1);
@@ -1795,24 +1880,85 @@
     if(state.coins+(option.coins||0)<0)return 'COIN不足';
     if(state.hp+(option.hp||0)<=0)return 'HP不足';
     if(option.card&&!basicCount(option.card==='basicAttack'?'Attack':'Guard'))return '対象カードなし';
+    if(option.action==='upgrade'&&!state.owned.some(name=>!name.endsWith('+')&&skills[name]?.plus))return '強化できるSKILLなし';
+    if(option.action==='skill'&&!eventBroadcastSkill())return 'SKILL候補なし';
     return '';
+  }
+  function eventSkillOffer(eventId,rank){
+    if(state.choiceEvent!==eventId)return null;
+    if(!state.choiceOffer){
+      const available=availableRewardSkills().filter(name=>canAddSkill(name)&&skills[name].rank===rank);
+      const chosen=random(available);
+      state.choiceOffer=chosen?[chosen]:[];
+    }
+    return state.choiceOffer[0]&&canAddSkill(state.choiceOffer[0])?state.choiceOffer[0]:null;
+  }
+  const eventBroadcastSkill=()=>eventSkillOffer('broadcast','R');
+  const saleArtifactPrice=id=>Math.ceil(artifactPrice(id)*.4);
+  // Fixed, thematic sources; these six items are never in generic drops or SHOP stock.
+  const eventArtifactOffers={
+    broadcast:{artifact:'LostChildTicket',coins:-18},
+    tailor:{artifact:'CrackedMirror',coins:-25},
+    exchange:{artifact:'NoReturnStamp',hp:-12},
+    register:{artifact:'SecurityBell',coins:-20},
+    passage:{artifact:'VanishingFloorMap',coins:-30},
+    clock:{artifact:'FinalSettlementSeal',coins:-15,hp:-22}
+  };
+  function storeEventChoices(id){
+    const offer=state.dungeon===1?eventArtifactOffers[id]:null;
+    if(!offer||hasArtifact(offer.artifact))return storeEvents[id].choices||[];
+    const item=artifacts[offer.artifact];
+    const cost=[offer.coins?`COIN−${-offer.coins}`:'',offer.hp?`HP−${-offer.hp}`:''].filter(Boolean).join(' ／ ');
+    return [...(storeEvents[id].choices||[]),{...offer,label:`限定ARTIFACT：${item.name}`,effect:`${cost} ／ ${item.effect}`}];
   }
   function renderStoreEvent(id){
     const event=storeEvents[id];
     $('choiceTitle').textContent=event.title;
-    $('choiceDescription').textContent=event.scene;
-    $('choiceCards').innerHTML=event.choices.map((option,index)=>{
+    $('choiceDescription').textContent=typeof event.scene==='function'?event.scene():event.scene;
+    if(event.discountArtifacts){
+      if(!state.choiceOffer){
+        state.choiceOffer=Array.from({length:3}).reduce((list)=>{
+          const next=artifactRoll('event',list);if(next)list.push(next);return list;
+        },[]);
+      }
+      $('choiceCards').innerHTML=state.choiceOffer.map(art=>{
+        const price=saleArtifactPrice(art),item=artifacts[art];
+        return `<button type="button" class="artifact-choice" data-sale-artifact="${art}" ${state.coins<price?'disabled':''}>${artifactPicture(art)}<strong>${escapeHtml(item.name)} · ${item.rank}</strong><small>通常 ${artifactPrice(art)} → 特価 ${price} COIN${state.coins<price?'（COIN不足）':''}</small></button>`;
+      }).join('')||'<p>売り場の商品はすべて売り切れていた。</p>';
+      $('choiceCards').querySelectorAll('[data-sale-artifact]').forEach(btn=>btn.onclick=()=>{
+        if(state.phase!=='choice'||state.choiceEvent!==id)return;
+        const art=btn.dataset.saleArtifact,price=saleArtifactPrice(art);
+        if(!state.choiceOffer.includes(art)||hasArtifact(art)||state.coins<price)return;
+        state.coins-=price;playSfx('artifact');acquireArtifact(art);advance();
+      });
+      return;
+    }
+    const options=storeEventChoices(id);
+    $('choiceCards').innerHTML=options.map((option,index)=>{
       const limit=storeEventLimit(option);
-      return `<button type="button" class="choice-action" id="storeEvent${index}" ${limit?'disabled':''}><strong>${option.label}</strong><small>${option.effect}${limit?'（'+limit+'）':''}</small></button>`;
+      const earned=option.action==='skill'?eventBroadcastSkill():null;
+      const detail=earned?`${skills[earned].label}：${briefEffect(skills[earned])}`:option.effect;
+      return `<button type="button" class="choice-action ${option.artifact?'event-only-artifact':''}" id="storeEvent${index}" ${limit?'disabled':''}>${option.artifact?artifactPicture(option.artifact):''}<strong>${escapeHtml(option.label)}</strong><small>${escapeHtml(detail)}${limit?'（'+limit+'）':''}</small></button>`;
     }).join('');
-    event.choices.forEach((option,index)=>{
+    options.forEach((option,index)=>{
       $('storeEvent'+index).onclick=()=>{
         if(state.phase!=='choice'||state.choiceEvent!==id||storeEventLimit(option))return;
+        if(option.action==='reroll'){
+          state.choiceOffer=null;state.choiceEvent=drawMapEvent();playSfx('confirm');showChoice('event');return;
+        }
+        if(option.action==='upgrade'){
+          state.upgradeFromEvent=true;playSfx('confirm');showChoice('upgrade');return;
+        }
+        if(option.action==='skill'){
+          const name=eventBroadcastSkill();if(!name)return;
+          state.owned.push(name);playSfx('confirm');advance();return;
+        }
         state.coins+=option.coins||0;
         state.maxHp+=option.maxHp||0;
         state.hp=Math.min(state.maxHp,state.hp+(option.hp||0));
         if(option.card)removeBasicCard(option.card==='basicAttack'?'Attack':'Guard');
-        playSfx('confirm');
+        if(option.artifact)acquireArtifact(option.artifact);
+        playSfx(option.artifact?'artifact':'confirm');
         advance();
       };
     });
