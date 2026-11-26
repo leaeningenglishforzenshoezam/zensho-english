@@ -140,17 +140,19 @@ assert.equal(elements.storyTitle.textContent, '百貨店・追想挑戦');
 elements.storyContinue.onclick();
 assert.equal(elements.storyOverlay.hidden, true);
 
-// Fresh pre-clear entries advance by recorded attempt. Later variations cycle.
-const openings=[];
-for(let attempt=2;attempt<=7;attempt++){
+// Boundary entries switch scenes; the last scene persists on later visits.
+const openings=new Map();
+for(const attempt of [2,3,4,5,8,9,10,11,30]){
   vm.runInContext('showUnclearedEntry('+attempt+')', context);
-  openings.push(elements.storyText.innerHTML);
+  openings.set(attempt,elements.storyText.innerHTML);
   assert.equal(timers.size, 0);
   elements.storyContinue.onclick();
   assert.equal(elements.storyOverlay.hidden, true);
 }
-assert.equal(new Set(openings.slice(0,5)).size,5);
-assert.equal(openings[2],openings[5]);
+for(const [first,...others] of [[2,3,4],[5,8,9],[10,11,30]]){
+  for(const attempt of others)assert.equal(openings.get(first),openings.get(attempt));
+}
+assert.equal(new Set(openings.values()).size,3);
 
 // Timed cinematic pages retain their original automatic-advance behavior.
 vm.runInContext("playStory([{moment:'vault',image:'a.jpg',title:'金庫',lines:[],duration:100}, {moment:'dawn',image:'b.jpg',title:'朝',lines:[],button:'結果を見る'}])", context);
