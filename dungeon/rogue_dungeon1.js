@@ -1159,9 +1159,6 @@
       state.battleStartHp=state.hp;
     }
     state.notice='';state.phase='battle';state.battleOpeningDraw=true;draw(5+(hasArtifact('LuckyHand')?1:0)+(hasArtifact('ForecastAI')?2:0));state.battleOpeningDraw=false;state.artifactDraws=0;setScreen('battle');renderBattle();}
-  function shortIntent(label){
-    return label.replace(/攻撃\s*(\d+)/g,'$1 DMG').replace(/防御[＋+]\s*(\d+)/g,'BLOCK +$1').replace(/回復[＋+]?\s*(\d+)/g,'HEAL $1');
-  }
   function intent(e,turn=state.turn){
     const result=baseIntent(e,turn);
     // Long fights should demand more than repeatedly playing guard/heal cards.
@@ -1179,56 +1176,56 @@
     if(e.kind==='support'){
       if(t%2){
         const partner=state.enemies.find(x=>x.hp>0&&x.id!==e.id);
-        if(!partner)return {attack:a,label:`⚔ 攻撃 ${a}`};
+        if(!partner)return {attack:a,label:`⚔ ATTACK ${a}`};
         const wounded=alive().some(x=>x.hp<x.maxHp);
-        return wounded?{heal:16,label:'✚ 味方を回復 16'}:{guardAlly:6,label:'🛡 味方に防御＋6'};
+        return wounded?{heal:16,label:'✚ ALLY HEAL 16'}:{guardAlly:6,label:'🛡 ALLY BLOCK +6'};
       }
-      return {attack:a,label:`⚔ 攻撃 ${a}`};
+      return {attack:a,label:`⚔ ATTACK ${a}`};
     }
-    if(e.kind==='sentinel')return t%2?{guardAlly:12,label:'🛡 味方に防御＋12'}:{attack:a,label:`⚔ 攻撃 ${a}`};
-    if(e.kind==='conductor')return t%2?{label:'✷ 味方の攻撃＋4（常時）'}:{attack:a,label:`⚔ 攻撃 ${a}・指揮中`};
-    if(e.kind==='tank')return t%2?{shield:11,label:'⬡ 防御＋11'}:{attack:a,label:`⚔ 攻撃 ${a}`};
-    if(e.kind==='charger')return t%2?{label:'ϟ 力をためる'}:{attack:a*2,label:`ϟ 大技 ${a*2}`};
-    if(e.kind==='counter')return state.block>=10?{attack:a+5,pierceBlock:5,label:`◉ 防御崩し ${a+5}（防御−5）`}:{attack:a,label:`⚔ 攻撃 ${a}（防御10以上で変化）`};
-    if(e.kind==='inflator')return {attack:a+Math.min(15,3*Math.floor((t-1)/2)),label:`⚔ 上昇攻撃 ${a+Math.min(15,3*Math.floor((t-1)/2))}`};
+    if(e.kind==='sentinel')return t%2?{guardAlly:12,label:'🛡 ALLY BLOCK +12'}:{attack:a,label:`⚔ ATTACK ${a}`};
+    if(e.kind==='conductor')return t%2?{label:'✷ ALLY ATTACK +4（常時）'}:{attack:a,label:`⚔ ATTACK ${a}・指揮中`};
+    if(e.kind==='tank')return t%2?{shield:11,label:'⬡ BLOCK +11'}:{attack:a,label:`⚔ ATTACK ${a}`};
+    if(e.kind==='charger')return t%2?{label:'ϟ CHARGE'}:{attack:a*2,label:`ϟ HEAVY ATTACK ${a*2}`};
+    if(e.kind==='counter')return state.block>=10?{attack:a+5,pierceBlock:5,label:`◉ GUARD BREAK ${a+5}（BLOCK −5）`}:{attack:a,label:`⚔ ATTACK ${a}（BLOCK 10以上で変化）`};
+    if(e.kind==='inflator')return {attack:a+Math.min(15,3*Math.floor((t-1)/2)),label:`⚔ RISING ATTACK ${a+Math.min(15,3*Math.floor((t-1)/2))}`};
     // Antitrust Cerberus punishes repeating one successful card, not stacking damage with block removal.
-    if(e.kind==='breaker')return t%3===0?{repeatStrike:a+9,label:`⚖ 同名2回発動で攻撃${a+9}`}:{attack:a,...(t%3===1?{shield:5}:{}),label:t%3===1?`⚔ 攻撃 ${a}・防御＋5`:`⚔ 攻撃 ${a}`};
-    if(e.kind==='disruptor')return t%3===1?{shield:10,label:'⬡ 防御＋10'}:{attack:a,label:`⚔ 攻撃 ${a}`};
-    if(e.kind==='trickster')return t%3===0?{attack:a+10,label:`⚠ 変則強攻撃 ${a+10}`}:{attack:a,...(t%3===1?{shield:5}:{}),label:t%3===1?`⚔ 攻撃 ${a}・防御＋5`:`⚔ 攻撃 ${a}`};
-    if(e.kind==='variable')return t%2?{shield:7,label:'⬡ 分岐：防御＋7'}:{attack:a+5,label:`⚔ 分岐：攻撃 ${a+5}`};
-    if(e.kind==='swarm')return t%2?{attack:a,label:`⚔ 攻撃 ${a}`}:{attack:a*2,label:`⚔ 連打 ${a*2}`};
-    if(e.kind==='leech')return t%3===0?{attack:a+3,lifeSteal:5,label:`♡ 吸収攻撃 ${a+3}・HP＋5`}:{attack:a,label:`⚔ 攻撃 ${a}`};
-    if(e.kind==='inventory')return t%3===1?{junk:1+(t%2),label:`▣ 不良在庫＋${1+(t%2)}枚`}:{attack:a,label:`⚔ 攻撃 ${a}`};
+    if(e.kind==='breaker')return t%3===0?{repeatStrike:a+9,label:`⚖ 同名2回発動でATTACK ${a+9}`}:{attack:a,...(t%3===1?{shield:5}:{}),label:t%3===1?`⚔ ATTACK ${a}・BLOCK +5`:`⚔ ATTACK ${a}`};
+    if(e.kind==='disruptor')return t%3===1?{shield:10,label:'⬡ BLOCK +10'}:{attack:a,label:`⚔ ATTACK ${a}`};
+    if(e.kind==='trickster')return t%3===0?{attack:a+10,label:`⚠ HEAVY ATTACK ${a+10}`}:{attack:a,...(t%3===1?{shield:5}:{}),label:t%3===1?`⚔ ATTACK ${a}・BLOCK +5`:`⚔ ATTACK ${a}`};
+    if(e.kind==='variable')return t%2?{shield:7,label:'⬡ 分岐：BLOCK +7'}:{attack:a+5,label:`⚔ 分岐：ATTACK ${a+5}`};
+    if(e.kind==='swarm')return t%2?{attack:a,label:`⚔ ATTACK ${a}`}:{attack:a*2,label:`⚔ MULTI STRIKE ${a*2}`};
+    if(e.kind==='leech')return t%3===0?{attack:a+3,lifeSteal:5,label:`♡ DRAIN ATTACK ${a+3}・HP＋5`}:{attack:a,label:`⚔ ATTACK ${a}`};
+    if(e.kind==='inventory')return t%3===1?{junk:1+(t%2),label:`▣ 不良在庫＋${1+(t%2)}枚`}:{attack:a,label:`⚔ ATTACK ${a}`};
     // No immediate damage: the next player turn's defense cards earn four less guard each.
-    if(e.kind==='sapper')return t%3===0?{guardPriceCut:4,shield:6,label:'▼ 次ターン防御−4/枚・自身防御＋6'}:{attack:a,label:`⚔ 攻撃 ${a}`};
+    if(e.kind==='sapper')return t%3===0?{guardPriceCut:4,shield:6,label:'▼ 次ターンBLOCK −4/枚・自身BLOCK +6'}:{attack:a,label:`⚔ ATTACK ${a}`};
     // The Joker pays exactly the same HP as the damage it attempts to deal; block can stop only the player's loss.
-    if(e.kind==='exchange'){const trade=a+6;return t%3===2?{attack:trade,selfDamage:trade,shield:6,label:`♠ 等価交換 ${trade}・自身HP−${trade}・防御＋6`}:{attack:a,label:`⚔ 攻撃 ${a}`};}
-    if(e.kind==='taxer')return t%3===0?{attack:a+9,label:`⚠ 徴収攻撃 ${a+9}`}:{attack:a,label:`⚔ 攻撃 ${a}`};
+    if(e.kind==='exchange'){const trade=a+6;return t%3===2?{attack:trade,selfDamage:trade,shield:6,label:`♠ 等価交換 ${trade}・自身HP−${trade}・BLOCK +6`}:{attack:a,label:`⚔ ATTACK ${a}`};}
+    if(e.kind==='taxer')return t%3===0?{attack:a+9,label:`⚠ TAX ATTACK ${a+9}`}:{attack:a,label:`⚔ ATTACK ${a}`};
     if(e.kind==='boss'){
       const phase2=t>=BOSS_SERIOUS_TURN,phaseText=phase2?'【本気】':'';
       const cycle=(t-1)%4;
       const thirdStrike=phase2?18:15;
       if(e.bossId==='hodaka'){
         if(cycle===0){const strike=Math.round((a+(phase2?3:0))*.8);return {attack:strike,label:`🍜 ${phaseText}麺打ち ${strike}`};}
-        if(cycle===1)return {attack:7+(phase2?3:0),shield:10+(phase2?4:0),label:`♨ ${phaseText}湯気の壁：防御＋${10+(phase2?4:0)}・攻撃${7+(phase2?3:0)}`};
+        if(cycle===1)return {attack:7+(phase2?3:0),shield:10+(phase2?4:0),label:`♨ ${phaseText}湯気の壁：BLOCK +${10+(phase2?4:0)}・ATTACK ${7+(phase2?3:0)}`};
         if(cycle===2)return {attack:thirdStrike,label:`🔥 ${phaseText}熱湯スープ ${thirdStrike}`};
-        return {quizFormat:'q12',quizCount:1,quizAttack:30,label:`🍜 ${phaseText}ラーメンアタック：大問12正解で回避／失敗30ダメージ`};
+        return {quizFormat:'q12',quizCount:1,quizAttack:30,label:`🍜 ${phaseText}ラーメンアタック：大問12正解で回避／失敗30 DMG`};
       }
       if(e.bossId==='riki'){
         if(cycle===0){const strike=Math.round((a+(phase2?4:0))*.8);return {attack:strike,label:`📘 ${phaseText}確認テスト ${strike}`};}
-        if(cycle===1)return {attack:10+(phase2?4:0),shield:14+(phase2?6:0),label:`📒 ${phaseText}仕訳指導：防御＋${14+(phase2?6:0)}・攻撃${10+(phase2?4:0)}`};
+        if(cycle===1)return {attack:10+(phase2?4:0),shield:14+(phase2?6:0),label:`📒 ${phaseText}仕訳指導：BLOCK +${14+(phase2?6:0)}・ATTACK ${10+(phase2?4:0)}`};
         if(cycle===2)return {attack:thirdStrike,label:`🔥 ${phaseText}熱血追試 ${thirdStrike}`};
-        return {quizFormat:'q11',quizCount:2,quizAttack:9+(phase2?4:0),apTax:1,label:`🖍 ${phaseText}赤ペン指導：大問11を2問とも正解で回避／失敗時攻撃${9+(phase2?4:0)}・次AP−1`};
+        return {quizFormat:'q11',quizCount:2,quizAttack:9+(phase2?4:0),apTax:1,label:`🖍 ${phaseText}赤ペン指導：大問11を2問とも正解で回避／失敗時ATTACK ${9+(phase2?4:0)}・次AP−1`};
       }
       if(e.bossId==='mika'){
         if(cycle===0){const strike=Math.round((a+(phase2?5:0))*.8);return {attack:strike,label:`💼 ${phaseText}業績命令 ${strike}`};}
-        if(cycle===1)return {heal:12+(phase2?4:0),shield:20+(phase2?6:0),label:`💎 ${phaseText}資本増強：HP＋${12+(phase2?4:0)}・防御＋${20+(phase2?6:0)}`};
-        if(cycle===2)return {attack:thirdStrike,junk:phase2?2:1,label:`📉 ${phaseText}不採算処理：攻撃${thirdStrike}・不良在庫＋${phase2?2:1}枚`};
-        return {quizFormat:'q12',quizCount:3,quizAttack:a+15+(phase2?6:0),label:`👑 ${phaseText}最終決済：大問12を3問すべて正解で回避／失敗${a+15+(phase2?6:0)}ダメージ`};
+        if(cycle===1)return {heal:12+(phase2?4:0),shield:20+(phase2?6:0),label:`💎 ${phaseText}資本増強：HP＋${12+(phase2?4:0)}・BLOCK +${20+(phase2?6:0)}`};
+        if(cycle===2)return {attack:thirdStrike,junk:phase2?2:1,label:`📉 ${phaseText}不採算処理：ATTACK ${thirdStrike}・不良在庫＋${phase2?2:1}枚`};
+        return {quizFormat:'q12',quizCount:3,quizAttack:a+15+(phase2?6:0),label:`👑 ${phaseText}最終決済：大問12を3問すべて正解で回避／失敗${a+15+(phase2?6:0)} DMG`};
       }
-      return {attack:a,label:`⚔ 攻撃 ${a}`};
+      return {attack:a,label:`⚔ ATTACK ${a}`};
     }
-    return {attack:a,label:`⚔ 攻撃 ${a}`};}
+    return {attack:a,label:`⚔ ATTACK ${a}`};}
   function alive(){return state.enemies.filter(e=>e.hp>0);}
   function chosenTarget(){return state.enemies[state.selected]?.hp>0?state.enemies[state.selected]:alive()[0];}
   function showHandCard(index){
@@ -1267,10 +1264,10 @@
     $('enemyLine').className=`enemy-line enemy-count-${alive().length}`;
     $('enemyLine').innerHTML=alive().map(e=>`<button type="button" class="enemy ${chosenTarget()?.id===e.id?'selected':''}" data-enemy="${e.id}" aria-pressed="${chosenTarget()?.id===e.id}" aria-label="攻撃対象に${escapeHtml(e.name)}を選ぶ">
       <div class="enemy-vitals"><div class="enemy-title">${escapeHtml(e.name)}</div><div class="enemy-hp"><i style="width:${100*e.hp/e.maxHp}%"></i></div><div class="enemy-values">HP ${e.hp} / ${e.maxHp} ${e.shield?' · BLOCK '+e.shield:''}</div>
-      <div class="enemy-intent"><span class="intent-kicker">NEXT</span><span class="intent-action">${escapeHtml(e.canceled?'CANCEL ATTACK':shortIntent(intent(e).label))}</span></div>${hasArtifact('MarketReport')?`<div class="enemy-future-intent">その次：${escapeHtml(shortIntent(intent(e,state.turn+1).label))}</div>`:''}</div>
+      <div class="enemy-intent"><span class="intent-kicker">NEXT</span><span class="intent-action">${escapeHtml(e.canceled?'CANCEL ATTACK':intent(e).label)}</span></div>${hasArtifact('MarketReport')?`<div class="enemy-future-intent">その次：${escapeHtml(intent(e,state.turn+1).label)}</div>`:''}</div>
       <div class="enemy-portrait">${window.enemyArt?window.enemyArt(e.kind,e.name):escapeHtml(e.icon)}${chosenTarget()?.id===e.id&&alive().length>1?'<span class="target-marker" aria-hidden="true">TARGET</span>':''}</div><div class="enemy-role">${ENEMY_ROLES[e.kind]||'敵'}${state.enemies.some(x=>x.hp>0&&x!==e&&x.kind==='conductor')?' · 指揮強化中':''}</div></button>`).join('');
     $('enemyLine').querySelectorAll('[data-enemy]').forEach(b=>b.onclick=()=>{state.selected=Number(b.dataset.enemy);playSfx('select');renderBattle();});
-    $('intentList').innerHTML=alive().map(e=>`<div class="intent-row"><b>${escapeHtml(e.name)}</b><strong>${escapeHtml(e.canceled?'CANCEL ATTACK':shortIntent(intent(e).label))}${hasArtifact('MarketReport')?`<small>次ターン：${escapeHtml(shortIntent(intent(e,state.turn+1).label))}</small>`:''}</strong></div>`).join('');
+    $('intentList').innerHTML=alive().map(e=>`<div class="intent-row"><b>${escapeHtml(e.name)}</b><strong>${escapeHtml(e.canceled?'CANCEL ATTACK':intent(e).label)}${hasArtifact('MarketReport')?`<small>次ターン：${escapeHtml(intent(e,state.turn+1).label)}</small>`:''}</strong></div>`).join('');
     $('heroHpFill').style.width=`${Math.max(0,100*state.hp/state.maxHp)}%`;$('heroHpText').textContent=`HP ${state.hp} / ${state.maxHp}${state.block?' · BLOCK '+state.block:''}`;
     $('heroDebuff').hidden=!(state.guardPriceCut>0);$('heroDebuff').textContent=state.guardPriceCut>0?`▼ 防御カード −${state.guardPriceCut}/枚`:'';
     $('apDisplay').textContent=`AP ${state.ap}/${Math.max(state.ap,Number(state.apTotal)||3)}`;

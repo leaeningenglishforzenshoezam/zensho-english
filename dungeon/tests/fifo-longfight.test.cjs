@@ -74,7 +74,7 @@ assert.equal(run('intent(state.enemies[0], 6).attack'), 10);
 assert.equal(run('intent(state.enemies[0], 7).attack'), 11);
 assert.equal(run('intent(state.enemies[0], 14).attack'), 18);
 assert.equal(run('intent(state.enemies[0], 25).attack'), 18);
-assert.equal(run('intent(state.enemies[0], 14).label'), '⚔ 攻撃 18');
+assert.equal(run('intent(state.enemies[0], 14).label'), '⚔ ATTACK 18');
 assert.equal(run("intent(state.enemies[0], 14).label.includes('長期戦')"), false);
 
 // Composite boss actions keep shield/HP numbers intact and update only the attack damage.
@@ -82,7 +82,7 @@ state.enemies = [{kind: 'boss', bossId: 'hodaka', attack: 10, hp: 100, maxHp: 10
 const bossMove = run('intent(state.enemies[0], 14)');
 assert.equal(bossMove.attack, 15);
 assert.equal(bossMove.shield, 10);
-assert.match(bossMove.label, /防御＋10・攻撃15/);
+assert.match(bossMove.label, /BLOCK \+10・ATTACK 15/);
 const bossQuiz = run('intent(state.enemies[0], 8)');
 assert.equal(bossQuiz.quizAttack, 30);
 assert.equal(bossQuiz.attack, undefined);
