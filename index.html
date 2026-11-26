@@ -1938,46 +1938,7 @@
         String(lv)
       );
 
-      window.ACTIVE_LEVEL =
-        String(lv);
-
-
-      if (window.ACTIVE_LEVEL === "1") {
-        window.WORDS =
-          window.WORDS_1KYU || [];
-
-        window.BLOCKS =
-          window.BLOCKS_1KYU || [];
-      } else {
-        window.WORDS =
-          window.WORDS_2KYU || [];
-
-        window.BLOCKS =
-          window.BLOCKS_2KYU || [];
-      }
-
-
-      renderLevel();
-      updateStatus();
-
-
-      if (
-        window.GoimonUI &&
-        window.GoimonUI.renderHome
-      ) {
-        window.GoimonUI.renderHome();
-      }
-
-
-      if (
-        window.GoimonDexUI &&
-        window.GoimonDexUI.renderTree
-      ) {
-        window.GoimonDexUI.renderTree();
-      }
-
-
-      applyGoimonDetailAnimation();
+      refreshHomeView();
     }
 
 
@@ -3092,6 +3053,10 @@
 
 
     function refreshHomeView() {
+      const level = getLevel();
+      window.ACTIVE_LEVEL = level;
+      window.WORDS = (level === "2" ? window.WORDS_2KYU : window.WORDS_1KYU) || [];
+      window.BLOCKS = (level === "2" ? window.BLOCKS_2KYU : window.BLOCKS_1KYU) || [];
       updateStatus();
       renderLevel();
 
@@ -3117,6 +3082,10 @@
       applyGoimonDetailAnimation();
     }
 
+
+    window.addEventListener("storage", () => {
+      if (window.ACTIVE_LEVEL !== getLevel()) refreshHomeView();
+    });
 
     window.addEventListener(
       "pageshow",
