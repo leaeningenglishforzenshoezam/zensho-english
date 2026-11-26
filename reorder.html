@@ -835,6 +835,26 @@
 
 .quizSetupInfo{margin-top:8px;color:#77808c;font-size:10px;line-height:1.4}
 
+.grammarFilterBox{margin-top:10px;border:1px solid #dce7f5;border-radius:10px;background:#f7faff}
+.grammarFilterBox>summary{padding:11px 12px;cursor:pointer;color:#264d82;font-size:13px;font-weight:800}
+.grammarFilterBox[open]>summary{border-bottom:1px solid #dce7f5}
+.grammarFilterBody{padding:11px 12px}
+.grammarFilterHelp{font-size:12px;line-height:1.6;color:#59687b}
+.grammarFilterTools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:10px 0}
+.grammarFilterTools input{flex:1 1 145px;min-width:0;max-width:100%;box-sizing:border-box;padding:8px;border:1px solid #cad7e8;border-radius:8px;font-size:13px}
+.grammarFilterTools button{margin:0;padding:7px 9px;font-size:12px}
+.grammarFilterTools button:disabled{opacity:.55;cursor:default}
+.grammarFilterOnlyWeak{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#42516a}
+.grammarFilterTags{display:flex;flex-wrap:wrap;gap:7px;max-height:235px;overflow:auto;align-content:start;padding:3px 0}
+.grammarFilterChip{margin:0;padding:7px 10px;min-height:37px;border:1px solid #cad7e8;border-radius:9px;background:#fff;color:#345170;font-size:12px;font-weight:700;text-align:left}
+.grammarFilterChip[aria-pressed="true"]{border-color:#2767bf;background:#2767bf;color:#fff}
+.grammarFilterChip:focus-visible{outline:3px solid #f3a93b;outline-offset:2px}
+.grammarFilterChip small{display:block;font-size:10px;font-weight:500;opacity:.85}
+.grammarFilterWeak{color:#b04745;font-weight:800}
+.grammarFilterChip[aria-pressed="true"] .grammarFilterWeak{color:#fff4cc}
+.grammarFilterStatus{margin-top:9px;font-size:12px;line-height:1.5;color:#435772}
+.grammarFilterEmpty{padding:8px 0;color:#667;font-size:12px}
+
 .quizStartButton{display:block;width:100%;margin-top:10px;padding:12px;font-size:15px;font-weight:900}
 
 .quizSubActions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:7px}
@@ -962,6 +982,22 @@
 
   </div>
 
+  <details class="grammarFilterBox" id="grammarFilterDetails">
+    <summary>文法タグから問題を選ぶ <span id="grammarFilterCount">（すべての問題）</span></summary>
+    <div class="grammarFilterBody">
+      <div class="grammarFilterHelp">複数選択できます。選んだタグの<strong>いずれか</strong>が付いた問題を出題します。選択なしなら全問題が対象です。</div>
+      <div class="grammarFilterTools">
+        <input id="grammarFilterSearch" type="search" placeholder="文法タグを検索" aria-label="文法タグを検索">
+        <label class="grammarFilterOnlyWeak"><input id="grammarFilterOnlyWeak" type="checkbox"> 苦手タグだけ</label>
+        <button id="grammarFilterSelectWeak" type="button">苦手タグを選択</button>
+        <button id="grammarFilterClear" type="button">選択解除</button>
+      </div>
+      <label class="grammarFilterOnlyWeak"><input id="grammarFilterAll" type="checkbox"> 条件に合う問題をすべて解く</label>
+      <div id="grammarFilterTags" class="grammarFilterTags" aria-label="文法タグを複数選択"></div>
+      <div id="grammarFilterStatus" class="grammarFilterStatus" aria-live="polite"></div>
+    </div>
+  </details>
+
   <div class="reorderBonusBox">
     <div>
       <div class="quizSetupLabel">ゴイモン育成ボーナス</div>
@@ -1048,7 +1084,7 @@
     <div>
       <div style="font-size:18px; font-weight:700;">文法タグ一覧</div>
       <div class="muted" style="margin-top:4px;">
-        タグの説明を見たり、そのタグが付いた問題に飛んだりできます。
+        タグの説明を見たり、そのタグの問題をまとめて演習したりできます。
       </div>
     </div>
     <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -1151,6 +1187,7 @@
   <script src="grammar_cards.js"></script>
   <script src="reorder_1kyu.js"></script>
   <script src="reorder_2kyu.js"></script>
+  <script src="reorder_grammar_filter.js"></script>
 
   <audio id="evolutionAudio" src="audio/evolution.mp3" preload="auto"></audio>
 

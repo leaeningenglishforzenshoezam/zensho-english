@@ -44,6 +44,15 @@ const startNoInput = $("startNoInput");
 const endNoInput = $("endNoInput");
 const resetCursorBtn = $("resetCursorBtn");
 const poolInfo = $("poolInfo");
+const grammarFilterDetails = $("grammarFilterDetails");
+const grammarFilterCount = $("grammarFilterCount");
+const grammarFilterSearch = $("grammarFilterSearch");
+const grammarFilterOnlyWeak = $("grammarFilterOnlyWeak");
+const grammarFilterAll = $("grammarFilterAll");
+const grammarFilterSelectWeak = $("grammarFilterSelectWeak");
+const grammarFilterClear = $("grammarFilterClear");
+const grammarFilterTags = $("grammarFilterTags");
+const grammarFilterStatus = $("grammarFilterStatus");
 
   const statsEl = $("stats");
   const hintBtn = $("hintBtn");
@@ -78,6 +87,8 @@ const poolInfo = $("poolInfo");
   const SETTINGS_KEY = `zensho_reorder_settings_v1_lv${lv}`;
   const AUTO_WEAK_KEY = `zensho_reorder_auto_weak_v1_lv${lv}`;
   const MANUAL_WEAK_KEY = `zensho_reorder_manual_weak_v1_lv${lv}`;
+  const GRAMMAR_STATS_KEY = `zensho_reorder_grammar_stats_v1_lv${lv}`;
+  const TAG_CURSOR_KEY = `zensho_reorder_tag_cursor_v1_lv${lv}`;
   
 
   const grammarTagListBox = $("grammarTagListBox");
@@ -103,6 +114,9 @@ const grammarTagListEmpty = $("grammarTagListEmpty");
   const GRAMMAR_DICT = (window.GRAMMAR_CARD_DICT && typeof window.GRAMMAR_CARD_DICT === "object")
     ? (lv === "2" ? { ...window.GRAMMAR_CARD_DICT, ...window.REORDER_2KYU_GRAMMAR } : window.GRAMMAR_CARD_DICT)
     : {};
+  const GrammarFilter = window.ReorderGrammarFilter;
+  const validGrammarTags = new Set(QUESTIONS.flatMap(q => GrammarFilter.questionTags(q)));
+  let selectedGrammarTags = new Set();
 
   function safeParse(key) {
     const raw = GOIMONStorage.getItem(key);
@@ -153,7 +167,10 @@ const grammarTagListEmpty = $("grammarTagListEmpty");
       count: Number.isFinite(Number(s?.count)) ? Number(s.count) : 10,
       orderMode: String(s?.orderMode || "continue"),
       startNo: Number.isFinite(Number(s?.startNo)) ? Number(s.startNo) : 1,
-      endNo: Number.isFinite(Number(s?.endNo)) ? Number(s.endNo) : 9999
+      endNo: Number.isFinite(Number(s?.endNo)) ? Number(s.endNo) : 9999,
+      allMatching: !!s?.allMatching,
+      grammarTags: Array.isArray(s?.grammarTags)
+        ? [...new Set(s.grammarTags.filter(tag => validGrammarTags.has(tag)))] : []
     };
   }
 
@@ -162,7 +179,9 @@ const grammarTagListEmpty = $("grammarTagListEmpty");
       count: Number(obj.count || 10),
       orderMode: String(obj.orderMode || "continue"),
       startNo: Number(obj.startNo || 1),
-      endNo: Number(obj.endNo || 9999)
+      endNo: Number(obj.endNo || 9999),
+      allMatching: !!grammarFilterAll.checked,
+      grammarTags: Array.isArray(obj.grammarTags) ? obj.grammarTags : [...selectedGrammarTags]
     });
   }
 
@@ -183,6 +202,20 @@ const grammarTagListEmpty = $("grammarTagListEmpty");
 
   function saveCursor(cursor) {
     GOIMONStorage.setItem(CURSOR_KEY, String(cursor));
+  }
+
+  function getTagCursorKey(startNo, endNo) {
+    return `${startNo}:${endNo}:${[...selectedGrammarTags].sort().join("|")}`;
+  }
+
+  function loadTagCursor(key) {
+    return Math.max(0, Number((safeParse(TAG_CURSOR_KEY) || {})[key]) || 0);
+  }
+
+  function saveTagCursor(key, cursor) {
+    const cursors = safeParse(TAG_CURSOR_KEY) || {};
+    cursors[key] = cursor;
+    saveJson(TAG_CURSOR_KEY, cursors);
   }
 
   function loadGoimonUiState() {
@@ -273,6 +306,92 @@ function buildWeakOrder() {
   return list.map(x => x.index);
 }
 
+function getGrammarTagSummaries() {
+  return GrammarFilter.collectTags(
+    QUESTIONS, GRAMMAR_DICT, loadAutoWeakMap(), loadManualWeakMap(),
+    safeParse(GRAMMAR_STATS_KEY) || {}
+  );
+}
+
+function persistGrammarSelection() {
+  saveSettings({
+    count: countInput.value,
+    orderMode: orderModeEl.value,
+    startNo: startNoInput.value,
+    endNo: endNoInput.value
+  });
+}
+
+function renderGrammarFilter() {
+  if (!grammarFilterTags) return;
+  const summaries = getGrammarTagSummaries();
+  const search = grammarFilterSearch.value.trim().toLocaleLowerCase();
+  const onlyWeak = grammarFilterOnlyWeak.checked;
+  const candidates = summaries.filter(entry =>
+    (!onlyWeak || entry.weak) &&
+    (!search || entry.label.toLocaleLowerCase().includes(search) || entry.tag.toLowerCase().includes(search))
+  );
+
+  grammarFilterCount.textContent = selectedGrammarTags.size
+    ? `（${selectedGrammarTags.size}項目選択中）` : "（すべての問題）";
+  grammarFilterTags.replaceChildren();
+  for (const entry of candidates) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "grammarFilterChip";
+    btn.setAttribute("aria-pressed", String(selectedGrammarTags.has(entry.tag)));
+    const statsText = entry.attempts ? `正答率 ${entry.accuracy}%（${entry.attempts}回）` : "記録なし";
+    btn.innerHTML = `${escapeHtml(entry.label)}${entry.weak ? ' <span class="grammarFilterWeak">● 苦手</span>' : ""}` +
+      `<small>${entry.questionCount}問 ・ ${statsText}</small>`;
+    btn.addEventListener("click", () => {
+      if (selectedGrammarTags.has(entry.tag)) selectedGrammarTags.delete(entry.tag);
+      else selectedGrammarTags.add(entry.tag);
+      persistGrammarSelection();
+      renderGrammarFilter();
+      renderPoolInfo();
+    });
+    grammarFilterTags.appendChild(btn);
+  }
+  if (!candidates.length) {
+    const empty = document.createElement("div");
+    empty.className = "grammarFilterEmpty";
+    empty.textContent = onlyWeak ? "該当する苦手タグはまだありません。" : "一致する文法タグがありません。";
+    grammarFilterTags.appendChild(empty);
+  }
+  const weakCount = summaries.filter(entry => entry.weak).length;
+  grammarFilterSelectWeak.disabled = weakCount === 0;
+  grammarFilterClear.disabled = selectedGrammarTags.size === 0;
+  countInput.disabled = grammarFilterAll.checked;
+  grammarFilterStatus.textContent = selectedGrammarTags.size
+    ? `選択中：${summaries.filter(entry => selectedGrammarTags.has(entry.tag)).map(entry => entry.label).join("・")}`
+    : `苦手タグ：${weakCount}項目。苦手問題が残っているタグ、または3回以上解いて正答率70%未満のタグを表示します。`;
+}
+
+function bindGrammarFilter() {
+  if (!grammarFilterTags) return;
+  grammarFilterSearch.addEventListener("input", renderGrammarFilter);
+  grammarFilterOnlyWeak.addEventListener("change", renderGrammarFilter);
+  grammarFilterAll.addEventListener("change", () => {
+    persistGrammarSelection();
+    renderGrammarFilter();
+    renderPoolInfo();
+  });
+  grammarFilterSelectWeak.addEventListener("click", () => {
+    getGrammarTagSummaries().filter(entry => entry.weak).forEach(entry => selectedGrammarTags.add(entry.tag));
+    persistGrammarSelection();
+    renderGrammarFilter();
+    renderPoolInfo();
+  });
+  grammarFilterClear.addEventListener("click", () => {
+    selectedGrammarTags.clear();
+    persistGrammarSelection();
+    renderGrammarFilter();
+    renderPoolInfo();
+  });
+  [startNoInput, endNoInput].forEach(input => input.addEventListener("input", renderPoolInfo));
+  orderModeEl.addEventListener("change", renderPoolInfo);
+}
+
 function getOrderModeLabel(mode) {
   if (mode === "start") return "先頭";
   if (mode === "continue") return "続き";
@@ -311,7 +430,9 @@ function renderManualWeakButton() {
     limit: 10,
     answered: 0,
     correct: 0,
-    askedIndexes: []
+    askedIndexes: [],
+    selectedTags: [],
+    tagCursorKey: ""
   };
 
   let current = null;
@@ -330,6 +451,7 @@ function showSetup() {
   if (problemListBox) problemListBox.style.display = "none";
   if (grammarTagListBox) grammarTagListBox.style.display = "none";
   if (weakListBox) weakListBox.style.display = "none";
+  renderGrammarFilter();
 }
 
 function showPlay() {
@@ -559,7 +681,8 @@ function renderGrammarTagList() {
 
   grammarTagListEl.innerHTML = "";
 
-  const entries = Object.entries(GRAMMAR_DICT || {});
+  // 辞書に未登録のタグも含め、実際に出題されるタグをすべて表示する。
+  const entries = getGrammarTagSummaries();
   if (!entries.length) {
     grammarTagListEmpty.style.display = "block";
     return;
@@ -567,9 +690,9 @@ function renderGrammarTagList() {
 
   grammarTagListEmpty.style.display = "none";
 
-  entries.forEach(([tag, card]) => {
-    const label = (card && card.label) ? card.label : tag;
-    const summary = (card && card.summary) ? card.summary : "";
+  entries.forEach((entry) => {
+    const { tag, label } = entry;
+    const summary = GRAMMAR_DICT[tag]?.summary || "";
     const questionIds = getQuestionIdsByTag(tag);
 
     const item = document.createElement("div");
@@ -579,6 +702,7 @@ function renderGrammarTagList() {
       <div class="tagListName">${escapeHtml(label)}</div>
       <div class="tagListMeta">
         ${escapeHtml(summary || "概要なし")} / 該当問題 ${questionIds.length}問
+        ${entry.weak ? " / <strong>苦手タグ</strong>" : ""}
       </div>
       <div class="tagListBtnRow"></div>
       <div class="tagListDetail"></div>
@@ -647,6 +771,22 @@ function renderGrammarTagList() {
     });
 
     btnRow.appendChild(toggleBtn);
+
+    if (questionIds.length) {
+      const practiceBtn = document.createElement("button");
+      practiceBtn.type = "button";
+      practiceBtn.className = "grammarTagBtn";
+      practiceBtn.textContent = "このタグでまとめて演習";
+      practiceBtn.addEventListener("click", () => {
+        selectedGrammarTags = new Set([tag]);
+        grammarFilterAll.checked = true;
+        persistGrammarSelection();
+        grammarFilterDetails.open = true;
+        showSetup();
+        renderPoolInfo();
+      });
+      btnRow.appendChild(practiceBtn);
+    }
   });
 }
 
@@ -801,8 +941,21 @@ function renderWeakList() {
       startBtn.disabled = true;
       return;
     }
-    startBtn.disabled = false;
-    poolInfo.textContent = `この級で出題可能：${QUESTIONS.length}問`;
+    const query = new URLSearchParams(location.search);
+    const specialRequest = dailyReorderRequest() || query.has("reviewIds") || query.has("goimonAbility");
+    let startNo = Number(startNoInput.value);
+    let endNo = Number(endNoInput.value);
+    if (!Number.isFinite(startNo) || startNo < 1) startNo = 1;
+    if (!Number.isFinite(endNo) || endNo < 1) endNo = 9999;
+    if (startNo > endNo) [startNo, endNo] = [endNo, startNo];
+    const base = specialRequest ? QUESTIONS.map((_, index) => index) : getRangeFilteredIndexes(startNo, endNo);
+    const filtered = specialRequest ? base : GrammarFilter.filterIndexes(QUESTIONS, base, [...selectedGrammarTags]);
+    const available = specialRequest || orderModeEl.value !== "weak"
+      ? filtered.length : filtered.filter(i => isManualWeakId(QUESTIONS[i].id) || getAutoWeakCountById(QUESTIONS[i].id) > 0).length;
+    startBtn.disabled = available === 0;
+    poolInfo.textContent = `この条件で出題可能：${available}問` +
+      (selectedGrammarTags.size && !specialRequest ? `（文法タグ ${selectedGrammarTags.size}項目）` : "") +
+      (available === 0 ? "。タグ・範囲・出題順を変更してください。" : "");
   }
 
   function renderStats() {
@@ -1205,7 +1358,8 @@ function getRangeFilteredIndexes(startNo, endNo) {
     session.cursor += 1;
 
     if (session.orderMode === "continue") {
-      saveCursor(session.cursor % session.order.length);
+      if (session.tagCursorKey) saveTagCursor(session.tagCursorKey, session.cursor % session.order.length);
+      else saveCursor(session.cursor % session.order.length);
     }
 
     currentQuestionIndex = qIndex;
@@ -1255,6 +1409,10 @@ function getRangeFilteredIndexes(startNo, endNo) {
   session.answered += 1;
 
   const isCorrect = arraysEqual(selectedIds, current.answer);
+
+  saveJson(GRAMMAR_STATS_KEY, GrammarFilter.recordAttempt(
+    safeParse(GRAMMAR_STATS_KEY), GrammarFilter.questionTags(current), isCorrect
+  ));
 
   if (typeof window.zenshoLogAdd === "function") {
   window.zenshoLogAdd("reorder", isCorrect);
@@ -1316,6 +1474,9 @@ function startRetrySessionById(id) {
   session.orderMode = "retry";
   session.order = [qIndex];
   session.cursor = 0;
+  session.selectedTags = [];
+  session.tagCursorKey = "";
+  session.askedIndexes = [];
 
   wrongLogs = [];
   showPlay();
@@ -1338,6 +1499,8 @@ function startRetrySessionByIndexes(indexes) {
   session.orderMode = "retry";
   session.order = [...validIndexes];
   session.cursor = 0;
+  session.selectedTags = [];
+  session.tagCursorKey = "";
   session.askedIndexes = [];
 
   wrongLogs = [];
@@ -1352,7 +1515,8 @@ function renderSummary() {
   const rate = session.limit > 0 ? Math.round((session.correct / session.limit) * 100) : 0;
 
   summaryLine.textContent =
-    `結果：${session.correct} / ${session.limit}（正答率 ${rate}%）｜ ${orderLabel}`;
+    `結果：${session.correct} / ${session.limit}（正答率 ${rate}%）｜ ${orderLabel}` +
+    (session.selectedTags.length ? `｜文法タグ ${session.selectedTags.length}項目` : "");
 
   wrongList.innerHTML = "";
 
@@ -1559,11 +1723,14 @@ function renderSummary() {
   const orderMode = isDaily ? "random" : String(orderModeEl.value || "continue");
   const review = isDaily ? null : new URLSearchParams(location.search).get("reviewIds");
   const ids = new Set((review || "").split(","));
+  // デイリーミッションと他画面からの復習ID指定は、文法タグより優先する。
+  const isGoimonPractice = new URLSearchParams(location.search).has("goimonAbility");
+  const activeTags = isDaily || review || isGoimonPractice ? [] : [...selectedGrammarTags];
   const baseOrder = isDaily
     ? QUESTIONS.map((_, index) => index)
     : review
       ? QUESTIONS.map((q, i) => ids.has(String(q.id)) ? i : -1).filter(i => i >= 0)
-      : getRangeFilteredIndexes(startNo, endNo);
+      : GrammarFilter.filterIndexes(QUESTIONS, getRangeFilteredIndexes(startNo, endNo), activeTags);
   if (isDaily) {
     requestedLimit = 5;
     if (baseOrder.length < requestedLimit) {
@@ -1575,9 +1742,11 @@ function renderSummary() {
   }
 
   if (!baseOrder.length) {
-    alert("指定した問題番号の範囲に問題がありません。");
+    alert("この条件に合う問題がありません。文法タグか問題番号の範囲を変更してください。");
     return;
   }
+
+  if (!isDaily && !review && !isGoimonPractice && grammarFilterAll.checked) requestedLimit = baseOrder.length;
 
   let order = [];
   let cursor = 0;
@@ -1599,7 +1768,8 @@ function renderSummary() {
 } else {
   order = baseOrder;
 
-  const savedCursor = loadCursor();
+  const tagCursorKey = activeTags.length ? getTagCursorKey(startNo, endNo) : "";
+  const savedCursor = tagCursorKey ? loadTagCursor(tagCursorKey) : loadCursor();
   cursor = savedCursor >= order.length ? 0 : savedCursor;
 }
 
@@ -1613,10 +1783,13 @@ function renderSummary() {
   session.order = order;
   session.cursor = cursor;
   session.askedIndexes = [];
+  session.selectedTags = activeTags;
+  session.tagCursorKey = orderMode === "continue" && activeTags.length
+    ? getTagCursorKey(startNo, endNo) : "";
 
   wrongLogs = [];
   if (!isDaily) {
-    saveSettings({count: limit, orderMode, startNo, endNo});
+    saveSettings({count: requestedLimit, orderMode, startNo, endNo});
   }
 
   showPlay();
@@ -1667,6 +1840,8 @@ function renderSummary() {
 
   function init() {
     const settings = loadSettings();
+    selectedGrammarTags = new Set(settings.grammarTags);
+    grammarFilterAll.checked = settings.allMatching;
     countInput.value = String(settings.count || 10);
     orderModeEl.value = settings.orderMode || "continue";
     if (startNoInput) startNoInput.value = String(settings.startNo || 1);
@@ -1674,6 +1849,7 @@ function renderSummary() {
 
     if (dailyReorderRequest()) {
       countInput.value = "5";
+      grammarFilterAll.checked = false;
       orderModeEl.value = "random";
       startNoInput.value = "1";
       endNoInput.value = String(QUESTIONS.length);
@@ -1683,7 +1859,15 @@ function renderSummary() {
       goimonUi.open = true;
     }
 
+    const query = new URLSearchParams(location.search);
+    if (dailyReorderRequest() || query.has("reviewIds") || query.has("goimonAbility")) {
+      grammarFilterDetails.style.display = "none";
+    } else if (selectedGrammarTags.size) {
+      grammarFilterDetails.open = true;
+    }
+
     renderLevelBadge();
+    bindGrammarFilter();
     renderPoolInfo();
     bindBonusButtons();
     initGoimonBindings();
@@ -1698,9 +1882,16 @@ function renderSummary() {
 
     startBtn.addEventListener("click", startSession);
     resetCursorBtn.addEventListener("click", () => {
-  saveCursor(0);
-  alert("続き位置を先頭に戻しました。");
-});
+      if (selectedGrammarTags.size) {
+        let startNo = Math.max(1, Number(startNoInput.value) || 1);
+        let endNo = Math.max(1, Number(endNoInput.value) || 9999);
+        if (startNo > endNo) [startNo, endNo] = [endNo, startNo];
+        saveTagCursor(getTagCursorKey(startNo, endNo), 0);
+      } else {
+        saveCursor(0);
+      }
+      alert("この条件の続き位置を先頭に戻しました。");
+    });
 
     backBtn.addEventListener("click", () => {
       showSetup();
