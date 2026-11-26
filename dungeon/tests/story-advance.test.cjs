@@ -29,7 +29,7 @@ const savedFlags = new Map();
 const context = vm.createContext({
   $: id => elements[id],
   DUNGEONS: {1: {battleArt: ['act1.jpg', 'act2.jpg', 'vault.jpg'], clearVaultArt: 'vault-open.jpg', dawnArt: 'dawn.jpg', art: 'entrance.jpg', departureArt: 'door.jpg'}},
-  INTRO_STORY_KEY: 'intro', FAMILIAR_STORY_KEY: 'familiar', RETURN_STORY_KEY: 'return',
+  RETURN_STORY_KEY: 'return',
   localStorage: {setItem: (key, value) => savedFlags.set(key, value)},
   JOURNAL: [journal], JOURNAL_SEEN_KEY: 'seen', journalSeen: new Set(),
   dungeonJournal: () => [journal], state: {dungeon: 1},
@@ -61,7 +61,7 @@ elements.storyContinue.onclick();
 assert.equal(elements.storyOverlay.hidden, true);
 
 // First arrival is distinct from the return visit; neither is automatic or skippable.
-vm.runInContext('showFirstNight()', context);
+vm.runInContext('showUnclearedEntry(1)', context);
 assert.equal(elements.storyTitle.textContent, '真夜中の百貨店');
 elements.storyOverlay.onclick({target: elements.storyOverlay});
 assert.equal(elements.storyOverlay.hidden, false);
@@ -69,7 +69,7 @@ elements.storyContinue.onclick();
 assert.equal(elements.storyTitle.textContent, '閉じたシャッター');
 elements.storyContinue.onclick();
 assert.equal(elements.storyOverlay.hidden, true);
-assert.equal(savedFlags.get('intro'), '1');
+
 
 vm.runInContext('showReturnNight()', context);
 assert.equal(elements.storyTitle.textContent, 'お忘れ物引換票');
@@ -140,14 +140,17 @@ assert.equal(elements.storyTitle.textContent, '百貨店・追想挑戦');
 elements.storyContinue.onclick();
 assert.equal(elements.storyOverlay.hidden, true);
 
-// The familiar announcement waits for the player before marking itself seen.
-vm.runInContext('showFamiliarAnnouncement()', context);
-assert.equal(elements.storyTitle.textContent, '聞き覚えのある放送');
-assert.equal(timers.size, 0);
-assert.equal(savedFlags.has('familiar'), false);
-elements.storyContinue.onclick();
-assert.equal(savedFlags.get('familiar'), '1');
-assert.equal(elements.storyOverlay.hidden, true);
+// Fresh pre-clear entries advance by recorded attempt. Later variations cycle.
+const openings=[];
+for(let attempt=2;attempt<=7;attempt++){
+  vm.runInContext('showUnclearedEntry('+attempt+')', context);
+  openings.push(elements.storyText.innerHTML);
+  assert.equal(timers.size, 0);
+  elements.storyContinue.onclick();
+  assert.equal(elements.storyOverlay.hidden, true);
+}
+assert.equal(new Set(openings.slice(0,5)).size,5);
+assert.equal(openings[2],openings[5]);
 
 // Timed cinematic pages retain their original automatic-advance behavior.
 vm.runInContext("playStory([{moment:'vault',image:'a.jpg',title:'金庫',lines:[],duration:100}, {moment:'dawn',image:'b.jpg',title:'朝',lines:[],button:'結果を見る'}])", context);

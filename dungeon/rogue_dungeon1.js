@@ -14,8 +14,6 @@
   const RUN_STATS_KEY='goimon_dungeon_records_v1';
   const BESTIARY_KEY='goimon_dungeon_bestiary_v1';
   const SETUP_KEY='goimon_dungeon_departure_v1';
-  const INTRO_STORY_KEY='goimon_dungeon01_prologue_seen_v2';
-  const FAMILIAR_STORY_KEY='goimon_dungeon01_familiar_announcement_seen_v1';
   const RETURN_STORY_KEY='goimon_dungeon01_return_after_clear_seen_v2';
   const JOURNAL_SEEN_KEY='goimon_dungeon_journal_seen_v1';
   const DEPARTMENT_ART='images/dungeons/night-department-';
@@ -848,19 +846,24 @@
       ],button:'次へ',tapToAdvance:true},
       {moment:'prologue',image:d.departureArt,eyebrow:'THE FIRST NIGHT',title:'閉じたシャッター',lines:[
         '足を踏み入れた途端、背後のシャッターが大きな音を立てて閉まる。',
-        '館内放送が告げた。「非常シャッターの鍵は、最上階の管理室にございます」',
-        '「管理室」の「り」で、天井の蛍光灯が一本だけ消えた。'
+        '三つの音が、誰もいない売り場に響いた。',
+        '「非常シャッターの鍵は、最上階の管理室にございます」'
       ],button:'冒険を始める',tapToAdvance:true}
-    ],()=>{try{localStorage.setItem(INTRO_STORY_KEY,'1');}catch(e){}});
+    ]);
   }
-  function showFamiliarAnnouncement(){
-    playStory([{moment:'prologue',image:DUNGEONS[1].departureArt,eyebrow:'午前0時',title:'聞き覚えのある放送',lines:[
-      '「非常シャッターの鍵は、最上階の……」',
-      '放送が言い終わる前に、ふと天井を見上げた。なぜか、どの蛍光灯が消えるか知っていた。',
-      '「管理室にございます」。目を向けた一本が、「り」のところでふっと消えた。'
-    ],button:'売り場へ進む',tapToAdvance:true}],()=>{
-      try{localStorage.setItem(FAMILIAR_STORY_KEY,'1');}catch(e){}
-    });
+  function showUnclearedEntry(attempt){
+    if(attempt<=1){showFirstNight();return;}
+    const laterNights=[
+      ['三つ目の音を、相棒が小さく口ずさんだ。','ひと呼吸おいて、天井のスピーカーが同じ音を返した。'],
+      ['シャッターが閉まる。耳をふさぐ。','指の隙間から、あの三つの音が入ってきた。'],
+      ['午前0時。売り場の奥で、三つの音が鳴った。','「……ただいま」。声に出してから、相棒の顔を見た。']
+    ];
+    let lines;
+    if(attempt===2)lines=['三つの音。「非常シャッターの鍵は……」','この声、どこで聞いたんだろう。背後では、まだシャッターが細かく震えていた。'];
+    else if(attempt===3)lines=['「最上階の管理室にございます」','口にしたのは、自分のほうだった。一拍遅れて、スピーカーの女の人が同じことを言った。'];
+    else lines=laterNights[(attempt-4)%laterNights.length];
+    playStory([{moment:'prologue',image:DUNGEONS[1].departureArt,eyebrow:'午前0時',title:'閉じたシャッター',
+      lines,button:'売り場へ進む',tapToAdvance:true}]);
   }
   function showReturnNight(){
     const d=DUNGEONS[1];
@@ -1097,8 +1100,7 @@
     recordRun('start');
     state.basicAttack=5;state.basicGuard=3;state.seenWords=[];state.wrongWords=[];state.battleWrongQuestions=[];state.runWrongQuestions=[];state.artifactTurnUses=new Set();state.artifactBattleUses=new Set();state.artifactDiscountUsed=false;state.artifactFreeShopUsed=false;startAct();
     if(state.dungeon===1){
-      if(!statsFor(1).clears&&localStorage.getItem(INTRO_STORY_KEY)!=='1')showFirstNight();
-      else if(!statsFor(1).clears&&localStorage.getItem(FAMILIAR_STORY_KEY)!=='1')showFamiliarAnnouncement();
+      if(!statsFor(1).clears)showUnclearedEntry(statsFor(1).attempts);
       else if(statsFor(1).clears===1&&localStorage.getItem(RETURN_STORY_KEY)!=='1')showReturnNight();
     }}
   function draw(n){for(let i=0;i<n&&state.hand.length<MAX_HAND;i++){if(!state.deck.length){state.deck=shuffled(state.used.splice(0));}if(!state.deck.length)break;state.hand.push(state.deck.pop());state.handDiscounts.push(0);
