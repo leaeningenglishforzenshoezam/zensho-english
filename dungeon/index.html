@@ -212,7 +212,7 @@
         <button type="button" id="pauseRunBtn"><span aria-hidden="true">Ⅱ</span><span><strong>中断する</strong><small>進行を保存して出発画面へ</small></span></button>
         <button type="button" id="abandonRunBtn"><span aria-hidden="true">×</span><span><strong>あきらめる</strong><small>今回の挑戦を終了する</small></span></button>
       </div>
-      <details><summary>BATTLE TERMS <small>カード・戦闘用語</small></summary><div class="help-explain"><div class="help-glossary"><div><b>DECK</b><span>今回のカード全体。</span></div><div><b>DRAW PILE</b><span>山札。</span></div><div><b>HAND</b><span>今使える手札。</span></div><div><b>BLOCK</b><span>受けるダメージを減らす防御値。</span></div><div><b>DMG</b><span>ダメージ。</span></div><div><b>HEAL</b><span>HPを回復。</span></div><div><b>PIERCE</b><span>敵の防御を無視。</span></div><div><b>REUSE</b><span>USEDのカードをその場で再使用。</span></div><div><b>CARRY OVER</b><span>防御やAPを持ち越す。</span></div><div><b>AP</b><span>カードを使うためのポイント。必要な数はカードの左上にあります。</span></div><div><b>NEXT</b><span>ターン終了後の敵の行動。複数いるときは攻撃したい敵をタップできます。</span></div><div><b>DRAW</b><span>山札からカードを引いて手札に加えること。「2枚ドロー」なら、手札に空きがある分だけ最大2枚引けます。</span></div><div><b>DISCARD</b><span>手札のカードを、効果を使わずにUSEDへ送ること。SELECTで1枚捨ててから同じターンにTRIGGERを使うと、追加ダメージが入ります。</span></div><div><b>USED</b><span>使い終えたカード。山札が尽きると、混ぜて再び引きます。</span></div><div><b>RETRIEVE</b><span>USEDにある対象カードを選び、手札に戻すこと。REMINDで1枚戻すと、そのターンの「回収枚数」が1増えます。REPLAYの「再使用」は、選んだカードをその場でAP0でもう一度使う効果で、回収枚数には含まれません。</span></div><div><b>SPROUT</b><span>戦闘中にためる数。SEEDで芽を2増やすと、通常のHARVESTは「芽×5」で追加ダメージが10増えます。芽は使っても減らず、次の戦闘で0に戻ります。</span></div><div><b>SEAL</b><span>その戦闘が終わるまで使えなくなったカード。</span></div><div><b>N / R / SR</b><span>カードのレアリティを表します。</span></div></div></div></details>
+      <details><summary>BATTLE TERMS <small>カード・戦闘用語</small></summary><div class="help-explain"><div class="help-glossary"><div><b>DECK</b><span>今回のカード全体。</span></div><div><b>DRAW PILE</b><span>山札。</span></div><div><b>HAND</b><span>今使える手札。</span></div><div><b>STRIKE</b><span>攻撃する行動。数字は与えるダメージの目安。</span></div><div><b>GUARD</b><span>身を守る行動。GUARD +5なら防御値が5増えます。</span></div><div><b>BLOCK</b><span>受けるダメージを減らす防御値。</span></div><div><b>DMG</b><span>ダメージ。</span></div><div><b>HEAL</b><span>HPを回復。</span></div><div><b>PIERCE</b><span>敵の防御を無視。</span></div><div><b>REUSE</b><span>USEDのカードをその場で再使用。</span></div><div><b>CARRY OVER</b><span>防御やAPを持ち越す。</span></div><div><b>AP</b><span>カードを使うためのポイント。必要な数はカードの左上にあります。</span></div><div><b>NEXT</b><span>ターン終了後の敵の行動。複数いるときは攻撃したい敵をタップできます。</span></div><div><b>DRAW</b><span>山札からカードを引いて手札に加えること。「2枚ドロー」なら、手札に空きがある分だけ最大2枚引けます。</span></div><div><b>DISCARD</b><span>手札のカードを、効果を使わずにUSEDへ送ること。SELECTで1枚捨ててから同じターンにTRIGGERを使うと、追加ダメージが入ります。</span></div><div><b>USED</b><span>使い終えたカード。山札が尽きると、混ぜて再び引きます。</span></div><div><b>RETRIEVE</b><span>USEDにある対象カードを選び、手札に戻すこと。REMINDで1枚戻すと、そのターンの「回収枚数」が1増えます。REPLAYの「再使用」は、選んだカードをその場でAP0でもう一度使う効果で、回収枚数には含まれません。</span></div><div><b>SPROUT</b><span>戦闘中にためる数。SEEDで芽を2増やすと、通常のHARVESTは「芽×5」で追加ダメージが10増えます。芽は使っても減らず、次の戦闘で0に戻ります。</span></div><div><b>SEAL</b><span>その戦闘が終わるまで使えなくなったカード。</span></div><div><b>N / R / SR</b><span>カードのレアリティを表します。</span></div></div></div></details>
       <details><summary><span>挑戦・復習・周回<small>中断・総復習・夜の記録</small></span></summary><div class="help-explain"><p><strong>中断</strong>は進行を保存し、<strong>あきらめる</strong>は挑戦を終了します。どちらも、その挑戦で間違えた問題をまとめて復習できます。</p><p>冒険を繰り返して条件を達成すると、出撃準備の「夜の記録」で百貨店のストーリーが解放されます。</p><div class="help-record" id="helpStats"></div></div></details>
       <details><summary><span>バッジ<small>挑戦中に達成できる目標</small></span></summary><div class="help-explain"><div id="helpBadges"></div><button type="button" class="badge-open" id="badgeMenuOpen">バッジ一覧を見る</button></div></details>
     </section>
@@ -240,11 +240,11 @@
       <div class="deck-overview" id="deckSummary"></div>
       <div class="deck-types" id="deckTypes"></div>
       <div class="deck-filter" id="deckFilters" role="group" aria-label="カード種類で絞り込み">
-        <button type="button" data-deck-filter="all" aria-pressed="true">すべて</button>
-        <button type="button" data-deck-filter="attack" aria-pressed="false">攻撃</button>
-        <button type="button" data-deck-filter="guard" aria-pressed="false">防御</button>
-        <button type="button" data-deck-filter="heal" aria-pressed="false">回復</button>
-        <button type="button" data-deck-filter="tactic" aria-pressed="false">補助</button>
+        <button type="button" data-deck-filter="all" aria-pressed="true">ALL</button>
+        <button type="button" data-deck-filter="attack" aria-pressed="false">STRIKE</button>
+        <button type="button" data-deck-filter="guard" aria-pressed="false">GUARD</button>
+        <button type="button" data-deck-filter="heal" aria-pressed="false">HEAL</button>
+        <button type="button" data-deck-filter="tactic" aria-pressed="false">TACTIC</button>
       </div>
       <div class="deck-entries" id="deckCards"></div>
       <p class="deck-hint" id="deckHint"></p>
