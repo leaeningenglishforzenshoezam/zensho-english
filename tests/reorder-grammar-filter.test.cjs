@@ -26,6 +26,7 @@ for (const [level, questions, dictionary] of [
     assert.ok(summaries.length > 30);
     for (const entry of summaries) {
       assert.ok(dictionary[entry.tag]?.label, `${level}: ${entry.tag} has no label`);
+      assert.notEqual(entry.group, 'other', `${level}: ${entry.tag} has no category`);
       assert.ok(entry.questionCount > 0);
       assert.equal(entry.attempts, 0);
     }
@@ -78,9 +79,10 @@ test('苦手問題の既存記録と新しいタグ別正答率の両方から�
 test('文法タグ選択UIの要素とスクリプト読込順が一致している', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'reorder.html'), 'utf8');
   for (const id of [
-    'grammarFilterDetails', 'grammarFilterCount', 'grammarFilterSearch',
-    'grammarFilterOnlyWeak', 'grammarFilterAll', 'grammarFilterSelectWeak',
-    'grammarFilterClear', 'grammarFilterTags', 'grammarFilterStatus'
+    'grammarStudyPicker', 'grammarFilterDetails', 'grammarFilterCount',
+    'grammarFilterSearch', 'grammarCategoryTabs', 'grammarFilterAll',
+    'grammarFilterSelectWeak', 'grammarFilterClear', 'grammarFilterTags',
+    'grammarFilterStatus', 'grammarFilterSelected', 'grammarSelectedProblemCount'
   ]) {
     assert.match(html, new RegExp(`id="${id}"`), `${id} is missing`);
   }

@@ -3,6 +3,41 @@
 (function (root) {
   "use strict";
 
+  const GROUPS = [
+    { id: "sentence", label: "文型・動詞", tags: [
+      "formal_subject_it", "formal_object_it", "causative_verb", "verb_o_c",
+      "verb_object_do", "verb_object_to_do", "verb_object_ving", "verb_object_pp",
+      "passive_in_form", "passive_question", "being_pp", "available_postmodifier",
+      "leave_place", "known_to", "participle", "exclamation", "with_object_complement"
+    ] },
+    { id: "verbals", label: "不定詞・動名詞", tags: [
+      "adj_enough_to_do", "be_likely_to", "gerund_expression", "infinitive_expression",
+      "negative_having", "negative_to_infinitive", "object_to_doing", "preposition_gerund", "perfect_inf"
+    ] },
+    { id: "clauses", label: "関係詞・名詞節", tags: [
+      "do_you_think_insertion", "noun_clause", "relative_pronoun", "relative_where",
+      "relative_when", "that_clause", "whether_pattern", "place_clause"
+    ] },
+    { id: "comparison", label: "比較・数量", tags: [
+      "comparative_emphasis", "paired_comparison", "one_of_the_superlative",
+      "superlative_emphasis", "that_of_comparison", "x_times_as_a_as", "quantity_form", "degree_as"
+    ] },
+    { id: "negative", label: "否定・仮定法", tags: [
+      "negative_inversion", "if_it_were_not_for", "wish_past", "hardly_any",
+      "no_longer", "not_until", "so_neither"
+    ] },
+    { id: "connectors", label: "接続・助動詞", tags: [
+      "as_if", "as_long_as", "conjunction_as", "concession_what", "no_matter_how",
+      "in_case", "purpose_clause", "time_patterns", "modal_guess", "modal_perfect",
+      "may_well_do", "had_better_not_do"
+    ] },
+    { id: "idioms", label: "熟語・語法", tags: [
+      "idiom", "phrasal_verb", "take_advantage_of", "occur_to", "verb_of",
+      "verb_a_of_b", "verb_a_from_b", "used_to", "paired_forms"
+    ] }
+  ];
+  const GROUP_BY_TAG = new Map(GROUPS.flatMap(group => group.tags.map(tag => [tag, group.id])));
+
   function questionTags(question) {
     return [...new Set((Array.isArray(question?.grammarTags) ? question.grammarTags : [])
       .filter(tag => typeof tag === "string" && tag.trim()))];
@@ -38,6 +73,7 @@
           byTag.set(tag, {
             tag,
             label: dictionary?.[tag]?.label || tag,
+            group: GROUP_BY_TAG.get(tag) || "other",
             questionCount: 0,
             weakQuestionCount: 0
           });
@@ -66,7 +102,7 @@
     }).sort((a, b) => a.label.localeCompare(b.label, "ja"));
   }
 
-  const api = { questionTags, filterIndexes, recordAttempt, collectTags };
+  const api = { GROUPS, questionTags, filterIndexes, recordAttempt, collectTags };
   root.ReorderGrammarFilter = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(typeof window !== "undefined" ? window : globalThis);

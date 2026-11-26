@@ -44,10 +44,16 @@ const startNoInput = $("startNoInput");
 const endNoInput = $("endNoInput");
 const resetCursorBtn = $("resetCursorBtn");
 const poolInfo = $("poolInfo");
+const grammarStudyPicker = $("grammarStudyPicker");
 const grammarFilterDetails = $("grammarFilterDetails");
 const grammarFilterCount = $("grammarFilterCount");
+const grammarSelectedProblemCount = $("grammarSelectedProblemCount");
+const grammarFilterSelected = $("grammarFilterSelected");
+const grammarPickerHeading = $("grammarPickerHeading");
+const grammarWeakCount = $("grammarWeakCount");
 const grammarFilterSearch = $("grammarFilterSearch");
-const grammarFilterOnlyWeak = $("grammarFilterOnlyWeak");
+const grammarFilterTools = $("grammarFilterTools");
+const grammarCategoryTabs = $("grammarCategoryTabs");
 const grammarFilterAll = $("grammarFilterAll");
 const grammarFilterSelectWeak = $("grammarFilterSelectWeak");
 const grammarFilterClear = $("grammarFilterClear");
@@ -117,6 +123,19 @@ const grammarTagListEmpty = $("grammarTagListEmpty");
   const GrammarFilter = window.ReorderGrammarFilter;
   const validGrammarTags = new Set(QUESTIONS.flatMap(q => GrammarFilter.questionTags(q)));
   let selectedGrammarTags = new Set();
+  let selectedWeakTags = new Set();
+  let grammarMode = "all";
+  let grammarCategory = GrammarFilter.GROUPS[0].id;
+
+  function getSelectedPracticeTags() {
+    if (grammarMode === "tags") return [...selectedGrammarTags];
+    if (grammarMode === "weak") return [...selectedWeakTags];
+    return [];
+  }
+
+  function getModeSelection() {
+    return grammarMode === "weak" ? selectedWeakTags : selectedGrammarTags;
+  }
 
   function safeParse(key) {
     const raw = GOIMONStorage.getItem(key);
@@ -169,8 +188,12 @@ const grammarTagListEmpty = $("grammarTagListEmpty");
       startNo: Number.isFinite(Number(s?.startNo)) ? Number(s.startNo) : 1,
       endNo: Number.isFinite(Number(s?.endNo)) ? Number(s.endNo) : 9999,
       allMatching: !!s?.allMatching,
+      grammarMode: ["all", "tags", "weak"].includes(s?.grammarMode)
+        ? s.grammarMode : (Array.isArray(s?.grammarTags) && s.grammarTags.length ? "tags" : "all"),
       grammarTags: Array.isArray(s?.grammarTags)
-        ? [...new Set(s.grammarTags.filter(tag => validGrammarTags.has(tag)))] : []
+        ? [...new Set(s.grammarTags.filter(tag => validGrammarTags.has(tag)))] : [],
+      weakGrammarTags: Array.isArray(s?.weakGrammarTags)
+        ? [...new Set(s.weakGrammarTags.filter(tag => validGrammarTags.has(tag)))] : []
     };
   }
 
@@ -181,7 +204,9 @@ const grammarTagListEmpty = $("grammarTagListEmpty");
       startNo: Number(obj.startNo || 1),
       endNo: Number(obj.endNo || 9999),
       allMatching: !!grammarFilterAll.checked,
-      grammarTags: Array.isArray(obj.grammarTags) ? obj.grammarTags : [...selectedGrammarTags]
+      grammarMode,
+      grammarTags: [...selectedGrammarTags],
+      weakGrammarTags: [...selectedWeakTags]
     });
   }
 
@@ -205,7 +230,7 @@ const grammarTagListEmpty = $("grammarTagListEmpty");
   }
 
   function getTagCursorKey(startNo, endNo) {
-    return `${startNo}:${endNo}:${[...selectedGrammarTags].sort().join("|")}`;
+    return `${grammarMode}:${startNo}:${endNo}:${getSelectedPracticeTags().sort().join("|")}`;
   }
 
   function loadTagCursor(key) {
@@ -322,30 +347,72 @@ function persistGrammarSelection() {
   });
 }
 
+function getConfiguredRangeIndexes() {
+  let startNo = Number(startNoInput.value);
+  let endNo = Number(endNoInput.value);
+  if (!Number.isFinite(startNo) || startNo < 1) startNo = 1;
+  if (!Number.isFinite(endNo) || endNo < 1) endNo = 9999;
+  if (startNo > endNo) [startNo, endNo] = [endNo, startNo];
+  return getRangeFilteredIndexes(startNo, endNo);
+}
+
 function renderGrammarFilter() {
   if (!grammarFilterTags) return;
   const summaries = getGrammarTagSummaries();
-  const search = grammarFilterSearch.value.trim().toLocaleLowerCase();
-  const onlyWeak = grammarFilterOnlyWeak.checked;
-  const candidates = summaries.filter(entry =>
-    (!onlyWeak || entry.weak) &&
-    (!search || entry.label.toLocaleLowerCase().includes(search) || entry.tag.toLowerCase().includes(search))
-  );
+  const weakEntries = summaries.filter(entry => entry.weak);
+  const weakIds = new Set(weakEntries.map(entry => entry.tag));
+  selectedWeakTags = new Set([...selectedWeakTags].filter(tag => weakIds.has(tag)));
+  const selection = getModeSelection();
+  const selecting = grammarMode !== "all";
+  grammarFilterDetails.hidden = !selecting;
+  grammarFilterTools.hidden = grammarMode !== "tags";
+  grammarFilterSelectWeak.hidden = grammarMode !== "weak";
+  grammarWeakCount.textContent = weakEntries.length ? `${weakEntries.length}項目を復習` : "記録から復習";
+  grammarPickerHeading.textContent = grammarMode === "weak" ? "苦手な文法項目" : "文法の分類を選ぶ";
+  document.querySelectorAll("[data-grammar-mode]").forEach(button => {
+    button.setAttribute("aria-pressed", String(button.dataset.grammarMode === grammarMode));
+  });
 
-  grammarFilterCount.textContent = selectedGrammarTags.size
-    ? `（${selectedGrammarTags.size}項目選択中）` : "（すべての問題）";
+  const search = grammarFilterSearch.value.trim().toLocaleLowerCase();
+  const groups = GrammarFilter.GROUPS.filter(group => summaries.some(entry => entry.group === group.id));
+  if (!groups.some(group => group.id === grammarCategory)) grammarCategory = groups[0]?.id || "other";
+  grammarCategoryTabs.hidden = grammarMode !== "tags" || !!search;
+  grammarCategoryTabs.replaceChildren();
+  if (grammarMode === "tags" && !search) {
+    for (const group of groups) {
+      const count = summaries.filter(entry => entry.group === group.id).length;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "grammarCategoryButton";
+      button.setAttribute("aria-pressed", String(grammarCategory === group.id));
+      button.textContent = `${group.label}（${count}）`;
+      button.addEventListener("click", () => {
+        grammarCategory = group.id;
+        renderGrammarFilter();
+      });
+      grammarCategoryTabs.appendChild(button);
+    }
+  }
+  const candidates = grammarMode === "weak"
+    ? weakEntries
+    : summaries.filter(entry => search
+      ? entry.label.toLocaleLowerCase().includes(search) || entry.tag.toLowerCase().includes(search)
+      : entry.group === grammarCategory);
+
   grammarFilterTags.replaceChildren();
   for (const entry of candidates) {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "grammarFilterChip";
-    btn.setAttribute("aria-pressed", String(selectedGrammarTags.has(entry.tag)));
-    const statsText = entry.attempts ? `正答率 ${entry.accuracy}%（${entry.attempts}回）` : "記録なし";
-    btn.innerHTML = `${escapeHtml(entry.label)}${entry.weak ? ' <span class="grammarFilterWeak">● 苦手</span>' : ""}` +
-      `<small>${entry.questionCount}問 ・ ${statsText}</small>`;
+    btn.setAttribute("aria-pressed", String(selection.has(entry.tag)));
+    const statsText = entry.attempts ? `正答率 ${entry.accuracy}%` : "未挑戦";
+    btn.innerHTML = `<span><span class="grammarTagTitle">${escapeHtml(entry.label)}</span>` +
+      `<span class="grammarTagMeta">${entry.questionCount}問 · ${statsText}` +
+      `${entry.weak ? ' · <span class="grammarFilterWeak">復習</span>' : ""}</span></span>` +
+      `<span class="grammarCheck" aria-hidden="true">✓</span>`;
     btn.addEventListener("click", () => {
-      if (selectedGrammarTags.has(entry.tag)) selectedGrammarTags.delete(entry.tag);
-      else selectedGrammarTags.add(entry.tag);
+      if (selection.has(entry.tag)) selection.delete(entry.tag);
+      else selection.add(entry.tag);
       persistGrammarSelection();
       renderGrammarFilter();
       renderPoolInfo();
@@ -355,40 +422,74 @@ function renderGrammarFilter() {
   if (!candidates.length) {
     const empty = document.createElement("div");
     empty.className = "grammarFilterEmpty";
-    empty.textContent = onlyWeak ? "該当する苦手タグはまだありません。" : "一致する文法タグがありません。";
+    empty.textContent = grammarMode === "weak"
+      ? "まだ苦手と判定された文法はありません。まず通常演習から始めましょう。"
+      : "一致する文法項目がありません。検索語を変えてください。";
     grammarFilterTags.appendChild(empty);
   }
-  const weakCount = summaries.filter(entry => entry.weak).length;
-  grammarFilterSelectWeak.disabled = weakCount === 0;
-  grammarFilterClear.disabled = selectedGrammarTags.size === 0;
-  countInput.disabled = grammarFilterAll.checked;
-  grammarFilterStatus.textContent = selectedGrammarTags.size
-    ? `選択中：${summaries.filter(entry => selectedGrammarTags.has(entry.tag)).map(entry => entry.label).join("・")}`
-    : `苦手タグ：${weakCount}項目。苦手問題が残っているタグ、または3回以上解いて正答率70%未満のタグを表示します。`;
+  grammarFilterCount.textContent = `選択：${selection.size}項目`;
+  const matching = GrammarFilter.filterIndexes(QUESTIONS, getConfiguredRangeIndexes(), [...selection]);
+  grammarSelectedProblemCount.textContent = selection.size ? `${matching.length}問が対象` : "0問が対象";
+  grammarFilterSelected.replaceChildren();
+  for (const entry of summaries.filter(item => selection.has(item.tag))) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "grammarSelectedTag";
+    button.setAttribute("aria-label", `${entry.label}を選択解除`);
+    button.innerHTML = `${escapeHtml(entry.label)}<span aria-hidden="true">×</span>`;
+    button.addEventListener("click", () => {
+      selection.delete(entry.tag);
+      persistGrammarSelection();
+      renderGrammarFilter();
+      renderPoolInfo();
+    });
+    grammarFilterSelected.appendChild(button);
+  }
+  grammarFilterSelectWeak.disabled = weakEntries.length === 0;
+  grammarFilterClear.disabled = selection.size === 0;
+  countInput.disabled = selecting && grammarFilterAll.checked;
+  grammarFilterStatus.textContent = selection.size
+    ? "選んだ文法のいずれかが付いた問題を、重複せずに出題します。"
+    : (grammarMode === "weak" ? "苦手項目を選択すると復習を始められます。" : "下の文法項目をタップして選びましょう。");
 }
 
 function bindGrammarFilter() {
   if (!grammarFilterTags) return;
+  document.querySelectorAll("[data-grammar-mode]").forEach(button => {
+    button.addEventListener("click", () => {
+      const nextMode = button.dataset.grammarMode;
+      if (nextMode === grammarMode) return;
+      if (nextMode === "weak") {
+        selectedWeakTags = new Set(getGrammarTagSummaries().filter(entry => entry.weak).map(entry => entry.tag));
+      }
+      grammarMode = nextMode;
+      persistGrammarSelection();
+      renderGrammarFilter();
+      renderPoolInfo();
+    });
+  });
   grammarFilterSearch.addEventListener("input", renderGrammarFilter);
-  grammarFilterOnlyWeak.addEventListener("change", renderGrammarFilter);
   grammarFilterAll.addEventListener("change", () => {
     persistGrammarSelection();
     renderGrammarFilter();
     renderPoolInfo();
   });
   grammarFilterSelectWeak.addEventListener("click", () => {
-    getGrammarTagSummaries().filter(entry => entry.weak).forEach(entry => selectedGrammarTags.add(entry.tag));
+    getGrammarTagSummaries().filter(entry => entry.weak).forEach(entry => selectedWeakTags.add(entry.tag));
     persistGrammarSelection();
     renderGrammarFilter();
     renderPoolInfo();
   });
   grammarFilterClear.addEventListener("click", () => {
-    selectedGrammarTags.clear();
+    getModeSelection().clear();
     persistGrammarSelection();
     renderGrammarFilter();
     renderPoolInfo();
   });
-  [startNoInput, endNoInput].forEach(input => input.addEventListener("input", renderPoolInfo));
+  [startNoInput, endNoInput].forEach(input => input.addEventListener("input", () => {
+    renderGrammarFilter();
+    renderPoolInfo();
+  }));
   orderModeEl.addEventListener("change", renderPoolInfo);
 }
 
@@ -778,10 +879,11 @@ function renderGrammarTagList() {
       practiceBtn.className = "grammarTagBtn";
       practiceBtn.textContent = "このタグでまとめて演習";
       practiceBtn.addEventListener("click", () => {
+        grammarMode = "tags";
         selectedGrammarTags = new Set([tag]);
+        grammarCategory = entry.group;
         grammarFilterAll.checked = true;
         persistGrammarSelection();
-        grammarFilterDetails.open = true;
         showSetup();
         renderPoolInfo();
       });
@@ -949,13 +1051,15 @@ function renderWeakList() {
     if (!Number.isFinite(endNo) || endNo < 1) endNo = 9999;
     if (startNo > endNo) [startNo, endNo] = [endNo, startNo];
     const base = specialRequest ? QUESTIONS.map((_, index) => index) : getRangeFilteredIndexes(startNo, endNo);
-    const filtered = specialRequest ? base : GrammarFilter.filterIndexes(QUESTIONS, base, [...selectedGrammarTags]);
-    const available = specialRequest || orderModeEl.value !== "weak"
+    const selected = getSelectedPracticeTags();
+    const needsSelection = !specialRequest && grammarMode !== "all" && !selected.length;
+    const filtered = specialRequest || grammarMode === "all" ? base : GrammarFilter.filterIndexes(QUESTIONS, base, selected);
+    const available = needsSelection ? 0 : specialRequest || orderModeEl.value !== "weak"
       ? filtered.length : filtered.filter(i => isManualWeakId(QUESTIONS[i].id) || getAutoWeakCountById(QUESTIONS[i].id) > 0).length;
     startBtn.disabled = available === 0;
-    poolInfo.textContent = `この条件で出題可能：${available}問` +
-      (selectedGrammarTags.size && !specialRequest ? `（文法タグ ${selectedGrammarTags.size}項目）` : "") +
-      (available === 0 ? "。タグ・範囲・出題順を変更してください。" : "");
+    poolInfo.textContent = needsSelection
+      ? (grammarMode === "weak" ? "苦手文法を選ぶと演習を始められます。" : "練習したい文法を選んでください。")
+      : `この条件で解ける問題：${available}問` + (available === 0 ? "。範囲や出題順を変更してください。" : "");
   }
 
   function renderStats() {
@@ -1725,12 +1829,18 @@ function renderSummary() {
   const ids = new Set((review || "").split(","));
   // デイリーミッションと他画面からの復習ID指定は、文法タグより優先する。
   const isGoimonPractice = new URLSearchParams(location.search).has("goimonAbility");
-  const activeTags = isDaily || review || isGoimonPractice ? [] : [...selectedGrammarTags];
+  const activeTags = isDaily || review || isGoimonPractice ? [] : getSelectedPracticeTags();
+  if (!isDaily && !review && !isGoimonPractice && grammarMode !== "all" && !activeTags.length) {
+    alert("練習したい文法項目を選んでください。");
+    return;
+  }
   const baseOrder = isDaily
     ? QUESTIONS.map((_, index) => index)
     : review
       ? QUESTIONS.map((q, i) => ids.has(String(q.id)) ? i : -1).filter(i => i >= 0)
-      : GrammarFilter.filterIndexes(QUESTIONS, getRangeFilteredIndexes(startNo, endNo), activeTags);
+      : grammarMode === "all"
+        ? getRangeFilteredIndexes(startNo, endNo)
+        : GrammarFilter.filterIndexes(QUESTIONS, getRangeFilteredIndexes(startNo, endNo), activeTags);
   if (isDaily) {
     requestedLimit = 5;
     if (baseOrder.length < requestedLimit) {
@@ -1746,7 +1856,7 @@ function renderSummary() {
     return;
   }
 
-  if (!isDaily && !review && !isGoimonPractice && grammarFilterAll.checked) requestedLimit = baseOrder.length;
+  if (!isDaily && !review && !isGoimonPractice && grammarMode !== "all" && grammarFilterAll.checked) requestedLimit = baseOrder.length;
 
   let order = [];
   let cursor = 0;
@@ -1840,7 +1950,12 @@ function renderSummary() {
 
   function init() {
     const settings = loadSettings();
+    grammarMode = settings.grammarMode;
     selectedGrammarTags = new Set(settings.grammarTags);
+    selectedWeakTags = new Set(settings.weakGrammarTags);
+    if (grammarMode === "weak" && !selectedWeakTags.size) {
+      selectedWeakTags = new Set(getGrammarTagSummaries().filter(entry => entry.weak).map(entry => entry.tag));
+    }
     grammarFilterAll.checked = settings.allMatching;
     countInput.value = String(settings.count || 10);
     orderModeEl.value = settings.orderMode || "continue";
@@ -1861,9 +1976,7 @@ function renderSummary() {
 
     const query = new URLSearchParams(location.search);
     if (dailyReorderRequest() || query.has("reviewIds") || query.has("goimonAbility")) {
-      grammarFilterDetails.style.display = "none";
-    } else if (selectedGrammarTags.size) {
-      grammarFilterDetails.open = true;
+      grammarStudyPicker.style.display = "none";
     }
 
     renderLevelBadge();
@@ -1882,7 +1995,7 @@ function renderSummary() {
 
     startBtn.addEventListener("click", startSession);
     resetCursorBtn.addEventListener("click", () => {
-      if (selectedGrammarTags.size) {
+      if (getSelectedPracticeTags().length) {
         let startNo = Math.max(1, Number(startNoInput.value) || 1);
         let endNo = Math.max(1, Number(endNoInput.value) || 9999);
         if (startNo > endNo) [startNo, endNo] = [endNo, startNo];
