@@ -15,6 +15,7 @@
   const BESTIARY_KEY='goimon_dungeon_bestiary_v1';
   const SETUP_KEY='goimon_dungeon_departure_v1';
   const INTRO_STORY_KEY='goimon_dungeon01_prologue_seen_v2';
+  const FAMILIAR_STORY_KEY='goimon_dungeon01_familiar_announcement_seen_v1';
   const RETURN_STORY_KEY='goimon_dungeon01_return_after_clear_seen_v2';
   const JOURNAL_SEEN_KEY='goimon_dungeon_journal_seen_v1';
   const DEPARTMENT_ART='images/dungeons/night-department-';
@@ -848,9 +849,18 @@
       {moment:'prologue',image:d.departureArt,eyebrow:'THE FIRST NIGHT',title:'閉じたシャッター',lines:[
         '足を踏み入れた途端、背後のシャッターが大きな音を立てて閉まる。',
         '館内放送が告げた。「非常シャッターの鍵は、最上階の管理室にございます」',
-        '相棒と顔を見合わせ、明かりの残る売り場へ進んだ。'
+        '「管理室」の「り」で、天井の蛍光灯が一本だけ消えた。'
       ],button:'冒険を始める',tapToAdvance:true}
     ],()=>{try{localStorage.setItem(INTRO_STORY_KEY,'1');}catch(e){}});
+  }
+  function showFamiliarAnnouncement(){
+    playStory([{moment:'prologue',image:DUNGEONS[1].departureArt,eyebrow:'午前0時',title:'聞き覚えのある放送',lines:[
+      '「非常シャッターの鍵は、最上階の……」',
+      '放送が言い終わる前に、ふと天井を見上げた。なぜか、どの蛍光灯が消えるか知っていた。',
+      '「管理室にございます」。目を向けた一本が、「り」のところでふっと消えた。'
+    ],button:'売り場へ進む',tapToAdvance:true}],()=>{
+      try{localStorage.setItem(FAMILIAR_STORY_KEY,'1');}catch(e){}
+    });
   }
   function showReturnNight(){
     const d=DUNGEONS[1];
@@ -1088,6 +1098,7 @@
     state.basicAttack=5;state.basicGuard=3;state.seenWords=[];state.wrongWords=[];state.battleWrongQuestions=[];state.runWrongQuestions=[];state.artifactTurnUses=new Set();state.artifactBattleUses=new Set();state.artifactDiscountUsed=false;state.artifactFreeShopUsed=false;startAct();
     if(state.dungeon===1){
       if(!statsFor(1).clears&&localStorage.getItem(INTRO_STORY_KEY)!=='1')showFirstNight();
+      else if(!statsFor(1).clears&&localStorage.getItem(FAMILIAR_STORY_KEY)!=='1')showFamiliarAnnouncement();
       else if(statsFor(1).clears===1&&localStorage.getItem(RETURN_STORY_KEY)!=='1')showReturnNight();
     }}
   function draw(n){for(let i=0;i<n&&state.hand.length<MAX_HAND;i++){if(!state.deck.length){state.deck=shuffled(state.used.splice(0));}if(!state.deck.length)break;state.hand.push(state.deck.pop());state.handDiscounts.push(0);
