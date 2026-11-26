@@ -36,6 +36,9 @@
   }
   const bestiaryKey=dungeon=>dungeon===1?BESTIARY_KEY:BESTIARY_KEY+'_'+dungeon;
   const discoveries={1:readBestiary(bestiaryKey(1)),2:readBestiary(bestiaryKey(2))};
+  const LEARNING_LEVEL_KEY='zensho_level_v1';
+  const learningStorage=window.GOIMONStorage || localStorage;
+  function learningGrade(){return learningStorage.getItem(LEARNING_LEVEL_KEY)==='2'?2:1;}
   const savedSetup=readJson(SETUP_KEY,{});
   function statsFor(dungeon){return runStats[dungeon]||{attempts:0,clears:0,bestDepth:0};}
   function renderRunStats(){const s=statsFor(state.dungeon);$('dungeonAttempts').textContent=s.attempts||0;$('dungeonClears').textContent=s.clears||0;const p=s.bestDepth||0;$('dungeonBest').textContent=p?`ACT ${Math.ceil(p/9)} · ${((p-1)%9)+1}/9`:'―';renderJournalSummary();}
@@ -389,7 +392,7 @@
     {kind:'exchange',name:'等価交換ジョーカー',hp:114,attack:10,icon:'🃏'},
     {kind:'taxer',name:'悪徳税理士',hp:110,attack:9,icon:'📜'}
   ];
-  const state = {phase:'intro',examGrade:savedSetup.examGrade===1?1:2,loadout:0,companionId:savedSetup.companionId||null,selectedCarrySkills:Array.isArray(savedSetup.skills)?savedSetup.skills:null,hp:START_HP,maxHp:START_HP,ap:3,apTotal:3,block:0,guardPriceCut:0,carry:0,carryOver:0,buff:1,nextPlus:0,turn:1,
+  const state = {phase:'intro',examGrade:learningGrade(),loadout:0,companionId:savedSetup.companionId||null,selectedCarrySkills:Array.isArray(savedSetup.skills)?savedSetup.skills:null,hp:START_HP,maxHp:START_HP,ap:3,apTotal:3,block:0,guardPriceCut:0,carry:0,carryOver:0,buff:1,nextPlus:0,turn:1,
     fight:0,hand:[],handDiscounts:[],deck:[],used:[],owned:[],enemies:[],selected:0,questions:0,correct:0,commandUsed:false,
     notice:'',pending:null,question:null,choiceMode:null,campNext:false,postChoice:null,route:[],routeEdges:[],routePath:[],stage:0,currentEncounter:null,
     coins:0,artifacts:[],artifactTurnUses:new Set(),artifactBattleUses:new Set(),shopStock:[],basicAttack:5,basicGuard:3,upgradeFromEvent:false,removeOrigin:'shop',
@@ -658,7 +661,7 @@
     if(!profiles||profiles.currentAccount()!==profiles.account)return;
     try{
       const storage=window.GOIMONStorage;
-      const level=storage.getItem('zensho_level_v1')==='2'?'2':'1';
+      const level=String(learningGrade());
       const inventory=window.GoimonItemStore.readState(storage,level);
       const ownedNames=new Set(window.GoimonBattleCatalog.skills
         .filter(item=>inventory.owned.skills[item.id]>0)
@@ -672,7 +675,7 @@
   const selectedCompanion=()=>companions.find(c=>c.id===state.companionId)||companions[0];
   const selectedCarry=()=>state.selectedCarrySkills??LOADOUTS[state.loadout].cards;
   const carryNames=()=>[...new Set(selectedCarry())].filter(id=>carryChoices().includes(id)).slice(0,3);
-  function saveSetup(){storeJson(SETUP_KEY,{examGrade:state.examGrade,companionId:state.companionId,skills:state.selectedCarrySkills,dungeon:state.dungeon});}
+  function saveSetup(){storeJson(SETUP_KEY,{companionId:state.companionId,skills:state.selectedCarrySkills,dungeon:state.dungeon});}
   function companionArt(c,small=false){return c.image?`<img src="${escapeHtml(c.image)}" alt="" loading="lazy">`:`<span class="goimon-sigil ${small?'small':''}" aria-hidden="true">${escapeHtml(c.sigil||'✧')}</span>`;}
   function renderSelectedCompanion(){
     const c=selectedCompanion();
@@ -797,7 +800,7 @@
     $('usedList').innerHTML=[...counts].map(([name,count])=>{const s=getSkill(name);if(!s)return '';return `<details class="used-card ${s.type}"><summary><span class="used-ap">${s.ap}</span><span><strong>${escapeHtml(s.label)}</strong><small>${escapeHtml(FMT[s.format])}</small></span><b>×${count}</b><span>⌄</span></summary><p>${escapeHtml(effects(s))}</p></details>`;}).join('')||'<div class="used-empty">USEDはまだありません</div>';
     $('usedOverlay').hidden=false;
   }
-  function setScreen(name){state.phase=name;$('intro').hidden=name!=='intro';$('battle').hidden=name!=='battle';$('choiceScreen').hidden=name!=='choice';$('routeScreen').hidden=name!=='route';$('runResources').hidden=name==='intro';renderResources();
+  function setScreen(name){state.phase=name;if(name==='intro')refreshDeparture();$('intro').hidden=name!=='intro';$('battle').hidden=name!=='battle';$('choiceScreen').hidden=name!=='choice';$('routeScreen').hidden=name!=='route';$('runResources').hidden=name==='intro';renderResources();
     const kind=state.currentEncounter?.nodeType;
     // Map/rewards/rest use exploration music. A mixed fight with any elite uses the elite cue.
     const battleCue=kind==='boss'||state.enemies?.some(e=>e.hp>0&&e.kind==='boss')?'boss'
@@ -1078,7 +1081,7 @@
     if(state.dungeon===1&&kind==='boss'&&state.act===3)showFinalBossOmen();
   }
   function startAct(){state.stage=0;state.actFight=0;state.mapEditMode=false;const map=makeRoute();state.route=map.route;state.routeEdges=map.edges;state.routePath=[];showRoute();}
-  function start(){refreshCarryInventory();renderLoadouts();refreshCompanions();renderSelectedCompanion();if(!selectedCompanion())return;if(state.dungeon===2&&!stage2Unlocked())return;playSfx('confirm');clearCheckpoint();state.missionOwner=GoimonDungeonMission.owner();state.missionRecorded=false;state.hp=START_HP;state.maxHp=START_HP;state.act=1;state.type=selectedCompanion().type;state.typeBoost=false;state.specialBoosts=[];
+  function start(){syncDepartureGrade();refreshCarryInventory();renderLoadouts();refreshCompanions();renderSelectedCompanion();if(!selectedCompanion())return;if(state.dungeon===2&&!stage2Unlocked())return;playSfx('confirm');clearCheckpoint();state.missionOwner=GoimonDungeonMission.owner();state.missionRecorded=false;state.hp=START_HP;state.maxHp=START_HP;state.act=1;state.type=selectedCompanion().type;state.typeBoost=false;state.specialBoosts=[];
     state.owned=[...carryNames()];state.specialSkillOffer=null;state.choiceSpecialOptions=null;state.questions=0;state.correct=0;state.fight=0;state.coins=0;state.artifacts=[];state.artifactActUpgrades=[];state.artifactMapUsedActs=[];state.mapEditMode=false;state.delayedRetryCard=null;state.finalSettlementUsed=false;
     state.eventHistory=[];state.choiceEvent=null;
     recordRun('start');
@@ -2175,7 +2178,21 @@
     if(state.choiceMode==='upgrade'){if(!state.basicAttack&&!state.basicGuard&&!state.owned.some(x=>!x.endsWith('+'))){state.hp=Math.min(state.maxHp,state.hp+25);advance();return;}if(state.upgradeFromEvent){advance();return;}showChoice('camp');return;}
     if(['reward','eliteReward','treasure','event'].includes(state.choiceMode))advance();}
   function closeDungeonMap(){$('dungeonMap').hidden=true;}
-  $('examGrade').onchange=e=>{if(state.phase==='intro'){state.examGrade=e.target.value==='1'?1:2;saveSetup();}};
+  function refreshDeparture(){
+    if(state.phase!=='intro')return;
+    state.examGrade=learningGrade();
+    $('examGrade').value=String(state.examGrade);
+    refreshCompanions();refreshCarryInventory();renderSelectedCompanion();renderLoadouts();
+    if(!$('skillOverlay').hidden)openSkills();
+  }
+  function syncDepartureGrade(){
+    if(state.phase==='intro' && state.examGrade!==learningGrade())refreshDeparture();
+  }
+  $('examGrade').onchange=e=>{
+    if(state.phase!=='intro')return;
+    try{learningStorage.setItem(LEARNING_LEVEL_KEY,e.target.value==='2'?'2':'1');}
+    finally{refreshDeparture();}
+  };
   $('dungeonMapOpen').onclick=()=>{dungeonMapPage=Math.floor((state.dungeon-1)/DUNGEON_PAGE_SIZE);renderDungeonPicker();$('dungeonMap').hidden=false;};
   $('dungeonMapClose').onclick=closeDungeonMap;
   $('dungeonMapPrev').onclick=()=>{dungeonMapPage=Math.max(0,dungeonMapPage-1);renderDungeonPicker();};
@@ -2264,7 +2281,9 @@
   document.addEventListener?.('keydown',e=>{if(e.key==='Escape'){if(!$('dungeonMap').hidden)closeDungeonMap();else if(!$('guidePanel').hidden)leaveGuide();else if(!$('helpOverlay').hidden)closeHelp();}});
   $('closeQuestion').onclick=closeQuestion;$('continueQuestion').onclick=()=>state.pending?.bossChallenge?finishBossChallenge():finishQuestion();
   $('listenBtn').onclick=()=>{if(state.question?.speak)speak(state.question.speak);};
-  window.addEventListener('pageshow',()=>{if(state.phase==='intro'){refreshCompanions();refreshCarryInventory();renderSelectedCompanion();renderLoadouts();if(!$('skillOverlay').hidden)openSkills();}});
+  window.addEventListener('pageshow',refreshDeparture);
+  window.addEventListener('focus',syncDepartureGrade);
+  window.addEventListener('storage',syncDepartureGrade);
   renderSelectedCompanion();renderBestiarySummary();
   renderLoadouts();renderDungeonPicker();renderBadgeSummary();$('resumeBtn').hidden=!readCheckpoint();
   syncBadgeRewards();
