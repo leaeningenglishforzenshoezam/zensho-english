@@ -853,15 +853,14 @@
   }
   function showUnclearedEntry(attempt){
     if(attempt<=1){showFirstNight();return;}
-    const laterNights=[
-      ['三つ目の音を、相棒が小さく口ずさんだ。','ひと呼吸おいて、天井のスピーカーが同じ音を返した。'],
-      ['シャッターが閉まる。耳をふさぐ。','指の隙間から、あの三つの音が入ってきた。'],
-      ['午前0時。売り場の奥で、三つの音が鳴った。','「……ただいま」。声に出してから、相棒の顔を見た。']
-    ];
     let lines;
-    if(attempt===2)lines=['三つの音。「非常シャッターの鍵は……」','この声、どこで聞いたんだろう。背後では、まだシャッターが細かく震えていた。'];
-    else if(attempt===3)lines=['「最上階の管理室にございます」','口にしたのは、自分のほうだった。一拍遅れて、スピーカーの女の人が同じことを言った。'];
-    else lines=laterNights[(attempt-4)%laterNights.length];
+    if(attempt<=4){
+      lines=['三つの音。「非常シャッターの鍵は……」','この声、どこで聞いたんだろう。背後では、まだシャッターが細かく震えていた。'];
+    }else if(attempt<=9){
+      lines=['「最上階の管理室にございます」','口にしたのは、自分のほうだった。一拍遅れて、スピーカーの女の人が同じことを言った。'];
+    }else{
+      lines=['二つ目の音が鳴る。相棒がこちらを見た。','三つ目を一緒に口ずさむと、天井から同じ音が追いかけてきた。'];
+    }
     playStory([{moment:'prologue',image:DUNGEONS[1].departureArt,eyebrow:'午前0時',title:'閉じたシャッター',
       lines,button:'売り場へ進む',tapToAdvance:true}]);
   }
