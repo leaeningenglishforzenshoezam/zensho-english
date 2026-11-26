@@ -17,6 +17,10 @@
 .artifact-entry .artifact-image{width:48px;height:48px}
 .artifact-choice .artifact-image{width:64px;height:64px}
 .shop-item .artifact-image{width:46px;height:46px}
+.choice-action.event-only-artifact{border-color:#d6aa53;background:#fff9e6;align-items:center;gap:5px}
+.choice-action.event-only-artifact .artifact-image{width:52px;height:52px}
+.choice-action.event-only-artifact strong{font-size:17px}
+.choice-action.event-only-artifact small{line-height:1.4;font-size:12px}
 /* Elite victories offer one artifact alongside three cards, all visible at once. */
 #choiceScreen .choice-cards.elite-offers{flex-wrap:nowrap;align-items:stretch;gap:clamp(5px,1vw,14px)}
 #choiceScreen .choice-cards.elite-offers>.skill-card,

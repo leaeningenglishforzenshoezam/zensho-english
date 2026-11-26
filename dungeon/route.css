@@ -61,6 +61,9 @@
 .route-map .route-node.picked{background:#d1f0e3;border-color:#45987f;opacity:1}
 .route-map .route-node.available{background:#fff6d2;border-color:#e2a14d;box-shadow:0 0 0 4px #f3bd5870,0 4px 0 #d3944e;cursor:pointer;animation:route-pulse 2s ease-in-out infinite}
 .route-map .route-node.available:hover{background:#ffd993;transform:translate(-50%,-50%) scale(1.07)}
+.route-map .route-node.map-edit-target{background:#d9f8f2;border-color:#168b82;box-shadow:0 0 0 4px #43bfb47a,0 3px 0 #197c75;opacity:1;cursor:pointer;animation:route-pulse 1.6s ease-in-out infinite}
+.route-map .route-node.map-edit-target:hover{background:#b8efe5;transform:translate(-50%,-50%) scale(1.07)}
+#useFloorMap{background:#d5f3ea;border:2px solid #388f85;color:#124e54}
 .route-options{display:flex;justify-content:space-between;align-items:center;gap:14px;max-width:none;min-height:37px;padding:7px 12px;background:#ffffffbd;border-radius:12px;font-size:13px;color:#496d70}
 .route-options strong{font-size:15px;color:#285363;white-space:nowrap}
 @keyframes route-pulse{50%{box-shadow:0 0 0 7px #f3bd5840,0 4px 0 #d3944e}}
@@ -80,4 +83,4 @@
 #restartDialog p{margin:12px 0 18px}
 #restartConfirm{background:#315d61;color:white}
 @media(max-width:520px){#routeOptions{flex-wrap:wrap}.route-lanes{flex-wrap:wrap}}
-@media(prefers-reduced-motion:reduce){.route-map .route-node.available{animation:none}}
+@media(prefers-reduced-motion:reduce){.route-map .route-node.available,.route-map .route-node.map-edit-target{animation:none}}
