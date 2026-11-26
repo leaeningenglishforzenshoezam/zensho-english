@@ -29,7 +29,7 @@ const savedFlags = new Map();
 const context = vm.createContext({
   $: id => elements[id],
   DUNGEONS: {1: {battleArt: ['act1.jpg', 'act2.jpg', 'vault.jpg'], clearVaultArt: 'vault-open.jpg', dawnArt: 'dawn.jpg', art: 'entrance.jpg', departureArt: 'door.jpg'}},
-  INTRO_STORY_KEY: 'intro', RETURN_STORY_KEY: 'return',
+  INTRO_STORY_KEY: 'intro', FAMILIAR_STORY_KEY: 'familiar', RETURN_STORY_KEY: 'return',
   localStorage: {setItem: (key, value) => savedFlags.set(key, value)},
   JOURNAL: [journal], JOURNAL_SEEN_KEY: 'seen', journalSeen: new Set(),
   dungeonJournal: () => [journal], state: {dungeon: 1},
@@ -138,6 +138,15 @@ clearCount = 3;
 vm.runInContext('showDawnSequence()', context);
 assert.equal(elements.storyTitle.textContent, '百貨店・追想挑戦');
 elements.storyContinue.onclick();
+assert.equal(elements.storyOverlay.hidden, true);
+
+// The familiar announcement waits for the player before marking itself seen.
+vm.runInContext('showFamiliarAnnouncement()', context);
+assert.equal(elements.storyTitle.textContent, '聞き覚えのある放送');
+assert.equal(timers.size, 0);
+assert.equal(savedFlags.has('familiar'), false);
+elements.storyContinue.onclick();
+assert.equal(savedFlags.get('familiar'), '1');
 assert.equal(elements.storyOverlay.hidden, true);
 
 // Timed cinematic pages retain their original automatic-advance behavior.
