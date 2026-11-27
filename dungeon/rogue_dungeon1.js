@@ -301,7 +301,7 @@
     VitalDrop:{name:'First Aid Kit',rank:'N',icon:'✚',effect:'戦闘開始時、HP＋3'},
     CoinCharm:{name:'Petty Cash Book',rank:'N',icon:'🪙',effect:'勝利時、コイン＋5'},
     CompoundInterest:{name:'Compound Interest',rank:'R',icon:'📈',effect:'攻撃正解ごとにそのターン中の以降の攻撃＋2（最大＋8）'},
-    FIFOBox:{name:'FIFO Box',rank:'R',icon:'📦',effect:'使用済みカードから回収・再使用した強化可能なスキルを、この戦闘中＋に強化（回数制限なし）'},
+    FIFOBox:{name:'FIFO Box',rank:'R',icon:'📦',effect:'USEDから回収・再使用した強化可能なスキルを、この戦闘中＋に強化（回数制限なし）'},
     ReserveVault:{name:'Reserve Vault',rank:'R',icon:'🔒',effect:'ターン終了時の余りAP1につき次ターン防御＋2（最大＋4）'},
     ForecastAI:{name:'Forecast AI',rank:'R',icon:'◉',effect:'戦闘の最初のターンに2枚追加ドロー'},
     BadDebtReserve:{name:'Bad Debt Reserve',rank:'R',icon:'⬡',effect:'HPが半分以下になったとき防御＋15（各戦闘1回）'},
@@ -494,16 +494,16 @@
   const effects = s => {const out=[];
     if(s.dmg)out.push(`${s.range>=3?'敵全体に':s.range===2?'敵2体に':''}${s.dmg}ダメージ${s.pierce?'（防御無視）':''}`);
     if(s.block)out.push(`防御 +${s.block}`);if(s.heal)out.push(`HPを${s.heal}回復`);if(s.healPct)out.push(`最大HPの${s.healPct}%回復`);
-    if(s.seedAtBlock)out.push(`使用前の防御${s.seedAtBlock}以上で芽＋1`);
-    if(s.recoveryBlock)out.push(`このターンに使用済みカードを回収していれば防御＋${s.recoveryBlock}`);
+    if(s.seedAtBlock)out.push(`使用前の防御${s.seedAtBlock}以上でSEED＋1`);
+    if(s.recoveryBlock)out.push(`このターンにUSEDからカードを回収していれば防御＋${s.recoveryBlock}`);
     if(s.cancel)out.push('敵の次の攻撃を無効化');if(s.weaken)out.push(`敵の攻撃 −${s.weaken}`);
     if(s.buff)out.push('次の攻撃 ×2');if(s.nextPlus)out.push(`次の攻撃 +${s.nextPlus}`);
     if(s.draw)out.push(`${s.draw}枚ドロー`);if(s.discard)out.push(`${s.discard}枚捨てる`);
-    if(s.retrieve)out.push(`使用済みカードから${s.retrieve}枚回収${s.retrievedApCut?`・回収したカードの次の使用AP−${s.retrievedApCut}`:''}`);
-    if(s.carryAll)out.push('敵の攻撃後、残った防御をすべて次ターンに持ち越し');else if(s.carry)out.push(`防御${s.carry}持ち越し`);
-    if(s.replay)out.push('使用済みカードから1枚AP0で再使用');if(s.blockStrike)out.push(`現在の防御×${s.blockStrike}ダメージ${s.pierce?'（防御無視）':''}`);
-    if(s.grow)out.push(`芽×${s.grow}ダメージ追加・使用後に芽＋1`);if(s.scaleGrow)out.push(`芽×${s.scaleGrow}ダメージ追加`);
-    if(s.growGain)out.push(`芽＋${s.growGain}（この戦闘中）`);if(s.killAp)out.push('撃破時AP＋1（ターン1回）');if(s.chainAp)out.push('このターン2回目以降の攻撃でもAP＋1（撃破時と共通でターン1回）');if(s.killSplash)out.push(`撃破時、残りの敵全員に${s.killSplash}ダメージ`);
+    if(s.retrieve)out.push(`USEDから${s.retrieve}枚回収${s.retrievedApCut?`・回収したカードの次の使用AP−${s.retrievedApCut}`:''}`);
+    if(s.carryAll)out.push('TURNOVER：敵の攻撃後、残った防御をすべて次のターンへ');else if(s.carry)out.push(`TURNOVER：残った防御を最大${s.carry}、次のターンへ`);
+    if(s.replay)out.push('USEDから1枚AP0で再使用');if(s.blockStrike)out.push(`現在の防御×${s.blockStrike}ダメージ${s.pierce?'（防御無視）':''}`);
+    if(s.grow)out.push(`SEED×${s.grow}ダメージ追加・使用後にSEED＋1`);if(s.scaleGrow)out.push(`SEED×${s.scaleGrow}ダメージ追加`);
+    if(s.growGain)out.push(`SEED＋${s.growGain}（この戦闘中）`);if(s.killAp)out.push('撃破時AP＋1（ターン1回）');if(s.chainAp)out.push('このターン2回目以降の攻撃でもAP＋1（撃破時と共通でターン1回）');if(s.killSplash)out.push(`撃破時、残りの敵全員に${s.killSplash}ダメージ`);
     if(s.sweepKillAp)out.push(`このスキルで1体以上撃破するとAP＋${s.sweepKillAp}（使用1回につき1回）`);
     if(s.momentum)out.push('このターン、発動後に攻撃スキルで2回正解するたびにAPを1回復。基本カードのSTRIKE・STRIKE+は対象外。');
     if(s.encourageHeal)out.push(`このターン、以降の大問12のスキルに正解するたびHP＋${s.encourageHeal}（最大${s.encourageLimit}回）`);
@@ -513,14 +513,14 @@
     if(s.gainAp)out.push(`AP＋${s.gainAp}`);
     if(s.tutor)out.push('山札からスキルを1枚選んで手札へ（そのカードの次の使用AP−1）');
     if(s.exchangeBlockAp)out.push(`防御${s.exchangeBlockAp}につきAP＋1に変換（上限なし・ターン1回）`);
-    if(s.reserveAp)out.push(`ターン終了時の残APを最大${s.reserveAp}、次ターンに持ち越す（ターン1回）`);
+    if(s.reserveAp)out.push(`TURNOVER：ターン終了時の残APを最大${s.reserveAp}、次ターンに持ち越す（ターン1回）`);
     if(s.executeHalf)out.push(`HP半分以下の敵への攻撃＋${s.executeHalf}ダメージ`);
-    if(s.exhaustOnCorrect)out.push('正解で消滅（不正解なら使用済みカードへ）');
+    if(s.exhaustOnCorrect)out.push('正解でSEAL（不正解ならUSEDへ）');
     if(s.discardChoose)out.push('手札を1枚選んで捨てる');if(s.scaleDiscard)out.push(`このターン捨てた枚数×${s.scaleDiscard}ダメージ追加`);if(s.scaleRetrieve)out.push(`このターン回収した枚数×${s.scaleRetrieve}ダメージ追加`);
-    if(s.sealChoose)out.push('手札を1枚戦闘中だけ除外');if(s.bonusDmg)out.push(`異なる${s.formatCount}形式正解で＋${s.bonusDmg}ダメージ`);
+    if(s.sealChoose)out.push('手札1枚をSEAL（この戦闘中だけ除外）');if(s.bonusDmg)out.push(`異なる${s.formatCount}形式正解で＋${s.bonusDmg}ダメージ`);
     if(s.bonusBlock)out.push(`異なる${s.formatCount}形式正解で防御＋${s.bonusBlock}`);
     if(s.scaleUnique)out.push(`このターン使った異なるスキル数（最大5）×${s.scaleUnique}ダメージ追加`);
-    if(s.scaleUsed)out.push(`使用済みカードの枚数（最大10）×${s.scaleUsed}ダメージ追加`);
+    if(s.scaleUsed)out.push(`USEDの枚数（最大10）×${s.scaleUsed}ダメージ追加`);
     if(s.scaleBlock)out.push('現在の防御と同じダメージを追加（防御は減らない）');
     if(s.scaleTurn)out.push(`経過ターン数×${s.scaleTurn}ダメージ追加（1ターン目は追加なし）`);
     if(s.perPriorAttackDmg)out.push(`このターン先に正解した攻撃スキル数（最大3）×${s.perPriorAttackDmg}ダメージ追加`);
@@ -539,26 +539,26 @@
     if(s.heal)parts.push(`HPを${s.heal}回復`);
     if(s.healPct)parts.push(`最大HPの${s.healPct}%回復`);
     if(s.block)parts.push(`防御 +${s.block}`);
-    if(s.seedAtBlock)parts.push(`防御${s.seedAtBlock}以上で芽＋1`);
+    if(s.seedAtBlock)parts.push(`防御${s.seedAtBlock}以上でSEED＋1`);
     if(s.recoveryBlock)parts.push(`回収済みなら防御 +${s.recoveryBlock}`);
     if(s.cancel)parts.push('次の敵の攻撃を無効化');
     if(s.weaken)parts.push(`敵の攻撃 −${s.weaken}`);
     if(s.buff)parts.push('次の攻撃 ×2');
     if(s.nextPlus)parts.push(`次の攻撃 +${s.nextPlus}`);
     if(s.draw)parts.push(`${s.draw}枚引く`);
-    if(s.retrieve)parts.push(`${s.retrieve}枚回収${s.retrievedApCut ? " · AP −"+s.retrievedApCut : ""}`);
+    if(s.retrieve)parts.push(`USEDから${s.retrieve}枚回収${s.retrievedApCut ? " · AP −"+s.retrievedApCut : ""}`);
     if(s.discard)parts.push(`${s.discard}枚捨てる`);
-    if(s.carryAll)parts.push("残った防御をすべて持ち越す");else if(s.carry)parts.push(`防御を持ち越す・最大${s.carry}`);
-    if(s.replay)parts.push('使用済みの1枚をAP0で再使用');if(s.blockStrike)parts.push(`防御 ×${s.blockStrike}ダメージ${s.pierce?'（防御無視）':''}`);
-    if(s.grow)parts.push(`追加ダメージ：芽×${s.grow} · 芽 +1`);if(s.scaleGrow)parts.push(`追加ダメージ：芽×${s.scaleGrow}`);
-    if(s.growGain)parts.push(`芽 +${s.growGain}`);if(s.killAp)parts.push('撃破でAP +1');if(s.chainAp)parts.push('2回目以降の攻撃でAP +1');if(s.killSplash)parts.push(`撃破で全体に${s.killSplash}ダメージ`);if(s.killDraw)parts.push('撃破で1枚引く');
-    if(s.reserveAp)parts.push(`残りAPを持ち越す・最大${s.reserveAp}`);
+    if(s.carryAll)parts.push("TURNOVER：残り防御すべて");else if(s.carry)parts.push(`TURNOVER：防御を最大${s.carry}`);
+    if(s.replay)parts.push('USEDから1枚をAP0で再使用');if(s.blockStrike)parts.push(`防御 ×${s.blockStrike}ダメージ${s.pierce?'（防御無視）':''}`);
+    if(s.grow)parts.push(`追加ダメージ：SEED×${s.grow} · SEED +1`);if(s.scaleGrow)parts.push(`追加ダメージ：SEED×${s.scaleGrow}`);
+    if(s.growGain)parts.push(`SEED +${s.growGain}`);if(s.killAp)parts.push('撃破でAP +1');if(s.chainAp)parts.push('2回目以降の攻撃でAP +1');if(s.killSplash)parts.push(`撃破で全体に${s.killSplash}ダメージ`);if(s.killDraw)parts.push('撃破で1枚引く');
+    if(s.reserveAp)parts.push(`TURNOVER：残りAPを最大${s.reserveAp}`);
     if(s.executeHalf)parts.push(`敵HP半分以下で追加ダメージ＋${s.executeHalf}`);
-    if(s.exhaustOnCorrect)parts.push('正解で消滅');
+    if(s.exhaustOnCorrect)parts.push('正解でSEAL');
     if(s.discardChoose)parts.push('1枚選んで捨てる');if(s.scaleDiscard)parts.push(`追加ダメージ：捨てた枚数×${s.scaleDiscard}`);if(s.scaleRetrieve)parts.push(`追加ダメージ：回収枚数×${s.scaleRetrieve}`);
-    if(s.sealChoose)parts.push('手札1枚を除外');if(s.bonusDmg)parts.push(`${s.formatCount}形式正解で+${s.bonusDmg}ダメージ`);if(s.bonusBlock)parts.push(`${s.formatCount}形式正解で防御 +${s.bonusBlock}`);
+    if(s.sealChoose)parts.push('手札1枚をSEAL');if(s.bonusDmg)parts.push(`${s.formatCount}形式正解で+${s.bonusDmg}ダメージ`);if(s.bonusBlock)parts.push(`${s.formatCount}形式正解で防御 +${s.bonusBlock}`);
     if(s.scaleUnique)parts.push(`追加ダメージ：使った技の種類×${s.scaleUnique}`);
-    if(s.scaleUsed)parts.push(`追加ダメージ：使用済み枚数×${s.scaleUsed}`);
+    if(s.scaleUsed)parts.push(`追加ダメージ：USEDの枚数×${s.scaleUsed}`);
     if(s.consumeBlock)parts.push(`防御を最大${s.consumeBlock}消費・消費量の2倍のダメージを追加`);
     if(s.lowHpBonus)parts.push(`自分のHP半分以下で追加ダメージ＋${s.lowHpBonus}`);
     if(s.bonusBlockPerEnemy)parts.push(`敵1体につき防御 +${s.bonusBlockPerEnemy}`);
@@ -1306,7 +1306,7 @@
     $('heroDebuff').hidden=!(state.guardPriceCut>0);$('heroDebuff').textContent=state.guardPriceCut>0?`▼ 防御カード −${state.guardPriceCut}/枚`:'';
     $('apDisplay').textContent=`AP ${state.ap}/${Math.max(state.ap,Number(state.apTotal)||3)}`;
     $('growthDisplay').hidden=state.growUses<=0;
-    $('growthDisplay').textContent=`🌱 芽 ${state.growUses}`;
+    $('growthDisplay').textContent=`🌱 SEED ${state.growUses}`;
     $('drawCount').textContent=state.deck.length;$('usedCount').textContent=state.used.length;$('usedPoolCount').textContent=state.used.length;$('correctCount').textContent=state.correct;$('questionCount').textContent=state.questions;
     $('handCount').textContent=`${state.hand.length}`;$('battleNotice').textContent=state.notice;
     if(selectedHandIndex>=state.hand.length)selectedHandIndex=-1;
