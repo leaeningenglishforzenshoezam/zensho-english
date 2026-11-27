@@ -59,7 +59,7 @@
     {id:'stage2Boss',group:'stage2',icon:'♜',name:'こだまの番人',description:'第2ステージでACTのボスに勝つ'},
     {id:'secondClear',group:'stage2',icon:'🔔',name:'こだまの踏破者',description:'第2ステージを完全クリアする'},
     {id:'burst30',group:'tactics',icon:'ϟ',name:'一撃の連携',description:'1ターンに合計50ダメージを与える'},
-    {id:'guard15',group:'tactics',icon:'⬡',name:'鉄壁の守り',description:'1ターンにBLOCKを30以上獲得する'},
+    {id:'guard15',group:'tactics',icon:'⬡',name:'鉄壁の守り',description:'1ターンに防御を30以上獲得する'},
     {id:'clutchWin',group:'tactics',icon:'♡',name:'逆境からの勝利',description:'HP10以下の状態で戦闘に勝つ'}
   ];
   function readBadges(){try{const raw=JSON.parse(localStorage.getItem(BADGE_SAVE_KEY)||'null');return {earned:Array.isArray(raw?.earned)?raw.earned:[],shards:Number.isFinite(raw?.shards)?raw.shards:0,totalCorrect:Number.isFinite(raw?.totalCorrect)?raw.totalCorrect:0};}catch(e){return {earned:[],shards:0,totalCorrect:0};}}
@@ -288,38 +288,38 @@
   ];
   const RANKS = ['N','R','SR'];
   const artifacts = {
-    IronShield:{name:'Safety Helmet',rank:'N',icon:'⛑',effect:'戦闘開始時、BLOCK＋5'},
-    PowerFang:{name:'Golden Abacus',rank:'N',icon:'🧮',effect:'各戦闘の最初のSTRIKEのDMG＋4'},
+    IronShield:{name:'Safety Helmet',rank:'N',icon:'⛑',effect:'戦闘開始時、防御＋5'},
+    PowerFang:{name:'Golden Abacus',rank:'N',icon:'🧮',effect:'各戦闘の最初の攻撃のダメージ＋4'},
     LifeSeed:{name:'Health Insurance',rank:'N',icon:'♥',effect:'戦闘勝利時、HP＋3'},
     LuckyHand:{name:'Lucky Calculator',rank:'N',icon:'🖩',effect:'戦闘開始時、手札＋1枚'},
-    EchoBell:{name:'Accent Tuner',rank:'N',icon:'♫',effect:'アクセント正解のたびにBLOCK＋3'},
-    WordLens:{name:'Word Scanner',rank:'N',icon:'⌕',effect:'英→日の単語正解のたびに次のSTRIKE＋3'},
+    EchoBell:{name:'Accent Tuner',rank:'N',icon:'♫',effect:'アクセント正解のたびに防御＋3'},
+    WordLens:{name:'Word Scanner',rank:'N',icon:'⌕',effect:'英→日の単語正解のたびに次の攻撃＋3'},
     SoundShell:{name:'Audio Recorder',rank:'N',icon:'🎙',effect:'音声問題正解でHP＋3（各戦闘1回）'},
     GrammarStar:{name:'Grammar Notebook',rank:'N',icon:'📓',effect:'大問9正解で1枚ドロー（毎ターン1回）'},
-    StoneCharm:{name:'Insurance Policy',rank:'N',icon:'📜',effect:'各戦闘で最初に受けるHP DMGを10軽減'},
-    PowerLeaf:{name:'Receipt Bundle',rank:'N',icon:'🧾',effect:'各SHOPの最初の購入が80％オフ'},
+    StoneCharm:{name:'Insurance Policy',rank:'N',icon:'📜',effect:'各戦闘で最初に受けるHPダメージを10軽減'},
+    PowerLeaf:{name:'Receipt Bundle',rank:'N',icon:'🧾',effect:'各ショップの最初の購入が80％オフ'},
     VitalDrop:{name:'First Aid Kit',rank:'N',icon:'✚',effect:'戦闘開始時、HP＋3'},
-    CoinCharm:{name:'Petty Cash Book',rank:'N',icon:'🪙',effect:'勝利時、COIN＋5'},
-    CompoundInterest:{name:'Compound Interest',rank:'R',icon:'📈',effect:'STRIKE正解ごとにそのターン中の以降のSTRIKE＋2（最大＋8）'},
-    FIFOBox:{name:'FIFO Box',rank:'R',icon:'📦',effect:'USEDから回収・再使用した強化可能なSKILLを、この戦闘中＋に強化（回数制限なし）'},
-    ReserveVault:{name:'Reserve Vault',rank:'R',icon:'🔒',effect:'ターン終了時の余りAP1につき次ターンBLOCK＋2（最大＋4）'},
+    CoinCharm:{name:'Petty Cash Book',rank:'N',icon:'🪙',effect:'勝利時、コイン＋5'},
+    CompoundInterest:{name:'Compound Interest',rank:'R',icon:'📈',effect:'攻撃正解ごとにそのターン中の以降の攻撃＋2（最大＋8）'},
+    FIFOBox:{name:'FIFO Box',rank:'R',icon:'📦',effect:'使用済みカードから回収・再使用した強化可能なスキルを、この戦闘中＋に強化（回数制限なし）'},
+    ReserveVault:{name:'Reserve Vault',rank:'R',icon:'🔒',effect:'ターン終了時の余りAP1につき次ターン防御＋2（最大＋4）'},
     ForecastAI:{name:'Forecast AI',rank:'R',icon:'◉',effect:'戦闘の最初のターンに2枚追加ドロー'},
-    BadDebtReserve:{name:'Bad Debt Reserve',rank:'R',icon:'⬡',effect:'HPが半分以下になったときBLOCK＋15（各戦闘1回）'},
+    BadDebtReserve:{name:'Bad Debt Reserve',rank:'R',icon:'⬡',effect:'HPが半分以下になったとき防御＋15（各戦闘1回）'},
     MarketReport:{name:'Market Report',rank:'R',icon:'📊',effect:'戦闘中、敵の次ターンの行動予告も確認できる'},
     InventoryManager:{name:'Inventory Manager',rank:'R',icon:'▤',effect:'1ターンに4枚使用すると1枚引く（毎ターン1回）'},
-    SalesBooster:{name:'Sales Booster',rank:'R',icon:'↗',effect:'異なる2形式で正解すると次のSTRIKE＋6（毎ターン1回）'},
-    CashFlow:{name:'Cash Flow',rank:'R',icon:'💵',effect:'1ターンに追加で2枚引くとBLOCK＋3（毎ターン1回）'},
+    SalesBooster:{name:'Sales Booster',rank:'R',icon:'↗',effect:'異なる2形式で正解すると次の攻撃＋6（毎ターン1回）'},
+    CashFlow:{name:'Cash Flow',rank:'R',icon:'💵',effect:'1ターンに追加で2枚引くと防御＋3（毎ターン1回）'},
     TaxDeduction:{name:'Tax Deduction',rank:'R',icon:'📑',effect:'邪魔カードを正解して消滅させるたびにHP＋3'},
-    ShareholderTicket:{name:'Shareholder Ticket',rank:'R',icon:'🎟',effect:'SHOPのすべての買い物が20%OFF'},
-    QualityControl:{name:'Quality Control',rank:'R',icon:'✓',effect:'2問連続正解でBLOCK＋5（毎ターン1回）'},
+    ShareholderTicket:{name:'Shareholder Ticket',rank:'R',icon:'🎟',effect:'ショップのすべての買い物が20％引き'},
+    QualityControl:{name:'Quality Control',rank:'R',icon:'✓',effect:'2問連続正解で防御＋5（毎ターン1回）'},
     GoldenLedger:{name:'Golden Ledger',rank:'SR',icon:'📔',effect:'異なる3種類のカードで正解するとAP＋1（毎ターン1回）'},
-    MonopolyCrown:{name:'Monopoly Crown',rank:'SR',icon:'♛',effect:'各戦闘の最初のSTRIKEのDMGが2倍'},
-    InfiniteWarehouse:{name:'Infinite Warehouse',rank:'SR',icon:'🏭',effect:'カード消滅時に1枚ドロー・BLOCK＋5（毎ターン1回）'},
+    MonopolyCrown:{name:'Monopoly Crown',rank:'SR',icon:'♛',effect:'各戦闘の最初の攻撃のダメージが2倍'},
+    InfiniteWarehouse:{name:'Infinite Warehouse',rank:'SR',icon:'🏭',effect:'カード消滅時に1枚ドロー・防御＋5（毎ターン1回）'},
     MasterAbacus:{name:'Master Abacus',rank:'SR',icon:'🏅',effect:'1ターンに5枚使用するとAP＋3（毎ターン1回）'},
-    InnovationPlan:{name:'Innovation Plan',rank:'SR',icon:'💡',effect:'ACT開始時にSKILL1種類をそのACT中だけ＋に強化'},
-    FinalBalanceSheet:{name:'Final Balance Sheet',rank:'SR',icon:'📒',effect:'BLOCK10以上で戦闘勝利すると最大HP＋6'},
+    InnovationPlan:{name:'Innovation Plan',rank:'SR',icon:'💡',effect:'エリア開始時にスキル1種類をそのエリア中だけ＋に強化'},
+    FinalBalanceSheet:{name:'Final Balance Sheet',rank:'SR',icon:'📒',effect:'防御10以上で戦闘勝利すると最大HP＋6'},
     // D1-exclusive items are obtained only from their corresponding ? events.
-    LostChildTicket:{name:'迷子札の半券',rank:'R',icon:'🎫',eventOnly:true,file:'GOIMON_Lost_Child_Ticket_256.png',effect:'各戦闘で最初のSKILL誤答を、次ターンの再挑戦用に山札へ戻す（APは返らない）'},
+    LostChildTicket:{name:'迷子札の半券',rank:'R',icon:'🎫',eventOnly:true,file:'GOIMON_Lost_Child_Ticket_256.png',effect:'各戦闘で最初のスキル誤答を、次ターンの再挑戦用に山札へ戻す（APは返らない）'},
     CrackedMirror:{name:'ひび割れた姿見',rank:'R',icon:'🪞',eventOnly:true,file:'GOIMON_Cracked_Mirror_256.png',effect:'攻撃を初めて完全防御したとき、攻撃した敵へ6ダメージ（各戦闘1回）'},
     NoReturnStamp:{name:'返品不可の朱印',rank:'R',icon:'🔏',eventOnly:true,file:'GOIMON_No_Return_Stamp_256.png',effect:'各戦闘で敵が最初に得る防御を8減らす'},
     SecurityBell:{name:'防犯ゲートの鈴',rank:'R',icon:'🔔',eventOnly:true,file:'GOIMON_Security_Bell_256.png',effect:'敵のHP回復量を半減（1回あたり最大8減少）'},
@@ -402,8 +402,8 @@
     carryAll:false,encourageHeal:0,encourageCount:0,nextGuardBlock:0,attackGuardCap:0,nextAttackApCut:0,marginCallUsed:false,attackSkillCount:0,
     artifactAttacks:0,artifactCardUses:0,artifactDraws:0,artifactCorrectStreak:0,artifactUniqueCards:[],artifactNextGuard:0,artifactCompound:0,artifactDiscountUsed:false,artifactFreeShopUsed:false,artifactActUpgrades:[],artifactMapUsedActs:[],mapEditMode:false,delayedRetryCard:null,finalSettlementUsed:false};
   const TYPE_LABELS={nagomi:'なごみ',hirameki:'ひらめき',tsumugi:'つむぎ',yomitoki:'よみとき',shirabe:'しらべ',hibiki:'ひびき',kotonoha:'ことのは'};
-  const TYPE_EFFECTS={nagomi:'GUARDカード正解でHP＋2（1ターン1回）',hirameki:'毎戦闘最初のSTRIKE SKILLのAP−1',tsumugi:'1ターンに異なる2種類を正解するとBLOCK＋5',yomitoki:'大問9正解で次のSTRIKEはBLOCKを5無視',shirabe:'単語正解で次のSTRIKE＋3',hibiki:'アクセント正解で次のSTRIKE＋4',kotonoha:'大問11正解でBLOCK＋6'};
-  const TYPE_BOOST_EFFECTS={nagomi:'GUARDカード正解でHP＋4（1ターン1回）',hirameki:'毎戦闘最初のSTRIKE SKILLのAP−2',tsumugi:'1ターンに異なる2種類を正解するとBLOCK＋8',yomitoki:'大問9正解で次のSTRIKEはBLOCKを8無視',shirabe:'単語正解で次のSTRIKE＋5',hibiki:'アクセント正解で次のSTRIKE＋6',kotonoha:'大問11正解でBLOCK＋9'};
+  const TYPE_EFFECTS={nagomi:'防御カード正解でHP＋2（1ターン1回）',hirameki:'毎戦闘最初の攻撃スキルのAP−1',tsumugi:'1ターンに異なる2種類を正解すると防御＋5',yomitoki:'大問9正解で次の攻撃は防御を5無視',shirabe:'単語正解で次の攻撃＋3',hibiki:'アクセント正解で次の攻撃＋4',kotonoha:'大問11正解で防御＋6'};
+  const TYPE_BOOST_EFFECTS={nagomi:'防御カード正解でHP＋4（1ターン1回）',hirameki:'毎戦闘最初の攻撃スキルのAP−2',tsumugi:'1ターンに異なる2種類を正解すると防御＋8',yomitoki:'大問9正解で次の攻撃は防御を8無視',shirabe:'単語正解で次の攻撃＋5',hibiki:'アクセント正解で次の攻撃＋6',kotonoha:'大問11正解で防御＋9'};
   const SPECIAL_BOOSTS={maxHp:{name:'MAX HP UP',icon:'♡',effect:'最大HP＋15・HP＋15'},purify:{name:'DECK PURIFY',icon:'↶',effect:'STRIKEとGUARDを1枚ずつ削除'}};
   const maxHp=()=>state.maxHp;
   function actWordRange(act){
@@ -492,95 +492,95 @@
     -(s.type==='attack'?state.nextAttackApCut:0)-(state.handDiscounts[index]||0));
   function onCardExhausted(){if(hasArtifact('InfiniteWarehouse')&&!state.artifactTurnUses.has('InfiniteWarehouse')){state.artifactTurnUses.add('InfiniteWarehouse');state.block+=5;draw(1);}}
   const effects = s => {const out=[];
-    if(s.dmg)out.push(`${s.range>=3?'全体':s.range===2?'2体':''}${s.dmg} DMG${s.pierce?'（BLOCK無視）':''}`);
-    if(s.block)out.push(`BLOCK ${s.block}`);if(s.heal)out.push(`回復 ${s.heal}`);if(s.healPct)out.push(`最大HPの${s.healPct}%回復`);
-    if(s.seedAtBlock)out.push(`使用前のBLOCK${s.seedAtBlock}以上でSPROUT＋1`);
-    if(s.recoveryBlock)out.push(`このターンにUSED回収済みならBLOCK＋${s.recoveryBlock}`);
-    if(s.cancel)out.push('敵の次のSTRIKEを0');if(s.weaken)out.push(`敵STRIKE −${s.weaken}`);
-    if(s.buff)out.push('次のSTRIKE ×2');if(s.nextPlus)out.push(`次のSTRIKE +${s.nextPlus}`);
+    if(s.dmg)out.push(`${s.range>=3?'敵全体に':s.range===2?'敵2体に':''}${s.dmg}ダメージ${s.pierce?'（防御無視）':''}`);
+    if(s.block)out.push(`防御 +${s.block}`);if(s.heal)out.push(`HPを${s.heal}回復`);if(s.healPct)out.push(`最大HPの${s.healPct}%回復`);
+    if(s.seedAtBlock)out.push(`使用前の防御${s.seedAtBlock}以上で芽＋1`);
+    if(s.recoveryBlock)out.push(`このターンに使用済みカードを回収していれば防御＋${s.recoveryBlock}`);
+    if(s.cancel)out.push('敵の次の攻撃を無効化');if(s.weaken)out.push(`敵の攻撃 −${s.weaken}`);
+    if(s.buff)out.push('次の攻撃 ×2');if(s.nextPlus)out.push(`次の攻撃 +${s.nextPlus}`);
     if(s.draw)out.push(`${s.draw}枚ドロー`);if(s.discard)out.push(`${s.discard}枚捨てる`);
-    if(s.retrieve)out.push(`USEDから${s.retrieve}枚回収${s.retrievedApCut?`・回収したカードの次の使用AP−${s.retrievedApCut}`:''}`);
-    if(s.carryAll)out.push('敵のSTRIKE後、残ったBLOCKをすべて次ターンに持ち越し');else if(s.carry)out.push(`BLOCK${s.carry}持ち越し`);
-    if(s.replay)out.push('USEDから1枚AP0で再使用');if(s.blockStrike)out.push(`現在のBLOCK×${s.blockStrike} DMG${s.pierce?'（BLOCK無視）':''}`);
-    if(s.grow)out.push(`SPROUT×${s.grow} DMG追加・使用後にSPROUT＋1`);if(s.scaleGrow)out.push(`SPROUT×${s.scaleGrow} DMG追加`);
-    if(s.growGain)out.push(`SPROUT＋${s.growGain}（この戦闘中）`);if(s.killAp)out.push('撃破時AP＋1（ターン1回）');if(s.chainAp)out.push('このターン2回目以降のSTRIKEでもAP＋1（撃破時と共通でターン1回）');if(s.killSplash)out.push(`撃破時、残りの敵全員に${s.killSplash} DMG`);
-    if(s.sweepKillAp)out.push(`このSKILLで1体以上撃破するとAP＋${s.sweepKillAp}（使用1回につき1回）`);
-    if(s.momentum)out.push('このターン、発動後に攻撃SKILLを2回正解するたびにAPを1回復。基本カードのSTRIKE・STRIKE+は対象外。');
-    if(s.encourageHeal)out.push(`このターン、以降の大問12のSKILLに正解するたびHP＋${s.encourageHeal}（最大${s.encourageLimit}回）`);
-    if(s.nextGuardBlock)out.push(`このターン、次のGUARD SKILLのBLOCK＋${s.nextGuardBlock}`);
-    if(s.attackGuardCap)out.push(`このターン、次のSTRIKE SKILLで与えたHP DMGの50％をBLOCKに変換（最大${s.attackGuardCap}）`);
-    if(s.nextAttackApCut)out.push(`このターン、次のSTRIKE SKILLのAP−${s.nextAttackApCut}`);
+    if(s.retrieve)out.push(`使用済みカードから${s.retrieve}枚回収${s.retrievedApCut?`・回収したカードの次の使用AP−${s.retrievedApCut}`:''}`);
+    if(s.carryAll)out.push('敵の攻撃後、残った防御をすべて次ターンに持ち越し');else if(s.carry)out.push(`防御${s.carry}持ち越し`);
+    if(s.replay)out.push('使用済みカードから1枚AP0で再使用');if(s.blockStrike)out.push(`現在の防御×${s.blockStrike}ダメージ${s.pierce?'（防御無視）':''}`);
+    if(s.grow)out.push(`芽×${s.grow}ダメージ追加・使用後に芽＋1`);if(s.scaleGrow)out.push(`芽×${s.scaleGrow}ダメージ追加`);
+    if(s.growGain)out.push(`芽＋${s.growGain}（この戦闘中）`);if(s.killAp)out.push('撃破時AP＋1（ターン1回）');if(s.chainAp)out.push('このターン2回目以降の攻撃でもAP＋1（撃破時と共通でターン1回）');if(s.killSplash)out.push(`撃破時、残りの敵全員に${s.killSplash}ダメージ`);
+    if(s.sweepKillAp)out.push(`このスキルで1体以上撃破するとAP＋${s.sweepKillAp}（使用1回につき1回）`);
+    if(s.momentum)out.push('このターン、発動後に攻撃スキルで2回正解するたびにAPを1回復。基本カードのSTRIKE・STRIKE+は対象外。');
+    if(s.encourageHeal)out.push(`このターン、以降の大問12のスキルに正解するたびHP＋${s.encourageHeal}（最大${s.encourageLimit}回）`);
+    if(s.nextGuardBlock)out.push(`このターン、次の防御スキルの防御＋${s.nextGuardBlock}`);
+    if(s.attackGuardCap)out.push(`このターン、次の攻撃スキルで与えたHPダメージの50％を防御に変換（最大${s.attackGuardCap}）`);
+    if(s.nextAttackApCut)out.push(`このターン、次の攻撃スキルのAP−${s.nextAttackApCut}`);
     if(s.gainAp)out.push(`AP＋${s.gainAp}`);
-    if(s.tutor)out.push('山札からSKILLを1枚選んで手札へ（そのカードの次の使用AP−1）');
-    if(s.exchangeBlockAp)out.push(`BLOCK${s.exchangeBlockAp}につきAP＋1に変換（上限なし・ターン1回）`);
+    if(s.tutor)out.push('山札からスキルを1枚選んで手札へ（そのカードの次の使用AP−1）');
+    if(s.exchangeBlockAp)out.push(`防御${s.exchangeBlockAp}につきAP＋1に変換（上限なし・ターン1回）`);
     if(s.reserveAp)out.push(`ターン終了時の残APを最大${s.reserveAp}、次ターンに持ち越す（ターン1回）`);
-    if(s.executeHalf)out.push(`HP半分以下の敵へのSTRIKE＋${s.executeHalf} DMG`);
-    if(s.exhaustOnCorrect)out.push('正解で消滅（不正解ならUSEDへ）');
-    if(s.discardChoose)out.push('手札を1枚選んで捨てる');if(s.scaleDiscard)out.push(`このターン捨てた枚数×${s.scaleDiscard} DMG追加`);if(s.scaleRetrieve)out.push(`このターン回収した枚数×${s.scaleRetrieve} DMG追加`);
-    if(s.sealChoose)out.push('手札を1枚戦闘中だけ除外');if(s.bonusDmg)out.push(`異なる${s.formatCount}形式正解で＋${s.bonusDmg} DMG`);
-    if(s.bonusBlock)out.push(`異なる${s.formatCount}形式正解でBLOCK＋${s.bonusBlock}`);
-    if(s.scaleUnique)out.push(`このターン使った異なるSKILL数（最大5）×${s.scaleUnique} DMG追加`);
-    if(s.scaleUsed)out.push(`USEDの枚数（最大10）×${s.scaleUsed} DMG追加`);
-    if(s.scaleBlock)out.push('現在のBLOCKと同じ DMGを追加（BLOCKは減らない）');
-    if(s.scaleTurn)out.push(`経過ターン数×${s.scaleTurn} DMG追加（1ターン目は追加なし）`);
-    if(s.perPriorAttackDmg)out.push(`このターン先に正解したSTRIKE SKILL数（最大3）×${s.perPriorAttackDmg} DMG追加`);
-    if(s.perPriorAttackBlock)out.push(`このターン先に正解したSTRIKE SKILL数（最大3）×${s.perPriorAttackBlock}BLOCK追加`);
-    if(s.consumeBlock)out.push(`自分のBLOCKを最大${s.consumeBlock}消費し、その2倍を DMGに追加`);
-    if(s.lowHpBonus)out.push(`自分のHPが半分以下なら＋${s.lowHpBonus} DMG`);
-    if(s.bonusBlockPerEnemy)out.push(`生存する敵1体につきBLOCK＋${s.bonusBlockPerEnemy}`);
-    if(s.drawIfGuard)out.push(`使用後にBLOCK${s.drawIfGuard}以上なら1枚ドロー`);
-    if(s.healIfGuard)out.push(`使用後にBLOCK${s.healIfGuard}以上ならHP＋5`);
+    if(s.executeHalf)out.push(`HP半分以下の敵への攻撃＋${s.executeHalf}ダメージ`);
+    if(s.exhaustOnCorrect)out.push('正解で消滅（不正解なら使用済みカードへ）');
+    if(s.discardChoose)out.push('手札を1枚選んで捨てる');if(s.scaleDiscard)out.push(`このターン捨てた枚数×${s.scaleDiscard}ダメージ追加`);if(s.scaleRetrieve)out.push(`このターン回収した枚数×${s.scaleRetrieve}ダメージ追加`);
+    if(s.sealChoose)out.push('手札を1枚戦闘中だけ除外');if(s.bonusDmg)out.push(`異なる${s.formatCount}形式正解で＋${s.bonusDmg}ダメージ`);
+    if(s.bonusBlock)out.push(`異なる${s.formatCount}形式正解で防御＋${s.bonusBlock}`);
+    if(s.scaleUnique)out.push(`このターン使った異なるスキル数（最大5）×${s.scaleUnique}ダメージ追加`);
+    if(s.scaleUsed)out.push(`使用済みカードの枚数（最大10）×${s.scaleUsed}ダメージ追加`);
+    if(s.scaleBlock)out.push('現在の防御と同じダメージを追加（防御は減らない）');
+    if(s.scaleTurn)out.push(`経過ターン数×${s.scaleTurn}ダメージ追加（1ターン目は追加なし）`);
+    if(s.perPriorAttackDmg)out.push(`このターン先に正解した攻撃スキル数（最大3）×${s.perPriorAttackDmg}ダメージ追加`);
+    if(s.perPriorAttackBlock)out.push(`このターン先に正解した攻撃スキル数（最大3）×${s.perPriorAttackBlock}防御追加`);
+    if(s.consumeBlock)out.push(`自分の防御を最大${s.consumeBlock}消費し、その2倍をダメージに追加`);
+    if(s.lowHpBonus)out.push(`自分のHPが半分以下なら＋${s.lowHpBonus}ダメージ`);
+    if(s.bonusBlockPerEnemy)out.push(`生存する敵1体につき防御＋${s.bonusBlockPerEnemy}`);
+    if(s.drawIfGuard)out.push(`使用後に防御${s.drawIfGuard}以上なら1枚ドロー`);
+    if(s.healIfGuard)out.push(`使用後に防御${s.healIfGuard}以上ならHP＋5`);
     return out.join(' ＋ ');
   };
   // Hand cards intentionally use short labels. The question panel shows the full effect.
   const briefEffect = s => {
     const parts=[];
-    if(s.dmg)parts.push(`${s.range>=3?'ALL ':s.range===2?'2 TARGET ':''}${s.dmg} DMG${s.pierce?' · PIERCE':''}`);
-    if(s.heal)parts.push(`HEAL ${s.heal}`);
-    if(s.healPct)parts.push(`HEAL ${s.healPct}% HP`);
-    if(s.block)parts.push(`BLOCK +${s.block}`);
-    if(s.seedAtBlock)parts.push(`BLOCK ≥${s.seedAtBlock}: SPROUT +1`);
-    if(s.recoveryBlock)parts.push(`IF RETRIEVE: BLOCK +${s.recoveryBlock}`);
-    if(s.cancel)parts.push('CANCEL STRIKE');
-    if(s.weaken)parts.push(`ENEMY STRIKE −${s.weaken}`);
-    if(s.buff)parts.push('NEXT STRIKE ×2');
-    if(s.nextPlus)parts.push(`NEXT STRIKE +${s.nextPlus}`);
-    if(s.draw)parts.push(`DRAW ${s.draw}`);
-    if(s.retrieve)parts.push(`RETRIEVE ${s.retrieve}${s.retrievedApCut ? " · AP −"+s.retrievedApCut : ""}`);
-    if(s.discard)parts.push(`DISCARD ${s.discard}`);
-    if(s.carryAll)parts.push("CARRY OVER: ALL BLOCK");else if(s.carry)parts.push(`CARRY OVER: BLOCK ≤${s.carry}`);
-    if(s.replay)parts.push('REUSE 1 · 0 AP');if(s.blockStrike)parts.push(`BLOCK ×${s.blockStrike} DMG${s.pierce?' · PIERCE':''}`);
-    if(s.grow)parts.push(`+ SPROUT ×${s.grow} · SPROUT +1`);if(s.scaleGrow)parts.push(`+ SPROUT ×${s.scaleGrow}`);
-    if(s.growGain)parts.push(`SPROUT +${s.growGain}`);if(s.killAp)parts.push('KO: AP +1');if(s.chainAp)parts.push('2ND STRIKE: AP +1');if(s.killSplash)parts.push(`KO: ALL ${s.killSplash} DMG`);if(s.killDraw)parts.push('KO: DRAW 1');
-    if(s.reserveAp)parts.push(`CARRY OVER: AP ≤${s.reserveAp}`);
-    if(s.executeHalf)parts.push(`ENEMY HP ≤50%: +${s.executeHalf}`);
-    if(s.exhaustOnCorrect)parts.push('CORRECT: SEAL');
-    if(s.discardChoose)parts.push('DISCARD 1');if(s.scaleDiscard)parts.push(`+ DISCARD ×${s.scaleDiscard}`);if(s.scaleRetrieve)parts.push(`+ RETRIEVE ×${s.scaleRetrieve}`);
-    if(s.sealChoose)parts.push('SEAL 1');if(s.bonusDmg)parts.push(`${s.formatCount} FORMAT: +${s.bonusDmg} DMG`);if(s.bonusBlock)parts.push(`${s.formatCount} FORMAT: BLOCK +${s.bonusBlock}`);
-    if(s.scaleUnique)parts.push(`UNIQUE SKILL ×${s.scaleUnique}`);
-    if(s.scaleUsed)parts.push(`USED×${s.scaleUsed}`);
-    if(s.consumeBlock)parts.push(`BLOCK ≤${s.consumeBlock} ×2 DMG`);
-    if(s.lowHpBonus)parts.push(`SELF HP ≤50%: +${s.lowHpBonus}`);
-    if(s.bonusBlockPerEnemy)parts.push(`PER ENEMY: BLOCK +${s.bonusBlockPerEnemy}`);
-    if(s.drawIfGuard)parts.push(`BLOCK ≥${s.drawIfGuard}: DRAW 1`);
-    if(s.healIfGuard)parts.push(`BLOCK ≥${s.healIfGuard}: HEAL 5`);
-    if(s.sweepKillAp)parts.push(`KO: AP +${s.sweepKillAp}`);
-    if(s.momentum)parts.push('攻撃SKILLを2回正解 → AP +1');
-    if(s.encourageHeal)parts.push(`REORDER CORRECT: HEAL ${s.encourageHeal} (MAX ${s.encourageLimit})`);
-    if(s.nextGuardBlock)parts.push(`NEXT GUARD: BLOCK +${s.nextGuardBlock}`);
-    if(s.attackGuardCap)parts.push(`NEXT STRIKE: 50% DMG → BLOCK (MAX ${s.attackGuardCap})`);
-    if(s.nextAttackApCut)parts.push(`NEXT STRIKE: AP −${s.nextAttackApCut}`);
+    if(s.dmg)parts.push(`${s.range>=3?'全体に':s.range===2?'2体に':''}${s.dmg}ダメージ${s.pierce?'（防御無視）':''}`);
+    if(s.heal)parts.push(`HPを${s.heal}回復`);
+    if(s.healPct)parts.push(`最大HPの${s.healPct}%回復`);
+    if(s.block)parts.push(`防御 +${s.block}`);
+    if(s.seedAtBlock)parts.push(`防御${s.seedAtBlock}以上で芽＋1`);
+    if(s.recoveryBlock)parts.push(`回収済みなら防御 +${s.recoveryBlock}`);
+    if(s.cancel)parts.push('次の敵の攻撃を無効化');
+    if(s.weaken)parts.push(`敵の攻撃 −${s.weaken}`);
+    if(s.buff)parts.push('次の攻撃 ×2');
+    if(s.nextPlus)parts.push(`次の攻撃 +${s.nextPlus}`);
+    if(s.draw)parts.push(`${s.draw}枚引く`);
+    if(s.retrieve)parts.push(`${s.retrieve}枚回収${s.retrievedApCut ? " · AP −"+s.retrievedApCut : ""}`);
+    if(s.discard)parts.push(`${s.discard}枚捨てる`);
+    if(s.carryAll)parts.push("残った防御をすべて持ち越す");else if(s.carry)parts.push(`防御を持ち越す・最大${s.carry}`);
+    if(s.replay)parts.push('使用済みの1枚をAP0で再使用');if(s.blockStrike)parts.push(`防御 ×${s.blockStrike}ダメージ${s.pierce?'（防御無視）':''}`);
+    if(s.grow)parts.push(`追加ダメージ：芽×${s.grow} · 芽 +1`);if(s.scaleGrow)parts.push(`追加ダメージ：芽×${s.scaleGrow}`);
+    if(s.growGain)parts.push(`芽 +${s.growGain}`);if(s.killAp)parts.push('撃破でAP +1');if(s.chainAp)parts.push('2回目以降の攻撃でAP +1');if(s.killSplash)parts.push(`撃破で全体に${s.killSplash}ダメージ`);if(s.killDraw)parts.push('撃破で1枚引く');
+    if(s.reserveAp)parts.push(`残りAPを持ち越す・最大${s.reserveAp}`);
+    if(s.executeHalf)parts.push(`敵HP半分以下で追加ダメージ＋${s.executeHalf}`);
+    if(s.exhaustOnCorrect)parts.push('正解で消滅');
+    if(s.discardChoose)parts.push('1枚選んで捨てる');if(s.scaleDiscard)parts.push(`追加ダメージ：捨てた枚数×${s.scaleDiscard}`);if(s.scaleRetrieve)parts.push(`追加ダメージ：回収枚数×${s.scaleRetrieve}`);
+    if(s.sealChoose)parts.push('手札1枚を除外');if(s.bonusDmg)parts.push(`${s.formatCount}形式正解で+${s.bonusDmg}ダメージ`);if(s.bonusBlock)parts.push(`${s.formatCount}形式正解で防御 +${s.bonusBlock}`);
+    if(s.scaleUnique)parts.push(`追加ダメージ：使った技の種類×${s.scaleUnique}`);
+    if(s.scaleUsed)parts.push(`追加ダメージ：使用済み枚数×${s.scaleUsed}`);
+    if(s.consumeBlock)parts.push(`防御を最大${s.consumeBlock}消費・消費量の2倍のダメージを追加`);
+    if(s.lowHpBonus)parts.push(`自分のHP半分以下で追加ダメージ＋${s.lowHpBonus}`);
+    if(s.bonusBlockPerEnemy)parts.push(`敵1体につき防御 +${s.bonusBlockPerEnemy}`);
+    if(s.drawIfGuard)parts.push(`防御${s.drawIfGuard}以上で1枚引く`);
+    if(s.healIfGuard)parts.push(`防御${s.healIfGuard}以上でHPを5回復`);
+    if(s.sweepKillAp)parts.push(`撃破でAP +${s.sweepKillAp}`);
+    if(s.momentum)parts.push('攻撃スキルで2回正解 → AP +1');
+    if(s.encourageHeal)parts.push(`並べ替え正解でHPを${s.encourageHeal}回復（最大${s.encourageLimit}回）`);
+    if(s.nextGuardBlock)parts.push(`次の防御スキルの防御 +${s.nextGuardBlock}`);
+    if(s.attackGuardCap)parts.push(`次の攻撃ダメージの半分を防御に（最大${s.attackGuardCap}）`);
+    if(s.nextAttackApCut)parts.push(`次の攻撃のAP −${s.nextAttackApCut}`);
     if(s.gainAp)parts.push(`AP +${s.gainAp}`);
-    if(s.tutor)parts.push('SELECT 1 FROM DRAW PILE · AP −1');
-    if(s.exchangeBlockAp)parts.push(`PER ${s.exchangeBlockAp} BLOCK → AP +1`);
-    if(s.scaleBlock)parts.push('+ BLOCK DMG');
-    if(s.scaleTurn)parts.push(`+ (TURN − 1) ×${s.scaleTurn} DMG`);
-    if(s.perPriorAttackDmg)parts.push(`PER PRIOR STRIKE: +${s.perPriorAttackDmg} DMG (MAX 3)`);
-    if(s.perPriorAttackBlock)parts.push(`PER PRIOR STRIKE: BLOCK +${s.perPriorAttackBlock} (MAX 3)`);
+    if(s.tutor)parts.push('山札から1枚選ぶ・使用AP−1');
+    if(s.exchangeBlockAp)parts.push(`防御${s.exchangeBlockAp}をAP1に変換`);
+    if(s.scaleBlock)parts.push('現在の防御分のダメージを追加');
+    if(s.scaleTurn)parts.push(`経過ターン数×${s.scaleTurn}ダメージ`);
+    if(s.perPriorAttackDmg)parts.push(`先に成功した攻撃1回につき+${s.perPriorAttackDmg}ダメージ（最大3回）`);
+    if(s.perPriorAttackBlock)parts.push(`先に成功した攻撃1回につき防御 +${s.perPriorAttackBlock}（最大3回）`);
     return parts.join(' · ');
   };
   let deckFilter='all';
-  const DECK_TYPES={attack:'STRIKE',guard:'GUARD',heal:'HEAL',tactic:'TACTIC'};
+  const DECK_TYPES={attack:'攻撃系',guard:'防御系',heal:'回復系',tactic:'戦術系'};
   const basicCount=id=>state[id==='Attack'?'basicAttack':'basicGuard']+state.owned.filter(name=>name===id+'+').length;
   function removeBasicCard(id,upgraded=false){
     const key=id==='Attack'?'basicAttack':'basicGuard';
@@ -1210,56 +1210,56 @@
     if(e.kind==='support'){
       if(t%2){
         const partner=state.enemies.find(x=>x.hp>0&&x.id!==e.id);
-        if(!partner)return {attack:a,label:`⚔ STRIKE ${a}`};
+        if(!partner)return {attack:a,label:`⚔ 攻撃 ${a}`};
         const wounded=alive().some(x=>x.hp<x.maxHp);
-        return wounded?{heal:16,label:'✚ ALLY HEAL 16'}:{guardAlly:6,label:'🛡 ALLY GUARD +6'};
+        return wounded?{heal:16,label:'✚ 味方を回復 16'}:{guardAlly:6,label:'🛡 味方の防御 +6'};
       }
-      return {attack:a,label:`⚔ STRIKE ${a}`};
+      return {attack:a,label:`⚔ 攻撃 ${a}`};
     }
-    if(e.kind==='sentinel')return t%2?{guardAlly:12,label:'🛡 ALLY GUARD +12'}:{attack:a,label:`⚔ STRIKE ${a}`};
-    if(e.kind==='conductor')return t%2?{label:'✷ ALLY STRIKE +4（常時）'}:{attack:a,label:`⚔ STRIKE ${a}・指揮中`};
-    if(e.kind==='tank')return t%2?{shield:11,label:'⬡ GUARD +11'}:{attack:a,label:`⚔ STRIKE ${a}`};
-    if(e.kind==='charger')return t%2?{label:'ϟ CHARGE'}:{attack:a*2,label:`ϟ HEAVY STRIKE ${a*2}`};
-    if(e.kind==='counter')return state.block>=10?{attack:a+5,pierceBlock:5,label:`◉ GUARD BREAK ${a+5}（BLOCK −5）`}:{attack:a,label:`⚔ STRIKE ${a}（BLOCK 10以上で変化）`};
-    if(e.kind==='inflator')return {attack:a+Math.min(15,3*Math.floor((t-1)/2)),label:`⚔ RISING STRIKE ${a+Math.min(15,3*Math.floor((t-1)/2))}`};
+    if(e.kind==='sentinel')return t%2?{guardAlly:12,label:'🛡 味方の防御 +12'}:{attack:a,label:`⚔ 攻撃 ${a}`};
+    if(e.kind==='conductor')return t%2?{label:'✷ 味方の攻撃 +4（常時）'}:{attack:a,label:`⚔ 攻撃 ${a}・指揮中`};
+    if(e.kind==='tank')return t%2?{shield:11,label:'⬡ 防御 +11'}:{attack:a,label:`⚔ 攻撃 ${a}`};
+    if(e.kind==='charger')return t%2?{label:'ϟ 力をためる'}:{attack:a*2,label:`ϟ 強攻撃 ${a*2}`};
+    if(e.kind==='counter')return state.block>=10?{attack:a+5,pierceBlock:5,label:`◉ 防御崩し ${a+5}（防御 −5）`}:{attack:a,label:`⚔ 攻撃 ${a}（防御 10以上で変化）`};
+    if(e.kind==='inflator')return {attack:a+Math.min(15,3*Math.floor((t-1)/2)),label:`⚔ 増幅攻撃 ${a+Math.min(15,3*Math.floor((t-1)/2))}`};
     // Antitrust Cerberus punishes repeating one successful card, not stacking damage with block removal.
-    if(e.kind==='breaker')return t%3===0?{repeatStrike:a+9,label:`⚖ 同名2回発動でSTRIKE ${a+9}`}:{attack:a,...(t%3===1?{shield:5}:{}),label:t%3===1?`⚔ STRIKE ${a}・GUARD +5`:`⚔ STRIKE ${a}`};
-    if(e.kind==='disruptor')return t%3===1?{shield:10,label:'⬡ GUARD +10'}:{attack:a,label:`⚔ STRIKE ${a}`};
-    if(e.kind==='trickster')return t%3===0?{attack:a+10,label:`⚠ HEAVY STRIKE ${a+10}`}:{attack:a,...(t%3===1?{shield:5}:{}),label:t%3===1?`⚔ STRIKE ${a}・GUARD +5`:`⚔ STRIKE ${a}`};
-    if(e.kind==='variable')return t%2?{shield:7,label:'⬡ 分岐：GUARD +7'}:{attack:a+5,label:`⚔ 分岐：STRIKE ${a+5}`};
-    if(e.kind==='swarm')return t%2?{attack:a,label:`⚔ STRIKE ${a}`}:{attack:a*2,label:`⚔ MULTI STRIKE ${a*2}`};
-    if(e.kind==='leech')return t%3===0?{attack:a+3,lifeSteal:5,label:`♡ DRAIN STRIKE ${a+3}・HP＋5`}:{attack:a,label:`⚔ STRIKE ${a}`};
-    if(e.kind==='inventory')return t%3===1?{junk:1+(t%2),label:`▣ 不良在庫＋${1+(t%2)}枚`}:{attack:a,label:`⚔ STRIKE ${a}`};
+    if(e.kind==='breaker')return t%3===0?{repeatStrike:a+9,label:`⚖ 同名2回発動で攻撃 ${a+9}`}:{attack:a,...(t%3===1?{shield:5}:{}),label:t%3===1?`⚔ 攻撃 ${a}・防御 +5`:`⚔ 攻撃 ${a}`};
+    if(e.kind==='disruptor')return t%3===1?{shield:10,label:'⬡ 防御 +10'}:{attack:a,label:`⚔ 攻撃 ${a}`};
+    if(e.kind==='trickster')return t%3===0?{attack:a+10,label:`⚠ 強攻撃 ${a+10}`}:{attack:a,...(t%3===1?{shield:5}:{}),label:t%3===1?`⚔ 攻撃 ${a}・防御 +5`:`⚔ 攻撃 ${a}`};
+    if(e.kind==='variable')return t%2?{shield:7,label:'⬡ 分岐：防御 +7'}:{attack:a+5,label:`⚔ 分岐：攻撃 ${a+5}`};
+    if(e.kind==='swarm')return t%2?{attack:a,label:`⚔ 攻撃 ${a}`}:{attack:a*2,label:`⚔ 連続攻撃 ${a*2}`};
+    if(e.kind==='leech')return t%3===0?{attack:a+3,lifeSteal:5,label:`♡ 吸収攻撃 ${a+3}・HP＋5`}:{attack:a,label:`⚔ 攻撃 ${a}`};
+    if(e.kind==='inventory')return t%3===1?{junk:1+(t%2),label:`▣ 不良在庫＋${1+(t%2)}枚`}:{attack:a,label:`⚔ 攻撃 ${a}`};
     // No immediate damage: the next player turn's defense cards earn four less guard each.
-    if(e.kind==='sapper')return t%3===0?{guardPriceCut:4,shield:6,label:'▼ 次ターンBLOCK −4/枚・GUARD +6'}:{attack:a,label:`⚔ STRIKE ${a}`};
+    if(e.kind==='sapper')return t%3===0?{guardPriceCut:4,shield:6,label:'▼ 次ターン防御 −4/枚・防御 +6'}:{attack:a,label:`⚔ 攻撃 ${a}`};
     // The Joker pays exactly the same HP as the damage it attempts to deal; block can stop only the player's loss.
-    if(e.kind==='exchange'){const trade=a+6;return t%3===2?{attack:trade,selfDamage:trade,shield:6,label:`♠ 等価交換 ${trade}・自身HP−${trade}・GUARD +6`}:{attack:a,label:`⚔ STRIKE ${a}`};}
-    if(e.kind==='taxer')return t%3===0?{attack:a+9,label:`⚠ TAX STRIKE ${a+9}`}:{attack:a,label:`⚔ STRIKE ${a}`};
+    if(e.kind==='exchange'){const trade=a+6;return t%3===2?{attack:trade,selfDamage:trade,shield:6,label:`♠ 等価交換 ${trade}・自身HP−${trade}・防御 +6`}:{attack:a,label:`⚔ 攻撃 ${a}`};}
+    if(e.kind==='taxer')return t%3===0?{attack:a+9,label:`⚠ 徴税攻撃 ${a+9}`}:{attack:a,label:`⚔ 攻撃 ${a}`};
     if(e.kind==='boss'){
       const phase2=t>=BOSS_SERIOUS_TURN,phaseText=phase2?'【本気】':'';
       const cycle=(t-1)%4;
       const thirdStrike=phase2?18:15;
       if(e.bossId==='hodaka'){
         if(cycle===0){const strike=Math.round((a+(phase2?3:0))*.8);return {attack:strike,label:`🍜 ${phaseText}麺打ち ${strike}`};}
-        if(cycle===1)return {attack:7+(phase2?3:0),shield:10+(phase2?4:0),label:`♨ ${phaseText}湯気の壁：GUARD +${10+(phase2?4:0)}・STRIKE ${7+(phase2?3:0)}`};
+        if(cycle===1)return {attack:7+(phase2?3:0),shield:10+(phase2?4:0),label:`♨ ${phaseText}湯気の壁：防御 +${10+(phase2?4:0)}・攻撃 ${7+(phase2?3:0)}`};
         if(cycle===2)return {attack:thirdStrike,label:`🔥 ${phaseText}熱湯スープ ${thirdStrike}`};
-        return {quizFormat:'q12',quizCount:1,quizAttack:30,label:`🍜 ${phaseText}ラーメンアタック：大問12正解で回避／失敗30 DMG`};
+        return {quizFormat:'q12',quizCount:1,quizAttack:30,label:`🍜 ${phaseText}ラーメンアタック：大問12正解で回避／失敗30ダメージ`};
       }
       if(e.bossId==='riki'){
         if(cycle===0){const strike=Math.round((a+(phase2?4:0))*.8);return {attack:strike,label:`📘 ${phaseText}確認テスト ${strike}`};}
-        if(cycle===1)return {attack:10+(phase2?4:0),shield:14+(phase2?6:0),label:`📒 ${phaseText}仕訳指導：GUARD +${14+(phase2?6:0)}・STRIKE ${10+(phase2?4:0)}`};
+        if(cycle===1)return {attack:10+(phase2?4:0),shield:14+(phase2?6:0),label:`📒 ${phaseText}仕訳指導：防御 +${14+(phase2?6:0)}・攻撃 ${10+(phase2?4:0)}`};
         if(cycle===2)return {attack:thirdStrike,label:`🔥 ${phaseText}熱血追試 ${thirdStrike}`};
-        return {quizFormat:'q11',quizCount:2,quizAttack:9+(phase2?4:0),apTax:1,label:`🖍 ${phaseText}赤ペン指導：大問11を2問とも正解で回避／失敗時STRIKE ${9+(phase2?4:0)}・次AP−1`};
+        return {quizFormat:'q11',quizCount:2,quizAttack:9+(phase2?4:0),apTax:1,label:`🖍 ${phaseText}赤ペン指導：大問11を2問とも正解で回避／失敗時攻撃 ${9+(phase2?4:0)}・次AP−1`};
       }
       if(e.bossId==='mika'){
         if(cycle===0){const strike=Math.round((a+(phase2?5:0))*.8);return {attack:strike,label:`💼 ${phaseText}業績命令 ${strike}`};}
-        if(cycle===1)return {heal:12+(phase2?4:0),shield:20+(phase2?6:0),label:`💎 ${phaseText}資本増強：HP＋${12+(phase2?4:0)}・GUARD +${20+(phase2?6:0)}`};
-        if(cycle===2)return {attack:thirdStrike,junk:phase2?2:1,label:`📉 ${phaseText}不採算処理：STRIKE ${thirdStrike}・不良在庫＋${phase2?2:1}枚`};
-        return {quizFormat:'q12',quizCount:3,quizAttack:a+15+(phase2?6:0),label:`👑 ${phaseText}最終決済：大問12を3問すべて正解で回避／失敗${a+15+(phase2?6:0)} DMG`};
+        if(cycle===1)return {heal:12+(phase2?4:0),shield:20+(phase2?6:0),label:`💎 ${phaseText}資本増強：HP＋${12+(phase2?4:0)}・防御 +${20+(phase2?6:0)}`};
+        if(cycle===2)return {attack:thirdStrike,junk:phase2?2:1,label:`📉 ${phaseText}不採算処理：攻撃 ${thirdStrike}・不良在庫＋${phase2?2:1}枚`};
+        return {quizFormat:'q12',quizCount:3,quizAttack:a+15+(phase2?6:0),label:`👑 ${phaseText}最終決済：大問12を3問すべて正解で回避／失敗${a+15+(phase2?6:0)}ダメージ`};
       }
-      return {attack:a,label:`⚔ STRIKE ${a}`};
+      return {attack:a,label:`⚔ 攻撃 ${a}`};
     }
-    return {attack:a,label:`⚔ STRIKE ${a}`};}
+    return {attack:a,label:`⚔ 攻撃 ${a}`};}
   function alive(){return state.enemies.filter(e=>e.hp>0);}
   function chosenTarget(){return state.enemies[state.selected]?.hp>0?state.enemies[state.selected]:alive()[0];}
   function showHandCard(index){
@@ -1297,16 +1297,16 @@
     $('floorPips').innerHTML=state.route.map((_,i)=>`<span class="${i<state.stage?'done':i===state.stage?'current':''}">${i===8?'★':i+1}</span>`).join('');
     $('enemyLine').className=`enemy-line enemy-count-${alive().length}`;
     $('enemyLine').innerHTML=alive().map(e=>`<button type="button" class="enemy ${chosenTarget()?.id===e.id?'selected':''}" data-enemy="${e.id}" aria-pressed="${chosenTarget()?.id===e.id}" aria-label="攻撃対象に${escapeHtml(e.name)}を選ぶ">
-      <div class="enemy-vitals"><div class="enemy-title">${escapeHtml(e.name)}</div><div class="enemy-hp"><i style="width:${100*e.hp/e.maxHp}%"></i></div><div class="enemy-values">HP ${e.hp} / ${e.maxHp} ${e.shield?' · BLOCK '+e.shield:''}</div>
-      <div class="enemy-intent"><span class="intent-kicker">NEXT</span><span class="intent-action">${escapeHtml(e.canceled?'CANCEL STRIKE':intent(e).label)}</span></div>${hasArtifact('MarketReport')?`<div class="enemy-future-intent">その次：${escapeHtml(intent(e,state.turn+1).label)}</div>`:''}</div>
+      <div class="enemy-vitals"><div class="enemy-title">${escapeHtml(e.name)}</div><div class="enemy-hp"><i style="width:${100*e.hp/e.maxHp}%"></i></div><div class="enemy-values">HP ${e.hp} / ${e.maxHp} ${e.shield?' · 防御 '+e.shield:''}</div>
+      <div class="enemy-intent"><span class="intent-kicker">次の行動</span><span class="intent-action">${escapeHtml(e.canceled?'攻撃を無効化':intent(e).label)}</span></div>${hasArtifact('MarketReport')?`<div class="enemy-future-intent">その次：${escapeHtml(intent(e,state.turn+1).label)}</div>`:''}</div>
       <div class="enemy-portrait">${window.enemyArt?window.enemyArt(e.kind,e.name):escapeHtml(e.icon)}${chosenTarget()?.id===e.id&&alive().length>1?'<span class="target-marker" aria-hidden="true">TARGET</span>':''}</div><div class="enemy-role">${ENEMY_ROLES[e.kind]||'敵'}${state.enemies.some(x=>x.hp>0&&x!==e&&x.kind==='conductor')?' · 指揮強化中':''}</div></button>`).join('');
     $('enemyLine').querySelectorAll('[data-enemy]').forEach(b=>b.onclick=()=>{state.selected=Number(b.dataset.enemy);playSfx('select');renderBattle();});
-    $('intentList').innerHTML=alive().map(e=>`<div class="intent-row"><b>${escapeHtml(e.name)}</b><strong>${escapeHtml(e.canceled?'CANCEL STRIKE':intent(e).label)}${hasArtifact('MarketReport')?`<small>次ターン：${escapeHtml(intent(e,state.turn+1).label)}</small>`:''}</strong></div>`).join('');
-    $('heroHpFill').style.width=`${Math.max(0,100*state.hp/state.maxHp)}%`;$('heroHpText').textContent=`HP ${state.hp} / ${state.maxHp}${state.block?' · BLOCK '+state.block:''}`;
-    $('heroDebuff').hidden=!(state.guardPriceCut>0);$('heroDebuff').textContent=state.guardPriceCut>0?`▼ GUARDカード −${state.guardPriceCut}/枚`:'';
+    $('intentList').innerHTML=alive().map(e=>`<div class="intent-row"><b>${escapeHtml(e.name)}</b><strong>${escapeHtml(e.canceled?'攻撃を無効化':intent(e).label)}${hasArtifact('MarketReport')?`<small>次ターン：${escapeHtml(intent(e,state.turn+1).label)}</small>`:''}</strong></div>`).join('');
+    $('heroHpFill').style.width=`${Math.max(0,100*state.hp/state.maxHp)}%`;$('heroHpText').textContent=`HP ${state.hp} / ${state.maxHp}${state.block?' · 防御 '+state.block:''}`;
+    $('heroDebuff').hidden=!(state.guardPriceCut>0);$('heroDebuff').textContent=state.guardPriceCut>0?`▼ 防御カード −${state.guardPriceCut}/枚`:'';
     $('apDisplay').textContent=`AP ${state.ap}/${Math.max(state.ap,Number(state.apTotal)||3)}`;
     $('growthDisplay').hidden=state.growUses<=0;
-    $('growthDisplay').textContent=`🌱 SPROUT ${state.growUses}`;
+    $('growthDisplay').textContent=`🌱 芽 ${state.growUses}`;
     $('drawCount').textContent=state.deck.length;$('usedCount').textContent=state.used.length;$('usedPoolCount').textContent=state.used.length;$('correctCount').textContent=state.correct;$('questionCount').textContent=state.questions;
     $('handCount').textContent=`${state.hand.length}`;$('battleNotice').textContent=state.notice;
     if(selectedHandIndex>=state.hand.length)selectedHandIndex=-1;
@@ -1402,7 +1402,7 @@
   function openBossChallenge(){
     const boss=alive().find(e=>!e.canceled&&intent(e).quizFormat),move=boss&&intent(boss);
     if(!move)return;
-    if(!(move.quizFormat==='q11'?questionBank().q11s:questionBank().q12s).length){flashNotice('特殊技の問題データがないためSTRIKEを回避');endTurn(true);return;}
+    if(!(move.quizFormat==='q11'?questionBank().q11s:questionBank().q12s).length){flashNotice('特殊技の問題データがないため攻撃を回避');endTurn(true);return;}
     const title={hodaka:'ラーメンアタック',riki:'赤ペン指導',mika:'最終決済'}[boss.bossId]||'ボスの特殊技';
     state.pending={bossChallenge:true,resolved:false,format:move.quizFormat,total:move.quizCount||1,completed:0,missed:false,title,damage:move.quizAttack||0,apTax:move.apTax||0};
     showBossLine($('bossQuizSpeech'),boss,'special');
@@ -1415,7 +1415,7 @@
     $('questionModal').hidden=false;$('questionModal').classList.remove('answered','answered-correct','answered-wrong');
     $('closeQuestion').hidden=true;$('questionTitle').textContent=`${p.title}を回避せよ！`;
     $('questionType').textContent=`${state.examGrade}級 · ボス特殊技 · ${p.format==='q11'?'大問11':'大問12'} · ${p.completed+1}/${p.total}問`;
-    $('questionSkill').textContent=`${p.total}問すべて正解で回避 · 失敗時${p.damage} DMG${p.apTax?'＋次ターンAP−1':''}（BLOCKで軽減可） · AP消費なし`;
+    $('questionSkill').textContent=`${p.total}問すべて正解で回避 · 失敗時${p.damage}ダメージ${p.apTax?'＋次ターンAP−1':''}（防御で軽減可） · AP消費なし`;
     $('questionStem').textContent=q.stem;$('questionResult').textContent='';$('questionResult').className='question-result';
     $('questionExplanation').hidden=true;$('questionExplanation').textContent='';$('continueQuestion').hidden=true;
     $('listenBtn').hidden=true;$('answers').innerHTML='';$('answers').classList.remove('order-grid');
@@ -1500,12 +1500,12 @@
     const dealt=hpBefore-state.enemies.reduce((sum,e)=>sum+e.hp,0);
     if(success){state.turnDamage=(state.turnDamage||0)+Math.max(0,dealt);state.turnGuardGained=(state.turnGuardGained||0)+Math.max(0,state.block-blockBefore);
       if(state.turnDamage>=50)awardBadge('burst30');if(state.turnGuardGained>=30)awardBadge('guard15');}
-    const actionNotice=success?`${s.label}：${dealt?`${dealt} DMG`:state.block>blockBefore?`BLOCK＋${state.block-blockBefore}`:state.hp>heroBefore?`HP＋${state.hp-heroBefore}`:'発動'}${triggered.length?' · '+triggered.join(' / '):''}${state.breakMessage?' ・ '+state.breakMessage:''}`:`${s.label}：不発${retryTicket?' · 迷子札：次ターン再挑戦':''}`;
+    const actionNotice=success?`${s.label}：${dealt?`${dealt}ダメージ`:state.block>blockBefore?`防御＋${state.block-blockBefore}`:state.hp>heroBefore?`HP＋${state.hp-heroBefore}`:'発動'}${triggered.length?' · '+triggered.join(' / '):''}${state.breakMessage?' ・ '+state.breakMessage:''}`:`${s.label}：不発${retryTicket?' · 迷子札：次ターン再挑戦':''}`;
     state.pending=null;state.question=null;$('questionModal').hidden=true;
     if(!alive().length){winBattle();return;}
     if(success)playSfx(dealt?'attack':s.type==='guard'?'guard':s.type==='heal'||state.hp>heroBefore?'heal':'confirm');
     renderBattle();flashNotice(actionNotice);
-    showBattleFx(!success?'miss':dealt?'attack':state.block>blockBefore?'guard':'support',success?dealt?`⚔ ${dealt} DMG！`:state.block>blockBefore?`🛡 BLOCK +${state.block-blockBefore}`:state.hp>heroBefore?`✚ HP +${state.hp-heroBefore}`:`✦ ${s.label}`:'MISS');
+    showBattleFx(!success?'miss':dealt?'attack':state.block>blockBefore?'guard':'support',success?dealt?`⚔ ${dealt}ダメージ！`:state.block>blockBefore?`🛡 防御 +${state.block-blockBefore}`:state.hp>heroBefore?`✚ HP +${state.hp-heroBefore}`:`✦ ${s.label}`:'MISS');
   }
   function applyAnswerArtifacts(s){const triggered=[];
     const onceTurn=(id,format,action)=>{if(hasArtifact(id)&&s.format===format&&!state.artifactTurnUses.has(id)){action();state.artifactTurnUses.add(id);triggered.push(artifacts[id].name);}};
@@ -1557,7 +1557,7 @@
       if(s.type==='attack')state.attackSkillCount++;
       state.artifactAttacks=(state.artifactAttacks||0)+1;
       if(defeated.some(e=>e.kind==='conductor')&&alive().length)state.breakMessage='指揮を断った！ 味方強化が消滅';
-      else if(defeated.some(e=>e.kind==='sentinel')&&alive().length)state.breakMessage='守護を突破！ 味方へのBLOCK支援が消滅';
+      else if(defeated.some(e=>e.kind==='sentinel')&&alive().length)state.breakMessage='守護を突破！ 味方への防御支援が消滅';
       else if(defeated.some(e=>e.kind==='support')&&alive().length)state.breakMessage='回復役を撃破！ 回復支援が消滅';
       if(firstAttackBonus)state.artifactBattleUses.add('FirstAttack');
       if(hasArtifact('CompoundInterest'))state.artifactCompound=Math.min(8,state.artifactCompound+2);
@@ -1658,7 +1658,7 @@
     if(state.hp<=0){GoimonDungeonMission.recordDefeat(state);playSfx('defeat');showChoice('defeat');return;}
     if(!alive().length){winBattle();return;}
     const bonusAp=Math.min(state.ap,state.reserveAp);const reserveGuard=hasArtifact('ReserveVault')?Math.min(2,state.ap)*2:0;state.turn++;state.apTotal=3+bonusAp;state.ap=Math.max(1,state.apTotal-nextApTax);state.reserveAp=0;state.reserveUsed=false;state.block=state.carryOver+reserveGuard+state.artifactNextGuard;state.guardPriceCut=nextGuardPriceCut;state.artifactNextGuard=0;state.carry=0;state.carryAll=false;state.buff=1;state.nextPlus=0;state.shieldPierce=0;state.commandUsed=false;state.discardedTurn=0;state.recoveredTurn=0;state.correctFormats=[];state.turnUsedNames=[];state.replayUsed=false;state.chainApGained=0;state.momentumActive=false;state.momentumAttackCount=0;state.encourageHeal=0;state.encourageCount=0;state.nextGuardBlock=0;state.attackGuardCap=0;state.nextAttackApCut=0;state.marginCallUsed=false;state.attackSkillCount=0;state.turnDamage=0;state.turnGuardGained=0;state.artifactTurnUses.clear();state.typeTurnUses.clear();state.typeCorrectNames.clear();state.artifactAttacks=0;state.artifactCardUses=0;state.artifactDraws=0;state.artifactCorrectStreak=0;state.artifactUniqueCards=[];state.artifactCompound=0;
-    state.battleOpeningDraw=true;draw(5);state.battleOpeningDraw=false;renderBattle();flashNotice(sealActivated?'最後の精算印：HP1で踏みとどまった！':bossEvaded?'全問正解！ 特殊技を完全回避':junkAdded?`不良在庫＋${Math.min(2,junkAdded)}枚`:taken?`HP −${taken}`:total?'GUARD成功':'敵が行動した');showBattleFx(total>0?'enemy':'guard',sealActivated?'✦ FINAL SETTLEMENT!':bossEvaded?'✦ PERFECT DODGE!':taken?`💥 ${taken} DMG！`:total>0?'🛡 BLOCK!':'✦ 敵が行動した');if(total>0)playSfx(taken>0?'hurt':'guard');}
+    state.battleOpeningDraw=true;draw(5);state.battleOpeningDraw=false;renderBattle();flashNotice(sealActivated?'最後の精算印：HP1で踏みとどまった！':bossEvaded?'全問正解！ 特殊技を完全回避':junkAdded?`不良在庫＋${Math.min(2,junkAdded)}枚`:taken?`HP −${taken}`:total?'防御成功':'敵が行動した');showBattleFx(total>0?'enemy':'guard',sealActivated?'✦ 最後の精算印！':bossEvaded?'✦ 完全回避！':taken?`💥 ${taken}ダメージ！`:total>0?'🛡 防御!':'✦ 敵が行動した');if(total>0)playSfx(taken>0?'hurt':'guard');}
   // Rarity is rolled separately for each of the three offered cards.
   function rewardRank(mode,roll){
     if(mode==='eliteReward')return roll<.95?'R':'SR';
