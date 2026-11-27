@@ -96,13 +96,19 @@ test('Sweep restores AP only once even when it defeats several enemies', () => {
   assert.equal(boosted.state.ap, 7);
 });
 
-test('Momentum restores AP on the second, fourth, and sixth subsequent attacks', () => {
-  const {state, run} = setup({enemies:[{id:0,kind:'attacker',hp:1000,maxHp:1000,shield:0}]});
-  run("applyCard(getSkill('Momentum'), 'Momentum', 0)");
-  for(let i=1;i<=6;i++){
-    run("applyCard(getSkill('Attack'), 'Attack', 0)");
-    assert.equal(state.ap, 5+Math.floor(i/2), `After ${i} attacks`);
-  }
+test('Momentum rewards every two attack SKILL resolutions, including zero damage and multi-target cards', () => {
+  const {state, run} = setup({enemies:[0,1].map(id=>({id,kind:'attacker',hp:1000,maxHp:1000,shield:0}))});
+  const use = id => run(`applyCard(getSkill('${id}'), '${id}', 0)`);
+  use('Flash');
+  use('Momentum');
+  for(const id of ['Attack','Attack+','Guard','Disappear'])use(id);
+  assert.equal(state.momentumAttackCount,0);
+  const attacks=['Counter','Sweep','Grow','Flash','Sweep+','Counter+'];
+  attacks.forEach((id,index)=>{
+    use(id);
+    assert.equal(state.momentumAttackCount,index+1);
+    assert.equal(state.ap,5+Math.floor((index+1)/2));
+  });
 });
 
 test('Shock discounts the next attack; Overtime and Last Minute scale by turn and attacks', () => {

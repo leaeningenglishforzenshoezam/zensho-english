@@ -505,7 +505,7 @@
     if(s.grow)out.push(`SPROUT×${s.grow} DMG追加・使用後にSPROUT＋1`);if(s.scaleGrow)out.push(`SPROUT×${s.scaleGrow} DMG追加`);
     if(s.growGain)out.push(`SPROUT＋${s.growGain}（この戦闘中）`);if(s.killAp)out.push('撃破時AP＋1（ターン1回）');if(s.chainAp)out.push('このターン2回目以降のSTRIKEでもAP＋1（撃破時と共通でターン1回）');if(s.killSplash)out.push(`撃破時、残りの敵全員に${s.killSplash} DMG`);
     if(s.sweepKillAp)out.push(`このSKILLで1体以上撃破するとAP＋${s.sweepKillAp}（使用1回につき1回）`);
-    if(s.momentum)out.push('このターン、発動後にSTRIKE SKILLを2回正解するごとにAP＋1（2・4・6回目…）');
+    if(s.momentum)out.push('このターン、発動後に攻撃SKILLを2回正解するたびにAPを1回復。基本カードのSTRIKE・STRIKE+は対象外。');
     if(s.encourageHeal)out.push(`このターン、以降の大問12のSKILLに正解するたびHP＋${s.encourageHeal}（最大${s.encourageLimit}回）`);
     if(s.nextGuardBlock)out.push(`このターン、次のGUARD SKILLのBLOCK＋${s.nextGuardBlock}`);
     if(s.attackGuardCap)out.push(`このターン、次のSTRIKE SKILLで与えたHP DMGの50％をBLOCKに変換（最大${s.attackGuardCap}）`);
@@ -565,7 +565,7 @@
     if(s.drawIfGuard)parts.push(`BLOCK ≥${s.drawIfGuard}: DRAW 1`);
     if(s.healIfGuard)parts.push(`BLOCK ≥${s.healIfGuard}: HEAL 5`);
     if(s.sweepKillAp)parts.push(`KO: AP +${s.sweepKillAp}`);
-    if(s.momentum)parts.push('PER 2 STRIKE: AP +1');
+    if(s.momentum)parts.push('攻撃SKILLを2回正解 → AP +1');
     if(s.encourageHeal)parts.push(`REORDER CORRECT: HEAL ${s.encourageHeal} (MAX ${s.encourageLimit})`);
     if(s.nextGuardBlock)parts.push(`NEXT GUARD: BLOCK +${s.nextGuardBlock}`);
     if(s.attackGuardCap)parts.push(`NEXT STRIKE: 50% DMG → BLOCK (MAX ${s.attackGuardCap})`);
@@ -1536,6 +1536,10 @@
     const priorAttacks=Math.min(3,state.attackSkillCount||0);
     const strike=(s.dmg||0)+(s.blockStrike?Math.min(36,Math.floor(state.block*s.blockStrike)):0)+(s.scaleGrow?state.growUses*s.scaleGrow:0)+(s.scaleDiscard?state.discardedTurn*s.scaleDiscard:0)+(s.scaleRetrieve?state.recoveredTurn*s.scaleRetrieve:0)+(s.bonusDmg&&state.correctFormats.length>=s.formatCount?s.bonusDmg:0)+(s.grow?state.growUses*s.grow:0)+(s.scaleUnique?Math.min(5,new Set(state.turnUsedNames).size)*s.scaleUnique:0)+(s.scaleUsed?Math.min(10,state.used.length)*s.scaleUsed:0)+(s.scaleBlock?state.block*s.scaleBlock:0)+(s.scaleTurn?(state.turn-1)*s.scaleTurn:0)+(s.perPriorAttackDmg?priorAttacks*s.perPriorAttackDmg:0)+spentBlock*2+(s.lowHpBonus&&state.hp<=state.maxHp/2?s.lowHpBonus:0);
     if(spentBlock)state.block-=spentBlock;
+    if(state.momentumActive && s.type==='attack' && s.rank!=='BASIC'){
+      state.momentumAttackCount++;
+      if(state.momentumAttackCount%2===0){state.ap++;state.apTotal++;}
+    }
     if(strike){const victims=s.range>=3?candidates:s.range===2?[target,...candidates.filter(x=>x!==target)].slice(0,2):[target];
       const firstAttackBonus=!state.artifactBattleUses.has('FirstAttack')?(hasArtifact('PowerFang')?4:0):0;
       const firstAttackMultiplier=!state.artifactBattleUses.has('MonopolyCrown')&&hasArtifact('MonopolyCrown')?2:1;
@@ -1549,7 +1553,6 @@
         if(s.sweepKillAp){state.ap+=s.sweepKillAp;state.apTotal+=s.sweepKillAp;}
       }
       if(s.chainAp&&state.artifactAttacks>=1&&!state.chainApGained){state.ap+=s.chainAp;state.apTotal+=s.chainAp;state.chainApGained=1;}
-      if(s.type==='attack'&&state.momentumActive){state.momentumAttackCount++;if(state.momentumAttackCount%2===0){state.ap++;state.apTotal++;}}
       if(s.type==='attack'&&state.attackGuardCap){state.block+=Math.min(state.attackGuardCap,Math.floor(hpDamage/2));state.attackGuardCap=0;}
       if(s.type==='attack')state.attackSkillCount++;
       state.artifactAttacks=(state.artifactAttacks||0)+1;
