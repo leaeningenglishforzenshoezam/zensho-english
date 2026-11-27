@@ -186,7 +186,7 @@
     ["P1_043",178,"N043","Many citizens asked the city for better public services.","Many citizens ( ) better public services from the city.",["requested","doubted","avoided","borrowed"],"requested"],
     ["P1_044",179,"N044","Because you have finished your homework, you can watch TV.","( ) you have finished your homework, you can watch TV.",["Since","Unless","Though","Before"],"Since"],
     ["P1_046",180,"N046","Your answer seems correct, but you should examine it again.","Your answer seems correct, but you should ( ) it again.",["check","draw","cancel","print"],"check"],
-    ["P1_049",181,"N049","Students should use every chance to practice speaking English.","Students should ( ) every chance to practice speaking English.",["use","lose","miss","hide"],"use"],
+    ["P1_049",181,"N049","Students should use every chance to practice speaking English.","Students should use every ( ) to practice speaking English.",["opportunity","responsibility","necessity","permission"],"opportunity"],
     ["P1_056",182,"N056","The new factory created many jobs in the town.","The new factory brought an increase in employment ( ).",["opportunities","mistakes","illnesses","temperatures"],"opportunities"],
     ["P1_064",183,"N064","The results of the survey will be published next week.","The results of the survey will be ( ) next week.",["released","hidden","repaired","refused"],"released"],
     ["P1_066",184,"N066","She spoke English with a slight Japanese accent.","She spoke English with a ( ) Japanese accent.",["mild","heavy","strong","serious"],"mild"],
