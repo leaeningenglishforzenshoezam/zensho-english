@@ -37,7 +37,11 @@
     '切符ギロチン':'images/enemies/d2-elite-kippu-guillotine.png',
     '忘れ物競売師':'images/enemies/d2-elite-wasuremono-auctioneer.png',
     '終売キオスク':'images/enemies/d2-elite-shuubai-kiosk.png',
-    'ぶつかりおばさん':'images/enemies/d2-elite-butsukari-obasan.png'
+    'ぶつかりおばさん':'images/enemies/d2-elite-butsukari-obasan.png',
+    // Dungeon 2 ACT bosses: the three illustrated monster forms.
+    'LOST & FOUND NAKAJIMA':'images/bosses/nakajima.png',
+    '冷酷検札官REI':'images/bosses/rei.png',
+    '忘却車掌YOSHI':'images/bosses/yoshi-angry.png'
   };
   const ink='#203c48', cream='#f8edcf', eye='<circle cx="66" cy="43" r="4.4" fill="#203c48"/><circle cx="67.4" cy="41.7" r="1.4" fill="white"/>';
   const body=(color,extras='',face=eye)=>`<ellipse cx="60" cy="80" rx="40" ry="11" fill="#0b2732" opacity=".12"/><path d="M24 69 Q17 39 42 23 Q60 12 83 26 Q106 44 95 73 Q81 91 54 85 Q33 86 24 69Z" fill="${color}" stroke="${ink}" stroke-width="5" stroke-linejoin="round"/>${extras}${face}`;
@@ -51,17 +55,9 @@
     counter:`<path d="M22 33 10 8 42 25M79 25l30-17-10 33" fill="#d1b5a0" stroke="${ink}" stroke-width="5"/>${body('#ddc2a5','<path d="M33 39Q47 31 57 42M63 42Q78 30 88 40" fill="none" stroke="'+ink+'" stroke-width="5"/><circle cx="46" cy="51" r="8" fill="'+cream+'" stroke="'+ink+'" stroke-width="3"/><circle cx="76" cy="51" r="8" fill="'+cream+'" stroke="'+ink+'" stroke-width="3"/><path d="m58 59 6 0-3 9Z" fill="#df8c5e" stroke="'+ink+'" stroke-width="2"/>','<circle cx="46" cy="51" r="3" fill="'+ink+'"/><circle cx="76" cy="51" r="3" fill="'+ink+'"/>')}`,
     boss:`<path d="M16 49 5 24 30 34 41 8 56 23 78 9 87 34 111 25 102 59" fill="#8a9abd" stroke="${ink}" stroke-width="5" stroke-linejoin="round"/>${body('#758fb0','<path d="M36 39Q58 17 83 38" stroke="'+cream+'" stroke-width="6" fill="none"/><path d="M47 66q13 12 28 0" fill="none" stroke="'+ink+'" stroke-width="4"/><path d="m51 70 5 9 5-8 6 8 5-9" fill="'+cream+'"/>')}`
   };
-  // Temporary distinct vector portraits until the teacher-inspired PNGs are approved.
-  // These are only used for Dungeon 2 bosses; Dungeon 1's portrait mappings stay intact.
-  const stationBossSketches={
-    'LOST & FOUND NAKAJIMA':`<path d="M88 17h25v73H88z" fill="#a9bdad" stroke="${ink}" stroke-width="4"/><path d="M91 35h18M91 54h18M91 73h18" stroke="${ink}" stroke-width="3"/><path d="M96 29q7-9 11 0l-2 6h-7zM98 48l9-3 1 7-9 3z" fill="#f2c978" stroke="${ink}" stroke-width="2"/><path d="M30 63q-15 9-11 26h64q1-22-16-26" fill="#547b88" stroke="${ink}" stroke-width="4"/><ellipse cx="51" cy="46" rx="25" ry="28" fill="#f9dfb5" stroke="${ink}" stroke-width="4"/><path d="M23 27h57l-9-17H33z" fill="#416474" stroke="${ink}" stroke-width="4"/><path d="M31 26h42" stroke="#f2cc77" stroke-width="5"/><circle cx="42" cy="45" r="3" fill="${ink}"/><circle cx="61" cy="45" r="3" fill="${ink}"/><path d="M37 57q14 16 29-1" fill="none" stroke="${ink}" stroke-width="3" stroke-linecap="round"/><path d="M17 8q-6 9 1 15M90 7q7 9-1 17" fill="none" stroke="#deaa58" stroke-width="4" stroke-linecap="round"/><path d="M14 5v12M86 5v12" stroke="#deaa58" stroke-width="2"/>`,
-    '冷酷検札官REI':`<path d="m37 78-19 20-12-7 21-25M60 79l21 19 14-6-22-25" fill="#314a68" stroke="${ink}" stroke-width="4" stroke-linejoin="round"/><path d="M28 49q-11 7-18 25l10 5 21-14M72 46l23 13-3 16-29-13" fill="#527692" stroke="${ink}" stroke-width="4"/><path d="M31 60q12-14 35-8l15 24-31 10-23-13z" fill="#557d9b" stroke="${ink}" stroke-width="4"/><path d="M36 49q-10-16-4-28 8-16 29-9 17 10 9 28l-15 15z" fill="#efd3ad" stroke="${ink}" stroke-width="4"/><path d="M25 24q8-29 43-18l12 14-52 9z" fill="#2f4d6a" stroke="${ink}" stroke-width="4"/><path d="M27 27h42" stroke="#f4d075" stroke-width="4"/><path d="m32 37 14-2m7 0 13 2" stroke="${ink}" stroke-width="3"/><path d="m42 44 18 1" stroke="${ink}" stroke-width="3"/><path d="m93 59 15-8 6 10-15 8z" fill="#f1ce79" stroke="${ink}" stroke-width="3"/>`,
-    '忘却車掌YOSHI':`<circle cx="98" cy="21" r="17" fill="#f6e8bb" stroke="${ink}" stroke-width="3"/><path d="M98 10v12l-8 6" fill="none" stroke="${ink}" stroke-width="3"/><path d="M37 62q-11 4-13 27h64q-3-24-15-28" fill="#596b83" stroke="${ink}" stroke-width="4"/><path d="m54 58 4 28m3-22 12 22" fill="none" stroke="#f2cb7f" stroke-width="4"/><ellipse cx="53" cy="44" rx="24" ry="26" fill="#f3d8b0" stroke="${ink}" stroke-width="4"/><path d="M30 41q-10-24 7-31l26 1q16 9 13 29l-11-9-31 4z" fill="#e5e3da" stroke="${ink}" stroke-width="3"/><path d="M27 23h51l-10-15H36z" fill="#364e69" stroke="${ink}" stroke-width="4"/><path d="M31 22h44" stroke="#f1c979" stroke-width="4"/><path d="m41 43 7 1m11-1 7-1" stroke="${ink}" stroke-width="3"/><path d="M46 54q8-4 16 0m-15 4q7 5 15-1" stroke="${ink}" fill="none" stroke-width="2.5"/><path d="M20 84h14l-2 15H22z" fill="#d19c6d" stroke="${ink}" stroke-width="3"/>`
-  };
   window.enemyArt=(kind,name)=>{
     const image=characterArt[name];
     if(image)return `<img class="enemy-sprite enemy-art-image transparent" src="${image}" alt="" decoding="async">`;
-    if(stationBossSketches[name])return `<svg class="enemy-sprite" viewBox="0 0 120 110" xmlns="http://www.w3.org/2000/svg" role="presentation" focusable="false" aria-hidden="true">${stationBossSketches[name]}</svg>`;
     return `<svg class="enemy-sprite" viewBox="0 0 120 110" xmlns="http://www.w3.org/2000/svg" role="presentation" focusable="false" aria-hidden="true">${pics[kind]||pics.attacker}</svg>`;
   };
 })();

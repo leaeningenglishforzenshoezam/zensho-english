@@ -17,10 +17,11 @@
   const RETURN_STORY_KEY='goimon_dungeon01_return_after_clear_seen_v2';
   const JOURNAL_SEEN_KEY='goimon_dungeon_journal_seen_v1';
   const DEPARTMENT_ART='images/dungeons/night-department-';
+  const STATION_ART=window.GOIMON_D2_ASSETS?.backgrounds||{};
   // `art` is the destination thumbnail; `departureArt` is the departure scene.
   const DUNGEONS={
     1:{title:'真夜中の百貨店',lead:'英語 → 日本語',art:DEPARTMENT_ART+'exterior.jpg',departureArt:DEPARTMENT_ART+'entrance.jpg',battleArt:[DEPARTMENT_ART+'act1.jpg',DEPARTMENT_ART+'act2.jpg',DEPARTMENT_ART+'act3.jpg'],clearVaultArt:DEPARTMENT_ART+'vault-open.jpg',dawnArt:DEPARTMENT_ART+'dawn.jpg'},
-    2:{title:'帰らずの終着駅',lead:'日本語 → 英語・音声',art:''}
+    2:{title:'帰らずの終着駅',lead:'日本語 → 英語・音声',art:STATION_ART.exterior,departureArt:STATION_ART.concourse,battleArt:[STATION_ART.act1,STATION_ART.act2,STATION_ART.act3],cargoArt:STATION_ART.cargo,gateArt:STATION_ART.gates,dawnArt:STATION_ART.dawn}
   };
   const DUNGEON_PAGE_SIZE=4;
   let dungeonMapPage=0;

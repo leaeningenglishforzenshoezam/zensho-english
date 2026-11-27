@@ -81,9 +81,12 @@ const artContext = {window: {}};
 vm.runInNewContext(artCode, artContext);
 for (const boss of Object.values(context.d2)) {
   const markup = artContext.window.enemyArt(boss.kind, boss.name);
-  assert.match(markup, /<svg/);
+  assert.match(markup, /<img/);
   assert.match(markup, /enemy-sprite/);
 }
+assert.match(artContext.window.enemyArt('boss', context.d2[1].name), /bosses\/nakajima\.png/);
+assert.match(artContext.window.enemyArt('boss', context.d2[2].name), /bosses\/rei\.png/);
+assert.match(artContext.window.enemyArt('boss', context.d2[3].name), /bosses\/yoshi-angry\.png/);
 assert.match(artContext.window.enemyArt('boss', context.d1[3].name), /mika\.webp/);
 
 console.log('Dungeon 2 bosses, distinct portraits, lore and D1 isolation: OK');

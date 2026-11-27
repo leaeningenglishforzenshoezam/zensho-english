@@ -85,7 +85,7 @@ const {chromium}=require('playwright');
       assert.equal(name,bossNames[act-1]);
       assert.equal(await page.locator('#battle').isVisible(),true);
       assert.equal(await page.locator('#bossSpeech').isVisible(),true,'boss opening line is visible');
-      assert.equal(await page.locator('.enemy-portrait svg.enemy-sprite').count(),1,'boss has a distinct temporary portrait');
+      assert.equal(await page.locator('.enemy-portrait img.enemy-art-image').count(),1,'boss has its illustrated PNG portrait');
       assert.equal(await page.locator('.enemy-intent .intent-action').count(),1);
       await page.locator('#battleFx.show').waitFor({state:'hidden'});
       const screenDir=process.env.GOIMON_D2_SCREENSHOT_DIR;
