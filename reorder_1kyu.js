@@ -720,7 +720,7 @@ window.REORDER_1KYU = [
   {
     id: "R1_PASTLIKE_035",
     stemBefore: "We",
-    stemAfter: "before the party.",
+    stemAfter: ".",
     chunks: [
       { id: "c1", text: "the walls" },
       { id: "c2", text: "painted" },
@@ -728,8 +728,8 @@ window.REORDER_1KYU = [
       { id: "c4", text: "green" }
     ],
     answer: ["c3", "c1", "c2", "c4"],
-    completed: "We had the walls painted green before the party.",
-    ja: "私たちはパーティーの前に壁を緑色に塗ってもらいました。",
+    completed: "We had the walls painted green.",
+    ja: "私たちは壁を緑色に塗ってもらいました。",
     grammarTags: ["causative_verb"],//使役動詞
     grammarFocus: [
       " had paintedと並べると、過去完了の形になってしまうが、過去完了はある過去の地点から見てそれよりも前のことを指すときに使う表現なので、今回は使えない。",
