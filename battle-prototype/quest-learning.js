@@ -13,7 +13,7 @@ function record(combat,q,correct,expired,explanation){
  }
 }
 
-function recoveryClaimed(state){return (state.skillRecoveryClaimed||[]).includes(String(state.battleId));}
+function recoveryClaimed(state){return state.combat?.skillRecoveryClaimed ?? (state.skillRecoveryClaimed||[]).includes(String(state.battleId));}
 function recoveryActor(state){return state.combat?.winner==='player'?state.combat.player:state.checkpoint;}
 function recoverySkills(state){
  if(!state?.combat?.ended||state.battleId===0||recoveryClaimed(state))return [];
@@ -25,10 +25,10 @@ function restoreSkill(state,id,save){
  const actor=recoveryActor(state);
  const skill=actor?.skills?.find(s=>s.id===id&&Number.isFinite(s.left)&&Number.isFinite(s.maxUses)&&s.left<s.maxUses);
  if(!skill)throw Error('このSKILLは回復できません。');
- const previous=state.skillRecoveryClaimed;
- state.skillRecoveryClaimed=[...(previous||[]),String(state.battleId)];
+ const previous=state.combat.skillRecoveryClaimed;
+ state.combat.skillRecoveryClaimed=true;
  skill.left++;
- try{save();}catch(e){skill.left--;state.skillRecoveryClaimed=previous;throw e;}
+ try{save();}catch(e){skill.left--;state.combat.skillRecoveryClaimed=previous;throw e;}
  return skill;
 }
 function summary(combat){const log=(combat?.log||[]).filter(x=>typeof x.correct==='boolean');return {total:log.length,correct:log.filter(x=>x.correct).length,misses:combat?.learning?.misses||[],questions:combat?.learning?.questions||[]};}
@@ -118,6 +118,7 @@ function result(parent,combat,{guard=fn=>fn,onContinue,continueLabel='物語の�
  if(onSkillRestore&&recoveryState){
   const section=node('section','',box,'ql-skill-recovery'),claimed=recoveryClaimed(recoveryState),available=recoverySkills(recoveryState);
   node('h3','復習でSKILLを1回回復',section);
+  if(combat.winner==='enemy')node('p','同じ相手でも、負けるたびに復習でSKILLを1回分回復できます。回復した分は再挑戦に引き継ぎます。',section,'ql-note');
   if(claimed)node('p','この戦闘のSKILL回復は受け取り済みです。',section,'ql-note');
   else if(!available.length)node('p','回復できるSKILLはありません（すべて使用回数が満タンです）。',section,'ql-note');
   else if(!earned&&!(s.total>0&&s.correct===s.total)){
@@ -186,6 +187,6 @@ function practice(box,questions,{guard=fn=>fn,onExit,onAnswer}={}){
  }
  render();
 }
-function eligibility(parent){const details=node('details','',parent,'quest-eligibility');node('summary','参加条件と、進化したときのこと',details);node('p','参加できるのは、たまご・幼体・成長体です。',details);node('p','中級体に進化すると、冒険の途中でも参加できなくなります。育成・学習・既読・クリア記録は消えません。',details);node('p','保存箱などから参加できる相棒を選び、章の最初から再挑戦できます。編成の確定までは今の冒険を残します。',details);const a=node('a','育成・保存箱を確認',details);a.href='index.html?panel=goimon&manage=1';return details;}
+function eligibility(parent){const details=node('details','',parent,'quest-eligibility');node('summary','参加条件と、進化したときのこと',details);node('p','たまご・幼体・成長体は初めての冒険に参加できます。',details);node('p','成長体で冒険に参加した相棒は、中級体に進化しても、続きや解放済みの次の章に参加できます。',details);node('p','保存箱などから参加できる相棒を選び、章の最初から再挑戦できます。編成の確定までは今の冒険を残します。',details);const a=node('a','育成・保存箱を確認',details);a.href='index.html?panel=goimon&manage=1';return details;}
 const api={record,summary,result,practice,reviewGroups,eligibility,showChoiceMeanings,choiceKey,nextKey,bindKeys,recoverySkills,recoveryClaimed,restoreSkill};if(typeof module!=='undefined')module.exports=api;else root.GoimonQuestLearning=api;
 })(typeof window!=='undefined'?window:globalThis);

@@ -24,7 +24,7 @@ function extraInterval(player,enemy){
 // Kept as a compatibility hook; old always-on speed damage has been retired.
 function speedBonus(){return 1;}
 function counter(a,b){return round(a.defense*({nagomi:.20,shirabe:.18,q7_special:.12}[a.id]||0)*affinity(a.attr,b.attr));}
-function create(player,enemy,rng=Math.random){enemy.weaken={hits:0,factor:1};return {player,enemy,turn:1,ended:false,winner:null,questions:0,log:[],normalActions:0,extraAttackPending:false,extraInterval:extraInterval(player,enemy),order:player.speed===enemy.speed?(rng()<.5?['player','enemy']:['enemy','player']):player.speed>enemy.speed?['player','enemy']:['enemy','player'],index:0};}
+function create(player,enemy,rng=Math.random){enemy.weaken={hits:0,factor:1};return {player,enemy,turn:1,ended:false,skillRecoveryClaimed:false,winner:null,questions:0,log:[],normalActions:0,extraAttackPending:false,extraInterval:extraInterval(player,enemy),order:player.speed===enemy.speed?(rng()<.5?['player','enemy']:['enemy','player']):player.speed>enemy.speed?['player','enemy']:['enemy','player'],index:0};}
 function current(b){return b.ended?'ended':b.order[b.index];}
 // Quest-only universal emergency aid. This never changes owned inventory, loadouts or cloud balances.
 function ensureFirstAid(player,catalog){
