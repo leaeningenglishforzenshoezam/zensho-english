@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="dungeon-hub.css">
   <link rel="stylesheet" href="dungeon-map.css">
   <link rel="stylesheet" href="department-story.css">
+  <link rel="stylesheet" href="station-story.css">
   <link rel="stylesheet" href="reward-upgrade.css">
   <link rel="stylesheet" href="bestiary.css">
   <link rel="stylesheet" href="run-menu.css">
@@ -152,6 +153,7 @@
       <span class="eyebrow" id="choiceEyebrow">BATTLE CLEARED</span>
       <h2 id="choiceTitle">VICTORY</h2>
       <p id="choiceDescription"></p>
+      <img id="stationEventImage" class="station-event-image" src="" alt="" hidden>
       <div class="choice-cards" id="choiceCards"></div>
       <section id="rewardPreview" class="reward-preview" aria-live="polite" hidden>
         <div class="reward-preview-head"><span id="rewardPreviewRank">SELECTED SKILL</span><strong id="rewardPreviewName"></strong><b id="rewardPreviewAp"></b><button id="rewardPreviewClose" type="button" aria-label="効果を閉じて候補に戻る">×</button></div>
@@ -171,6 +173,7 @@
     <section class="story-scene" role="dialog" aria-modal="true" aria-labelledby="storyTitle">
       <div class="story-art" id="storyArt" aria-hidden="true"></div>
       <div class="story-light" aria-hidden="true"></div>
+      <img class="story-character" id="storyCharacter" alt="" hidden>
       <div class="story-content">
         <span class="story-eyebrow" id="storyEyebrow">THE FIRST NIGHT</span>
         <h2 id="storyTitle">真夜中の百貨店</h2>
@@ -183,7 +186,7 @@
   <div class="hub-overlay" id="journalOverlay" hidden>
     <section class="hub-dialog journal-dialog" role="dialog" aria-modal="true" aria-labelledby="journalTitle">
       <div class="hub-dialog-head"><div><span class="eyebrow">THE MIDNIGHT RECORDS</span><h2 id="journalTitle">夜の記録 <span id="journalCount">0 / 4</span></h2></div><button id="journalClose" type="button" aria-label="夜の記録を閉じる">×</button></div>
-      <p class="journal-intro">百貨店で見つかる4つの記録。挑戦と踏破を重ねると、止まった時計の秘密が少しずつ明らかになります。</p>
+      <p class="journal-intro" id="journalIntro">百貨店で見つかる4つの記録。挑戦と踏破を重ねると、止まった時計の秘密が少しずつ明らかになります。</p>
       <div class="journal-list" id="journalEntries"></div>
     </section>
   </div>

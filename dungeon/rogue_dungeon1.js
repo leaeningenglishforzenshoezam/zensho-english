@@ -18,6 +18,8 @@
   const JOURNAL_SEEN_KEY='goimon_dungeon_journal_seen_v1';
   const DEPARTMENT_ART='images/dungeons/night-department-';
   const STATION_ART=window.GOIMON_D2_ASSETS?.backgrounds||{};
+  const STATION_EVENTS=window.GOIMON_D2_ASSETS?.events||{};
+  const STATION_BOSSES=window.GOIMON_D2_ASSETS?.bosses||{};
   // `art` is the destination thumbnail; `departureArt` is the departure scene.
   const DUNGEONS={
     1:{title:'真夜中の百貨店',lead:'英語 → 日本語',art:DEPARTMENT_ART+'exterior.jpg',departureArt:DEPARTMENT_ART+'entrance.jpg',battleArt:[DEPARTMENT_ART+'act1.jpg',DEPARTMENT_ART+'act2.jpg',DEPARTMENT_ART+'act3.jpg'],clearVaultArt:DEPARTMENT_ART+'vault-open.jpg',dawnArt:DEPARTMENT_ART+'dawn.jpg'},
@@ -42,7 +44,7 @@
   const savedSetup=readJson(SETUP_KEY,{});
   function statsFor(dungeon){return runStats[dungeon]||{attempts:0,clears:0,bestDepth:0};}
   function renderRunStats(){const s=statsFor(state.dungeon);$('dungeonAttempts').textContent=s.attempts||0;$('dungeonClears').textContent=s.clears||0;const p=s.bestDepth||0;$('dungeonBest').textContent=p?`ACT ${Math.ceil(p/9)} · ${((p-1)%9)+1}/9`:'―';renderJournalSummary();}
-  function recordRun(event){const d=state.dungeon,s={...statsFor(d)};if(event==='start')s.attempts=(s.attempts||0)+1;if(event==='boss2')s.act2Bosses=(s.act2Bosses||0)+1;if(event==='clear'){s.clears=(s.clears||0)+1;s.clearedCompanions=[...new Set([...(s.clearedCompanions||[]),state.companionId])];}if(event==='depth')s.bestDepth=Math.max(s.bestDepth||0,(state.act-1)*9+state.stage+1);runStats[d]=s;storeJson(RUN_STATS_KEY,runStats);renderRunStats();}
+  function recordRun(event){const d=state.dungeon,s={...statsFor(d)};if(event==='start')s.attempts=(s.attempts||0)+1;if(event==='boss1')s.act1Bosses=(s.act1Bosses||0)+1;if(event==='boss2')s.act2Bosses=(s.act2Bosses||0)+1;if(event==='boss3')s.act3Bosses=(s.act3Bosses||0)+1;if(event==='clear'){s.clears=(s.clears||0)+1;s.clearedCompanions=[...new Set([...(s.clearedCompanions||[]),state.companionId])];}if(event==='depth')s.bestDepth=Math.max(s.bestDepth||0,(state.act-1)*9+state.stage+1);runStats[d]=s;storeJson(RUN_STATS_KEY,runStats);renderRunStats();}
   const BADGES=[
     {id:'firstWin',group:'common',icon:'⚔',name:'はじめの一勝',description:'初めて敵に勝つ'},
     {id:'perfectFight',group:'common',icon:'✦',name:'ノーミス勝利',description:'1戦闘を全問正解で勝つ'},
@@ -240,6 +242,12 @@
     ,ChainReaction:{label:'Chain Reaction',ap:2,format:'q12',dmg:16,scaleRetrieve:9,icon:'✣',type:'attack',rank:'R',plus:{dmg:22,scaleRetrieve:12}}
     ,FinalInvoice:{label:'Final Invoice',ap:3,format:'q12',dmg:34,executeHalf:16,icon:'♛',type:'attack',rank:'SR',plus:{dmg:43,executeHalf:21}}
     ,BadStock:{label:'不良在庫',ap:1,format:'word',exhaustOnCorrect:true,icon:'▣',type:'tactic',rank:'BASIC'}
+    // Dungeon 2 story rewards are earned only from their dedicated ? events.
+    ,LastVerse:{label:'LAST VERSE',ap:1,format:'audio',block:8,lastVerse:true,icon:'♫',type:'guard',rank:'R',eventOnly:true,plus:{block:11}}
+    ,SafePassage:{label:'SAFE PASSAGE',ap:1,format:'jaen',block:10,healIfLow:10,icon:'✦',type:'guard',rank:'R',eventOnly:true,plus:{block:13}}
+    ,AllClear:{label:'ALL CLEAR',ap:1,format:'q9',block:6,nextTurnAp:1,icon:'🔔',type:'guard',rank:'R',eventOnly:true,plus:{block:9}}
+    ,Homebound:{label:'HOMEBOUND',ap:1,format:'jaen',homebound:true,icon:'↶',type:'tactic',rank:'R',eventOnly:true,plus:{homeboundBlock:11}}
+    ,PerfectRecipe:{label:'PERFECT RECIPE',ap:1,format:'audio',heal:10,draw:1,icon:'🍲',type:'heal',rank:'R',eventOnly:true,plus:{heal:13}}
   };
   const COMMON_SKILLS=['Attack','Guard','FirstAid','Burst','Aid','Comfort','Flash','Shock','Cure','Protect','Echo','Shade'];
   const BUILD_FAMILIES={
@@ -327,10 +335,14 @@
     NoReturnStamp:{name:'返品不可の朱印',rank:'R',icon:'🔏',eventOnly:true,file:'GOIMON_No_Return_Stamp_256.png',effect:'各戦闘で敵が最初に得る防御を8減らす'},
     SecurityBell:{name:'防犯ゲートの鈴',rank:'R',icon:'🔔',eventOnly:true,file:'GOIMON_Security_Bell_256.png',effect:'敵のHP回復量を半減（1回あたり最大8減少）'},
     VanishingFloorMap:{name:'消えたフロア案内図',rank:'R',icon:'🗺',eventOnly:true,file:'GOIMON_Vanishing_Floor_Map_256.png',effect:'各ACT1回、未訪問の非戦闘マスを別の種類へランダム変更'},
-    FinalSettlementSeal:{name:'最後の精算印',rank:'SR',icon:'♥',eventOnly:true,file:'GOIMON_Final_Settlement_Seal_256.png',effect:'敗北するダメージを一度だけHP1で耐える（挑戦中1回）'}
+    FinalSettlementSeal:{name:'最後の精算印',rank:'SR',icon:'♥',eventOnly:true,file:'GOIMON_Final_Settlement_Seal_256.png',effect:'敗北するダメージを一度だけHP1で耐える（挑戦中1回）'},
+    TomorrowClaimSlip:{name:'明日の引取札',rank:'R',icon:'☂',eventOnly:true,effect:'各戦闘の2ターン目開始時に防御＋7'},
+    UndeliveredReply:{name:'届かなかった返事',rank:'R',icon:'✉',eventOnly:true,effect:'各戦闘1回、HP半分以下でターンを終えたら次ターンHP＋8'},
+    ClosingTicketHole:{name:'塞がる切符穴',rank:'SR',icon:'🎟',eventOnly:true,effect:'各戦闘1回、最初に正解して使った特殊SKILLを山札の一番上に戻す'}
   };
   function artifactPicture(id){
     const item=artifacts[id];if(!item)return '';
+    if(!item.file&&item.eventOnly&&state.dungeon===2)return `<span class="artifact-symbol station-artifact-icon" aria-hidden="true">${item.icon}</span>`;
     const file=item.file||(id==='FIFOBox'?'GOIMON_FIFO_Box_v2_256.png':`GOIMON_${item.name.replace(/\s+/g,'_')}_256.png`);
     return `<img class="artifact-symbol artifact-image" src="images/artifacts/${file}" width="64" height="64" alt="" decoding="async">`;
   }
@@ -434,7 +446,8 @@
     battleWrongQuestions:[],runWrongQuestions:[],battleReviewUsed:false,battleReviewRevived:false,reviewIndex:0,turnDamage:0,turnGuardGained:0,lastBattleArtifact:null,
     sealed:[],growUses:0,discardedTurn:0,recoveredTurn:0,correctFormats:[],turnUsedNames:[],replayUsed:false,freeReplayCard:null,cardSelection:null,chainApGained:0,momentumActive:false,momentumAttackCount:0,reserveAp:0,reserveUsed:false,
     carryAll:false,encourageHeal:0,encourageCount:0,nextGuardBlock:0,attackGuardCap:0,nextAttackApCut:0,marginCallUsed:false,attackSkillCount:0,
-    artifactAttacks:0,artifactCardUses:0,artifactDraws:0,artifactCorrectStreak:0,artifactUniqueCards:[],artifactNextGuard:0,artifactCompound:0,artifactDiscountUsed:false,artifactFreeShopUsed:false,artifactActUpgrades:[],artifactMapUsedActs:[],mapEditMode:false,delayedRetryCard:null,finalSettlementUsed:false};
+    artifactAttacks:0,artifactCardUses:0,artifactDraws:0,artifactCorrectStreak:0,artifactUniqueCards:[],artifactNextGuard:0,artifactCompound:0,artifactDiscountUsed:false,artifactFreeShopUsed:false,artifactActUpgrades:[],artifactMapUsedActs:[],mapEditMode:false,delayedRetryCard:null,finalSettlementUsed:false,
+    stationTransferPoints:0,stationLastSkillType:null,stationReserved:[],stationNextTurnAp:0};
   const TYPE_LABELS={nagomi:'なごみ',hirameki:'ひらめき',tsumugi:'つむぎ',yomitoki:'よみとき',shirabe:'しらべ',hibiki:'ひびき',kotonoha:'ことのは'};
   const TYPE_EFFECTS={nagomi:'防御カード正解でHP＋2（1ターン1回）',hirameki:'毎戦闘最初の攻撃スキルのAP−1',tsumugi:'1ターンに異なる2種類を正解すると防御＋5',yomitoki:'大問9正解で次の攻撃は防御を5無視',shirabe:'単語正解で次の攻撃＋3',hibiki:'アクセント正解で次の攻撃＋4',kotonoha:'大問11正解で防御＋6'};
   const TYPE_BOOST_EFFECTS={nagomi:'防御カード正解でHP＋4（1ターン1回）',hirameki:'毎戦闘最初の攻撃スキルのAP−2',tsumugi:'1ターンに異なる2種類を正解すると防御＋8',yomitoki:'大問9正解で次の攻撃は防御を8無視',shirabe:'単語正解で次の攻撃＋5',hibiki:'アクセント正解で次の攻撃＋6',kotonoha:'大問11正解で防御＋9'};
@@ -458,7 +471,7 @@
   };
   function saveCheckpoint(){
     if(state.phase==='intro'||state.choiceMode==='complete')return;
-    const keys=['battleStartHp','missionOwner','missionRecorded','phase','examGrade','dungeon','act','actFight','stage','route','routeEdges','routePath','currentEncounter','encounterWordRange','wordQueue','loadout','companionId','selectedCarrySkills','type','hp','maxHp','owned','coins','artifacts','basicAttack','basicGuard','typeBoost','specialBoosts','questions','correct','fight','seenWords','wrongWords','ap','apTotal','block','guardPriceCut','carry','carryOver','carryAll','buff','nextPlus','turn','hand','handDiscounts','deck','used','enemies','selected','commandUsed','shieldPierce','shopStock','shopRemoveIndex','removeOrigin','choiceMode','choiceOffer','eliteArtifactOffer','eventHistory','choiceEvent','choiceSpecialOptions','specialSkillOffer','upgradeFromEvent','upgradeSource','battleWrongQuestions','runWrongQuestions','battleReviewUsed','battleReviewRevived','turnDamage','turnGuardGained','lastBattleArtifact','sealed','growUses','discardedTurn','recoveredTurn','correctFormats','turnUsedNames','replayUsed','freeReplayCard','chainApGained','momentumActive','momentumAttackCount','reserveAp','reserveUsed','encourageHeal','encourageCount','nextGuardBlock','attackGuardCap','nextAttackApCut','marginCallUsed','attackSkillCount','artifactAttacks','artifactCardUses','artifactDraws','artifactCorrectStreak','artifactUniqueCards','artifactNextGuard','artifactCompound','artifactDiscountUsed','artifactFreeShopUsed','artifactActUpgrades','artifactMapUsedActs','delayedRetryCard','finalSettlementUsed'];
+    const keys=['battleStartHp','missionOwner','missionRecorded','phase','examGrade','dungeon','act','actFight','stage','route','routeEdges','routePath','currentEncounter','encounterWordRange','wordQueue','loadout','companionId','selectedCarrySkills','type','hp','maxHp','owned','coins','artifacts','basicAttack','basicGuard','typeBoost','specialBoosts','questions','correct','fight','seenWords','wrongWords','ap','apTotal','block','guardPriceCut','carry','carryOver','carryAll','buff','nextPlus','turn','hand','handDiscounts','deck','used','enemies','selected','commandUsed','shieldPierce','shopStock','shopRemoveIndex','removeOrigin','choiceMode','choiceOffer','eliteArtifactOffer','eventHistory','choiceEvent','choiceSpecialOptions','specialSkillOffer','upgradeFromEvent','upgradeSource','battleWrongQuestions','runWrongQuestions','battleReviewUsed','battleReviewRevived','turnDamage','turnGuardGained','lastBattleArtifact','sealed','growUses','discardedTurn','recoveredTurn','correctFormats','turnUsedNames','replayUsed','freeReplayCard','chainApGained','momentumActive','momentumAttackCount','reserveAp','reserveUsed','encourageHeal','encourageCount','nextGuardBlock','attackGuardCap','nextAttackApCut','marginCallUsed','attackSkillCount','artifactAttacks','artifactCardUses','artifactDraws','artifactCorrectStreak','artifactUniqueCards','artifactNextGuard','artifactCompound','artifactDiscountUsed','artifactFreeShopUsed','artifactActUpgrades','artifactMapUsedActs','delayedRetryCard','finalSettlementUsed','stationTransferPoints','stationLastSkillType','stationReserved','stationNextTurnAp'];
     const data=Object.fromEntries(keys.map(k=>[k,state[k]]));
     for(const key of ['artifactTurnUses','artifactBattleUses','typeTurnUses','typeBattleUses','typeCorrectNames'])data[key]=[...state[key]];
     data.version=2;
@@ -506,6 +519,7 @@
     state.apTotal=Math.max(3,state.ap,Number(state.apTotal)||0);
     for(const key of ['artifactAttacks','artifactCardUses','artifactDraws','artifactCorrectStreak','artifactNextGuard','artifactCompound'])state[key]=state[key]||0;
     state.artifactUniqueCards=state.artifactUniqueCards||[];state.artifactActUpgrades=state.artifactActUpgrades||[];state.artifactMapUsedActs=state.artifactMapUsedActs||[];state.mapEditMode=false;state.delayedRetryCard=state.delayedRetryCard||null;state.finalSettlementUsed=!!state.finalSettlementUsed;state.artifactDiscountUsed=!!state.artifactDiscountUsed;state.artifactFreeShopUsed=!!state.artifactFreeShopUsed;
+    state.stationTransferPoints=state.stationTransferPoints||0;state.stationLastSkillType=state.stationLastSkillType||null;state.stationReserved=state.stationReserved||[];state.stationNextTurnAp=state.stationNextTurnAp||0;
     state.dungeon=state.dungeon===2?2:1;renderDungeonPicker();renderSelectedCompanion();renderLoadouts();state.pending=null;state.question=null;state.notice='';$('questionModal').hidden=true;$('reviewModal').hidden=true;
     if(data.phase==='battle'){setScreen('battle');renderBattle();}
     else if(data.phase==='choice')showChoice(data.choiceMode);
@@ -566,6 +580,10 @@
     if(s.bonusBlockPerEnemy)out.push(`生存する敵1体につき防御＋${s.bonusBlockPerEnemy}`);
     if(s.drawIfGuard)out.push(`使用後に防御${s.drawIfGuard}以上なら1枚ドロー`);
     if(s.healIfGuard)out.push(`使用後に防御${s.healIfGuard}以上ならHP＋5`);
+    if(s.lastVerse)out.push('乗継ポイント2以上なら1枚ドロー');
+    if(s.healIfLow)out.push(`HP半分以下ならHP＋${s.healIfLow}`);
+    if(s.nextTurnAp)out.push(`次ターンのAP＋${s.nextTurnAp}`);
+    if(s.homebound)out.push(`指定席カードをAP−1で回収（なければ防御＋${s.homeboundBlock||8}）`);
     return out.join(' ＋ ');
   };
   // Hand cards intentionally use short labels. The question panel shows the full effect.
@@ -613,6 +631,10 @@
     if(s.scaleTurn)parts.push(`経過ターン数×${s.scaleTurn}ダメージ`);
     if(s.perPriorAttackDmg)parts.push(`先に成功した攻撃1回につき+${s.perPriorAttackDmg}ダメージ（最大3回）`);
     if(s.perPriorAttackBlock)parts.push(`先に成功した攻撃1回につき防御 +${s.perPriorAttackBlock}（最大3回）`);
+    if(s.lastVerse)parts.push('乗継2以上で1枚ドロー');
+    if(s.healIfLow)parts.push(`HP半分以下でHP＋${s.healIfLow}`);
+    if(s.nextTurnAp)parts.push(`次ターンAP＋${s.nextTurnAp}`);
+    if(s.homebound)parts.push(`指定席回収・なければ防御＋${s.homeboundBlock||8}`);
     return parts.join(' · ');
   };
   let deckFilter='all';
@@ -902,6 +924,8 @@
       $('storyEyebrow').textContent=frame.eyebrow||'GOIMON DUNGEON';
       $('storyTitle').textContent=frame.title;
       $('storyText').innerHTML=frame.lines.map(line=>`<p>${escapeHtml(line)}</p>`).join('');
+      const character=$('storyCharacter');
+      if(character){character.hidden=!frame.character;if(frame.character){character.src=frame.character;character.alt=frame.characterAlt||'駅で出会った人物';}}
       $('storyContinue').textContent=frame.button||(run.index===frames.length-1?'閉じる':'次へ');
       const pet=$('storyCompanion'),companion=selectedCompanion();
       pet.hidden=!frame.companion||!companion?.image;
@@ -995,6 +1019,57 @@
       '「お待ちしておりました。どうしても、とおっしゃるなら……決算を始めましょう」'
     ],button:'決戦へ進む',tapToAdvance:true}]);
   }
+  function showStationEntry(){
+    playStory([
+      {moment:'prologue',image:STATION_ART.cargo,eyebrow:'MIDNIGHT RECORD 05',title:'扉の先の旧駅',lines:[
+        '百貨店の地下倉庫で見つけた鍵が、錆びた貨物搬入口を開けた。',
+        '階段の下から、誰も乗っていないはずの列車の音がする。',
+        '「お忘れ物のお引き取りですね」――引換票を握る手に、冷たい風が触れた。'
+      ],button:'次へ',tapToAdvance:true},
+      {moment:'prologue',image:STATION_ART.concourse,eyebrow:'THE LAST STATION',title:'帰らずの終着駅',lines:[
+        '大時計は午前0時。古い改札も売店も、今夜だけは灯っている。',
+        '忘れられた品物を返すために、この駅は何度も同じ夜を繰り返しているらしい。'
+      ],button:'駅へ進む',tapToAdvance:true}
+    ]);
+  }
+  function showStationActInterlude(act){
+    if(act===1)playStory([{moment:'station-character',image:STATION_ART.act1,character:STATION_BOSSES.nakajima?.human,characterAlt:'寂しそうなNAKAJIMA',eyebrow:'ACT 1 CLEAR',title:'返しそびれた忘れ物',lines:[
+      '鍵と傘の束が静まる。NAKAJIMAは、保管番号のない小さな袋を抱えていた。',
+      '「みんな、迎えに来るって言ってたんです。だから一つも捨てられなくて……」',
+      '彼が差し出した写真には、駅員と百貨店の従業員、そして満面の笑顔の老車掌が写っていた。'
+    ],button:'ホームへ進む',tapToAdvance:true}]);
+    else if(act===2)playStory([{moment:'station-character',image:STATION_ART.act2,character:STATION_BOSSES.rei?.human,characterAlt:'落ち着いた表情のREI',eyebrow:'ACT 2 CLEAR',title:'切符の行先',lines:[
+      'REIが検札鋏をおろす。切り取ったはずの切符の穴は、また塞がっていた。',
+      '「通した人が帰れなかったら、私の仕事は終わらないと思っていました」',
+      '「でも、帰るためには……ここを出発しないといけないんですね」'
+    ],button:'最終列車へ',tapToAdvance:true}]);
+  }
+  function showStationBossOmen(){
+    playStory([{moment:'station-character',image:STATION_ART.act3,character:STATION_BOSSES.yoshi?.battle,characterAlt:'異形の忘却車掌YOSHI',eyebrow:'ACT 3 · FINAL TRAIN',title:'忘却車掌 YOSHI',lines:[
+      '動き出すはずの列車が、午前0時のベルで止まる。',
+      '「じゃかあしい！ 客が帰りきるまでは、わしは発車させん！」',
+      '怒りの向こうで、誰かの帰りを待ち続けた老車掌の声が震えていた。'
+    ],button:'最後の検札へ',tapToAdvance:true}]);
+  }
+  function showStationDawnSequence(){
+    playStory([
+      {moment:'station-character',image:STATION_ART.act3,character:STATION_BOSSES.yoshi?.human,characterAlt:'満面の笑顔の老車掌YOSHI',eyebrow:'THE FINAL DEPARTURE',title:'かんぺち！',lines:[
+        '怒りの影が消え、老車掌YOSHIは、写真と同じ満面の笑顔に戻った。',
+        '「かんぺち！ これでみんな、ちゃんと帰れるわい」',
+        '「お忘れ物は……ひとり残らず、帰る場所のことじゃったんだな」'
+      ],button:'次へ',tapToAdvance:true},
+      {moment:'dawn',image:STATION_ART.dawn,eyebrow:'THE FIRST MORNING',title:'最終列車は、朝へ',lines:[
+        '一度も出発できなかった列車が、初めて午前0時を越えた。',
+        '駅に積もっていた「帰れない人」の記憶が、一つずつ光になってほどけていく。',
+        '百貨店が繰り返していた夜も、ようやく終わる。'
+      ],button:'次へ',tapToAdvance:true},
+      {moment:'complete',image:STATION_ART.dawn,eyebrow:'DUNGEON 2 · CLEAR',title:'帰るべき場所へ',lines:[
+        '引換票を握ったまま、相棒と朝の空を見上げる。',
+        '閉店した百貨店と旧駅をつないでいた約束は、ここで果たされた。',
+        '帰らずの終着駅に、もう「帰れない客」はいない。'
+      ],button:'結果を見る',companion:true,tapToAdvance:true}
+    ]);
+  }
   function showDawnSequence(){const d=DUNGEONS[1];
     const clears=statsFor(1).clears;
     const vault=d.clearVaultArt||d.battleArt[2];
@@ -1056,7 +1131,20 @@
     {id:'cargo-gate',number:'04',title:'開いた貨物搬入口',condition:'百貨店を2回クリアする',unlocked:s=>(s.clears||0)>=2,
       image:DEPARTMENT_ART+'act2.jpg',leadLines:['二度目の金庫で手に入れた鍵は、非常シャッターの鍵ではなかった。','「旧駅貨物搬入口」の札がついている。'],lines:['地下倉庫へ戻り、錆びた鉄扉を開けた。','奥から聞こえてきたのは、列車の汽笛と誰かの声。','「お忘れ物のお引き取りですね」','扉の先は、ダンジョン2「帰らずの終着駅」へ続く。']}
   ];
-  const dungeonJournal=()=>state.dungeon===1?JOURNAL:[];
+  // The numbering continues the four department-store records. In 06 the name YOSHI is still unknown.
+  const STATION_JOURNAL=[
+    {id:'station-entry',number:'05',title:'扉の先の旧駅',condition:'ダンジョン2に初めて入る',unlocked:s=>(s.attempts||0)>=1,
+      image:STATION_ART.cargo,leadLines:['旧駅貨物搬入口の鍵は、錆びた扉を開けた。','百貨店で見つけた引換票が、駅の改札の前で温かくなる。'],lines:['今は廃止されたはずの駅に、夜中だけ明かりが灯っている。','大時計は午前0時から進まない。','この場所は、百貨店の「お忘れ物」を引き受けていたのかもしれない。']},
+    {id:'station-photo',number:'06',title:'最後の日の記念写真',condition:'ダンジョン2のACT1ボスを倒す',unlocked:s=>(s.act1Bosses||0)>=1,
+      image:STATION_EVENTS.lastDayPhoto,leadLines:['忘れ物保管所の奥に、一枚の古い記念写真がしまわれていた。','写真を指でなぞると、あの日の笑い声が聞こえた気がした。'],lines:['駅員、百貨店の従業員、満面の笑顔の老車掌。','そして、写真の端には幼い頃の自分も写っていた。','あの日、この駅で何を忘れたのだろう。']},
+    {id:'station-punch',number:'07',title:'戻ってくる切符',condition:'ダンジョン2のACT2ボスを倒す',unlocked:s=>(s.act2Bosses||0)>=1,
+      image:STATION_EVENTS.uncuttableTicket,leadLines:['REIが一度は切ったはずの切符を差し出す。','小さな穴は、見る間に元どおりになった。'],lines:['「検札を終えても、列車は同じホームへ戻るんです」','帰れない誰かがいる限り、切符は使用済みになれない。','出発させなければ、誰も家に帰れない。']},
+    {id:'station-midnight',number:'08',title:'忘却車掌の約束',condition:'ダンジョン2のACT3ボスを倒す',unlocked:s=>(s.act3Bosses||0)>=1,
+      image:STATION_EVENTS.closureRecords,leadLines:['駅の廃止と百貨店の閉店が、同じ日に決まっていた。','車掌YOSHIは、置き去りになる客のために時計を戻し続けた。'],lines:['「じゃかあしい！ まだ帰れん客がおるんじゃ！」','閉店を終わらせられなかったのは、約束を守りたかったから。','MIKAは、それが永遠の閉じ込めになると知っていた。']},
+    {id:'station-morning',number:'09',title:'最終列車の朝',condition:'ダンジョン2をクリアする',unlocked:s=>(s.clears||0)>=1,
+      image:STATION_ART.dawn,leadLines:['終着を忘れた列車が、ようやく夜明けへ走り出した。','老車掌の笑顔が、最後にホームの向こうへ消える。'],lines:['「かんぺち！ これでようやく、みんな帰れるわい」','お忘れ物引換票の預かり品は、帰れずにいた人たちの記憶だった。','百貨店のシャッターも、今度こそ静かに閉じた。']}
+  ];
+  const dungeonJournal=()=>state.dungeon===1?JOURNAL:STATION_JOURNAL;
   function journalUnlocked(){const stats=statsFor(state.dungeon);return dungeonJournal().filter(entry=>entry.unlocked(stats));}
   function renderJournalSummary(){const unlocked=journalUnlocked();const total=dungeonJournal().length;
     const summary=$('journalSummary');if(summary)summary.textContent=`${unlocked.length}/${total}`;
@@ -1064,6 +1152,9 @@
   }
   function showJournal(){const unlocked=journalUnlocked(),stats=statsFor(state.dungeon);
     $('journalCount').textContent=`${unlocked.length} / ${dungeonJournal().length}`;
+    if($('journalIntro'))$('journalIntro').textContent=state.dungeon===2
+      ?'旧駅で見つかる5つの記録。ACTを越えるごとに、帰れなかった人たちの約束が明らかになります。'
+      :'百貨店で見つかる4つの記録。挑戦と踏破を重ねると、止まった時計の秘密が少しずつ明らかになります。';
     $('journalEntries').innerHTML=dungeonJournal().map(entry=>{const ready=entry.unlocked(stats),newItem=ready&&!journalSeen.has(entry.id);
       return `<button type="button" class="journal-entry ${ready?'unlocked':'locked'} ${newItem?'unread':''}" data-journal="${entry.id}" ${ready?'':'disabled'}><span class="journal-entry-number">${entry.number}</span><span class="journal-entry-main"><strong>${escapeHtml(ready?entry.title:'？？？？？？')}</strong><small>${escapeHtml(ready?'記録を読む':entry.condition)}</small></span><span class="journal-entry-badge">${newItem?'NEW':ready?'読む':'LOCK'}</span></button>`;
     }).join('')||'<p>このダンジョンには、まだ夜の記録がありません。</p>';
@@ -1191,13 +1282,15 @@
     });
     startBattle();
     if(state.dungeon===1&&kind==='boss'&&state.act===3)showFinalBossOmen();
+    if(state.dungeon===2&&kind==='boss'&&state.act===3)showStationBossOmen();
   }
   function startAct(){state.stage=0;state.actFight=0;state.mapEditMode=false;const map=makeRoute();state.route=map.route;state.routeEdges=map.edges;state.routePath=[];showRoute();}
   function start(){syncDepartureGrade();refreshCarryInventory();renderLoadouts();refreshCompanions();renderSelectedCompanion();if(!selectedCompanion())return;if(state.dungeon===2&&!stage2Unlocked())return;playSfx('confirm');clearCheckpoint();state.missionOwner=GoimonDungeonMission.owner();state.missionRecorded=false;state.hp=START_HP;state.maxHp=START_HP;state.act=1;state.type=selectedCompanion().type;state.typeBoost=false;state.specialBoosts=[];
     state.owned=[...carryNames()];state.specialSkillOffer=null;state.choiceSpecialOptions=null;state.questions=0;state.correct=0;state.fight=0;state.coins=0;state.artifacts=[];state.artifactActUpgrades=[];state.artifactMapUsedActs=[];state.mapEditMode=false;state.delayedRetryCard=null;state.finalSettlementUsed=false;
-    state.eventHistory=[];state.choiceEvent=null;
+    state.eventHistory=[];state.choiceEvent=null;state.stationTransferPoints=0;state.stationLastSkillType=null;state.stationReserved=[];state.stationNextTurnAp=0;
     recordRun('start');
     state.basicAttack=5;state.basicGuard=3;state.seenWords=[];state.wrongWords=[];state.battleWrongQuestions=[];state.runWrongQuestions=[];state.artifactTurnUses=new Set();state.artifactBattleUses=new Set();state.artifactDiscountUsed=false;state.artifactFreeShopUsed=false;startAct();
+    if(state.dungeon===2&&statsFor(2).attempts===1)showStationEntry();
     if(state.dungeon===1){
       if(!statsFor(1).clears)showUnclearedEntry(statsFor(1).attempts);
       else if(statsFor(1).clears===1&&localStorage.getItem(RETURN_STORY_KEY)!=='1')showReturnNight();
@@ -1291,7 +1384,7 @@
     const seenEnemyKinds=discoveries[state.dungeon];
     for(const enemy of state.enemies){if(bestiaryRoster().some(m=>m.kind===enemy.kind&&m.name===enemy.name))seenEnemyKinds.add(enemy.name);}
     storeJson(bestiaryKey(state.dungeon),[...seenEnemyKinds]);renderBestiarySummary();
-    state.sealed=[];state.growUses=0;state.discardedTurn=0;state.recoveredTurn=0;state.correctFormats=[];state.turnUsedNames=[];state.replayUsed=false;state.freeReplayCard=null;state.chainApGained=0;state.momentumActive=false;state.momentumAttackCount=0;state.reserveAp=0;state.reserveUsed=false;state.cardSelection=null;$('cardPickModal').hidden=true;
+    state.sealed=[];state.growUses=0;state.discardedTurn=0;state.recoveredTurn=0;state.correctFormats=[];state.turnUsedNames=[];state.replayUsed=false;state.freeReplayCard=null;state.chainApGained=0;state.momentumActive=false;state.momentumAttackCount=0;state.reserveAp=0;state.reserveUsed=false;state.stationTransferPoints=0;state.stationLastSkillType=null;state.stationReserved=[];state.stationNextTurnAp=0;state.cardSelection=null;$('cardPickModal').hidden=true;
     state.encourageHeal=0;state.encourageCount=0;state.nextGuardBlock=0;state.attackGuardCap=0;state.nextAttackApCut=0;state.marginCallUsed=false;state.attackSkillCount=0;
     state.artifactAttacks=0;state.artifactCardUses=0;state.artifactDraws=0;state.artifactCorrectStreak=0;state.artifactUniqueCards=[];state.artifactCompound=0;state.artifactNextGuard=0;
     state.artifactTurnUses=new Set();state.artifactBattleUses=new Set();state.typeTurnUses=new Set();state.typeBattleUses=new Set();state.typeCorrectNames=new Set();state.shieldPierce=0;
@@ -1715,7 +1808,16 @@
     const hpBefore=state.enemies.reduce((sum,e)=>sum+e.hp,0),heroBefore=state.hp,blockBefore=state.block;
     const triggered=[];state.breakMessage='';
     state.artifactCardUses++;state.artifactCorrectStreak=success?state.artifactCorrectStreak+1:0;
-    if(success){state.turnUsedNames.push(baseName(name));if(!state.correctFormats.includes(state.question.format))state.correctFormats.push(state.question.format);applyCard(s,name,p.targetId);
+    if(success){state.turnUsedNames.push(baseName(name));if(!state.correctFormats.includes(state.question.format))state.correctFormats.push(state.question.format);
+      if(state.dungeon===2&&s.rank!=='BASIC'){
+        if(state.stationLastSkillType&&state.stationLastSkillType!==s.type)state.stationTransferPoints=Math.min(3,state.stationTransferPoints+1);
+        state.stationLastSkillType=s.type;
+      }
+      applyCard(s,name,p.targetId);
+      if(hasArtifact('ClosingTicketHole')&&!state.artifactBattleUses.has('ClosingTicketHole')&&s.rank!=='BASIC'){
+        const index=state.used.lastIndexOf(name);
+        if(index>=0){state.deck.push(...state.used.splice(index,1));state.artifactBattleUses.add('ClosingTicketHole');triggered.push(artifacts.ClosingTicketHole.name);}
+      }
       if(state.question.format==='q12'&&state.encourageHeal&&state.encourageCount<2){state.hp=Math.min(state.maxHp,state.hp+state.encourageHeal);state.encourageCount++;}
       if(s.exhaustOnCorrect){const idx=state.used.lastIndexOf(name);if(idx>=0){state.sealed.push(...state.used.splice(idx,1));onCardExhausted();}}triggered.push(...applyAnswerArtifacts(s),...applyTypeBoost(s,name));}else if(s.dmg){state.buff=1;state.nextPlus=0;}
     if(success&&hasArtifact('TaxDeduction')&&baseName(name)==='BadStock'){state.hp=Math.min(maxHp(),state.hp+3);}
@@ -1800,6 +1902,10 @@
     if(s.bonusBlockPerEnemy)state.block+=candidates.length*s.bonusBlockPerEnemy;
     if(s.drawIfGuard&&state.block>=s.drawIfGuard)draw(1);
     if(s.healIfGuard&&state.block>=s.healIfGuard)state.hp=Math.min(state.maxHp,state.hp+5);
+    if(s.lastVerse&&state.stationTransferPoints>=2)draw(1);
+    if(s.healIfLow&&state.hp<=state.maxHp/2)state.hp=Math.min(state.maxHp,state.hp+s.healIfLow);
+    if(s.nextTurnAp)state.stationNextTurnAp=Math.min(2,state.stationNextTurnAp+s.nextTurnAp);
+    if(s.homebound){const reserved=state.stationReserved.pop();if(reserved&&state.hand.length<MAX_HAND){state.hand.push(reserved);state.handDiscounts.push(1);}else{if(reserved)state.stationReserved.push(reserved);state.block+=s.homeboundBlock||8;}}
     if(s.grow)state.growUses++;
     if(s.growGain)state.growUses+=s.growGain;
     if(s.momentum){state.momentumActive=true;state.momentumAttackCount=0;}
@@ -1892,6 +1998,10 @@
     if(state.hp<=0){GoimonDungeonMission.recordDefeat(state);playSfx('defeat');showChoice('defeat');return;}
     if(!alive().length){winBattle();return;}
     const bonusAp=Math.min(state.ap,state.reserveAp);const reserveGuard=hasArtifact('ReserveVault')?Math.min(2,state.ap)*2:0;state.turn++;state.apTotal=3+bonusAp;state.ap=Math.max(1,state.apTotal-nextApTax);state.reserveAp=0;state.reserveUsed=false;state.block=state.carryOver+reserveGuard+state.artifactNextGuard;state.guardPriceCut=nextGuardPriceCut;state.artifactNextGuard=0;state.carry=0;state.carryAll=false;state.buff=1;state.nextPlus=0;state.shieldPierce=0;state.commandUsed=false;state.discardedTurn=0;state.recoveredTurn=0;state.correctFormats=[];state.turnUsedNames=[];state.replayUsed=false;state.chainApGained=0;state.momentumActive=false;state.momentumAttackCount=0;state.encourageHeal=0;state.encourageCount=0;state.nextGuardBlock=0;state.attackGuardCap=0;state.nextAttackApCut=0;state.marginCallUsed=false;state.attackSkillCount=0;state.turnDamage=0;state.turnGuardGained=0;state.artifactTurnUses.clear();state.typeTurnUses.clear();state.typeCorrectNames.clear();state.artifactAttacks=0;state.artifactCardUses=0;state.artifactDraws=0;state.artifactCorrectStreak=0;state.artifactUniqueCards=[];state.artifactCompound=0;
+    if(state.stationNextTurnAp){state.apTotal+=state.stationNextTurnAp;state.ap+=state.stationNextTurnAp;state.stationNextTurnAp=0;}
+    state.stationTransferPoints=0;state.stationLastSkillType=null;
+    if(state.turn===2&&hasArtifact('TomorrowClaimSlip'))state.block+=7;
+    if(hasArtifact('UndeliveredReply')&&!state.artifactBattleUses.has('UndeliveredReply')&&state.hp<=state.maxHp/2){state.hp=Math.min(state.maxHp,state.hp+8);state.artifactBattleUses.add('UndeliveredReply');}
     state.battleOpeningDraw=true;draw(5);state.battleOpeningDraw=false;renderBattle();flashNotice(sealActivated?'最後の精算印：HP1で踏みとどまった！':bossEvaded?'全問正解！ 特殊技を完全回避':junkAdded?`不良在庫＋${Math.min(2,junkAdded)}枚`:taken?`HP −${taken}`:total?'防御成功':'敵が行動した');showBattleFx(total>0?'enemy':'guard',sealActivated?'✦ 最後の精算印！':bossEvaded?'✦ 完全回避！':taken?`💥 ${taken}ダメージ！`:total>0?'🛡 防御!':'✦ 敵が行動した');if(total>0)playSfx(taken>0?'hurt':'guard');}
   // Rarity is rolled separately for each of the three offered cards.
   function rewardRank(mode,roll){
@@ -1961,9 +2071,10 @@
     if(state.currentEncounter.nodeType==='boss'){
       awardBadge('actBoss');
       awardBadge(state.dungeon===2?'stage2Boss':'stage1Boss');
-      if(state.dungeon===1&&state.act===2)recordRun('boss2');
-      if(state.act===3){awardBadge(state.dungeon===2?'secondClear':'firstClear');recordRun('clear');clearCheckpoint();showChoice('complete');if(state.dungeon===1)showDawnSequence();}
-      else {showChoice('special');if(state.dungeon===1)showActInterlude(state.act);}
+      if(state.dungeon===2)recordRun('boss'+state.act);
+      else if(state.act===2)recordRun('boss2');
+      if(state.act===3){awardBadge(state.dungeon===2?'secondClear':'firstClear');recordRun('clear');clearCheckpoint();showChoice('complete');if(state.dungeon===1)showDawnSequence();else showStationDawnSequence();}
+      else {showChoice('special');if(state.dungeon===1)showActInterlude(state.act);else showStationActInterlude(state.act);}
       return;
     }
     state.coins+=state.currentEncounter.nodeType==='elite'?25:12;
@@ -2114,12 +2225,47 @@
       ]
     }
   };
+  // Eight fixed illustrated encounters. The contents match the prepared prop-only artwork.
+  const stationEvents={
+    umbrella:{title:'返却されない傘',image:STATION_EVENTS.unclaimedUmbrellas,scene:'忘れ物保管所の棚に、持ち主の来ない傘が並ぶ。札の代わりに、赤い三つの点が打ってある。NAKAJIMAは「明日にはきっと」と同じ傘を毎晩磨いていた。',choices:[
+      {label:'明日の引取札を結び直す',effect:'HP−10 ／ 限定ARTIFACT「明日の引取札」',hp:-10,artifact:'TomorrowClaimSlip'},
+      {label:'濡れた傘を乾かす',effect:'HP＋12',hp:12}
+    ]},
+    song:{title:'途中で止まった歌',image:STATION_EVENTS.unfinishedSong,scene:'忘れ物棚の楽譜は、途中で音符が途切れている。NAKAJIMAが昔、乗客と一緒に歌った曲らしい。空白を見つめると、誰かが最後の一節を待っている気がした。',choices:[
+      {label:'途切れた旋律を歌い継ぐ',effect:'限定SKILL「LAST VERSE」を獲得',skill:'LastVerse'},
+      {label:'今は静かに楽譜を閉じる',effect:'HP＋10',hp:10}
+    ]},
+    postcard:{title:'子どもの絵はがき',image:STATION_EVENTS.childPostcard,scene:'赤い列車がトンネルを抜ける絵はがき。夕陽と、帰る場所を指さすような子どもの線。裏には送り損ねた返事の余白だけが残る。',choices:[
+      {label:'書けなかった返事を届ける',effect:'HP−8 ／ 限定ARTIFACT「届かなかった返事」',hp:-8,artifact:'UndeliveredReply'},
+      {label:'絵をそっと持ち帰る',effect:'COIN＋12',coins:12}
+    ]},
+    childTicket:{title:'古い子ども用切符',image:STATION_EVENTS.childTicket,scene:'ホームの長椅子で、小さな手に収まる古い切符を拾った。かすれた列車の絵がある。乗ったはずの子どもは、改札の外へ出た記録がない。',choices:[
+      {label:'改札を通れるよう道を開く',effect:'限定SKILL「SAFE PASSAGE」を獲得',skill:'SafePassage'},
+      {label:'駅員室へ届ける',effect:'COIN＋15',coins:15}
+    ]},
+    timetable:{title:'午前0時の時刻表',image:STATION_EVENTS.midnightTimetable,scene:'駅時計は午前0時で止まり、時刻表には同じ便が何列も繰り返されている。眼鏡の検札係が指でなぞると、出発済みの印が一つ前へ戻った。',choices:[
+      {label:'「次の発車」を確認する',effect:'限定SKILL「ALL CLEAR」を獲得',skill:'AllClear'},
+      {label:'次の便まで身を休める',effect:'HP＋15',hp:15}
+    ]},
+    punch:{title:'切れない検札鋏',image:STATION_EVENTS.uncuttableTicket,scene:'机に古い検札鋏と切符が置かれている。確かに開けた小さな穴が、青白く光ってふさがった。REIの厳しい検札は、誰かを閉じ込めるためではなかった。',choices:[
+      {label:'切符の穴をもう一度確かめる',effect:'HP−12 ／ 限定ARTIFACT「塞がる切符穴」',hp:-12,artifact:'ClosingTicketHole'},
+      {label:'鋏を元の場所に戻す',effect:'SKILLを1枚＋強化',action:'upgrade'}
+    ]},
+    seat:{title:'誰もいない指定席',image:STATION_EVENTS.emptyReservedSeat,scene:'赤いランプのついた指定席だけ、誰かが座ったようにへこんでいる。座面には白い切符が一枚。行先を確かめると、小さく「帰宅」と記されていた。',choices:[
+      {label:'空席の帰り道を探す',effect:'限定SKILL「HOMEBOUND」を獲得',skill:'Homebound'},
+      {label:'席を空けたまま見送る',effect:'防具を整える ／ 最大HP＋5・HP＋5',maxHp:5,hp:5}
+    ]},
+    meal:{title:'車掌のまかない',image:STATION_EVENTS.conductorMeal,scene:'車掌室の片隅で、クリームシチューが湯気を立てている。窓の外は夕暮れ色なのに、駅時計は午前0時。使い込まれたレシピ帳のそばで「かんぺち！」と嬉しそうな声がした。',choices:[
+      {label:'温かいシチューを分け合う',effect:'HP＋25',hp:25},
+      {label:'レシピを覚えておく',effect:'限定SKILL「PERFECT RECIPE」を獲得',skill:'PerfectRecipe'}
+    ]}
+  };
   function drawMapEvent(){
     // The first visit features seven distinct department-store events.
     // The employee passage is an additional second-visit story event.
     const pool=state.dungeon===1
       ? Object.keys(storeEvents).filter(id=>!storeEvents[id].onlyReturn||statsFor(1).clears>=1)
-      : ['altar','spring','merchant'];
+      : Object.keys(stationEvents);
     let remaining=pool.filter(id=>!state.eventHistory?.includes(id));
     if(!remaining.length){
       const previous=state.eventHistory.at(-1);
@@ -2136,6 +2282,8 @@
     if(option.card&&!basicCount(option.card==='basicAttack'?'Attack':'Guard'))return '対象カードなし';
     if(option.action==='upgrade'&&!state.owned.some(name=>!name.endsWith('+')&&skills[name]?.plus))return '強化できるSKILLなし';
     if(option.action==='skill'&&!eventBroadcastSkill())return 'SKILL候補なし';
+    if(option.skill&&(!canAddSkill(option.skill)||state.owned.some(name=>baseName(name)===option.skill)))return '獲得済み';
+    if(option.artifact&&hasArtifact(option.artifact))return '獲得済み';
     return '';
   }
   function eventSkillOffer(eventId,rank){
@@ -2217,7 +2365,33 @@
       };
     });
   }
+  function renderStationEvent(id){
+    const event=stationEvents[id];if(!event)return;
+    $('choiceEyebrow').textContent='THE LAST STATION · ?';
+    $('choiceTitle').textContent=event.title;
+    $('choiceDescription').textContent=event.scene;
+    const artwork=$('stationEventImage');if(artwork){artwork.src=event.image;artwork.alt=event.title+'の挿絵';artwork.hidden=false;}
+    $('choiceCards').innerHTML=event.choices.map((option,index)=>{
+      const limit=storeEventLimit(option);
+      const item=option.artifact?artifacts[option.artifact]:null;
+      const special=option.skill?skills[option.skill]:null;
+      const detail=special?`${option.effect} · ${effects(special)}`:item?`${option.effect} · ${item.effect}`:option.effect;
+      return `<button type="button" class="choice-action station-event-option" data-station-option="${index}" ${limit?'disabled':''}><strong>${escapeHtml(option.label)}</strong><small>${escapeHtml(detail)}${limit?'（'+limit+'）':''}</small></button>`;
+    }).join('');
+    $('choiceCards').querySelectorAll('[data-station-option]').forEach(button=>button.onclick=()=>{
+      const option=event.choices[Number(button.dataset.stationOption)];
+      if(state.phase!=='choice'||state.choiceEvent!==id||storeEventLimit(option))return;
+      if(option.action==='upgrade'){state.upgradeFromEvent=true;state.upgradeSource='event';showChoice('upgrade');return;}
+      state.coins+=option.coins||0;state.maxHp+=option.maxHp||0;
+      state.hp=Math.min(state.maxHp,state.hp+(option.hp||0));
+      if(option.skill)state.owned.push(option.skill);
+      if(option.artifact)acquireArtifact(option.artifact);
+      playSfx(option.artifact?'artifact':'confirm');advance();
+    });
+  }
   function showChoice(mode){state.choiceMode=mode;upgradeSelectionIndex=null;rewardSelection=null;setScreen('choice');$('choiceScreen').classList?.toggle?.('complete-scene',mode==='complete');$('choiceScreen').classList?.toggle?.('upgrade-scene',mode==='upgrade');$('choiceScreen').classList?.toggle?.('reward-scene',['reward','eliteReward','special'].includes(mode));$('choiceCards').innerHTML='';$('choiceCards').className=mode==='eliteReward'?'choice-cards elite-offers':'choice-cards';$('skipChoice').hidden=false;$('confirmUpgradeBtn').hidden=true;$('confirmRewardBtn').hidden=true;$('confirmRewardBtn').disabled=true;$('rewardPreview').hidden=true;
+    $('choiceScreen').classList?.toggle?.('station-event-scene',mode==='event'&&state.dungeon===2);
+    if($('stationEventImage'))$('stationEventImage').hidden=true;
     if(mode==='special'){
       const preferredRank=rewardRank('bossReward',Math.random());
       const eligible=availableRewardSkills().filter(canAddSkill);
@@ -2275,7 +2449,9 @@
       $('skipChoice').textContent='獲得せずに進む';
     } else if(mode==='event'){
       const event=state.choiceEvent||drawMapEvent();state.choiceEvent=event;$('choiceEyebrow').textContent='UNKNOWN EVENT';
-      if(storeEvents[event]){
+      if(state.dungeon===2&&stationEvents[event]){
+        renderStationEvent(event);
+      } else if(storeEvents[event]){
         renderStoreEvent(event);
       } else if(event==='altar'){
         $('choiceTitle').textContent='不思議な祭壇';$('choiceDescription').textContent='淡く光る祭壇。力を捧げれば、何かが得られるという。';
@@ -2424,7 +2600,7 @@
   function eliteArtifactPicked(id){if(state.choiceMode!=='eliteReward'||!id||id!==state.eliteArtifactOffer)return;playSfx('artifact');acquireArtifact(id);advance();}
   function rewardPicked(name){if(canAddSkill(name))state.owned.push(name);advance();}
   function advance(){state.stage++;state.choiceOffer=null;state.eliteArtifactOffer=null;state.choiceEvent=null;state.choiceSpecialOptions=null;showRoute();}
-  function skipChoice(){if(state.choiceMode==='defeat'||state.choiceMode==='complete'){const wasDungeonOne=state.dungeon===1;clearCheckpoint();setScreen('intro');renderLoadouts();renderDungeonPicker();if(wasDungeonOne)showLatestJournalIfNew();return;}
+  function skipChoice(){if(state.choiceMode==='defeat'||state.choiceMode==='complete'){clearCheckpoint();setScreen('intro');renderLoadouts();renderDungeonPicker();showLatestJournalIfNew();return;}
     if(state.choiceMode==='actReady'){startAct();return;}
     if(state.choiceMode==='removeCard'){showChoice(state.removeOrigin==='camp'?'camp':'shop');return;}
     if(state.choiceMode==='shop'){advance();return;}

@@ -19,6 +19,7 @@ const context = vm.createContext({
   runStats: {},
   RUN_STATS_KEY: 'records',
   DEPARTMENT_ART: 'images/dungeons/night-department-',
+  STATION_ART: {}, STATION_EVENTS: {},
   $: () => ({textContent: ''}),
   storeJson: (key, value) => stored.push([key, JSON.stringify(value)]),
   renderJournalSummary() {}
