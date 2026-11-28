@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b2433">
+  <title>DUNGEON 2 | 画像確認</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    body{margin:0;color:#f5eee0;background:radial-gradient(ellipse at 50% 0%,#29475a,#102c3c 50%,#081924);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif}
+    a{color:#ffdf9b}
+    .wrap{width:min(1220px,calc(100% - 30px));margin:auto;padding:35px 0 65px}
+    header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px}
+    h1{font-size:clamp(24px,4vw,40px);margin:8px 0;line-height:1.3}
+    .eyebrow{letter-spacing:.24em;font-size:12px;font-weight:900;color:#f4bd76}
+    .back{border:1px solid #a18d70;border-radius:12px;padding:11px 15px;text-decoration:none;font-weight:800;background:#183442}
+    .lead{color:#bad0d5;line-height:1.7}
+    section{margin-top:42px}
+    section h2{margin:0 0 5px;font-size:22px;color:#f8d8a4}
+    section p{margin:0 0 16px;color:#b7cdd1;line-height:1.6;font-size:14px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .portrait-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    figure{margin:0;border-radius:15px;overflow:hidden;border:1px solid #64818b;background:#163545;box-shadow:0 14px 32px #061621a0}
+    .image-frame{display:grid;place-items:center;overflow:hidden;aspect-ratio:16/7;background:#152e3b}
+    .image-frame img{display:block;width:100%;height:100%;object-fit:cover}
+    .portrait-grid .image-frame{aspect-ratio:1;background:radial-gradient(ellipse at 50% 55%,#45617b,#1d314a 65%,#0f2332)}
+    .portrait-grid .image-frame img{object-fit:contain}
+    .event-grid .image-frame{aspect-ratio:4/3}
+    figcaption{display:flex;gap:8px;justify-content:space-between;align-items:center;min-height:52px;padding:12px 15px;font-weight:800;font-size:14px}
+    figcaption small{font-size:11px;color:#b0c8ce;flex:none}
+    .note{font-size:13px;color:#abbfc6;line-height:1.7}
+    @media(max-width:730px){.wrap{width:min(100% - 22px,520px);padding-top:20px}.grid,.portrait-grid{grid-template-columns:1fr}.grid{gap:13px}section{margin-top:28px}.image-frame{aspect-ratio:16/8}figcaption{min-height:45px}}
+    @media(min-width:731px) and (max-width:1000px){.portrait-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div><div class="eyebrow">GOIMON DUNGEON 2 · ART ASSETS</div><h1>帰らずの終着駅｜画像確認</h1></div>
+      <a class="back" href="index.html">ゲームへ戻る</a>
+    </header>
+    <p class="lead">工程02の画像配置一覧です。背景８枚・ボス６枚・イベント挿絵10枚。戦闘では各ACTの背景と怪物形態のボスを使用します。</p>
+    <section><h2>背景 · 8枚</h2><p>ダンジョン選択・出発・各ACTの戦闘・物語の転換点に対応します。</p><div id="backgrounds" class="grid"></div></section>
+    <section><h2>ボス · 6枚</h2><p>怪物形態３枚は戦闘画面で使用。もう３枚の人間形態は工程03のイベント・ストーリー用です。</p><div id="bosses" class="grid portrait-grid"></div></section>
+    <section><h2>イベント · 10枚</h2><p>挿絵の原本は確保済み。イベント本文と選択肢への接続は次の工程で行います。</p><div id="events" class="grid event-grid"></div></section>
+    <p class="note">※ 実装画面に合わせて画像を軽量化しています。元のイラストはそのまま保存されています。</p>
+  </main>
+  <script src="dungeon2-assets.js"></script>
+  <script>
+    const assets=window.GOIMON_D2_ASSETS;
+    const lists={
+      backgrounds:[
+        ['exterior','深夜の終着駅','ダンジョン選択'],
+        ['concourse','駅のコンコース','出発シーン'],
+        ['cargo','封鎖された貨物入口','物語'],
+        ['gates','改札口','物語'],
+        ['act1','忘れ物保管室','ACT 1 戦闘'],
+        ['act2','こだまのホーム','ACT 2 戦闘'],
+        ['act3','夜の車両内部','ACT 3 戦闘'],
+        ['dawn','夜明けへ向かう列車','エンディング']
+      ],
+      bosses:[
+        ['nakajima','NAKAJIMA · 怪物形態','ACT 1','battle'],
+        ['nakajima','NAKAJIMA · 素顔','物語用','human'],
+        ['rei','REI · 怪物形態','ACT 2','battle'],
+        ['rei','REI · 素顔','物語用','human'],
+        ['yoshi','YOSHI · 怪物形態','ACT 3','battle'],
+        ['yoshi','YOSHI · 笑顔','物語用','human']
+      ],
+      events:[
+        ['conductorMeal','車掌のまかないシチュー'],
+        ['emptyReservedSeat','へこんだ指定席と白い切符'],
+        ['uncuttableTicket','切れない検札鋏'],
+        ['midnightTimetable','止まった時刻表'],
+        ['childTicket','小さな手が握る古い切符'],
+        ['childPostcard','赤い列車の絵葉書'],
+        ['unfinishedSong','空白の楽譜'],
+        ['unclaimedUmbrellas','同じ印の忘れ傘'],
+        ['closureRecords','終着駅の記録と路線図'],
+        ['lastDayPhoto','終着駅最後の日の写真']
+      ]
+    };
+    for(const [type,entries] of Object.entries(lists)){
+      const container=document.getElementById(type);
+      for(const [key,title,role,variant] of entries){
+        const frame=document.createElement('div');frame.className='image-frame';
+        const img=document.createElement('img');
+        img.loading='lazy';img.alt=title;
+        img.src=type==='bosses'?assets.bosses[key][variant]:assets[type][key];
+        frame.append(img);
+        const caption=document.createElement('figcaption');
+        const label=document.createElement('span');label.textContent=title;
+        caption.append(label);
+        if(role){const roleText=document.createElement('small');roleText.textContent=role;caption.append(roleText);}
+        const figure=document.createElement('figure');figure.append(frame,caption);container.append(figure);
+      }
+    }
+  </script>
+</body>
+</html>

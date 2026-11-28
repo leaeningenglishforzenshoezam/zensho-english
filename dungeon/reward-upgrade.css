@@ -174,5 +174,96 @@
 #choiceScreen.reward-scene #rewardPreviewEffect{font-size:16px;line-height:1.55;margin:8px 0}
 #choiceScreen.reward-scene #rewardPreviewFormat{font-size:14px}
 #rewardPreviewClose{flex:none;width:44px;height:44px;border:1px solid #c4b28a;border-radius:10px;background:#fffaf0;color:#284c52;font-size:24px;cursor:pointer}
-#choiceScreen.reward-scene #choiceCards{align-items:start;gap:10px}
-#choiceScreen.reward-scene #choiceCards>.skill-card{min-height:112px}
+
+/* Reward offers must fit together: compare every choice without scrolling. */
+body:has(#choiceScreen.reward-scene:not([hidden])){height:100dvh;min-height:0;overflow:hidden}
+.game-shell:has(#choiceScreen.reward-scene:not([hidden])){
+  height:100dvh;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  padding-bottom:clamp(6px,1.5dvh,16px);
+}
+.game-shell:has(#choiceScreen.reward-scene:not([hidden])) .topbar{flex:none;margin-bottom:clamp(5px,1.5dvh,14px)}
+#choiceScreen.reward-scene{
+  flex:1 1 auto;
+  width:min(900px,100%);
+  height:auto;
+  max-height:770px;
+  margin:0 auto;
+  padding:clamp(9px,2dvh,22px) clamp(9px,2vw,24px);
+}
+#choiceScreen.reward-scene .choice-illustration{display:none}
+#choiceScreen.reward-scene #choiceCards{
+  display:flex;
+  flex:1 1 auto;
+  min-height:0;
+  flex-wrap:nowrap;
+  align-items:center;
+  align-content:center;
+  justify-content:center;
+  gap:clamp(5px,1vw,12px);
+  overflow:visible;
+  padding:9px 7px 12px;
+}
+#choiceScreen.reward-scene #choiceCards>:is(.skill-card,.artifact-choice,.special-choice,.innovation-reward){
+  box-sizing:border-box;
+  flex:1 1 0;
+  width:0;
+  min-width:0;
+  max-width:190px;
+  height:100%;
+  max-height:226px;
+  min-height:0;
+  padding:9px 6px 7px;
+}
+#choiceScreen.reward-scene #choiceCards>.skill-card .glyph{
+  flex:none;
+  height:clamp(24px,7dvh,43px);
+  margin:4px 0 5px;
+}
+#choiceScreen.reward-scene #choiceCards>.skill-card strong{
+  min-height:0;
+  font-size:clamp(12px,1.25vw,15px);
+  line-height:1.2;
+  overflow-wrap:anywhere;
+}
+#choiceScreen.reward-scene #choiceCards>.skill-card .effect{
+  min-height:0;
+  font-size:clamp(11px,1.05vw,13px);
+  line-height:1.3;
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-line-clamp:4;
+  -webkit-box-orient:vertical;
+}
+#choiceScreen.reward-scene #choiceCards>.skill-card .format{font-size:11px;padding-top:4px}
+#choiceScreen.reward-scene #choiceCards>.artifact-choice{gap:5px}
+#choiceScreen.reward-scene #choiceCards>.artifact-choice .artifact-image{width:clamp(29px,7dvh,52px);height:clamp(29px,7dvh,52px)}
+#choiceScreen.reward-scene #choiceCards>.artifact-choice strong{font-size:clamp(11px,1.2vw,15px);line-height:1.2}
+#choiceScreen.reward-scene #choiceCards>.artifact-choice small{font-size:clamp(10px,1vw,13px);line-height:1.25}
+#choiceScreen.reward-scene #choiceCards>.special-choice{gap:5px}
+#choiceScreen.reward-scene #choiceCards>.special-choice .special-icon{font-size:clamp(20px,6dvh,32px)}
+#choiceScreen.reward-scene #choiceCards>.special-choice small{line-height:1.3;overflow-wrap:anywhere}
+#choiceScreen.reward-scene #choiceCards>.innovation-reward{gap:5px;justify-content:center}
+#choiceScreen.reward-scene #choiceCards>.innovation-reward strong{font-size:clamp(12px,1.35vw,16px);line-height:1.2;overflow-wrap:anywhere}
+#choiceScreen.reward-scene #choiceCards>.innovation-reward small{font-size:clamp(11px,1vw,13px);line-height:1.3}
+#choiceScreen.reward-scene .choice-footer{flex-wrap:nowrap;margin-top:0;padding-top:8px}
+#choiceScreen.reward-scene .choice-footer button{min-height:40px;max-width:100%}
+
+@media (orientation:landscape) and (max-height:650px) and (pointer:coarse){
+  #choiceScreen.reward-scene #choiceCards{gap:5px;padding:5px 4px 8px}
+  #choiceScreen.reward-scene #choiceCards>:is(.skill-card,.artifact-choice,.special-choice,.innovation-reward){max-height:165px;padding:5px 4px 4px}
+  #choiceScreen.reward-scene #choiceCards>.skill-card .glyph{height:clamp(18px,6dvh,29px);margin:2px 0}
+  #choiceScreen.reward-scene #choiceCards>.skill-card strong{font-size:clamp(11px,1.6vw,13px)}
+  #choiceScreen.reward-scene #choiceCards>.skill-card .effect{font-size:clamp(10px,1.4vw,12px);line-height:1.15;-webkit-line-clamp:3}
+  #choiceScreen.reward-scene #choiceCards>.skill-card .format{font-size:10px;padding-top:2px}
+  #choiceScreen.reward-scene #choiceCards>.artifact-choice{gap:3px}
+  #choiceScreen.reward-scene #choiceCards>.artifact-choice .artifact-image{width:clamp(25px,6dvh,37px);height:clamp(25px,6dvh,37px)}
+  #choiceScreen.reward-scene #choiceCards>.artifact-choice small{font-size:10px;line-height:1.15}
+  #choiceScreen.reward-scene #choiceCards>.special-choice{gap:3px}
+  #choiceScreen.reward-scene #choiceCards>.special-choice .special-icon{font-size:21px}
+  #choiceScreen.reward-scene .choice-footer{gap:7px;padding-top:5px}
+  #choiceScreen.reward-scene .choice-footer button{min-height:36px;padding:6px 10px;font-size:12px}
+}

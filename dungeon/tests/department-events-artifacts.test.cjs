@@ -50,7 +50,7 @@ test('seven themed events, second-visit passage, unique rewards, and 60%-off sal
   ], {
     state, Math, random: list => list[0], hasArtifact: id => state.artifacts.includes(id),
     statsFor: () => ({clears}), basicCount: id => state[id === 'Attack' ? 'basicAttack' : 'basicGuard'],
-    availableRewardSkills: () => [], canAddSkill: () => true, skills: {}
+    availableRewardSkills: () => [], canAddSkill: () => true, skills: {}, STATION_EVENTS: {}
   });
   const seven = [];
   for (let i = 0; i < 7; i++) seven.push(run('drawMapEvent()'));
@@ -83,8 +83,9 @@ test('seven themed events, second-visit passage, unique rewards, and 60%-off sal
 
   state.dungeon = 2;
   state.eventHistory = [];
-  const generic = [run('drawMapEvent()'), run('drawMapEvent()'), run('drawMapEvent()')];
-  assert.deepEqual(generic, ['altar', 'spring', 'merchant']);
+  const station = Array.from({length: 8}, () => run('drawMapEvent()'));
+  assert.equal(new Set(station).size, 8);
+  assert.deepEqual(station, ['umbrella','song','postcard','childTicket','timetable','punch','seat','meal']);
 });
 
 test('floor map can change only an unvisited non-combat node, once per ACT', () => {

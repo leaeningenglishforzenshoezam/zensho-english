@@ -1,0 +1,37 @@
+/* Dungeon 2: illustrated unknown events and cast portraits. D1 remains unchanged. */
+#choiceScreen.station-event-scene[hidden]{display:none!important}
+#choiceScreen.station-event-scene{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:clamp(4px,1.1dvh,10px)}
+#choiceScreen.station-event-scene .choice-illustration{display:none}
+#choiceScreen.station-event-scene .eyebrow{letter-spacing:.16em;color:#ac5b64}
+#choiceScreen.station-event-scene h2{margin:0;color:#143e4f}
+#choiceScreen.station-event-scene>p{width:min(770px,100%);max-width:none;margin:0;line-height:1.55;text-wrap:pretty}
+#choiceScreen.station-event-scene .station-event-image{display:block;width:min(580px,100%);height:clamp(112px,27dvh,240px);flex:0 1 auto;min-height:0;object-fit:cover;object-position:center;
+  border-radius:14px;border:2px solid #a99a83;box-shadow:0 5px 0 #2038471e}
+#choiceScreen.station-event-scene .station-event-image[hidden]{display:none!important}
+#choiceScreen.station-event-scene .choice-cards{width:100%;display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(7px,1.1vw,16px);margin:0}
+#choiceScreen.station-event-scene .station-event-option{width:min(340px,45%);min-height:94px;padding:10px 14px;gap:5px;background:#fffefa}
+#choiceScreen.station-event-scene .station-event-option strong{font-size:clamp(13px,1.45vw,19px)}
+#choiceScreen.station-event-scene .station-event-option small{font-size:clamp(11px,.99vw,13px);line-height:1.36}
+#choiceScreen.station-event-scene .station-event-option[disabled]{opacity:.5}
+#choiceScreen.station-event-scene .choice-footer{margin-top:auto}
+.story-character{position:absolute;z-index:2;right:clamp(8px,7%,85px);bottom:0;width:min(34%,360px);height:85%;object-fit:contain;object-position:center bottom;
+  filter:drop-shadow(0 12px 10px #061823bb) drop-shadow(0 0 24px #ddc49f66);pointer-events:none}
+.story-character[hidden]{display:none!important}
+.story-overlay[data-moment="station-character"] .story-content{max-width:60%}
+.story-overlay[data-moment="station-character"] .story-art{background-image:linear-gradient(90deg,#061925f7 0%,#061925d4 42%,#092b3b70 100%),var(--story-image)}
+@media(max-height:650px){
+  #choiceScreen.station-event-scene{gap:4px;padding:6px}
+  #choiceScreen.station-event-scene>p{font-size:clamp(11px,1.75dvh,14px);line-height:1.3}
+  #choiceScreen.station-event-scene .station-event-image{height:clamp(76px,24dvh,165px)}
+  #choiceScreen.station-event-scene .station-event-option{min-height:65px;padding:6px 9px}
+  #choiceScreen.station-event-scene .station-event-option small{font-size:10px;line-height:1.2}
+  .story-character{height:72%}
+}
+@media(max-width:570px) and (orientation:portrait){
+  #choiceScreen.station-event-scene .station-event-image{height:clamp(140px,23dvh,230px)}
+  #choiceScreen.station-event-scene .station-event-option{width:48%;padding:7px}
+  #choiceScreen.station-event-scene .station-event-option strong{font-size:13px}
+  #choiceScreen.station-event-scene .station-event-option small{font-size:10px}
+  .story-character{right:0;width:44%;height:54%;opacity:.8}
+  .story-overlay[data-moment="station-character"] .story-content{top:37%;max-width:89%}
+}

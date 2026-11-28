@@ -22,7 +22,26 @@
     'ランビトクイーン':'images/enemies/randbetween-queen.png',
     '値下げオーガ':'images/enemies/price-breaking-oni.png',
     '等価交換ジョーカー':'images/enemies/equal-exchange-joker.png',
-    '悪徳税理士':'images/enemies/corrupt-tax-accountant.png'
+    '悪徳税理士':'images/enemies/corrupt-tax-accountant.png',
+    // Dungeon 2: station x commerce spirits; same transparent canvas as Dungeon 1.
+    '改札ノッペラ':'images/enemies/d2-kaisatsu-noppera.png',
+    '棚卸百目':'images/enemies/d2-tanaoroshi-hyakume.png',
+    '伝票ヒトダマ':'images/enemies/d2-denpyou-hitodama.png',
+    'ツリセンカラクリ':'images/enemies/d2-tsurisen-karakuri.png',
+    '精算ノロイ':'images/enemies/d2-seisan-noroi.png',
+    '納品バコ':'images/enemies/d2-nouhin-bako.png',
+    'コダマラッパ':'images/enemies/d2-kodama-rappa.png',
+    '終電ドケイ':'images/enemies/d2-shuuden-dokei.png',
+    '泥酔サラリーマン':'images/enemies/d2-elite-doroyoi-salaryman.png',
+    '遅延利息板':'images/enemies/d2-elite-chien-risokuban.png',
+    '切符ギロチン':'images/enemies/d2-elite-kippu-guillotine.png',
+    '忘れ物競売師':'images/enemies/d2-elite-wasuremono-auctioneer.png',
+    '終売キオスク':'images/enemies/d2-elite-shuubai-kiosk.png',
+    'ぶつかりおばさん':'images/enemies/d2-elite-butsukari-obasan.png',
+    // Dungeon 2 ACT bosses: the three illustrated monster forms.
+    'LOST & FOUND NAKAJIMA':'images/bosses/nakajima.png',
+    '冷酷検札官REI':'images/bosses/rei.png',
+    '忘却車掌YOSHI':'images/bosses/yoshi-angry.png'
   };
   const ink='#203c48', cream='#f8edcf', eye='<circle cx="66" cy="43" r="4.4" fill="#203c48"/><circle cx="67.4" cy="41.7" r="1.4" fill="white"/>';
   const body=(color,extras='',face=eye)=>`<ellipse cx="60" cy="80" rx="40" ry="11" fill="#0b2732" opacity=".12"/><path d="M24 69 Q17 39 42 23 Q60 12 83 26 Q106 44 95 73 Q81 91 54 85 Q33 86 24 69Z" fill="${color}" stroke="${ink}" stroke-width="5" stroke-linejoin="round"/>${extras}${face}`;
